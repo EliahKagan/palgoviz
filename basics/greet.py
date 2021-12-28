@@ -1,6 +1,9 @@
 """Hello world example."""
 
 
-def hello(name):
-    """Greet the user.""" 
-    print(f'Hello, {name}!')  # fstring demonstration
+def hello(name, lang='en'):
+    """Greet the user."""
+    if lang == 'en': 
+        print(f'Hello, {name}!')  # fstring demonstration
+    elif lang == 'es':
+        print(f'¡Hola, {name}!')  # fstring demonstration en español
