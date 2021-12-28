@@ -15,9 +15,8 @@ def hello(name, lang='en'):
 
 def run():
     """Run as a script."""
-    print('¿Como se llama usted?')
-    name = input()
-    hello(name, 'es')
+    name = input("¿Como se llama usted? ")
+    hello(name.strip(), 'es')  # strip() drops leading and trailing whitespace.
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
