@@ -1,4 +1,4 @@
-name: algoviz-basics
+name: algoviz-basics-linting
 
 channels:
   - conda-forge
@@ -8,3 +8,7 @@ dependencies:
   - jupyterlab
   - graphviz
   - python-graphviz
+
+  # dev
+  - pycodestyle
+  - pylint
