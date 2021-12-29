@@ -20,9 +20,9 @@ def hello(name, lang='en'):
     """
     match lang:
         case 'en':
-            print(f'Hello, {name}!')  # fstring demonstration    
+            print('Hello, {}!'.format(name))  # .format demonstration
         case 'es':
-            print(f'¡Hola, {name}!')  # fstring demonstration en español
+            print('¡Hola, {}!'.format(name))  # fstring demonstration en español en la manera de "format"
         case _:  
             raise ValueError(f'{lang} is an unrecognized language code.')
 
