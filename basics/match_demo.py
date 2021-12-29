@@ -20,8 +20,14 @@ def echo_num(number):
 
 def run():
     """Run as a script."""
-    number = int(sys.argv[1])
-    echo_num(number)
+    try:
+        number = int(sys.argv[1])
+    except ValueError:
+        print(f'You should pass an integer')    
+    except IndexError: 
+        print('You should pass something, an integer in particular')
+    else:
+        echo_num(number)
 
 
 if __name__ == '__main__':
