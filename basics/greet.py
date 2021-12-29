@@ -16,14 +16,15 @@ def hello(name, lang='en'):
     >>> hello('Eliah','el')
     Traceback (most recent call last):
       ...
-    ValueError: el is an unrecognized language code
+    ValueError: el is an unrecognized language code.
     """
-    if lang == 'en': 
-        print(f'Hello, {name}!')  # fstring demonstration
-    elif lang == 'es':
-        print(f'¡Hola, {name}!')  # fstring demonstration en español
-    else:
-        raise ValueError(f'{lang} is an unrecognized language code')
+    match lang:
+        case 'en':
+            print(f'Hello, {name}!')  # fstring demonstration    
+        case 'es':
+            print(f'¡Hola, {name}!')  # fstring demonstration en español
+        case _:  
+            raise ValueError(f'{lang} is an unrecognized language code.')
 
 
 def run():
