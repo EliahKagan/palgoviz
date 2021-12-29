@@ -2,6 +2,8 @@
 
 """Hello world example."""
 
+FORMATS = {'en': 'Hello, {}!', 'es': '¡Hola, {}!'}
+
 
 def hello(name, lang='en'):
     """
@@ -18,13 +20,10 @@ def hello(name, lang='en'):
       ...
     ValueError: el is an unrecognized language code.
     """
-    match lang:
-        case 'en':
-            print('Hello, {}!'.format(name))  # .format demonstration
-        case 'es':
-            print('¡Hola, {}!'.format(name))  # fstring demonstration en español en la manera de "format"
-        case _:  
-            raise ValueError(f'{lang} is an unrecognized language code.')
+    try:
+        print(FORMATS[lang].format(name))   # dictionary test   
+    except KeyError:
+        raise ValueError(f'{lang} is an unrecognized language code.')
 
 
 def run():
