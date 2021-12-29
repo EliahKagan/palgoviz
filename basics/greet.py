@@ -2,9 +2,14 @@
 
 """Hello world example."""
 
+FORMATS = {
+    'en': 'Hello, {}!',
+    'es': '¡Hola, {}!',
+}
+
 
 def hello(name, lang='en'):
-    r"""
+    """
     Greet the user.
     
     >>> hello('Eliah')
@@ -16,14 +21,12 @@ def hello(name, lang='en'):
     >>> hello('Eliah','el')
     Traceback (most recent call last):
       ...
-    ValueError: el is an unrecognized language code
-    """  # The r in front makes it a raw string literal.
-    if lang == 'en': 
-        print(f'Hello, {name}!')  # fstring demonstration
-    elif lang == 'es':
-        print(f'¡Hola, {name}!')  # fstring demonstration en español
-    else:
-        raise ValueError(f'{lang} is an unrecognized language code')
+    ValueError: el is an unrecognized language code.
+    """
+    try:
+        print(FORMATS[lang].format(name))   # dictionary test   
+    except KeyError:
+        raise ValueError(f'{lang} is an unrecognized language code.')
 
 
 def run():
