@@ -2,7 +2,10 @@
 
 """Hello world example."""
 
-FORMATS = {'en': 'Hello, {}!', 'es': '¡Hola, {}!'}
+FORMATS = {
+    'en': 'Hello, {}!',
+    'es': '¡Hola, {}!',
+}
 
 
 def hello(name, lang='en'):
