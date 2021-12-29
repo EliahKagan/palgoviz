@@ -4,7 +4,7 @@
 
 
 def hello(name, lang='en'):
-    r"""
+    """
     Greet the user.
     
     >>> hello('Eliah')
@@ -17,7 +17,7 @@ def hello(name, lang='en'):
     Traceback (most recent call last):
       ...
     ValueError: el is an unrecognized language code
-    """  # The r in front makes it a raw string literal.
+    """
     if lang == 'en': 
         print(f'Hello, {name}!')  # fstring demonstration
     elif lang == 'es':
