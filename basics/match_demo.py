@@ -28,6 +28,8 @@ def run():
         print('You should pass something, an integer in particular')
     else:
         echo_num(number)
+    finally: 
+        print('Bored now')
 
 
 if __name__ == '__main__':
