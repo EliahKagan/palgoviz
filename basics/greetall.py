@@ -28,4 +28,4 @@ def run():
     return 0 
         
 if __name__ == '__main__':  # If we are running this module as a script.
-    sys.exit(run())
+    sys.exit(run()) # for exit codes in powershell, $LASTEXITCODE
