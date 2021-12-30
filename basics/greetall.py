@@ -19,7 +19,7 @@ def run():
     try:
         name = sys.argv[1]
     except IndexError: 
-        print('Did not pass a filename')
+        print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
         return 1
     with open('names.txt', encoding='utf-8') as file: 
         for line in file:
