@@ -25,6 +25,7 @@ def run():
     for line in file: 
         hello(line.strip())
     file.close()
+    return 0 
         
 if __name__ == '__main__':  # If we are running this module as a script.
     sys.exit(run())
