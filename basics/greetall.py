@@ -21,7 +21,7 @@ def run():
     except IndexError: 
         print('Did not pass a filename')
         return 1
-    with open('names.txt') as file: 
+    with open('names.txt', encoding='utf-8') as file: 
         for line in file:
             hello(line.strip()) 
     return 0 
