@@ -25,8 +25,8 @@ def hello(name, lang='en'):
     """
     try:
         print(FORMATS[lang].format(name))   # dictionary test   
-    except KeyError:
-        raise ValueError(f'{lang} is an unrecognized language code.')
+    except KeyError as error:
+        raise ValueError(f'{lang} is an unrecognized language code.') from error
 
 
 def run():
