@@ -21,12 +21,9 @@ def run():
     except IndexError: 
         print('Did not pass a filename')
         return 1
-    file = open(name)
-    try: 
-        for line in file: 
-            hello(line.strip())
-    finally: 
-        file.close()
+    with open('names.txt') as file: 
+        for line in file:
+            hello(line.strip()) 
     return 0 
         
 if __name__ == '__main__':  # If we are running this module as a script.
