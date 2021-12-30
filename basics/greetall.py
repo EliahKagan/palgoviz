@@ -21,7 +21,7 @@ def run():
     except IndexError: 
         print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
         return 1
-    with open('names.txt', encoding='utf-8') as file: 
+    with open(name, encoding='utf-8') as file: 
         for line in file:
             hello(line.strip()) 
     return 0 
