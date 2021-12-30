@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import sys
-
 """Demonstration of the match...case command."""
+
+import sys
 
 
 def echo_num(number):
