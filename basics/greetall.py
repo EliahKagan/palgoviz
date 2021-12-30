@@ -21,9 +21,12 @@ def run():
     except IndexError: 
         print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
         return 1
-    with open(name, encoding='utf-8') as file: 
-        for line in file:
-            hello(line.strip()) 
+    try:
+        with open(name, encoding='utf-8') as file: 
+            for line in file:
+                hello(line.strip()) 
+    except FileNotFoundError:
+        print(f'ERROR in {sys.argv[0]}: filename not found', file=sys.stderr)
     return 0 
         
 if __name__ == '__main__':  # If we are running this module as a script.
