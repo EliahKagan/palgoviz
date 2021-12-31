@@ -16,11 +16,13 @@ from greet import hello
 
 def run():
     """Run the script."""
-    try:
-        name = sys.argv[1]
-    except IndexError: 
+    if len(sys.argv) < 2 :
         print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
         return 1
+    if len(sys.argv) > 2 :
+        print(f'WARNING in {sys.argv[0]}: Too many arguments, see doctring for usage', file=sys.stderr)
+    name = sys.argv[1]
+    
     try:
         with open(name, encoding='utf-8') as file: 
             for line in file:
