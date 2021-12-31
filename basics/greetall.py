@@ -25,8 +25,9 @@ def run():
         with open(name, encoding='utf-8') as file: 
             for line in file:
                 hello(line.strip()) 
-    except FileNotFoundError:
-        print(f'ERROR in {sys.argv[0]}: filename not found', file=sys.stderr)
+    except OSError as error:
+        print(f'ERROR in {sys.argv[0]}: {error}', file=sys.stderr)
+        return 1
     return 0 
         
 if __name__ == '__main__':  # If we are running this module as a script.
