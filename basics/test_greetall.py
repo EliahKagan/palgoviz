@@ -4,26 +4,30 @@
 
 from typing import Protocol, NamedTuple
 
-from pytest import CaptureFixture, MonkeyPatch, fixture
+import pytest
 
-from greetall import run
+import greetall
 
 
 class Result(NamedTuple):
+    """Data representing the effects of running greetall.run()."""
     status: int
     out: str
     err: str
 
 
-class Invoker(Protocol):
+class Invoker(Protocol):  # pylint: disable=too-few-public-methods
+    """Interface for invokers. See invoke()."""
     def __call__(self, *__args: str) -> Result: ...
 
 
-@fixture
-def invoke(capsys: CaptureFixture, monkeypatch: MonkeyPatch) -> Invoker:
+@pytest.fixture(name='invoke')
+def fixture_invoke(capsys: pytest.CaptureFixture,
+                   monkeypatch: pytest.MonkeyPatch) -> Invoker:
+    """Helper to return a function that automates input and output."""
     def invoker(*args: str) -> Result:
         monkeypatch.setattr('sys.argv', ['PROGNAME', *args])
-        status = run()
+        status = greetall.run()
         outerr = capsys.readouterr()
         return Result(status, outerr.out, outerr.err)
 
