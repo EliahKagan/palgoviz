@@ -1,0 +1,20 @@
+{
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "cSpell.words": [
+        "algoviz",
+        "capsys",
+        "conda",
+        "doctring",
+        "graphviz",
+        "jupyterlab",
+        "mypy",
+        "pycodestyle",
+        "pylint",
+        "pyright",
+        "pytest"
+    ]
+}

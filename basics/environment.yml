@@ -1,14 +1,17 @@
-name: algoviz-basics-linting
+name: algoviz-basics-pytest
 
 channels:
   - conda-forge
 
 dependencies:
   - python=3.10
-  - jupyterlab
   - graphviz
+  - jupyterlab
+  - pytest
   - python-graphviz
 
   # dev
+  - mypy
   - pycodestyle
   - pylint
+  - pyright
