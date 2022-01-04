@@ -2,13 +2,15 @@
 
 """Tests for greetall.py."""
 
-from typing import Protocol, NamedTuple
+from typing import Protocol, NamedTuple, runtime_checkable
 
 import pytest
+from typeguard import typechecked
 
 import greetall
 
 
+@typechecked
 class Result(NamedTuple):
     """Data representing the effects of running greetall.run()."""
     status: int
@@ -16,12 +18,14 @@ class Result(NamedTuple):
     err: str
 
 
+@runtime_checkable
 class Invoker(Protocol):  # pylint: disable=too-few-public-methods
     """Interface for invokers. See invoke()."""
     def __call__(self, *__args: str) -> Result: ...
 
 
 @pytest.fixture(name='invoke')
+@typechecked
 def fixture_invoke(capsys: pytest.CaptureFixture,
                    monkeypatch: pytest.MonkeyPatch) -> Invoker:
     """Helper to return a function that automates input and output."""
@@ -34,6 +38,7 @@ def fixture_invoke(capsys: pytest.CaptureFixture,
     return invoker
 
 
+@typechecked
 def test_no_arguments_is_error(invoke: Invoker) -> None:
     """Passing no filename prints an error and bails."""
     status, out, err = invoke()
@@ -42,6 +47,7 @@ def test_no_arguments_is_error(invoke: Invoker) -> None:
     assert err == 'ERROR in PROGNAME: Did not pass a filename\n'
 
 
+@typechecked
 def test_warns_on_multiple_arguments(invoke: Invoker) -> None:
     """Passing multiple command-line arguments warns and continues."""
     status, _, err = invoke('names.txt', 'other-arg')
@@ -50,6 +56,7 @@ def test_warns_on_multiple_arguments(invoke: Invoker) -> None:
                    'Too many arguments, see doctring for usage\n')
 
 
+@typechecked
 def test_nonexistent_file_is_error(invoke: Invoker) -> None:
     """Naming a nonexistent file prints an error and bails."""
     status, out, err = invoke('nonexistent-file')
@@ -59,6 +66,7 @@ def test_nonexistent_file_is_error(invoke: Invoker) -> None:
                    "[Errno 2] No such file or directory: 'nonexistent-file'\n")
 
 
+@typechecked
 def test_directory_is_error(invoke: Invoker) -> None:
     """Naming a directory instead of a file prints an error and bails."""
     status, out, err = invoke('.')
@@ -67,6 +75,7 @@ def test_directory_is_error(invoke: Invoker) -> None:
     assert err.startswith('ERROR in PROGNAME: ')
 
 
+@typechecked
 def test_greets_names_txt_entries_correctly(invoke: Invoker) -> None:
     """Running on the test file names.txt produces the expected output."""
     status, out, err = invoke('names.txt')

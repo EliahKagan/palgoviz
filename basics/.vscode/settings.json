@@ -16,6 +16,7 @@
         "pycodestyle",
         "pylint",
         "pyright",
-        "pytest"
+        "pytest",
+        "typeguard"
     ]
 }

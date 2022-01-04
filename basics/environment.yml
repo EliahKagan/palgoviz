@@ -9,6 +9,7 @@ dependencies:
   - jupyterlab
   - pytest
   - python-graphviz
+  - typeguard
 
   # dev
   - mypy
