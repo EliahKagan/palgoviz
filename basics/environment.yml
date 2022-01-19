@@ -6,7 +6,7 @@ channels:
 dependencies:
   - python=3.10
   - graphviz
-  - ipython<8
+  - ipython>=8.0.1
   - jupyterlab>=3.1
   - nbdime
   - python-graphviz
