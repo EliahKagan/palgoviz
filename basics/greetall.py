@@ -23,15 +23,17 @@ def run():
             print(f'ERROR in {command}: Did not pass a filename', file=sys.stderr)
             return 1
         case (command, name):
+            lang = 'en'
+        case (command, name, lang):
             pass
-        case (command, name, *_):
+        case (command, name, lang, *_):
             print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
         with open(name, encoding='utf-8') as file: 
             for line in file:
-                hello(line.strip()) 
+                hello(line.strip(), lang) 
     except OSError as error:
         print(f'ERROR in {sys.argv[0]}: {error}', file=sys.stderr)
         return 1
