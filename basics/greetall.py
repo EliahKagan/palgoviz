@@ -11,6 +11,7 @@ Usage:
 import sys
 
 from greet import hello
+from greet import FORMATS
 
 
 def run():
@@ -24,7 +25,11 @@ def run():
         case (command, name):
             lang = 'en'
         case (command, name, lang):
-            pass
+            if lang in FORMATS:          
+                pass
+            else: 
+                print(f'ERROR in {command}: Did not pass a valid language code', file=sys.stderr)
+                return 1
         case (command, name, lang, *_):
             print(f'WARNING in {command}: Too many arguments, see docstring for usage', file=sys.stderr)
 
