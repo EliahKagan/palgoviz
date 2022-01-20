@@ -18,16 +18,18 @@ def run():
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control+K+U
-    match len(sys.argv):
-        case 1:
-            print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
+    match sys.argv:
+        case (command,):
+            print(f'ERROR in {command}: Did not pass a filename', file=sys.stderr)
             return 1
-        case 2:
-            pass
-        case _:
-            print(f'WARNING in {sys.argv[0]}: Too many arguments, see doctring for usage', file=sys.stderr)    
-    
-    name = sys.argv[1]
+        case (command, name, *other):
+            if other:
+                print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
+
+        # case (command, name):
+        #     pass
+        # case (command, name, *_):
+        #     print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
