@@ -17,7 +17,7 @@ from greet import hello
 def run():
     """Run the script."""
     # Uses LBYL (look before you leap).
-    # block comments, (VSCODE) control + K + C, uncomment control+K+U
+    # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
         case (command,):
             print(f'ERROR in {command}: Did not pass a filename', file=sys.stderr)
