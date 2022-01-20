@@ -10,8 +10,7 @@ Usage:
 
 import sys
 
-from greet import hello
-from greet import FORMATS
+from greet import hello, FORMATS
 
 
 def run():
@@ -25,11 +24,9 @@ def run():
         case (command, name):
             lang = 'en'
         case (command, name, lang):
-            if lang in FORMATS:          
-                pass
-            else: 
+            if lang not in FORMATS:
                 print(f'ERROR in {command}: Did not pass a valid language code', file=sys.stderr)
-                return 1
+                return 1                   
         case (command, name, lang, *_):
             print(f'WARNING in {command}: Too many arguments, see docstring for usage', file=sys.stderr)
 
@@ -42,6 +39,7 @@ def run():
         print(f'ERROR in {sys.argv[0]}: {error}', file=sys.stderr)
         return 1
     return 0 
-        
+
+
 if __name__ == '__main__':  # If we are running this module as a script.
     sys.exit(run()) # for exit codes in powershell, $LASTEXITCODE
