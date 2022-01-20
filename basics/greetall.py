@@ -17,13 +17,18 @@ from greet import hello
 def run():
     """Run the script."""
     # Uses LBYL (look before you leap).
-    if len(sys.argv) < 2 :
-        print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
-        return 1
-    if len(sys.argv) > 2 :
-        print(f'WARNING in {sys.argv[0]}: Too many arguments, see doctring for usage', file=sys.stderr)
-    name = sys.argv[1]
+    # block comments, (VSCODE) control + K + C, uncomment control+K+U
+    match len(sys.argv):
+        case 1:
+            print(f'ERROR in {sys.argv[0]}: Did not pass a filename', file=sys.stderr)
+            return 1
+        case 2:
+            pass
+        case _:
+            print(f'WARNING in {sys.argv[0]}: Too many arguments, see doctring for usage', file=sys.stderr)    
     
+    name = sys.argv[1]
+
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
         with open(name, encoding='utf-8') as file: 
