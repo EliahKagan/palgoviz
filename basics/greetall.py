@@ -5,8 +5,7 @@ Greets multiple users from a file.
 
 Usage:
 
-    greetall FILENAME
-
+    greetall FILENAME [LANG]
 """
 
 import sys
@@ -27,7 +26,7 @@ def run():
         case (command, name, lang):
             pass
         case (command, name, lang, *_):
-            print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
+            print(f'WARNING in {command}: Too many arguments, see docstring for usage', file=sys.stderr)
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
