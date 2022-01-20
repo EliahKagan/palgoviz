@@ -22,14 +22,10 @@ def run():
         case (command,):
             print(f'ERROR in {command}: Did not pass a filename', file=sys.stderr)
             return 1
-        case (command, name, *other):
-            if other:
-                print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
-
-        # case (command, name):
-        #     pass
-        # case (command, name, *_):
-        #     print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
+        case (command, name):
+            pass
+        case (command, name, *_):
+            print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
