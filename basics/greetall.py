@@ -33,14 +33,14 @@ def run():
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
-        case (_,):
+        case [_]:
             perror('Did not a pass filename')
             return 1
-        case (_, name):
+        case [_, name]:
             lang = 'en'
-        case (_, name, lang):
+        case [_, name, lang]:
             pass
-        case (_, name, lang, *_):
+        case [_, name, lang, *_]:
             pwarn('Too many arguments, see doctring for usage')
 
     if lang not in FORMATS:
