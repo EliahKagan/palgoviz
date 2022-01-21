@@ -12,5 +12,5 @@ dependencies:
   - python-graphviz
 
   # dev
-  - pycodestyle
+  - flake8
   - pylint
