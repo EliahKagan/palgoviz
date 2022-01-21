@@ -34,7 +34,7 @@ def run():
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
         case [_]:
-            perror('Did not a pass filename')
+            perror('Did not pass a filename')
             return 1
         case [_, name]:
             lang = 'en'
