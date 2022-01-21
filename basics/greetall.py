@@ -32,12 +32,14 @@ def run():
         case (command, name):
             lang = 'en'
         case (command, name, lang):
-            if lang not in FORMATS:
-                perror('Did not pass a valid language code')
-                return 1                   
+            pass             
         case (command, name, lang, *_):
             pwarn('Too many arguments, see doctring for usage')
-            
+
+    if lang not in FORMATS:
+        perror('Did not pass a valid language code')
+        return 1
+
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
         with open(name, encoding='utf-8') as file: 
