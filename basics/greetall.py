@@ -13,12 +13,12 @@ import sys
 from greet import hello, FORMATS
 
 
-def perror(command, message):
-    print(f'ERROR in {command}: {message}', file=sys.stderr)
+def perror(message):
+    print(f'ERROR in {sys.argv[0]}: {message}', file=sys.stderr)
     
 
-def pwarn(command, message):
-    print(f'WARNING in {command}: {message}', file=sys.stderr)
+def pwarn(message):
+    print(f'WARNING in {sys.argv[0]}: {message}', file=sys.stderr)
 
 
 def run():
@@ -27,16 +27,16 @@ def run():
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
         case (command,):
-            perror(command, 'Did not a pass filename')
+            perror('Did not a pass filename')
             return 1
         case (command, name):
             lang = 'en'
         case (command, name, lang):
             if lang not in FORMATS:
-                perror(command, 'Did not pass a valid language code')
+                perror('Did not pass a valid language code')
                 return 1                   
         case (command, name, lang, *_):
-            pwarn(command, 'Too many arguments, see doctring for usage')
+            pwarn('Too many arguments, see doctring for usage')
             
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
@@ -45,7 +45,7 @@ def run():
                 hello(line.strip(), lang) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
-        perror(sys.argv[0], error)
+        perror(error)
         return 1
     return 0 
 
