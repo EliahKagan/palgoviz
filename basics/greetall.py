@@ -13,12 +13,19 @@ import sys
 from greet import hello, FORMATS
 
 
+def pmessage(prefix, message):
+    """Print a message. Helper for perror and pwarn."""
+    print(f'{prefix} in {sys.argv[0]}: {message}', file=sys.stderr)
+
+
 def perror(message):
-    print(f'ERROR in {sys.argv[0]}: {message}', file=sys.stderr)
+    """Print an error message."""
+    pmessage('ERROR', message)
     
 
 def pwarn(message):
-    print(f'WARNING in {sys.argv[0]}: {message}', file=sys.stderr)
+    """Print a warning message."""
+    pmessage('WARNING', message)
 
 
 def run():
