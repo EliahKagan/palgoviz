@@ -14,7 +14,7 @@ dependencies:
   - typeguard
 
   # dev
+  - flake8
   - mypy
-  - pycodestyle
   - pylint
   - pyright

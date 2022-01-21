@@ -5,13 +5,27 @@ Greets multiple users from a file.
 
 Usage:
 
-    greetall FILENAME
-
+    greetall FILENAME [LANG]
 """
 
 import sys
 
-from greet import hello
+from greet import hello, FORMATS
+
+
+def pmessage(prefix, message):
+    """Print a message. Helper for perror and pwarn."""
+    print(f'{prefix} in {sys.argv[0]}: {message}', file=sys.stderr)
+
+
+def perror(message):
+    """Print an error message."""
+    pmessage('ERROR', message)
+    
+
+def pwarn(message):
+    """Print a warning message."""
+    pmessage('WARNING', message)
 
 
 def run():
@@ -19,15 +33,19 @@ def run():
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
-        case (command,):
-            print(f'ERROR in {command}: Did not pass a filename', file=sys.stderr)
+        case [_]:
+            perror('Did not a pass filename')
             return 1
-        case (command, name):
+        case [_, name]:
             lang = 'en'
-        case (command, name, lang):
+        case [_, name, lang]:
             pass
-        case (command, name, lang, *_):
-            print(f'WARNING in {command}: Too many arguments, see doctring for usage', file=sys.stderr)
+        case [_, name, lang, *_]:
+            pwarn('Too many arguments, see doctring for usage')
+
+    if lang not in FORMATS:
+        perror('Did not pass a valid language code')
+        return 1
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
@@ -35,9 +53,11 @@ def run():
             for line in file:
                 hello(line.strip(), lang) 
     except OSError as error:
-        print(f'ERROR in {sys.argv[0]}: {error}', file=sys.stderr)
+        # Something went wrong opening or reading (or closing) the file.
+        perror(error)
         return 1
     return 0 
-        
+
+
 if __name__ == '__main__':  # If we are running this module as a script.
     sys.exit(run()) # for exit codes in powershell, $LASTEXITCODE
