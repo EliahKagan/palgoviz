@@ -49,9 +49,12 @@ def run():
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        with open(name, encoding='utf-8') as file: 
+        with open(name, encoding='utf-8') as file:
+            namelist = [] 
             for line in file:
-                hello(line.strip(), lang) 
+                if line.strip() not in namelist:
+                    hello(line.strip(), lang)
+                namelist.append(line.strip()) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
