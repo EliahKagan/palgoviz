@@ -55,7 +55,7 @@ def run():
                 name = line.strip()
                 if name not in names:
                     hello(name, lang)
-                names.append(name) 
+                    names.append(name) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
