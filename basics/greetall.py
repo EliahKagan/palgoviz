@@ -28,6 +28,17 @@ def pwarn(message):
     pmessage('WARNING', message)
 
 
+def greet_all(path, lang):
+    """Greets all in a file given the path and language."""
+    with open(path, encoding='utf-8') as file:
+        names = set() 
+        for line in file:
+            name = line.strip()
+            if name and name not in names:
+                hello(name, lang)
+                names.add(name)
+
+
 def run():
     """Run the script."""
     # Uses LBYL (look before you leap).
@@ -49,13 +60,7 @@ def run():
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        with open(path, encoding='utf-8') as file:
-            names = set() 
-            for line in file:
-                name = line.strip()
-                if name and name not in names:
-                    hello(name, lang)
-                    names.add(name) 
+        greet_all(path, lang) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
