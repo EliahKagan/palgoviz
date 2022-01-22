@@ -2,8 +2,14 @@
 How variable scoping works in Python.
 """
 
-x = 'outer'
-
 
 def f():
+    if True:
+        x = 'inner'
     print(x)
+
+
+x = 'outer'
+
+f()
+print(x)
