@@ -28,19 +28,30 @@ def pwarn(message):
     pmessage('WARNING', message)
 
 
+def greet_all(path, lang):
+    """Greets all in a file given the path and language."""
+    with open(path, encoding='utf-8') as file:
+        names = set() 
+        for line in file:
+            name = line.strip()
+            if name and name not in names:
+                hello(name, lang)
+                names.add(name)
+
+
 def run():
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
         case [_]:
-            perror('Did not a pass filename')
+            perror('Did not pass a filename')
             return 1
-        case [_, name]:
+        case [_, path]:
             lang = 'en'
-        case [_, name, lang]:
+        case [_, path, lang]:
             pass
-        case [_, name, lang, *_]:
+        case [_, path, lang, *_]:
             pwarn('Too many arguments, see doctring for usage')
 
     if lang not in FORMATS:
@@ -49,9 +60,7 @@ def run():
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        with open(name, encoding='utf-8') as file: 
-            for line in file:
-                hello(line.strip(), lang) 
+        greet_all(path, lang) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
