@@ -2,7 +2,7 @@
 
 """Tests for greetall.py."""
 
-from typing import Protocol, NamedTuple, runtime_checkable
+from typing import NamedTuple, Protocol, runtime_checkable
 
 import pytest
 from typeguard import typechecked
@@ -48,15 +48,6 @@ def test_no_arguments_is_error(invoke: Invoker) -> None:
 
 
 @typechecked
-def test_warns_on_multiple_arguments(invoke: Invoker) -> None:
-    """Passing multiple command-line arguments warns and continues."""
-    status, _, err = invoke('names.txt', 'other-arg')
-    assert status == 0, "Extra arguments don't cause failure status."
-    assert err == ('WARNING in PROGNAME: '
-                   'Too many arguments, see doctring for usage\n')
-
-
-@typechecked
 def test_nonexistent_file_is_error(invoke: Invoker) -> None:
     """Naming a nonexistent file prints an error and bails."""
     status, out, err = invoke('nonexistent-file')
@@ -76,9 +67,84 @@ def test_directory_is_error(invoke: Invoker) -> None:
 
 
 @typechecked
-def test_greets_names_txt_entries_correctly(invoke: Invoker) -> None:
-    """Running on the test file names.txt produces the expected output."""
+def test_greets_from_simple_file(invoke: Invoker) -> None:
+    """Greets without duplicates and extra whitespace (implicit English)."""
     status, out, err = invoke('names.txt')
     assert status == 0
     assert out == 'Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
     assert err == ''
+
+
+@typechecked
+def test_greets_from_simple_file_lang_en(invoke: Invoker) -> None:
+    """Greets without duplicates and extra whitespace, in English."""
+    status, out, err = invoke('names.txt', 'en')
+    assert status == 0
+    assert out == 'Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
+    assert err == ''
+
+
+@typechecked
+def test_greets_from_simple_file_lang_es(invoke: Invoker) -> None:
+    """Greets without duplicates and extra extra whitespace, in Spanish."""
+    status, out, err = invoke('names.txt', 'es')
+    assert status == 0
+    assert out == '¡Hola, Eliah!\n¡Hola, David!\n¡Hola, Dr. Evil!\n'
+    assert err == ''
+
+
+@typechecked
+def test_greets_from_file_with_dupes_and_ws(invoke: Invoker) -> None:
+    """Greets, ignoring extra whitespace and duplicates (implicit English)."""
+    status, out, err = invoke('names2.txt')
+    assert status == 0
+    assert out == ('Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
+                   'Hello, Stalin!\n')
+    assert err == ''
+
+
+@typechecked
+def test_greets_from_file_with_dupes_and_ws_lang_en(invoke: Invoker) -> None:
+    """Greets, ignoring extra whitespace and duplicates, in English."""
+    status, out, err = invoke('names2.txt', 'en')
+    assert status == 0
+    assert out == ('Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
+                   'Hello, Stalin!\n')
+    assert err == ''
+
+
+@typechecked
+def test_greets_from_file_with_dupes_and_ws_lang_es(invoke: Invoker) -> None:
+    """Greets, ignoring extra whitespace and duplicates, in Spanish."""
+    status, out, err = invoke('names2.txt', 'es')
+    assert status == 0
+    assert out == ('¡Hola, Eliah!\n¡Hola, David!\n¡Hola, Dr. Evil!\n'
+                   '¡Hola, Stalin!\n')
+    assert err == ''
+
+
+# @typechecked
+# def test_greets_from_file_with_dupes(and_ws )
+
+
+@typechecked
+def test_warns_on_extra_arg_without_error(invoke: Invoker) -> None:
+    """Passing an extra command-line argument warns and continues."""
+    status, _, err = invoke('names.txt', 'en', 'other-arg')
+    assert status == 0, "Extra arguments don't cause failure status."
+    assert err == ('WARNING in PROGNAME: '
+                   'Too many arguments, see doctring for usage\n')
+
+
+@typechecked
+def test_warns_on_multiple_extra_args_without_error(invoke: Invoker) -> None:
+    """Passing multiple extra command-line arguments warns and continues."""
+    status, _, err = invoke('names.txt', 'es', 'other1', 'other2', 'other3')
+    assert status == 0, "Extra arguments don't cause failure status."
+    assert err == ('WARNING in PROGNAME: '
+                   'Too many arguments, see doctring for usage\n')
+
+
+# @typechecked
+# def test_warns_on_extra_arg_with_error(invoke: Invoker) -> None:
+#     """Passing a """
