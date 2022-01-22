@@ -53,7 +53,7 @@ def run():
             names = set() 
             for line in file:
                 name = line.strip()
-                if name not in names:
+                if name and name not in names:
                     hello(name, lang)
                     names.add(name) 
     except OSError as error:
