@@ -8,6 +8,19 @@ FORMATS = {
 }
 
 
+def make_greeter(lang):
+    """
+    >>> greet = make_greeter('es')
+    >>> greet('David')
+    ¡Hola, David!
+    >>> greet('Eliah')
+    ¡Hola, Eliah!
+    >>> make_greeter('en')('Stalin')  # But we greet Stalin in English???
+    Hello, Stalin!
+    """
+    pass  # FIXME: implement this
+
+
 def hello(name, lang='en'):
     """
     Greet the user.
