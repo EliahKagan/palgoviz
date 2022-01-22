@@ -50,12 +50,12 @@ def run():
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
         with open(path, encoding='utf-8') as file:
-            names = [] 
+            names = set() 
             for line in file:
                 name = line.strip()
                 if name not in names:
                     hello(name, lang)
-                    names.append(name) 
+                    names.add(name) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
