@@ -1,7 +1,7 @@
 """Making functions that add to the same value."""
 
 
-def make_adder(addend):
+def make_adder(left_addend):
     """
     Create a function that adds its argument to the already-given addend.
 
@@ -13,8 +13,8 @@ def make_adder(addend):
     >>> make_adder(6)(2)
     8
     """
-    def adder(input):
-        return addend + input
+    def adder(right_addend):
+        return left_addend + right_addend
     return adder
 
 
