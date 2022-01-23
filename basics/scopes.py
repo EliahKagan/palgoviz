@@ -37,3 +37,4 @@ for printer in printers:
     square = 50  # Makes no difference.
     print(f'Calling {printer}:', end='  ')
     printer()
+
