@@ -16,3 +16,23 @@ def f():
 def demo():
     f()
     print(x)
+
+
+def make_square_printer(x):
+    square = x**2
+
+    def printer():
+        print(square)
+    
+    return printer
+
+
+printers = []
+for n in 2, 3, 7:
+    printers.append(make_square_printer(n))
+
+print(printers)
+
+for printer in printers:
+    square = 50  # Makes no difference.
+    printer()
