@@ -12,6 +12,9 @@ def make_adder(left_addend):
     17
     >>> make_adder(6)(2)
     8
+    >>> s = make_adder('cat')
+    >>> s(' dog')
+    'cat dog'
     """
     def adder(right_addend):
         return left_addend + right_addend
