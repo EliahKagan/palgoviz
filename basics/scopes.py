@@ -19,10 +19,10 @@ def demo():
 
 
 def make_square_printer(x):
-    square = x**2
-
     def printer():
         print(square)
+    
+    square = x**2
     
     return printer
 
@@ -35,6 +35,6 @@ for n in 2, 3, 7:
 
 for printer in printers:
     square = 50  # Makes no difference.
-    print(f'Calling {printer}:', end='  ')
+    print(f'Calling {printer.__name__}:', end='  ')
     printer()
 
