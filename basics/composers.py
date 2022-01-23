@@ -39,7 +39,7 @@ def repeat_compose(function, count):
     """
     rvalue = lambda x: x
     for i in range(count):
-        rvalue = lambda y: function(function(y))
+        rvalue = compose2(function, rvalue)
     return rvalue
 
 
