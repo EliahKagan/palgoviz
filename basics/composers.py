@@ -22,9 +22,7 @@ def compose2(f, g):
     >>> compose2(square,inc)(2)
     9
     """
-    def h(x):
-        return f(g(x))
-    return h
+    return lambda x: f(g(x))
 
 
 # Can also run:  python -m doctest composers.py
