@@ -39,14 +39,7 @@ def repeat_compose(function, count):
     """
     rvalue = lambda x: x
     for i in range(count):
-        rvalue_tmp = rvalue  # But this is also scoped to repeat_compose.
-
-        # This produces the same (bad) behavior as the assignment below
-        def rvalue(x):
-            return function(rvalue(x))
-
-        # This has infinite recursion.
-        rvalue = lambda x: function(rvalue(x))
+        rvalue = compose2(function, rvalue)
     return rvalue
 
 
