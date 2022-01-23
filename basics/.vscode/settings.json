@@ -1,5 +1,7 @@
 {
     "python.testing.pytestArgs": [
+        "--doctest-modules",
+        "--doctest-continue-on-failure",
         "."
     ],
     "python.testing.unittestEnabled": false,
