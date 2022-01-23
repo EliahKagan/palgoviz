@@ -31,8 +31,9 @@ printers = []
 for n in 2, 3, 7:
     printers.append(make_square_printer(n))
 
-print(printers)
+# print(printers)
 
 for printer in printers:
     square = 50  # Makes no difference.
+    print(f'Calling {printer}:', end='  ')
     printer()
