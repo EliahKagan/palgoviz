@@ -52,7 +52,7 @@ def run():
         case [_, path, lang]:
             pass
         case [_, path, lang, *_]:
-            pwarn('Too many arguments, see doctring for usage')
+            pwarn('Too many arguments, see docstring for usage')
 
     if lang not in FORMATS:
         perror('Did not pass a valid language code')
