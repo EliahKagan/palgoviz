@@ -15,7 +15,13 @@ def countdown(n):
     3
     2
     1
+    >>> countdown(-1)
+    Traceback (most recent call last):
+      ...
+    ValueError: -1 is less than 0
     """
+    if n < 0: 
+        raise ValueError(f'{n} is less than 0')
     if n == 0:
         return 
     print(n)
