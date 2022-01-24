@@ -25,6 +25,29 @@ def compose2(f, g):
     return lambda x: f(g(x))
 
 
+def repeat_compose_recursive(function, count):
+    """
+    Composes the unary function, function, with itself count times.
+    >>> def square(x):
+    ...     return x**2
+    >>> repeat_compose_recursive(square, 0)(2)
+    2
+    >>> repeat_compose_recursive(square, 1)(2)
+    4
+    >>> repeat_compose_recursive(square, 2)(2)
+    16
+    >>> def inc(x): return x + 1
+    >>> repeat_compose_recursive(inc, 5000)(1)
+    Traceback (most recent call last):
+      ...
+    RecursionError: maximum recursion depth exceeded
+    """
+    if count == 0: 
+        return lambda x: x
+    return repeat_compose_recursive(lambda x: function(x), count-1)
+            
+
+
 def repeat_compose_chained(function, count):
     """
     Composes the unary function, function, with itself count times.
