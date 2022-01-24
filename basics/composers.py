@@ -28,24 +28,21 @@ def compose2(f, g):
 def repeat_compose_recursive(function, count):
     """
     Composes the unary function, function, with itself count times.
-    >>> def square(x):
-    ...     return x**2
-    >>> repeat_compose_recursive(square, 0)(2)
-    2
-    >>> repeat_compose_recursive(square, 1)(2)
-    4
-    >>> repeat_compose_recursive(square, 2)(2)
-    16
     >>> def inc(x): return x + 1
-    >>> repeat_compose_recursive(inc, 5000)(1)
+    >>> repeat_compose_recursive(inc, 0)(1)
+    1
+    >>> repeat_compose_recursive(inc, 1)(1)
+    2
+    >>> repeat_compose_recursive(inc, 90)(1)
+    91
+    >>> repeat_compose_recursive(inc, 9000)(1)
     Traceback (most recent call last):
       ...
-    RecursionError: maximum recursion depth exceeded
+    RecursionError: maximum recursion depth exceeded in comparison
     """
     if count == 0: 
         return lambda x: x
-    return repeat_compose_recursive(lambda x: function(x), count-1)
-            
+    return compose2(function, repeat_compose_recursive(function, count - 1))
 
 
 def repeat_compose_chained(function, count):
@@ -91,11 +88,6 @@ def repeat_compose(function, count):
             x = function(x)
         return x
     return rvalue
-
-    # rvalue = lambda x: x
-    # for i in range(count):
-    #     rvalue = compose2(function, rvalue)
-    # return rvalue    
 
 
 # Can also run:  python -m doctest composers.py
