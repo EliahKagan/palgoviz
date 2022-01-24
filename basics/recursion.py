@@ -26,3 +26,23 @@ def countdown(n):
         return 
     print(n)
     countdown(n-1)
+
+
+def add_all(values):
+    """
+    Adds all the numbers. Like sum(values).
+
+    Assumes values is a sequence (e.g., it can be indexed) of numbers.
+
+    >>> add_all([])
+    0
+    >>> add_all([7])
+    7
+    >>> add_all((3, 6, 1))
+    10
+    """
+    result = 0
+    for x in values:
+        result += x
+    return result 
+
