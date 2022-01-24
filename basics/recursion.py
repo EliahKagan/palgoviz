@@ -28,9 +28,27 @@ def countdown(n):
     countdown(n-1)
 
 
-def add_all(values):
+def add_all_iterative(values):
     """
     Adds all the numbers. Like sum(values).
+
+    Assumes values is a sequence (e.g., it can be indexed) of numbers.
+
+    >>> add_all_iterative([])
+    0
+    >>> add_all_iterative([7])
+    7
+    >>> add_all_iterative((3, 6, 1))
+    10
+    """
+    result = 0
+    for x in values:
+        result += x
+    return result 
+
+def add_all(values):
+    """
+    Adds all the numbers recursively. Like sum(values).
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
 
@@ -41,8 +59,13 @@ def add_all(values):
     >>> add_all((3, 6, 1))
     10
     """
-    result = 0
-    for x in values:
-        result += x
-    return result 
+    # Don't forgot to listify!
+    if type(values) != list:
+        helplist = [*values]
+    else:
+        helplist = values
+    if values == []: 
+        return 0
+    add = helplist.pop()
+    return add + add_all(helplist)
 
