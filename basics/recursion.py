@@ -48,7 +48,7 @@ def add_all_iterative(values):
 
 def add_all(values):
     """
-    Adds all the numbers recursively. Like sum(values).
+    Adds all the numbers recursively. Like sum(values). values is not modified.
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
 
@@ -58,12 +58,14 @@ def add_all(values):
     7
     >>> add_all((3, 6, 1))
     10
+    >>> values = [2,3,5]
+    >>> add_all(values)
+    10
+    >>> values
+    [2, 3, 5]
     """
     # Don't forgot to listify!
-    if type(values) != list:
-        helplist = [*values]
-    else:
-        helplist = values
+    helplist = [*values]
     if values == []: 
         return 0
     add = helplist.pop()
