@@ -16,8 +16,7 @@ def countdown(n):
     2
     1
     """
-    print(n)
-    if n == 1:
+    if n == 0:
         return 
+    print(n)
     countdown(n-1)
-    
