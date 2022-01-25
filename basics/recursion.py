@@ -75,9 +75,7 @@ def add_all_slow(values):
 def _helpadd(length, values):
     if length == 0: 
         return 0
-    if length == 1: 
-        return values[length - 1]
-    if length > 1: 
+    if length > 0: 
         return values[length - 1] + _helpadd(length - 1, values)
 
 
