@@ -46,6 +46,37 @@ def add_all_iterative(values):
         result += x
     return result 
 
+def add_all_slow(values):
+    """
+    Adds all the numbers recursively. Like sum(values). values is not modified.
+
+    Assumes values is a sequence (e.g., it can be indexed) of numbers.
+    >>> add_all_slow(())
+    0
+    >>> add_all_slow([])
+    0
+    >>> add_all_slow([7])
+    7
+    >>> add_all_slow((3, 6, 1))
+    10
+    >>> values = [2,3,5]
+    >>> add_all_slow(values)
+    10
+    >>> values
+    [2, 3, 5]
+    """
+    match values:
+        case []:
+            return 0
+        case [num, *rest]:
+            return num + add_all_slow(rest)   
+    
+
+def _helpadd(index, values):
+    if index == 0: 
+        return values[index]
+    return values[index] +_helpadd(index-1,values)
+
 def add_all(values):
     """
     Adds all the numbers recursively. Like sum(values). values is not modified.
@@ -65,10 +96,9 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    match values:
-        case []:
-            return 0
-        case [num, *rest]:
-            return num + add_all(rest)   
+    if not values:
+        return 0
+    index = len(values) - 1
+    return _helpadd(index, values)
     
-
+    
