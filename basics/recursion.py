@@ -75,7 +75,8 @@ def add_all_slow(values):
 def _helpadd(index, values):
     if index == 0: 
         return values[index]
-    return values[index] +_helpadd(index-1,values)
+    return values[index] + _helpadd(index - 1, values)
+
 
 def add_all(values):
     """
@@ -90,7 +91,7 @@ def add_all(values):
     7
     >>> add_all((3, 6, 1))
     10
-    >>> values = [2,3,5]
+    >>> values = [2, 3, 5]
     >>> add_all(values)
     10
     >>> values
