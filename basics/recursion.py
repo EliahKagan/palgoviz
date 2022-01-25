@@ -51,7 +51,8 @@ def add_all(values):
     Adds all the numbers recursively. Like sum(values). values is not modified.
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
-
+    >>> add_all(())
+    0
     >>> add_all([])
     0
     >>> add_all([7])
@@ -64,10 +65,10 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    # Don't forgot to listify!
-    helplist = [*values]
-    if values == []: 
-        return 0
-    add = helplist.pop()
-    return add + add_all(helplist)
+    match values:
+        case []:
+            return 0
+        case [num, *rest]:
+            return num + add_all(rest)   
+    
 
