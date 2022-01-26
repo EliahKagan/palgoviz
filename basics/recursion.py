@@ -46,6 +46,7 @@ def add_all_iterative(values):
         result += x
     return result 
 
+
 def add_all_slow(values):
     """
     Adds all the numbers recursively. Like sum(values). values is not modified.
@@ -91,10 +92,10 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    def add_first(length):
+    def add_last(length):
         if length == 0: 
             return 0
         assert length > 0, 'the length is positive'
-        return values[length - 1] + add_first(length - 1)
+        return values[len(values) - length] + add_last(length - 1)        
 
-    return add_first(len(values))
+    return add_last(len(values))
