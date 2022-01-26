@@ -92,12 +92,9 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    if not values:
-        return 0
-    
     def add_from(index):
-        if index == len(values) - 1:
-            return values[index]
+        if index == len(values):
+            return 0
         return values[index] + add_from(index + 1)
 
     return add_from(0)
