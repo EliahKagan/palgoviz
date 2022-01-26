@@ -70,13 +70,6 @@ def add_all_slow(values):
             return 0
         case [num, *rest]:
             return num + add_all_slow(rest)   
-    
-
-def _helpadd(length, values):
-    if length == 0: 
-        return 0
-    assert length > 0, 'the length is positive'
-    return values[length - 1] + _helpadd(length - 1, values)
 
 
 def add_all(values):
@@ -98,7 +91,10 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    length = len(values)
-    return _helpadd(length, values)
-    
-    
+    def helpadd(length, values):
+        if length == 0: 
+            return 0
+        assert length > 0, 'the length is positive'
+        return values[length - 1] + helpadd(length - 1, values)
+
+    return helpadd(len(values), values)
