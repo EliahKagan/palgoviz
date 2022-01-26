@@ -92,10 +92,12 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    def add_last(length):
-        if length == 0: 
-            return 0
-        assert length > 0, 'the length is positive'
-        return values[len(values) - length] + add_last(length - 1)        
+    if not values:
+        return 0
+    
+    def add_from(index):
+        if index == len(values) - 1:
+            return values[index]
+        return values[index] + add_from(index + 1)
 
-    return add_last(len(values))
+    return add_from(0)
