@@ -91,10 +91,10 @@ def add_all(values):
     >>> values
     [2, 3, 5]
     """
-    def helpadd(length):
+    def add_first(length):
         if length == 0: 
             return 0
         assert length > 0, 'the length is positive'
-        return values[length - 1] + helpadd(length - 1)
+        return values[length - 1] + add_first(length - 1)
 
-    return helpadd(len(values))
+    return add_first(len(values))
