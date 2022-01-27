@@ -20,10 +20,10 @@ def countdown(n):
       ...
     ValueError: -1 is less than 0
     """
-    if n < 0: 
+    if n < 0:
         raise ValueError(f'{n} is less than 0')
     if n == 0:
-        return 
+        return
     print(n)
     countdown(n-1)
 
@@ -44,7 +44,7 @@ def add_all_iterative(values):
     result = 0
     for x in values:
         result += x
-    return result 
+    return result
 
 
 def add_all_slow(values):
@@ -70,7 +70,7 @@ def add_all_slow(values):
         case []:
             return 0
         case [num, *rest]:
-            return num + add_all_slow(rest)   
+            return num + add_all_slow(rest)
 
 
 def add_all(values):
@@ -103,7 +103,7 @@ def add_all(values):
 def linear_search_good(values, x):
     """
     Return an index to some occurrence of x in values, if any. Otherwise return None.
-    
+
     >>> linear_search_good([], 9)
     >>> linear_search_good([2, 3], 2)
     0
@@ -114,14 +114,14 @@ def linear_search_good(values, x):
     """
     try:
        return values.index(x)
-    except ValueError: 
+    except ValueError:
         return None
 
 
 def linear_search_iterative(values, x):
     """
     Return an index to some occurrence of x in values, if any. Otherwise return None.
-    
+
     >>> linear_search_iterative([], 9)
     >>> linear_search_iterative([2, 3], 2)
     0
@@ -133,13 +133,13 @@ def linear_search_iterative(values, x):
     for index, value in enumerate(values):
         if value == x:
             return index
-    return None  
+    return None
 
 
 def linear_search(values, x):
     """
     Return an index to some occurrence of x in values, if any. Otherwise return None.
-    
+
     >>> linear_search([], 9)
     >>> linear_search([2, 3], 2)
     0
@@ -148,10 +148,10 @@ def linear_search(values, x):
     >>> linear_search([3, 1, 2, 8, 6, 5, 7], 8)
     3
     """
-    def search_from(index): 
-        if index == len(values): 
+    def search_from(index):
+        if index == len(values):
             return None
-        if values[index] == x: 
+        if values[index] == x:
             return index
         return search_from(index + 1)
 
@@ -171,12 +171,20 @@ def binary_search(values, x):
     1
     >>> binary_search([1, 2, 3, 5, 6, 7, 8], 3)
     2
+    >>> binary_search([10], 10)
+    0
+    >>> binary_search([10, 20], 10)
+    0
+    >>> binary_search([10, 20], 20)
+    1
+    >>> binary_search([10, 20], 15)
+    >>>
     """
     if not values:
         return None
     def help_binary(low, high):  # high is an inclusive endpoint.
         halfway = (low + high)//2
-        if low == high: 
+        if low == high:
             if values[low] == x:
                 return low
             return None
