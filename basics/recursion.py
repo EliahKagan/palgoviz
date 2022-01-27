@@ -2,7 +2,7 @@
 
 def countdown(n):
     """
-    Counts down from n, printing the positive numbers, one per line.
+    Count down from n, printing the positive numbers, one per line.
 
     >>> countdown(10)
     10
@@ -30,7 +30,7 @@ def countdown(n):
 
 def add_all_iterative(values):
     """
-    Adds all the numbers. Like sum(values).
+    Add all the numbers. Like sum(values).
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
 
@@ -49,7 +49,7 @@ def add_all_iterative(values):
 
 def add_all_slow(values):
     """
-    Adds all the numbers recursively. Like sum(values). values is not modified.
+    Add all the numbers recursively. Like sum(values). values is not modified.
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
     >>> add_all_slow(())
@@ -75,7 +75,7 @@ def add_all_slow(values):
 
 def add_all(values):
     """
-    Adds all the numbers recursively. Like sum(values). values is not modified.
+    Add all the numbers recursively. Like sum(values). values is not modified.
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
     >>> add_all(())
@@ -98,3 +98,35 @@ def add_all(values):
         return values[index] + add_from(index + 1)
 
     return add_from(0)
+
+
+def linear_search_good(values, x):
+    """
+    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    
+    >>> linear_search_good([], 9)
+    >>> linear_search_good([2, 3], 2)
+    0
+    >>> linear_search_good((4, 5, 6), 5)
+    1
+    """
+    try:
+       return values.index(x)
+    except ValueError: 
+        return None
+
+
+def linear_search_iterative(values, x):
+    """
+    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    
+    >>> linear_search_iterative([], 9)
+    >>> linear_search_iterative([2, 3], 2)
+    0
+    >>> linear_search_iterative((4, 5, 6), 5)
+    1
+    """
+    for i in range(len(values)):
+        if values[i] == x:
+            return i
+    return None  
