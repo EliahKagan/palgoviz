@@ -126,7 +126,7 @@ def linear_search_iterative(values, x):
     >>> linear_search_iterative((4, 5, 6), 5)
     1
     """
-    for i in range(len(values)):
-        if values[i] == x:
-            return i
+    for index, value in enumerate(values):
+        if value == x:
+            return index
     return None  
