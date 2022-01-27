@@ -130,3 +130,21 @@ def linear_search_iterative(values, x):
         if value == x:
             return index
     return None  
+
+def linear_search(values, x):
+    """
+    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    
+    >>> linear_search([], 9)
+    >>> linear_search([2, 3], 2)
+    0
+    >>> linear_search((4, 5, 6), 5)
+    1
+    """
+    def search_from(index): 
+        if index == len(values): 
+            return None
+        if values[index] == x: 
+            return index
+        return search_from(index + 1)
+    return search_from(0)
