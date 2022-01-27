@@ -109,6 +109,8 @@ def linear_search_good(values, x):
     0
     >>> linear_search_good((4, 5, 6), 5)
     1
+    >>> linear_search_good([3, 1, 2, 8, 6, 5, 7], 8)
+    3
     """
     try:
        return values.index(x)
@@ -125,6 +127,8 @@ def linear_search_iterative(values, x):
     0
     >>> linear_search_iterative((4, 5, 6), 5)
     1
+    >>> linear_search_iterative([3, 1, 2, 8, 6, 5, 7], 8)
+    3
     """
     for index, value in enumerate(values):
         if value == x:
@@ -140,6 +144,8 @@ def linear_search(values, x):
     0
     >>> linear_search((4, 5, 6), 5)
     1
+    >>> linear_search([3, 1, 2, 8, 6, 5, 7], 8)
+    3
     """
     def search_from(index): 
         if index == len(values): 
@@ -147,4 +153,5 @@ def linear_search(values, x):
         if values[index] == x: 
             return index
         return search_from(index + 1)
+
     return search_from(0)
