@@ -135,6 +135,7 @@ def linear_search_iterative(values, x):
             return index
     return None  
 
+
 def linear_search(values, x):
     """
     Return an index to some occurrence of x in values, if any. Otherwise return None.
@@ -155,3 +156,34 @@ def linear_search(values, x):
         return search_from(index + 1)
 
     return search_from(0)
+
+
+def binary_search(values, x):
+    """
+    Return an index to some occurrence of x in values, which is sorted.
+
+    If there is no such occurrence, None is returned.
+
+    >>> binary_search([], 9)
+    >>> binary_search([2, 3], 2)
+    0
+    >>> binary_search((4, 5, 6), 5)
+    1
+    >>> binary_search([1, 2, 3, 5, 6, 7, 8], 3)
+    2
+    """
+    if not values:
+        return None
+    def help_binary(low, high):  # high is an inclusive endpoint.
+        halfway = (low + high)//2
+        if low == high: 
+            if values[low] == x:
+                return low
+            return None
+        if values[halfway] == x:
+            return halfway
+        if  x > values[halfway]:
+            return help_binary(halfway, high)
+        if x < values[halfway]:
+            return help_binary(low, halfway)
+    return help_binary(0, len(values) - 1)
