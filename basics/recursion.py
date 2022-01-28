@@ -260,7 +260,5 @@ def binary_search_good(values, x):
     >>>
     """
     index = bisect.bisect_left(values,x)
-
-    if (index < len(values)) and (values[index] == x):
-        return index
-    return None
+    return index if (index < len(values)) and (values[index] == x) else None
+    
