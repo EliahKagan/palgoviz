@@ -180,18 +180,16 @@ def binary_search(values, x):
     >>> binary_search([10, 20], 15)
     >>>
     """
-    if not values:
-        return None
+    
     def help_binary(low, high):  # high is an inclusive endpoint.
         halfway = (low + high)//2
-        if low == high:
-            if values[low] == x:
-                return low
+        if low > high: 
             return None
         if values[halfway] == x:
             return halfway
-        if  x > values[halfway]:
-            return help_binary(halfway, high)
+        if x > values[halfway]:
+            return help_binary(halfway + 1, high)
         if x < values[halfway]:
-            return help_binary(low, halfway)
+            return help_binary(low, halfway - 1)
+            
     return help_binary(0, len(values) - 1)
