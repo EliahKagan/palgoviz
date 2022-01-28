@@ -258,14 +258,10 @@ def binary_search_good(values, x):
     1
     >>> binary_search_good([10, 20], 15)
     >>>
-    
     """
     index = bisect.bisect_left(values,x)
 
-    try:
-        if values[index] == x:
-            return index
-    except IndexError:
-        pass
-
-    return None
+    if (0 <= index <= len(values) - 1) and (values[index] == x):
+        return index
+    else:
+        return None
