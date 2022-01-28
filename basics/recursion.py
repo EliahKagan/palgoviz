@@ -1,5 +1,8 @@
 """Some recursion examples."""
 
+import bisect
+
+
 def countdown(n):
     """
     Count down from n, printing the positive numbers, one per line.
@@ -169,6 +172,7 @@ def binary_search(values, x):
     0
     >>> binary_search((4, 5, 6), 5)
     1
+    >>> binary_search((4, 5, 6), 7)
     >>> binary_search([1, 2, 3, 5, 6, 7, 8], 3)
     2
     >>> binary_search([10], 10)
@@ -205,6 +209,7 @@ def binary_search_iterative(values, x):
     0
     >>> binary_search_iterative((4, 5, 6), 5)
     1
+    >>> binary_search_iterative((4, 5, 6), 7)
     >>> binary_search_iterative([1, 2, 3, 5, 6, 7, 8], 3)
     2
     >>> binary_search_iterative([10], 10)
@@ -226,6 +231,42 @@ def binary_search_iterative(values, x):
         elif x < values[halfway]:
             high = halfway - 1
         else: # values[halfway] should = x, possibly add assert.
-            return halfway 
+            return halfway
     
     return None
+
+
+def binary_search_good(values, x):
+    """
+    Return an index to some occurrence of x in values, which is sorted.
+
+    If there is no such occurrence, None is returned.
+
+    >>> binary_search_good([], 9)
+    >>> binary_search_good([2, 3], 2)
+    0
+    >>> binary_search_good((4, 5, 6), 5)
+    1
+    >>> binary_search_good((4, 5, 6), 7)
+    >>> binary_search_good([1, 2, 3, 5, 6, 7, 8], 3)
+    2
+    >>> binary_search_good([10], 10)
+    0
+    >>> binary_search_good([10, 20], 10)
+    0
+    >>> binary_search_good([10, 20], 20)
+    1
+    >>> binary_search_good([10, 20], 15)
+    >>>
+    
+    """
+    index = bisect.bisect_left(values,x)
+    try: 
+        if values[index] == x:
+            return index
+        else: 
+            return None 
+    except IndexError: 
+        return None
+    
+    
