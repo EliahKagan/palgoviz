@@ -223,10 +223,8 @@ def binary_search_iterative(values, x):
         halfway = (low + high) // 2
         if x > values[halfway]:
             low = halfway + 1
-            continue
-        if x < values[halfway]:
+        elif x < values[halfway]:
             high = halfway - 1
-            continue
-        if x == values[halfway]:
+        else: # values[halfway] should = x, possibly add assert.
             return halfway 
     return None
