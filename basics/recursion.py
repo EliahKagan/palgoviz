@@ -192,3 +192,41 @@ def binary_search(values, x):
         return halfway  # values[halfway] should = x, possibly add assert.
 
     return help_binary(0, len(values) - 1)
+
+
+def binary_search_iterative(values, x):
+    """
+    Return an index to some occurrence of x in values, which is sorted.
+
+    If there is no such occurrence, None is returned.
+
+    >>> binary_search_iterative([], 9)
+    >>> binary_search_iterative([2, 3], 2)
+    0
+    >>> binary_search_iterative((4, 5, 6), 5)
+    1
+    >>> binary_search_iterative([1, 2, 3, 5, 6, 7, 8], 3)
+    2
+    >>> binary_search_iterative([10], 10)
+    0
+    >>> binary_search_iterative([10, 20], 10)
+    0
+    >>> binary_search_iterative([10, 20], 20)
+    1
+    >>> binary_search_iterative([10, 20], 15)
+    >>>
+    """
+    low = 0
+    high = len(values) - 1
+
+    while low <= high: 
+        halfway = (low + high) // 2
+        if x > values[halfway]:
+            low = halfway + 1
+            continue
+        if x < values[halfway]:
+            high = halfway - 1
+            continue
+        if x == values[halfway]:
+            return halfway 
+    return None
