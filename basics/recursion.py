@@ -288,6 +288,7 @@ def merge_two(values1, values2):
         
     return resultlist
 
+
 def merge_two_fast(values1, values2): 
     """
     Return a sorted list that that takes two sorted sequences as input. 
@@ -308,16 +309,18 @@ def merge_two_fast(values1, values2):
     []
     >>> merge_two_fast((), (1, 1, 4, 7, 8))
     [1, 1, 4, 7, 8]
+    >>> merge_two_fast((1, 1, 4, 7, 8), ())
+    [1, 1, 4, 7, 8]
     """
     resultlist = []
     index = 0 
+
     for v1 in values1:
-        if v1 <= values2[index]:
-            resultlist.append(v1)
-        else: 
-            while v1 > values2[index]:
-                if values2[index] < v1:
-                    resultlist.append(values2[index])
-                    index += 1
+        while index < len(values2) and values2[index] < v1:
+            resultlist.append(values2[index])
+            index += 1
+        resultlist.append(v1)
+
+    resultlist.extend(values2[index:])
+
     return resultlist
-    
