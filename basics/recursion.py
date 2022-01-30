@@ -266,6 +266,8 @@ def binary_search_good(values, x):
 def merge_two(values1, values2): 
     """
     Return a sorted list that that takes two sorted sequences as input. 
+
+    If values2 is empty, this is equivilant to a binary insertion sort
     
     >>> merge_two([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -286,4 +288,36 @@ def merge_two(values1, values2):
         
     return resultlist
 
+def merge_two_fast(values1, values2): 
+    """
+    Return a sorted list that that takes two sorted sequences as input. 
+
+    If values2 is empty, this is equivilant to a binary insertion sort
+    
+    >>> merge_two_fast([1, 3, 5], [2, 4, 6])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_fast([2, 4, 6], [1, 3, 5])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_fast([], [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_fast((), [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_fast((), [])
+    []
+    >>> merge_two_fast([], ())
+    []
+    >>> merge_two_fast((), (1, 1, 4, 7, 8))
+    [1, 1, 4, 7, 8]
+    """
+    resultlist = []
+    index = 0 
+    for v1 in values1:
+        if v1 <= values2[index]:
+            resultlist.append(v1)
+        else: 
+            while v1 > values2[index]:
+                if values2[index] < v1:
+                    resultlist.append(values2[index])
+                    index += 1
+    return resultlist
     
