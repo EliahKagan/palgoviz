@@ -310,13 +310,16 @@ def merge_two_fast(values1, values2):
     [1, 1, 4, 7, 8]
     """
     resultlist = []
-    index = 0
+    index1 = index2 = 0
 
-    for v1 in values1:
-        while index != len(values2) and values2[index] < v1:
-            resultlist.append(values2[index])
-            index += 1
-        resultlist.append(v1)
+    while index1 < len(values1) and index2 < len(values2):
+        if values2[index2] < values1[index1]:
+            resultlist.append(values2[index2])
+            index2 += 1
+        else:
+            resultlist.append(values1[index1])
+            index1 += 1
 
-    resultlist.extend(values2[index:])
+    resultlist.extend(values1[index1:])
+    resultlist.extend(values2[index2:])
     return resultlist
