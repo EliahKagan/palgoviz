@@ -268,7 +268,7 @@ def merge_two(values1, values2):
     Return a sorted list that that takes two sorted sequences as input. 
     
     >>> merge_two([1, 3, 5], [2, 4, 6])
-    >>> [1, 2, 3, 4, 5, 6]
+    [1, 2, 3, 4, 5, 6]
     """
     resultlist = list(values2)
     for v1 in values1: 
