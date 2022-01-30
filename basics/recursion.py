@@ -365,7 +365,6 @@ def merge_two_alt(values1, values2):
             resultlist.append(values2[index2])
             index2 += 1 
     
-    resultlist.extend(values1[index1:])
-    resultlist.extend(values2[index2:])
+    resultlist.extend(values1[index1:] or values2[index2:])
 
     return resultlist
