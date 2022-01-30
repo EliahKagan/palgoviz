@@ -186,7 +186,7 @@ def binary_search(values, x):
     """
 
     def help_binary(low, high):  # high is an inclusive endpoint.
-        if low > high: 
+        if low > high:
             return None
         halfway = (low + high) // 2
         if x > values[halfway]:
@@ -224,7 +224,7 @@ def binary_search_iterative(values, x):
     low = 0
     high = len(values) - 1
 
-    while low <= high: 
+    while low <= high:
         halfway = (low + high) // 2
         if x > values[halfway]:
             low = halfway + 1
@@ -232,7 +232,7 @@ def binary_search_iterative(values, x):
             high = halfway - 1
         else: # values[halfway] should = x, possibly add assert.
             return halfway
-    
+
     return None
 
 
@@ -263,12 +263,12 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
-def merge_two(values1, values2): 
+def merge_two(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input. 
+    Return a sorted list that that takes two sorted sequences as input.
 
     If values2 is empty, this is equivilant to a binary insertion sort
-    
+
     >>> merge_two([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
     >>> merge_two([], [2, 4, 6])
@@ -283,17 +283,17 @@ def merge_two(values1, values2):
     [1, 1, 4, 7, 8]
     """
     resultlist = list(values2)
-    for v1 in values1: 
+    for v1 in values1:
         bisect.insort(resultlist, v1)
-        
+
     return resultlist
 
-def merge_two_fast(values1, values2): 
+def merge_two_fast(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input. 
+    Return a sorted list that that takes two sorted sequences as input.
 
     If values2 is empty, this is equivilant to a binary insertion sort
-    
+
     >>> merge_two_fast([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
     >>> merge_two_fast([2, 4, 6], [1, 3, 5])
@@ -310,14 +310,13 @@ def merge_two_fast(values1, values2):
     [1, 1, 4, 7, 8]
     """
     resultlist = []
-    index = 0 
+    index = 0
+
     for v1 in values1:
-        if v1 <= values2[index]:
-            resultlist.append(v1)
-        else: 
-            while v1 > values2[index]:
-                if values2[index] < v1:
-                    resultlist.append(values2[index])
-                    index += 1
+        while index != len(values2) and values2[index] < v1:
+            resultlist.append(values2[index])
+            index += 1
+        resultlist.append(v1)
+
+    resultlist.extend(values2[index:])
     return resultlist
-    
