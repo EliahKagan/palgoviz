@@ -263,6 +263,36 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
+def merge_two_slow(values1, values2): 
+    """
+    Return a sorted list that that takes two sorted sequences as input. 
+
+    If values2 is empty, this is equivilant to a binary insertion sort
+    
+    >>> merge_two_slow([1, 3, 5], [2, 4, 6])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_slow([2, 4, 6], [1, 3, 5])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_slow([], [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_slow((), [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_slow((), [])
+    []
+    >>> merge_two_slow([], ())
+    []
+    >>> merge_two_slow((), (1, 1, 4, 7, 8))
+    [1, 1, 4, 7, 8]
+    >>> merge_two_slow((1, 1, 4, 7, 8), ())
+    [1, 1, 4, 7, 8]
+    """
+    resultlist = list(values2)
+    for v1 in values1: 
+        bisect.insort(resultlist, v1)
+        
+    return resultlist
+
+
 def merge_two(values1, values2): 
     """
     Return a sorted list that that takes two sorted sequences as input. 
@@ -286,36 +316,6 @@ def merge_two(values1, values2):
     >>> merge_two((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = list(values2)
-    for v1 in values1: 
-        bisect.insort(resultlist, v1)
-        
-    return resultlist
-
-
-def merge_two_fast(values1, values2): 
-    """
-    Return a sorted list that that takes two sorted sequences as input. 
-
-    If values2 is empty, this is equivilant to a binary insertion sort
-    
-    >>> merge_two_fast([1, 3, 5], [2, 4, 6])
-    [1, 2, 3, 4, 5, 6]
-    >>> merge_two_fast([2, 4, 6], [1, 3, 5])
-    [1, 2, 3, 4, 5, 6]
-    >>> merge_two_fast([], [2, 4, 6])
-    [2, 4, 6]
-    >>> merge_two_fast((), [2, 4, 6])
-    [2, 4, 6]
-    >>> merge_two_fast((), [])
-    []
-    >>> merge_two_fast([], ())
-    []
-    >>> merge_two_fast((), (1, 1, 4, 7, 8))
-    [1, 1, 4, 7, 8]
-    >>> merge_two_fast((1, 1, 4, 7, 8), ())
-    [1, 1, 4, 7, 8]
-    """
     resultlist = []
     index = 0 
 
@@ -326,5 +326,48 @@ def merge_two_fast(values1, values2):
         resultlist.append(v1)
 
     resultlist.extend(values2[index:])
+
+    return resultlist
+
+
+def merge_two_alt(values1, values2): 
+    """
+    Return a sorted list that that takes two sorted sequences as input. 
+
+    If values2 is empty, this is equivilant to a binary insertion sort
+    
+    >>> merge_two_alt([1, 3, 5], [2, 4, 6])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_alt([2, 4, 6], [1, 3, 5])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_alt([], [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_alt((), [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_alt((), [])
+    []
+    >>> merge_two_alt([], ())
+    []
+    >>> merge_two_alt((), (1, 1, 4, 7, 8))
+    [1, 1, 4, 7, 8]
+    >>> merge_two_alt((1, 1, 4, 7, 8), ())
+    [1, 1, 4, 7, 8]
+    """
+    resultlist = []
+    index1 = 0
+    index2 = 0 
+   
+    while index1 < len(values1) and index2 < len(values2):
+        if values1[index1] <= values2[index2]:
+            resultlist.append(values1[index1])
+            index1 += 1
+        else:
+            resultlist.append(values2[index2])
+            index2 += 1 
+    
+    if index1 < len(values1):
+        resultlist.extend(values1[index1:])
+    elif index2 < len(values2):
+        resultlist.extend(values2[index2:])
 
     return resultlist
