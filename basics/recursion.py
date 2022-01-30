@@ -272,8 +272,8 @@ def merge_two(values1, values2):
     """
     resultlist = list(values2)
     for v1 in values1: 
-        index = bisect.bisect_left(resultlist, v1)
-        resultlist.insert(index, v1)
+        bisect.insort(resultlist, v1)
+        
     return resultlist
 
     
