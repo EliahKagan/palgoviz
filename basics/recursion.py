@@ -261,4 +261,19 @@ def binary_search_good(values, x):
     """
     index = bisect.bisect_left(values,x)
     return index if (index < len(values)) and (values[index] == x) else None
+
+
+def merge_two(values1, values2): 
+    """
+    Return a sorted list that that takes two sorted sequences as input. 
+    
+    >>> merge_two([1, 3, 5], [2, 4, 6])
+    >>> [1, 2, 3, 4, 5, 6]
+    """
+    resultlist = list(values2)
+    for v1 in values1: 
+        index = bisect.bisect_left(resultlist, v1)
+        resultlist.insert(index, v1)
+    return resultlist
+
     
