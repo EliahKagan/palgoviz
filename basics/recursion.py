@@ -368,3 +368,33 @@ def merge_two_alt(values1, values2):
     resultlist.extend(values1[index1:] or values2[index2:])
 
     return resultlist
+
+
+def sort_fast(values):
+    """
+    Sorts using merge_two recursively.
+    
+    >>> sort_fast([])
+    []
+    >>> sort_fast(())
+    []
+    >>> sort_fast((2,))
+    [2]
+    >>> sort_fast([10, 20])
+    [10, 20]
+    >>> sort_fast([20, 10])
+    [10, 20]
+    >>> sort_fast([3, 3])
+    [3, 3]
+    >>> sort_fast([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> sort_fast(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    """
+    # base case: length is less than 2, return the list
+    if len(values) < 2:
+        return list(values)
+    else: 
+        halfway = len(values) // 2
+        return merge_two(sort_fast(values[:halfway]), sort_fast(values[halfway:]))
+    
