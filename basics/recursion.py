@@ -263,6 +263,36 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
+def merge_two_slow(values1, values2): 
+    """
+    Return a sorted list that that takes two sorted sequences as input. 
+
+    If values2 is empty, this is equivilant to a binary insertion sort
+    
+    >>> merge_two_slow([1, 3, 5], [2, 4, 6])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_slow([2, 4, 6], [1, 3, 5])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two_slow([], [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_slow((), [2, 4, 6])
+    [2, 4, 6]
+    >>> merge_two_slow((), [])
+    []
+    >>> merge_two_slow([], ())
+    []
+    >>> merge_two_slow((), (1, 1, 4, 7, 8))
+    [1, 1, 4, 7, 8]
+    >>> merge_two_slow((1, 1, 4, 7, 8), ())
+    [1, 1, 4, 7, 8]
+    """
+    resultlist = list(values2)
+    for v1 in values1: 
+        bisect.insort(resultlist, v1)
+        
+    return resultlist
+
+
 def merge_two(values1, values2): 
     """
     Return a sorted list that that takes two sorted sequences as input. 
@@ -270,6 +300,8 @@ def merge_two(values1, values2):
     If values2 is empty, this is equivilant to a binary insertion sort
     
     >>> merge_two([1, 3, 5], [2, 4, 6])
+    [1, 2, 3, 4, 5, 6]
+    >>> merge_two([2, 4, 6], [1, 3, 5])
     [1, 2, 3, 4, 5, 6]
     >>> merge_two([], [2, 4, 6])
     [2, 4, 6]
@@ -281,43 +313,90 @@ def merge_two(values1, values2):
     []
     >>> merge_two((), (1, 1, 4, 7, 8))
     [1, 1, 4, 7, 8]
+    >>> merge_two((1, 1, 4, 7, 8), ())
+    [1, 1, 4, 7, 8]
     """
-    resultlist = list(values2)
-    for v1 in values1: 
-        bisect.insort(resultlist, v1)
-        
+    resultlist = []
+    index = 0 
+
+    for v1 in values1:
+        while index < len(values2) and values2[index] < v1:
+            resultlist.append(values2[index])
+            index += 1
+        resultlist.append(v1)
+
+    resultlist.extend(values2[index:])
+
     return resultlist
 
-def merge_two_fast(values1, values2): 
+
+def merge_two_alt(values1, values2): 
     """
     Return a sorted list that that takes two sorted sequences as input. 
 
     If values2 is empty, this is equivilant to a binary insertion sort
     
-    >>> merge_two_fast([1, 3, 5], [2, 4, 6])
+    >>> merge_two_alt([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
-    >>> merge_two_fast([2, 4, 6], [1, 3, 5])
+    >>> merge_two_alt([2, 4, 6], [1, 3, 5])
     [1, 2, 3, 4, 5, 6]
-    >>> merge_two_fast([], [2, 4, 6])
+    >>> merge_two_alt([], [2, 4, 6])
     [2, 4, 6]
-    >>> merge_two_fast((), [2, 4, 6])
+    >>> merge_two_alt((), [2, 4, 6])
     [2, 4, 6]
-    >>> merge_two_fast((), [])
+    >>> merge_two_alt((), [])
     []
-    >>> merge_two_fast([], ())
+    >>> merge_two_alt([], ())
     []
-    >>> merge_two_fast((), (1, 1, 4, 7, 8))
+    >>> merge_two_alt((), (1, 1, 4, 7, 8))
+    [1, 1, 4, 7, 8]
+    >>> merge_two_alt((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
     resultlist = []
-    index = 0 
-    for v1 in values1:
-        if v1 <= values2[index]:
-            resultlist.append(v1)
-        else: 
-            while v1 > values2[index]:
-                if values2[index] < v1:
-                    resultlist.append(values2[index])
-                    index += 1
-    return resultlist
+    index1 = 0
+    index2 = 0 
+   
+    while index1 < len(values1) and index2 < len(values2):
+        if values1[index1] <= values2[index2]:
+            resultlist.append(values1[index1])
+            index1 += 1
+        else:
+            resultlist.append(values2[index2])
+            index2 += 1 
     
+    resultlist.extend(values1[index1:] or values2[index2:])
+
+    return resultlist
+
+
+def merge_sort(values):
+    """
+    Sorts using merge_two recursively.
+    
+    >>> merge_sort([])
+    []
+    >>> merge_sort(())
+    []
+    >>> merge_sort((2,))
+    [2]
+    >>> merge_sort([10, 20])
+    [10, 20]
+    >>> merge_sort([20, 10])
+    [10, 20]
+    >>> merge_sort([3, 3])
+    [3, 3]
+    >>> merge_sort([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> merge_sort(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    """
+    def helper(values):
+        # base case: length is less than 2, return the list
+        if len(values) < 2:
+            return values
+
+        halfway = len(values) // 2
+        return merge_two(helper(values[:halfway]), helper(values[halfway:])) 
+
+    return helper(list(values)) 
