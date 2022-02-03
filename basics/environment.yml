@@ -5,15 +5,21 @@ channels:
 
 dependencies:
   - python=3.10
-  - graphviz
+  - typeguard
+
+  # For Jupyter
   - ipython>=8.0.1
   - jupyterlab>=3.1
   - nbdime
-  - pytest
-  - python-graphviz
-  - typeguard
 
-  # dev
+  # For Graphviz
+  - graphviz
+  - python-graphviz
+
+  # For testing
+  - pytest
+
+  # For linting
   - flake8
   - mypy
   - pylint
