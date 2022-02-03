@@ -5,12 +5,19 @@ channels:
 
 dependencies:
   - python=3.10
-  - graphviz
+
+  # For Jupyter
   - ipython>=8.0.1
   - jupyterlab>=3.1
   - nbdime
+
+  # For Graphviz
+  - graphviz
   - python-graphviz
 
-  # dev
+  # For testing
+  - pytest
+
+  # For linting
   - flake8
   - pylint
