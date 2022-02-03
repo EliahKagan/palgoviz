@@ -81,9 +81,23 @@ def print_enumerated_alt(*, start=0):
         print(line)
 
 
-def my_all(iterable):
-    pass
-
-
 def my_any(iterable):
-    pass
+    """
+    Test if any element of an interable is truthy.
+    >>> my_any([17, 4, 9, 0, 3, 5, 0])
+    True
+    >>> my_any(x % 17 == 0 for x in range(100))
+    True
+    >>> my_any(x > 100 for x in range(100))
+    False
+    """
+    for element in iterable: 
+        if element: return True
+    return False 
+
+
+def my_all(iterable):
+    """
+    Tell if all elements of an iterable are truthy.
+    
+    """
