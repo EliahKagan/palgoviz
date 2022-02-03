@@ -54,7 +54,7 @@ def print_enumerated(*, start=0): # start is now a keyword only argument, meanin
         print (f'{index = }, {value = }')
 
 
-def print_enumerated_alt():
+def print_enumerated_alt(*, start=0):
     """
     Alternative implementation of print_enumerated.
 
@@ -66,10 +66,16 @@ def print_enumerated_alt():
     index = 2, value = 7
     index = 3, value = 8
     index = 4, value = 9
+    >>> print_enumerated_alt(start=7)
+    index = 7, value = 5
+    index = 8, value = 6
+    index = 9, value = 7
+    index = 10, value = 8
+    index = 11, value = 9
     """
     lines = (f'{index = }, {value = }'
              for index, value
-             in my_enumerate(range(5, 10)))
+             in my_enumerate(range(5, 10), start))
     
     for line in lines:
         print(line)
