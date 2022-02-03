@@ -79,3 +79,11 @@ def print_enumerated_alt(*, start=0):
     
     for line in lines:
         print(line)
+
+
+def my_all(iterable):
+    pass
+
+
+def my_any(iterable):
+    pass
