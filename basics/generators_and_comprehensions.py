@@ -160,10 +160,12 @@ def zip_two(first, second):
     I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
     """
-    #LBYL implemenation
     f = iter(first)
     s = iter(second)
     while True:
-        t = (next(f), next(s))
-        yield t
+        try:
+            t = (next(f), next(s))
+            yield t
+        except StopIteration:
+            return
     
