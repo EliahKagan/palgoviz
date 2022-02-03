@@ -162,8 +162,5 @@ def zip_two(first, second):
     """
     #LBYL implemenation
     while True:
-        try:
-            yield(next(first), next(second))
-        except StopIteration:
-            return
+        yield(next(iter(first)), next(iter(second)))
     
