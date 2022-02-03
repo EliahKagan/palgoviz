@@ -161,6 +161,9 @@ def zip_two(first, second):
     I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
     """
     #LBYL implemenation
+    f = iter(first)
+    s = iter(second)
     while True:
-        yield(next(iter(first)), next(iter(second)))
+        t = (next(f), next(s))
+        yield t
     
