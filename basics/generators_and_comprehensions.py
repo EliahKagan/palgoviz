@@ -121,3 +121,52 @@ def my_all(iterable):
     for element in iterable:
         if not element: return False
     return True
+
+
+def zip_two(first, second):
+    """
+    zips two iterables.
+
+    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
+    
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in zip_two(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+    I ordered a 4k monitor but I got a gigantic bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat']
+    >>> for order, got in zip_two(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in zip_two(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> bobcats = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> for order, got in zip_two(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a BOBCAT instead!
+    I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+    """
+    #LBYL implemenation
+    i = 0
+    if len(second) >= len(first):
+        for element in first:
+            yield (element, second[i])
+            i+=1
+    else: 
+        for element in second:
+            yield (first[i], element)
+            i+=1 
