@@ -161,6 +161,9 @@ def zip_two(first, second):
     I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
     """
     #LBYL implemenation
-    for i in range(min(len(first), len(second))):
-        yield first[i], second[i]
+    while True:
+        try:
+            yield(next(first), next(second))
+        except StopIteration:
+            return
     
