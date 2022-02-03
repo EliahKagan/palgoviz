@@ -1,11 +1,4 @@
 {
-    "python.testing.pytestArgs": [
-        "--doctest-modules",
-        "--doctest-continue-on-failure",
-        "."
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
     "cSpell.words": [
         "algoviz",
         "capsys",
@@ -21,5 +14,11 @@
         "pyright",
         "pytest",
         "typeguard"
-    ]
+    ],
+    "python.testing.pytestArgs": [
+        ".",
+        "--doctest-modules"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
