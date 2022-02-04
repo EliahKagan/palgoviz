@@ -229,13 +229,7 @@ def my_zip(*iterables):
 
     while True:
         try:
-            # It is a RuntimeError for a StopIteration to propagate outside the
-            # implementation of a generator. So this code does not work. We
-            # could try to catch the RuntimeError, I guess, but that would
-            # result in code that is nearly imposible to reason about, as well
-            # a possibly hiding other problems that raise RuntimeError. So this
-            # approach does not work as written, and should not be used.
-            yield tuple(next(it) for it in iterators)
+            yield tuple(map(next, iterators))
         except StopIteration:
             return
     
