@@ -226,11 +226,10 @@ def my_zip(*iterables):
     iterators = [iter(arg) for arg in iterables]
 
     while True:
-        # This works because StopIteration raised from code called by the
-        # implementation of the map builtin propagates out of the next call on
-        # the map object, so we just get a tuple of a too-short length, once
-        # any of the iterators reaches the end.
-        t = tuple(map(next, iterators))
-        if len(t) != len(iterators):
+        try:
+            nexts = []
+            for it in iterators:
+                nexts.append(next(it))
+            yield tuple(nexts)
+        except StopIteration:
             return
-        yield t
