@@ -227,7 +227,6 @@ def my_zip(*iterables):
 
     while True:
         try:
-            nexts = [next(it) for it in iterators]
-            yield tuple(nexts)
+            yield tuple([next(it) for it in iterators])
         except StopIteration:
             return
