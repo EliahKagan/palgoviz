@@ -231,3 +231,21 @@ def my_zip(*iterables):
             yield tuple([next(it) for it in iterators])
         except StopIteration:
             return
+
+
+def print_zipped():
+    """
+    Zip two enumerated things with my_enumerate and zip_two and print elements.
+
+    >>> print_zipped()
+    word_index=1, word='bat', number_index=100, number=1.5
+    word_index=2, word='dog', number_index=101, number=2.5
+    word_index=3, word='cat', number_index=102, number=3.5
+    word_index=4, word='horse', number_index=103, number=4.5
+    """
+    words = ['bat', 'dog', 'cat', 'horse']
+    numbers = [1.5, 2.5, 3.5, 4.5]
+    zipped = zip_two(my_enumerate(words, 1), my_enumerate(numbers, 100))
+
+    for (word_index, word), (number_index, number) in zipped:
+        print(f'{word_index=}, {word=}, {number_index=}, {number=}')
