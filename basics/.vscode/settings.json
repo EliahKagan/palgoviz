@@ -19,7 +19,7 @@
         ".",
         "--doctest-modules"
     ],
-    "python.testing.pytestEnabled": false,
+    "python.testing.pytestEnabled": true,
     "python.testing.unittestArgs": [
         "-v",
         "-s",
@@ -27,5 +27,5 @@
         "-p",
         "test_*.py"
     ],
-    "python.testing.unittestEnabled": true
+    "python.testing.unittestEnabled": false
 }
