@@ -133,7 +133,7 @@ def test_warns_on_extra_arg_without_error(invoke: Invoker) -> None:
     status, _, err = invoke('names.txt', 'en', 'other-arg')
     assert status == 0, "Extra arguments don't cause failure status."
     assert err == ('WARNING in PROGNAME: '
-                   'Too many arguments, see doctring for usage\n')
+                   'Too many arguments, see docstring for usage\n')
 
 
 @typechecked
@@ -142,7 +142,7 @@ def test_warns_on_multiple_extra_args_without_error(invoke: Invoker) -> None:
     status, _, err = invoke('names.txt', 'es', 'other1', 'other2', 'other3')
     assert status == 0, "Extra arguments don't cause failure status."
     assert err == ('WARNING in PROGNAME: '
-                   'Too many arguments, see doctring for usage\n')
+                   'Too many arguments, see docstring for usage\n')
 
 
 # @typechecked
