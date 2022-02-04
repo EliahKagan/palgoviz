@@ -229,7 +229,6 @@ def my_zip(*iterables):
 
     while True:
         t = tuple(map(next, iterators))
-        if len(t) == len(iterators): 
-            yield t
-        else:
+        if len(t) != len(iterators):
             return
+        yield t
