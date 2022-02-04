@@ -228,8 +228,8 @@ def my_zip(*iterables):
         iterators.append(iter(arg))
 
     while True:
-        try:
-            yield tuple(map(next, iterators))
-        except StopIteration:
+        t = tuple(map(next, iterators))
+        if len(t) == len(iterators): 
+            yield t
+        else:
             return
-    
