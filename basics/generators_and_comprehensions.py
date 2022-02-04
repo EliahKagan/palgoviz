@@ -223,15 +223,16 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
-    helplist = []
-    for element in iterables:
-        helplist.append(iter(element))
+    iterators = []
+    for arg in iterables:
+        iterators.append(iter(arg))
+        
     while True:
         try:
-            secondlist = []
-            for i in range(len(helplist)):
-                secondlist.append(next(helplist[i]))
-            yield tuple(secondlist)
+            nexts = []
+            for index in range(len(iterators)):
+                nexts.append(next(iterators[index]))
+            yield tuple(nexts)
         except StopIteration:
             return
     
