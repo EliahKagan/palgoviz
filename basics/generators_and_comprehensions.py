@@ -227,6 +227,7 @@ def my_zip(*iterables):
 
     while True:
         try:
+            # Use a list comprehension so we can catch StopIteration from it.
             yield tuple([next(it) for it in iterators])
         except StopIteration:
             return
