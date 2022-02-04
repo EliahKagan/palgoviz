@@ -226,12 +226,12 @@ def my_zip(*iterables):
     iterators = []
     for arg in iterables:
         iterators.append(iter(arg))
-        
+
     while True:
         try:
             nexts = []
-            for index in range(len(iterators)):
-                nexts.append(next(iterators[index]))
+            for it in iterators:
+                nexts.append(next(it))
             yield tuple(nexts)
         except StopIteration:
             return
