@@ -223,9 +223,7 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
-    iterators = []
-    for arg in iterables:
-        iterators.append(iter(arg))
+    iterators = [iter(arg) for arg in iterables]
 
     while True:
         t = tuple(map(next, iterators))
