@@ -162,9 +162,10 @@ def zip_two(first, second):
     """
     f = iter(first)
     s = iter(second)
-    try:
-        while True:
+    while True:
+        try:
             t = (next(f), next(s))
             yield t
-    except StopIteration:
-        pass
+        except StopIteration:
+            return
+    
