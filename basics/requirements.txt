@@ -1,0 +1,5 @@
+doctestfn
+
+# Experimental mypy with support for the match statement, contributed by
+# Adrian Freund. See https://github.com/python/mypy/pull/10191.
+git+https://github.com/freundTech/mypy.git@feature-match-stmt#egg=mypy
