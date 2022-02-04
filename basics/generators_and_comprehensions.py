@@ -205,6 +205,23 @@ def my_zip(*iterables):
     I ordered a gaming mouse but I got a BOBCAT instead!
     I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> grunts = ['Doh!', 'Ow!', 'OOF!']
+    >>> for grunt, order, got in my_zip(grunts, ordered, received):
+    ...     print(f'{grunt} I ordered a {order} but I got a {got} instead!')
+    Doh! I ordered a gaming mouse but I got a BOBCAT instead!
+    Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    OOF! I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> grunts = ['Doh!', 'Ow!', 'OOF!']
+    >>> for grunt, order, got in my_zip(grunts, ordered, received):
+    ...     print(f'{grunt} I ordered a {order} but I got a {got} instead!')
+    Doh! I ordered a gaming mouse but I got a BOBCAT instead!
+    Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
     helplist = []
     for element in iterables:
