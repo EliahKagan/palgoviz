@@ -167,4 +167,54 @@ def zip_two(first, second):
             yield (next(f), next(s))
         except StopIteration:
             return
+
+
+def my_zip(*iterables):
+    """
+    zips two iterables.
+
+    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
+    
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+    I ordered a 4k monitor but I got a gigantic bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat']
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> bobcats = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a BOBCAT instead!
+    I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+    """
+    helplist = []
+    for element in iterables:
+        helplist.append(iter(element))
+    while True:
+        try:
+            secondlist = []
+            for i in range(len(helplist)):
+                secondlist.append(next(helplist[i]))
+            yield tuple(secondlist)
+        except StopIteration:
+            return
     
