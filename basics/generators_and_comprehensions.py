@@ -186,7 +186,15 @@ def my_zip(*iterables):
     []
     >>> list(my_zip([], [30, 40]))
     []
-    
+    >>> list(my_zip([]))
+    []
+    >>> list(my_zip(()))
+    []
+    >>> list(my_zip([10]))
+    [(10,)]
+    >>> list(my_zip())
+    []
+
     >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
     >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
     >>> for order, got in my_zip(ordered, received):
@@ -236,7 +244,8 @@ def my_zip(*iterables):
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
     iterators = [iter(arg) for arg in iterables]
-
+    if iterators == []: # for the case of no input
+        iterators = [iter([])]
     while True:
         try:
             # Use a list comprehension so we can catch StopIteration from it.
