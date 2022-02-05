@@ -243,7 +243,7 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
-    if iterables == (): # check if no input
+    if not iterables: # check if there are no arguments 
         return
     
     iterators = [iter(arg) for arg in iterables]
