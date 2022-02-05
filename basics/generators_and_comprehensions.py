@@ -164,8 +164,88 @@ def zip_two(first, second):
     s = iter(second)
     while True:
         try:
-            t = (next(f), next(s))
-            yield t
+            yield (next(f), next(s))
         except StopIteration:
             return
+
+
+def my_zip(*iterables):
+    """
+    zips two iterables.
+
+    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
     
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+    I ordered a 4k monitor but I got a gigantic bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat']
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> bobcats = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> for order, got in my_zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a BOBCAT instead!
+    I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> grunts = ['Doh!', 'Ow!', 'OOF!']
+    >>> for grunt, order, got in my_zip(grunts, ordered, received):
+    ...     print(f'{grunt} I ordered a {order} but I got a {got} instead!')
+    Doh! I ordered a gaming mouse but I got a BOBCAT instead!
+    Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    OOF! I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> grunts = ['Doh!', 'Ow!', 'OOF!']
+    >>> for grunt, order, got in my_zip(grunts, ordered, received):
+    ...     print(f'{grunt} I ordered a {order} but I got a {got} instead!')
+    Doh! I ordered a gaming mouse but I got a BOBCAT instead!
+    Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    """
+    iterators = [iter(arg) for arg in iterables]
+
+    while True:
+        try:
+            # Use a list comprehension so we can catch StopIteration from it.
+            yield tuple([next(it) for it in iterators])
+        except StopIteration:
+            return
+
+
+def print_zipped():
+    """
+    Zip two enumerated things with my_enumerate and zip_two and print elements.
+
+    >>> print_zipped()
+    word_index=1, word='bat', number_index=100, number=1.5
+    word_index=2, word='dog', number_index=101, number=2.5
+    word_index=3, word='cat', number_index=102, number=3.5
+    word_index=4, word='horse', number_index=103, number=4.5
+    """
+    words = ['bat', 'dog', 'cat', 'horse']
+    numbers = [1.5, 2.5, 3.5, 4.5]
+    zipped = zip_two(my_enumerate(words, 1), my_enumerate(numbers, 100))
+
+    for (word_index, word), (number_index, number) in zipped:
+        print(f'{word_index=}, {word=}, {number_index=}, {number=}')
