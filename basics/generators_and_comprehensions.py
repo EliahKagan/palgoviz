@@ -243,9 +243,11 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
+    if iterables == (): # check if no input
+        return
+    
     iterators = [iter(arg) for arg in iterables]
-    if iterators == []: # for the case of no input
-        iterators = [iter([])]
+    
     while True:
         try:
             # Use a list comprehension so we can catch StopIteration from it.
