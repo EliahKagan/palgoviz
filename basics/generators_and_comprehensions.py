@@ -171,9 +171,7 @@ def zip_two(first, second):
 
 def my_zip(*iterables):
     """
-    zips two iterables.
-
-    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
+    Zips two iterables. Like the built-in zip, but with no "strict" argument.
     
     >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
     >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
