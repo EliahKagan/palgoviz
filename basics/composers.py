@@ -65,7 +65,7 @@ def repeat_compose_chained(function, count):
     RecursionError: maximum recursion depth exceeded
     """
     rvalue = lambda x: x
-    for i in range(count):
+    for _ in range(count):
         rvalue = compose2(function, rvalue)
     return rvalue
 
@@ -87,7 +87,7 @@ def repeat_compose(function, count):
     5001
     """
     def rvalue(x):
-        for i in range(count):
+        for _ in range(count):
             x = function(x)
         return x
     return rvalue
