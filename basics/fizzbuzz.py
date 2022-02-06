@@ -31,17 +31,15 @@ The classic "FizzBuzz" problem.
 def run():
     """Prints numbers and words, solving the FizzBuzz problem."""
     for i in range(1, 101):
-        fizz = i % 3 == 0
-        buzz = i % 5 == 0
-
-        if fizz and buzz:
-            print('FizzBuzz')
-        elif fizz:
-            print('Fizz')
-        elif buzz:
-            print('Buzz')
-        else:
-            print(i)
+        match i % 3, i % 5:
+            case 0, 0:
+                print('FizzBuzz')
+            case 0, _:
+                print('Fizz')
+            case _, 0:
+                print('Buzz')
+            case _, _:
+                print(i)
 
 
 if __name__ == '__main__':
