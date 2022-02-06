@@ -27,20 +27,3 @@ The classic "FizzBuzz" problem.
     This docstring uses indentation, but no line of output should contain any
     leading or trailing whitespace.
 """
-
-def run():
-    """Prints numbers and words, solving the FizzBuzz problem."""
-    for i in range(1, 101):
-        match i % 3, i % 5:
-            case 0, 0:
-                print('FizzBuzz')
-            case 0, _:
-                print('Fizz')
-            case _, 0:
-                print('Buzz')
-            case _, _:
-                print(i)
-
-
-if __name__ == '__main__':
-    run()
