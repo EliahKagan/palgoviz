@@ -27,13 +27,19 @@ The classic "FizzBuzz" problem.
     This docstring uses indentation, but no line of output should contain any
     leading or trailing whitespace.
 """
-for x in range(1, 101):
-    if x % 15 == 0:
-        print("FizzBuzz")
-    elif x % 5 == 0:
-        print("Buzz")
-    elif x % 3 == 0: 
-        print("Fizz")
-    else:
-        print(x)
 
+
+def fizzbuzz():
+    for x in range(1, 101):
+        if x % 15 == 0:
+            print("FizzBuzz")
+        elif x % 5 == 0:
+            print("Buzz")
+        elif x % 3 == 0: 
+            print("Fizz")
+        else:
+            print(x)
+
+
+if __name__ == '__main__':  # If we are running this module as a script.
+    fizzbuzz()
