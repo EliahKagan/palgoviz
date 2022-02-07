@@ -31,14 +31,14 @@ The classic "FizzBuzz" problem, implemented using match-case.
 
 def fizzbuzz():
     for x in range(1, 101):
-        match (x % 5, x % 3):
-            case (0, 0): 
+        match x % 5, x % 3:
+            case 0, 0: 
                 print('FizzBuzz')
-            case (0, _): 
+            case 0, _: 
                 print('Buzz')
-            case (_, 0):
-                print ('Fizz')
-            case (_, _):
+            case _, 0:
+                print('Fizz')
+            case _, _:
                 print(x)
 
 
