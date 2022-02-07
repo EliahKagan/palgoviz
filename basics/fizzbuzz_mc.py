@@ -31,18 +31,15 @@ The classic "FizzBuzz" problem, implemented using match-case.
 
 def fizzbuzz():
     for x in range(1, 101):
-        match x % 5 == 0:
-            case True: 
-                if x % 3 == 0: 
-                    print('FizzBuzz')
-                else:
-                    print('Buzz')
-            case False: 
-                if x % 3 == 0:
-                    print('Fizz')
-                else: 
-                    print(x)
-
+        match (not x % 5, not x % 3):
+            case (True, True): 
+                print('FizzBuzz')
+            case (True, False): 
+                print('Buzz')
+            case (False, True):
+                print ('Fizz')
+            case (False, False):
+                print(x)
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
