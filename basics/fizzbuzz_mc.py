@@ -31,7 +31,7 @@ The classic "FizzBuzz" problem, implemented using match-case.
 
 def fizzbuzz():
     for x in range(1, 101):
-        match (not x % 5, not x % 3):
+        match (x % 5 == 0, x % 3 == 0):
             case (True, True): 
                 print('FizzBuzz')
             case (True, False): 
