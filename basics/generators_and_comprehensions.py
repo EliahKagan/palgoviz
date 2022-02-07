@@ -125,9 +125,16 @@ def my_all(iterable):
 
 def zip_two(first, second):
     """
-    zips two iterables.
+    Zips two iterables.
 
     Zips shortest, like the built-in zip, but must take exactly 2 arguments.
+
+    >>> list(zip_two([], []))
+    []
+    >>> list(zip_two([10, 20], []))
+    []
+    >>> list(zip_two([], [30, 40]))
+    []
     
     >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
     >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
@@ -171,10 +178,23 @@ def zip_two(first, second):
 
 def my_zip(*iterables):
     """
-    zips two iterables.
+    Zips two iterables. Like the built-in zip, but with no "strict" argument.
 
-    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
-    
+    >>> list(my_zip([], []))
+    []
+    >>> list(my_zip([10, 20], []))
+    []
+    >>> list(my_zip([], [30, 40]))
+    []
+    >>> list(my_zip([]))
+    []
+    >>> list(my_zip(()))
+    []
+    >>> list(my_zip([10]))
+    [(10,)]
+    >>> list(my_zip())
+    []
+
     >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
     >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
     >>> for order, got in my_zip(ordered, received):
@@ -223,8 +243,11 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
+    if not iterables: # check if there are no arguments 
+        return
+    
     iterators = [iter(arg) for arg in iterables]
-
+    
     while True:
         try:
             # Use a list comprehension so we can catch StopIteration from it.
