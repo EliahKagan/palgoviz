@@ -331,7 +331,7 @@ def fib_n(n):
     if not isinstance(n, int):
         raise TypeError('n must be an int')
 
-    def helpf(n):
+    def helpf():
         first = 0
         second = 1 
         for x in range(n):
@@ -344,4 +344,5 @@ def fib_n(n):
                 temp = first
                 first = second
                 second = temp + second 
-    return helpf(n)
+
+    return helpf()
