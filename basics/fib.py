@@ -47,13 +47,13 @@ def main():
 
     try:
         n = int(sys.argv[1])
-    except ValueError as message: 
-        _die(message)
+    except ValueError as e: 
+        _die(e)
 
     try:
         result = fib_n(n)
-    except ValueError as message: 
-        _die(message)
+    except ValueError as e: 
+        _die(e)
     
 
     if n == 0:
