@@ -344,7 +344,7 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    return (func(value) for value in iterable)
+    ...  # FIXME: Implement this.
 
 
 def my_filter(predicate, iterable):
@@ -364,6 +364,4 @@ def my_filter(predicate, iterable):
     >>> list(my_filter(None, (a[1:] for a in ('p', 'xy', [3], (1, 2, 3), 'c'))))
     ['y', (2, 3)]
     """
-    if predicate is None:
-        predicate = lambda x: x
-    return (value for value in iterable if predicate(value))
+    ...  # FIXME: Implement this.
