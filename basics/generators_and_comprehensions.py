@@ -322,3 +322,48 @@ def fib_n(n):
     [0]
     """
     ...  # FIXME: Implement this.
+
+
+def map_one(func, iterable):
+    """
+    Map values from the given interable through the unary function func.
+
+    This is like the builtin map, except it doesn't accept multiple iterables.
+
+    That is, map accepts an n-ary function and n iterable arguments, but
+    map_one requires a unary function and exactly one iterable argument.
+
+    >>> list(map_one(lambda x: x**2, range(1, 11)))
+    [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+    >>> next(map_one(lambda x: x**2, range(0)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(map_one(len, ['foobar', (10, 20), range(1000)]))
+    [6, 2, 1000]
+    >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
+    [2, 5, 10, 17, 26]
+    """
+    return (func(value) for value in iterable)
+
+
+def my_filter(predicate, iterable):
+    """
+    Return an iterator of the values in an iterable that satisfy the predicate.
+
+    If None is passed instead of func, the iterator will yield truthy values.
+
+    This is the same behavior as the builtin filter.
+
+    >>> next(my_filter(lambda n: n < 0, (0, 1, 2)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(my_filter(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
+    ['ham', 'foo']
+    >>> list(my_filter(None, (a[1:] for a in ('p', 'xy', [3], (1, 2, 3), 'c'))))
+    ['y', (2, 3)]
+    """
+    if predicate is None:
+        predicate = lambda x: x
+    return (value for value in iterable if predicate(value))
