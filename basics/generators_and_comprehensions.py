@@ -1,6 +1,9 @@
 """Generators and comprehensions."""
 
 
+from operator import truediv
+
+
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
@@ -322,6 +325,7 @@ def fib_n(n):
     [0]
     """
     if n < 0: 
+        print("Got here")
         raise ValueError(f"can't yield negatively many Fibonacci numbers")
     
     if not isinstance(n, int):
