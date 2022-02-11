@@ -330,5 +330,6 @@ def fib_n(n):
             yield 1
         else:
             yield first + second
+            temp = first
             first = second
-            second = first + second 
+            second = temp + second 
