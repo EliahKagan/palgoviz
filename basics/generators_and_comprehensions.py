@@ -303,6 +303,8 @@ def fib_n(n):
     Traceback (most recent call last):
       ...
     StopIteration
+    >>> list(fib_n(1))
+    [0]
     >>> list(fib_n(3))
     [0, 1, 1]
     >>> list(fib_n(4))
