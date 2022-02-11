@@ -54,7 +54,6 @@ def main():
         result = fib_n(n)
     except ValueError as e: 
         _die(e)
-    
 
     if n == 0:
         _warn('printing ZERO numbers, as requested')
