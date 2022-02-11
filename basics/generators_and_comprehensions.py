@@ -335,8 +335,6 @@ def fib_n(n):
         second = 1 
         for _ in range(n):
             yield first
-            old_first = first 
-            first = second
-            second = old_first + second
+            first, second = second, first + second
             
     return helpf()
