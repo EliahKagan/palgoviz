@@ -321,16 +321,4 @@ def fib_n(n):
     >>> list(fib_n(True))  # OK, since bool is a subclass of int.
     [0]
     """
-    if not isinstance(n, int):
-        raise TypeError(f'n must be an int')
-    if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
-
-    def generate():
-        a = 0
-        b = 1
-        for _ in range(n):
-            yield a
-            a, b = b, a + b
-
-    return generate()
+    ...  # FIXME: Implement this.
