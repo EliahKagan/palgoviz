@@ -325,7 +325,6 @@ def fib_n(n):
     [0]
     """
     if n < 0: 
-        print("Got here")
         raise ValueError(f"can't yield negatively many Fibonacci numbers")
     
     if not isinstance(n, int):
