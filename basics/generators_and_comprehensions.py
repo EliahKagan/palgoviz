@@ -322,19 +322,13 @@ def fib_n(n):
     [0]
     """
     first = 0
-    second = 0 
-    fsum = 0
+    second = 1 
     for x in range(n):
         if x == 0: 
-            first = 0
-            second = 0
-            fsum = 0
+            yield 0
         elif x == 1: 
-            first = 0
-            second = 1
-            fsum = second + first
+            yield 1
         else:
+            yield first + second
             first = second
-            second = fsum
-            fsum = second + first 
-        yield fsum 
+            second = first + second 
