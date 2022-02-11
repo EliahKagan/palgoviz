@@ -321,4 +321,20 @@ def fib_n(n):
     >>> list(fib_n(True))  # OK, since bool is a subclass of int.
     [0]
     """
-    ...  # FIXME: Implement this.
+    first = 0
+    second = 0 
+    fsum = 0
+    for x in range(n):
+        if x == 0: 
+            first = 0
+            second = 0
+            fsum = 0
+        elif x == 1: 
+            first = 0
+            second = 1
+            fsum = second + first
+        else:
+            first = second
+            second = fsum
+            fsum = second + first 
+        yield fsum 
