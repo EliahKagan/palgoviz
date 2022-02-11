@@ -45,15 +45,11 @@ def main():
     if len(sys.argv) > 2:
         _die('too many arguments')
 
-    try:
-        n = int(sys.argv[1])
-    except ValueError:
-        _die('argument is not an integer')
+    # FIXME: Handle the case of a non-integer argument.
+    n = int(sys.argv[1])
 
-    try:
-        result = fib_n(n)
-    except ValueError:
-        _die('argument is negative')
+    # FIXME: Handle the case of a negative argument.
+    result = fib_n(n)
 
     if n == 0:
         _warn('printing ZERO numbers, as requested')
