@@ -333,15 +333,10 @@ def fib_n(n):
     def helpf():
         first = 0
         second = 1 
-        for x in range(n):
-            if x == 0: 
-                yield 0
-            elif x == 1: 
-                yield 1
-            else:
-                yield first + second
-                temp = first
-                first = second
-                second = temp + second 
-
+        for _ in range(n):
+            yield first
+            old_first = first 
+            first = second
+            second = old_first + second
+            
     return helpf()
