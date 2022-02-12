@@ -390,22 +390,112 @@ def my_filter(predicate, iterable):
 
 def length_of(iterable):
     """
-    """  # FIXME: document and implement
+    Count the number of items in an iterable, which need not support len.
+
+    >>> length_of(range(1000))
+    1000
+    >>> length_of(iter(range(1000)))
+    1000
+    >>> length_of(x for x in range(1000))
+    1000
+    >>> length_of(x for x in ())
+    0
+    >>> length_of(x for x in ['ham', 'spam', 'foo', 'eggs', ''] if len(x) == 3)
+    2
+    >>> length_of(set(object() for _ in range(100_000)))
+    100000
+    """
+    return sum(1 for _ in iterable)
+
+
+def length_of_opt(iterable):
+    """
+    Count the number of items in any iterable, but use len if it is supported.
+
+    This may be viewed as an optimized implementation of length_of.
+
+    >>> length_of_opt(range(1000))
+    1000
+    >>> length_of_opt(iter(range(1000)))
+    1000
+    >>> length_of_opt(x for x in range(1000))
+    1000
+    >>> length_of_opt(x for x in ())
+    0
+    >>> length_of_opt(x for x in ['ham', 'sp', 'foo', 'eg', ''] if len(x) == 3)
+    2
+    >>> length_of_opt(set(object() for _ in range(100_000)))
+    100000
+    >>> length_of_opt(range(2_000_000_000))
+    2000000000
+    >>> set(length_of_opt(range(2_000_000_000)) for _ in range(100_000))
+    {2000000000}
+    """
+    try:
+        return len(iterable)
+    except TypeError:
+        return length_of(iterable)
 
 
 def how_many(predicate, iterable):
     """
-    """  # FIXME: document and implement
+    Count the number of items in an iterable that satisfy a predicate.
+
+    If predicate is None instead of a unary function, count truthy items.
+
+    >>> how_many(lambda n: n % 3 == 0, range(1, 12))
+    3
+    >>> how_many(lambda n: n % 3 == 0, range(1, 13))
+    4
+    >>> how_many(lambda s: len(s) == 4,
+    ...          (t * 2 for t in ['a', 'bc', 'de', 'f', 'ghi', 'jk']))
+    3
+    >>> how_many(None, iter([(), [], '', 'a', {}, set(), [0], None]))
+    2
+    >>> how_many(lambda _: True, [0, 1] * 100_000)
+    200000
+    >>> o = object()
+    >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
+    0
+    """
+    if predicate is None:
+        predicate = lambda x: x
+    return sum(1 for value in iterable if predicate(value))
 
 
 def invert(dictionary):
     """
-    Given an injective (one-to-one) dictionary, return its inverse.
+    Given an injective (that is, one-to-one) dictionary, return its inverse.
 
     When a dictionary never maps unequal keys to equal values, it is possible
     to produce an inverse of it: a dictionary that maps the values back to the
     keys.
-    """  # FIXME: write doctest and implement
+
+    This also needs the dictionary's values (not just its keys) to be hashable.
+
+    TODO: Document the behavior of invert when given a noninjective dictionary.
+
+    >>> invert({})
+    {}
+    >>> invert({'a': 10, 'b': 20, 'cd': 30, 'efg': 40})
+    {10: 'a', 20: 'b', 30: 'cd', 40: 'efg'}
+    >>> r = range(100_000)
+    >>> invert({x: x**2 for x in r}) == {x**2: x for x in r}
+    True
+    >>> invert({x: x for x in r}) == {x: x for x in r}
+    True
+    >>> import random
+    >>> a = list(range(-50_000, 50_001))
+    >>> random.shuffle(a)
+    >>> b = [x**3 for x in a]
+    >>> random.shuffle(b)
+    >>> d = {k: v for k, v in zip(a, b)}
+    >>> invert(d) == d
+    False
+    >>> invert(invert(d)) == d
+    True
+    """
+    return {value: key for key, value in dictionary.items()}
 
 
 def distinct_simple(iterable):
@@ -501,8 +591,8 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Yield dictionaries from dicts that differ from each previously seen
     dictionary in their treatment of the subject key.
 
-    dicts is an iterable of dictionaries whose values are hashable (not just
-    their keys, which are hashable in any dictionary).
+    dicts is an iterable of dictionaries whose values (not just its keys) are
+    hashable.
 
     subject_key (which I call the "subject key") is some hashable object.
 
@@ -559,8 +649,8 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     Yield dictionaries from dicts that differ from each previously seen
     dictionary in their treatment of (at least one of) the subject keys.
 
-    dicts is an iterable of dictionaries whose values are hashable (not just
-    their keys, which are hashable in any dictionary).
+    dicts is an iterable of dictionaries whose values (not just its keys) are
+    hashable.
 
     subject_keys ("the subject keys") is an iterable of hashable objects.
 
