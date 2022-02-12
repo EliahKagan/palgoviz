@@ -365,6 +365,27 @@ def map_one(func, iterable):
     return (func(value) for value in iterable)
 
 
+def map_one_alt(func, iterable):
+    """
+    Map values from the given interable through the unary function func.
+
+    This behaves the same as map_one (above) but is implemented differently.
+
+    >>> list(map_one_alt(lambda x: x**2, range(1, 11)))
+    [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+    >>> next(map_one_alt(lambda x: x**2, range(0)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(map_one_alt(len, ['foobar', (10, 20), range(1000)]))
+    [6, 2, 1000]
+    >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
+    [2, 5, 10, 17, 26]
+    """
+    for value in iterable:
+        yield func(value)
+
+
 def my_filter(predicate, iterable):
     """
     Return an iterator of the values in an iterable that satisfy the predicate.
@@ -380,12 +401,41 @@ def my_filter(predicate, iterable):
     StopIteration
     >>> list(my_filter(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
     ['ham', 'foo']
-    >>> list(my_filter(None, (a[1:] for a in ('p', 'xy', [3], (1, 2, 3), 'c'))))
+    >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+    >>> list(my_filter(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
     """
     if predicate is None:
         predicate = lambda x: x
     return (value for value in iterable if predicate(value))
+
+
+def my_filter_alt(predicate, iterable):
+    """
+    Return an iterator of the values in an iterable that satisfy the predicate.
+
+    If the predicate is None instead of a function, the iterator will yield the
+    values of the iterable that are truthy.
+
+    This behaves the same as my_filter (above) and the builtin filter, but its
+    implementation differs from that of my_filter.
+
+    >>> next(my_filter_alt(lambda n: n < 0, (0, 1, 2)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(my_filter_alt(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
+    ['ham', 'foo']
+    >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+    >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
+    ['y', (2, 3)]
+    """
+    if predicate is None:
+        predicate = lambda x: x
+
+    for value in iterable:
+        if predicate(value):
+            yield value
 
 
 def length_of(iterable):
