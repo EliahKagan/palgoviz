@@ -344,13 +344,13 @@ def fib_n(n):
             yield from threeormore() 
     
     def threeormore():
-        first = 0
-        second = 1
-        yield first
-        yield second
+        previous = 0
+        current = 1
+        yield previous
+        yield current
         for _ in range(n-2):
-            first, second = second, first + second
-            yield second
+            previous, current = current, previous + current
+            yield current
     
     
     return generate()
