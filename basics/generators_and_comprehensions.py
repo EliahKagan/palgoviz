@@ -1,6 +1,9 @@
 """Generators and comprehensions."""
 
 
+from operator import truediv
+
+
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
@@ -76,7 +79,7 @@ def print_enumerated_alt(*, start=0):
     lines = (f'{index = }, {value = }'
              for index, value
              in my_enumerate(range(5, 10), start))
-    
+
     for line in lines:
         print(line)
 
@@ -94,15 +97,15 @@ def my_any(iterable):
     >>> my_any(x > 100 for x in range(100))
     False
     """
-    for element in iterable: 
+    for element in iterable:
         if element: return True
-    return False 
+    return False
 
 
 def my_all(iterable):
     """
     Tell if all elements of an iterable are truthy.
-    
+
     >>> my_all([])
     True
     >>> my_all([17, 4, 9, 0, 3, 5, 0])
@@ -135,7 +138,7 @@ def zip_two(first, second):
     []
     >>> list(zip_two([], [30, 40]))
     []
-    
+
     >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
     >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
     >>> for order, got in zip_two(ordered, received):
@@ -243,11 +246,11 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
-    if not iterables: # check if there are no arguments 
+    if not iterables: # check if there are no arguments
         return
-    
+
     iterators = [iter(arg) for arg in iterables]
-    
+
     while True:
         try:
             # Use a list comprehension so we can catch StopIteration from it.
@@ -272,3 +275,68 @@ def print_zipped():
 
     for (word_index, word), (number_index, number) in zipped:
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
+
+
+# TODO: When we do unittest and pytest, translate these doctests and observe
+#       how much clearer (and easier to get right) they are.
+def fib_n(n):
+    """
+    Return an iterator that yields the first n Fibonacci numbers.
+
+    >>> next(fib_n(0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> it = fib_n(1)
+    >>> next(it)
+    0
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> it = fib_n(2)
+    >>> next(it)
+    0
+    >>> next(it)
+    1
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(fib_n(1))
+    [0]
+    >>> list(fib_n(3))
+    [0, 1, 1]
+    >>> list(fib_n(4))
+    [0, 1, 1, 2]
+    >>> list(fib_n(7))
+    [0, 1, 1, 2, 3, 5, 8]
+    >>> list(fib_n(16))
+    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+    >>> list(fib_n(101))[-1]
+    354224848179261915075
+    >>> fib_n(-1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many Fibonacci numbers
+    >>> fib_n(1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> list(fib_n(True))  # OK, since bool is a subclass of int.
+    [0]
+    """
+    if n < 0: 
+        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+    
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    def helpf():
+        first = 0
+        second = 1 
+        for _ in range(n):
+            yield first
+            first, second = second, first + second
+            
+    return helpf()
