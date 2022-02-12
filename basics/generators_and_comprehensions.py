@@ -473,3 +473,72 @@ def distinct(iterable, *, key=None):
         if image not in history:
             history.add(image)
             yield value
+
+
+def distinct_dicts_by_keys(dicts, subject_keys):
+    """
+    Yield dicts that disagree in their values of at least one subject key.
+
+    dicts is an iterable of dictionaries whose values are hashable (not just
+    their keys, which are hashable in any dictionary).
+
+    subject_keys ("the subject keys") is an iterable of hashable objects.
+
+    Consider two dictionaries to agree on the subject keys if the dictionaries
+    cannot be distinguished by subscripting with any object in subject_keys.
+    That is, dictionaries d1 and d2 agree on the subject keys when, for each k
+    in subject_keys, either d1 and d2 both have k as a key and map it to the
+    same value, or neither d1 nor d2 has k as a key.
+
+    For example, {'a': 1, 'b': 2, 'c': 3} and {'a': 1, 'b': 1, 'c': 3, 'd': 4}
+    agree on ('a', 'c'), disagree on ('a', 'c', 'd'), agree on ('a', 'c', 'e'),
+    disagree on ('c',), and agree on ().
+
+    Yield each dictionary in dicts that does not agree on the subject keys with
+    any preceding dictionary in dicts.
+
+    The number of subject keys is expected to be small compared to the number
+    and size of the dicts. Assume there will often be millions of dictionaries,
+    most of which have millions of key-value entries, but there will only be
+    hundreds of subject keys.
+
+    >>> it = distinct_dicts_by_keys([
+    ...     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
+    ...     {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
+    ...     {'a': 1, 'b': 2, 'c': 3, 'e': 5},
+    ... ], ['d', 'f'])
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> ds = [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'},
+    ...       {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'},
+    ...       {1.2: 'j', 7.1: 'v', 3.6: 'w', 4.4: 'k', 9.0: 'p', -2.7: 'u'},
+    ...       {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'},
+    ...       {1.2: 'j', 7.1: 'w', 3.6: 'x', 4.4: 'k', 9.0: 'r', -2.7: 't'},
+    ...       {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}]
+    >>> it = distinct_dicts_by_keys(ds, (x for x in (1.2, 5.8, 4.4)))
+    >>> for d in it: print(d)
+    {1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}
+    {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'}
+    {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'}
+    {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}
+    >>> list(it)  # Show that it was an iterator (and thus exhausted).
+    []
+    >>> list(distinct_dicts_by_keys(ds, ()))  # Make disagreement impossible.
+    [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}]
+    >>> x = object()
+    >>> y = object()
+    >>> ds = [{'p': x, 'q': y, 'r': object()} for _ in range(2)]
+    >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('p', 'q')))
+    1
+    >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('q', 'r')))
+    2
+    """
+    keys = list(subject_keys)
+    dummy = object()
+    return distinct(dicts, key=lambda d: tuple(d.get(k, dummy) for k in keys))
