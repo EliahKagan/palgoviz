@@ -333,18 +333,15 @@ def fib_n(n):
         raise TypeError('n must be an int')
     
     def generate():
-        firstfib = 0    
-        secondfib = 1
-        current = firstfib
-        previous = firstfib
+        a = 0
+        b = 1
         for x in range(n):
             if x == 0:
-                yield current
+                yield a
             elif x == 1:
-                current = secondfib 
-                yield current
+                yield b
             if x >= 2:
-                previous, current = current, previous + current
-                yield current
+                a, b = b, a + b
+                yield b
     
     return generate()
