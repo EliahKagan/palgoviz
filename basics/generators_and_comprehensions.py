@@ -333,15 +333,21 @@ def fib_n(n):
         raise TypeError('n must be an int')
     
     def generate():
+        if n == 0: 
+            return
+        
         a = 0
-        b = 1
-        for x in range(n):
-            if x == 0:
-                yield a
-            elif x == 1:
-                yield b
-            if x >= 2:
-                a, b = b, a + b
-                yield b
+        yield a
+        if n == 1:
+            return
+
+        b = 1 
+        yield b
+        if n == 2:
+            return 
     
+        for x in range(n-2):
+            a, b = b, a + b
+            yield b
+
     return generate()
