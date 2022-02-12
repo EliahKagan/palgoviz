@@ -385,3 +385,91 @@ def my_filter(predicate, iterable):
     if predicate is None:
         predicate = lambda x: x
     return (value for value in iterable if predicate(value))
+
+
+def distinct_simple(iterable):
+    """
+    Yield only first occurrences of equal items.
+
+    It is permitted to assume all values of the input iterable are hashable.
+
+    >>> next(distinct_simple([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(distinct_simple({3}))
+    [3]
+    >>> list(distinct_simple(('foo', 'foo')))
+    ['foo']
+    >>> list(distinct_simple(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = distinct_simple([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+    """
+    history = set()
+
+    for value in iterable:
+        if value not in history:
+            history.add(value)
+            yield value
+
+
+def distinct(iterable, *, key=None):
+    """
+    Yield only first occurrences of values whose associated keys are equal.
+
+    The key parameter is a unary function serving as a key selector. When
+    calling this function with a value from the iterable gives the same result
+    as calling it with an earlier value from the iterable, don't yield the new
+    value.
+
+    The key parameter may also be None instead of a function, in which case
+    values in the iterable are considered to be their own keys. Another way of
+    saying this is that calling distinct without passing a key selector has the
+    same behavior as calling distinct_simple.
+
+    It is permitted to assume the key selector returns only hashable objects,
+    and that it is consistent, i.e., when x is y, key(x) == key(y).
+
+    Assume distinct_simple's implementation may change in the future to simply
+    forward its argument to distinct (so this shouldn't call distinct_simple).
+
+    >>> next(distinct([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(distinct({3}))
+    [3]
+    >>> list(distinct(('foo', 'foo')))
+    ['foo']
+    >>> list(distinct(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = distinct([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+
+    >>> list(distinct(('foo', 'bar', 'foobar', 'baz', 'quux', 'wq'), key=len))
+    ['foo', 'foobar', 'quux', 'wq']
+    >>> list(distinct(range(-3, 6), key=lambda x: x**2))
+    [-3, -2, -1, 0, 4, 5]
+    >>> list(distinct([[1, 2, 3], [1, 3, 2], [1, 2, 3], [2, 1, 3]], key=tuple))
+    [[1, 2, 3], [1, 3, 2], [2, 1, 3]]
+    >>> middle = [[], []] * 100_000
+    >>> list(distinct([3, *middle, 4], key=id))
+    [3, [], [], 4]
+    """
+    if key is None:
+        key = lambda x: x
+
+    history = set()
+
+    for value in iterable:
+        image = key(value)
+        if image not in history:
+            history.add(image)
+            yield value
