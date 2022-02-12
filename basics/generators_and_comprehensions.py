@@ -346,7 +346,7 @@ def fib_n(n):
         if n == 2:
             return 
     
-        for x in range(n-2):
+        for _ in range(n - 2):
             a, b = b, a + b
             yield b
 
