@@ -383,3 +383,160 @@ def my_filter(predicate, iterable):
     ['y', (2, 3)]
     """
     ...  # FIXME: Implement this.
+
+
+def distinct_simple(iterable):
+    """
+    Yield only first occurrences of equal items.
+
+    It is permitted to assume all values of the input iterable are hashable.
+
+    >>> next(distinct_simple([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(distinct_simple({3}))
+    [3]
+    >>> list(distinct_simple(('foo', 'foo')))
+    ['foo']
+    >>> list(distinct_simple(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = distinct_simple([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+    """
+    history = set()
+
+    for value in iterable:
+        if value not in history:
+            history.add(value)
+            yield value
+
+
+def distinct(iterable, *, key=None):
+    """
+    Yield only first occurrences of values whose associated keys are equal.
+
+    The key parameter is a unary function serving as a key selector. When
+    calling this function with a value from the iterable gives the same result
+    as calling it with an earlier value from the iterable, don't yield the new
+    value.
+
+    The key parameter may also be None instead of a function, in which case
+    values in the iterable are considered to be their own keys. Another way of
+    saying this is that calling distinct without passing a key selector has the
+    same behavior as calling distinct_simple.
+
+    It is permitted to assume the key selector returns only hashable objects,
+    and that it is consistent, i.e., when x is y, key(x) == key(y).
+
+    Assume distinct_simple's implementation may change in the future to simply
+    forward its argument to distinct (so this shouldn't call distinct_simple).
+
+    >>> next(distinct([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(distinct({3}))
+    [3]
+    >>> list(distinct(('foo', 'foo')))
+    ['foo']
+    >>> list(distinct(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = distinct([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+
+    >>> list(distinct(('foo', 'bar', 'foobar', 'baz', 'quux', 'wq'), key=len))
+    ['foo', 'foobar', 'quux', 'wq']
+    >>> list(distinct(range(-3, 6), key=lambda x: x**2))
+    [-3, -2, -1, 0, 4, 5]
+    >>> list(distinct([[1, 2, 3], [1, 3, 2], [1, 2, 3], [2, 1, 3]], key=tuple))
+    [[1, 2, 3], [1, 3, 2], [2, 1, 3]]
+    >>> middle = [[], []] * 100_000
+    >>> list(distinct([3, *middle, 4], key=id))
+    [3, [], [], 4]
+    """
+    if key is None:
+        key = lambda x: x
+
+    history = set()
+
+    for value in iterable:
+        image = key(value)
+        if image not in history:
+            history.add(image)
+            yield value
+
+
+def distinct_dicts_by_keys(dicts, subject_keys):
+    """
+    Yield dicts that disagree in their values of at least one subject key.
+
+    dicts is an iterable of dictionaries whose values are hashable (not just
+    their keys, which are hashable in any dictionary).
+
+    subject_keys ("the subject keys") is an iterable of hashable objects.
+
+    Consider two dictionaries to agree on the subject keys if the dictionaries
+    cannot be distinguished by subscripting with any object in subject_keys.
+    That is, dictionaries d1 and d2 agree on the subject keys when, for each k
+    in subject_keys, either d1 and d2 both have k as a key and map it to the
+    same value, or neither d1 nor d2 has k as a key.
+
+    For example, {'a': 1, 'b': 2, 'c': 3} and {'a': 1, 'b': 1, 'c': 3, 'd': 4}
+    agree on ('a', 'c'), disagree on ('a', 'c', 'd'), agree on ('a', 'c', 'e'),
+    disagree on ('c',), and agree on ().
+
+    Yield each dictionary in dicts that does not agree on the subject keys with
+    any preceding dictionary in dicts.
+
+    The number of subject keys is expected to be small compared to the number
+    and size of the dicts. Assume there will often be millions of dictionaries,
+    most of which have millions of key-value entries, but there will only be
+    hundreds of subject keys.
+
+    >>> it = distinct_dicts_by_keys([
+    ...     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
+    ...     {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
+    ...     {'a': 1, 'b': 2, 'c': 3, 'e': 5},
+    ... ], ['d', 'f'])
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> ds = [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'},
+    ...       {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'},
+    ...       {1.2: 'j', 7.1: 'v', 3.6: 'w', 4.4: 'k', 9.0: 'p', -2.7: 'u'},
+    ...       {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'},
+    ...       {1.2: 'j', 7.1: 'w', 3.6: 'x', 4.4: 'k', 9.0: 'r', -2.7: 't'},
+    ...       {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}]
+    >>> it = distinct_dicts_by_keys(ds, (x for x in (1.2, 5.8, 4.4)))
+    >>> for d in it: print(d)
+    {1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}
+    {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'}
+    {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'}
+    {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}
+    >>> list(it)  # Show that it was an iterator (and thus exhausted).
+    []
+    >>> list(distinct_dicts_by_keys(ds, ()))  # Make disagreement impossible.
+    [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}]
+    >>> x = object()
+    >>> y = object()
+    >>> ds = [{'p': x, 'q': y, 'r': object()} for _ in range(2)]
+    >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('p', 'q')))
+    1
+    >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('q', 'r')))
+    2
+    """
+    keys = list(subject_keys)
+    dummy = object()
+    return distinct(dicts, key=lambda d: tuple(d.get(k, dummy) for k in keys))
