@@ -407,12 +407,7 @@ def distinct_simple(iterable):
     >>> list(it)
     [1, 4, 7]
     """
-    history = set()
-
-    for value in iterable:
-        if value not in history:
-            history.add(value)
-            yield value
+    ...  # FIXME: Implement this.
 
 
 def distinct(iterable, *, key=None):
@@ -461,16 +456,7 @@ def distinct(iterable, *, key=None):
     >>> list(distinct([3, *middle, 4], key=id))
     [3, [], [], 4]
     """
-    if key is None:
-        key = lambda x: x
-
-    history = set()
-
-    for value in iterable:
-        image = key(value)
-        if image not in history:
-            history.add(image)
-            yield value
+    ...  # FIXME: Implement this.
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
@@ -537,6 +523,4 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('q', 'r')))
     2
     """
-    keys = list(subject_keys)
-    dummy = object()
-    return distinct(dicts, key=lambda d: tuple(d.get(k, dummy) for k in keys))
+    ...  # FIXME: Implement this.
