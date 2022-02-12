@@ -369,7 +369,8 @@ def my_filter(predicate, iterable):
     """
     Return an iterator of the values in an iterable that satisfy the predicate.
 
-    If None is passed instead of func, the iterator will yield truthy values.
+    If the predicate is None instead of a function, the iterator will yield the
+    values of the iterable that are truthy.
 
     This is the same behavior as the builtin filter.
 
