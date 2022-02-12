@@ -331,12 +331,23 @@ def fib_n(n):
     
     if not isinstance(n, int):
         raise TypeError('n must be an int')
+    
+    def generate():
+        if n == 0: 
+            return
+        
+        a = 0
+        yield a
+        if n == 1:
+            return
 
-    def helpf():
-        first = 0
-        second = 1 
-        for _ in range(n):
-            yield first
-            first, second = second, first + second
-            
-    return helpf()
+        b = 1 
+        yield b
+        if n == 2:
+            return 
+    
+        for _ in range(n - 2):
+            a, b = b, a + b
+            yield b
+
+    return generate()
