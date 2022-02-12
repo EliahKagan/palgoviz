@@ -350,7 +350,7 @@ def fib_n(n):
         yield second
         for _ in range(n-2):
             first, second = second, first + second
-            yield first + second
+            yield second
     
     
     return generate()
