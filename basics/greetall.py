@@ -29,7 +29,7 @@ def pwarn(message):
 
 
 def greet_all(path, lang):
-    """Greets all in a file given the path and language."""
+    """Greet all in a file given the path and language."""
     with open(path, encoding='utf-8') as file:
         names = set() 
         for line in file:
@@ -37,6 +37,24 @@ def greet_all(path, lang):
             if name and name not in names:
                 hello(name, lang)
                 names.add(name)
+
+
+def greet_all_try(path, lang):
+    """
+    Greet all in a file given the path and language.
+
+    Uses an explicit try-finally instead of a with statement.
+    """
+    file = open(path, encoding='utf-8') 
+    try:
+        names = set() 
+        for line in file:
+            name = line.strip()
+            if name and name not in names:
+                hello(name, lang)
+                names.add(name)
+    finally: 
+        file.close()
 
 
 def run():
@@ -60,7 +78,7 @@ def run():
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        greet_all(path, lang) 
+        greet_all_try(path, lang) 
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
