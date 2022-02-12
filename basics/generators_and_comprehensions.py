@@ -388,6 +388,26 @@ def my_filter(predicate, iterable):
     return (value for value in iterable if predicate(value))
 
 
+def length_of(iterable):
+    """
+    """  # FIXME: document and implement
+
+
+def how_many(predicate, iterable):
+    """
+    """  # FIXME: document and implement
+
+
+def invert(dictionary):
+    """
+    Given an injective (one-to-one) dictionary, return its inverse.
+
+    When a dictionary never maps unequal keys to equal values, it is possible
+    to produce an inverse of it: a dictionary that maps the values back to the
+    keys.
+    """  # FIXME: write doctest and implement
+
+
 def distinct_simple(iterable):
     """
     Yield only first occurrences of equal items.
@@ -476,9 +496,68 @@ def distinct(iterable, *, key=None):
             yield value
 
 
+def distinct_dicts_by_single_key(dicts, subject_key):
+    """
+    Yield dictionaries from dicts that differ from each previously seen
+    dictionary in their treatment of the subject key.
+
+    dicts is an iterable of dictionaries whose values are hashable (not just
+    their keys, which are hashable in any dictionary).
+
+    subject_key (which I call the "subject key") is some hashable object.
+
+    Consider two dictionaries to agree on the subject key if they cannot be
+    distinguished by subscripting with it. That is, dictionaries d1 and d2
+    agree on the subject key when either d1 and d2 both have subject_key as a
+    key and map it to the same value, or neither d1 nor d2 has it as a key.
+
+    Stated in those terms, yield each dictionary in dicts that does not agree
+    on the subject key with any preceding dictionary in dicts.
+
+    >>> next(distinct_dicts_by_single_key([], 'p'))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> d1 = {'p': 'x', 'q': 'y', 'r': 'z'}
+    >>> d2 = {'q': 'y', 'r': 'z', 's': 'w'}
+    >>> d3 = {'o': 'z', 'p': 'y', 'q': 'u'}
+    >>> d4 = {'o': 'z', 'p': 'x', 'q': 'x', 'r': 'w'}
+    >>> ds = [d1, d2, d3, d4]
+    >>> list(distinct_dicts_by_single_key(ds, 'o')) == [d1, d3]
+    True
+    >>> list(distinct_dicts_by_single_key(ds, 'p')) == [d1, d2, d3]
+    True
+    >>> list(distinct_dicts_by_single_key(ds, 'q')) == [d1, d3, d4]
+    True
+    >>> list(distinct_dicts_by_single_key(ds, 'r')) == [d1, d3, d4]
+    True
+    >>> list(distinct_dicts_by_single_key(ds, 's')) == [d1, d2]
+    True
+    >>> list(distinct_dicts_by_single_key(iter(ds), 's')) == [d1, d2]
+    True
+    >>> it = distinct_dicts_by_single_key(ds, 't')
+    >>> next(it)
+    {'p': 'x', 'q': 'y', 'r': 'z'}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> d1['p'] = d4['p'] = d4['q'] = object()              # Change 'x'.
+    >>> d1['q'] = d2['q'] = d3['p'] = None                  # Change 'y'.
+    >>> d1['r'] = d2['r'] = d3['o'] = d4['o'] = object()    # Change 'z'.
+    >>> def f(sk): return list(distinct_dicts_by_single_key(ds, sk))
+    >>> [f(sk) for sk in ('o', 'p', 'q', 'r', 's', 't')] == [
+    ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
+    True
+    """
+    dummy = object()
+    return distinct(dicts, key=lambda d: d.get(subject_key, dummy))
+
+
 def distinct_dicts_by_keys(dicts, subject_keys):
     """
-    Yield dicts that disagree in their values of at least one subject key.
+    Yield dictionaries from dicts that differ from each previously seen
+    dictionary in their treatment of (at least one of) the subject keys.
 
     dicts is an iterable of dictionaries whose values are hashable (not just
     their keys, which are hashable in any dictionary).
@@ -495,19 +574,18 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     agree on ('a', 'c'), disagree on ('a', 'c', 'd'), agree on ('a', 'c', 'e'),
     disagree on ('c',), and agree on ().
 
-    Yield each dictionary in dicts that does not agree on the subject keys with
-    any preceding dictionary in dicts.
+    Stated in those terms, yield each dictionary in dicts that does not agree
+    on the subject keys with any preceding dictionary in dicts.
 
     The number of subject keys is expected to be small compared to the number
     and size of the dicts. Assume there will often be millions of dictionaries,
     most of which have millions of key-value entries, but there will only be
     hundreds of subject keys.
 
-    >>> it = distinct_dicts_by_keys([
-    ...     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
-    ...     {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
-    ...     {'a': 1, 'b': 2, 'c': 3, 'e': 5},
-    ... ], ['d', 'f'])
+    >>> ds1 = [{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
+    ...        {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
+    ...        {'a': 1, 'b': 2, 'c': 3, 'e': 5}]
+    >>> it = distinct_dicts_by_keys(ds1, ['d', 'f'])
     >>> next(it)
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     >>> next(it)
@@ -516,13 +594,13 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> ds = [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'},
-    ...       {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'},
-    ...       {1.2: 'j', 7.1: 'v', 3.6: 'w', 4.4: 'k', 9.0: 'p', -2.7: 'u'},
-    ...       {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'},
-    ...       {1.2: 'j', 7.1: 'w', 3.6: 'x', 4.4: 'k', 9.0: 'r', -2.7: 't'},
-    ...       {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}]
-    >>> it = distinct_dicts_by_keys(ds, (x for x in (1.2, 5.8, 4.4)))
+    >>> ds2 = [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'},
+    ...        {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'},
+    ...        {1.2: 'j', 7.1: 'v', 3.6: 'w', 4.4: 'k', 9.0: 'p', -2.7: 'u'},
+    ...        {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'},
+    ...        {1.2: 'j', 7.1: 'w', 3.6: 'x', 4.4: 'k', 9.0: 'r', -2.7: 't'},
+    ...        {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}]
+    >>> it = distinct_dicts_by_keys(ds2, (x for x in (1.2, 5.8, 4.4)))
     >>> for d in it: print(d)
     {1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}
     {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'}
@@ -530,15 +608,23 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}
     >>> list(it)  # Show that it was an iterator (and thus exhausted).
     []
-    >>> list(distinct_dicts_by_keys(ds, ()))  # Make disagreement impossible.
+    >>> list(distinct_dicts_by_keys(ds2, ()))  # Make disagreement impossible.
     [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}]
     >>> x = object()
     >>> y = object()
-    >>> ds = [{'p': x, 'q': y, 'r': object()} for _ in range(2)]
-    >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('p', 'q')))
+    >>> ds2 = [{'p': x, 'q': y, 'r': object()} for _ in range(2)]
+    >>> sum(1 for _ in distinct_dicts_by_keys(ds2, ('p', 'q')))
     1
-    >>> sum(1 for _ in distinct_dicts_by_keys(ds, ('q', 'r')))
+    >>> sum(1 for _ in distinct_dicts_by_keys(ds2, ('q', 'r')))
     2
+    >>> cipher = {normal: object() for normal in range(1, 9)}
+    >>> cipher[4] = None
+    >>> decipher = {weird: normal for normal, weird in cipher.items()}
+    >>> ds3 = [{k: cipher[v] for k, v in d.items()} for d in ds1]
+    >>> for d in distinct_dicts_by_keys(ds3, ['d', 'f']):
+    ...     print({k: decipher[weird] for k, weird in d.items()})
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
     keys = list(subject_keys)
     dummy = object()
