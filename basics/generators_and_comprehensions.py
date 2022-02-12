@@ -382,8 +382,7 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    for value in iterable:
-        yield func(value)
+    ...  # FIXME: Implement this.
 
 
 def my_filter(predicate, iterable):
@@ -428,12 +427,7 @@ def my_filter_alt(predicate, iterable):
     >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
     """
-    if predicate is None:
-        predicate = lambda x: x
-
-    for value in iterable:
-        if predicate(value):
-            yield value
+    ...  # FIXME: Implement this.
 
 
 def length_of(iterable):
@@ -453,7 +447,7 @@ def length_of(iterable):
     >>> length_of(set(object() for _ in range(100_000)))
     100000
     """
-    return sum(1 for _ in iterable)
+    ...  # FIXME: Implement this.
 
 
 def length_of_opt(iterable):
@@ -479,10 +473,7 @@ def length_of_opt(iterable):
     >>> set(length_of_opt(range(2_000_000_000)) for _ in range(100_000))
     {2000000000}
     """
-    try:
-        return len(iterable)
-    except TypeError:
-        return length_of(iterable)
+    ...  # FIXME: Implement this.
 
 
 def how_many(predicate, iterable):
@@ -506,9 +497,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    if predicate is None:
-        predicate = lambda x: x
-    return sum(1 for value in iterable if predicate(value))
+    ...  # FIXME: Implement this.
 
 
 def invert(dictionary):
@@ -543,7 +532,7 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
     """
-    return {value: key for key, value in dictionary.items()}
+    ...  # FIXME: Implement this.
 
 
 def distinct_simple(iterable):
@@ -674,8 +663,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
-    dummy = object()
-    return distinct(dicts, key=lambda d: d.get(subject_key, dummy))
+    ...  # FIXME: Implement this.
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
