@@ -1,6 +1,9 @@
 """Generators and comprehensions."""
 
 
+from operator import truediv
+
+
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
@@ -300,6 +303,8 @@ def fib_n(n):
     Traceback (most recent call last):
       ...
     StopIteration
+    >>> list(fib_n(1))
+    [0]
     >>> list(fib_n(3))
     [0, 1, 1]
     >>> list(fib_n(4))
@@ -321,7 +326,20 @@ def fib_n(n):
     >>> list(fib_n(True))  # OK, since bool is a subclass of int.
     [0]
     """
-    ...  # FIXME: Implement this.
+    if n < 0:
+        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    def helpf():
+        first = 0
+        second = 1
+        for _ in range(n):
+            yield first
+            first, second = second, first + second
+
+    return helpf()
 
 
 def map_one(func, iterable):
