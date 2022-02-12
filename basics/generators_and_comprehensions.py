@@ -333,24 +333,18 @@ def fib_n(n):
         raise TypeError('n must be an int')
     
     def generate():
-        if n == 1:
-            yield 0
-        
-        if n == 2:
-            yield 0
-            yield 1
-
-        if n >= 3:
-            yield from threeormore() 
-    
-    def threeormore():
-        previous = 0
-        current = 1
-        yield previous
-        yield current
-        for _ in range(n-2):
-            previous, current = current, previous + current
-            yield current
-    
+        firstfib = 0    
+        secondfib = 1
+        current = firstfib
+        previous = firstfib
+        for x in range(n):
+            if x == 0:
+                yield current
+            elif x == 1:
+                current = secondfib 
+                yield current
+            if x >= 2:
+                previous, current = current, previous + current
+                yield current
     
     return generate()
