@@ -332,6 +332,17 @@ def fib_n(n):
     if not isinstance(n, int):
         raise TypeError('n must be an int')
     
+    def generate():
+        if n == 1:
+            yield 0
+        
+        if n == 2:
+            yield 0
+            yield 1
+
+        if n >= 3:
+            yield from threeormore() 
+    
     def threeormore():
         first = 0
         second = 1
@@ -341,10 +352,5 @@ def fib_n(n):
             first, second = second, first + second
             yield first + second
     
-    if n == 1: 
-        yield 0
-    elif n == 2: 
-        yield 0
-        yield 1
-    elif n >= 3:
-        return threeormore()
+    
+    return generate()
