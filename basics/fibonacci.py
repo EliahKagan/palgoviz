@@ -56,12 +56,22 @@ def fibonacci_better(n):
     55
 
     FIXME: Add a test case that times out with simple recursion.
-    """
-    if n == 0:
-        return 0
-    if n == 1:
-        return 1
-    return fibonacci(n - 1) + fibonacci(n - 2)
+    """    
+    d = {}
+    def helper(n):
+        if n == 0:
+            d[n] = 0
+            return d[n]
+        if n == 1:
+            d[n] = 1
+            return d[n]
+        if n in d:
+            return d[n]
+        else:
+            d[n] = helper(n-1) + helper(n-2)
+            return d[n]
+    return helper(n)
+
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
