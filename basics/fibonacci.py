@@ -62,6 +62,103 @@ def fibonacci_better(n):
     return fibonacci(n - 1) + fibonacci(n - 2)
 
 
+def fibonacci_short(n):
+    """
+    Compute Fibonacci with the simple recursive algorithm but more compactly.
+
+    This takes advantage of the coincidence that its base cases are fixed points.
+
+    >>> fibonacci_short(0)
+    0
+    >>> fibonacci_short(1)
+    1
+    >>> fibonacci_short(2)
+    1
+    >>> fibonacci_short(3)
+    2
+    >>> fibonacci_short(10)
+    55
+    """
+    return n if n < 2 else fibonacci_short(n - 2) + fibonacci_short(n - 1)
+
+
+def fibonacci_alr(n):
+    """
+    Show how arm's length recursion is very poorly suited to Fibonacci.
+
+    This computes the Fibonacci number F(n) using the simple recursive
+    algorithm, except that arm's length recursion (also called "short
+    circuiting the base case") is used. This technique is especially poorly
+    suited to Fibonacci, since the presence of multiple base cases leads to
+    code duplication and a greater than usual increase in code complexity.
+
+    This has the same time complexity as fibonacci() above, since arm's length
+    recursion never changes that, but it may differ by a constant factor. Here,
+    it is most likely slower, rather than faster, than the simpler approach.
+
+    >>> fibonacci_alr(0)
+    0
+    >>> fibonacci_alr(1)
+    1
+    >>> fibonacci_alr(2)
+    1
+    >>> fibonacci_alr(3)
+    2
+    >>> fibonacci_alr(10)
+    55
+    """
+    def fib(k):
+        if k - 2 == 0:
+            a = 0
+        elif k - 2 == 1:
+            a = 1
+        else:
+            a = fib(k - 2)
+
+        if k - 1 == 0:
+            b = 0
+        elif k - 1 == 1:
+            b = 1
+        else:
+            b = fib(k - 1)
+
+        return a + b
+
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fib(n)
+
+
+def fibonacci_short_alr(n):
+    """
+    Compute the Fibonacci number F(n) with arm's recursion more compactly.
+
+    This is like fibonacci_short() but uses arm's length recursion. Since there
+    is only one base-case condition here, this looks more like arm's length
+    recursion when it is usually used. However, like many applications of arm's
+    length recursion, this approach to Fibonacci would be very hard to justify.
+
+    >>> fibonacci_short_alr(0)
+    0
+    >>> fibonacci_short_alr(1)
+    1
+    >>> fibonacci_short_alr(2)
+    1
+    >>> fibonacci_short_alr(3)
+    2
+    >>> fibonacci_short_alr(10)
+    55
+    """
+    def fib(k):
+        a = k - 2 if k < 4 else fib(k - 2)  # k < 4 iff k - 2 < 2
+        b = k - 1 if k < 3 else fib(k - 1)  # k < 3 iff k - 1 < 2
+        return a + b
+
+    return n if n < 2 else fib(n)
+
+
 # TODO: When we do unittest and pytest, translate these doctests and observe
 #       how much clearer (and easier to get right) they are.
 def fib_n(n):
