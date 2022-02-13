@@ -35,8 +35,7 @@ def fibonacci(n):
     return fibonacci(n - 1) + fibonacci(n - 2)
 
 
-# FIXME: Implement this, caching the results of each recursive call.
-def fibonacci_better(n):
+def fibonacci_cached_1(n):
     """
     Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
 
@@ -44,17 +43,17 @@ def fibonacci_better(n):
     which subproblems' results are cached and each call checks the cache before
     proceeding with a computation.
 
-    >>> fibonacci_better(0)
+    >>> fibonacci_cached_1(0)
     0
-    >>> fibonacci_better(1)
+    >>> fibonacci_cached_1(1)
     1
-    >>> fibonacci_better(2)
+    >>> fibonacci_cached_1(2)
     1
-    >>> fibonacci_better(3)
+    >>> fibonacci_cached_1(3)
     2
-    >>> fibonacci_better(10)
+    >>> fibonacci_cached_1(10)
     55
-    >>> fibonacci_better(500)
+    >>> fibonacci_cached_1(500)
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
     cache = {}
