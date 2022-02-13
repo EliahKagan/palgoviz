@@ -108,7 +108,7 @@ def fib_n_clunk(n):
     Traceback (most recent call last):
       ...
     ValueError: can't yield negatively many Fibonacci numbers
-    >>> fib_n_clunk(1.0)
+    >>> fib_n_clunk(-1.0)
     Traceback (most recent call last):
       ...
     TypeError: n must be an int
@@ -211,7 +211,7 @@ def fib_n(n):
     Traceback (most recent call last):
       ...
     ValueError: can't yield negatively many Fibonacci numbers
-    >>> fib_n(1.0)
+    >>> fib_n(-1.0)
     Traceback (most recent call last):
       ...
     TypeError: n must be an int
