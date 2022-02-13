@@ -395,18 +395,7 @@ def take(iterable, n):
     >>> list(take('pqr', True))  # OK, since bool is a subclass of int.
     ['p']
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-    if n < 0:
-        raise ValueError("can't yield negatively many items")
-
-    def generate():
-        for index, value in enumerate(iterable):
-            if index == n:
-                return
-            yield value
-
-    return generate()
+    ...  # FIXME: Implement this.
 
 
 def drop(iterable, n):
@@ -453,20 +442,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-    if n < 0:
-        raise ValueError("can't skip negatively many items")
-
-    iterator = iter(iterable)
-
-    try:
-        for _ in range(n):
-            next(iterator)
-    except StopIteration:
-        pass
-
-    return iterator
+    ...  # FIXME: Implement this.
 
 
 def map_one(func, iterable):
