@@ -108,16 +108,16 @@ def fibonacci_alr(n):
     55
     """
     def fib(k):
-        if k - 2 == 0:
+        if k == 2:  # k - 2 == 0
             a = 0
-        elif k - 2 == 1:
+        elif k == 3:  # k - 2 == 1
             a = 1
         else:
             a = fib(k - 2)
 
-        if k - 1 == 0:
+        if k == 1:  # k - 1 == 0
             b = 0
-        elif k - 1 == 1:
+        elif k == 2:  # k - 1 == 1
             b = 1
         else:
             b = fib(k - 1)
@@ -133,7 +133,7 @@ def fibonacci_alr(n):
 
 def fibonacci_short_alr(n):
     """
-    Compute the Fibonacci number F(n) with arm's recursion more compactly.
+    Compute the Fibonacci number F(n) with arm's length recursion more compactly.
 
     This is like fibonacci_short() but uses arm's length recursion. Since there
     is only one base-case condition here, this looks more like arm's length
@@ -157,6 +157,34 @@ def fibonacci_short_alr(n):
         return a + b
 
     return n if n < 2 else fib(n)
+
+
+def fibonacci_tail(n):
+    """
+    Tail-recursive Fibonacci implementation. This is bottom-up and linear time.
+
+    Note that Python does not have proper tail calls, and CPython does not
+    eliminate or optimize tail calls in even the simplest tail-recursive
+    functions. So, while they use different techniques, this and the recursive
+    memoized top-down solution both raise RecursionError for large enough n.
+
+    >>> fibonacci_tail(0)
+    0
+    >>> fibonacci_tail(1)
+    1
+    >>> fibonacci_tail(2)
+    1
+    >>> fibonacci_tail(3)
+    2
+    >>> fibonacci_tail(10)
+    55
+    >>> fibonacci_tail(500)
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    """
+    def fib(a, b, k):
+        return a if k == 0 else fib(b, a + b, k - 1)
+
+    return fib(0, 1, n)
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
