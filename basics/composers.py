@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Function composition."""
 
 
@@ -41,7 +43,7 @@ def repeat_compose_recursive(function, count):
       ...
     RecursionError: maximum recursion depth exceeded in comparison
     """
-    if count == 0: 
+    if count == 0:
         return lambda x: x
     return compose2(function, repeat_compose_recursive(function, count - 1))
 
