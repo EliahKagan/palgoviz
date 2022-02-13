@@ -123,13 +123,12 @@ def fibonacci_cached_3(n):
     >>> fibonacci_cached_3(500)
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
-    cache = {}
-    
-    if n == 0 or n == 1: 
-        cache[n] = n
-        return n 
+    cache = {} 
 
     def helper(k):
+        if k == 0 or k == 1: 
+            return k
+        
         if k not in cache:
             cache[k] = helper(k - 1) + helper(k - 2)
         
