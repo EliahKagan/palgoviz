@@ -218,6 +218,12 @@ def fib_n(n):
     >>> list(fib_n(True))  # OK, since bool is a subclass of int.
     [0]
     """
+    if n < 0:
+        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+        
     return itertools.islice(fib(), n)
 
 
