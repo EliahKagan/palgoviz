@@ -126,6 +126,7 @@ def fibonacci_cached_3(n):
     cache = {}
     
     if n == 0 or n == 1: 
+        cache[n] = n
         return n 
 
     def helper(k):
