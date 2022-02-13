@@ -140,6 +140,22 @@ def fib_n(n):
     return generate()
 
 
+def fib():
+    """
+    Return an iterator for the entire (infinite) Fibonacci sequence.
+
+    # FIXME: Add doctests.
+    """
+    a = 0
+    b = 1
+    yield a
+    yield b 
+    while True:
+        a, b = b, a + b
+        yield b
+
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
