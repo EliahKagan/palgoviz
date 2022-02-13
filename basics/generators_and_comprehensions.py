@@ -350,6 +350,125 @@ def fib_n(n):
     return generate()
 
 
+def take(iterable, n):
+    """
+    Yield the first n elements of iterable, or all if there are fewer than n.
+
+    This behaves like itertools.islice when given no stop or step arguments:
+
+        itertools.islice(iterable, n)
+
+    >>> next(take(range(5), 0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(take(range(5), 1))
+    [0]
+    >>> list(take(range(5), 2))
+    [0, 1]
+    >>> list(take(range(5), 4))
+    [0, 1, 2, 3]
+    >>> list(take(range(5), 5))
+    [0, 1, 2, 3, 4]
+    >>> list(take(range(5), 6))
+    [0, 1, 2, 3, 4]
+    >>> list(take(range(5), 1_000_000))
+    [0, 1, 2, 3, 4]
+    >>> import itertools
+    >>> it = take((x**2 for x in itertools.count(2)), 2)
+    >>> next(it)
+    4
+    >>> next(it)
+    9
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> take(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> take(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many items
+    >>> list(take('pqr', True))  # OK, since bool is a subclass of int.
+    ['p']
+    """
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
+
+    def generate():
+        for index, value in enumerate(iterable):
+            if index == n:
+                return
+            yield value
+
+    return generate()
+
+
+def drop(iterable, n):
+    """
+    Skip the first n elements of iterable (or all if there are fewer).
+    Yield the rest.
+
+    This behaves like itertools.islice with a start of n and a stop of None:
+
+        itertools.islice(iterable, n, None)
+
+    >>> list(drop(range(5), 0))
+    [0, 1, 2, 3, 4]
+    >>> list(drop(range(5), 1))
+    [1, 2, 3, 4]
+    >>> list(drop(range(5), 2))
+    [2, 3, 4]
+    >>> list(drop(range(5), 4))
+    [4]
+    >>> list(drop(range(5), 5))
+    []
+    >>> list(drop(range(5), 6))
+    []
+    >>> list(drop(range(5), 1_000_000))
+    []
+    >>> import itertools
+    >>> it = take(drop(itertools.count(1), 1000), 2)
+    >>> next(it)
+    1001
+    >>> next(it)
+    1002
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> drop(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> drop(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't skip negatively many items
+    >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
+    ['q', 'r']
+    """
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+    if n < 0:
+        raise ValueError("can't skip negatively many items")
+
+    iterator = iter(iterable)
+
+    try:
+        for _ in range(n):
+            next(iterator)
+    except StopIteration:
+        pass
+
+    return iterator
+
+
 def map_one(func, iterable):
     """
     Map values from the given interable through the unary function func.
