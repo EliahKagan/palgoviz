@@ -42,15 +42,15 @@ def fibonacci_better(n):
     which subproblems' results are cached and each call checks the cache before
     proceeding with a computation.
 
-    >>> fibonacci(0)
+    >>> fibonacci_better(0)
     0
-    >>> fibonacci(1)
+    >>> fibonacci_better(1)
     1
-    >>> fibonacci(2)
+    >>> fibonacci_better(2)
     1
-    >>> fibonacci(3)
+    >>> fibonacci_better(3)
     2
-    >>> fibonacci(10)
+    >>> fibonacci_better(10)
     55
 
     FIXME: Add a test case that times out with simple recursion.
