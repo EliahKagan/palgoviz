@@ -70,6 +70,73 @@ def fibonacci_cached_1(n):
     return helper(n)
 
 
+def fibonacci_cached_2(n):
+    """
+    Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
+
+    This will use the linear-time recursive algorithm with memoization, in
+    which subproblems' results are cached and each call checks the cache before
+    proceeding with a computation.
+
+    >>> fibonacci_cached_2(0)
+    0
+    >>> fibonacci_cached_2(1)
+    1
+    >>> fibonacci_cached_2(2)
+    1
+    >>> fibonacci_cached_2(3)
+    2
+    >>> fibonacci_cached_2(10)
+    55
+    >>> fibonacci_cached_2(500)
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    """
+    cache = {0: 0, 1: 1}
+
+    def helper(k):
+        if k not in cache:
+            cache[k] = helper(k - 1) + helper(k - 2)
+        
+        return cache[k]
+
+    return helper(n)
+
+
+def fibonacci_cached_3(n):
+    """
+    Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
+
+    This will use the linear-time recursive algorithm with memoization, in
+    which subproblems' results are cached and each call checks the cache before
+    proceeding with a computation.
+
+    >>> fibonacci_cached_3(0)
+    0
+    >>> fibonacci_cached_3(1)
+    1
+    >>> fibonacci_cached_3(2)
+    1
+    >>> fibonacci_cached_3(3)
+    2
+    >>> fibonacci_cached_3(10)
+    55
+    >>> fibonacci_cached_3(500)
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    """
+    cache = {}
+
+    def helper(k):
+        if k not in cache:
+            if k == 0 or k == 1:
+                cache[k] = k
+            else:
+                cache[k] = helper(k - 1) + helper(k - 2)
+        
+        return cache[k]
+
+    return helper(n)
+
+
 # TODO: When we do unittest and pytest, translate these doctests and observe
 #       how much clearer (and easier to get right) they are.
 def fib_n_clunk(n):
