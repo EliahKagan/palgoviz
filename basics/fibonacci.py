@@ -182,9 +182,9 @@ def fibonacci_tail(n):
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
     def do_fib(a, b, k):
-        return a if k == 0 else do_fib(b, a + b, k - 1)
+        return b if k == 1 else do_fib(b, a + b, k - 1)
 
-    return do_fib(0, 1, n)
+    return 0 if n == 0 else do_fib(0, 1, n)
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
