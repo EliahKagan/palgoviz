@@ -144,17 +144,28 @@ def fib():
     """
     Return an iterator for the entire (infinite) Fibonacci sequence.
 
-    # FIXME: Add doctests.
+    >>> it = fib()
+    >>> next(it)
+    0
+    >>> next(it)
+    1
+    >>> next(it)
+    1
+    >>> next(it)
+    2
+    >>> next(it)
+    3
+    >>> next(it)
+    5
+    >>> next(it)
+    8
     """
     a = 0
     b = 1
-    yield a
-    yield b 
     while True:
+        yield a
         a, b = b, a + b
-        yield b
-
-
+        
 
 if __name__ == '__main__':
     import doctest
