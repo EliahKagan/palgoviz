@@ -60,16 +60,15 @@ def fibonacci_better(n):
     cache = {}
 
     def helper(k):
-        if k == 0 or k == 1:
-            cache[k] = k
-
         if k not in cache:
-            cache[k] = helper(k - 1) + helper(k - 2)
-
+            if k == 0 or k == 1:
+                cache[k] = k
+            else:
+                cache[k] = helper(k - 1) + helper(k - 2)
+        
         return cache[k]
 
     return helper(n)
-
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
