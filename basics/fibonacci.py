@@ -59,11 +59,8 @@ def fibonacci_better(n):
     """    
     d = {}
     def helper(n):
-        if n == 0:
-            d[n] = 0
-            return d[n]
-        if n == 1:
-            d[n] = 1
+        if n == 0 or n == 1:
+            d[n] = n
             return d[n]
         if n in d:
             return d[n]
