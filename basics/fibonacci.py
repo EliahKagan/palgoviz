@@ -56,16 +56,18 @@ def fibonacci_better(n):
     55
     >>> fibonacci_better(500)
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
-    """    
+    """
     d = {}
+
     def helper(n):
         if n == 0 or n == 1:
             d[n] = n
-            return d[n]  
-        if n in d:
-            return d[n]
-        d[n] = helper(n-1) + helper(n-2)
+
+        if n not in d:
+            d[n] = helper(n-1) + helper(n-2)
+
         return d[n]
+
     return helper(n)
 
 
