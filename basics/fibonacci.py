@@ -59,14 +59,14 @@ def fibonacci_better(n):
     """
     cache = {}
 
-    def helper(n):
-        if n == 0 or n == 1:
-            cache[n] = n
+    def helper(k):
+        if k == 0 or k == 1:
+            cache[k] = k
 
-        if n not in cache:
-            cache[n] = helper(n-1) + helper(n-2)
+        if k not in cache:
+            cache[k] = helper(k - 1) + helper(k - 2)
 
-        return cache[n]
+        return cache[k]
 
     return helper(n)
 
