@@ -8,6 +8,8 @@ See also the visualizations in subproblems.ipynb.
 For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
+import itertools
+
 
 def fibonacci(n):
     """
@@ -64,24 +66,24 @@ def fibonacci_better(n):
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
 #       how much clearer (and easier to get right) they are.
-def fib_n(n):
+def fib_n_clunk(n):
     """
     Return an iterator that yields the first n Fibonacci numbers.
 
     This uses the linear-time iterative bottom-up algorithm.
 
-    >>> next(fib_n(0))
+    >>> next(fib_n_clunk(0))
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> it = fib_n(1)
+    >>> it = fib_n_clunk(1)
     >>> next(it)
     0
     >>> next(it)
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> it = fib_n(2)
+    >>> it = fib_n_clunk(2)
     >>> next(it)
     0
     >>> next(it)
@@ -90,27 +92,27 @@ def fib_n(n):
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> list(fib_n(1))
+    >>> list(fib_n_clunk(1))
     [0]
-    >>> list(fib_n(3))
+    >>> list(fib_n_clunk(3))
     [0, 1, 1]
-    >>> list(fib_n(4))
+    >>> list(fib_n_clunk(4))
     [0, 1, 1, 2]
-    >>> list(fib_n(7))
+    >>> list(fib_n_clunk(7))
     [0, 1, 1, 2, 3, 5, 8]
-    >>> list(fib_n(16))
+    >>> list(fib_n_clunk(16))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
-    >>> list(fib_n(101))[-1]
+    >>> list(fib_n_clunk(101))[-1]
     354224848179261915075
-    >>> fib_n(-1)
+    >>> fib_n_clunk(-1)
     Traceback (most recent call last):
       ...
     ValueError: can't yield negatively many Fibonacci numbers
-    >>> fib_n(1.0)
+    >>> fib_n_clunk(1.0)
     Traceback (most recent call last):
       ...
     TypeError: n must be an int
-    >>> list(fib_n(True))  # OK, since bool is a subclass of int.
+    >>> list(fib_n_clunk(True))  # OK, since bool is a subclass of int.
     [0]
     """
     if n < 0:
@@ -165,7 +167,59 @@ def fib():
     while True:
         yield a
         a, b = b, a + b
-        
+
+
+def fib_n(n):
+    """
+    Return an iterator that yields the first n Fibonacci numbers.
+
+    This uses the linear-time iterative bottom-up algorithm.
+
+    >>> next(fib_n(0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> it = fib_n(1)
+    >>> next(it)
+    0
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> it = fib_n(2)
+    >>> next(it)
+    0
+    >>> next(it)
+    1
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(fib_n(1))
+    [0]
+    >>> list(fib_n(3))
+    [0, 1, 1]
+    >>> list(fib_n(4))
+    [0, 1, 1, 2]
+    >>> list(fib_n(7))
+    [0, 1, 1, 2, 3, 5, 8]
+    >>> list(fib_n(16))
+    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+    >>> list(fib_n(101))[-1]
+    354224848179261915075
+    >>> fib_n(-1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many Fibonacci numbers
+    >>> fib_n(1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> list(fib_n(True))  # OK, since bool is a subclass of int.
+    [0]
+    """
+    return itertools.islice(fib(), n)
+
 
 if __name__ == '__main__':
     import doctest
