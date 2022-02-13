@@ -115,11 +115,11 @@ def fib_n_clunk(n):
     >>> list(fib_n_clunk(True))  # OK, since bool is a subclass of int.
     [0]
     """
-    if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
-
     if not isinstance(n, int):
         raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError(f"can't yield negatively many Fibonacci numbers")
 
     def generate():
         if n == 0:
@@ -218,12 +218,12 @@ def fib_n(n):
     >>> list(fib_n(True))  # OK, since bool is a subclass of int.
     [0]
     """
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
     if n < 0:
         raise ValueError(f"can't yield negatively many Fibonacci numbers")
 
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-        
     return itertools.islice(fib(), n)
 
 
