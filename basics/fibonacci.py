@@ -57,16 +57,16 @@ def fibonacci_better(n):
     >>> fibonacci_better(500)
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
-    d = {}
+    cache = {}
 
     def helper(n):
         if n == 0 or n == 1:
-            d[n] = n
+            cache[n] = n
 
-        if n not in d:
-            d[n] = helper(n-1) + helper(n-2)
+        if n not in cache:
+            cache[n] = helper(n-1) + helper(n-2)
 
-        return d[n]
+        return cache[n]
 
     return helper(n)
 
