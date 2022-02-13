@@ -54,8 +54,8 @@ def fibonacci_better(n):
     2
     >>> fibonacci_better(10)
     55
-
-    FIXME: Add a test case that times out with simple recursion.
+    >>> fibonacci_better(500)
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """    
     d = {}
     def helper(n):
