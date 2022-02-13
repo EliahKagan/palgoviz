@@ -21,7 +21,7 @@ def pmessage(prefix, message):
 def perror(message):
     """Print an error message."""
     pmessage('ERROR', message)
-    
+
 
 def pwarn(message):
     """Print a warning message."""
@@ -31,7 +31,7 @@ def pwarn(message):
 def greet_all(path, lang):
     """Greet all in a file given the path and language."""
     with open(path, encoding='utf-8') as file:
-        names = set() 
+        names = set()
         for line in file:
             name = line.strip()
             if name and name not in names:
@@ -45,15 +45,15 @@ def greet_all_try(path, lang):
 
     Uses an explicit try-finally instead of a with statement.
     """
-    file = open(path, encoding='utf-8') 
+    file = open(path, encoding='utf-8')
     try:
-        names = set() 
+        names = set()
         for line in file:
             name = line.strip()
             if name and name not in names:
                 hello(name, lang)
                 names.add(name)
-    finally: 
+    finally:
         file.close()
 
 
@@ -78,12 +78,12 @@ def run():
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        greet_all_try(path, lang) 
+        greet_all_try(path, lang)
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
         return 1
-    return 0 
+    return 0
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
