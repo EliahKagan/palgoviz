@@ -12,11 +12,14 @@ Example:
 
     > python fib.py 10
     0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
+
+For other Fibonacci code, see fibonacci.py, which defines the fib_n function
+this script uses. See also the visualizations in subproblems.ipynb.
 """
 
 import sys
 
-from generators_and_comprehensions import fib_n
+from fibonacci import fib_n
 
 
 def _show_message(prefix, message):
@@ -47,12 +50,12 @@ def main():
 
     try:
         n = int(sys.argv[1])
-    except ValueError as e: 
+    except ValueError as e:
         _die(e)
 
     try:
         result = fib_n(n)
-    except ValueError as e: 
+    except ValueError as e:
         _die(e)
 
     if n == 0:
