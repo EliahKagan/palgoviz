@@ -107,20 +107,20 @@ def fibonacci_alr(n):
     >>> fibonacci_alr(10)
     55
     """
-    def fib(k):
+    def do_fib(k):
         if k == 2:  # k - 2 == 0
             a = 0
         elif k == 3:  # k - 2 == 1
             a = 1
         else:
-            a = fib(k - 2)
+            a = do_fib(k - 2)
 
         if k == 1:  # k - 1 == 0
             b = 0
         elif k == 2:  # k - 1 == 1
             b = 1
         else:
-            b = fib(k - 1)
+            b = do_fib(k - 1)
 
         return a + b
 
@@ -128,7 +128,7 @@ def fibonacci_alr(n):
         return 0
     if n == 1:
         return 1
-    return fib(n)
+    return do_fib(n)
 
 
 def fibonacci_short_alr(n):
@@ -151,12 +151,12 @@ def fibonacci_short_alr(n):
     >>> fibonacci_short_alr(10)
     55
     """
-    def fib(k):
-        a = k - 2 if k < 4 else fib(k - 2)  # k < 4 iff k - 2 < 2
-        b = k - 1 if k < 3 else fib(k - 1)  # k < 3 iff k - 1 < 2
+    def do_fib(k):
+        a = k - 2 if k < 4 else do_fib(k - 2)  # k < 4 iff k - 2 < 2
+        b = k - 1 if k < 3 else do_fib(k - 1)  # k < 3 iff k - 1 < 2
         return a + b
 
-    return n if n < 2 else fib(n)
+    return n if n < 2 else do_fib(n)
 
 
 def fibonacci_tail(n):
@@ -181,10 +181,10 @@ def fibonacci_tail(n):
     >>> fibonacci_tail(500)
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
-    def fib(a, b, k):
-        return a if k == 0 else fib(b, a + b, k - 1)
+    def do_fib(a, b, k):
+        return a if k == 0 else do_fib(b, a + b, k - 1)
 
-    return fib(0, 1, n)
+    return do_fib(0, 1, n)
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
