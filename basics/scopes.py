@@ -5,9 +5,9 @@ How variable scoping works in Python.
 x = 'outer'
 
 
-# Even though python is dynamically typed, it is statically scoped. 
-# This is why the result of this is an exception, 
-# f() attempts to print the "local variable x," which doesn't exist 
+# Even though python is dynamically typed, it is statically scoped.
+# This is why the result of this is an exception,
+# f() attempts to print the "local variable x," which doesn't exist
 def f():
     print(x)
     x = 'inner'
@@ -21,9 +21,9 @@ def demo():
 def make_square_printer(x):
     def printer():
         print(square)
-    
+
     square = x**2
-    
+
     return printer
 
 
@@ -37,4 +37,3 @@ for printer in printers:
     square = 50  # Makes no difference.
     print(f'Calling {printer.__name__}:', end='  ')
     printer()
-
