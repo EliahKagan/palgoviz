@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Some recursion examples."""
 
 import bisect
@@ -116,7 +118,7 @@ def linear_search_good(values, x):
     3
     """
     try:
-       return values.index(x)
+        return values.index(x)
     except ValueError:
         return None
 
@@ -186,7 +188,7 @@ def binary_search(values, x):
     """
 
     def help_binary(low, high):  # high is an inclusive endpoint.
-        if low > high: 
+        if low > high:
             return None
         halfway = (low + high) // 2
         if x > values[halfway]:
@@ -224,7 +226,7 @@ def binary_search_iterative(values, x):
     low = 0
     high = len(values) - 1
 
-    while low <= high: 
+    while low <= high:
         halfway = (low + high) // 2
         if x > values[halfway]:
             low = halfway + 1
@@ -232,7 +234,7 @@ def binary_search_iterative(values, x):
             high = halfway - 1
         else: # values[halfway] should = x, possibly add assert.
             return halfway
-    
+
     return None
 
 
@@ -263,12 +265,12 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
-def merge_two_slow(values1, values2): 
+def merge_two_slow(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input. 
+    Return a sorted list that that takes two sorted sequences as input.
 
     If values2 is empty, this is equivilant to a binary insertion sort
-    
+
     >>> merge_two_slow([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
     >>> merge_two_slow([2, 4, 6], [1, 3, 5])
@@ -287,18 +289,18 @@ def merge_two_slow(values1, values2):
     [1, 1, 4, 7, 8]
     """
     resultlist = list(values2)
-    for v1 in values1: 
+    for v1 in values1:
         bisect.insort(resultlist, v1)
-        
+
     return resultlist
 
 
-def merge_two(values1, values2): 
+def merge_two(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input. 
+    Return a sorted list that that takes two sorted sequences as input.
 
     If values2 is empty, this is equivilant to a binary insertion sort
-    
+
     >>> merge_two([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
     >>> merge_two([2, 4, 6], [1, 3, 5])
@@ -317,7 +319,7 @@ def merge_two(values1, values2):
     [1, 1, 4, 7, 8]
     """
     resultlist = []
-    index = 0 
+    index = 0
 
     for v1 in values1:
         while index < len(values2) and values2[index] < v1:
@@ -330,12 +332,12 @@ def merge_two(values1, values2):
     return resultlist
 
 
-def merge_two_alt(values1, values2): 
+def merge_two_alt(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input. 
+    Return a sorted list that that takes two sorted sequences as input.
 
     If values2 is empty, this is equivilant to a binary insertion sort
-    
+
     >>> merge_two_alt([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
     >>> merge_two_alt([2, 4, 6], [1, 3, 5])
@@ -355,16 +357,16 @@ def merge_two_alt(values1, values2):
     """
     resultlist = []
     index1 = 0
-    index2 = 0 
-   
+    index2 = 0
+
     while index1 < len(values1) and index2 < len(values2):
         if values1[index1] <= values2[index2]:
             resultlist.append(values1[index1])
             index1 += 1
         else:
             resultlist.append(values2[index2])
-            index2 += 1 
-    
+            index2 += 1
+
     resultlist.extend(values1[index1:] or values2[index2:])
 
     return resultlist
@@ -373,7 +375,7 @@ def merge_two_alt(values1, values2):
 def merge_sort(values):
     """
     Sorts using merge_two recursively.
-    
+
     >>> merge_sort([])
     []
     >>> merge_sort(())
@@ -397,6 +399,11 @@ def merge_sort(values):
             return values
 
         halfway = len(values) // 2
-        return merge_two(helper(values[:halfway]), helper(values[halfway:])) 
+        return merge_two(helper(values[:halfway]), helper(values[halfway:]))
 
-    return helper(list(values)) 
+    return helper(list(values))
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
