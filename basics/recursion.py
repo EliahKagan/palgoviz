@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Some recursion examples."""
 
 import bisect
@@ -400,3 +402,8 @@ def merge_sort(values):
         return merge_two(helper(values[:halfway]), helper(values[halfway:]))
 
     return helper(list(values))
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

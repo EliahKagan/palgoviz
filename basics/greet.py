@@ -24,7 +24,7 @@ def make_greeter(lang):
 def hello(name, lang='en'):
     """
     Greet the user.
-    
+
     >>> hello('Eliah')
     Hello, Eliah!
     >>> hello('Eliah','en')
@@ -37,7 +37,7 @@ def hello(name, lang='en'):
     ValueError: el is an unrecognized language code.
     """
     try:
-        print(FORMATS[lang].format(name))   # dictionary test   
+        print(FORMATS[lang].format(name))   # dictionary test
     except KeyError as error:
         raise ValueError(f'{lang} is an unrecognized language code.') from error
 

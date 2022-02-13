@@ -9,7 +9,7 @@ def fizzbuzz():
             print("FizzBuzz")
         elif x % 9 == 0:
             print("Buzz")
-        elif x % 6 == 0: 
+        elif x % 6 == 0:
             print("Fizz")
         else:
             print(x)
