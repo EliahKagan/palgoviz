@@ -649,7 +649,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Yield dictionaries from dicts that differ from each previously seen
     dictionary in their treatment of the subject key.
 
-    dicts is an iterable of dictionaries whose values (not just its keys) are
+    dicts is an iterable of dictionaries whose values (not just their keys) are
     hashable.
 
     subject_key (which I call the "subject key") is some hashable object.
@@ -707,7 +707,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     Yield dictionaries from dicts that differ from each previously seen
     dictionary in their treatment of (at least one of) the subject keys.
 
-    dicts is an iterable of dictionaries whose values (not just its keys) are
+    dicts is an iterable of dictionaries whose values (not just their keys) are
     hashable.
 
     subject_keys ("the subject keys") is an iterable of hashable objects.
