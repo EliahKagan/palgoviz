@@ -35,7 +35,7 @@ def fizzbuzz():
             print("FizzBuzz")
         elif x % 5 == 0:
             print("Buzz")
-        elif x % 3 == 0: 
+        elif x % 3 == 0:
             print("Fizz")
         else:
             print(x)
