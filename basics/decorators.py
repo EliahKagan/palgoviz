@@ -85,7 +85,7 @@ def thrice(func):
     >>>
     """
     def wrapper():
-        for x in range(3):
+        for _ in range(3):
             func()
 
     return wrapper
