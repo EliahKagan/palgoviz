@@ -67,3 +67,25 @@ def call(func):
     """
     func()
     return func
+
+
+def thrice(func):
+    """
+    Decorator to repeat a parameterless function three times (with no return).
+
+    >>> @thrice
+    ... def hello(): print('Hello, world!')
+    >>> hello()
+    Hello, world!
+    Hello, world!
+    Hello, world!
+    >>> @thrice
+    ... def answer(): return 42
+    >>> answer()  # No output; the wrapped function always returns None.
+    >>>
+    """
+    def wrapper():
+        for x in range(3):
+            func()
+
+    return wrapper
