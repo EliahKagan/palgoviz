@@ -20,7 +20,6 @@ def peek_arg(func):
     hello('Bob')
     Hello, Bob!
     """
-
     def wrapper(arg):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
@@ -41,7 +40,17 @@ def peek_return(func):
     square(3) -> 9
     >>> result
     9
+    >>> @peek_return
+    ... def hello(name): print(f'Hello, {name}!')
+    >>> hello('Bob')
+    Hello, Bob!
+    hello('Bob') -> None
     """
+    def wrapper(arg):
+        print(f'{func.__name__}({arg!r}) -> {func(arg)}')
+        return func(arg)
+
+    return wrapper
 
 
 def call(func):
