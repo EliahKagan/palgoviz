@@ -47,8 +47,9 @@ def peek_return(func):
     hello('Bob') -> None
     """
     def wrapper(arg):
-        print(f'{func.__name__}({arg!r}) -> {func(arg)}')
-        return func(arg)
+        result = func(arg)
+        print(f'{func.__name__}({arg!r}) -> {result}')
+        return result
 
     return wrapper
 
