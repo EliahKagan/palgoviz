@@ -93,6 +93,8 @@ def thrice(func):
 
 def repeat(count):
     """
+    FIXME: Change the signature back to repeat(count) and fix implementation.
+
     Parameterized decorator to repeat a function a given number of times.
 
     >>> @repeat(2)
@@ -102,8 +104,10 @@ def repeat(count):
     Cya later!
     Cya later!
     """
-    def helpwrapper(func, count):
-        def wrapper(func):
+    def wrapper(func):
+        def helpwrapper():
             for _ in range(count):
                 func()
-    return helpwrapper
+        return helpwrapper
+
+    return wrapper
