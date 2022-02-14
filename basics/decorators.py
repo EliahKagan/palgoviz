@@ -89,3 +89,16 @@ def thrice(func):
             func()
 
     return wrapper
+
+
+def repeat(count):
+    """
+    Parameterized decorator to repeat a function a given number of times.
+
+    >>> @repeat(2)
+    ... def bye():
+    ...     print('Cya later!')
+    >>> bye()
+    Cya later!
+    Cya later!
+    """
