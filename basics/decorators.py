@@ -19,7 +19,7 @@ def peek_arg(func):
     """
 
     def wrapper(arg):
-        print(f'{func.__name__}({arg})')
+        print(f'{func.__name__}({arg!r})')
         return func(arg)
 
     return wrapper
