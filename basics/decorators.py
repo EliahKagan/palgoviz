@@ -8,17 +8,15 @@ def peek_arg(func):
     This peeks at the argument passed when the function is called.
     It does not show the value returned.
 
-    FIXME: Change this to use the decorator notation.
-
-    >>> def square(n): return n**2
-    >>> psquare = peek_arg(square)
-    >>> result = psquare(3)
+    >>> @peek_arg
+    ... def square(n): return n**2
+    >>> result = square(3)
     square(3)
     >>> result
     9
-    >>> def hello(name): print(f'Hello, {name}!')
-    >>> phello = peek_arg(hello)
-    >>> phello('Bob')
+    >>> @peek_arg
+    ... def hello(name): print(f'Hello, {name}!')
+    >>> hello('Bob')
     hello('Bob')
     Hello, Bob!
     """
@@ -38,8 +36,7 @@ def peek_return(func):
     anything at the time the function is called.
 
     >>> @peek_return
-    ... def square(x):
-    ...     return x**2
+    ... def square(x): return x**2
     >>> result = square(3)
     square(3) -> 9
     >>> result
