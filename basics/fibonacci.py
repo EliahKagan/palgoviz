@@ -13,9 +13,9 @@ import itertools
 
 def fibonacci(n):
     """
-    Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
+    Simple (naive) recursive Fibonacci algorithm.
 
-    This is the naive exponential-time simple recursive algorithm.
+    This computes the Fibonacci number F(n) in exponential time.
 
     >>> fibonacci(0)
     0
@@ -39,11 +39,9 @@ def fibonacci(n):
 
 def fibonacci_cached_1(n):
     """
-    Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
+    Memoized recursive Fibonacci algorithm, directly based on the naive code.
 
-    This will use the linear-time recursive algorithm with memoization, in
-    which subproblems' results are cached and each call checks the cache before
-    proceeding with a computation.
+    This computes the Fibonacci number F(n) in linear time.
 
     >>> fibonacci_cached_1(0)
     0
@@ -74,11 +72,9 @@ def fibonacci_cached_1(n):
 
 def fibonacci_cached_2(n):
     """
-    Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
+    Memoized recursive Fibonacci algorithm, seeding the cache with base cases.
 
-    This will use the linear-time recursive algorithm with memoization, in
-    which subproblems' results are cached and each call checks the cache before
-    proceeding with a computation.
+    This computes the Fibonacci number F(n) in linear time.
 
     >>> fibonacci_cached_2(0)
     0
@@ -106,11 +102,9 @@ def fibonacci_cached_2(n):
 
 def fibonacci_cached_3(n):
     """
-    Recursively compute the Fibonacci number F(n), where F(0) = 0, F(1) = 1.
+    Memoized recursive Fibonacci algorithm, without caching the base cases.
 
-    This will use the linear-time recursive algorithm with memoization, in
-    which subproblems' results are cached and each call checks the cache before
-    proceeding with a computation.
+    This computes the Fibonacci number F(n) in linear time but can r.
 
     >>> fibonacci_cached_3(0)
     0
