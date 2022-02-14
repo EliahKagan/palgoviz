@@ -416,13 +416,12 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    for value in iterable:
+    result = sentinel = object()
+    for result in iterable:
         pass
-
-    try:
-        return value
-    except UnboundLocalError:
-        raise IndexError("can't get last item from empty iterable") from None
+    if result is sentinel:
+        raise IndexError("can't get last item from empty iterable")
+    return result
 
 
 def pick(iterable, index):
@@ -451,11 +450,10 @@ def pick(iterable, index):
     if index < 0:
         raise IndexError('negative indices are not supported')
 
-    for current_index, value in enumerate(iterable):
-        if current_index == index:
-            return value
-
-    raise IndexError('index out of range')
+    try:
+        return next(drop(iterable, index))
+    except StopIteration:
+        raise IndexError('index out of range') from None
 
 
 def map_one(func, iterable):
