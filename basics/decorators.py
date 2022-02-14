@@ -25,7 +25,16 @@ def peek_arg(func):
     return wrapper
 
 def call(func):
-    """Return a wrapper for a function with no arguments that calls the function"""
+    """
+    Decorator to call a parameterless function immediately.
+
+    >>> @call
+    ... def hi():
+    ...     print('Hi, world!')
+    Hi, world!
+    >>> hi()
+    Hi, world!
+    """
     def wrapper():
         func()
         return func()
