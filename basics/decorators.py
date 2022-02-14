@@ -23,3 +23,10 @@ def peek_arg(func):
         return func(arg)
 
     return wrapper
+
+def call(func):
+    """Return a wrapper for a function with no arguments that calls the function"""
+    def wrapper():
+        func()
+        return func()
+    return wrapper
