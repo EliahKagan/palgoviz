@@ -35,7 +35,5 @@ def call(func):
     >>> hi()
     Hi, world!
     """
-    def wrapper():
-        func()
-        return func()
-    return wrapper
+    func()
+    return func
