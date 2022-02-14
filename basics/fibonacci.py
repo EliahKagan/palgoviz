@@ -104,7 +104,7 @@ def fibonacci_cached_3(n):
     """
     Memoized recursive Fibonacci algorithm, without caching the base cases.
 
-    This computes the Fibonacci number F(n) in linear time but can r.
+    This computes the Fibonacci number F(n) in linear time.
 
     >>> fibonacci_cached_3(0)
     0
