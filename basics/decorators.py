@@ -3,7 +3,12 @@
 
 def peek_arg(func):
     """
-    Return a wrapper for unary function that prints how it is called.
+    Decorator wrapping a unary function and showing calls to it.
+
+    This peeks at the argument passed when the function is called.
+    It does not show the value returned.
+
+    FIXME: Change this to use the decorator notation.
 
     >>> def square(n): return n**2
     >>> psquare = peek_arg(square)
@@ -23,6 +28,23 @@ def peek_arg(func):
         return func(arg)
 
     return wrapper
+
+
+def peek_return(func):
+    """
+    Decorator wrapping a unary function and showing its return values.
+
+    This peeks at the value returned by the function. It does not print
+    anything at the time the function is called.
+
+    >>> @peek_return
+    ... def square(x):
+    ...     return x**2
+    >>> result = square(3)
+    square(3) -> 9
+    >>> result
+    9
+    """
 
 
 def call(func):
