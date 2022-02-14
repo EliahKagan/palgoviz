@@ -24,6 +24,7 @@ def peek_arg(func):
 
     return wrapper
 
+
 def call(func):
     """
     Decorator to call a parameterless function immediately.
