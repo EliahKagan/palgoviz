@@ -102,11 +102,11 @@ def repeat(count):
     Cya later!
     Cya later!
     """
-    def wrapper(func):
-        def helpwrapper():
+    def decorator(func):
+        def wrapper():
             for _ in range(count):
                 func()
 
-        return helpwrapper
+        return wrapper
 
-    return wrapper
+    return decorator
