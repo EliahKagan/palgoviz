@@ -14,7 +14,7 @@ def peek_arg(func):
     >>> def hello(name): print(f'Hello, {name}!')
     >>> phello = peek_arg(hello)
     >>> phello('Bob')
-    hello(Bob)
+    hello('Bob')
     Hello, Bob!
     """
 
