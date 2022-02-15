@@ -9,6 +9,7 @@ def greet(name):
     Greet a user, printing information about the call.
 
     >>> greet('Bob')
+    greet('Bob')
     Hello, Bob! Do you like decorators?
     """
     print(f'Hello, {name}! Do you like decorators?')

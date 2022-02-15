@@ -24,6 +24,12 @@ def peek_arg(func):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
 
+    wrapper.__name__ = func.__name__
+    wrapper.__module__ = func.__module__
+    wrapper.__qualname__ = func.__qualname__
+    wrapper.__doc__ = func.__doc__
+    wrapper.__annotations__ = func.__annotations__
+
     return wrapper
 
 
