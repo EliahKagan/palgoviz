@@ -125,6 +125,8 @@ def repeat(count):
 def give_metadata_from(infunc):
     """
     Parameterized decorater to give a functions metadata to a wrapper
+
+    TODO: Rename some of these identifiers.
     """
     def decorator(func):
         func.__name__ = infunc.__name__
