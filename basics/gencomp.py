@@ -324,6 +324,11 @@ def take(iterable, n):
     ValueError: can't yield negatively many items
     >>> list(take('pqr', True))  # OK, since bool is a subclass of int.
     ['p']
+    >>> it = (x**2 for x in range(1, 6))
+    >>> list(take(it, 2))
+    [1, 4]
+    >>> list(it)
+    [9, 16, 25]
     """
     if not isinstance(n, int):
         raise TypeError('n must be an int')
@@ -331,9 +336,7 @@ def take(iterable, n):
         raise ValueError("can't yield negatively many items")
 
     def generate():
-        for index, value in enumerate(iterable):
-            if index == n:
-                return
+        for _, value in zip(range(n), iterable):
             yield value
 
     return generate()
