@@ -1,6 +1,9 @@
 """Some basic decorators."""
 
 
+from curses import wrapper
+
+
 def peek_arg(func):
     """
     Decorator wrapping a unary function and showing calls to it.
@@ -132,3 +135,16 @@ def give_metadata_from(infunc):
         return func
 
     return decorator
+
+
+# TODO: Cover the differences between these two functions:
+
+
+def does_nothing(func):
+    def mywrapper():
+        func()
+    return mywrapper
+
+
+def does_nothing_2(func):
+    return func
