@@ -288,22 +288,20 @@ def take(iterable, n):
 
         itertools.islice(iterable, n)
 
-    >>> next(take(range(5), 0))
+    >>> next(take(range(3), 0))
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> list(take(range(5), 1))
+    >>> list(take(range(3), 1))
     [0]
-    >>> list(take(range(5), 2))
+    >>> list(take(range(3), 2))
     [0, 1]
-    >>> list(take(range(5), 4))
-    [0, 1, 2, 3]
-    >>> list(take(range(5), 5))
-    [0, 1, 2, 3, 4]
-    >>> list(take(range(5), 6))
-    [0, 1, 2, 3, 4]
-    >>> list(take(range(5), 1_000_000))
-    [0, 1, 2, 3, 4]
+    >>> list(take(range(3), 3))
+    [0, 1, 2]
+    >>> list(take(range(3), 4))
+    [0, 1, 2]
+    >>> list(take(range(3), 1_000_000))
+    [0, 1, 2]
     >>> import itertools
     >>> it = take((x**2 for x in itertools.count(2)), 2)
     >>> next(it)
@@ -324,6 +322,11 @@ def take(iterable, n):
     ValueError: can't yield negatively many items
     >>> list(take('pqr', True))  # OK, since bool is a subclass of int.
     ['p']
+    >>> it = (x**2 for x in range(1, 6))
+    >>> list(take(it, 2))
+    [1, 4]
+    >>> list(it)  # Make sure we didn't consume too much.
+    [9, 16, 25]
     """
     ...  # FIXME: Implement this.
 
