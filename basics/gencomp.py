@@ -400,63 +400,6 @@ def drop(iterable, n):
     return iterator
 
 
-def last(iterable):
-    """
-    Return the last element of iterable, or raise IndexError if it is empty.
-
-    >>> last(x for x in ())
-    Traceback (most recent call last):
-      ...
-    IndexError: can't get last item from empty iterable
-    >>> last(x for x in (10,))
-    10
-    >>> last(['foo', 'bar', 'baz', 'quux', 'foobar'])
-    'foobar'
-    >>> last(iter(range(100_000)))
-    99999
-    >>> last('I code in all the scary animals in my house including Python')
-    'n'
-    """
-    result = sentinel = object()
-    for result in iterable:
-        pass
-    if result is sentinel:
-        raise IndexError("can't get last item from empty iterable")
-    return result
-
-
-def pick(iterable, index):
-    """
-    Return the item from the iterable at the index (0-based indexing).
-
-    If index is out of range, raise IndexError.
-
-    It's possible to support negative indices, but raise IndexError instead.
-
-    >>> pick((x for x in ()), 0)
-    Traceback (most recent call last):
-      ...
-    IndexError: index out of range
-    >>> pick((x for x in (10,)), -1)
-    Traceback (most recent call last):
-      ...
-    IndexError: negative indices are not supported
-    >>> pick((x for x in (10,)), 0)
-    10
-    >>> pick(range(10_000), 4422)
-    4422
-    >>> pick(iter(range(10_000)), 4422)
-    4422
-    """
-    if index < 0:
-        raise IndexError('negative indices are not supported')
-
-    try:
-        return next(drop(iterable, index))
-    except StopIteration:
-        raise IndexError('index out of range') from None
-
-
 def map_one(func, iterable):
     """
     Map values from the given interable through the unary function func.
