@@ -124,14 +124,11 @@ def give_metadata_from(infunc):
     Parameterized decorater to give a functions metadata to a wrapper
     """
     def decorator(func):
-        def mywrapper():
-            func()
-
         func.__name__ = infunc.__name__
         func.__module__ = infunc.__module__
         func.__qualname__ = infunc.__qualname__
         func.__doc__ = infunc.__doc__
         func.__annotations__ = infunc.__annotations__
-        return mywrapper
+        return func
 
     return decorator
