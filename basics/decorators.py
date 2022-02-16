@@ -119,19 +119,15 @@ def repeat(count):
     return decorator
 
 
-def give_metadata_from(infunc):
-    """
-    Parameterized decorater to give a functions metadata to a wrapper
-
-    TODO: Rename some of these identifiers.
-    """
-    def decorator(func):
-        func.__name__ = infunc.__name__
-        func.__module__ = infunc.__module__
-        func.__qualname__ = infunc.__qualname__
-        func.__doc__ = infunc.__doc__
-        func.__annotations__ = infunc.__annotations__
-        return func
+def give_metadata_from(wrapped):
+    """Parameterized decorater to give a functions metadata to a wrapper."""
+    def decorator(wrapper):
+        wrapper.__name__ = wrapped.__name__
+        wrapper.__module__ = wrapped.__module__
+        wrapper.__qualname__ = wrapped.__qualname__
+        wrapper.__doc__ = wrapped.__doc__
+        wrapper.__annotations__ = wrapped.__annotations__
+        return wrapper
 
     return decorator
 
