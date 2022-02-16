@@ -115,10 +115,7 @@ def repeat(count):
 
 
 def give_metadata_from(wrapped):
-    """
-    Parameterized decorator to give metadata from a wrapped function to a
-    wrapper.
-    """
+    """Parameterized decorater to give a function's metadata to a wrapper."""
     def decorator(wrapper):
         wrapper.__name__ = wrapped.__name__
         wrapper.__module__ = wrapped.__module__
