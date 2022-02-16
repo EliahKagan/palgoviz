@@ -1,9 +1,6 @@
 """Some basic decorators."""
 
 
-from curses import wrapper
-
-
 def peek_arg(func):
     """
     Decorator wrapping a unary function and showing calls to it.
