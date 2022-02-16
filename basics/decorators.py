@@ -24,6 +24,12 @@ def peek_arg(func):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
 
+    wrapper.__name__ = func.__name__
+    wrapper.__module__ = func.__module__
+    wrapper.__qualname__ = func.__qualname__
+    wrapper.__doc__ = func.__doc__
+    wrapper.__annotations__ = func.__annotations__
+
     return wrapper
 
 
@@ -46,6 +52,7 @@ def peek_return(func):
     Hello, Bob!
     hello('Bob') -> None
     """
+    @give_metadata_from(func)
     def wrapper(arg):
         result = func(arg)
         print(f'{func.__name__}({arg!r}) -> {result}')
@@ -110,3 +117,33 @@ def repeat(count):
         return wrapper
 
     return decorator
+
+
+def give_metadata_from(infunc):
+    """
+    Parameterized decorater to give a functions metadata to a wrapper
+
+    TODO: Rename some of these identifiers.
+    """
+    def decorator(func):
+        func.__name__ = infunc.__name__
+        func.__module__ = infunc.__module__
+        func.__qualname__ = infunc.__qualname__
+        func.__doc__ = infunc.__doc__
+        func.__annotations__ = infunc.__annotations__
+        return func
+
+    return decorator
+
+
+# TODO: Cover the differences between these two functions:
+
+
+def does_nothing(func):
+    def mywrapper():
+        func()
+    return mywrapper
+
+
+def does_nothing_2(func):
+    return func
