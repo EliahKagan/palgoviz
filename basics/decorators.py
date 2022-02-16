@@ -20,15 +20,20 @@ def peek_arg(func):
     hello('Bob')
     Hello, Bob!
     """
+    #@give_metadata_from(func)
+
+    def give_metadata_from_func(wrapper):
+        wrapper.__name__ = func.__name__
+        wrapper.__module__ = func.__module__
+        wrapper.__qualname__ = func.__qualname__
+        wrapper.__doc__ = func.__doc__
+        wrapper.__annotations__ = func.__annotations__
+        return wrapper
+
+    @give_metadata_from_func
     def wrapper(arg):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
-
-    wrapper.__name__ = func.__name__
-    wrapper.__module__ = func.__module__
-    wrapper.__qualname__ = func.__qualname__
-    wrapper.__doc__ = func.__doc__
-    wrapper.__annotations__ = func.__annotations__
 
     return wrapper
 
@@ -52,7 +57,9 @@ def peek_return(func):
     Hello, Bob!
     hello('Bob') -> None
     """
-    @give_metadata_from(func)
+    give_metadata_from_func = give_metadata_from(func)
+
+    @give_metadata_from_func
     def wrapper(arg):
         result = func(arg)
         print(f'{func.__name__}({arg!r}) -> {result}')
@@ -119,14 +126,4 @@ def repeat(count):
     return decorator
 
 
-def give_metadata_from(wrapped):
-    """Parameterized decorater to give a functions metadata to a wrapper."""
-    def decorator(wrapper):
-        wrapper.__name__ = wrapped.__name__
-        wrapper.__module__ = wrapped.__module__
-        wrapper.__qualname__ = wrapped.__qualname__
-        wrapper.__doc__ = wrapped.__doc__
-        wrapper.__annotations__ = wrapped.__annotations__
-        return wrapper
 
-    return decorator
