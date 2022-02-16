@@ -20,10 +20,7 @@ def peek_arg(func):
     hello('Bob')
     Hello, Bob!
     """
-    #@give_metadata_from(func)
-
     def give_metadata_from(func):
-
         def give_metadata_from_func(wrapper):
             wrapper.__name__ = func.__name__
             wrapper.__module__ = func.__module__
@@ -31,6 +28,7 @@ def peek_arg(func):
             wrapper.__doc__ = func.__doc__
             wrapper.__annotations__ = func.__annotations__
             return wrapper
+
         return give_metadata_from_func
 
     @give_metadata_from(func)
