@@ -47,9 +47,7 @@ def peek_return(func):
     Hello, Bob!
     hello('Bob') -> None
     """
-    give_metadata_from_func = give_metadata_from(func)
-
-    @give_metadata_from_func
+    @give_metadata_from(func)
     def wrapper(arg):
         result = func(arg)
         print(f'{func.__name__}({arg!r}) -> {result}')
