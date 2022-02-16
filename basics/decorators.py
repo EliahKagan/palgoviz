@@ -130,19 +130,3 @@ def give_metadata_from(wrapped):
         return wrapper
 
     return decorator
-
-
-# TODO: Cover the differences between these two functions:
-
-
-def does_nothing(func):
-    # mywrapper has the same behavior as func when called with 1 argument.
-    # But they are not the same function.
-    def mywrapper(arg):
-        return func(arg)
-    return mywrapper
-
-
-def does_nothing_2(func):
-    # This returns func itself.
-    return func
