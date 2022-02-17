@@ -158,7 +158,7 @@ def fibonacci_cached_4(n):
     2
     >>> fibonacci_cached_4(10)
     55
-    >>> fibonacci_cached_4(100)  # FIXME: Memoization should solve this.  # doctest: +SKIP
+    >>> fibonacci_cached_4(100)  # FIXME: Memoization should solve this.
     354224848179261915075
     >>> fibonacci_cached_4(500)  # Mutual-recursion RecursionError.  # doctest: +SKIP
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
