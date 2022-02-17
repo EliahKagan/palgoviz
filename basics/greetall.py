@@ -43,6 +43,16 @@ WARNING in greetall.py: Too many arguments, see docstring for usage
 Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
+>>> status, output = gso('python greetall.py some-nonexistent-file.txt')
+>>> status
+1
+>>> output.startswith('ERROR in greetall.py:')
+True
+>>> status, output = gso('python greetall.py .')
+>>> status
+1
+>>> output.startswith('ERROR in greetall.py:')
+True
 """
 
 import sys
