@@ -120,30 +120,16 @@ def repeat(count):
     return decorator
 
 
-# def peek_argreturn(func):
-#     """Decorator that does the work of peek arg and peek return. Two for the price of one!
-
-#     >>> @peek_argreturn
-#     ... def square(x): return x**2
-#     >>> result = square(3)
-#     square(3)
-#     square(3) -> 9
-#     """
-#     return compose2(peek_arg, peek_return)(func)
-#     return peek_arg(peek_return(func))
-
-peek_argreturn = compose2(peek_arg, peek_return)
-peek_argreturn.__module__ = 'decorators'
-peek_argreturn.__name__ = peek_argreturn.__qualname__ = 'peek_argreturn'
-peek_argreturn.__doc__ = """
-Decorator that does the work of peek arg and peek return. Two for the price of one!
+def peek_argreturn(func):
+    """Decorator that does the work of peek arg and peek return. Two for the price of one!
 
     >>> @peek_argreturn
     ... def square(x): return x**2
     >>> result = square(3)
     square(3)
     square(3) -> 9
-"""
+    """
+    return compose2(peek_arg, peek_return)(func)
 
 
 def give_metadata_from(wrapped):
