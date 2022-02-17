@@ -1,5 +1,9 @@
 """Some basic decorators."""
 
+import functools
+
+from composers import compose2
+
 
 def peek_arg(func):
     """
@@ -20,15 +24,10 @@ def peek_arg(func):
     hello('Bob')
     Hello, Bob!
     """
+    @functools.wraps(func)
     def wrapper(arg):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
-
-    wrapper.__name__ = func.__name__
-    wrapper.__module__ = func.__module__
-    wrapper.__qualname__ = func.__qualname__
-    wrapper.__doc__ = func.__doc__
-    wrapper.__annotations__ = func.__annotations__
 
     return wrapper
 
@@ -91,6 +90,7 @@ def thrice(func):
     >>> answer()  # No output; the wrapped function always returns None.
     >>>
     """
+    @functools.wraps(func)
     def wrapper():
         for _ in range(3):
             func()
@@ -110,6 +110,7 @@ def repeat(count):
     Cya later!
     """
     def decorator(func):
+        @functools.wraps(func)
         def wrapper():
             for _ in range(count):
                 func()
@@ -119,31 +120,78 @@ def repeat(count):
     return decorator
 
 
-def give_metadata_from(infunc):
-    """
-    Parameterized decorater to give a functions metadata to a wrapper
+def peek(func):
+    """Decorator that does the work of peek arg and peek return. Two for the price of one!
 
-    TODO: Rename some of these identifiers.
+    >>> @peek
+    ... def square(x): return x**2
+    >>> result = square(3)
+    square(3)
+    square(3) -> 9
     """
-    def decorator(func):
-        func.__name__ = infunc.__name__
-        func.__module__ = infunc.__module__
-        func.__qualname__ = infunc.__qualname__
-        func.__doc__ = infunc.__doc__
-        func.__annotations__ = infunc.__annotations__
-        return func
+    @functools.wraps(func)
+    def wrapper(arg):
+        print(f'{func.__name__}({arg!r})')
+        result = func(arg)
+        print(f'{func.__name__}({arg!r}) -> {result}')
+        return result
+
+    return wrapper
+
+
+def give_metadata_from(wrapped):
+    """Parameterized decorater to give a function's metadata to a wrapper."""
+    def decorator(wrapper):
+        wrapper.__name__ = wrapped.__name__
+        wrapper.__module__ = wrapped.__module__
+        wrapper.__qualname__ = wrapped.__qualname__
+        wrapper.__doc__ = wrapped.__doc__
+        wrapper.__annotations__ = wrapped.__annotations__
+        return wrapper
 
     return decorator
 
 
-# TODO: Cover the differences between these two functions:
+def memoize(func):
+    @functools.wraps(func)
+    def wrapper(arg):
+        cache = {}
+        if arg not in cache:
+            cache[arg] = func(arg)
+        return cache[arg]
+    return wrapper
 
 
-def does_nothing(func):
-    def mywrapper():
-        func()
-    return mywrapper
+# Notes that I used to reason out what memoize does to wrapped.
 
+# def fibonacci_wrapped(n):
+#     """
+#     Memoized recursive Fibonacci algorithm. Fourth way.
 
-def does_nothing_2(func):
-    return func
+#     This computes the Fibonacci number F(n) in linear time.
+
+#     >>> fibonacci(0)
+#     0
+#     >>> fibonacci(1)
+#     1
+#     >>> fibonacci(2)
+#     1
+#     >>> fibonacci(3)
+#     2
+#     >>> fibonacci(10)
+#     55
+#     >>> fibonacci(500)
+#     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+#     """
+#     def helper(x):
+#         if x == 0:
+#             return 0
+#         if x == 1:
+#             return 1
+#         return fibonacci_wrapped(x - 1) + fibonacci_wrapped(x - 2)
+#
+#     cache = {}
+#     if n not in cache:
+#         cache[n] = helper(n)
+#     return cache[n]
+
