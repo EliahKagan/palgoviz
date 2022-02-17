@@ -129,7 +129,14 @@ def peek(func):
     square(3)
     square(3) -> 9
     """
-    return compose2(peek_arg, peek_return)(func)
+    @functools.wraps(func)
+    def wrapper(arg):
+        print(f'{func.__name__}({arg!r})')
+        result = func(arg)
+        print(f'{func.__name__}({arg!r}) -> {result}')
+        return result
+
+    return wrapper
 
 
 def give_metadata_from(wrapped):
