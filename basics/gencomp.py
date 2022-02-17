@@ -720,7 +720,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
 
     For example, {'a': 1, 'b': 2, 'c': 3} and {'a': 1, 'b': 1, 'c': 3, 'd': 4}
     agree on ('a', 'c'), disagree on ('a', 'c', 'd'), agree on ('a', 'c', 'e'),
-    disagree on ('c',), and agree on ().
+    disagree on ('b',), and agree on ().
 
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject keys with any preceding dictionary in dicts.
