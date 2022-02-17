@@ -6,6 +6,19 @@ Greets multiple users from a file.
 Usage:
 
     greetall FILENAME [LANG]
+
+Test (not exhaustive, and assumes names.txt and names2.txt are present):
+
+>>> import subprocess
+>>> print(subprocess.getoutput('python greetall.py names.txt'))
+Hello, Eliah!
+Hello, David!
+Hello, Dr. Evil!
+>>> print(subprocess.getoutput('python greetall.py names2.txt'))
+Hello, Eliah!
+Hello, David!
+Hello, Dr. Evil!
+Hello, Stalin!
 """
 
 import sys
