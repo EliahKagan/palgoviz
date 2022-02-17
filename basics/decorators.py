@@ -2,6 +2,8 @@
 
 import functools
 
+from composers import compose2
+
 
 def peek_arg(func):
     """
@@ -116,6 +118,18 @@ def repeat(count):
         return wrapper
 
     return decorator
+
+
+def peek_argreturn(func):
+    """Decorator that does the work of peek arg and peek return. Two for the price of one!
+
+    >>> @peek_argreturn
+    ... def square(x): return x**2
+    >>> result = square(3)
+    square(3)
+    square(3) -> 9
+    """
+    return compose2(peek_arg, peek_return)(func)
 
 
 def give_metadata_from(wrapped):
