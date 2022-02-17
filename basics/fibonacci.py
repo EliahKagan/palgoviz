@@ -9,7 +9,7 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
 import itertools
-
+from decorators import memoize
 
 def fibonacci(n):
     """
@@ -131,6 +131,35 @@ def fibonacci_cached_3(n):
         return cache[k]
 
     return helper(n)
+
+
+@memoize
+def fibonacci_cached_4(n):
+    """
+    Memoized recursive Fibonacci algorithm. Fourth way.
+
+    This computes the Fibonacci number F(n) in linear time.
+
+    >>> fibonacci_cached_4(0)
+    0
+    >>> fibonacci_cached_4(1)
+    1
+    >>> fibonacci_cached_4(2)
+    1
+    >>> fibonacci_cached_4(3)
+    2
+    >>> fibonacci_cached_4(10)
+    55
+    >>> fibonacci_cached_4(100)  # TODO: Add this to other doctests.
+    354224848179261915075
+    >>> fibonacci_cached_4(500)  # doctest: +SKIP
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    """
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fibonacci_cached_4(n - 1) + fibonacci_cached_4(n - 2)
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe

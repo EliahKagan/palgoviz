@@ -150,3 +150,48 @@ def give_metadata_from(wrapped):
         return wrapper
 
     return decorator
+
+
+def memoize(func):
+    @functools.wraps(func)
+    def wrapper(arg):
+        cache = {}
+        if arg not in cache:
+            cache[arg] = func(arg)
+        return cache[arg]
+    return wrapper
+
+
+# Notes that I used to reason out what memoize does to wrapped.
+
+# def fibonacci_wrapped(n):
+#     """
+#     Memoized recursive Fibonacci algorithm. Fourth way.
+
+#     This computes the Fibonacci number F(n) in linear time.
+
+#     >>> fibonacci(0)
+#     0
+#     >>> fibonacci(1)
+#     1
+#     >>> fibonacci(2)
+#     1
+#     >>> fibonacci(3)
+#     2
+#     >>> fibonacci(10)
+#     55
+#     >>> fibonacci(500)
+#     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+#     """
+#     def helper(x):
+#         if x == 0:
+#             return 0
+#         if x == 1:
+#             return 1
+#         return fibonacci_wrapped(x - 1) + fibonacci_wrapped(x - 2)
+#
+#     cache = {}
+#     if n not in cache:
+#         cache[n] = helper(n)
+#     return cache[n]
+
