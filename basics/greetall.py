@@ -7,18 +7,42 @@ Usage:
 
     greetall FILENAME [LANG]
 
-Test (not exhaustive, and assumes names.txt and names2.txt are present):
+TODO: Write better, more exhaustive tests, probably with pytest.
 
->>> import subprocess
->>> print(subprocess.getoutput('python greetall.py names.txt'))
+>>> from subprocess import getstatusoutput as gso
+>>> status, output = gso('python greetall.py names.txt')
+>>> status
+0
+>>> print(output)
 Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
->>> print(subprocess.getoutput('python greetall.py names2.txt'))
+>>> status, output = gso('python greetall.py names2.txt es')
+>>> status
+0
+>>> print(output)
+¡Hola, Eliah!
+¡Hola, David!
+¡Hola, Dr. Evil!
+¡Hola, Stalin!
+>>> status, output = gso('python greetall.py')
+>>> status
+1
+>>> print(output)
+ERROR in greetall.py: Did not pass a filename
+>>> status, output = gso('python greetall.py names.txt qx')
+>>> status
+1
+>>> print(output)
+ERROR in greetall.py: Did not pass a valid language code
+>>> status, output = gso('python greetall.py names.txt en foo')
+>>> status
+0
+>>> print(output)
+WARNING in greetall.py: Too many arguments, see docstring for usage
 Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
-Hello, Stalin!
 """
 
 import sys
