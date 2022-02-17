@@ -1,5 +1,7 @@
 """Some basic decorators."""
 
+import functools
+
 
 def peek_arg(func):
     """
@@ -20,7 +22,7 @@ def peek_arg(func):
     hello('Bob')
     Hello, Bob!
     """
-    @give_metadata_from(func)
+    @functools.wraps(func)
     def wrapper(arg):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
