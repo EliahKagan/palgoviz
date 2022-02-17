@@ -120,10 +120,10 @@ def repeat(count):
     return decorator
 
 
-def peek_argreturn(func):
+def peek(func):
     """Decorator that does the work of peek arg and peek return. Two for the price of one!
 
-    >>> @peek_argreturn
+    >>> @peek
     ... def square(x): return x**2
     >>> result = square(3)
     square(3)
