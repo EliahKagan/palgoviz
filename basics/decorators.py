@@ -1,5 +1,9 @@
 """Some basic decorators."""
 
+import functools
+
+from composers import compose2
+
 
 def peek_arg(func):
     """
@@ -20,7 +24,7 @@ def peek_arg(func):
     hello('Bob')
     Hello, Bob!
     """
-    @give_metadata_from(func)
+    @functools.wraps(func)
     def wrapper(arg):
         print(f'{func.__name__}({arg!r})')
         return func(arg)
@@ -86,6 +90,7 @@ def thrice(func):
     >>> answer()  # No output; the wrapped function always returns None.
     >>>
     """
+    @functools.wraps(func)
     def wrapper():
         for _ in range(3):
             func()
@@ -105,6 +110,7 @@ def repeat(count):
     Cya later!
     """
     def decorator(func):
+        @functools.wraps(func)
         def wrapper():
             for _ in range(count):
                 func()
@@ -112,6 +118,25 @@ def repeat(count):
         return wrapper
 
     return decorator
+
+
+def peek(func):
+    """Decorator that does the work of peek arg and peek return. Two for the price of one!
+
+    >>> @peek
+    ... def square(x): return x**2
+    >>> result = square(3)
+    square(3)
+    square(3) -> 9
+    """
+    @functools.wraps(func)
+    def wrapper(arg):
+        print(f'{func.__name__}({arg!r})')
+        result = func(arg)
+        print(f'{func.__name__}({arg!r}) -> {result}')
+        return result
+
+    return wrapper
 
 
 def give_metadata_from(wrapped):
@@ -125,3 +150,48 @@ def give_metadata_from(wrapped):
         return wrapper
 
     return decorator
+
+
+def memoize(func):
+    @functools.wraps(func)
+    def wrapper(arg):
+        cache = {}
+        if arg not in cache:
+            cache[arg] = func(arg)
+        return cache[arg]
+    return wrapper
+
+
+# Notes that I used to reason out what memoize does to wrapped.
+
+# def fibonacci_wrapped(n):
+#     """
+#     Memoized recursive Fibonacci algorithm. Fourth way.
+
+#     This computes the Fibonacci number F(n) in linear time.
+
+#     >>> fibonacci(0)
+#     0
+#     >>> fibonacci(1)
+#     1
+#     >>> fibonacci(2)
+#     1
+#     >>> fibonacci(3)
+#     2
+#     >>> fibonacci(10)
+#     55
+#     >>> fibonacci(500)
+#     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+#     """
+#     def helper(x):
+#         if x == 0:
+#             return 0
+#         if x == 1:
+#             return 1
+#         return fibonacci_wrapped(x - 1) + fibonacci_wrapped(x - 2)
+#
+#     cache = {}
+#     if n not in cache:
+#         cache[n] = helper(n)
+#     return cache[n]
+
