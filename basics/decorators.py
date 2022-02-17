@@ -88,6 +88,7 @@ def thrice(func):
     >>> answer()  # No output; the wrapped function always returns None.
     >>>
     """
+    @functools.wraps(func)
     def wrapper():
         for _ in range(3):
             func()
@@ -107,6 +108,7 @@ def repeat(count):
     Cya later!
     """
     def decorator(func):
+        @functools.wraps(func)
         def wrapper():
             for _ in range(count):
                 func()
