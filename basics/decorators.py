@@ -2,8 +2,6 @@
 
 import functools
 
-from composers import compose2
-
 
 def peek_arg(func):
     """
@@ -189,3 +187,34 @@ def memoize(func):
         return cache[arg]
 
     return wrapper
+
+
+def int_fn(func):
+    """
+    Decorator that type-checks a unary function from int to int.
+
+    Decorating a unary function definition with @int_fn causes the function to
+    raise an exception if it is called with an argument that is not an int or
+    if it returns a value that is not an int.
+
+    >>> @int_fn
+    ... def f(n):
+    ...     return n + 1
+    >>> f(1)
+    2
+    >>> f(1.1)
+    Traceback (most recent call last):
+      ...
+    TypeError: function must be called with int
+    >>> @int_fn
+    ... def f(n):
+    ...     return n / 2
+    >>> f(4)
+    Traceback (most recent call last):
+      ...
+    TypeError: function must return an int
+    >>> f(5)
+    Traceback (most recent call last):
+      ...
+    TypeError: function must return an int
+    """
