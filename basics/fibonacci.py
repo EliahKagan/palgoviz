@@ -9,7 +9,7 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
 import itertools
-from decorators import memoize
+from decorators import memoize, peek_return
 
 def fibonacci(n):
     """
@@ -140,7 +140,7 @@ def fibonacci_cached_3(n):
 
     return helper(n)
 
-
+@peek_return
 @memoize
 def fibonacci_cached_4(n):
     """
@@ -191,6 +191,7 @@ def fibonacci_cached_5(n):
     >>> fibonacci_cached_5(500)  # Mutual-recursion RecursionError.  # doctest: +SKIP
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
+    @peek_return
     @memoize
     def helper(n):
         if n == 0:
