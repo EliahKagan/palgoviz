@@ -153,9 +153,9 @@ def give_metadata_from(wrapped):
 
 
 def memoize(func):
+    cache = {}
     @functools.wraps(func)
     def wrapper(arg):
-        cache = {}
         if arg not in cache:
             cache[arg] = func(arg)
         return cache[arg]
