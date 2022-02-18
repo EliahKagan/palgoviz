@@ -144,7 +144,7 @@ def fibonacci_cached_3(n):
 @memoize
 def fibonacci_cached_4(n):
     """
-    Memoized recursive Fibonacci algorithm. Fourth way.
+    Memoized recursive Fibonacci algorithm. Caches across all calls.
 
     This computes the Fibonacci number F(n) in linear time.
 
@@ -168,6 +168,29 @@ def fibonacci_cached_4(n):
     if n == 1:
         return 1
     return fibonacci_cached_4(n - 1) + fibonacci_cached_4(n - 2)
+
+
+def fibonacci_cached_5(n):
+    """
+    Memoized recursive Fibonacci algorithm. Caches during a single computation.
+
+    This computes the Fibonacci number F(n) in linear time.
+
+    >>> fibonacci_cached_5(0)
+    0
+    >>> fibonacci_cached_5(1)
+    1
+    >>> fibonacci_cached_5(2)
+    1
+    >>> fibonacci_cached_5(3)
+    2
+    >>> fibonacci_cached_5(10)
+    55
+    >>> fibonacci_cached_5(100)  # FIXME: Memoization should solve this.
+    354224848179261915075
+    >>> fibonacci_cached_5(500)  # Mutual-recursion RecursionError.  # doctest: +SKIP
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    """
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
