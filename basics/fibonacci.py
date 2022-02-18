@@ -158,7 +158,7 @@ def fibonacci_cached_4(n):
     2
     >>> fibonacci_cached_4(10)
     55
-    >>> fibonacci_cached_4(100)  # FIXME: Memoization should solve this.
+    >>> fibonacci_cached_4(100)
     354224848179261915075
     >>> fibonacci_cached_4(500)  # Mutual-recursion RecursionError.  # doctest: +SKIP
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
@@ -186,11 +186,20 @@ def fibonacci_cached_5(n):
     2
     >>> fibonacci_cached_5(10)
     55
-    >>> fibonacci_cached_5(100)  # FIXME: Memoization should solve this.
+    >>> fibonacci_cached_5(100)
     354224848179261915075
     >>> fibonacci_cached_5(500)  # Mutual-recursion RecursionError.  # doctest: +SKIP
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
+    @memoize
+    def helper(n):
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        return helper(n-2) + helper(n-1)
+    return helper(n)
+
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
