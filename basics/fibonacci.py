@@ -9,6 +9,8 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
 import itertools
+import functools
+
 from decorators import memoize
 
 
@@ -194,7 +196,7 @@ def fibonacci_cached_5(n):
     >>> fibonacci_cached_5(500)  # No RecursionError, we split the paths.
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
-    @memoize
+    @functools.cache
     def helper(n):
         if n == 0:
             return 0
