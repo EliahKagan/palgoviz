@@ -204,6 +204,9 @@ def int_fn(func):
     >>> f(1)
     f(1)
     2
+    >>> f(False)
+    f(False)
+    1
     >>> f(1.1)
     Traceback (most recent call last):
       ...
@@ -222,11 +225,11 @@ def int_fn(func):
     """
     @functools.wraps(func)
     def wrapper(arg):
-        if type(arg) != int:
-            raise TypeError(f'function must be called with int')
+        if not isinstance(arg, int):
+            raise TypeError('function must be called with int')
         result = func(arg)
-        if type(result) != int:
-            raise TypeError(f'function must return an int')
+        if not isinstance(result, int):
+            raise TypeError('function must return an int')
         return result
 
     return wrapper
