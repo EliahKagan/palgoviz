@@ -199,8 +199,10 @@ def int_fn(func):
 
     >>> @int_fn
     ... def f(n):
+    ...     print(f'f({n})')
     ...     return n + 1
     >>> f(1)
+    f(1)
     2
     >>> f(1.1)
     Traceback (most recent call last):
@@ -218,3 +220,13 @@ def int_fn(func):
       ...
     TypeError: function must return an int
     """
+    @functools.wraps(func)
+    def wrapper(arg):
+        if type(arg) != int:
+            raise TypeError(f'function must be called with int')
+        result = func(arg)
+        if type(result) != int:
+            raise TypeError(f'function must return an int')
+        return result
+
+    return wrapper
