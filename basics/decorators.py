@@ -153,12 +153,41 @@ def give_metadata_from(wrapped):
 
 
 def memoize(func):
+    """
+    Decorator that memoizes a naive implementation of an algorithm.
+
+    >>> @memoize
+    ... def f(n):
+    ...     print(n)
+    ...     return n**2
+    >>> f(2)
+    2
+    4
+    >>> f(3)
+    3
+    9
+    >>> f(2)
+    4
+    >>> f(3)
+    9
+    >>> @memoize
+    ... def g(n):
+    ...     print(n)
+    ...     return n**3
+    >>> g(2)
+    2
+    8
+    >>> f(2)
+    4
+    """
     cache = {}
+
     @functools.wraps(func)
     def wrapper(arg):
         if arg not in cache:
             cache[arg] = func(arg)
         return cache[arg]
+
     return wrapper
 
 
