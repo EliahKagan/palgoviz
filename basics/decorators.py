@@ -226,10 +226,12 @@ def int_fn(func):
     @functools.wraps(func)
     def wrapper(arg):
         if not isinstance(arg, int):
-            raise TypeError(f'{func.__name__} must be called with int, got {type(arg).__name__}')
+            raise TypeError(f'{func.__name__} must be called with int,'
+                            f' got {type(arg).__name__}')
         result = func(arg)
         if not isinstance(result, int):
-            raise TypeError(f'{func.__name__} must return an int, returned {type(result).__name__}')
+            raise TypeError(f'{func.__name__} must return an int,'
+                            f' returned {type(result).__name__}')
         return result
 
     return wrapper
