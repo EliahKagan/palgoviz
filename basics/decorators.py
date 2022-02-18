@@ -210,26 +210,26 @@ def int_fn(func):
     >>> f(1.1)
     Traceback (most recent call last):
       ...
-    TypeError: function must be called with int
+    TypeError: f must be called with int, got float
     >>> @int_fn
-    ... def f(n):
+    ... def g(n):
     ...     return n / 2
-    >>> f(4)
+    >>> g(4)
     Traceback (most recent call last):
       ...
-    TypeError: function must return an int
-    >>> f(5)
+    TypeError: g must return an int, returned float
+    >>> g(5)
     Traceback (most recent call last):
       ...
-    TypeError: function must return an int
+    TypeError: g must return an int, returned float
     """
     @functools.wraps(func)
     def wrapper(arg):
         if not isinstance(arg, int):
-            raise TypeError('function must be called with int')
+            raise TypeError(f'{func.__name__} must be called with int, got {type(arg).__name__}')
         result = func(arg)
         if not isinstance(result, int):
-            raise TypeError('function must return an int')
+            raise TypeError(f'{func.__name__} must return an int, returned {type(result).__name__}')
         return result
 
     return wrapper
