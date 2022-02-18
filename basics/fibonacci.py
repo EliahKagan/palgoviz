@@ -11,6 +11,7 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 import itertools
 from decorators import memoize
 
+
 def fibonacci(n):
     """
     Simple (naive) recursive Fibonacci algorithm.
@@ -197,9 +198,9 @@ def fibonacci_cached_5(n):
             return 0
         if n == 1:
             return 1
-        return helper(n-2) + helper(n-1)
-    return helper(n)
+        return helper(n - 2) + helper(n - 1)
 
+    return helper(n)
 
 
 # TODO: When we do unittest and pytest, translate these doctests and observe
