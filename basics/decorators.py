@@ -199,7 +199,7 @@ def int_fn(func):
 
     >>> @int_fn
     ... def f(n):
-    ...     print(f'f({n})')
+    ...     print(f'f({n!r})')
     ...     return n + 1
     >>> f(1)
     f(1)
