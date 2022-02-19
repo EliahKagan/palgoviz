@@ -467,6 +467,59 @@ def fib_n(n):
     return itertools.islice(fib(), n)
 
 
+def fib_nest(n):
+    """
+    Create a nested tuple structured like the graph of Fibonacci subproblems.
+
+    In a single return of fib_nest, objects representing the same subproblem
+    are the same object (not merely equal). This implementation is iterative.
+
+    >>> fib_nest(0)
+    0
+    >>> fib_nest(1)
+    1
+    >>> fib_nest(2)
+    (0, 1)
+    >>> fib_nest(3)
+    (1, (0, 1))
+    >>> fib_nest(4)
+    ((0, 1), (1, (0, 1)))
+    >>> fib_nest(5)
+    ((1, (0, 1)), ((0, 1), (1, (0, 1))))
+    >>> fib_nest(6)
+    (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1)))))
+    >>> from pprint import pprint
+    >>> pprint(fib_nest(7))
+    (((1, (0, 1)), ((0, 1), (1, (0, 1)))),
+     (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1))))))
+    >>> pprint(fib_nest(8))
+    ((((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1))))),
+     (((1, (0, 1)), ((0, 1), (1, (0, 1)))),
+      (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1)))))))
+    >>> all(u is w for u, (_, w) in map(fib_nest, range(3, 401)))  # Shallow.
+    True
+    >>> r = fib_nest(100_000)
+    >>> while r != (0, 1) and r[0] is r[1][1]: r = r[1]  # Deep.
+    >>> r
+    (0, 1)
+    """
+    if n < 0:
+        raise ValueError('n must be nonnegative')
+
+    a = 0
+    b = 1
+
+    if n == 0:
+        return a
+    if n == 1:
+        return b
+
+    for _ in range(n - 1):
+        a, b = b, (a, b)
+
+    return b
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
