@@ -304,34 +304,6 @@ def fibonacci_short_alr(n):
     return n if n < 2 else do_fib(n)
 
 
-def fibonacci_tail(n):
-    """
-    Tail-recursive Fibonacci implementation. This is bottom-up and linear time.
-
-    Note that Python does not have proper tail calls, and CPython does not
-    eliminate or optimize tail calls in even the simplest tail-recursive
-    functions. So, while they use different techniques, this and the recursive
-    memoized top-down solution both raise RecursionError for large enough n.
-
-    >>> fibonacci_tail(0)
-    0
-    >>> fibonacci_tail(1)
-    1
-    >>> fibonacci_tail(2)
-    1
-    >>> fibonacci_tail(3)
-    2
-    >>> fibonacci_tail(10)
-    55
-    >>> fibonacci_tail(500)
-    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
-    """
-    def do_fib(a, b, k):
-        pass  # FIXME: Implement this helper function.
-
-    # FIXME: Use the helper function.
-
-
 # TODO: When we do unittest and pytest, translate these doctests and observe
 #       how much clearer (and easier to get right) they are.
 def fib_n_clunk(n):
