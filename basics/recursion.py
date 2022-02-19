@@ -459,11 +459,7 @@ def flatten(root):
     >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    if isinstance(root, tuple):
-        for child in root:
-            yield from flatten(child)
-    else:
-        yield root
+    ...  # FIXME: Implement this.
 
 
 def leaf_sum(root):
@@ -483,18 +479,7 @@ def leaf_sum(root):
     >>> leaf_sum(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    sums = {}  # id -> sum
-
-    def sum_below(node):
-        if not isinstance(node, tuple):
-            return node
-
-        if id(node) not in sums:
-            sums[id(node)] = sum(sum_below(child) for child in node)
-
-        return sums[id(node)]
-
-    return sum_below(root)
+    ...  # FIXME: Implement this.
 
 
 def leaf_sum_alt(root):
@@ -516,18 +501,7 @@ def leaf_sum_alt(root):
     >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    return _sum_below(root, {})
-
-
-def _sum_below(root, sums):
-    """Sum leaves under the root. Cache in sums. (Helper for leaf_sum_alt.)"""
-    if not isinstance(root, tuple):
-        return root
-
-    if id(root) not in sums:
-        sums[id(root)] = sum(_sum_below(child, sums) for child in root)
-
-    return sums[id(root)]
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
