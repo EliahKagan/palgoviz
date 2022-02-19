@@ -9,7 +9,10 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
 import itertools
+import functools
+
 from decorators import memoize
+
 
 def fibonacci(n):
     """
@@ -144,7 +147,7 @@ def fibonacci_cached_3(n):
 @memoize
 def fibonacci_cached_4(n):
     """
-    Memoized recursive Fibonacci algorithm. Fourth way.
+    Memoized recursive Fibonacci algorithm. Caches across all calls.
 
     This computes the Fibonacci number F(n) in linear time.
 
@@ -158,16 +161,50 @@ def fibonacci_cached_4(n):
     2
     >>> fibonacci_cached_4(10)
     55
-    >>> fibonacci_cached_4(100)  # FIXME: Memoization should solve this.
+    >>> fibonacci_cached_4(100)
     354224848179261915075
-    >>> fibonacci_cached_4(500)  # Mutual-recursion RecursionError.  # doctest: +SKIP
+    >>> fibonacci_cached_4(500)  # No RecursionError: we have up to n=100.
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    >>> fibonacci_cached_4(1200)  # Mutual-recursion RecursionError.  # doctest: +SKIP
+    27269884455406270157991615313642198705000779992917725821180502894974726476373026809482509284562310031170172380127627214493597616743856443016039972205847405917634660750474914561879656763268658528092195715626073248224067794253809132219056382939163918400
     """
     if n == 0:
         return 0
     if n == 1:
         return 1
     return fibonacci_cached_4(n - 1) + fibonacci_cached_4(n - 2)
+
+
+def fibonacci_cached_5(n):
+    """
+    Memoized recursive Fibonacci algorithm. Caches during a single computation.
+
+    This computes the Fibonacci number F(n) in linear time.
+
+    >>> fibonacci_cached_5(0)
+    0
+    >>> fibonacci_cached_5(1)
+    1
+    >>> fibonacci_cached_5(2)
+    1
+    >>> fibonacci_cached_5(3)
+    2
+    >>> fibonacci_cached_5(10)
+    55
+    >>> fibonacci_cached_5(100)
+    354224848179261915075
+    >>> fibonacci_cached_5(500)  # No RecursionError, we split the paths.
+    139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    """
+    @functools.cache
+    def helper(n):
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        return helper(n - 2) + helper(n - 1)
+
+    return helper(n)
 
 
 def fibonacci_short(n):
