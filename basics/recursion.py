@@ -404,6 +404,14 @@ def merge_sort(values):
     return helper(list(values))
 
 
+def make_deep_tuple(depth):
+    """Make a tuple of the specified depth."""
+    tup = ()
+    for _ in range(depth):
+        tup = (tup,)
+    return tup
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
