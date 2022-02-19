@@ -4,6 +4,8 @@
 
 import bisect
 
+from decorators import memoize_by
+
 
 def countdown(n):
     """
@@ -402,6 +404,169 @@ def merge_sort(values):
         return merge_two(helper(values[:halfway]), helper(values[halfway:]))
 
     return helper(list(values))
+
+
+def nest(seed, degree, height):
+    """
+    Create a nested tuple from a seed, branching degree, and height.
+
+    The seed will be a leaf or subtree.
+
+    >>> nest('hi', 2, 0)
+    'hi'
+    >>> nest('hi', 2, 1)
+    ('hi', 'hi')
+    >>> nest('hi', 2, 2)
+    (('hi', 'hi'), ('hi', 'hi'))
+    >>> nest('hi', 2, 3)
+    ((('hi', 'hi'), ('hi', 'hi')), (('hi', 'hi'), ('hi', 'hi')))
+    >>> from pprint import pprint
+    >>> pprint(nest('hi', 3, 3))
+    ((('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
+     (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
+     (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')))
+    """
+    if degree < 0:
+        raise ValueError('degree cannot be negative')
+    if height < 0:
+        raise ValueError('height cannot be negative')
+    return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
+
+
+def flatten(root):
+    """
+    Using recursion, lazily flatten a tuple, yielding all leaves (non-tuples).
+
+    This returns an iterator that yields all leaves in the order the repr shows
+    them. If root is not a tuple, it is considered to be the one and only leaf.
+
+    >>> list(flatten(()))
+    []
+    >>> list(flatten(3))
+    [3]
+    >>> list(flatten([3]))
+    [[3]]
+    >>> list(flatten((3,)))
+    [3]
+    >>> list(flatten((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(flatten((2, ((3,), 7))))
+    [2, 3, 7]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> list(flatten(root1))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(flatten(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+    if isinstance(root, tuple):
+        for child in root:
+            yield from flatten(child)
+    else:
+        yield root
+
+
+def leaf_sum(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    >>> leaf_sum(3)
+    3
+    >>> leaf_sum(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum(root)
+    57
+    >>> leaf_sum(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    """
+    sums = {}  # id -> sum
+
+    def sum_below(node):
+        if not isinstance(node, tuple):
+            return node
+
+        if id(node) not in sums:
+            sums[id(node)] = sum(sum_below(child) for child in node)
+
+        return sums[id(node)]
+
+    return sum_below(root)
+
+
+def leaf_sum_alt(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    This is like leaf_sum except it does not use any local functions.
+
+    >>> leaf_sum_alt(3)
+    3
+    >>> leaf_sum_alt(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum_alt(root)
+    57
+    >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    """
+    return _sum_below(root, {})
+
+
+def _sum_below(root, sums):
+    """Sum leaves under the root. Cache in sums. (Helper for leaf_sum_alt.)"""
+    if not isinstance(root, tuple):
+        return root
+
+    if id(root) not in sums:
+        sums[id(root)] = sum(_sum_below(child, sums) for child in root)
+
+    return sums[id(root)]
+
+
+def leaf_sum_dec(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    This is like leaf_sum, but @decorators.memoize_by is used for memoization,
+    which is safe for the same reason the sums table works in leaf_sum: a tuple
+    structure (i.e., one where only leaves are permitted to be non-tuples) is
+    ineligible for garbage collection as long as its root is accessible. This
+    holds even in the presence of concurrency considerations, since tuples are
+    immutable.
+
+    Note that it would not be safe to cache calls to the top-level function
+    leaf_sum_alt by id. This must go on the helper function, since nothing
+    can be assumed about lifetime of objects across top-level calls.
+
+    >>> leaf_sum_dec(3)
+    3
+    >>> leaf_sum_dec(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum_dec(root)
+    57
+    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    """
+    @memoize_by(id)
+    def sum_below(node):
+        if isinstance(node, tuple):
+            return sum(sum_below(child) for child in node)
+        return node
+
+    return sum_below(root)
 
 
 if __name__ == '__main__':

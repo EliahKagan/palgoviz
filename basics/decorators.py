@@ -189,6 +189,34 @@ def memoize(func):
     return wrapper
 
 
+def memoize_by(key):
+    """
+    Parameterized decorator for caching using a key selector.
+
+    This is like @memoize except the specified key selector function, key, maps
+    arguments to hashable objects that are used as dictionary keys.
+
+    NOTE: Arguments values are NOT stored. For example, in @memoize_by(id),
+    objects whose ids are taken are *not* kept alive by their ids being cached.
+    Cached ids may become invalid by outliving the objects they came from.
+    """
+    def memoizing_decorator(wrapped):
+        cache = {}
+
+        @functools.wraps(wrapped)
+        def wrapper(arg):
+            mapped_key = key(arg)
+            try:
+                return cache[mapped_key]
+            except KeyError:
+                cache[mapped_key] = result = wrapped(arg)
+                return result
+
+        return wrapper
+
+    return memoizing_decorator
+
+
 def int_fn(func):
     """
     Decorator that type-checks a unary function from int to int.
