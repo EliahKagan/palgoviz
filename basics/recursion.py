@@ -4,6 +4,8 @@
 
 import bisect
 
+from decorators import memoize_by
+
 
 def countdown(n):
     """
@@ -528,6 +530,43 @@ def _sum_below(root, sums):
         sums[id(root)] = sum(_sum_below(child, sums) for child in root)
 
     return sums[id(root)]
+
+
+def leaf_sum_dec(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    This is like leaf_sum, but @decorators.memoize_by is used for memoization,
+    which is safe for the same reason the sums table works in leaf_sum: a tuple
+    structure (i.e., one where only leaves are permitted to be non-tuples) is
+    ineligible for garbage collection as long as its root is accessible. This
+    holds even in the presence of concurrency considerations, since tuples are
+    immutable.
+
+    Note that it would not be safe to cache calls to the top-level function
+    leaf_sum_alt by id. This must go on the helper function, since nothing
+    can be assumed about lifetime of objects across top-level calls.
+
+    >>> leaf_sum_dec(3)
+    3
+    >>> leaf_sum_dec(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum_dec(root)
+    57
+    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    """
+    @memoize_by(id)
+    def sum_below(node):
+        if isinstance(node, tuple):
+            return sum(sum_below(child) for child in node)
+        return node
+
+    return sum_below(root)
 
 
 if __name__ == '__main__':
