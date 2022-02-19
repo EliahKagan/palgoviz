@@ -262,8 +262,7 @@ def count_calls(func):
     hello('Mary'), call 3
     Hello, Mary!
     """
-    it = itertools.count()
-    next(it)
+    it = itertools.count(1)
     @functools.wraps(func)
     def wrapper(arg):
         count = next(it)
