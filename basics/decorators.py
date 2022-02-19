@@ -1,7 +1,7 @@
 """Some basic decorators."""
 
 import functools
-
+import itertools
 
 def peek_arg(func):
     """
@@ -257,6 +257,19 @@ def count_calls(func):
     16
     >>> hello('Bob')
     hello('Bob'), call 2
+    Hello, Bob!
     >>> hello('Mary')
     hello('Mary'), call 3
+    Hello, Mary!
     """
+    it = itertools.count()
+    next(it)
+    @functools.wraps(func)
+    def wrapper(arg):
+        count = next(it)
+        print(f'{func.__name__}({arg!r}), call {count}')
+        return func(arg)
+
+    return wrapper
+
+
