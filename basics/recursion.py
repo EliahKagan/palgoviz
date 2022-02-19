@@ -534,13 +534,7 @@ def leaf_sum_dec(root):
     >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    @memoize_by(id)
-    def sum_below(node):
-        if isinstance(node, tuple):
-            return sum(sum_below(child) for child in node)
-        return node
-
-    return sum_below(root)
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':

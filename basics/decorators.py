@@ -200,21 +200,7 @@ def memoize_by(key):
     objects whose ids are taken are *not* kept alive by their ids being cached.
     Cached ids may become invalid by outliving the objects they came from.
     """
-    def memoizing_decorator(wrapped):
-        cache = {}
-
-        @functools.wraps(wrapped)
-        def wrapper(arg):
-            mapped_key = key(arg)
-            try:
-                return cache[mapped_key]
-            except KeyError:
-                cache[mapped_key] = result = wrapped(arg)
-                return result
-
-        return wrapper
-
-    return memoizing_decorator
+    ...  # FIXME: Implement this.
 
 
 def int_fn(func):
