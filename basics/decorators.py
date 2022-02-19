@@ -2,8 +2,6 @@
 
 import functools
 
-from composers import compose2
-
 
 def peek_arg(func):
     """
@@ -153,45 +151,87 @@ def give_metadata_from(wrapped):
 
 
 def memoize(func):
+    """
+    Decorator that memoizes a naive implementation of an algorithm.
+
+    >>> @memoize
+    ... def f(n):
+    ...     print(n)
+    ...     return n**2
+    >>> f(2)
+    2
+    4
+    >>> f(3)
+    3
+    9
+    >>> f(2)
+    4
+    >>> f(3)
+    9
+    >>> @memoize
+    ... def g(n):
+    ...     print(n)
+    ...     return n**3
+    >>> g(2)
+    2
+    8
+    >>> f(2)
+    4
+    """
+    cache = {}
+
     @functools.wraps(func)
     def wrapper(arg):
-        cache = {}
         if arg not in cache:
             cache[arg] = func(arg)
         return cache[arg]
+
     return wrapper
 
 
-# Notes that I used to reason out what memoize does to wrapped.
+def int_fn(func):
+    """
+    Decorator that type-checks a unary function from int to int.
 
-# def fibonacci_wrapped(n):
-#     """
-#     Memoized recursive Fibonacci algorithm. Fourth way.
+    Decorating a unary function definition with @int_fn causes the function to
+    raise an exception if it is called with an argument that is not an int or
+    if it returns a value that is not an int.
 
-#     This computes the Fibonacci number F(n) in linear time.
+    >>> @int_fn
+    ... def f(n):
+    ...     print(f'f({n!r})')
+    ...     return n + 1
+    >>> f(1)
+    f(1)
+    2
+    >>> f(False)
+    f(False)
+    1
+    >>> f(1.1)
+    Traceback (most recent call last):
+      ...
+    TypeError: f must be called with int, got float
+    >>> @int_fn
+    ... def g(n):
+    ...     return n / 2
+    >>> g(4)
+    Traceback (most recent call last):
+      ...
+    TypeError: g must return an int, returned float
+    >>> g(5)
+    Traceback (most recent call last):
+      ...
+    TypeError: g must return an int, returned float
+    """
+    @functools.wraps(func)
+    def wrapper(arg):
+        if not isinstance(arg, int):
+            raise TypeError(f'{func.__name__} must be called with int,'
+                            f' got {type(arg).__name__}')
+        result = func(arg)
+        if not isinstance(result, int):
+            raise TypeError(f'{func.__name__} must return an int,'
+                            f' returned {type(result).__name__}')
+        return result
 
-#     >>> fibonacci(0)
-#     0
-#     >>> fibonacci(1)
-#     1
-#     >>> fibonacci(2)
-#     1
-#     >>> fibonacci(3)
-#     2
-#     >>> fibonacci(10)
-#     55
-#     >>> fibonacci(500)
-#     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
-#     """
-#     def helper(x):
-#         if x == 0:
-#             return 0
-#         if x == 1:
-#             return 1
-#         return fibonacci_wrapped(x - 1) + fibonacci_wrapped(x - 2)
-#
-#     cache = {}
-#     if n not in cache:
-#         cache[n] = helper(n)
-#     return cache[n]
-
+    return wrapper
