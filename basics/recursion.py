@@ -461,11 +461,7 @@ def flatten(root):
     >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    if isinstance(root, tuple):
-        for child in root:
-            yield from flatten(child)
-    else:
-        yield root
+    ...  # FIXME: Implement this.
 
 
 def leaf_sum(root):
@@ -490,18 +486,7 @@ def leaf_sum(root):
     >>> all(leaf_sum(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    sums = {}  # id -> sum
-
-    def sum_below(node):
-        if not isinstance(node, tuple):
-            return node
-
-        if id(node) not in sums:
-            sums[id(node)] = sum(sum_below(child) for child in node)
-
-        return sums[id(node)]
-
-    return sum_below(root)
+    ...  # FIXME: Implement this.
 
 
 def leaf_sum_alt(root):
@@ -528,18 +513,7 @@ def leaf_sum_alt(root):
     >>> all(leaf_sum_alt(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    return _sum_below(root, {})
-
-
-def _sum_below(root, sums):
-    """Sum leaves under the root. Cache in sums. (Helper for leaf_sum_alt.)"""
-    if not isinstance(root, tuple):
-        return root
-
-    if id(root) not in sums:
-        sums[id(root)] = sum(_sum_below(child, sums) for child in root)
-
-    return sums[id(root)]
+    ...  # FIXME: Implement this.
 
 
 def leaf_sum_dec(root):
@@ -575,13 +549,7 @@ def leaf_sum_dec(root):
     >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    @memoize_by(id)
-    def sum_below(node):
-        if isinstance(node, tuple):
-            return sum(sum_below(child) for child in node)
-        return node
-
-    return sum_below(root)
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
