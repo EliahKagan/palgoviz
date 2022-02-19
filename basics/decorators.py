@@ -235,3 +235,28 @@ def int_fn(func):
         return result
 
     return wrapper
+
+
+def count_calls(func):
+    """
+    Decorator like peek_arg, but that also counts calls to the function.
+
+    >>> @count_calls
+    ... def square(n): return n**2
+    >>> result = square(3)
+    square(3), call 1
+    >>> result
+    9
+    >>> @count_calls
+    ... def hello(name): print(f'Hello, {name}!')
+    >>> hello('Bob')
+    hello('Bob'), call 1
+    Hello, Bob!
+    >>> square(4)
+    square(4), call 2
+    16
+    >>> hello('Bob')
+    hello('Bob'), call 2
+    >>> hello('Mary')
+    hello('Mary'), call 3
+    """
