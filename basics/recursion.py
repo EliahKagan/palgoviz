@@ -180,17 +180,19 @@ def binary_search(values, x):
     >>> binary_search([10, 20], 15)
     >>>
     """
+    if not values:
+        return None
     # TODO: Once @peek supports multiple arguments, try it out on this.
-    def search_range(low, high):  # high is an inclusive endpoint.
-        if high < low:
+    def help_binary(low, high):  # high is an inclusive endpoint.
+        halfway = (low + high)//2
+        if low == high:
+            if values[low] == x:
+                return low
             return None
-
-        halfway = (low + high) // 2
-
-        if x > values[halfway]:
-            return search_range(halfway + 1, high)
+        if values[halfway] == x:
+            return halfway
+        if  x > values[halfway]:
+            return help_binary(halfway, high)
         if x < values[halfway]:
-            return search_range(low, halfway - 1)
-        return halfway
-
-    return search_range(0, len(values) - 1)
+            return help_binary(low, halfway)
+    return help_binary(0, len(values) - 1)
