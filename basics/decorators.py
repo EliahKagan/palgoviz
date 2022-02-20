@@ -1,8 +1,7 @@
 """Some basic decorators."""
 
 import functools
-
-from composers import compose2
+import itertools
 
 
 def peek_arg(func):
@@ -153,45 +152,249 @@ def give_metadata_from(wrapped):
 
 
 def memoize(func):
+    """
+    Decorator that memoizes a naive implementation of an algorithm.
+
+    >>> @memoize
+    ... def f(n):
+    ...     print(n)
+    ...     return n**2
+    >>> f(2)
+    2
+    4
+    >>> f(3)
+    3
+    9
+    >>> f(2)
+    4
+    >>> f(3)
+    9
+    >>> @memoize
+    ... def g(n):
+    ...     print(n)
+    ...     return n**3
+    >>> g(2)
+    2
+    8
+    >>> f(2)
+    4
+    """
+    cache = {}
+
     @functools.wraps(func)
     def wrapper(arg):
-        cache = {}
         if arg not in cache:
             cache[arg] = func(arg)
         return cache[arg]
+
     return wrapper
 
 
-# Notes that I used to reason out what memoize does to wrapped.
+def int_fn(func):
+    """
+    Decorator that type-checks a unary function from int to int.
 
-# def fibonacci_wrapped(n):
-#     """
-#     Memoized recursive Fibonacci algorithm. Fourth way.
+    Decorating a unary function definition with @int_fn causes the function to
+    raise an exception if it is called with an argument that is not an int or
+    if it returns a value that is not an int.
 
-#     This computes the Fibonacci number F(n) in linear time.
+    >>> @int_fn
+    ... def f(n):
+    ...     print(f'f({n!r})')
+    ...     return n + 1
+    >>> f(1)
+    f(1)
+    2
+    >>> f(False)
+    f(False)
+    1
+    >>> f(1.1)
+    Traceback (most recent call last):
+      ...
+    TypeError: f must be called with int, got float
+    >>> @int_fn
+    ... def g(n):
+    ...     return n / 2
+    >>> g(4)
+    Traceback (most recent call last):
+      ...
+    TypeError: g must return an int, returned float
+    >>> g(5)
+    Traceback (most recent call last):
+      ...
+    TypeError: g must return an int, returned float
+    """
+    @functools.wraps(func)
+    def wrapper(arg):
+        if not isinstance(arg, int):
+            raise TypeError(f'{func.__name__} must be called with int,'
+                            f' got {type(arg).__name__}')
+        result = func(arg)
+        if not isinstance(result, int):
+            raise TypeError(f'{func.__name__} must return an int,'
+                            f' returned {type(result).__name__}')
+        return result
 
-#     >>> fibonacci(0)
-#     0
-#     >>> fibonacci(1)
-#     1
-#     >>> fibonacci(2)
-#     1
-#     >>> fibonacci(3)
-#     2
-#     >>> fibonacci(10)
-#     55
-#     >>> fibonacci(500)
-#     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
-#     """
-#     def helper(x):
-#         if x == 0:
-#             return 0
-#         if x == 1:
-#             return 1
-#         return fibonacci_wrapped(x - 1) + fibonacci_wrapped(x - 2)
-#
-#     cache = {}
-#     if n not in cache:
-#         cache[n] = helper(n)
-#     return cache[n]
+    return wrapper
 
+
+def count_calls(func):
+    """
+    Decorator like peek_arg, but that also counts calls to the function.
+
+    >>> @count_calls
+    ... def square(n): return n**2
+    >>> result = square(3)
+    square(3), call 1
+    >>> result
+    9
+    >>> @count_calls
+    ... def hello(name): print(f'Hello, {name}!')
+    >>> hello('Bob')
+    hello('Bob'), call 1
+    Hello, Bob!
+    >>> square(4)
+    square(4), call 2
+    16
+    >>> hello('Bob')
+    hello('Bob'), call 2
+    Hello, Bob!
+    >>> hello('Mary')
+    hello('Mary'), call 3
+    Hello, Mary!
+    """
+    counter = itertools.count(1)
+
+    @functools.wraps(func)
+    def wrapper(arg):
+        print(f'{func.__name__}({arg!r}), call {next(counter)}')
+        return func(arg)
+
+    return wrapper
+
+
+def convert_arg(converter):
+    """
+    Parametrized decorator to convert data going into a unary function.
+
+    >>> @convert_arg(int)
+    ... def square(n):
+    ...     return n**2
+    >>> square(3)
+    9
+    >>> square('4')
+    16
+    >>> square(5.1)
+    25
+    >>> @convert_arg(len)  # The converter can itself be any unary function.
+    ... def mask(similar):
+    ...     return '-' * similar
+    >>> mask('hello')
+    '-----'
+    >>> @convert_arg(lambda s: s + 'ab')
+    ... @convert_arg(str.upper)
+    ... def munge1(text):
+    ...     return text * 2
+    >>> munge1('pqr')  # Outer converter appends, inner converter upcases.
+    'PQRABPQRAB'
+    >>> @convert_arg(str.upper)
+    ... @convert_arg(lambda s: s + 'ab')
+    ... def munge2(text):
+    ...     return text * 2
+    >>> munge2('pqr')  # Outer convert upcases, inner converter appends.
+    'PQRabPQRab'
+    """
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(arg):
+            return func(converter(arg))
+
+        return wrapper
+
+    return decorator
+
+
+def convert_return(converter):
+    """
+    Parametrized decorator to convert data coming out of a unary function.
+
+    >>> @convert_return(list)
+    ... def digits_lowtohigh(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_lowtohigh(4294967295)
+    [5, 9, 2, 7, 6, 9, 4, 9, 2, 4]
+
+    >>> @convert_return(lambda xs: xs[::-1])  # OK, xs will be a list.
+    ... @convert_return(list)
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(list)
+    ... @convert_return(lambda xs: xs[::-1])  # NOT OK, xs will be a generator.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'generator' object is not subscriptable
+
+    >>> @convert_arg(int)                     # OK.
+    ... @convert_return(lambda a: a[::-1])
+    ... @convert_return(list)
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(lambda a: a[::-1])
+    ... @convert_return(list)
+    ... @convert_arg(int)                     # OK.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(lambda a: a[::-1])
+    ... @convert_arg(int)                     # Weird, but OK.
+    ... @convert_return(list)
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(list)
+    ... @convert_arg(int)
+    ... @convert_return(lambda a: a[::-1])    # NOT OK, xs will be a generator.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'generator' object is not subscriptable
+    """
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(arg):
+            return converter(func(arg))
+
+        return wrapper
+
+    return decorator
