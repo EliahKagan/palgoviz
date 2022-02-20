@@ -472,9 +472,8 @@ def flatten(root):
         yield root
         return
 
-    for child in root:
-        for leaf in flatten(child):
-            yield leaf
+    for element in root:
+        yield from flatten(element)
 
 def leaf_sum(root):
     """
