@@ -3,6 +3,7 @@
 import functools
 import itertools
 
+
 def peek_arg(func):
     """
     Decorator wrapping a unary function and showing calls to it.
@@ -304,12 +305,14 @@ def convert_arg(converter):
     'PQRabPQRab'
     """
     def decorator(func):
+
         @functools.wraps(func)
         def wrapper(arg):
             return func(converter(arg))
-        return wrapper
-    return decorator
 
+        return wrapper
+
+    return decorator
 
 
 def convert_return(converter):
