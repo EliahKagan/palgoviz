@@ -467,8 +467,13 @@ def flatten(root):
     >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    ...  # FIXME: Implement this.
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
+        yield root
+        return
 
+    for element in root:
+        yield from flatten(element)
 
 def leaf_sum(root):
     """
