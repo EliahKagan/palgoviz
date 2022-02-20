@@ -23,12 +23,12 @@ def run():
     try:
         number = int(sys.argv[1])
     except ValueError:
-        print(f'You should pass an integer')    
-    except IndexError: 
+        print(f'You should pass an integer')
+    except IndexError:
         print('You should pass something, an integer in particular')
     else:
         echo_num(number)
-    finally: 
+    finally:
         print('Bored now')
 
 
