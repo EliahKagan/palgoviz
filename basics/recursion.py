@@ -475,6 +475,7 @@ def flatten(root):
     for element in root:
         yield from flatten(element)
 
+
 def leaf_sum(root):
     """
     Using recursion, sum non-tuples accessible through nested tuples.
