@@ -376,6 +376,18 @@ def convert_return(converter):
     ...         positive_integer //= 10
     >>> digits_hightolow(4294967295.3)
     [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(list)
+    ... @convert_arg(int)
+    ... @convert_return(lambda a: a[::-1])    # NOT OK, xs will be a generator.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'generator' object is not subscriptable
     """
     def decorator(func):
 
