@@ -377,4 +377,12 @@ def convert_return(converter):
     >>> digits_hightolow(4294967295.3)
     [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
     """
-    ...  # FIXME: Implement this.
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(arg):
+            return converter(func(arg))
+
+        return wrapper
+
+    return decorator
