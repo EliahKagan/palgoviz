@@ -152,4 +152,4 @@ def test_warns_on_multiple_extra_args_without_error(invoke: Invoker) -> None:
 
 
 if __name__ == '__main__':
-    sys.exit(pytest.main(['-p', 'no:typeguard']))
+    sys.exit(pytest.main())
