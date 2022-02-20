@@ -303,7 +303,13 @@ def convert_arg(converter):
     >>> munge2('pqr')  # Outer convert upcases, inner converter appends.
     'PQRabPQRab'
     """
-    ...  # FIXME: Implement this.
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(arg):
+            return func(converter(arg))
+        return wrapper
+    return decorator
+
 
 
 def convert_return(converter):
