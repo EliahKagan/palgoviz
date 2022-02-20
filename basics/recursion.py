@@ -404,6 +404,120 @@ def merge_sort(values):
     return helper(list(values))
 
 
+def make_deep_tuple(depth):
+    """Make a tuple of the specified depth."""
+    tup = ()
+    for _ in range(depth):
+        tup = (tup,)
+    return tup
+
+
+def nest(seed, degree, height):
+    """
+    Create a nested tuple from a seed, branching degree, and height.
+
+    The seed will be a leaf or subtree.
+
+    >>> nest('hi', 2, 0)
+    'hi'
+    >>> nest('hi', 2, 1)
+    ('hi', 'hi')
+    >>> nest('hi', 2, 2)
+    (('hi', 'hi'), ('hi', 'hi'))
+    >>> nest('hi', 2, 3)
+    ((('hi', 'hi'), ('hi', 'hi')), (('hi', 'hi'), ('hi', 'hi')))
+    >>> from pprint import pprint
+    >>> pprint(nest('hi', 3, 3))
+    ((('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
+     (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
+     (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')))
+    """
+    if degree < 0:
+        raise ValueError('degree cannot be negative')
+    if height < 0:
+        raise ValueError('height cannot be negative')
+    return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
+
+
+def flatten(root):
+    """
+    Using recursion, lazily flatten a tuple, yielding all leaves (non-tuples).
+
+    This returns an iterator that yields all leaves in the order the repr shows
+    them. If root is not a tuple, it is considered to be the one and only leaf.
+
+    >>> list(flatten(()))
+    []
+    >>> list(flatten(3))
+    [3]
+    >>> list(flatten([3]))
+    [[3]]
+    >>> list(flatten((3,)))
+    [3]
+    >>> list(flatten((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(flatten((2, ((3,), 7))))
+    [2, 3, 7]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> list(flatten(root1))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(flatten(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    for element in root:
+        yield from flatten(element)
+
+
+def leaf_sum(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    >>> leaf_sum(3)
+    3
+    >>> leaf_sum(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum(root)
+    57
+    >>> leaf_sum(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    """
+    ...  # FIXME: Implement this.
+
+
+def leaf_sum_alt(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    This is like leaf_sum except it does not use any local functions.
+
+    >>> leaf_sum_alt(3)
+    3
+    >>> leaf_sum_alt(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum_alt(root)
+    57
+    >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    """
+    ...  # FIXME: Implement this.
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
