@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+
 """Function composition."""
 
 
 def compose2(f, g):
     """
-    Take two unary functions and returns their composition.
+    Take two unary functions and return their composition.
 
     >>> def square(x):
     ...     return x**2
@@ -27,7 +29,8 @@ def compose2(f, g):
 
 def repeat_compose_recursive(function, count):
     """
-    Composes the unary function, function, with itself count times.
+    Compose the unary function, function, with itself count times.
+
     >>> def inc(x): return x + 1
     >>> repeat_compose_recursive(inc, 0)(1)
     1
@@ -40,14 +43,15 @@ def repeat_compose_recursive(function, count):
       ...
     RecursionError: maximum recursion depth exceeded in comparison
     """
-    if count == 0: 
+    if count == 0:
         return lambda x: x
     return compose2(function, repeat_compose_recursive(function, count - 1))
 
 
 def repeat_compose_chained(function, count):
     """
-    Composes the unary function, function, with itself count times.
+    Compose the unary function, function, with itself count times.
+
     >>> def square(x):
     ...     return x**2
     >>> repeat_compose_chained(square, 0)(2)
@@ -63,14 +67,15 @@ def repeat_compose_chained(function, count):
     RecursionError: maximum recursion depth exceeded
     """
     rvalue = lambda x: x
-    for i in range(count):
+    for _ in range(count):
         rvalue = compose2(function, rvalue)
     return rvalue
 
 
 def repeat_compose(function, count):
     """
-    Composes the unary function, function, with itself count times.
+    Compose the unary function, function, with itself count times.
+
     >>> def square(x):
     ...     return x**2
     >>> repeat_compose(square, 0)(2)
@@ -84,7 +89,7 @@ def repeat_compose(function, count):
     5001
     """
     def rvalue(x):
-        for i in range(count):
+        for _ in range(count):
             x = function(x)
         return x
     return rvalue
