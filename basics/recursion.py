@@ -508,6 +508,16 @@ def leaf_sum(root):
     return traverse(root)
 
 
+def traverse(parent, cache):
+    if not isinstance(parent, tuple):
+        return parent
+
+    if id(parent) not in cache:
+        cache[id(parent)] = sum(traverse(child, cache) for child in parent)
+
+    return cache[id(parent)]
+
+
 def leaf_sum_alt(root):
     """
     Using recursion, sum non-tuples accessible through nested tuples.
@@ -527,7 +537,8 @@ def leaf_sum_alt(root):
     >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    ...  # FIXME: Implement this.
+    cache = {}
+    return traverse(root, cache)
 
 
 if __name__ == '__main__':
