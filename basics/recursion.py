@@ -508,12 +508,13 @@ def leaf_sum(root):
     return traverse(root)
 
 
-def traverse(parent, cache):
+def _traverse(parent, cache):
+    """Traverse the tree for leaf_sum_alt."""
     if not isinstance(parent, tuple):
         return parent
 
     if id(parent) not in cache:
-        cache[id(parent)] = sum(traverse(child, cache) for child in parent)
+        cache[id(parent)] = sum(_traverse(child, cache) for child in parent)
 
     return cache[id(parent)]
 
@@ -538,7 +539,7 @@ def leaf_sum_alt(root):
     1606938044258990275541962092341162602522202993782792835301376
     """
     cache = {}
-    return traverse(root, cache)
+    return _traverse(root, cache)
 
 
 if __name__ == '__main__':
