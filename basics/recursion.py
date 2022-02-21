@@ -496,8 +496,7 @@ def leaf_sum(root):
     if not isinstance(root, tuple):
         return root
 
-    result = sum(leaf_sum(child) for child in root)
-    return result
+    return sum(leaf_sum(child) for child in root)
 
 
 def leaf_sum_alt(root):
