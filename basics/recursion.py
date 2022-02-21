@@ -3,6 +3,7 @@
 """Some recursion examples."""
 
 import bisect
+import decorators
 
 from decorators import memoize_by
 
@@ -188,7 +189,7 @@ def binary_search(values, x):
     >>> binary_search([10, 20], 15)
     >>>
     """
-
+    # TODO: Once @peek supports multiple arguments, try it out on this.
     def help_binary(low, high):  # high is an inclusive endpoint.
         if low > high:
             return None
@@ -406,6 +407,14 @@ def merge_sort(values):
     return helper(list(values))
 
 
+def make_deep_tuple(depth):
+    """Make a tuple of the specified depth."""
+    tup = ()
+    for _ in range(depth):
+        tup = (tup,)
+    return tup
+
+
 def nest(seed, degree, height):
     """
     Create a nested tuple from a seed, branching degree, and height.
@@ -461,11 +470,13 @@ def flatten(root):
     >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    if isinstance(root, tuple):
-        for child in root:
-            yield from flatten(child)
-    else:
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
         yield root
+        return
+
+    for element in root:
+        yield from flatten(element)
 
 
 def leaf_sum(root):
@@ -485,18 +496,29 @@ def leaf_sum(root):
     >>> leaf_sum(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    sums = {}  # id -> sum
+    cache = {}
 
-    def sum_below(node):
-        if not isinstance(node, tuple):
-            return node
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
 
-        if id(node) not in sums:
-            sums[id(node)] = sum(sum_below(child) for child in node)
+        if id(parent) not in cache:
+            cache[id(parent)] = sum(traverse(child) for child in parent)
 
-        return sums[id(node)]
+        return cache[id(parent)]
 
-    return sum_below(root)
+    return traverse(root)
+
+
+def _traverse(parent, cache):
+    """Traverse the tree for leaf_sum_alt."""
+    if not isinstance(parent, tuple):
+        return parent
+
+    if id(parent) not in cache:
+        cache[id(parent)] = sum(_traverse(child, cache) for child in parent)
+
+    return cache[id(parent)]
 
 
 def leaf_sum_alt(root):
@@ -518,18 +540,8 @@ def leaf_sum_alt(root):
     >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    return _sum_below(root, {})
-
-
-def _sum_below(root, sums):
-    """Sum leaves under the root. Cache in sums. (Helper for leaf_sum_alt.)"""
-    if not isinstance(root, tuple):
-        return root
-
-    if id(root) not in sums:
-        sums[id(root)] = sum(_sum_below(child, sums) for child in root)
-
-    return sums[id(root)]
+    cache = {}
+    return _traverse(root, cache)
 
 
 def leaf_sum_dec(root):
