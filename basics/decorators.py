@@ -1,6 +1,7 @@
 """Some basic decorators."""
 
 import functools
+import itertools
 
 
 def peek_arg(func):
@@ -264,3 +265,165 @@ def int_fn(func):
         return result
 
     return wrapper
+
+
+def count_calls(func):
+    """
+    Decorator like peek_arg, but that also counts calls to the function.
+
+    >>> @count_calls
+    ... def square(n): return n**2
+    >>> result = square(3)
+    square(3), call 1
+    >>> result
+    9
+    >>> @count_calls
+    ... def hello(name): print(f'Hello, {name}!')
+    >>> hello('Bob')
+    hello('Bob'), call 1
+    Hello, Bob!
+    >>> square(4)
+    square(4), call 2
+    16
+    >>> hello('Bob')
+    hello('Bob'), call 2
+    Hello, Bob!
+    >>> hello('Mary')
+    hello('Mary'), call 3
+    Hello, Mary!
+    """
+    counter = itertools.count(1)
+
+    @functools.wraps(func)
+    def wrapper(arg):
+        print(f'{func.__name__}({arg!r}), call {next(counter)}')
+        return func(arg)
+
+    return wrapper
+
+
+def convert_arg(converter):
+    """
+    Parametrized decorator to convert data going into a unary function.
+
+    >>> @convert_arg(int)
+    ... def square(n):
+    ...     return n**2
+    >>> square(3)
+    9
+    >>> square('4')
+    16
+    >>> square(5.1)
+    25
+    >>> @convert_arg(len)  # The converter can itself be any unary function.
+    ... def mask(similar):
+    ...     return '-' * similar
+    >>> mask('hello')
+    '-----'
+    >>> @convert_arg(lambda s: s + 'ab')
+    ... @convert_arg(str.upper)
+    ... def munge1(text):
+    ...     return text * 2
+    >>> munge1('pqr')  # Outer converter appends, inner converter upcases.
+    'PQRABPQRAB'
+    >>> @convert_arg(str.upper)
+    ... @convert_arg(lambda s: s + 'ab')
+    ... def munge2(text):
+    ...     return text * 2
+    >>> munge2('pqr')  # Outer convert upcases, inner converter appends.
+    'PQRabPQRab'
+    """
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(arg):
+            return func(converter(arg))
+
+        return wrapper
+
+    return decorator
+
+
+def convert_return(converter):
+    """
+    Parametrized decorator to convert data coming out of a unary function.
+
+    >>> @convert_return(list)
+    ... def digits_lowtohigh(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_lowtohigh(4294967295)
+    [5, 9, 2, 7, 6, 9, 4, 9, 2, 4]
+
+    >>> @convert_return(lambda xs: xs[::-1])  # OK, xs will be a list.
+    ... @convert_return(list)
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(list)
+    ... @convert_return(lambda xs: xs[::-1])  # NOT OK, xs will be a generator.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'generator' object is not subscriptable
+
+    >>> @convert_arg(int)                     # OK.
+    ... @convert_return(lambda a: a[::-1])
+    ... @convert_return(list)
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(lambda a: a[::-1])
+    ... @convert_return(list)
+    ... @convert_arg(int)                     # OK.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(lambda a: a[::-1])
+    ... @convert_arg(int)                     # Weird, but OK.
+    ... @convert_return(list)
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    [4, 2, 9, 4, 9, 6, 7, 2, 9, 5]
+
+    >>> @convert_return(list)
+    ... @convert_arg(int)
+    ... @convert_return(lambda a: a[::-1])    # NOT OK, xs will be a generator.
+    ... def digits_hightolow(positive_integer):
+    ...     while positive_integer != 0:
+    ...         yield positive_integer % 10
+    ...         positive_integer //= 10
+    >>> digits_hightolow(4294967295.3)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'generator' object is not subscriptable
+    """
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(arg):
+            return converter(func(arg))
+
+        return wrapper
+
+    return decorator
