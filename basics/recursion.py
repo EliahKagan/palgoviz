@@ -495,16 +495,17 @@ def leaf_sum(root):
     1606938044258990275541962092341162602522202993782792835301376
     """
     cache = {}
-    def helper(arg):
-        if not isinstance(arg, tuple):
-            return arg
 
-        if id(arg) not in cache:
-            cache[id(arg)] = sum(helper(child) for child in arg)
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
 
-        return cache[id(arg)]
+        if id(parent) not in cache:
+            cache[id(parent)] = sum(traverse(child) for child in parent)
 
-    return helper(root)
+        return cache[id(parent)]
+
+    return traverse(root)
 
 
 def leaf_sum_alt(root):
