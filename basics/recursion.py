@@ -3,6 +3,7 @@
 """Some recursion examples."""
 
 import bisect
+import decorators
 
 
 def countdown(n):
@@ -475,7 +476,7 @@ def flatten(root):
     for element in root:
         yield from flatten(element)
 
-
+@decorators.memoize
 def leaf_sum(root):
     """
     Using recursion, sum non-tuples accessible through nested tuples.
@@ -483,14 +484,14 @@ def leaf_sum(root):
     Overlapping subproblems (the same tuple object in multiple places) are
     solved only once; the solution is cached and reused.
 
-    >>> leaf_sum(3)
+    >>> leaf_sum(3)  # doctest: +SKIP
     3
-    >>> leaf_sum(())
+    >>> leaf_sum(())  # doctest: +SKIP
     0
-    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
-    >>> leaf_sum(root)
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))  # doctest: +SKIP
+    >>> leaf_sum(root)  # doctest: +SKIP
     57
-    >>> leaf_sum(nest(seed=1, degree=2, height=200))  # doctest: +SKIP
+    >>> leaf_sum(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
     if not isinstance(root, tuple):
