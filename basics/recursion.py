@@ -493,15 +493,14 @@ def leaf_sum(root):
     >>> leaf_sum(nest(seed=1, degree=2, height=200))  # doctest: +SKIP
     1606938044258990275541962092341162602522202993782792835301376
     """
-    sum = 0
-
     if not isinstance(root, tuple):
         return root
 
+    result = 0
     for child in root:
-        sum += leaf_sum(child)
+        result += leaf_sum(child)
 
-    return sum
+    return result
 
 
 def leaf_sum_alt(root):
