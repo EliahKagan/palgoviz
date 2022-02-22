@@ -569,10 +569,13 @@ def leaf_sum_dec(root):
     >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
     >>> leaf_sum_dec(root)
     57
-    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
+    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))  # doctest: +SKIP
     1606938044258990275541962092341162602522202993782792835301376
     """
-    ...  # FIXME: Implement this.
+    if not isinstance(root, tuple):
+        return root
+
+    return sum(leaf_sum_dec(child) for child in root)
 
 
 if __name__ == '__main__':
