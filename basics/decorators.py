@@ -190,6 +190,35 @@ def memoize(func):
     return wrapper
 
 
+def memoize_by(key):
+    """
+    Parameterized decorator for caching using a key selector.
+
+    This is like @memoize except the specified key selector function, key, maps
+    arguments to hashable objects that are used as dictionary keys.
+
+    NOTE: Argument values are NOT stored. For example, in @memoize_by(id),
+    objects whose ids are taken are *not* kept alive by their ids being cached.
+    Cached ids may become invalid by outliving the objects they came from.
+
+    >>> @memoize_by(str.casefold)
+    ... def length(text):
+    ...     print(f'Computing the length of {text!r}.')
+    ...     return len(text)
+    >>> length('hello')
+    Computing the length of 'hello'.
+    5
+    >>> length('Bye')
+    Computing the length of 'Bye'.
+    3
+    >>> length('HELLO')
+    5
+    >>> length('bye')
+    3
+    """
+    ...  # FIXME: Implement this.
+
+
 def int_fn(func):
     """
     Decorator that type-checks a unary function from int to int.
