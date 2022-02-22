@@ -569,13 +569,17 @@ def leaf_sum_dec(root):
     >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
     >>> leaf_sum_dec(root)
     57
-    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))  # doctest: +SKIP
+    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
     """
-    if not isinstance(root, tuple):
-        return root
+    @decorators.memoize_by(id)
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
 
-    return sum(leaf_sum_dec(child) for child in root)
+        return sum(traverse(child) for child in parent)
+
+    return traverse(root)
 
 
 if __name__ == '__main__':
