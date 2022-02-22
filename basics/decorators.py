@@ -216,21 +216,18 @@ def memoize_by(key):
     >>> length('bye')
     3
     """
-    def memoizing_decorator(wrapped):
+    def decorator(func):
         cache = {}
 
-        @functools.wraps(wrapped)
+        @functools.wraps(func)
         def wrapper(arg):
-            mapped_key = key(arg)
-            try:
-                return cache[mapped_key]
-            except KeyError:
-                cache[mapped_key] = result = wrapped(arg)
-                return result
+            if key(arg) not in cache:
+                cache[key(arg)] = func(arg)
+            return cache[key(arg)]
 
         return wrapper
 
-    return memoizing_decorator
+    return decorator
 
 
 def int_fn(func):
