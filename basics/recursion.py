@@ -3,6 +3,7 @@
 """Some recursion examples."""
 
 import bisect
+import decorators
 
 from decorators import memoize_by
 
@@ -188,7 +189,7 @@ def binary_search(values, x):
     >>> binary_search([10, 20], 15)
     >>>
     """
-
+    # TODO: Once @peek supports multiple arguments, try it out on this.
     def help_binary(low, high):  # high is an inclusive endpoint.
         if low > high:
             return None
@@ -406,6 +407,14 @@ def merge_sort(values):
     return helper(list(values))
 
 
+def make_deep_tuple(depth):
+    """Make a tuple of the specified depth."""
+    tup = ()
+    for _ in range(depth):
+        tup = (tup,)
+    return tup
+
+
 def nest(seed, degree, height):
     """
     Create a nested tuple from a seed, branching degree, and height.
@@ -461,11 +470,13 @@ def flatten(root):
     >>> list(flatten(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    if isinstance(root, tuple):
-        for child in root:
-            yield from flatten(child)
-    else:
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
         yield root
+        return
+
+    for element in root:
+        yield from flatten(element)
 
 
 def leaf_sum(root):
@@ -490,18 +501,29 @@ def leaf_sum(root):
     >>> all(leaf_sum(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    sums = {}  # id -> sum
+    cache = {}
 
-    def sum_below(node):
-        if not isinstance(node, tuple):
-            return node
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
 
-        if id(node) not in sums:
-            sums[id(node)] = sum(sum_below(child) for child in node)
+        if id(parent) not in cache:
+            cache[id(parent)] = sum(traverse(child) for child in parent)
 
-        return sums[id(node)]
+        return cache[id(parent)]
 
-    return sum_below(root)
+    return traverse(root)
+
+
+def _traverse(parent, cache):
+    """Traverse the tree for leaf_sum_alt."""
+    if not isinstance(parent, tuple):
+        return parent
+
+    if id(parent) not in cache:
+        cache[id(parent)] = sum(_traverse(child, cache) for child in parent)
+
+    return cache[id(parent)]
 
 
 def leaf_sum_alt(root):
@@ -528,18 +550,8 @@ def leaf_sum_alt(root):
     >>> all(leaf_sum_alt(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    return _sum_below(root, {})
-
-
-def _sum_below(root, sums):
-    """Sum leaves under the root. Cache in sums. (Helper for leaf_sum_alt.)"""
-    if not isinstance(root, tuple):
-        return root
-
-    if id(root) not in sums:
-        sums[id(root)] = sum(_sum_below(child, sums) for child in root)
-
-    return sums[id(root)]
+    cache = {}
+    return _traverse(root, cache)
 
 
 def leaf_sum_dec(root):
@@ -549,16 +561,16 @@ def leaf_sum_dec(root):
     Overlapping subproblems (the same tuple object in multiple places) are
     solved only once; the solution is cached and reused.
 
-    This is like leaf_sum, but @decorators.memoize_by is used for memoization,
-    which is safe for the same reason the sums table works in leaf_sum: a tuple
-    structure (i.e., one where only leaves are permitted to be non-tuples) is
-    ineligible for garbage collection as long as its root is accessible. This
-    holds even in the presence of concurrency considerations, since tuples are
-    immutable.
+    This is like leaf_sum (and leaf_sum_alt), but @decorators.memoize_by is
+    used for memoization, which is safe for the same reason the sums table
+    works in leaf_sum: a tuple structure (i.e., one where only leaves are
+    permitted to be non-tuples) is ineligible for garbage collection as long as
+    its root is accessible. This holds even in the presence of concurrency
+    considerations, since tuples are immutable.
 
     Note that it would not be safe to cache calls to the top-level function
-    leaf_sum_alt by id. This must go on the helper function, since nothing
-    can be assumed about lifetime of objects across top-level calls.
+    leaf_sum_dec by id. This must go on the helper function, since nothing can
+    be assumed about lifetime of objects across top-level calls.
 
     >>> leaf_sum_dec(3)
     3
