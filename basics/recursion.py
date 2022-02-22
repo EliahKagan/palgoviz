@@ -587,7 +587,14 @@ def leaf_sum_dec(root):
     >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    ...  # FIXME: Implement this.
+    @decorators.memoize_by(id)
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
+
+        return sum(traverse(child) for child in parent)
+
+    return traverse(root)
 
 
 if __name__ == '__main__':
