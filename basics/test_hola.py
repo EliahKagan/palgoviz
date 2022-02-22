@@ -17,7 +17,6 @@ class HolaTest(unittest.TestCase):
 
     __slots__ = ('_stdin', '_stdout', '_old_stdin', '_old_stdout')
 
-
     def setUp(self) -> None:
         """Redirect standard input and output."""
         self._stdin = io.StringIO('nombre')
