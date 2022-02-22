@@ -1,4 +1,4 @@
-name: algoviz-basics-pytest
+name: algoviz-basics-qa
 
 channels:
   - conda-forge
