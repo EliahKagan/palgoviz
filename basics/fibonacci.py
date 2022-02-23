@@ -207,6 +207,103 @@ def fibonacci_cached_5(n):
     return helper(n)
 
 
+def fibonacci_short(n):
+    """
+    Compute Fibonacci with the simple recursive algorithm but more compactly.
+
+    This takes advantage of the coincidence that its base cases are fixed points.
+
+    >>> fibonacci_short(0)
+    0
+    >>> fibonacci_short(1)
+    1
+    >>> fibonacci_short(2)
+    1
+    >>> fibonacci_short(3)
+    2
+    >>> fibonacci_short(10)
+    55
+    """
+    return n if n < 2 else fibonacci_short(n - 2) + fibonacci_short(n - 1)
+
+
+def fibonacci_alr(n):
+    """
+    Show how arm's length recursion is very poorly suited to Fibonacci.
+
+    This computes the Fibonacci number F(n) using the simple recursive
+    algorithm, except that arm's length recursion (also called "short
+    circuiting the base case") is used. This technique is especially poorly
+    suited to Fibonacci, since the presence of multiple base cases leads to
+    code duplication and a greater than usual increase in code complexity.
+
+    This has the same time complexity as fibonacci() above, since arm's length
+    recursion never changes that, but it may differ by a constant factor. Here,
+    it is most likely slower, rather than faster, than the simpler approach.
+
+    >>> fibonacci_alr(0)
+    0
+    >>> fibonacci_alr(1)
+    1
+    >>> fibonacci_alr(2)
+    1
+    >>> fibonacci_alr(3)
+    2
+    >>> fibonacci_alr(10)
+    55
+    """
+    def do_fib(k):
+        if k == 2:  # k - 2 == 0
+            a = 0
+        elif k == 3:  # k - 2 == 1
+            a = 1
+        else:
+            a = do_fib(k - 2)
+
+        if k == 1:  # k - 1 == 0
+            b = 0
+        elif k == 2:  # k - 1 == 1
+            b = 1
+        else:
+            b = do_fib(k - 1)
+
+        return a + b
+
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return do_fib(n)
+
+
+def fibonacci_short_alr(n):
+    """
+    Compute the Fibonacci number F(n) with arm's length recursion more compactly.
+
+    This is like fibonacci_short() but uses arm's length recursion. Since there
+    is only one base-case condition here, this looks more like arm's length
+    recursion when it is usually used. However, like many applications of arm's
+    length recursion, this approach to Fibonacci would be very hard to justify.
+
+    >>> fibonacci_short_alr(0)
+    0
+    >>> fibonacci_short_alr(1)
+    1
+    >>> fibonacci_short_alr(2)
+    1
+    >>> fibonacci_short_alr(3)
+    2
+    >>> fibonacci_short_alr(10)
+    55
+    """
+    def do_fib(k):
+        a = k - 2 if k < 4 else do_fib(k - 2)  # k < 4 iff k - 2 < 2
+        b = k - 1 if k < 3 else do_fib(k - 1)  # k < 3 iff k - 1 < 2
+        return a + b
+
+    return n if n < 2 else do_fib(n)
+
+
 # TODO: When we do unittest and pytest, translate these doctests and observe
 #       how much clearer (and easier to get right) they are.
 def fib_n_clunk(n):
@@ -368,6 +465,53 @@ def fib_n(n):
         raise ValueError(f"can't yield negatively many Fibonacci numbers")
 
     return itertools.islice(fib(), n)
+
+
+def fib_nest(n):
+    """
+    Create a nested tuple structured like the graph of Fibonacci subproblems.
+
+    In a single return of fib_nest, objects representing the same subproblem
+    are the same object (not merely equal). This implementation is iterative.
+
+    >>> fib_nest(0)
+    0
+    >>> fib_nest(1)
+    1
+    >>> fib_nest(2)
+    (0, 1)
+    >>> fib_nest(3)
+    (1, (0, 1))
+    >>> fib_nest(4)
+    ((0, 1), (1, (0, 1)))
+    >>> fib_nest(5)
+    ((1, (0, 1)), ((0, 1), (1, (0, 1))))
+    >>> fib_nest(6)
+    (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1)))))
+    >>> from pprint import pprint
+    >>> pprint(fib_nest(7))
+    (((1, (0, 1)), ((0, 1), (1, (0, 1)))),
+     (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1))))))
+    >>> pprint(fib_nest(8))
+    ((((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1))))),
+     (((1, (0, 1)), ((0, 1), (1, (0, 1)))),
+      (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1)))))))
+    >>> all(u is w for u, (_, w) in map(fib_nest, range(3, 401)))  # Shallow.
+    True
+    >>> r = fib_nest(100_000)
+    >>> while r != (0, 1) and r[0] is r[1][1]: r = r[1]  # Deep.
+    >>> r
+    (0, 1)
+    """
+    if n < 2:
+        return n
+
+    a = 0
+    b = 1
+    for _ in range(n - 1):
+        a, b = b, (a, b)
+    return b
+
 
 
 if __name__ == '__main__':
