@@ -216,7 +216,18 @@ def memoize_by(key):
     >>> length('bye')
     3
     """
-    ...  # FIXME: Implement this.
+    def decorator(func):
+        cache = {}
+
+        @functools.wraps(func)
+        def wrapper(arg):
+            if key(arg) not in cache:
+                cache[key(arg)] = func(arg)
+            return cache[key(arg)]
+
+        return wrapper
+
+    return decorator
 
 
 def int_fn(func):
