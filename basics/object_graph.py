@@ -11,6 +11,8 @@ import html
 
 import graphviz
 
+from decorators import memoize_by
+
 
 def draw_one_tuple(root):
     """
@@ -37,14 +39,9 @@ def draw_tuples(*roots):
     the graph are whichever arguments are not reachable from other arguments.
     """
     graph = graphviz.Digraph()
-    visited_ids = set()
 
+    @memoize_by(id)
     def draw(node):
-        if id(node) in visited_ids:
-            return
-
-        visited_ids.add(id(node))
-
         if not isinstance(node, tuple):
             graph.node(str(id(node)), label=html.escape(repr(node)))
             return
