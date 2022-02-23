@@ -500,12 +500,9 @@ def fib_nest(n):
     if n < 2:
         return n
 
-    if n == 2:
-        return (0, 1)
-
-    a = (0, 1)
-    b = (1, (0, 1))
-    for _ in range(n - 3):
+    a = 1
+    b = (0, 1)
+    for _ in range(n - 2):
         a, b = b, (a, b)
     return b
 
