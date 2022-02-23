@@ -505,7 +505,7 @@ def fib_nest(n):
 
     a = (0, 1)
     b = (1, (0, 1))
-    for x in range(n - 3):
+    for _ in range(n - 3):
         a, b = b, (a, b)
     return b
 
