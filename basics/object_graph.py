@@ -7,6 +7,8 @@ objects and directed edges for references.
 See also: the objgraph PyPI package.
 """
 
+import html
+
 import graphviz
 
 
@@ -44,7 +46,7 @@ def draw_tuples(*roots):
         visited_ids.add(id(node))
 
         if not isinstance(node, tuple):
-            graph.node(str(id(node)), label=repr(node))
+            graph.node(str(id(node)), label=html.escape(repr(node)))
             return
 
         graph.node(str(id(node)), shape='point')
