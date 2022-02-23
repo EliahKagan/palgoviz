@@ -497,7 +497,18 @@ def fib_nest(n):
      (((1, (0, 1)), ((0, 1), (1, (0, 1)))),
       (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1)))))))
     """
-    ...  # FIXME: Implement this.
+    if n < 2:
+        return n
+
+    if n == 2:
+        return (0, 1)
+
+    a = (0, 1)
+    b = (1, (0, 1))
+    for x in range(n - 3):
+        a, b = b, (a, b)
+    return b
+
 
 
 if __name__ == '__main__':
