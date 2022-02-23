@@ -7,12 +7,6 @@ objects and directed edges for references.
 See also: the objgraph PyPI package.
 """
 
-import html
-
-import graphviz
-
-from decorators import memoize_by
-
 
 def draw_one_tuple(root):
     """
@@ -26,7 +20,7 @@ def draw_one_tuple(root):
     labeled as the repr of the object they stand for. The graph has one node
     per object, regardless of value equality or equality of repr strings.
     """
-    return draw_tuples(root)
+    ...  # FIXME: Implement this.
 
 
 def draw_tuples(*roots):
@@ -38,21 +32,4 @@ def draw_tuples(*roots):
     traversal proceeds, but not necessarily of the graph produced: the roots of
     the graph are whichever arguments are not reachable from other arguments.
     """
-    graph = graphviz.Digraph()
-
-    @memoize_by(id)
-    def draw(node):
-        if not isinstance(node, tuple):
-            graph.node(str(id(node)), label=html.escape(repr(node)))
-            return
-
-        graph.node(str(id(node)), shape='point')
-
-        for child in node:
-            draw(child)
-            graph.edge(str(id(node)), str(id(child)))
-
-    for root in roots:
-        draw(root)
-
-    return graph
+    ...  # FIXME: Implement this.
