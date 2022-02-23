@@ -496,8 +496,22 @@ def fib_nest(n):
     ((((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1))))),
      (((1, (0, 1)), ((0, 1), (1, (0, 1)))),
       (((0, 1), (1, (0, 1))), ((1, (0, 1)), ((0, 1), (1, (0, 1)))))))
+    >>> all(u is w for u, (_, w) in map(fib_nest, range(3, 401)))  # Shallow.
+    True
+    >>> r = fib_nest(100_000)
+    >>> while r != (0, 1) and r[0] is r[1][1]: r = r[1]  # Deep.
+    >>> r
+    (0, 1)
     """
-    ...  # FIXME: Implement this.
+    if n < 2:
+        return n
+
+    a = 0
+    b = 1
+    for _ in range(n - 1):
+        a, b = b, (a, b)
+    return b
+
 
 
 if __name__ == '__main__':
