@@ -35,7 +35,8 @@ def draw_one_tuple(root):
 
         graph.node(parentid, shape='point')
         for child in parent:
-            graph.edge(parentid, str(id(traverse(child))))
+            childid = str(id(traverse(child)))
+            graph.edge(parentid, childid)
         return parent
 
     traverse(root)
