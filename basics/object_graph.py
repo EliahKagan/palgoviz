@@ -28,12 +28,12 @@ def draw_one_tuple(root):
     @decorators.memoize_by(id)
     def traverse(parent):
         if not isinstance(parent, tuple):
-            graph.node(repr(parent))
+            graph.node(str(id(parent)), label=repr(parent))
             return parent
 
-        graph.node(repr(parent), shape='point')
+        graph.node(str(id(parent)), shape='point')
         for child in parent:
-            graph.edge(repr(parent), repr(traverse(child)))
+            graph.edge(str(id(parent)), str(id(traverse(child))))
         return parent
 
     traverse(root)
