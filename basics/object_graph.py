@@ -8,6 +8,9 @@ See also: the objgraph PyPI package.
 """
 
 
+from graphviz import Digraph
+
+
 def draw_one_tuple(root):
     """
     Draw the nested tuple structure of an object as a graphviz.Digraph.
@@ -20,7 +23,23 @@ def draw_one_tuple(root):
     labeled as the repr of the object they stand for. The graph has one node
     per object, regardless of value equality or equality of repr strings.
     """
-    ...  # FIXME: Implement this.
+    graph = Digraph()
+
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            graph.node(repr(parent))
+            return parent
+
+        graph.node({parent}, shape='point')
+        for child in parent:
+            graph.edge(repr(parent), repr(traverse(child)))
+        return parent
+
+    traverse(root)
+    return graph
+
+
+
 
 
 def draw_tuples(*roots):
