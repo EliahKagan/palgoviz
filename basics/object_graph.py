@@ -30,7 +30,7 @@ def draw_one_tuple(root):
             graph.node(repr(parent))
             return parent
 
-        graph.node({parent}, shape='point')
+        graph.node(repr(parent), shape='point')
         for child in parent:
             graph.edge(repr(parent), repr(traverse(child)))
         return parent
