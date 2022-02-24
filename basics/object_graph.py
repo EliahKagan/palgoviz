@@ -27,7 +27,7 @@ def draw_one_tuple(root):
     graph = Digraph()
 
     @decorators.memoize_by(id)
-    def traverse(parent):
+    def draw(parent):
         parent_name = str(id(parent))
 
         if not isinstance(parent, tuple):
@@ -36,11 +36,11 @@ def draw_one_tuple(root):
 
         graph.node(parent_name, shape='point')
         for child in parent:
-            traverse(child)
+            draw(child)
             child_name = str(id(child))
             graph.edge(parent_name, child_name)
 
-    traverse(root)
+    draw(root)
     return graph
 
 
