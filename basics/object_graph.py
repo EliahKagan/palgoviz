@@ -7,9 +7,10 @@ objects and directed edges for references.
 See also: the objgraph PyPI package.
 """
 
-
 from graphviz import Digraph
+
 import decorators
+
 
 def draw_one_tuple(root):
     """
@@ -39,9 +40,6 @@ def draw_one_tuple(root):
 
     traverse(root)
     return graph
-
-
-
 
 
 def draw_tuples(*roots):
