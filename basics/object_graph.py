@@ -9,7 +9,7 @@ See also: the objgraph PyPI package.
 
 
 from graphviz import Digraph
-
+import decorators
 
 def draw_one_tuple(root):
     """
@@ -25,6 +25,7 @@ def draw_one_tuple(root):
     """
     graph = Digraph()
 
+    @decorators.memoize_by(id)
     def traverse(parent):
         if not isinstance(parent, tuple):
             graph.node(repr(parent))

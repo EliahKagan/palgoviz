@@ -8,6 +8,8 @@ Repeated problems are being repeated.
 
 That is not what should happen.
 
+*This seems to be fixed by memoizing by `id`.*
+
 
 ## Bug #2: If objects are value equal but not the same object, they are not being represented differently.
 
