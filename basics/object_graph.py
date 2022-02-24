@@ -27,13 +27,14 @@ def draw_one_tuple(root):
 
     @decorators.memoize_by(id)
     def traverse(parent):
+        parentid = str(id(parent))
         if not isinstance(parent, tuple):
-            graph.node(str(id(parent)), label=repr(parent))
+            graph.node(parentid, label=repr(parent))
             return parent
 
-        graph.node(str(id(parent)), shape='point')
+        graph.node(parentid, shape='point')
         for child in parent:
-            graph.edge(str(id(parent)), str(id(traverse(child))))
+            graph.edge(parentid, str(id(traverse(child))))
         return parent
 
     traverse(root)
