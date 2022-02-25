@@ -10,6 +10,7 @@ See also: the objgraph PyPI package.
 from graphviz import Digraph
 
 import decorators
+import html
 
 
 def draw_one_tuple(root):
@@ -35,6 +36,8 @@ def draw_tuples(*roots):
     be explored in the traversal. Note that the arguments are roots from which
     traversal proceeds, but not necessarily of the graph produced: the roots of
     the graph are whichever arguments are not reachable from other arguments.
+
+    This implementation uses @memoize_by to maintain visitation information.
     """
     graph = Digraph()
 
@@ -43,7 +46,7 @@ def draw_tuples(*roots):
         parent_name = str(id(parent))
 
         if not isinstance(parent, tuple):
-            graph.node(parent_name, label=repr(parent))
+            graph.node(parent_name, label=html.escape(repr(parent)))
             return
 
         graph.node(parent_name, shape='point')
@@ -66,7 +69,7 @@ def draw_tuples_alt(*roots):
     traversal proceeds, but not necessarily of the graph produced: the roots of
     the graph are whichever arguments are not reachable from other arguments.
 
-    Alternative implementation.
+    This alternative implementation manually maintains visitation information.
     """
     graph = Digraph()
     ids = set()
@@ -79,7 +82,7 @@ def draw_tuples_alt(*roots):
         parent_name = str(id(parent))
 
         if not isinstance(parent, tuple):
-            graph.node(parent_name, label=repr(parent))
+            graph.node(parent_name, label=html.escape(repr(parent)))
             return
 
         graph.node(parent_name, shape='point')
