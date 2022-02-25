@@ -9,6 +9,34 @@ See also gencomp1.py.
 import itertools
 
 
+def product_two(a, b):
+    """
+    Like itertools.product, but must be called with exactly two iterables.
+
+    This implementation returns a generator expression.
+
+    # FIXME: Add tests.
+    """
+    xs = list(a)
+    ys = list(b)
+    return ((x, y) for x in xs for y in ys)
+
+
+def product_two_alt(a, b):
+    """
+    Like itertools.product, but must be called with exactly two iterables.
+
+    This is like product_two above, but implemented as a generator function.
+
+    # FIXME: Add tests.
+    """
+    xs = list(a)
+    ys = list(b)
+    for x in xs:
+        for y in ys:
+            yield x, y
+
+
 def three_sums(a, b, c):
     """
     Make a set of all sums x + y + z. Take x, y, z from a, b, c, respectively.
