@@ -401,8 +401,7 @@ def drop(iterable, n):
             pass
 
         #yield the rest
-        for element in it:
-            yield element
+        yield from it
 
     return helper()
 
