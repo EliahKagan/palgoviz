@@ -404,11 +404,8 @@ def drop(iterable, n):
                 return
 
         #yield the rest
-        while True:
-            try:
-                yield next(it)
-            except StopIteration:
-                return
+        for element in it:
+            yield element
 
     return helper()
 
