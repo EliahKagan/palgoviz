@@ -405,7 +405,7 @@ def drop(iterable, n):
 
 def map_one(func, iterable):
     """
-    Map values from the given interable through the unary function func.
+    Map values from the given iterable through the unary function func.
 
     This is like the builtin map, except it doesn't accept multiple iterables.
 
@@ -428,7 +428,7 @@ def map_one(func, iterable):
 
 def map_one_alt(func, iterable):
     """
-    Map values from the given interable through the unary function func.
+    Map values from the given iterable through the unary function func.
 
     This behaves the same as map_one (above) but is implemented differently.
     One of the implementations uses a comprehension and the other does not.
