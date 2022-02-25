@@ -394,12 +394,16 @@ def drop(iterable, n):
     if n < 0:
         raise ValueError("can't skip negatively many items")
 
-    # drop the first elements
-    it = iter(iterable)
-    for _ in zip(range(n), it):
-        pass
+    def helper():
+        # drop the first elements
+        it = iter(iterable)
+        for _ in zip(range(n), it):
+            pass
 
-    return it
+        #yield the rest
+        yield from it
+
+    return helper()
 
 
 def map_one(func, iterable):
