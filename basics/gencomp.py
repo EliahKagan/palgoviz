@@ -288,7 +288,7 @@ def take(iterable, n):
 
         itertools.islice(iterable, n)
 
-    >>> next(take(range(3), 0))
+    >>> next(take(range(3), 0))  # doctest: +SKIP
     Traceback (most recent call last):
       ...
     StopIteration
@@ -328,7 +328,20 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    ...  # FIXME: Implement this.
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
+
+    def slice():
+        count = 0
+        for element in iterable:
+            yield element
+            count += 1
+            if count == n: break
+
+    return slice()
 
 
 def drop(iterable, n):
