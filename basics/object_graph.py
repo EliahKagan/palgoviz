@@ -57,3 +57,38 @@ def draw_tuples(*roots):
     return graph
 
 
+def draw_tuples_alt(*roots):
+    """
+    Draw the nested tuple structure of some objects as a graphviz.Digraph.
+
+    The graph is as described in draw_one_tuple, except any number of roots may
+    be explored in the traversal. Note that the arguments are roots from which
+    traversal proceeds, but not necessarily of the graph produced: the roots of
+    the graph are whichever arguments are not reachable from other arguments.
+
+    Alternative implementation.
+    """
+    graph = Digraph()
+    cache = set()
+
+    def draw(parent):
+        parent_name = str(id(parent))
+
+        if id(parent) in cache:
+            return
+
+        if not isinstance(parent, tuple):
+            graph.node(parent_name, label=repr(parent))
+            cache.add(id(parent))
+            return
+
+        graph.node(parent_name, shape='point')
+        cache.add(id(parent))
+        for child in parent:
+            draw(child)
+            child_name = str(id(child))
+            graph.edge(parent_name, child_name)
+
+    for root in roots:
+        draw(root)
+    return graph
