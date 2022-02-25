@@ -135,12 +135,6 @@ def three_sum_indices_alt_3(a, b, c, target):
 
     This is the third of four implementations.
 
-    [FIXME: Remove this para. Maybe commit it first -- it may be useful later.]
-    This behaves the same as three_sum_indices (above) but is implemented
-    differently. One of these implementations consists of a single return
-    statement (that is nonetheless easy to understand) or it could be trivially
-    modified to put it in that form. The other does not rely on any imports.
-
     FIXME: Add tests.
     """
     xs = list(a)
