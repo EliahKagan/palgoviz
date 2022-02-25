@@ -3,7 +3,7 @@
 """
 Generators and comprehensions.
 
-See also gencomp2.py.
+See also gencomp2.py and fibonacci.py.
 """
 
 

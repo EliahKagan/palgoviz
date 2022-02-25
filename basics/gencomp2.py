@@ -3,7 +3,7 @@
 """
 More generators and comprehensions.
 
-See also gencomp1.py.
+See also gencomp1.py and fibonacci.py.
 """
 
 import itertools
