@@ -53,4 +53,24 @@ def draw_tuples(*roots):
     traversal proceeds, but not necessarily of the graph produced: the roots of
     the graph are whichever arguments are not reachable from other arguments.
     """
-    ...  # FIXME: Implement this.
+    graph = Digraph()
+
+    @decorators.memoize_by(id)
+    def draw(parent):
+        parent_name = str(id(parent))
+
+        if not isinstance(parent, tuple):
+            graph.node(parent_name, label=repr(parent))
+            return
+
+        graph.node(parent_name, shape='point')
+        for child in parent:
+            draw(child)
+            child_name = str(id(child))
+            graph.edge(parent_name, child_name)
+
+    for root in roots:
+        draw(root)
+    return graph
+
+
