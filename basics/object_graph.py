@@ -69,21 +69,20 @@ def draw_tuples_alt(*roots):
     Alternative implementation.
     """
     graph = Digraph()
-    cache = set()
+    ids = set()
 
     def draw(parent):
-        parent_name = str(id(parent))
-
-        if id(parent) in cache:
+        if id(parent) in ids:
             return
+
+        ids.add(id(parent))
+        parent_name = str(id(parent))
 
         if not isinstance(parent, tuple):
             graph.node(parent_name, label=repr(parent))
-            cache.add(id(parent))
             return
 
         graph.node(parent_name, shape='point')
-        cache.add(id(parent))
         for child in parent:
             draw(child)
             child_name = str(id(child))
