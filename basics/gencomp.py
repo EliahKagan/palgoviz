@@ -7,9 +7,6 @@ See also fibonacci.py.
 """
 
 
-from typing import Iterator
-
-
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
