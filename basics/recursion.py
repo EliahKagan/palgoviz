@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-"""Some recursion examples."""
+"""
+Some recursion examples.
+
+See also object_graph.py.
+"""
 
 import bisect
 import decorators
