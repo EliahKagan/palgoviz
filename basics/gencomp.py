@@ -406,6 +406,7 @@ def map_one_alt(func, iterable):
     Map values from the given interable through the unary function func.
 
     This behaves the same as map_one (above) but is implemented differently.
+    One of the implementations uses a comprehension and the other does not.
 
     >>> list(map_one_alt(lambda x: x**2, range(1, 11)))
     [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
@@ -451,7 +452,8 @@ def my_filter_alt(predicate, iterable):
     values of the iterable that are truthy.
 
     This behaves the same as my_filter (above) and the builtin filter, but its
-    implementation differs from that of my_filter.
+    implementation differs from that of my_filter. One of the implementations
+    uses a comprehension, and the other does not.
 
     >>> next(my_filter_alt(lambda n: n < 0, (0, 1, 2)))
     Traceback (most recent call last):
