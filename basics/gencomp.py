@@ -397,11 +397,8 @@ def drop(iterable, n):
     def helper():
         # drop the first elements
         it = iter(iterable)
-        for _ in range(n):
-            try:
-                next(it)
-            except StopIteration:
-                return
+        for _ in zip(range(n), it):
+            pass
 
         #yield the rest
         for element in it:
