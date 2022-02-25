@@ -7,6 +7,9 @@ See also fibonacci.py.
 """
 
 
+from typing import Iterator
+
+
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
@@ -385,7 +388,29 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    ...  # FIXME: Implement this.
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't skip negatively many items")
+
+    def helper():
+        # drop the first elements
+        it = iter(iterable)
+        for _ in range(n):
+            try:
+                next(it)
+            except StopIteration:
+                return
+
+        #yield the rest
+        while True:
+            try:
+                yield next(it)
+            except StopIteration:
+                return
+
+    return helper()
 
 
 def map_one(func, iterable):
