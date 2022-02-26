@@ -497,8 +497,13 @@ def my_filter_alt(predicate, iterable):
     >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
     >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
+    >>> list(my_filter_alt(None, ['hello', 'glorious', 'world']))
+    ['hello', 'glorious', 'world']
     """
-    ...  # FIXME: Implement this.
+    if predicate is None:
+        return (element for element in iterable if element)
+
+    return (element for element in iterable if predicate(element))
 
 
 def length_of(iterable):
