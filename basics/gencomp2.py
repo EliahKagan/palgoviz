@@ -114,7 +114,7 @@ def three_sum_indices_1(a, b, c, target):
     each other and sum to target.
 
     This notation is merely illustrative. a, b, and c can be any iterables
-    whose elements are numbers. The tuples are returned in lexicographic order.
+    whose elements are numbers. The tuples are yielded in lexicographic order.
 
     This is the first of four implementations. Two of these implementations
     return generator expressions and do not contain loops. The other two are
@@ -141,7 +141,7 @@ def three_sum_indices_2(a, b, c, target):
     each other and sum to target.
 
     This notation is merely illustrative. a, b, and c can be any iterables
-    whose elements are numbers. The tuples are returned in lexicographic order.
+    whose elements are numbers. The tuples are yielded in lexicographic order.
 
     This is the second of four implementations.
 
@@ -168,7 +168,7 @@ def three_sum_indices_3(a, b, c, target):
     each other and sum to target.
 
     This notation is merely illustrative. a, b, and c can be any iterables
-    whose elements are numbers. The tuples are returned in lexicographic order.
+    whose elements are numbers. The tuples are yielded in lexicographic order.
 
     This is the third of four implementations.
 
@@ -199,7 +199,7 @@ def three_sum_indices_4(a, b, c, target):
     each other and sum to target.
 
     This notation is merely illustrative. a, b, and c can be any iterables
-    whose elements are numbers. The tuples are returned in lexicographic order.
+    whose elements are numbers. The tuples are yielded in lexicographic order.
 
     This is the fourth of four implementations.
 
