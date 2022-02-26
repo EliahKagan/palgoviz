@@ -6,6 +6,7 @@ More generators and comprehensions.
 See also gencomp1.py and fibonacci.py.
 """
 
+from collections.abc import Iterable
 import itertools
 
 
@@ -169,3 +170,69 @@ def three_sum_indices_alt_4(a, b, c, target):
             for k, z in enumerate(zs):
                 if x != z and y != z and x + y + z == target:
                     yield i, j, k
+
+
+def dot_product(u, v):
+    """
+    Compute the dot product of real-valued vectors represented as dictionaries.
+
+    The dimension is arbitrarily high (but finite), with keys representing
+    components. The dictionaries need not have the same keys. If a key is
+    absent, treat it as if the key were present with a value of 0 or 0.0.
+
+    Running time is O(min(len(u), len(v))).
+
+    >>> dot_product({'a': 2, 'b': 3, 'c': 4, 'd': 5}, {'b': 0.5, 'd': 1})
+    6.5
+    >>> u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+    >>> v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+    >>> w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+    >>> uv = dot_product(u, v)
+    >>> round(uv, 2)
+    21.56
+    >>> uv == dot_product(v, u)
+    True
+    >>> dot_product(u, w) == dot_product(w, u) == 4.5
+    True
+    >>> dot_product(v, w) == dot_product(w, v) == 0
+    True
+    """
+    if len(v) < len(u):
+        u, v = v, u
+
+    return sum(value * v.get(key, 0) for key, value in u.items())
+
+
+def flatten2(iterable):
+    """
+    Flatten an iterable by exactly 2 levels.
+
+    That is, yield sub-sub-elements: elements of elements of elements of
+    iterable. If an element of iterable, or an element of an element of
+    iterable, isn't iterable, skip it.
+
+    It may be useful to check if an object is iterable by LBYL. You can do this
+    by checking if it is considered an instance of collections.abc.Iterable.
+
+    >>> list(flatten2([0, [1, 2], (3, 4, [5, 6, [7]], 8), [9], 10, [{(11,)}]]))
+    [5, 6, [7], (11,)]
+    >>> next(flatten2([[0, 1, 2], [3, 4, 5], [6, 7, 8]]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> ''.join(flatten2([['foo', 'bar', 'baz'], ['ham', 'spam', 'eggs']]))
+    'foobarbazhamspameggs'
+    >>> list(flatten2(['hi', [range(5)] * 3, 'bye']))
+    ['h', 'i', 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 'b', 'y', 'e']
+    >>> list(flatten2(['hi', [iter(range(5))] * 3, 'bye']))
+    ['h', 'i', 0, 1, 2, 3, 4, 'b', 'y', 'e']
+    """
+    return (subsubelement
+            for element in iterable if isinstance(element, Iterable)
+            for subelement in element if isinstance(subelement, Iterable)
+            for subsubelement in subelement)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
