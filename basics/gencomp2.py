@@ -116,9 +116,20 @@ def three_sum_indices_1(a, b, c, target):
     This notation is merely illustrative. a, b, and c can be any iterables
     whose elements are numbers. The tuples are yielded in lexicographic order.
 
-    This is the first of four implementations. Two of these implementations
-    return generator expressions and do not contain loops. The other two are
-    written as generator functions and do not use comprehensions.
+    This is the first of four implementations, which cover all four
+    combinations of two independent choices:
+
+        (A) Two implementations return generator expressions and do not contain
+            loops. The other two are written as generator functions and do not
+            use comprehensions.
+
+        (B) Two implementations use something from itertools to simplify and
+            shorten their code, but are slower in some situations (though the
+            worst case efficiency is the same). The other two don't do that,
+            instead avoiding doing extra work.
+
+    It is acceptable for all four implementations to take time proportional to
+    the product of the lengths of a, b, and c, even on average.
 
     >>> list(three_sum_indices_1([1, 2, 3], [10, 9], [7, 9, 8], 20))
     [(0, 0, 1), (1, 0, 2), (2, 0, 0), (2, 1, 2)]
