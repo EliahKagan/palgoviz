@@ -423,7 +423,8 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    ...  # FIXME: Implement this.
+    for element in iterable:
+        yield func(element)
 
 
 def map_one_alt(func, iterable):
