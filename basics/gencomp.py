@@ -8,6 +8,7 @@ See also fibonacci.py.
 
 
 import enum
+from typing import Type
 
 
 def my_enumerate(iterable, start=0):
@@ -552,7 +553,10 @@ def length_of_opt(iterable):
     >>> set(length_of_opt(range(2_000_000_000)) for _ in range(100_000))
     {2000000000}
     """
-    ...  # FIXME: Implement this.
+    try:
+        return len(iterable)
+    except TypeError:
+        return sum(1 for _ in iterable)
 
 
 def how_many(predicate, iterable):
