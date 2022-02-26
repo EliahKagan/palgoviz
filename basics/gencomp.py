@@ -620,6 +620,46 @@ def invert(dictionary):
         inverse[dictionary[key]] = key
     return inverse
 
+
+def invert_alt(dictionary):
+    """
+    Given an injective (that is, one-to-one) dictionary, return its inverse.
+
+    When a dictionary never maps unequal keys to equal values, it is possible
+    to produce an inverse of it: a dictionary that maps the values back to the
+    keys.
+
+    This also needs the dictionary's values (not just its keys) to be hashable.
+
+    This alternative implementation behaves the same as invert (above) but uses
+    a comprehension.
+
+    TODO: Document the behavior of invert_alt when given a noninjective
+    dictionary.
+
+    >>> invert_alt({})
+    {}
+    >>> invert_alt({'a': 10, 'b': 20, 'cd': 30, 'efg': 40})
+    {10: 'a', 20: 'b', 30: 'cd', 40: 'efg'}
+    >>> r = range(100_000)
+    >>> invert_alt({x: x**2 for x in r}) == {x**2: x for x in r}
+    True
+    >>> invert_alt({x: x for x in r}) == {x: x for x in r}
+    True
+    >>> import random
+    >>> a = list(range(-50_000, 50_001))
+    >>> random.shuffle(a)
+    >>> b = [x**3 for x in a]
+    >>> random.shuffle(b)
+    >>> d = {k: v for k, v in zip(a, b)}
+    >>> invert_alt(d) == d
+    False
+    >>> invert_alt(invert_alt(d)) == d
+    True
+    """
+    ... # FIXME: Implement this.
+
+
 def distinct_simple(iterable):
     """
     Yield only first occurrences of equal items.
