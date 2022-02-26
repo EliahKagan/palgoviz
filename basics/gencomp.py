@@ -682,12 +682,11 @@ def distinct_simple(iterable):
     >>> list(it)
     [1, 4, 7]
     """
-    cache = set()
+    elements = set()
     for element in iterable:
-        if element in cache:
-            continue
-        cache.add(element)
-        yield element
+        if element not in elements:
+            elements.add(element)
+            yield element
 
 
 def distinct(iterable, *, key=None):
