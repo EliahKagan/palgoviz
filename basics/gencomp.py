@@ -580,10 +580,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    if predicate is None:
-        return sum(1 for element in iterable if element)
-
-    return sum(1 for element in iterable if predicate(element))
+    return length_of(my_filter(predicate, iterable))
 
 
 def invert(dictionary):
