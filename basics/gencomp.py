@@ -527,8 +527,8 @@ def length_of(iterable):
     100000
     """
     count = 0
-    for count, _ in enumerate(iterable, start = 1):
-        pass
+    for _ in iterable:
+        count += 1
     return count
 
 def length_of_opt(iterable):
