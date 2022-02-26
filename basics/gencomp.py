@@ -7,6 +7,9 @@ See also fibonacci.py.
 """
 
 
+import enum
+
+
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
@@ -523,8 +526,10 @@ def length_of(iterable):
     >>> length_of(set(object() for _ in range(100_000)))
     100000
     """
-    ...  # FIXME: Implement this.
-
+    counter = 0
+    for count, _ in enumerate(iterable):
+        counter = count + 1
+    return counter
 
 def length_of_opt(iterable):
     """
