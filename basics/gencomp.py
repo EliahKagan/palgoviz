@@ -735,7 +735,16 @@ def distinct(iterable, *, key=None):
     >>> list(distinct([3, *middle, 4], key=id))
     [3, [], [], 4]
     """
-    ...  # FIXME: Implement this.
+    if key is None:
+        key = lambda x : x
+
+    elements = set()
+    for element in iterable:
+        if key(element) not in elements:
+            elements.add(key(element))
+            yield element
+
+
 
 
 def distinct_dicts_by_single_key(dicts, subject_key):
