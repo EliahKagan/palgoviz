@@ -657,7 +657,7 @@ def invert_alt(dictionary):
     >>> invert_alt(invert_alt(d)) == d
     True
     """
-    ... # FIXME: Implement this.
+    return {dictionary[key]: key for key in dictionary}
 
 
 def distinct_simple(iterable):
