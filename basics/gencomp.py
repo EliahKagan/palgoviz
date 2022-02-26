@@ -580,7 +580,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    return length_of_opt(my_filter(predicate, iterable))
+    return length_of(my_filter(predicate, iterable))
 
 
 def invert(dictionary):
