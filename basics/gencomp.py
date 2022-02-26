@@ -685,11 +685,9 @@ def distinct_simple(iterable):
     cache = set()
     for element in iterable:
         if element in cache:
-            pass
-        else:
-            cache.add(element)
-            yield element
-
+            continue
+        cache.add(element)
+        yield element
 
 
 def distinct(iterable, *, key=None):
