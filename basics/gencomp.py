@@ -682,7 +682,14 @@ def distinct_simple(iterable):
     >>> list(it)
     [1, 4, 7]
     """
-    ...  # FIXME: Implement this.
+    cache = set()
+    for element in iterable:
+        if element in cache:
+            pass
+        else:
+            cache.add(element)
+            yield element
+
 
 
 def distinct(iterable, *, key=None):
