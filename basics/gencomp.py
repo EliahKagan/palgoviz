@@ -736,15 +736,14 @@ def distinct(iterable, *, key=None):
     [3, [], [], 4]
     """
     if key is None:
-        key = lambda x : x
+        key = lambda x: x
 
     elements = set()
     for element in iterable:
-        if key(element) not in elements:
-            elements.add(key(element))
+        image = key(element)
+        if image not in elements:
+            elements.add(image)
             yield element
-
-
 
 
 def distinct_dicts_by_single_key(dicts, subject_key):
