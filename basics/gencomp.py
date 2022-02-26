@@ -466,13 +466,15 @@ def my_filter(predicate, iterable):
     >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
     >>> list(my_filter(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
+    >>> list(my_filter(None, ['hello', 'glorious', 'world']))
+    ['hello', 'glorious', 'world']
     """
-    for element in iterable:
-        if predicate is None:
-            if element:
-                yield element
-        elif predicate(element):
-            yield element
+    if predicate is None:
+        for element in iterable:
+            if element: yield element
+    else:
+        for element in iterable:
+            if predicate(element): yield element
 
 
 def my_filter_alt(predicate, iterable):
