@@ -797,17 +797,15 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     True
     """
     history = set()
-    flag = True
-    for dict in dicts:
-        if subject_key in dict:
-            if dict[subject_key] not in history:
-                history.add(dict[subject_key])
-                yield dict
-        else:
-            if flag:
-                flag = False
-                yield dict
-
+    got_missing = False
+    for d in dicts:
+        if subject_key in d:
+            if d[subject_key] not in history:
+                history.add(d[subject_key])
+                yield d
+        elif not got_missing:
+            got_missing = True
+            yield d
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
