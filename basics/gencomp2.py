@@ -261,9 +261,9 @@ def flatten2(iterable):
     """
     Flatten an iterable by exactly 2 levels.
 
-    That is, yield sub-sub-elements: elements of elements of elements of
-    iterable. If an element of iterable, or an element of an element of
-    iterable, isn't iterable, skip it.
+    That is, yield sub-sub-elements: elements of elements of elements of the
+    argument. If an element of the argument, or an element of an element of the
+    argument, isn't iterable, skip it.
 
     It may be useful to check if an object is iterable by LBYL. You can do this
     by checking if it is considered an instance of collections.abc.Iterable.
