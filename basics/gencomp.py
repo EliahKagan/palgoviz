@@ -682,11 +682,7 @@ def distinct_simple(iterable):
     >>> list(it)
     [1, 4, 7]
     """
-    elements = set()
-    for element in iterable:
-        if element not in elements:
-            elements.add(element)
-            yield element
+    return distinct(iterable)
 
 
 def distinct(iterable, *, key=None):
