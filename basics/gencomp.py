@@ -468,11 +468,11 @@ def my_filter(predicate, iterable):
     ['y', (2, 3)]
     """
     for element in iterable:
-        if predicate == None:
+        if predicate is None:
             if element:
                 yield element
         elif predicate(element):
-                yield element
+            yield element
 
 
 def my_filter_alt(predicate, iterable):
