@@ -796,7 +796,19 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
-    ...  # FIXME: Implement this.
+    history = set()
+    flag = True
+    for dict in dicts:
+        if subject_key not in dict:
+            if flag:
+                flag = False
+                yield dict
+            continue
+
+        if dict[subject_key] not in history:
+            history.add(dict[subject_key])
+            yield dict
+
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
