@@ -445,7 +445,7 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    ...  # FIXME: Implement this.
+    return (func(element) for element in iterable)
 
 
 def my_filter(predicate, iterable):
