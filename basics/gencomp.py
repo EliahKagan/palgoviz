@@ -615,8 +615,10 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
     """
-    ...  # FIXME: Implement this.
-
+    inverse = {}
+    for key in dictionary:
+        inverse[dictionary[key]] = key
+    return inverse
 
 def distinct_simple(iterable):
     """
