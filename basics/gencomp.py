@@ -799,15 +799,14 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     history = set()
     flag = True
     for dict in dicts:
-        if subject_key not in dict:
+        if subject_key in dict:
+            if dict[subject_key] not in history:
+                history.add(dict[subject_key])
+                yield dict
+        else:
             if flag:
                 flag = False
                 yield dict
-            continue
-
-        if dict[subject_key] not in history:
-            history.add(dict[subject_key])
-            yield dict
 
 
 
