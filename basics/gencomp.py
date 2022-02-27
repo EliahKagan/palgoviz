@@ -869,7 +869,11 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     True
     """
     distinct_object = object()
-    return distinct(dicts, key=lambda d: d.get(subject_key, distinct_object))
+
+    def keyfunction(d):
+        return (subject_key, d.get(subject_key, distinct_object))
+
+    return distinct(dicts, key=keyfunction)
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
@@ -944,14 +948,15 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
-    history = []
-    for subject_key in subject_keys:
-        temp = list(distinct_dicts_by_single_key(dicts, subject_key))
-        for dictionary in temp:
-            if dictionary not in history:
-                history.append(dictionary)
+    distinct_object = object()
 
-    yield from history
+    def keyfunction(d):
+        keys_and_values = []
+        for subject_key in subject_keys:
+            keys_and_values.append((subject_key, d.get(subject_key, distinct_object)))
+        return tuple(keys_and_values)
+
+    return distinct(dicts, key=keyfunction)
 
 
 
