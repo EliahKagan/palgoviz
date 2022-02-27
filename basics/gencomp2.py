@@ -358,15 +358,15 @@ def ungroup(rows):
 
 def compose_dicts_simple(back, front):
     """
-    Given two injective dicts, make one that is their functional composition.
+    Given two dicts, make one that is their functional composition.
 
     This is the smallest possible dictionary d with the property that, if front
     associates the key x with the value y, and back associates the key y with
     the value z, then d associates the key x with the value z. Another way to
     say this is that the result dictionary is a pipline through front and back.
 
-    If any value of front is not hashable, raise KeyError. Besides this and
-    injectivity, there are no restrictions on either argument's keys or values.
+    If any value of front is not hashable, raise KeyError. There are no
+    restrictions on either argument's keys or values.
 
     FIXME: Add doctests.
     """
@@ -378,9 +378,9 @@ def compose_dicts(back, front):
     Compose dictionaries, without requiring front to have only hashable values.
 
     This is like compose_dicts_simple, but arguments' keys and values have no
-    restrictions besides injectivity. (Note that, while front may have
-    non-hashable values and KeyError must not be raised, such values are
-    certain not to be keys of back, because keys must always be hashable.)
+    restrictions. (Note that, while front may have non-hashable values and
+    KeyError must not be raised, such values are certain not to be keys of
+    back, because keys must always be hashable.)
 
     FIXME: Add doctests.
     """
