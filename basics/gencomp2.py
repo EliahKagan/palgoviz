@@ -235,8 +235,8 @@ def three_sum_indices_3(a, b, c, target):
     return ((i, j, k)
             for i, x in enumerate(xs)
             for j, y in enumerate(ys) if x != y
-            for k, z in enumerate(zs)
-            if x != z and y != z and x + y + z == target)
+            for k, z in enumerate(zs) if x != z and y != z
+            if x + y + z == target)
 
 
 def three_sum_indices_4(a, b, c, target):
