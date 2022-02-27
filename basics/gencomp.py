@@ -869,11 +869,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     True
     """
     distinct_object = object()
-
-    def keyfunction(d):
-        return d.get(subject_key, distinct_object)
-
-    return distinct(dicts, key=keyfunction)
+    return distinct(dicts, key=lambda d: d.get(subject_key, distinct_object))
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
