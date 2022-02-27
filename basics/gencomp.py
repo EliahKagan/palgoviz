@@ -742,6 +742,75 @@ def distinct(iterable, *, key=None):
             yield element
 
 
+def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
+    """
+    Yield dictionaries from dicts that differ from each previously seen
+    dictionary in their treatment of the subject key.
+
+    dicts is an iterable of dictionaries whose values (not just their keys) are
+    hashable.
+
+    subject_key (which I call the "subject key") is some hashable object.
+
+    Consider two dictionaries to agree on the subject key if they cannot be
+    distinguished by subscripting with it. That is, dictionaries d1 and d2
+    agree on the subject key when either d1 and d2 both have subject_key as a
+    key and map it to the same value, or neither d1 nor d2 has it as a key.
+
+    Stated in those terms, yield each dictionary in dicts that does not agree
+    on the subject key with any preceding dictionary in dicts.
+
+    This implementation is self-contained. It does not use distinct (above).
+    See also distinct_dicts_by_single_key below.
+
+    >>> next(distinct_dicts_by_single_key_monolithic([], 'p'))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> d1 = {'p': 'x', 'q': 'y', 'r': 'z'}
+    >>> d2 = {'q': 'y', 'r': 'z', 's': 'w'}
+    >>> d3 = {'o': 'z', 'p': 'y', 'q': 'u'}
+    >>> d4 = {'o': 'z', 'p': 'x', 'q': 'x', 'r': 'w'}
+    >>> ds = [d1, d2, d3, d4]
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'o')) == [d1, d3]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'p')) == [d1, d2, d3]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'q')) == [d1, d3, d4]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'r')) == [d1, d3, d4]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 's')) == [d1, d2]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(iter(ds), 's')) == [d1, d2]
+    True
+    >>> it = distinct_dicts_by_single_key_monolithic(ds, 't')
+    >>> next(it)
+    {'p': 'x', 'q': 'y', 'r': 'z'}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> d1['p'] = d4['p'] = d4['q'] = object()              # Change 'x'.
+    >>> d1['q'] = d2['q'] = d3['p'] = None                  # Change 'y'.
+    >>> d1['r'] = d2['r'] = d3['o'] = d4['o'] = object()    # Change 'z'.
+    >>> def f(sk): return list(distinct_dicts_by_single_key_monolithic(ds, sk))
+    >>> [f(sk) for sk in ('o', 'p', 'q', 'r', 's', 't')] == [
+    ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
+    True
+    """
+    history = set()
+    got_missing = False
+    for d in dicts:
+        if subject_key in d:
+            if d[subject_key] not in history:
+                history.add(d[subject_key])
+                yield d
+        elif not got_missing:
+            got_missing = True
+            yield d
+
+
 def distinct_dicts_by_single_key(dicts, subject_key):
     """
     Yield dictionaries from dicts that differ from each previously seen
@@ -759,6 +828,9 @@ def distinct_dicts_by_single_key(dicts, subject_key):
 
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
+
+    This implementation uses distinct (defined above) and is thus much shorter
+    than distinct_dicts_by_single_key_monolithic (defined immediately above).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
@@ -796,16 +868,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
-    history = set()
-    got_missing = False
-    for d in dicts:
-        if subject_key in d:
-            if d[subject_key] not in history:
-                history.add(d[subject_key])
-                yield d
-        elif not got_missing:
-            got_missing = True
-            yield d
+    ...  # FIXME: Implement this.
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
