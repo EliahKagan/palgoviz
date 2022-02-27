@@ -944,7 +944,17 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
-    ...  # FIXME: Implement this.
+    history = []
+    for subject_key in subject_keys:
+        temp = list(distinct_dicts_by_single_key(dicts, subject_key))
+        for dictionary in temp:
+            if dictionary not in history:
+                history.append(dictionary)
+
+    yield from history
+
+
+
 
 
 if __name__ == '__main__':
