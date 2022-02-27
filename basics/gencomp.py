@@ -950,7 +950,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     """
     distinct_object = object()
     my_keys = tuple(subject_keys)
-    return distinct(dicts, key=lambda d: tuple((subject_key, d.get(subject_key, distinct_object)) for subject_key in my_keys))
+    return distinct(dicts, key=lambda d: tuple(d.get(subject_key, distinct_object) for subject_key in my_keys))
 
 
 if __name__ == '__main__':
