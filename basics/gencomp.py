@@ -7,10 +7,6 @@ See also fibonacci.py.
 """
 
 
-import enum
-from typing import Type
-
-
 def my_enumerate(iterable, start=0):
     """
     Pair up items in an iterable with indices. Like the built-in enumerate.
@@ -868,6 +864,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
+    # FIXME: rewrite this function in terms of distinct_dicts_by_keys
     distinct_object = object()
 
     def keyfunction(d):
@@ -892,7 +889,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     in subject_keys, either d1 and d2 both have k as a key and map it to the
     same value, or neither d1 nor d2 has k as a key.
 
-    For example, {'a': 1, 'b': 2, 'c': 3} and {'c': 3, 'a': 1, 'b': 1, 'd': 4}
+    For example, {'a': 1, 'b': 2, 'c': 3} and {'a': 1, 'b': 1, 'c': 3, 'd': 4}
     agree on ('a', 'c'), disagree on ('a', 'c', 'd'), agree on ('a', 'c', 'e'),
     disagree on ('b',), and agree on ().
 
