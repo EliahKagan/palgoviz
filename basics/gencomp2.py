@@ -4,6 +4,9 @@
 More generators and comprehensions.
 
 See also gencomp1.py and fibonacci.py.
+
+Some, but not all, of the exercises in this file benefit from writing
+comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
 from collections.abc import Iterable
@@ -56,6 +59,38 @@ def product_two_alt(a, b):
     for x in xs:
         for y in ys:
             yield x, y
+
+
+def ascending_countdowns():
+    """
+    Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
+
+    This implementation returns a generator expression.
+
+    >>> from itertools import islice
+    >>> list(islice(ascending_countdowns(), 25))
+    [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
+    >>> sum(islice(ascending_countdowns(), 1_000_000))
+    471108945
+    """
+    return (j for i in itertools.count() for j in range(i, -1, -1))
+
+
+def ascending_countdowns_alt():
+    """
+    Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
+
+    This is like ascending_countdowns above, but implemented as a generator
+    function.
+
+    >>> from itertools import islice
+    >>> list(islice(ascending_countdowns_alt(), 25))
+    [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
+    >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
+    471108945
+    """
+    for i in itertools.count():
+        yield from range(i, -1, -1)
 
 
 def three_sums(a, b, c):
@@ -319,6 +354,43 @@ def ungroup(rows):
     True
     """
     return {(src, dest) for src, row in rows.items() for dest in row}
+
+
+def compose_dicts_simple(back, front):
+    """
+    Given two injective dicts, make one that is their functional composition.
+
+    This is the smallest possible dictionary d with the property that, if front
+    associates the key x with the value y, and back associates the key y with
+    the value z, then d associates the key x with the value z. Another way to
+    say this is that the result dictionary is a pipline through front and back.
+
+    If any value of front is not hashable, raise KeyError. Besides this and
+    injectivity, there are no restrictions on either argument's keys or values.
+
+    FIXME: Add doctests.
+    """
+    return {key: back[value] for key, value in front.items() if value in back}
+
+
+def compose_dicts(back, front):
+    """
+    Compose dictionaries, without requiring front to have only hashable values.
+
+    This is like compose_dicts_simple, but arguments' keys and values have no
+    restrictions besides injectivity. (Note that, while front may have
+    non-hashable values and KeyError must not be raised, such values are
+    certain not to be keys of back, because keys must always be hashable.)
+
+    FIXME: Add doctests.
+    """
+    def in_back(possible_key):
+        try:
+            return possible_key in back
+        except TypeError:
+            return False
+
+    return {key: back[value] for key, value in front.items() if in_back(value)}
 
 
 if __name__ == '__main__':
