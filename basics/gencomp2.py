@@ -365,9 +365,9 @@ def compose_dicts_simple(back, front):
     the value z, then d associates the key x with the value z. Another way to
     say this is that the result dictionary is a pipline through front and back.
 
-    Keys should appear in the result in the same order as in front.
+    Keys in both front and the result should appear in the same order in each.
 
-    If any value of front is not hashable, raise KeyError. There are no
+    If any value of front is not hashable, raise TypeError. There are no
     restrictions on either argument's keys or values.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
@@ -376,10 +376,23 @@ def compose_dicts_simple(back, front):
     ...                   black=0x000000, green=0x008000, orange=0xFFA500,
     ...                   azure=0xF0FFFF, yellow=0xFFFF00, blue=0x0000FF)
     >>> status_rgbs = compose_dicts_simple(color_rgbs, status_colors)
-    >>> '; '.join(f'{color} #{rgb:06x}' for color, rgb in status_rgbs.items())
-    'unspecified #808080; OK #008000; meh #0000ff; concern #ffff00; alarm #ffa500; danger #ff0000'
-
-    FIXME: Write more tests.
+    >>> from pprint import pprint
+    >>> pprint([f'{c} #{r:06x}' for c, r in status_rgbs.items()], compact=True)
+    ['unspecified #808080', 'OK #008000', 'meh #0000ff', 'concern #ffff00',
+     'alarm #ffa500', 'danger #ff0000']
+    >>> compose_dicts_simple(status_colors, color_rgbs)
+    {}
+    >>> squares = {x: x**2 for x in range(1, 100)}
+    >>> compose_dicts_simple(squares, squares)
+    {1: 1, 2: 16, 3: 81, 4: 256, 5: 625, 6: 1296, 7: 2401, 8: 4096, 9: 6561}
+    >>> d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+    >>> d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+    >>> compose_dicts_simple(d2, d1)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'list'
+    >>> compose_dicts_simple(d1, d2)
+    {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
     """
     return {key: back[value] for key, value in front.items() if value in back}
 
@@ -393,7 +406,27 @@ def compose_dicts(back, front):
     KeyError must not be raised, such values are certain not to be keys of
     back, because keys must always be hashable.)
 
-    FIXME: Add doctests.
+    >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
+    ...                      concern='yellow', alarm='orange', danger='red')
+    >>> color_rgbs = dict(violet=0xEE82EE, red=0xFF0000, gray=0x808080,
+    ...                   black=0x000000, green=0x008000, orange=0xFFA500,
+    ...                   azure=0xF0FFFF, yellow=0xFFFF00, blue=0x0000FF)
+    >>> status_rgbs = compose_dicts(color_rgbs, status_colors)
+    >>> from pprint import pprint
+    >>> pprint([f'{c} #{r:06x}' for c, r in status_rgbs.items()], compact=True)
+    ['unspecified #808080', 'OK #008000', 'meh #0000ff', 'concern #ffff00',
+     'alarm #ffa500', 'danger #ff0000']
+    >>> compose_dicts(status_colors, color_rgbs)
+    {}
+    >>> squares = {x: x**2 for x in range(1, 100)}
+    >>> compose_dicts(squares, squares)
+    {1: 1, 2: 16, 3: 81, 4: 256, 5: 625, 6: 1296, 7: 2401, 8: 4096, 9: 6561}
+    >>> d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+    >>> d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+    >>> compose_dicts(d2, d1)
+    {10: 40, 20: 30, 40: 20}
+    >>> compose_dicts(d1, d2)
+    {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
     """
     def in_back(possible_key):
         try:
