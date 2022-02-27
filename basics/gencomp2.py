@@ -428,7 +428,7 @@ def compose_dicts_view(back, front):
     >>> format(rgb_from_status('danger'), '06X')
     '000000'
     """
-    return lambda key: back[front[key]]
+    ...  # FIXME: Implement this.
 
 
 def affines(coefficients, biases):
