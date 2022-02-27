@@ -875,7 +875,8 @@ def distinct_dicts_by_single_key(dicts, subject_key):
         else:
             return distinct_object
 
-    yield from distinct(dicts, key=keyfunction)
+    return distinct(dicts, key=keyfunction)
+
 
 def distinct_dicts_by_keys(dicts, subject_keys):
     """
