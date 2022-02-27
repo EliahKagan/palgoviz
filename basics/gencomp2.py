@@ -437,6 +437,46 @@ def compose_dicts(back, front):
     return {key: back[value] for key, value in front.items() if in_back(value)}
 
 
+def affines(coefficients, biases):
+    """
+    Make a set of all 1-dimensional real-valued affine functions that use a
+    coefficient from coefficients and a bias from biases.
+
+    A 1-dimensional affine function is a line in the coordinate plane: it takes
+    x to mx+b, where m is the coefficient and b is the bias.
+
+    Note: All behaviors with combinations of these coefficients and biases will
+    be represented, but no two emitted functions should always behave the same.
+
+    >>> u = [2.3, 1.0, 2.3, -6.5, 5.4]
+    >>> v = [1.9, 3.6, -5.1, 1.9]
+    >>> s = affines(u, v)
+    >>> isinstance(s, set)
+    True
+    >>> sorted(f(10) for f in s)
+    [-70.1, -63.1, -61.4, 4.9, 11.9, 13.6, 17.9, 24.9, 26.6, 48.9, 55.9, 57.6]
+    >>> sorted(round(f(5), 1) for f in s)
+    [-37.6, -30.6, -28.9, -0.1, 6.4, 6.9, 8.6, 13.4, 15.1, 21.9, 28.9, 30.6]
+    >>> t = affines(iter(v), (b for b in u))
+    >>> isinstance(t, set)
+    True
+    >>> sorted(f(5) for f in t)
+    [-32.0, -24.5, -23.2, -20.1, 3.0, 10.5, 11.5, 11.8, 14.9, 19.0, 20.3, 23.4]
+    >>> sorted(round(f(2), 1) for f in t)
+    [-16.7, -9.2, -7.9, -4.8, -2.7, 0.7, 4.8, 6.1, 8.2, 9.2, 9.5, 12.6]
+    >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
+    True
+    """
+    ms = set(coefficients)
+    bs = set(biases)
+    return {_make_affine(m, b) for m in ms for b in bs}
+
+
+def _make_affine(coefficient, bias):
+    """Makes an affine function that multiplies coefficient and adds bias."""
+    return lambda x: coefficient * x + bias
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
