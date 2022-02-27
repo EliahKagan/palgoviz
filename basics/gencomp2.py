@@ -291,6 +291,8 @@ def flatten2(iterable):
     ['h', 'i', 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 'b', 'y', 'e']
     >>> list(flatten2(['hi', [iter(range(5))] * 3, 'bye']))
     ['h', 'i', 0, 1, 2, 3, 4, 'b', 'y', 'e']
+    >>> list(flatten2('turtles'))  # It's turtles all the way down.
+    ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
     return (subsubelement
             for element in iterable if isinstance(element, Iterable)
