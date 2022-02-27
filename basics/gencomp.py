@@ -951,12 +951,11 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     distinct_object = object()
     my_keys = tuple(x for x in subject_keys)
     def keyfunction(d):
-        keys_and_values = []
-        for subject_key in my_keys:
-            keys_and_values.append((subject_key, d.get(subject_key, distinct_object)))
+        keys_and_values = [(subject_key, d.get(subject_key, distinct_object)) for subject_key in my_keys]
         return tuple(keys_and_values)
 
     return distinct(dicts, key=keyfunction)
+
 
 
 if __name__ == '__main__':
