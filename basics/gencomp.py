@@ -868,11 +868,12 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
+    distinct_object = object()
     def keyfunction(d):
         if subject_key in d:
             return d[subject_key]
         else:
-            return "kdjksdjaslkj"  # FIXME Semi-predicate problem
+            return distinct_object
 
     yield from distinct(dicts, key=keyfunction)
 
