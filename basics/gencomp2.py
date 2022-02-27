@@ -467,9 +467,8 @@ def affines(coefficients, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    return set(itertools.starmap(
-                _make_affine,
-                itertools.product(set(coefficients), set(biases))))
+    bs = set(biases)
+    return {_make_affine(m, b) for m in set(coefficients) for b in bs}
 
 
 def _make_affine(coefficient, bias):
