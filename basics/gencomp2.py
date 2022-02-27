@@ -9,9 +9,6 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
-from collections.abc import Iterable
-import itertools
-
 
 def product_two(a, b):
     """
@@ -31,9 +28,7 @@ def product_two(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    xs = list(a)
-    ys = list(b)
-    return ((x, y) for x in xs for y in ys)
+    ...  # FIXME: Implement this.
 
 
 def product_two_alt(a, b):
@@ -54,11 +49,7 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    xs = list(a)
-    ys = list(b)
-    for x in xs:
-        for y in ys:
-            yield x, y
+    ...  # FIXME: Implement this.
 
 
 def ascending_countdowns():
@@ -73,7 +64,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    return (j for i in itertools.count() for j in range(i, -1, -1))
+    ...  # FIXME: Implement this.
 
 
 def ascending_countdowns_alt():
@@ -89,8 +80,7 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    for i in itertools.count():
-        yield from range(i, -1, -1)
+    ...  # FIXME: Implement this.
 
 
 def three_sums(a, b, c):
@@ -112,7 +102,7 @@ def three_sums(a, b, c):
     >>> three_sums(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    return {sum(v) for v in itertools.product(a, b, c)}
+    ...  # FIXME: Implement this.
 
 
 def three_sums_alt(a, b, c):
@@ -137,10 +127,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    xs = list(a)
-    ys = list(b)
-    zs = list(c)
-    return {x + y + z for x in xs for y in ys for z in zs}
+    ...  # FIXME: Implement this.
 
 
 def three_sum_indices_1(a, b, c, target):
@@ -176,9 +163,7 @@ def three_sum_indices_1(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_1(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    return ((i, j, k) for (i, x), (j, y), (k, z)
-            in itertools.product(enumerate(a), enumerate(b), enumerate(c))
-            if x != y != z != x and x + y + z == target)
+    ...  # FIXME: Implement this.
 
 
 def three_sum_indices_2(a, b, c, target):
@@ -201,11 +186,7 @@ def three_sum_indices_2(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_2(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
-
-    for (i, x), (j, y), (k, z) in triples:
-        if x != y and y != z and z != x and x + y + z == target:
-            yield i, j, k
+    ...  # FIXME: Implement this.
 
 
 def three_sum_indices_3(a, b, c, target):
@@ -228,15 +209,7 @@ def three_sum_indices_3(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    xs = list(a)
-    ys = list(b)
-    zs = list(c)
-
-    return ((i, j, k)
-            for i, x in enumerate(xs)
-            for j, y in enumerate(ys) if x != y
-            for k, z in enumerate(zs) if x != z and y != z
-            if x + y + z == target)
+    ...  # FIXME: Implement this.
 
 
 def three_sum_indices_4(a, b, c, target):
@@ -259,17 +232,7 @@ def three_sum_indices_4(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    xs = list(a)
-    ys = list(b)
-    zs = list(c)
-
-    for i, x in enumerate(xs):
-        for j, y in enumerate(ys):
-            if x == y:
-                continue
-            for k, z in enumerate(zs):
-                if x != z and y != z and x + y + z == target:
-                    yield i, j, k
+    ...  # FIXME: Implement this.
 
 
 def dot_product(u, v):
@@ -297,10 +260,7 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    if len(v) < len(u):
-        u, v = v, u
-
-    return sum(value * v.get(key, 0) for key, value in u.items())
+    ...  # FIXME: Implement this.
 
 
 def flatten2(iterable):
@@ -329,10 +289,7 @@ def flatten2(iterable):
     >>> list(flatten2('turtles'))  # It's turtles all the way down.
     ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
-    return (subsubelement
-            for element in iterable if isinstance(element, Iterable)
-            for subelement in element if isinstance(subelement, Iterable)
-            for subsubelement in subelement)
+    ...  # FIXME: Implement this.
 
 
 def ungroup(rows):
@@ -353,7 +310,7 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    return {(src, dest) for src, row in rows.items() for dest in row}
+    ...  # FIXME: Implement this.
 
 
 def compose_dicts_simple(back, front):
@@ -394,7 +351,7 @@ def compose_dicts_simple(back, front):
     >>> compose_dicts_simple(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
     """
-    return {key: back[value] for key, value in front.items() if value in back}
+    ...  # FIXME: Implement this.
 
 
 def compose_dicts(back, front):
@@ -428,13 +385,7 @@ def compose_dicts(back, front):
     >>> compose_dicts(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
     """
-    def in_back(possible_key):
-        try:
-            return possible_key in back
-        except TypeError:
-            return False
-
-    return {key: back[value] for key, value in front.items() if in_back(value)}
+    ...  # FIXME: Implement this.
 
 
 def affines(coefficients, biases):
@@ -467,13 +418,7 @@ def affines(coefficients, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    bs = set(biases)
-    return {_make_affine(m, b) for m in set(coefficients) for b in bs}
-
-
-def _make_affine(coefficient, bias):
-    """Makes an affine function that multiplies coefficient and adds bias."""
-    return lambda x: coefficient * x + bias
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
