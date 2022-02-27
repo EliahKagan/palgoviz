@@ -328,16 +328,7 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-    if n < 0:
-        raise ValueError("can't yield negatively many items")
-
-    def generate():
-        for _, value in zip(range(n), iterable):
-            yield value
-
-    return generate()
+    ...  # FIXME: Implement this.
 
 
 def drop(iterable, n):
@@ -384,20 +375,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-    if n < 0:
-        raise ValueError("can't skip negatively many items")
-
-    iterator = iter(iterable)
-
-    try:
-        for _ in range(n):
-            next(iterator)
-    except StopIteration:
-        pass
-
-    return iterator
+    ...  # FIXME: Implement this.
 
 
 def last(iterable):
@@ -417,12 +395,7 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    result = sentinel = object()
-    for result in iterable:
-        pass
-    if result is sentinel:
-        raise IndexError("can't get last item from empty iterable")
-    return result
+    ...  # FIXME: Implement this.
 
 
 def pick(iterable, index):
@@ -448,13 +421,7 @@ def pick(iterable, index):
     >>> pick(iter(range(10_000)), 4422)
     4422
     """
-    if index < 0:
-        raise IndexError('negative indices are not supported')
-
-    try:
-        return next(drop(iterable, index))
-    except StopIteration:
-        raise IndexError('index out of range') from None
+    ...  # FIXME: Implement this.
 
 
 def map_one(func, iterable):
@@ -477,7 +444,7 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    return (func(value) for value in iterable)
+    ...  # FIXME: Implement this.
 
 
 def map_one_alt(func, iterable):
@@ -498,8 +465,7 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    for value in iterable:
-        yield func(value)
+    ...  # FIXME: Implement this.
 
 
 def my_filter(predicate, iterable):
@@ -521,9 +487,7 @@ def my_filter(predicate, iterable):
     >>> list(my_filter(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
     """
-    if predicate is None:
-        predicate = lambda x: x
-    return (value for value in iterable if predicate(value))
+    ...  # FIXME: Implement this.
 
 
 def my_filter_alt(predicate, iterable):
@@ -547,12 +511,7 @@ def my_filter_alt(predicate, iterable):
     >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
     """
-    if predicate is None:
-        predicate = lambda x: x
-
-    for value in iterable:
-        if predicate(value):
-            yield value
+    ...  # FIXME: Implement this.
 
 
 def length_of(iterable):
@@ -572,7 +531,7 @@ def length_of(iterable):
     >>> length_of(set(object() for _ in range(100_000)))
     100000
     """
-    return sum(1 for _ in iterable)
+    ...  # FIXME: Implement this.
 
 
 def length_of_opt(iterable):
@@ -598,10 +557,7 @@ def length_of_opt(iterable):
     >>> set(length_of_opt(range(2_000_000_000)) for _ in range(100_000))
     {2000000000}
     """
-    try:
-        return len(iterable)
-    except TypeError:
-        return length_of(iterable)
+    ...  # FIXME: Implement this.
 
 
 def how_many(predicate, iterable):
@@ -625,9 +581,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    if predicate is None:
-        predicate = lambda x: x
-    return sum(1 for value in iterable if predicate(value))
+    ...  # FIXME: Implement this.
 
 
 def invert(dictionary):
@@ -662,7 +616,7 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
     """
-    return {value: key for key, value in dictionary.items()}
+    ...  # FIXME: Implement this.
 
 
 def distinct_simple(iterable):
@@ -687,12 +641,7 @@ def distinct_simple(iterable):
     >>> list(it)
     [1, 4, 7]
     """
-    history = set()
-
-    for value in iterable:
-        if value not in history:
-            history.add(value)
-            yield value
+    ...  # FIXME: Implement this.
 
 
 def distinct(iterable, *, key=None):
@@ -741,16 +690,7 @@ def distinct(iterable, *, key=None):
     >>> list(distinct([3, *middle, 4], key=id))
     [3, [], [], 4]
     """
-    if key is None:
-        key = lambda x: x
-
-    history = set()
-
-    for value in iterable:
-        image = key(value)
-        if image not in history:
-            history.add(image)
-            yield value
+    ...  # FIXME: Implement this.
 
 
 def distinct_dicts_by_single_key(dicts, subject_key):
@@ -807,8 +747,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
-    dummy = object()
-    return distinct(dicts, key=lambda d: d.get(subject_key, dummy))
+    ...  # FIXME: Implement this.
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
@@ -883,9 +822,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
-    keys = list(subject_keys)
-    dummy = object()
-    return distinct(dicts, key=lambda d: tuple(d.get(k, dummy) for k in keys))
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
