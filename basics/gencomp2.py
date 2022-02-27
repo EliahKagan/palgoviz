@@ -365,10 +365,21 @@ def compose_dicts_simple(back, front):
     the value z, then d associates the key x with the value z. Another way to
     say this is that the result dictionary is a pipline through front and back.
 
+    Keys should appear in the result in the same order as in front.
+
     If any value of front is not hashable, raise KeyError. There are no
     restrictions on either argument's keys or values.
 
-    FIXME: Add doctests.
+    >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
+    ...                      concern='yellow', alarm='orange', danger='red')
+    >>> color_rgbs = dict(violet=0xEE82EE, red=0xFF0000, gray=0x808080,
+    ...                   black=0x000000, green=0x008000, orange=0xFFA500,
+    ...                   azure=0xF0FFFF, yellow=0xFFFF00, blue=0x0000FF)
+    >>> status_rgbs = compose_dicts_simple(color_rgbs, status_colors)
+    >>> '; '.join(f'{color} #{rgb:06x}' for color, rgb in status_rgbs.items())
+    'unspecified #808080; OK #008000; meh #0000ff; concern #ffff00; alarm #ffa500; danger #ff0000'
+
+    FIXME: Write more tests.
     """
     return {key: back[value] for key, value in front.items() if value in back}
 
