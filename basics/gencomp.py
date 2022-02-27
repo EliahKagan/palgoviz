@@ -892,7 +892,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     in subject_keys, either d1 and d2 both have k as a key and map it to the
     same value, or neither d1 nor d2 has k as a key.
 
-    For example, {'a': 1, 'b': 2, 'c': 3} and {'a': 1, 'b': 1, 'c': 3, 'd': 4}
+    For example, {'a': 1, 'b': 2, 'c': 3} and {'c': 3, 'a': 1, 'b': 1, 'd': 4}
     agree on ('a', 'c'), disagree on ('a', 'c', 'd'), agree on ('a', 'c', 'e'),
     disagree on ('b',), and agree on ().
 
@@ -949,17 +949,14 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
     distinct_object = object()
-
+    my_keys = tuple(x for x in subject_keys)
     def keyfunction(d):
         keys_and_values = []
-        for subject_key in subject_keys:
+        for subject_key in my_keys:
             keys_and_values.append((subject_key, d.get(subject_key, distinct_object)))
         return tuple(keys_and_values)
 
     return distinct(dicts, key=keyfunction)
-
-
-
 
 
 if __name__ == '__main__':
