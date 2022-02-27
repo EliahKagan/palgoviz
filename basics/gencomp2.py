@@ -437,6 +437,49 @@ def compose_dicts(back, front):
     return {key: back[value] for key, value in front.items() if in_back(value)}
 
 
+def compose_dicts_view(back, front):
+    """
+    Make a function that acts as a view into the composition of back and front.
+
+    Calling the returned function is like subscripting the dict returned by a
+    previous call to compose_dicts_simple(back, front), except that TypeError
+    is raised only when necessary, and subsequent changes to back and front are
+    always accounted for.
+
+    Another way to say this is that each call to the function is like calling
+    compose_dicts_simple(back, front) and subscripting the result, except
+    TypeError is raised only when necessary, and it is more efficient: Calling
+    compose_dicts_simple(back, front) takes linear time, but each call to the
+    function returned by compose_dicts_view(back, front) takes constant time.
+
+    >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
+    ...                      concern='yellow', alarm='orange', danger='red')
+    >>> color_rgbs = dict(violet=0xEE82EE, red=0xFF0000, gray=0x808080,
+    ...                   black=0x000000, green=0x008000, orange=0xFFA500,
+    ...                   azure=0xF0FFFF, yellow=0xFFFF00, blue=0x0000FF)
+    >>> rgb_from_status = compose_dicts_view(color_rgbs, status_colors)
+    >>> format(rgb_from_status('OK'), '06X')
+    '008000'
+    >>> status_colors['OK'] = 'azure'
+    >>> format(rgb_from_status('OK'), '06X')
+    'F0FFFF'
+    >>> status_colors['danger'] = 'vermillion'
+    >>> rgb_from_status('danger')
+    Traceback (most recent call last):
+      ...
+    KeyError: 'vermillion'
+    >>> status_colors['danger'] = [227, 66, 52]  # RGB values for vermillion.
+    >>> rgb_from_status('danger')
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'list'
+    >>> status_colors['danger'] = 'black'
+    >>> format(rgb_from_status('danger'), '06X')
+    '000000'
+    """
+    return lambda key: back[front[key]]
+
+
 def affines(coefficients, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
