@@ -467,9 +467,8 @@ def affines(coefficients, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    ms = set(coefficients)
-    bs = set(biases)
-    return {_make_affine(m, b) for m in ms for b in bs}
+    return {_make_affine(m, b) for m, b
+            in itertools.product(set(coefficients), set(biases))}
 
 
 def _make_affine(coefficient, bias):
