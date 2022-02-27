@@ -300,6 +300,27 @@ def flatten2(iterable):
             for subsubelement in subelement)
 
 
+def ungroup(rows):
+    """
+    Return a set of all edges in a graph represented by a given adjacency list.
+
+    An adjacency list (sometimes called "adjacency lists") is a jagged table
+    that maps vertices to collections of their outward neighbors. That is, when
+    a graph has an edge from u to v, its adjacency list's row for u contains v.
+
+    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
+    >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
+    ...                   ('b', 'a'), ('b', 'd'), ('c', 'a'), ('c', 'd')}
+    True
+    >>> adj2 = {1: [2, 3], 2: [4, 5], 3: [6, 7], 4: [8, 9], 5: [], 6: [],
+    ...         7: [], 8: [], 9: [2, 5]}
+    >>> ungroup(adj2) == {(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7),
+    ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
+    True
+    """
+    return {(src, dest) for src, row in rows.items() for dest in row}
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
