@@ -948,9 +948,9 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
-    distinct_object = object()
-    my_keys = tuple(subject_keys)
-    return distinct(dicts, key=lambda d: tuple(d.get(subject_key, distinct_object) for subject_key in my_keys))
+    not_there = object()
+    keys = tuple(subject_keys)
+    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in keys))
 
 
 if __name__ == '__main__':
