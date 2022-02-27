@@ -869,11 +869,11 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     True
     """
     distinct_object = object()
+
     def keyfunction(d):
         if subject_key in d:
             return d[subject_key]
-        else:
-            return distinct_object
+        return distinct_object
 
     return distinct(dicts, key=keyfunction)
 
