@@ -328,7 +328,17 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    ...  # FIXME: Implement this.
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
+
+    def slice():
+        for _, element in zip(range(n), iterable):
+            yield element
+
+    return slice()
 
 
 def drop(iterable, n):
@@ -375,7 +385,22 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    ...  # FIXME: Implement this.
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't skip negatively many items")
+
+    def helper():
+        # drop the first elements
+        it = iter(iterable)
+        for _ in zip(range(n), it):
+            pass
+
+        #yield the rest
+        yield from it
+
+    return helper()
 
 
 def last(iterable):
@@ -395,7 +420,12 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    ...  # FIXME: Implement this.
+    result = sentinel = object()
+    for result in iterable:
+        pass
+    if result is sentinel:
+        raise IndexError("can't get last item from empty iterable")
+    return result
 
 
 def pick(iterable, index):
@@ -421,7 +451,13 @@ def pick(iterable, index):
     >>> pick(iter(range(10_000)), 4422)
     4422
     """
-    ...  # FIXME: Implement this.
+    if index < 0:
+        raise IndexError('negative indices are not supported')
+
+    try:
+        return next(drop(iterable, index))
+    except StopIteration:
+        raise IndexError('index out of range') from None
 
 
 def map_one(func, iterable):
@@ -444,7 +480,8 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    ...  # FIXME: Implement this.
+    for element in iterable:
+        yield func(element)
 
 
 def map_one_alt(func, iterable):
@@ -465,7 +502,7 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    ...  # FIXME: Implement this.
+    return (func(element) for element in iterable)
 
 
 def my_filter(predicate, iterable):
@@ -486,8 +523,15 @@ def my_filter(predicate, iterable):
     >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
     >>> list(my_filter(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
+    >>> list(my_filter(None, ['hello', 'glorious', 'world']))
+    ['hello', 'glorious', 'world']
     """
-    ...  # FIXME: Implement this.
+    if predicate is None:
+        for element in iterable:
+            if element: yield element
+    else:
+        for element in iterable:
+            if predicate(element): yield element
 
 
 def my_filter_alt(predicate, iterable):
@@ -510,8 +554,13 @@ def my_filter_alt(predicate, iterable):
     >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
     >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
     ['y', (2, 3)]
+    >>> list(my_filter_alt(None, ['hello', 'glorious', 'world']))
+    ['hello', 'glorious', 'world']
     """
-    ...  # FIXME: Implement this.
+    if predicate is None:
+        return (element for element in iterable if element)
+
+    return (element for element in iterable if predicate(element))
 
 
 def length_of(iterable):
@@ -531,7 +580,7 @@ def length_of(iterable):
     >>> length_of(set(object() for _ in range(100_000)))
     100000
     """
-    ...  # FIXME: Implement this.
+    return sum(1 for _ in iterable)
 
 
 def length_of_opt(iterable):
@@ -557,7 +606,10 @@ def length_of_opt(iterable):
     >>> set(length_of_opt(range(2_000_000_000)) for _ in range(100_000))
     {2000000000}
     """
-    ...  # FIXME: Implement this.
+    try:
+        return len(iterable)
+    except TypeError:
+        return sum(1 for _ in iterable)
 
 
 def how_many(predicate, iterable):
@@ -581,7 +633,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    ...  # FIXME: Implement this.
+    return length_of(my_filter(predicate, iterable))
 
 
 def invert(dictionary):
@@ -616,7 +668,49 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
     """
-    ...  # FIXME: Implement this.
+    inverse = {}
+    for key in dictionary:
+        inverse[dictionary[key]] = key
+    return inverse
+
+
+def invert_alt(dictionary):
+    """
+    Given an injective (that is, one-to-one) dictionary, return its inverse.
+
+    When a dictionary never maps unequal keys to equal values, it is possible
+    to produce an inverse of it: a dictionary that maps the values back to the
+    keys.
+
+    This also needs the dictionary's values (not just its keys) to be hashable.
+
+    This alternative implementation behaves the same as invert (above) but uses
+    a comprehension.
+
+    TODO: Document the behavior of invert_alt when given a noninjective
+    dictionary.
+
+    >>> invert_alt({})
+    {}
+    >>> invert_alt({'a': 10, 'b': 20, 'cd': 30, 'efg': 40})
+    {10: 'a', 20: 'b', 30: 'cd', 40: 'efg'}
+    >>> r = range(100_000)
+    >>> invert_alt({x: x**2 for x in r}) == {x**2: x for x in r}
+    True
+    >>> invert_alt({x: x for x in r}) == {x: x for x in r}
+    True
+    >>> import random
+    >>> a = list(range(-50_000, 50_001))
+    >>> random.shuffle(a)
+    >>> b = [x**3 for x in a]
+    >>> random.shuffle(b)
+    >>> d = {k: v for k, v in zip(a, b)}
+    >>> invert_alt(d) == d
+    False
+    >>> invert_alt(invert_alt(d)) == d
+    True
+    """
+    return {value: key for key, value in dictionary.items()}
 
 
 def distinct_simple(iterable):
@@ -641,7 +735,7 @@ def distinct_simple(iterable):
     >>> list(it)
     [1, 4, 7]
     """
-    ...  # FIXME: Implement this.
+    return distinct(iterable)
 
 
 def distinct(iterable, *, key=None):
@@ -690,7 +784,84 @@ def distinct(iterable, *, key=None):
     >>> list(distinct([3, *middle, 4], key=id))
     [3, [], [], 4]
     """
-    ...  # FIXME: Implement this.
+    if key is None:
+        key = lambda x: x
+
+    elements = set()
+    for element in iterable:
+        image = key(element)
+        if image not in elements:
+            elements.add(image)
+            yield element
+
+
+def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
+    """
+    Yield dictionaries from dicts that differ from each previously seen
+    dictionary in their treatment of the subject key.
+
+    dicts is an iterable of dictionaries whose values (not just their keys) are
+    hashable.
+
+    subject_key (which I call the "subject key") is some hashable object.
+
+    Consider two dictionaries to agree on the subject key if they cannot be
+    distinguished by subscripting with it. That is, dictionaries d1 and d2
+    agree on the subject key when either d1 and d2 both have subject_key as a
+    key and map it to the same value, or neither d1 nor d2 has it as a key.
+
+    Stated in those terms, yield each dictionary in dicts that does not agree
+    on the subject key with any preceding dictionary in dicts.
+
+    This implementation is self-contained. It does not use distinct (above).
+    See also distinct_dicts_by_single_key below.
+
+    >>> next(distinct_dicts_by_single_key_monolithic([], 'p'))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> d1 = {'p': 'x', 'q': 'y', 'r': 'z'}
+    >>> d2 = {'q': 'y', 'r': 'z', 's': 'w'}
+    >>> d3 = {'o': 'z', 'p': 'y', 'q': 'u'}
+    >>> d4 = {'o': 'z', 'p': 'x', 'q': 'x', 'r': 'w'}
+    >>> ds = [d1, d2, d3, d4]
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'o')) == [d1, d3]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'p')) == [d1, d2, d3]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'q')) == [d1, d3, d4]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 'r')) == [d1, d3, d4]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(ds, 's')) == [d1, d2]
+    True
+    >>> list(distinct_dicts_by_single_key_monolithic(iter(ds), 's')) == [d1, d2]
+    True
+    >>> it = distinct_dicts_by_single_key_monolithic(ds, 't')
+    >>> next(it)
+    {'p': 'x', 'q': 'y', 'r': 'z'}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> d1['p'] = d4['p'] = d4['q'] = object()              # Change 'x'.
+    >>> d1['q'] = d2['q'] = d3['p'] = None                  # Change 'y'.
+    >>> d1['r'] = d2['r'] = d3['o'] = d4['o'] = object()    # Change 'z'.
+    >>> def f(sk): return list(distinct_dicts_by_single_key_monolithic(ds, sk))
+    >>> [f(sk) for sk in ('o', 'p', 'q', 'r', 's', 't')] == [
+    ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
+    True
+    """
+    history = set()
+    got_missing = False
+    for d in dicts:
+        if subject_key in d:
+            if d[subject_key] not in history:
+                history.add(d[subject_key])
+                yield d
+        elif not got_missing:
+            got_missing = True
+            yield d
 
 
 def distinct_dicts_by_single_key(dicts, subject_key):
@@ -710,6 +881,9 @@ def distinct_dicts_by_single_key(dicts, subject_key):
 
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
+
+    This implementation uses distinct (defined above) and is thus much shorter
+    than distinct_dicts_by_single_key_monolithic (defined immediately above).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
@@ -747,7 +921,13 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
-    ...  # FIXME: Implement this.
+    # FIXME: rewrite this function in terms of distinct_dicts_by_keys
+    distinct_object = object()
+
+    def keyfunction(d):
+        return (subject_key, d.get(subject_key, distinct_object))
+
+    return distinct(dicts, key=keyfunction)
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
@@ -822,7 +1002,9 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
-    ...  # FIXME: Implement this.
+    not_there = object()
+    keys = tuple(subject_keys)
+    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in keys))
 
 
 if __name__ == '__main__':
