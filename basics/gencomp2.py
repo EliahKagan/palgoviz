@@ -340,7 +340,7 @@ def multable(height, width):
     ... ]
     True
     """
-    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
+    ...  # FIXME: Implement this.
 
 
 def compose_dicts_simple(back, front):
@@ -486,10 +486,7 @@ def matrix_square_flat(f, n):
     ... }
     True
     """
-    indices = range(1, n + 1)
-
-    return {(i, j): sum(f(i, k) * f(k, j) for k in indices)
-            for i in indices for j in indices}
+    ...  # FIXME: Implement this.
 
 
 def matrix_square_nested(f, n):
@@ -507,11 +504,7 @@ def matrix_square_nested(f, n):
     >>> matrix_square_nested(lambda i, j: b[i - 1][j - 1], 3)
     [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
     """
-    indices = range(1, n + 1)
-
-    return [[sum(f(i, k) * f(k, j) for k in indices)
-             for j in indices]
-            for i in indices]
+    ...  # FIXME: Implement this.
 
 
 def transpose(matrix):
@@ -533,7 +526,7 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    return tuple(zip(*matrix))
+    ...  # FIXME: Implement this.
 
 
 def transpose_alt(matrix):
@@ -553,14 +546,7 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    if not matrix:
-        return ()
-
-    height = len(matrix)
-    width = len(matrix[0])
-
-    return tuple(tuple(matrix[j][i] for j in range(height))
-                 for i in range(width))
+    ...  # FIXME: Implement this.
 
 
 def affines(coefficients, biases):
