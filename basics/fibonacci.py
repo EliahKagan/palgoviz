@@ -520,10 +520,10 @@ def fib_nest_by(container, n):
     >>> all(fib_nest_by(tuple, n) == fib_nest(n) for n in range(26))
     True
 
-    Some types, like strings, cache their hash values when they are first
-    computed. Tuples don't do this, because it would make them larger, and they
-    are supposed to be as lightweight as possible. But frozensets, which exist
-    for the purpose of being stored in hash-based containers, do:
+    Objects of some types, like str, cache their hash values when they are
+    first computed. Tuples don't do this, because it would make them larger,
+    and they are supposed to be as lightweight as possible. But frozensets,
+    which exist for the purpose of being stored in hash-based containers, do:
 
     >>> f = lambda n: fib_nest_by(frozenset, n)
     >>> hash(f(100)) in [hash(s) for s in f(101)]
