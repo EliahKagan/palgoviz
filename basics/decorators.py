@@ -119,10 +119,13 @@ def repeat(count):
     return decorator
 
 
-def peek(func):
-    """Decorator that does the work of peek arg and peek return. Two for the price of one!
+def peek_one(func):
+    """
+    Decorator that does the work of @peek_arg and @peek_return.
 
-    >>> @peek
+    Two for the price of one!
+
+    >>> @peek_one
     ... def square(x): return x**2
     >>> result = square(3)
     square(3)
@@ -133,6 +136,41 @@ def peek(func):
         print(f'{func.__name__}({arg!r})')
         result = func(arg)
         print(f'{func.__name__}({arg!r}) -> {result}')
+        return result
+
+    return wrapper
+
+
+def peek(func):
+    r"""
+    Decorator to report calls with arbitrary arguments, and to report returns.
+
+    This is like @peek_one (or @peek_arg and @peek_return), but the func need
+    not be unary. Positional and keyword arguments are passed along to func.
+
+    >>> @peek
+    ... def square(x): return x**2
+    >>> result = square(3)
+    square(3)
+    square(3) -> 9
+    >>> @peek
+    ... def proclaim(*args, **kwargs):
+    ...     print('Good news', *args, **kwargs)
+    >>> proclaim('Hello', 'world', sep=': ', end='!\n')
+    proclaim('Hello', 'world', sep=': ', end='!\n')
+    Good news: Hello: world!
+    proclaim('Hello', 'world', sep=': ', end='!\n') -> None
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        positional = map(repr, args)
+        keyword = (f'{key}={value!r}' for key, value in kwargs.items())
+        args_repr = ', '.join(itertools.chain(positional, keyword))
+        call_repr = f'{func.__name__}({args_repr})'
+
+        print(call_repr)
+        result = func(*args, **kwargs)
+        print(f'{call_repr} -> {result}')
         return result
 
     return wrapper
