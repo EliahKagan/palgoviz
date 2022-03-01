@@ -161,7 +161,20 @@ def peek(func):
     Good news: Hello: world!
     proclaim('Hello', 'world', sep=': ', end='!\n') -> None
     """
-    ...  # FIXME: implement this
+    @functools.wraps(func)
+    def wrapper(*pargs, **kwargs):
+        kvpairs = []
+        for key in kwargs:
+            kvpairs.append(f'{key}: {kwargs[key]}')
+        kwargs_string = ', '.join(kvpairs)
+
+        print(f'{func.__name__}', *pargs, kwargs_string)
+        result = func(*pargs, **kwargs)
+
+        print(f'{func.__name__}' *pargs, kwargs_string,f'-> {result}')
+        return result
+
+    return wrapper
 
 
 def give_metadata_from(wrapped):
