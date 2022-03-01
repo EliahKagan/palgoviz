@@ -169,7 +169,7 @@ def peek(func):
             args.append(repr(parg))
 
         for key in kwargs:
-            args.append(f'{key}={repr(kwargs[key])}')
+            args.append(f'{key}={kwargs[key]!r}')
 
         args_string = ', '.join(args)
 
