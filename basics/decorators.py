@@ -164,7 +164,7 @@ def peek(func):
     @functools.wraps(func)
     def wrapper(*pargs, **kwargs):
         kvs = (f'{key}={value!r}' for key, value in kwargs.items())
-        args_string = ', '.join([*map(repr, pargs), *kvs])
+        args_string = ', '.join(itertools.chain(map(repr, pargs), kvs))
 
         print(f'{func.__name__}({args_string})')
         result = func(*pargs, **kwargs)
