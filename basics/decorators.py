@@ -163,13 +163,10 @@ def peek(func):
     """
     @functools.wraps(func)
     def wrapper(*pargs, **kwargs):
-        args = []
 
-        for parg in pargs:
-            args.append(repr(parg))
-
-        for key, value in kwargs.items():
-            args.append(f'{key}={value!r}')
+        parg_reprs = [repr(parg) for parg in pargs]
+        kvs = [f'{key}={value!r}' for key, value in kwargs.items()]
+        args = [*parg_reprs, *kvs]
 
         args_string = ', '.join(args)
 
