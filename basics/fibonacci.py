@@ -513,6 +513,37 @@ def fib_nest(n):
     return b
 
 
+def fib_nest_by(container, n):
+    """
+    Like fib_nest, but uses the given container type, which need not be tuple.
+
+    >>> all(fib_nest_by(tuple, n) == fib_nest(n) for n in range(26))
+    True
+
+    Some types, like strings, cache their hash values when they are first
+    computed. Tuples don't do this, because it would make them larger, and they
+    are supposed to be as lightweight as possible. But frozensets, which exist
+    for the purpose of being stored in hash-based containers, do:
+
+    >>> f = lambda n: fib_nest_by(frozenset, n)
+    >>> hash(f(100)) in [hash(s) for s in f(101)]
+    True
+    >>> hash(f(100_000)) in [hash(s) for s in f(100_001)]
+    True
+
+    But this doesn't finish, because the equality comparison does not memoize:
+
+    >>> f(100) in f(101)  # doctest: +SKIP
+    True
+    """
+    a = 0
+    b = 1
+    if n == 0:
+        return a
+    for _ in range(n - 1):
+        a, b = b, container((a, b))
+    return b
+
 
 if __name__ == '__main__':
     import doctest
