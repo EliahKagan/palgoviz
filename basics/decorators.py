@@ -53,7 +53,7 @@ def peek_return(func):
     @give_metadata_from(func)
     def wrapper(arg):
         result = func(arg)
-        print(f'{func.__name__}({arg!r}) -> {result}')
+        print(f'{func.__name__}({arg!r}) -> {result!r}')
         return result
 
     return wrapper
@@ -135,7 +135,7 @@ def peek_one(func):
     def wrapper(arg):
         print(f'{func.__name__}({arg!r})')
         result = func(arg)
-        print(f'{func.__name__}({arg!r}) -> {result}')
+        print(f'{func.__name__}({arg!r}) -> {result!r}')
         return result
 
     return wrapper
@@ -175,7 +175,7 @@ def peek(func):
 
         print(f'{func.__name__}({args_string})')
         result = func(*pargs, **kwargs)
-        print(f'{func.__name__}({args_string}) -> {result}')
+        print(f'{func.__name__}({args_string}) -> {result!r}')
         return result
 
     return wrapper
