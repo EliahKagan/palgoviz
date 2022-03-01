@@ -313,6 +313,36 @@ def ungroup(rows):
     ...  # FIXME: Implement this.
 
 
+def multable(height, width):
+    """
+    Make a multiplication table from 0 * 0 to height * width, as a nested list.
+
+    multable(m, n)[i][j] will hold i * j; the max i is m and the max j is n.
+
+    >>> multable(0, 0)
+    [[0]]
+    >>> multable(3, 4)
+    [[0, 0, 0, 0, 0], [0, 1, 2, 3, 4], [0, 2, 4, 6, 8], [0, 3, 6, 9, 12]]
+    >>> multable(4, 3)
+    [[0, 0, 0, 0], [0, 1, 2, 3], [0, 2, 4, 6], [0, 3, 6, 9], [0, 4, 8, 12]]
+    >>> multable(10, 10) == [
+    ...     [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0],
+    ...     [0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10],
+    ...     [0,  2,  4,  6,  8, 10, 12, 14, 16, 18,  20],
+    ...     [0,  3,  6,  9, 12, 15, 18, 21, 24, 27,  30],
+    ...     [0,  4,  8, 12, 16, 20, 24, 28, 32, 36,  40],
+    ...     [0,  5, 10, 15, 20, 25, 30, 35, 40, 45,  50],
+    ...     [0,  6, 12, 18, 24, 30, 36, 42, 48, 54,  60],
+    ...     [0,  7, 14, 21, 28, 35, 42, 49, 56, 63,  70],
+    ...     [0,  8, 16, 24, 32, 40, 48, 56, 64, 72,  80],
+    ...     [0,  9, 18, 27, 36, 45, 54, 63, 72, 81,  90],
+    ...     [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    ... ]
+    True
+    """
+    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
+
+
 def compose_dicts_simple(back, front):
     """
     Given two dicts, make one that is their functional composition.
@@ -429,6 +459,108 @@ def compose_dicts_view(back, front):
     '000000'
     """
     ...  # FIXME: Implement this.
+
+
+def matrix_square_flat(f, n):
+    """
+    Square an n-by-n matrix. The result is a dict with index pairs as keys.
+
+    The binary function f, which can be assumed to be fast, represents an
+    n-by-n matrix with 1-based indexing, where f(i, j) gives the (i, j) entry.
+
+    Return the matrix product of this n-by-n matrix with itself, as a dict
+    whose keys are tuples of the form (i, j), representing the ij entry of the
+    product (still using 1-based indexing).
+
+    >>> a = ((0, -1), (-1, 0))
+    >>> matrix_square_flat(lambda i, j: a[i - 1][j - 1], 2) == {
+    ...     (1, 1): 1, (1, 2): 0,
+    ...     (2, 1): 0, (2, 2): 1,
+    ... }
+    True
+    >>> b = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+    >>> matrix_square_flat(lambda i, j: b[i - 1][j - 1], 3) == {
+    ...     (1, 1):  30, (1, 2):  36, (1, 3):  42,
+    ...     (2, 1):  66, (2, 2):  81, (2, 3):  96,
+    ...     (3, 1): 102, (3, 2): 126, (3, 3): 150,
+    ... }
+    True
+    """
+    indices = range(1, n + 1)
+
+    return {(i, j): sum(f(i, k) * f(k, j) for k in indices)
+            for i in indices for j in indices}
+
+
+def matrix_square_nested(f, n):
+    """
+    Square an n-by-n matrix. The result is a nested list with 0-based indexing.
+
+    This works like matrix_square_flat above and f still takes 1-based indices,
+    but the result is a nested list that, when indexed with i and then with j,
+    gives the ij entry of the product, where i and j are 0-based indices.
+
+    >>> a = ((0, -1), (-1, 0))
+    >>> matrix_square_nested(lambda i, j: a[i - 1][j - 1], 2)
+    [[1, 0], [0, 1]]
+    >>> b = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+    >>> matrix_square_nested(lambda i, j: b[i - 1][j - 1], 3)
+    [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
+    """
+    indices = range(1, n + 1)
+
+    return [[sum(f(i, k) * f(k, j) for k in indices)
+             for j in indices]
+            for i in indices]
+
+
+def transpose(matrix):
+    """
+    Transpose a matrix represented as a tuple of tuples.
+
+    Assume matrix is a tuple of rows, which are themselves tuples, and that
+    each row has the same width. Do not assume that width is equal to the
+    the height (i.e., the number of rows need not be the number of columns).
+
+    Return the tranpose of this matrix, in the same form.
+
+    >>> transpose(((1, 2, 3), (4, 5, 6), (7, 8, 9)))
+    ((1, 4, 7), (2, 5, 8), (3, 6, 9))
+    >>> transpose(((1, 2), (3, 4), (5, 6)))
+    ((1, 3, 5), (2, 4, 6))
+    >>> transpose(((1, 2, 3), (4, 5, 6)))
+    ((1, 4), (2, 5), (3, 6))
+    >>> transpose(())
+    ()
+    """
+    return tuple(zip(*matrix))
+
+
+def transpose_alt(matrix):
+    """
+    Transpose a matrix represented as a tuple of tuples.
+
+    This is a second independent implementation of transpose. Both behave the
+    same on valid input. One uses comprehensions or loops (maybe both). The
+    other uses neither comprehensions nor loops and is a single short line.
+
+    >>> transpose_alt(((1, 2, 3), (4, 5, 6), (7, 8, 9)))
+    ((1, 4, 7), (2, 5, 8), (3, 6, 9))
+    >>> transpose_alt(((1, 2), (3, 4), (5, 6)))
+    ((1, 3, 5), (2, 4, 6))
+    >>> transpose_alt(((1, 2, 3), (4, 5, 6)))
+    ((1, 4), (2, 5), (3, 6))
+    >>> transpose_alt(())
+    ()
+    """
+    if not matrix:
+        return ()
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    return tuple(tuple(matrix[j][i] for j in range(height))
+                 for i in range(width))
 
 
 def affines(coefficients, biases):
