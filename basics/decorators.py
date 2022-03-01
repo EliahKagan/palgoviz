@@ -161,19 +161,7 @@ def peek(func):
     Good news: Hello: world!
     proclaim('Hello', 'world', sep=': ', end='!\n') -> None
     """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        positional = map(repr, args)
-        keyword = (f'{key}={value!r}' for key, value in kwargs.items())
-        args_repr = ', '.join(itertools.chain(positional, keyword))
-        call_repr = f'{func.__name__}({args_repr})'
-
-        print(call_repr)
-        result = func(*args, **kwargs)
-        print(f'{call_repr} -> {result}')
-        return result
-
-    return wrapper
+    ...  # FIXME: implement this
 
 
 def give_metadata_from(wrapped):
