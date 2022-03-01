@@ -982,13 +982,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     ...     [d1, d3], [d1, d2, d3], [d1, d3, d4], [d1, d3, d4], [d1, d2], [d1]]
     True
     """
-    # FIXME: rewrite this function in terms of distinct_dicts_by_keys
-    distinct_object = object()
-
-    def keyfunction(d):
-        return (subject_key, d.get(subject_key, distinct_object))
-
-    return distinct(dicts, key=keyfunction)
+    return distinct_dicts_by_keys(dicts, (subject_key,))
 
 
 def distinct_dicts_by_keys(dicts, subject_keys):
