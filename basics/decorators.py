@@ -97,7 +97,11 @@ def call_with(*args, **kwargs):
     >>> print_sum(-8, 2, 14, 9, verbose=False)
     17
     """
-    ...  # FIXME: Implement this.
+    def decorator(func):
+        func(*args, **kwargs)
+        return func
+
+    return decorator
 
 
 def thrice(func):
