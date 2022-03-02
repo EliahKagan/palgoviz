@@ -5,7 +5,7 @@
 
 def mul_table_simple():
     """
-    Print a formatted multiplication table from 1-by-1 up to 10-by-10.
+    Print a formatted multiplication table from 1 times 1 up to 10 times 10.
 
     The table has no labels. Numbers are right-justified. Each column has the
     same width as every other column: just enough that every number is preceded
@@ -31,7 +31,7 @@ def mul_table_simple():
 
 def mul_table_simple_alt():
     """
-    Print a formatted multiplication table from 1-by-1 up to 10-by-10.
+    Print a formatted multiplication table from 1 times 1 up to 10 times 10.
 
     The table has no labels. Numbers are right-justified. Each column has the
     same width as every other column: just enough that every number is preceded
@@ -57,7 +57,7 @@ def mul_table_simple_alt():
 
 def mul_table(n):
     """
-    Print a formatted multiplication table from 1-by-1 up to n-by-n.
+    Print a formatted multiplication table from 1 times 1 up to n times n.
 
     The table has no labels. Numbers are right-justified. Each column has the
     same width as every other column: just enough that every number is preceded
@@ -103,7 +103,7 @@ def mul_table(n):
 
 def mul_table_alt(n):
     """
-    Print a formatted multiplication table from 1-by-1 up to n-by-n.
+    Print a formatted multiplication table from 1 times 1 up to n times n.
 
     The table has no labels. Numbers are right-justified. Each column has the
     same width as every other column: just enough that every number is preceded
