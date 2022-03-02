@@ -26,10 +26,7 @@ def mul_table_simple():
        9  18  27  36  45  54  63  72  81  90
       10  20  30  40  50  60  70  80  90 100
     """
-    for i in range(1, 11):
-        for j in range(1, 11):
-            print(f' {i * j:3}', end='')
-        print()
+    ...  # FIXME: Implement this.
 
 
 def mul_table_simple_alt():
@@ -55,10 +52,7 @@ def mul_table_simple_alt():
        9  18  27  36  45  54  63  72  81  90
       10  20  30  40  50  60  70  80  90 100
     """
-    for i in range(1, 11):
-        for j in range(1, 11):
-            print(' %3d' % (i * j), end='')
-        print()
+    ...  # FIXME: Implement this.
 
 
 def mul_table(n):
@@ -104,15 +98,7 @@ def mul_table(n):
        9  18  27  36  45  54  63  72  81  90
       10  20  30  40  50  60  70  80  90 100
     """
-    if n < 1:
-        raise ValueError('n must be strictly positive')
-
-    width = len(str(n**2))
-
-    for i in range(1, n + 1):
-        for j in range(1, n + 1):
-            print(f' {i * j:{width}}', end='')
-        print()
+    ...  # FIXME: Implement this.
 
 
 def mul_table_alt(n):
@@ -158,15 +144,7 @@ def mul_table_alt(n):
        9  18  27  36  45  54  63  72  81  90
       10  20  30  40  50  60  70  80  90 100
     """
-    if n < 1:
-        raise ValueError('n must be strictly positive')
-
-    width = len(str(n**2))
-
-    for i in range(1, n + 1):
-        for j in range(1, n + 1):
-            print(' %*d' % (width, i * j), end='')
-        print()
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
