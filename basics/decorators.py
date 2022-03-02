@@ -74,6 +74,36 @@ def call(func):
     return func
 
 
+def call_with(*args, **kwargs):
+    """
+    Parameterized decorator to call a function immediately with arguments.
+
+    >>> @call_with('Dr. Evil', 'Albuquerque', exclaim=True)
+    ... def welcome(name, place, exclaim=False):
+    ...     punctuator = '!' if exclaim else '.'
+    ...     print(f'Hello, {name}{punctuator} Welcome to {place}{punctuator}')
+    Hello, Dr. Evil! Welcome to Albuquerque!
+    >>> @call_with(*range(1, 11), verbose=True, padding=0)
+    ... def print_sum(*addends, verbose, padding=1):
+    ...     total = sum(addends)
+    ...     if verbose:
+    ...         pad = ' ' * padding
+    ...         print(f'{pad}+{pad}'.join(map(str, addends)), '=', total)
+    ...     else:
+    ...         print(total)
+    1+2+3+4+5+6+7+8+9+10 = 55
+    >>> welcome('user', 'the internet')
+    Hello, user. Welcome to the internet.
+    >>> print_sum(-8, 2, 14, 9, verbose=False)
+    17
+    """
+    def decorator(func):
+        func(*args, **kwargs)
+        return func
+
+    return decorator
+
+
 def thrice(func):
     """
     Decorator to repeat a parameterless function three times (with no return).
