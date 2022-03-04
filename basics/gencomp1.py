@@ -420,12 +420,14 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
+    item = object()
+    iid = id(item)
     for item in iterable:
         pass
-    try:
+
+    if not id(item) == iid:
         return item
-    except UnboundLocalError:
-        raise IndexError("can't get last item from empty iterable")
+    raise IndexError("can't get last item from empty iterable")
 
 
 def pick(iterable, index):
