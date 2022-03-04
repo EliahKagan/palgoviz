@@ -713,6 +713,103 @@ def invert_alt(dictionary):
     return {value: key for key, value in dictionary.items()}
 
 
+def distinct_unstable(iterable):
+    """
+    Given an iterable of hashable items, return a list of distinct items.
+
+    This takes O(n) time, where n is the number of items in iterable.
+
+    Each value must appear exactly once in the output, but they may appear in
+    any order. Don't call or replicate logic from distinct or distinct_simple
+    (below). This problem is much more straightforward to solve in Python.
+
+    >>> distinct_unstable(())
+    []
+    >>> distinct_unstable(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_unstable(a)
+    >>> isinstance(b, list)
+    True
+    >>> print(sorted(b))
+    [1, 2, 3, 4, 6, 7, 8, 9]
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_unstable(map(str.lower, c))
+    >>> isinstance(d, list)
+    True
+    >>> print(sorted(d))
+    ['bar', 'baz', 'foo', 'quux']
+    """
+    return list(set(iterable))
+
+
+def distinct_unstable_lt(iterable):
+    """
+    Given an iterable of comparable items, return a list of distinct items.
+
+    This takes O(n log n) time, where n is the number of items in iterable.
+
+    Each value must appear exactly once in the output, but they may appear in
+    any order. Items in the input need not be hashable, but they are totally
+    ordered, which is to say exactly one of x < y, x == y, and x > y holds.
+    But this is NOT to say that x precedes y in iterable whenever x < y.
+
+    >>> distinct_unstable_lt(())
+    []
+    >>> distinct_unstable_lt(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_unstable_lt(a)
+    >>> isinstance(b, list)
+    True
+    >>> print(sorted(b))
+    [1, 2, 3, 4, 6, 7, 8, 9]
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_unstable_lt(list(s.lower()) for s in c)
+    >>> isinstance(d, list)
+    True
+    >>> print(sorted(d))
+    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
+    """
+    ret = []
+    pre = object()
+
+    for cur in sorted(iterable):
+        if cur != pre:
+            ret.append(cur)
+            pre = cur
+
+    return ret
+
+
+def distinct_unstable_lt_alt(iterable):
+    """
+    Given an iterable of "<" comparable items, return a list of distinct items.
+
+    This behaves the same as distinct_unordered_lt (above). One implementation
+    does not use any comprehensions, while the other does not use any loops.
+
+    >>> distinct_unstable_lt_alt(())
+    []
+    >>> distinct_unstable_lt_alt(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_unstable_lt_alt(a)
+    >>> isinstance(b, list)
+    True
+    >>> print(sorted(b))
+    [1, 2, 3, 4, 6, 7, 8, 9]
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_unstable_lt_alt(list(s.lower()) for s in c)
+    >>> isinstance(d, list)
+    True
+    >>> print(sorted(d))
+    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
+    """
+    pre = object()
+    return [(pre := cur) for cur in sorted(iterable) if (cur != pre)]
+
+
 def distinct_simple(iterable):
     """
     Yield only first occurrences of equal items.
