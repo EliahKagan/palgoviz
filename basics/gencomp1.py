@@ -420,8 +420,8 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    o = object()
-    item = o
+    item = o = object()
+
     for item in iterable:
         pass
 
