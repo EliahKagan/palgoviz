@@ -57,7 +57,7 @@ def mul_table_simple_2():
     """
     for x in range(1, 11):
         for y in range(1, 11):
-            print('{0:4}'.format((x*y)), end='')
+            print('{0:4}'.format(x * y), end='')  # Note: zero is optional
         print()
 
 
