@@ -421,18 +421,17 @@ def last(iterable):
     'n'
     """
     it = iter(iterable)
+
     try:
         item = next(it)
     except StopIteration:
         raise IndexError("can't get last item from empty iterable")
-    while(1):
+
+    while True:
         try:
             item = next(it)
         except StopIteration:
             return item
-
-
-
 
 
 def pick(iterable, index):
