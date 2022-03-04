@@ -612,16 +612,18 @@ def transpose_alt(matrix):
                  for i in range(width))
 
 
-def affines(coefficients, biases):
+def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
-    coefficient from coefficients and a bias from biases.
+    weight from weights and a bias from biases.
 
     A 1-dimensional affine function is a line in the coordinate plane: it takes
-    x to mx+b, where m is the coefficient and b is the bias.
+    x to wx+b, where w is the coefficient, also called the weight, and b is the
+    bias. In the 1-dimensional case, w is sometimes called slope (often written
+    m) and b is sometimes called y-intercept (if y is the dependent variable).
 
-    Note: All behaviors with combinations of these coefficients and biases will
-    be represented, but no two emitted functions should always behave the same.
+    Note: All behaviors with combinations of these weights and biases will be
+    represented, but no two emitted functions should always behave the same.
 
     >>> u = [2.3, 1.0, 2.3, -6.5, 5.4]
     >>> v = [1.9, 3.6, -5.1, 1.9]
@@ -643,12 +645,12 @@ def affines(coefficients, biases):
     True
     """
     bs = set(biases)
-    return {_make_affine(m, b) for m in set(coefficients) for b in bs}
+    return {_make_affine(w, b) for w in set(weights) for b in bs}
 
 
-def _make_affine(coefficient, bias):
-    """Makes an affine function that multiplies coefficient and adds bias."""
-    return lambda x: coefficient * x + bias
+def _make_affine(weight, bias):
+    """Makes an affine function that multiplies weight and adds bias."""
+    return lambda x: weight * x + bias
 
 
 if __name__ == '__main__':
