@@ -460,15 +460,10 @@ def pick(iterable, index):
     if index < 0:
         raise IndexError("negative indices are not supported")
 
-    it = iter(iterable)
-
-    for _ in range(index + 1):
-        try:
-            item = next(it)
-        except StopIteration:
-            raise IndexError("index out of range")
-
-    return item
+    try:
+        return next(drop(iterable, index))
+    except StopIteration:
+        raise IndexError("index out of range")
 
 
 def map_one(func, iterable):
