@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for gencomp.py."""
+"""Tests for gencomp1.py."""
 
 import itertools
 import unittest
 
 from typeguard import typechecked
 
-from gencomp import zip_two
+from gencomp1 import zip_two
 
 
 @typechecked
