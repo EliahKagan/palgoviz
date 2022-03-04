@@ -2,8 +2,6 @@
 
 """String formatting."""
 
-import math
-
 
 def mul_table_simple_1():
     """
