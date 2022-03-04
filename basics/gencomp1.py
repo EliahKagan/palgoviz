@@ -457,7 +457,18 @@ def pick(iterable, index):
     >>> pick(iter(range(10_000)), 4422)
     4422
     """
-    ...  # FIXME: Implement this.
+    if index < 0:
+        raise IndexError("negative indices are not supported")
+
+    it = iter(iterable)
+
+    for _ in range(index + 1):
+        try:
+            item = next(it)
+        except StopIteration:
+            raise IndexError("index out of range")
+
+    return item
 
 
 def map_one(func, iterable):
