@@ -427,9 +427,11 @@ def last(iterable):
     except StopIteration:
         raise IndexError("can't get last item from empty iterable")
 
-    for item in it:
-        pass
-    return item
+    while True:
+        try:
+            item = next(it)
+        except StopIteration:
+            return item
 
 
 def pick(iterable, index):
