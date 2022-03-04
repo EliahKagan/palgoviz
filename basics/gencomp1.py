@@ -421,9 +421,9 @@ def last(iterable):
     'n'
     """
     for item in iterable:
-        rvalue = item
+        pass
     try:
-        return rvalue
+        return item
     except UnboundLocalError:
         raise IndexError("can't get last item from empty iterable")
 
