@@ -420,15 +420,19 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    item = o = object()
+    it = iter(iterable)
+    try:
+        item = next(it)
+    except StopIteration:
+        raise IndexError("can't get last item from empty iterable")
+    while(1):
+        try:
+            item = next(it)
+        except StopIteration:
+            return item
 
-    for item in iterable:
-        pass
 
-    if item is not o:
-        return item
 
-    raise IndexError("can't get last item from empty iterable")
 
 
 def pick(iterable, index):
