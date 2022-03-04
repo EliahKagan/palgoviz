@@ -420,13 +420,14 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    item = object()
-    iid = id(item)
+    o = object()
+    item = o
     for item in iterable:
         pass
 
-    if not id(item) == iid:
+    if item is not o:
         return item
+
     raise IndexError("can't get last item from empty iterable")
 
 
