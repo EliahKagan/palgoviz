@@ -612,6 +612,119 @@ def transpose_alt(matrix):
                  for i in range(width))
 
 
+def submap(func, rows):
+    """
+    Map elements of elements of an iterable through a unary function.
+
+    func is a unary function. rows is an iterable of iterables. Return a new
+    iterator of iterators whose elements have been mapped through func.
+
+    Conceptually, submap(func, rows)[i][j] == func(rows[i][j]). But neither
+    rows nor any of its elements are required to be indexable, only iterable,
+    and neither the returned object nor any of its elements are indexable,
+    because they are all iterators.
+
+    >>> next(submap(len, []))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> rows = reversed([iter(range(10)), (x - 1 for x in (1, 4, 7)), [2, 3]])
+    >>> for mapped_row in submap(lambda x: x**2, rows):
+    ...     print(list(mapped_row))
+    [4, 9]
+    [0, 9, 36]
+    [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+    >>> ibm = ['Ifvsjtujdbmmz', 'Qsphsbnnfe', 'BMhpsjuinjd', 'Dpnqvufs']
+    >>> ' '.join(map(''.join, submap(lambda c: chr(ord(c) - 1), ibm)))
+    'Heuristically Programmed ALgorithmic Computer'
+    >>> next(next(submap(len, (([] for _ in range(1)) for _ in range(1)))))
+    0
+    >>> [list(a) for a in submap(lambda x: x, [iter(range(1, 4))] * 2)]
+    [[1, 2, 3], []]
+    """
+    return (map(func, row) for row in rows)
+
+
+def is_hermitian(matrix):
+    """
+    Tell if a complex-valued square matrix (as a nested tuple) is self-adjoint.
+
+    This implementation consists of a single, easily understood, line of code.
+
+    Hint: Does the logic in one of your transpose implementations have a weaker
+    precondition than it current docstring says it requires?
+
+    >>> is_hermitian(())
+    True
+    >>> is_hermitian(((3.3 + 1.2j,),))
+    False
+    >>> is_hermitian(((3.3 + 0j,),))
+    True
+    >>> is_hermitian(((1.4 + 2.1j, 3.7 - 6.0j), (3.7 + 6.0j, 1.4 - 2.1j)))
+    False
+    >>> is_hermitian(((1.4 + 0j, 3.7 - 6.0j), (3.7 - 6.0j, 1.4 + 0j)))
+    False
+    >>> is_hermitian(((1.4 + 0j, 3.7 - 6.0j), (3.7 + 6.0j, 1.4 + 0j)))
+    True
+    >>> is_hermitian(((1.4, 3.7 - 6.0j), (3.7 + 6.0j, 1.4)))
+    True
+    >>> is_hermitian(((0, 0, 1j), (0, 1, 0), (-1j, 0, 0)))
+    True
+    >>> is_hermitian(((1.7, 0, 3 - 2.1j, 4.4 + 1j),
+    ...               (0, -5.9, -7.6j, 0),
+    ...               (3 - 2.1j, 7.6j, 17.4, 0.9 - 0.2j),
+    ...               (4.4 - 1j, 0, 0.9 + 0.2j, -2.6)))
+    False
+    >>> is_hermitian(((1.7, 0, 3 - 2.1j, 4.4 + 1j),
+    ...               (0, -5.9, -7.6j, 0),
+    ...               (3 + 2.1j, 7.6j, 17.4, 0.9 - 0.2j),
+    ...               (4.4 - 1j, 0, 0.9 + 0.2j, -2.6)))
+    True
+    """
+    return matrix == transpose(submap(lambda z: z.conjugate(), matrix))
+
+
+def is_hermitian_alt(matrix):
+    """
+    Tell if a complex-valued square matrix (as a nested tuple) is self-adjoint.
+
+    This implementation uses O(1) auxiliary space.
+
+    >>> is_hermitian_alt(())
+    True
+    >>> is_hermitian_alt(((3.3 + 1.2j,),))
+    False
+    >>> is_hermitian_alt(((3.3 + 0j,),))
+    True
+    >>> is_hermitian_alt(((1.4 + 2.1j, 3.7 - 6.0j), (3.7 + 6.0j, 1.4 - 2.1j)))
+    False
+    >>> is_hermitian_alt(((1.4 + 0j, 3.7 - 6.0j), (3.7 - 6.0j, 1.4 + 0j)))
+    False
+    >>> is_hermitian_alt(((1.4 + 0j, 3.7 - 6.0j), (3.7 + 6.0j, 1.4 + 0j)))
+    True
+    >>> is_hermitian_alt(((1.4, 3.7 - 6.0j), (3.7 + 6.0j, 1.4)))
+    True
+    >>> is_hermitian_alt(((0, 0, 1j), (0, 1, 0), (-1j, 0, 0)))
+    True
+    >>> is_hermitian_alt(((1.7, 0, 3 - 2.1j, 4.4 + 1j),
+    ...                   (0, -5.9, -7.6j, 0),
+    ...                   (3 - 2.1j, 7.6j, 17.4, 0.9 - 0.2j),
+    ...                   (4.4 - 1j, 0, 0.9 + 0.2j, -2.6)))
+    False
+    >>> is_hermitian_alt(((1.7, 0, 3 - 2.1j, 4.4 + 1j),
+    ...                   (0, -5.9, -7.6j, 0),
+    ...                   (3 + 2.1j, 7.6j, 17.4, 0.9 - 0.2j),
+    ...                   (4.4 - 1j, 0, 0.9 + 0.2j, -2.6)))
+    True
+    """
+    # NOTE: I can't use itertools.product, as that uses O(len(matrix)) space.
+
+    indices = range(len(matrix))
+
+    return all(matrix[i][j].conjugate() == matrix[j][i]
+               for i in indices for j in indices)
+
+
 def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
@@ -649,6 +762,31 @@ def affines(weights, biases):
 def _make_affine(weight, bias):
     """Makes an affine function that multiplies weight and adds bias."""
     return lambda x: weight * x + bias
+
+
+def generate_float_range(start_or_stop=None, stop=None, step=None):
+    """
+    Return an iterator to a range of floating point values.
+
+    The returned object behaves like iter(range(start_or_stop, stop, step))
+    except that floating point values are accepted. To decrease rounding error,
+    previously yielded values are not used to compute subsequent values. New
+    values are yielded as long as they are on the same side of the stop value
+    as the start value, even if the difference is a small fraction.
+
+    FIXME: Add tests, and add an implementation to test the tests.
+    """
+
+
+def integrate(f, a, b, n):
+    """
+    Numerically integrate f from a to b, evaluating f at n equidistant points.
+
+    Whether a < b or a > b, evaluate f at a but not b. Raise ValueError if
+    a == b or n < 1. Floating point limitations may cause imperfect spacing.
+
+    FIXME: Add tests, and add an implementation to test the tests.
+    """
 
 
 if __name__ == '__main__':
