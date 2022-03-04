@@ -420,7 +420,12 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    ...  # FIXME: Implement this.
+    for item in iterable:
+        rvalue = item
+    try:
+        return rvalue
+    except UnboundLocalError:
+        raise IndexError("can't get last item from empty iterable")
 
 
 def pick(iterable, index):
