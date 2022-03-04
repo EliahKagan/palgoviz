@@ -219,7 +219,16 @@ def mul_table_alt(n):
        9  18  27  36  45  54  63  72  81  90
       10  20  30  40  50  60  70  80  90 100
     """
-    ...  # FIXME: Implement this.
+    if n < 1:
+        raise ValueError('n must be strictly positive')
+
+    max_value = n * n
+    max_digits = len(str(max_value))
+
+    for x in range(1, n + 1):
+        for y in range(1, n + 1):
+            print(' %*d' % (max_digits, x * y), end='')
+        print()
 
 
 if __name__ == '__main__':
