@@ -618,9 +618,7 @@ def affines(weights, biases):
     weight from weights and a bias from biases.
 
     A 1-dimensional affine function is a line in the coordinate plane: it takes
-    x to wx+b, where w is the coefficient, also called the weight, and b is the
-    bias. In the 1-dimensional case, w is sometimes called slope (often written
-    m) and b is sometimes called y-intercept (if y is the dependent variable).
+    x to wx+b. w is called the coefficient or weight, and b is called the bias.
 
     Note: All behaviors with combinations of these weights and biases will be
     represented, but no two emitted functions should always behave the same.
