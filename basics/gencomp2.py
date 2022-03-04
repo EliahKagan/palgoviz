@@ -549,16 +549,16 @@ def transpose_alt(matrix):
     ...  # FIXME: Implement this.
 
 
-def affines(coefficients, biases):
+def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
-    coefficient from coefficients and a bias from biases.
+    weight from weights and a bias from biases.
 
     A 1-dimensional affine function is a line in the coordinate plane: it takes
-    x to mx+b, where m is the coefficient and b is the bias.
+    x to wx+b. w is called the coefficient or weight, and b is called the bias.
 
-    Note: All behaviors with combinations of these coefficients and biases will
-    be represented, but no two emitted functions should always behave the same.
+    Note: All behaviors with combinations of these weights and biases will be
+    represented, but no two emitted functions should always behave the same.
 
     >>> u = [2.3, 1.0, 2.3, -6.5, 5.4]
     >>> v = [1.9, 3.6, -5.1, 1.9]
