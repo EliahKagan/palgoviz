@@ -168,7 +168,7 @@ def mul_table(n):
         raise ValueError('n must be strictly positive')
 
     max_value = n * n
-    max_digits = int(math.log10(max_value)) + 1
+    max_digits = len(str(max_value))
 
     for x in range(1, n + 1):
         for y in range(1, n + 1):
