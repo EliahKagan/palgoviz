@@ -92,6 +92,48 @@ def make_next_fibonacci_alt():
     ...  # FIXME: Implement this.
 
 
+def as_func(iterable):
+    """
+    Given an iterable, return a function that steps through it on each call.
+
+    >>> f = as_func([10, 20, 30])
+    >>> f()
+    10
+    >>> f()
+    20
+    >>> import itertools
+    >>> g = as_func(x**2 for x in itertools.count(2))
+    >>> f()
+    30
+    >>> g()
+    4
+    >>> f()
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> g()
+    9
+    >>> g()
+    16
+    """
+    it = iter(iterable)
+    return lambda: next(it)
+
+
+def as_iterable(func):
+    """
+    Given a parameterless function, return an iterator that repeatedly calls
+    it.
+
+    >>> from itertools import islice
+    >>> list(islice(as_iterable(make_counter_alt()), 900)) == list(range(900))
+    True
+    >>> list(islice(as_iterable(make_next_fibonacci_alt()), 11))
+    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+    """
+    return iter(func, object())
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
