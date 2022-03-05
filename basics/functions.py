@@ -219,7 +219,7 @@ def count_tree_nodes_alt(root):
 
     This alternative implementation defines and calls a recursive helper
     function that does not return a value (really, it always returns None).
-    No other functions, besides this helper and possibly builtins, are called.
+    No other callables, besides this helper and maybe builtins, are ever used.
 
     >>> count_tree_nodes_alt('a parrot')
     1
