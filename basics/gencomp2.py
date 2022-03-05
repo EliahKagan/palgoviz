@@ -11,7 +11,6 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 
 from collections.abc import Iterable
 import itertools
-from numbers import Real
 
 
 def product_two(a, b):
@@ -765,52 +764,18 @@ def _make_affine(weight, bias):
     return lambda x: weight * x + bias
 
 
-def generate_float_range(*args):
+def generate_float_range(start, stop, step):
     """
     Return an iterator to a range of floating point values.
 
-    The returned object behaves like iter(range(start_or_stop, stop, step))
-    except that floating point values are accepted. To decrease rounding error,
+    The returned object behaves like iter(range(start, stop, step)), except
+    that floating point values are accepted. To decrease rounding error,
     previously yielded values are not used to compute subsequent values. New
     values are yielded as long as they are on the same side of the stop value
     as the start value, even if the difference is a small fraction.
 
     FIXME: Add tests.
     """
-    match args:
-        case [stop]:
-            return _generate_float_range(0.0, stop, 1.0)
-        case [start, stop]:
-            return _generate_float_range(start, stop, 1.0)
-        case [start, stop, step]:
-            return _generate_float_range(start, stop, step)
-        case _:
-            raise TypeError(
-                f'generate_float_range needs 1-3 arguments, got {len(args)}')
-
-
-def _generate_float_range(start, stop, step):
-    """
-    Check generate_float_range argument types and dispatch to another helper.
-
-    This helper function for generate_float_range requires all 3 arguments.
-    """
-    _validate_real(start)
-    _validate_real(stop)
-    _validate_real(step)
-
-    return _yield_float_range_values(start, stop, step)
-
-
-def _validate_real(value):
-    """Raise if a number cannot be interpreted as a float (actually, real)."""
-    if not isinstance(value, Real):
-        name = type(value).__name__
-        raise TypeError(f"'{name}' object cannot be interpreted as a float")
-
-
-def _yield_float_range_values(start, stop, step):
-    """Do the work of generate_float_range. Assume arguments are validated."""
     for coefficient in itertools.count():
         value = start + coefficient * step
         if stop <= value:
