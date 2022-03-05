@@ -116,8 +116,7 @@ def as_func(iterable):
     >>> g()
     16
     """
-    it = iter(iterable)
-    return lambda: next(it)
+    ...  # FIXME: Implement this.
 
 
 def as_iterable(func):
@@ -131,7 +130,7 @@ def as_iterable(func):
     >>> list(islice(as_iterable(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    return iter(func, object())
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
