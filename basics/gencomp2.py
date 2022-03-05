@@ -114,12 +114,7 @@ def three_sums(a, b, c):
     my_a = tuple(a)
     my_b = tuple(b)
     my_c = tuple(c)
-    sums = set()
-    for x in my_a:
-        for y in my_b:
-            for z in my_c:
-                sums.add(x + y + z)
-    return sums
+    return {x + y + z for x in my_a for y in my_b for z in my_c}
 
 
 def three_sums_alt(a, b, c):
