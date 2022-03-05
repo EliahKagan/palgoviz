@@ -9,6 +9,8 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
+import itertools
+
 
 def product_two(a, b):
     """
@@ -86,11 +88,9 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    count = 0
-    while True:
-        for x in range(count, -1, -1):
-            yield x
-        count += 1
+    for x in itertools.count():
+        for y in range(x, -1, -1):
+            yield y
 
 
 def three_sums(a, b, c):
