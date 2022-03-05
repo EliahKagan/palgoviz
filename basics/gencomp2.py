@@ -111,7 +111,15 @@ def three_sums(a, b, c):
     >>> three_sums(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    sums = set()
+    for x in my_a:
+        for y in my_b:
+            for z in my_c:
+                sums.add(x + y + z)
+    return sums
 
 
 def three_sums_alt(a, b, c):
