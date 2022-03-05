@@ -86,7 +86,11 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    ...  # FIXME: Implement this.
+    count = 0
+    while True:
+        for x in range(count, -1, -1):
+            yield x
+        count += 1
 
 
 def three_sums(a, b, c):
