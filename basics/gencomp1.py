@@ -784,7 +784,7 @@ def distinct_unstable_lt(iterable):
 
 def distinct_unstable_lt_alt(iterable):
     """
-    Given an iterable of "<" comparable items, return a list of distinct items.
+    Given an iterable of comparable items, return a list of distinct items.
 
     This behaves the same as distinct_unordered_lt (above). One implementation
     does not use any comprehensions, while the other does not use any loops.
