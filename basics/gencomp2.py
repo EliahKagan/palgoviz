@@ -72,7 +72,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    ...  # FIXME: Implement this.
+    return(y for x in itertools.count() for y in range(x, -1, -1))
 
 
 def ascending_countdowns_alt():
