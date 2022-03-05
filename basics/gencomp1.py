@@ -563,39 +563,6 @@ def my_filter_alt(predicate, iterable):
     return (element for element in iterable if predicate(element))
 
 
-# FIXME: Remove this and add my_dropwhile instead, possibly in gencomp2.py.
-def first(predicate, iterable):
-    """
-    Return the first element of the iterable that satisfies the predicate.
-
-    If no element satisfies the predicate, raise ValueError. If the predicate
-    is None instead of a unary function, test elements for truthiness instead.
-
-    This implementation uses a loop.
-
-    >>> first(lambda x: x % 17 == 0, range(40, 100))
-    51
-    >>> first(None, (x for x in (None, 0.0, False, '0', 3, 2.1)))
-    '0'
-    >>> first(str.islower, iter(['Foo', 'Bar', 'Baz', 'Quux', 'FooBar']))
-    Traceback (most recent call last):
-      ...
-    ValueError: no element satisfies the predicate
-    >>> first(None, [[], (), {}, set(), frozenset(), ''])
-    Traceback (most recent call last):
-      ...
-    ValueError: no element satisfies the predicate
-    """
-    if predicate is None:
-        predicate = lambda x: x
-
-    for element in iterable:
-        if predicate(element):
-            return element
-
-    raise ValueError('no element satisfies the predicate')
-
-
 def length_of(iterable):
     """
     Count the number of items in an iterable, which need not support len.
