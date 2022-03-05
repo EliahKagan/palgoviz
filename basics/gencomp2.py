@@ -182,7 +182,7 @@ def three_sum_indices_1(a, b, c, target):
         for j, y in enumerate(my_b):
             for k, z in enumerate(my_c):
                 if x + y + z == target:
-                    if x != y and x != z and y != z:  # test that all elements are different
+                    if x != y != z != x:  # all comparison operators are chainable
                         yield (i, j, k)
 
 
