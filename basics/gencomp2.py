@@ -175,7 +175,16 @@ def three_sum_indices_1(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_1(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    for i, x in enumerate(my_a):
+        for j, y in enumerate(my_b):
+            for k, z in enumerate(my_c):
+                l = [x, y, z]
+                if x + y + z == target:
+                    if len(l) == len(set(l)):  # test that all elements are different
+                        yield (i, j, k)
 
 
 def three_sum_indices_2(a, b, c, target):
