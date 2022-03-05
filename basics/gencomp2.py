@@ -11,6 +11,7 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 
 from collections.abc import Iterable
 import itertools
+import operator
 
 
 def product_two(a, b):
@@ -764,6 +765,28 @@ def _make_affine(weight, bias):
     return lambda x: weight * x + bias
 
 
+def mean(iterable):
+    """
+    Find the arithmetic mean (average) of all values in iterable.
+
+    If iterable is empty, raise ZeroDivisionError.
+
+    >>> mean(range(1, 101))
+    50.5
+    >>> mean(iter([1 - 1j, -1 + 1j]))
+    0j
+    >>> mean([])
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: division by zero
+    """
+    count = total = 0
+    for element in iterable:
+        count += 1
+        total += element
+    return total / count
+
+
 def generate_float_range(start, stop, step):
     """
     Return an iterator to a range of floating point values.
@@ -774,13 +797,41 @@ def generate_float_range(start, stop, step):
     values are yielded as long as they are on the same side of the stop value
     as the start value, even if the difference is a small fraction.
 
-    FIXME: Add tests.
+    >>> generate_float_range(78.52, 90.85, 0.0)
+    Traceback (most recent call last):
+      ...
+    ValueError: step must not be zero
+    >>> [round(x, 3) for x in generate_float_range(78.52, 90.85, 1.27)]
+    [78.52, 79.79, 81.06, 82.33, 83.6, 84.87, 86.14, 87.41, 88.68, 89.95]
+    >>> next(generate_float_range(78.52, 90.85, -1.27))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> [round(x, 3) for x in generate_float_range(90.85, 78.52, -1.27)]
+    [90.85, 89.58, 88.31, 87.04, 85.77, 84.5, 83.23, 81.96, 80.69, 79.42]
+    >>> list(generate_float_range(90.85, 78.52, 1.27))
+    []
+    >>> list(generate_float_range(10.6, 10.6, 0.0000001))
+    []
+    >>> list(generate_float_range(10.6, 10.6, -0.0000001))
+    []
+    >>> list(generate_float_range(0, 100_000, 1)) == list(range(100_000))
+    True
+    >>> list(generate_float_range(1e16, 1e16 + 3, 1))
+    [1e+16, 1e+16, 1.0000000000000002e+16]
     """
-    for coefficient in itertools.count():
-        value = start + coefficient * step
-        if stop <= value:
-            return
-        yield value
+    if step == 0:
+        raise ValueError('step must not be zero')
+
+    def generate():
+        comparer = operator.gt if step < 0 else operator.lt
+        multiplier = 0
+
+        while comparer((value := start + step * multiplier), stop):
+            yield value
+            multiplier += 1
+
+    return generate()
 
 
 def integrate(f, a, b, n):
@@ -792,6 +843,21 @@ def integrate(f, a, b, n):
 
     FIXME: Add tests, and add an implementation to test the tests.
     """
+
+
+def my_dropwhile(predicate, iterable):
+    """
+    Yield elements of iterable starting at the first not to satisfy predicate.
+
+    This behaves the same as itertools.dropwhile.
+    """
+    iterator = iter(iterable)
+
+    if all(predicate(counterexample := element) for element in iterator):
+        return
+
+    yield counterexample
+    yield from iterator
 
 
 if __name__ == '__main__':
