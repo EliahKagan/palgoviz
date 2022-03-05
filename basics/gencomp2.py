@@ -28,7 +28,8 @@ def product_two(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    ...  # FIXME: Implement this.
+    return((x, y) for x in a for y in b)
+
 
 
 def product_two_alt(a, b):
@@ -49,7 +50,9 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    ...  # FIXME: Implement this.
+    for x in a:
+        for y in b:
+            yield (x, y)
 
 
 def ascending_countdowns():
