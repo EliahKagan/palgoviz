@@ -787,7 +787,7 @@ def mean(iterable):
     return total / count
 
 
-def generate_float_range(start, stop, step):
+def floats_in_range(start, stop, step):
     """
     Return an iterator to a range of floating point values.
 
@@ -797,34 +797,35 @@ def generate_float_range(start, stop, step):
     values are yielded as long as they are on the same side of the stop value
     as the start value, even if the difference is a small fraction.
 
-    >>> generate_float_range(78.52, 90.85, 0.0)
+    >>> floats_in_range(78.52, 90.85, 0.0)
     Traceback (most recent call last):
       ...
     ValueError: step must not be zero
-    >>> [round(x, 3) for x in generate_float_range(78.52, 90.85, 1.27)]
+    >>> [round(x, 3) for x in floats_in_range(78.52, 90.85, 1.27)]
     [78.52, 79.79, 81.06, 82.33, 83.6, 84.87, 86.14, 87.41, 88.68, 89.95]
-    >>> next(generate_float_range(78.52, 90.85, -1.27))
+    >>> next(floats_in_range(78.52, 90.85, -1.27))
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> [round(x, 3) for x in generate_float_range(90.85, 78.52, -1.27)]
+    >>> [round(x, 3) for x in floats_in_range(90.85, 78.52, -1.27)]
     [90.85, 89.58, 88.31, 87.04, 85.77, 84.5, 83.23, 81.96, 80.69, 79.42]
-    >>> list(generate_float_range(90.85, 78.52, 1.27))
+    >>> list(floats_in_range(90.85, 78.52, 1.27))
     []
-    >>> list(generate_float_range(10.6, 10.6, 0.0000001))
+    >>> list(floats_in_range(10.6, 10.6, 0.0000001))
     []
-    >>> list(generate_float_range(10.6, 10.6, -0.0000001))
+    >>> list(floats_in_range(10.6, 10.6, -0.0000001))
     []
-    >>> list(generate_float_range(0, 100_000, 1)) == list(range(100_000))
+    >>> list(floats_in_range(0, 100_000, 1)) == list(range(100_000))
     True
-    >>> list(generate_float_range(1e16, 1e16 + 3, 1))
+    >>> list(floats_in_range(1e16, 1e16 + 3, 1))
     [1e+16, 1e+16, 1.0000000000000002e+16]
     """
     if step == 0:
         raise ValueError('step must not be zero')
 
+    comparer = operator.gt if step < 0 else operator.lt
+
     def generate():
-        comparer = operator.gt if step < 0 else operator.lt
         multiplier = 0
 
         while comparer((value := start + step * multiplier), stop):
@@ -838,11 +839,38 @@ def integrate(f, a, b, n):
     """
     Numerically integrate f from a to b, evaluating f at n equidistant points.
 
-    Whether a < b or a > b, evaluate f at a but not b. Raise ValueError if
-    a == b or n < 1. Floating point limitations may cause imperfect spacing.
+    Whether a < b or a > b, evaluate f at a but not b. If a == b, return 0.0.
+    Otherwise, if n < 1, raise ValueError.
 
-    FIXME: Add tests, and add an implementation to test the tests.
+    Floating point limitations may result in imperfect spacing, and even
+    occasionally in evaluating f fewer, or more, than n times. This is okay.
+
+    >>> import math
+    >>> round(integrate(math.sin, 0, math.pi, 100), 5)
+    1.99984
+    >>> round(integrate(math.sin, math.pi, 0, 100), 5)
+    -1.99984
+    >>> integrate(math.sin, 0, math.pi, 0)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't integrate nonempty domain with no samples
+    >>> integrate(math.sin, math.pi, 0, 0)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't integrate nonempty domain with no samples
+    >>> integrate(math.sin, math.pi, math.pi, 0)
+    0.0
+    >>> round(integrate(lambda t: 5 + 2.2 * t, 10, 20, 300), 3)
+    379.633
+    >>> round(integrate(lambda t: 5 + 2.2 * t, 20, 10, 300), 3)
+    -380.367
     """
+    if a == b:
+        return 0.0
+    if n < 1:
+        raise ValueError("can't integrate nonempty domain with no samples")
+
+    return mean(f(x) for x in floats_in_range(a, b, (b - a) / n)) * (b - a)
 
 
 def my_dropwhile(predicate, iterable):
@@ -850,14 +878,49 @@ def my_dropwhile(predicate, iterable):
     Yield elements of iterable starting at the first not to satisfy predicate.
 
     This behaves the same as itertools.dropwhile.
+
+    The is the first of two implementations. It does not use comprehensions.
+
+    >>> next(my_dropwhile(lambda x: x % 17 != 0, iter(range(40, 100))))
+    51
+    >>> list(my_dropwhile(str.islower, ['foo', 'bar', 'baZ', 'quux']))
+    ['baZ', 'quux']
+    >>> list(my_dropwhile(str.islower, ['ham', 'spam', 'eggs']))
+    []
+    >>> list(my_dropwhile(lambda _: False, ()))
+    []
     """
     iterator = iter(iterable)
 
-    if all(predicate(counterexample := element) for element in iterator):
+    for value in iterator:
+        if not predicate(value):
+            break
+    else:
         return
 
-    yield counterexample
+    yield value
     yield from iterator
+
+
+def my_dropwhile_alt(predicate, iterable):
+    """
+    Yield elements of iterable starting at the first not to satisfy predicate.
+
+    This behaves the same as itertools.dropwhile.
+
+    This is the second of two implementations. It does not use loops.
+
+    >>> next(my_dropwhile_alt(lambda x: x % 17 != 0, iter(range(40, 100))))
+    51
+    >>> list(my_dropwhile_alt(str.islower, ['foo', 'bar', 'baZ', 'quux']))
+    ['baZ', 'quux']
+    >>> list(my_dropwhile_alt(str.islower, ['ham', 'spam', 'eggs']))
+    []
+    >>> list(my_dropwhile_alt(lambda _: False, ()))
+    []
+    """
+    yielding = False
+    return (x for x in iterable if yielding or (yielding := not predicate(x)))
 
 
 if __name__ == '__main__':
