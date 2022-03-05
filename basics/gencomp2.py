@@ -139,10 +139,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
-    my_c = tuple(c)
-    return set(map(sum, itertools.product(my_a, my_b, my_c)))
+    return set(map(sum, itertools.product(a, b, c)))
 
 
 def three_sum_indices_1(a, b, c, target):
