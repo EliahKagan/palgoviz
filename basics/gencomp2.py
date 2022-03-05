@@ -32,7 +32,7 @@ def product_two(a, b):
     """
     my_a = tuple(a)
     my_b = tuple(b)
-    return((x, y) for x in my_a for y in my_b)
+    return ((x, y) for x in my_a for y in my_b)
 
 
 def product_two_alt(a, b):
