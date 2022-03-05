@@ -72,7 +72,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    return(y for x in itertools.count() for y in range(x, -1, -1))
+    return (y for x in itertools.count() for y in range(x, -1, -1))
 
 
 def ascending_countdowns_alt():
@@ -89,8 +89,7 @@ def ascending_countdowns_alt():
     471108945
     """
     for x in itertools.count():
-        for y in range(x, -1, -1):
-            yield y
+        yield from range(x, -1, -1)
 
 
 def three_sums(a, b, c):
