@@ -14,10 +14,6 @@ TODO: Either move these functions to other modules or better explain what the
 module should and shouldn't contain.
 """
 
-import itertools
-
-import fibonacci
-
 
 def make_counter(start=0):
     """
@@ -35,8 +31,7 @@ def make_counter(start=0):
     >>> [h(), f(), g(), h(), g(), h(), h(), g(), g(), f(), h()]
     [10, 4, 3, 11, 4, 12, 13, 5, 6, 5, 14]
     """
-    it = itertools.count(start)
-    return lambda: next(it)
+    ...  # FIXME: Implement this.
 
 
 def make_counter_alt(start=0):
@@ -55,13 +50,7 @@ def make_counter_alt(start=0):
     >>> [h(), f(), g(), h(), g(), h(), h(), g(), g(), f(), h()]
     [10, 4, 3, 11, 4, 12, 13, 5, 6, 5, 14]
     """
-    def counter():
-        nonlocal start
-        ret = start
-        start += 1
-        return ret
-
-    return counter
+    ...  # FIXME: Implement this.
 
 
 def make_next_fibonacci():
@@ -80,8 +69,7 @@ def make_next_fibonacci():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    it = fibonacci.fib()
-    return lambda: next(it)
+    ...  # FIXME: Implement this.
 
 
 def make_next_fibonacci_alt():
@@ -101,16 +89,7 @@ def make_next_fibonacci_alt():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    a = 0
-    b = 1
-
-    def next_fib():
-        nonlocal a, b
-        ret = a
-        a, b = b, a + b
-        return ret
-
-    return next_fib
+    ...  # FIXME: Implement this.
 
 
 if __name__ == '__main__':
