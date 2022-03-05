@@ -181,9 +181,8 @@ def three_sum_indices_1(a, b, c, target):
     for i, x in enumerate(my_a):
         for j, y in enumerate(my_b):
             for k, z in enumerate(my_c):
-                l = [x, y, z]
                 if x + y + z == target:
-                    if len(l) == len(set(l)):  # test that all elements are different
+                    if len({x, y, z}) == 3:  # test that all elements are different
                         yield (i, j, k)
 
 
