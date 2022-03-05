@@ -181,9 +181,9 @@ def three_sum_indices_1(a, b, c, target):
     for i, x in enumerate(my_a):
         for j, y in enumerate(my_b):
             for k, z in enumerate(my_c):
-                if x + y + z == target:
-                    if x != y and x != z and y != z:
-                        yield (i, j, k)
+                if (x + y + z == target and
+                    x != y and x != z and y != z):
+                    yield (i, j, k)
 
 
 def three_sum_indices_2(a, b, c, target):
