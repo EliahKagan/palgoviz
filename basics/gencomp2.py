@@ -52,8 +52,10 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    for x in a:
-        for y in b:
+    my_a = tuple(i for i in a)
+    my_b = tuple(j for j in b)
+    for x in my_a:
+        for y in my_b:
             yield (x, y)
 
 
