@@ -327,8 +327,8 @@ def dot_product(u, v):
     True
     """
     def sum_products(small, big):
-        return sum(small_value * big.get(small_key, 0)
-                   for small_key, small_value in small.items())
+        return sum(value * big.get(key, 0)
+                   for key, value in small.items())
 
     if len(u) <= len(v):
         return sum_products(u, v)
