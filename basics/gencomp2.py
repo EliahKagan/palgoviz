@@ -326,12 +326,14 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    if len(u) <= len(v):
-        return sum(u_value * v.get(u_key, 0)
-                   for u_key, u_value in u.items())
+    def sum_products(small, big):
+        return sum(small_value * big.get(small_key, 0)
+                   for small_key, small_value in small.items())
 
-    return sum(v_value * u.get(v_key, 0)
-               for v_key, v_value in v.items())
+    if len(u) <= len(v):
+        return sum_products(u, v)
+
+    return sum_products(v, u)
 
 
 def flatten2(iterable):
