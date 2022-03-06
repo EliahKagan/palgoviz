@@ -263,5 +263,114 @@ class TestFlatten2:
         assert list(result) == ['t', 'u', 'r', 't', 'l', 'e', 's']
 
 
+class TestUngroup:
+    """Tests for the ungroup function."""
+
+    __slots__ = ()
+
+    def test_empty_graph(self):
+        """A graph with no vertices or edges is found to have no edges."""
+        assert gencomp2.ungroup({}) == set()
+
+    def test_totally_disconnected_graph(adj):
+        """A graph with vertices but no edges is found to have no edges."""
+        adj = {'a': [], 'b': [], 'c': [], 'd': [], 'e': [], 'f': [], 'g': []}
+
+    def test_sparse_graph(self):
+        """Testing a sparse graph, some of whose vertices are isolated."""
+        adj = {
+            1: [2, 3], 2: [4, 5], 3: [6, 7], 4: [8, 9],
+            5: [], 6: [], 7: [], 8: [], 9: [2, 5],
+        }
+
+        assert gencomp2.ungroup(adj) == {
+            (1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7),
+            (4, 8), (4, 9), (9, 2), (9, 5),
+        }
+
+    def test_medium_density_graph(self):
+        """Testing a graph with about half as many edges as it can support."""
+        adj = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
+
+        assert gencomp2.ungroup(adj) == {
+            ('a', 'b'), ('a', 'c'), ('a', 'd'),
+            ('b', 'a'), ('b', 'd'), ('c', 'a'), ('c', 'd'),
+        }
+
+    def test_complete_graph(self):
+        """A graph with all possible edges is found to have all of them."""
+        adj = {
+            'a': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'b': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'c': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'd': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'e': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'f': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'g': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+            'h': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+        }
+
+        assert gencomp2.ungroup(adj) == {
+            ('a', 'a'), ('a', 'b'), ('a', 'c'), ('a', 'd'), ('a', 'e'),
+            ('a', 'f'), ('a', 'g'), ('a', 'h'), ('b', 'a'), ('b', 'b'),
+            ('b', 'c'), ('b', 'd'), ('b', 'e'), ('b', 'f'), ('b', 'g'),
+            ('b', 'h'), ('c', 'a'), ('c', 'b'), ('c', 'c'), ('c', 'd'),
+            ('c', 'e'), ('c', 'f'), ('c', 'g'), ('c', 'h'), ('d', 'a'),
+            ('d', 'b'), ('d', 'c'), ('d', 'd'), ('d', 'e'), ('d', 'f'),
+            ('d', 'g'), ('d', 'h'), ('e', 'a'), ('e', 'b'), ('e', 'c'),
+            ('e', 'd'), ('e', 'e'), ('e', 'f'), ('e', 'g'), ('e', 'h'),
+            ('f', 'a'), ('f', 'b'), ('f', 'c'), ('f', 'd'), ('f', 'e'),
+            ('f', 'f'), ('f', 'g'), ('f', 'h'), ('g', 'a'), ('g', 'b'),
+            ('g', 'c'), ('g', 'd'), ('g', 'e'), ('g', 'f'), ('g', 'g'),
+            ('g', 'h'), ('h', 'a'), ('h', 'b'), ('h', 'c'), ('h', 'd'),
+            ('h', 'e'), ('h', 'f'), ('h', 'g'), ('h', 'h'),
+        }
+
+
+class TestMakeMulTable:
+    """Tests for the make_mul_table function."""
+
+    __slots__ = ()
+
+    def test_zero_times_zero_is_zero(self):
+        """A one cell table, for (0, 0), shows that 0 * 0 == 0."""
+        assert gencomp2.make_mul_table(0, 0) == [[0]]
+
+    def test_small_landscape_table(self):
+        """A small table with one more column than rows has correct values."""
+        assert gencomp2.make_mul_table(3, 4) == [
+            [0, 0, 0, 0, 0],
+            [0, 1, 2, 3, 4],
+            [0, 2, 4, 6, 8],
+            [0, 3, 6, 9, 12],
+        ]
+
+    def test_small_portrait_table(self):
+        """A small table with one more row than columns has correct values."""
+        assert gencomp2.make_mul_table(4, 3) == [
+            [0, 0, 0, 0],
+            [0, 1, 2, 3],
+            [0, 2, 4, 6],
+            [0, 3, 6, 9],
+            [0, 4, 8, 12],
+        ]
+
+    def test_ordinary_sized_table(self):
+        """A table for 0 times 0 up to 10 times 10 has correct values."""
+        assert gencomp2.make_mul_table(10, 10) == [
+            [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0],
+            [0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10],
+            [0,  2,  4,  6,  8, 10, 12, 14, 16, 18,  20],
+            [0,  3,  6,  9, 12, 15, 18, 21, 24, 27,  30],
+            [0,  4,  8, 12, 16, 20, 24, 28, 32, 36,  40],
+            [0,  5, 10, 15, 20, 25, 30, 35, 40, 45,  50],
+            [0,  6, 12, 18, 24, 30, 36, 42, 48, 54,  60],
+            [0,  7, 14, 21, 28, 35, 42, 49, 56, 63,  70],
+            [0,  8, 16, 24, 32, 40, 48, 56, 64, 72,  80],
+            [0,  9, 18, 27, 36, 45, 54, 63, 72, 81,  90],
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        ]
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main())
