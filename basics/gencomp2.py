@@ -479,7 +479,7 @@ def compose_dicts_view(back, front):
     Another way to say this is that each call to the function is like calling
     compose_dicts_simple(back, front) and subscripting the result, except
     TypeError is raised only when necessary, and it is more efficient: Calling
-    compose_dicts_simple(back, front) takes linear time, but each call to the
+    compose_dicts_simple(back, front) takes linear time, but calling the
     function returned by compose_dicts_view(back, front) takes constant time.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
