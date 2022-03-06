@@ -218,7 +218,7 @@ class TestFlatten2:
         assert isinstance(result, Iterator)
         assert list(result) == [5, 6, [7], (11,)]
 
-    def too_shallow_collection_flattens_empty(self):
+    def test_too_shallow_collection_flattens_empty(self):
         """When there are no sub-sub-elements, nothing is yielded."""
         iterable = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
         result = gencomp2.flatten2(iterable)
