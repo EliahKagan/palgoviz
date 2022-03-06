@@ -138,10 +138,10 @@ class TestThreeSumIndices:
         assert isinstance(result, Iterator)
 
         listed = list(result)
-        assert len(listed) == 6000  # Correct length.
+        assert len(listed) == 6000, 'The length is correct.'
 
         expected = list(itertools.product(range(10), range(20), range(30)))
-        assert listed == expected  # Correct values in the correct order.
+        assert listed == expected, 'Values are correct and correctly ordered.'
 
 
 class TestDotProduct:
@@ -370,6 +370,133 @@ class TestMakeMulTable:
             [0,  9, 18, 27, 36, 45, 54, 63, 72, 81,  90],
             [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
         ]
+
+
+@pytest.fixture(name='status_colors')
+def fixture_status_colors():
+    """Some made up "status" colors for testing dict composing functions."""
+    return dict(unspecified='gray', OK='green', meh='blue',
+                concern='yellow', alarm='orange', danger='red')
+
+
+@pytest.fixture(name='color_rgbs')
+def fixture_color_rgbs():
+    """Some colors' RGB hex values, for testing dict composing functions."""
+    return dict(violet=0xEE82EE, red=0xFF0000, gray=0x808080,
+                black=0x000000, green=0x008000, orange=0xFFA500,
+                azure=0xF0FFFF, yellow=0xFFFF00, blue=0x0000FF)
+
+
+@pytest.mark.parametrize('implementation', [
+    gencomp2.compose_dicts_simple,
+    gencomp2.compose_dicts,
+])
+class TestComposeDictsSimpleAndComposeDicts:
+    """
+    Shared tests for the compose_dicts_simple and compose_dicts functions.
+    """
+
+    __slots__ = ()
+
+    def test_composition_of_empty_dicts_is_empty(self, implementation):
+        """An empty dict composed with an empty dict is an empty dict."""
+        assert implementation({}, {}) == {}
+
+    def test_no_loss_when_back_has_all_front_values(self, implementation,
+                                                    status_colors, color_rgbs):
+        """When all values of front are keys of back, nothing is dropped."""
+        status_rgbs = implementation(color_rgbs, status_colors)
+
+        assert status_rgbs == {
+            'unspecified': 0x808080, 'OK': 0x008000, 'meh': 0x0000FF,
+            'concern': 0xFFFF00, 'alarm': 0xFFA500, 'danger': 0xFF0000,
+        }
+
+    def test_order_is_preserved_when_back_is_total(self, implementation,
+                                                   status_colors, color_rgbs):
+        """When all keys of front map through, results are in that order."""
+        status_rgbs = implementation(color_rgbs, status_colors)
+
+        assert list(status_rgbs.items()) == [
+            ('unspecified', 0x808080), ('OK', 0x008000), ('meh', 0x0000FF),
+            ('concern', 0xFFFF00), ('alarm', 0xFFA500), ('danger', 0xFF0000),
+        ]
+
+    def test_all_lost_when_back_has_no_front_values(self, implementation,
+                                                    status_colors, color_rgbs):
+        """When no values of front are keys of back, everything is dropped."""
+        wrong_order_composition = implementation(status_colors, color_rgbs)
+        assert wrong_order_composition == {}
+
+    def test_self_composition_works_even_with_some_loss(self, implementation):
+        """"Squaring" a dict whose keys and values partly overlap works."""
+        squares = {x: x**2 for x in range(1, 100)}
+        result = implementation(squares, squares)
+        assert result == {
+            1: 1, 2: 16, 3: 81, 4: 256, 5: 625, 6: 1296, 7: 2401, 8: 4096,
+            9: 6561,
+        }
+
+    def test_self_composition_preserves_key_order(self, implementation):
+        """"Squaring" a dict is stable with respect to key iteration order."""
+        squares = {x: x**2 for x in range(1, 100)}
+        result = implementation(squares, squares)
+        assert list(result.items()) == [
+            (1, 1), (2, 16), (3, 81), (4, 256), (5, 625), (6, 1296), (7, 2401),
+            (8, 4096), (9, 6561),
+        ]
+
+    def test_back_values_do_not_need_to_be_hashable(self, implementation):
+        """The back dict's values aren't used as keys so they need not hash."""
+        d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+        d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+        result = implementation(d1, d2)
+        assert result == {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+
+    def test_non_hashable_back_values_do_not_harm_order(self, implementation):
+        """Composition stability is unaffected by hashability of outputs."""
+        d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+        d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+        result = implementation(d1, d2)
+        assert list(result.items()) == [
+            (('b', 'c'), ['d', 'e']), (None, ('b', 'c')), ('a', None),
+        ]
+
+
+class TestComposeDictsSimple:
+    """A test specific to the compose_dicts_simple function."""
+
+    __slots__ = ()
+
+    def test_front_values_must_be_hashable(self):
+        """If any value of front is not hashable, TypeError is raised."""
+        d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+        d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+
+        with pytest.raises(TypeError) as exc_info:
+            gencomp2.compose_dicts_simple(d2, d1)
+
+        assert exc_info.exconly() == "TypeError: unhashable type: 'list'"
+
+
+class TestComposeDicts:
+    """Tests specific to the compose_dicts function."""
+
+    __slots__ = ()
+
+    def test_front_values_need_not_be_hashable(self):
+        """If any value of front is not hashable, it goes silently unused."""
+        d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+        d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+        result = gencomp2.compose_dicts(d2, d1)
+        assert result == {10: 40, 20: 30, 40: 20}
+
+    def test_non_hashable_front_values_do_not_harm_order(self):
+        """Composition stability is unaffected by non-hashable front values."""
+        d1 = {10: 'a', 20: ('b', 'c'), 30: ['d', 'e'], 40: None}
+        d2 = {('b', 'c'): 30, None: 20, 'a': 40}
+        result = gencomp2.compose_dicts(d2, d1)
+        assert list(result.items()) == [(10, 40), (20, 30), (40, 20)]
 
 
 if __name__ == '__main__':
