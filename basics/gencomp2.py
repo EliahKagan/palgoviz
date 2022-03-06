@@ -262,7 +262,10 @@ def three_sum_indices_4(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    ...  # FIXME: Implement this.
+    for (i, x), (j, y), (k, z) in itertools.product(enumerate(a), enumerate(b), enumerate(c)):
+        if (x + y + z == target and
+                x != y and x != z and y != z):
+            yield (i, j, k)
 
 
 def dot_product(u, v):
