@@ -180,11 +180,13 @@ def three_sum_indices_1(a, b, c, target):
     my_c = tuple(c)
     for i, x in enumerate(my_a):
         for j, y in enumerate(my_b):
-            if x != y:
-                for k, z in enumerate(my_c):
-                    if y != z and x != z:
-                        if x + y + z == target:
-                            yield (i, j, k)
+            if x == y:
+                continue
+            for k, z in enumerate(my_c):
+                if y == z or x == z:
+                    continue
+                if x + y + z == target:
+                    yield (i, j, k)
 
 
 def three_sum_indices_2(a, b, c, target):
