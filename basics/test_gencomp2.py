@@ -147,32 +147,120 @@ class TestThreeSumIndices:
 class TestDotProduct:
     """Tests for the dot_product function."""
 
-    __slots__ = ('u0', 'v0', 'u', 'v', 'w')
-
-    # FIXME: Don't do it this way.
-    def __init__(self):
-        """Create some dict "vectors" for use in testing."""
-        self.u0 = {'a': 2, 'b': 3, 'c': 4, 'd': 5}
-
-        self.v0 = {'b': 0.5, 'd': 1}
-
-        self.u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
-
-        self.v = {
-            'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907,
-        }
-
-        self.w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+    __slots__ = ()
 
     def test_4_entries_dot_2_entries(self):
-        """A correct dot product of vectors of support 4 and 2 is computed."""
-        assert gencomp2.dot_product(self.u0, self.v0) == 6.5
+        """Simple test: dot product of vectors of support 4 and 2."""
+        u = {'a': 2, 'b': 3, 'c': 4, 'd': 5}
+        v = {'b': 0.5, 'd': 1}
+        assert gencomp2.dot_product(u, v) == 6.5
 
     def test_2_entries_dot_4_entries(self):
-        """A correct dot product of vectors of support 2 and 4 is computed."""
-        assert gencomp2.dot_product(self.v0, self.u0) == 6.5
+        """Simple test: dot product of vectors of support 2 and 4."""
+        u = {'a': 2, 'b': 3, 'c': 4, 'd': 5}
+        v = {'b': 0.5, 'd': 1}
+        assert gencomp2.dot_product(v, u) == 6.5
 
-    # def
+    def test_partially_overlapping_1(self):
+        """Dot product of dicts whose keys partly overlap (1/3)."""
+        u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+        v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+        assert round(gencomp2.dot_product(u, v), 2) == 21.56
+
+    def test_partially_overlapping_2(self):
+        """Dot product of dicts whose keys partly overlap (2/3: reversed)."""
+        u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+        v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+        assert round(gencomp2.dot_product(v, u), 2) == 21.56
+
+    def test_partially_overlapping_3(self):
+        """Dot product of dicts whose keys partly overlap (3/3: symmetry)."""
+        u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+        v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+        uv = gencomp2.dot_product(u, v)
+        vu = gencomp2.dot_product(v, u)
+        assert uv == vu
+
+    def test_single_key_overlapping_1(self):
+        """Dot product of dicts that share only one key (1/2)."""
+        u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+        w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+        assert gencomp2.dot_product(u, w) == 4.5
+
+    def test_single_key_overlapping_2(self):
+        """Dot product of dicts that share only one key (2/2: reversed)."""
+        u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+        w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+        assert gencomp2.dot_product(w, u) == 4.5
+
+    def test_no_keys_overlapping_is_zero_1(self):
+        """The dot product of dicts with disjoint keys is 0 (1/2)."""
+        v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+        w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+        assert gencomp2.dot_product(v, w) == 0
+
+    def test_no_keys_overlapping_is_zero_2(self):
+        """The dot product of dicts with disjoint keys is 0 (2/2: reversed)."""
+        v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+        w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+        assert gencomp2.dot_product(w, v) == 0
+
+
+class TestFlatten2:
+    """Tests for the flatten2 function."""
+
+    __slots__ = ()
+
+    def test_mixed_depths_flatten_by_exactly_two(self):
+        """An nested sequence of assorted depths flattens properly."""
+        iterable = [0, [1, 2], (3, 4, [5, 6, [7]], 8), [9], 10, [{(11,)}]]
+        result = gencomp2.flatten2(iterable)
+        assert isinstance(result, Iterator)
+        assert list(result) == [5, 6, [7], (11,)]
+
+    def too_shallow_collection_flattens_empty(self):
+        """When there are no sub-sub-elements, nothing is yielded."""
+        iterable = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+        result = gencomp2.flatten2(iterable)
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_same_depth_str(self):
+        """Flattening a simple nested list of strings gives the characters."""
+        iterable = [['foo', 'bar', 'baz'], ['ham', 'spam', 'eggs']]
+        result = gencomp2.flatten2(iterable)
+        assert isinstance(result, Iterator)
+        assert list(result) == list('foobarbazhamspameggs')
+
+    def test_repeated_sequence_in_input_gives_repeated_output(self):
+        """If the same sequence is encountered twice, it's processed twice."""
+        iterable = ['hi', [range(5)] * 3, 'bye']
+        result = gencomp2.flatten2(iterable)
+        assert isinstance(result, Iterator)
+        assert list(result) == [
+            'h', 'i',
+            0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4,
+            'b', 'y', 'e',
+        ]
+
+    def test_repeated_iterator_in_input_does_not_repeat_in_output(self):
+        """
+        If the same iterator is encountered twice, the first time exhausts it.
+
+        This is the behavior one automatically gets if one does not specially
+        handle the situation. It is also the intended behavior.
+        """
+        iterable = ['hi', [iter(range(5))] * 3, 'bye']
+        result = gencomp2.flatten2(iterable)
+        assert isinstance(result, Iterator)
+        assert list(result) == ['h', 'i', 0, 1, 2, 3, 4, 'b', 'y', 'e']
+
+    def test_strings_flatten_to_arbitrary_depth(self):
+        """Since str is an iterable of str, excess flattening is idempotent."""
+        iterable = 'turtles'  # It's turtles all the way down.
+        result = gencomp2.flatten2(iterable)
+        assert isinstance(result, Iterator)
+        assert list(result) == ['t', 'u', 'r', 't', 'l', 'e', 's']
 
 
 if __name__ == '__main__':
