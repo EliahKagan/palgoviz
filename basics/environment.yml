@@ -1,4 +1,4 @@
-name: algoviz-basics
+name: algoviz-basics-qa
 
 channels:
   - conda-forge
@@ -17,3 +17,4 @@ dependencies:
 
   # For testing
   - pytest
+  - parameterized
