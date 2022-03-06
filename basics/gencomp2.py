@@ -270,6 +270,37 @@ def three_sum_indices_4(a, b, c, target):
             if x + y + z == target and x != y and x != z and y != z)
 
 
+def dot_product_slow(u, v):
+    """
+    Compute the dot product of real-valued vectors represented as dictionaries.
+
+    The dimension is arbitrarily high (but finite), with keys representing
+    components. The dictionaries need not have the same keys. If a key is
+    absent, treat it as if the key were present with a value of 0 or 0.0.
+
+    Running time is O(len(u) * len(v)).
+
+    >>> dot_product_slow({'a': 2, 'b': 3, 'c': 4, 'd': 5}, {'b': 0.5, 'd': 1})
+    6.5
+    >>> u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+    >>> v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+    >>> w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+    >>> uv = dot_product_slow(u, v)
+    >>> round(uv, 2)
+    21.56
+    >>> uv == dot_product_slow(v, u)
+    True
+    >>> dot_product_slow(u, w) == dot_product_slow(w, u) == 4.5
+    True
+    >>> dot_product_slow(v, w) == dot_product_slow(w, v) == 0
+    True
+    """
+    return sum(u_value * v_value
+               for (u_key, u_value), (v_key, v_value)
+               in itertools.product(u.items(), v.items())
+               if v_key == u_key)
+
+
 def dot_product(u, v):
     """
     Compute the dot product of real-valued vectors represented as dictionaries.
@@ -295,10 +326,14 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    return sum(u_value * v_value
-               for (u_key, u_value), (v_key, v_value)
-               in itertools.product(u.items(), v.items())
-               if v_key == u_key)
+    sum = 0
+    if len(u) <= len(v):
+        for  u_key, u_value in u.items():
+            sum += u_value * v.get(u_key, 0)
+    else:
+        for v_key, v_value in v.items():
+            sum += v_value * u.get(v_key, 0)
+    return sum
 
 
 def flatten2(iterable):
