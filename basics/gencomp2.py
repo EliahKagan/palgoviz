@@ -237,9 +237,9 @@ def three_sum_indices_3(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    for (i, x), (j, y), (k, z) in itertools.product(enumerate(a), enumerate(b), enumerate(c)):
-        if (x + y + z == target and
-                x != y and x != z and y != z):
+    labeled_triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
+    for (i, x), (j, y), (k, z) in labeled_triples:
+        if x + y + z == target and x != y and x != z and y != z:
             yield (i, j, k)
 
 
@@ -263,9 +263,9 @@ def three_sum_indices_4(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    return ((i, j, k) for (i, x), (j, y), (k, z) in itertools.product(enumerate(a), enumerate(b), enumerate(c))
-            if x + y + z == target and
-                x != y and x != z and y != z)
+    return ((i, j, k) for (i, x), (j, y), (k, z)
+            in itertools.product(enumerate(a), enumerate(b), enumerate(c))
+            if x + y + z == target and x != y and x != z and y != z)
 
 
 def dot_product(u, v):
