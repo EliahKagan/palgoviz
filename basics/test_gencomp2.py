@@ -499,5 +499,74 @@ class TestComposeDicts:
         assert list(result.items()) == [(10, 40), (20, 30), (40, 20)]
 
 
+class TestComposeDictsView:
+    """Tests for the compose_dicts_view function."""
+
+    __slots__ = ()
+
+    def test_all_entries_are_present(self, color_rgbs, status_colors):
+        """When all values of front are keys of back, front keys are mapped."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+
+        assert get_rgb('unspecified') == 0x808080
+        assert get_rgb('OK') == 0x008000
+        assert get_rgb('meh') == 0x0000FF
+        assert get_rgb('concern') == 0xFFFF00
+        assert get_rgb('alarm') == 0xFFA500
+        assert get_rgb('danger') == 0xFF0000
+
+    def test_mappings_change_in_real_time(self, color_rgbs, status_colors):
+        """Current values are returned before and after dict modification."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+        assert get_rgb('OK') == 0x008000, 'Correct value before the change.'
+
+        status_colors['OK'] = 'azure'
+        assert get_rgb('OK') == 0xF0FFFF, 'Correct value after the change.'
+
+    def test_broken_mappings_go_missing(self, color_rgbs, status_colors):
+        """After a change breaks a mapping, accessing it raises KeyError."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+
+        assert get_rgb('danger') == 0xFF0000, \
+               'Correct value before the change.'
+
+        status_colors['danger'] = 'vermillion'
+
+        with pytest.raises(KeyError) as exc_info:
+            get_rgb('danger')
+
+        assert exc_info.exconly() == "KeyError: 'vermillion'", \
+               'The intermediate key is reported not present after the change.'
+
+    def test_broken_mappings_ok_if_unused(self, color_rgbs, status_colors):
+        """After a change breaks a mapping, unrealted mappings still work."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+        status_colors['danger'] = 'vermillion'
+        assert get_rgb('meh') == 0x0000FF
+
+    def test_unhashable_mappings_fail_to_map(self, color_rgbs, status_colors):
+        """Lookups using a newly unhashable front value raises TypeError."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+
+        assert get_rgb('danger') == 0xFF0000, \
+               'Correct value before the change.'
+
+        status_colors['danger'] = [227, 66, 52]  # RGB values for vermillion.
+
+        with pytest.raises(TypeError) as exc_info:
+            get_rgb('danger')
+
+        assert exc_info.exconly() == "TypeError: unhashable type: 'list'"
+
+    def test_unhashable_mappings_ok_if_unused(self, color_rgbs, status_colors):
+        """Unhashable front values don't break unrelated lookups."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+        status_colors['danger'] = [227, 66, 52]  # RGB values for vermillion.
+        assert get_rgb('meh') == 0x0000FF
+
+    # TODO: Maybe add another test case to show that mappings that are broken,
+    #       but then subsequently fixed, start working again.
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main())
