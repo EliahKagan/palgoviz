@@ -255,7 +255,7 @@ class TestFlatten2:
         assert isinstance(result, Iterator)
         assert list(result) == ['h', 'i', 0, 1, 2, 3, 4, 'b', 'y', 'e']
 
-    def test_strings_flatten_to_arbitrary_depth(self):
+    def test_strings_are_never_too_shallow(self):
         """Since str is an iterable of str, excess flattening is idempotent."""
         iterable = 'turtles'  # It's turtles all the way down.
         result = gencomp2.flatten2(iterable)
