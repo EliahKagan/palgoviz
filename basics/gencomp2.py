@@ -295,12 +295,10 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    l = []
-    for u_key, u_value in u.items():
-        for v_key, v_value in v.items():
-            if v_key == u_key:
-                l.append(u_value * v_value)
-    return sum(l)
+    return sum(u_value * v_value
+               for (u_key, u_value), (v_key, v_value)
+               in itertools.product(u.items(), v.items())
+               if v_key == u_key)
 
 
 def flatten2(iterable):
