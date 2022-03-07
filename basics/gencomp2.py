@@ -371,8 +371,9 @@ def ungroup(rows):
     Return a set of all edges in a graph represented by a given adjacency list.
 
     An adjacency list (sometimes called "adjacency lists") is a jagged table
-    that maps vertices to collections of their outward neighbors. That is, when
-    a graph has an edge from u to v, its adjacency list's row for u contains v.
+    that maps vertices (sources) to collections of their outward neighbors
+    (destinations). That is, when a graph has an edge from u to v, its
+    adjacency list's row for u contains v.
 
     >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
@@ -384,11 +385,11 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    all_edges = set()
-    for key, value in rows.items():
-        for element in value:
-            all_edges.add((key, element))
-    return all_edges
+    edges = set()
+    for source, destinations in rows.items():
+        for destination in destinations:
+            edges.add((source, destination))
+    return edges
 
 
 def make_mul_table(height, width):
