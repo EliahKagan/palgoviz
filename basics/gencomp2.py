@@ -500,7 +500,16 @@ def compose_dicts(back, front):
     >>> compose_dicts({}, {42: (set(),)})
     {}
     """
-    ...  # FIXME: Implement this.
+    hashable_front = {}
+
+    for key, value in front.items():
+        try:
+            hash(value)
+        except TypeError:
+            continue
+        hashable_front[key] = value
+
+    return compose_dicts_simple(back, hashable_front)
 
 
 def compose_dicts_view(back, front):
