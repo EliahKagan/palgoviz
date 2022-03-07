@@ -250,14 +250,14 @@ def three_sum_indices_4(a, b, c, target):
 
     This is the fourth of four implementations.
 
-    >>> list(three_sum_indices_3([1, 2, 3], [10, 9], [7, 9, 8], 20))
+    >>> list(three_sum_indices_4([1, 2, 3], [10, 9], [7, 9, 8], 20))
     [(0, 0, 1), (1, 0, 2), (2, 0, 0), (2, 1, 2)]
-    >>> next(three_sum_indices_3([0] * 10, [0] * 20, [0] * 30, 0))
+    >>> next(three_sum_indices_4([0] * 10, [0] * 20, [0] * 30, 0))
     Traceback (most recent call last):
       ...
     StopIteration
     >>> from itertools import repeat as r
-    >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
+    >>> sum(1 for _ in three_sum_indices_4(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
     xs = list(a)
@@ -480,7 +480,7 @@ def compose_dicts_view(back, front):
     Another way to say this is that each call to the function is like calling
     compose_dicts_simple(back, front) and subscripting the result, except
     TypeError is raised only when necessary, and it is more efficient: Calling
-    compose_dicts_simple(back, front) takes linear time, but each call to the
+    compose_dicts_simple(back, front) takes linear time, but calling the
     function returned by compose_dicts_view(back, front) takes constant time.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
