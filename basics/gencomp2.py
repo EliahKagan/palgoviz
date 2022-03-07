@@ -463,12 +463,9 @@ def compose_dicts_simple(back, front):
       ...
     TypeError: unhashable type: 'set'
     """
-    d = {}
     o = object()
-    for key, value in front.items():
-        if back.get(value, o) != o:
-            d[key] = back[value]
-    return d
+    return {key : back[value]
+            for key, value in front.items() if back.get(value, o) != o}
 
 
 def compose_dicts(back, front):
