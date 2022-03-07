@@ -417,7 +417,10 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    ...  # FIXME: Implement this.
+    table = []
+    for row in range(height + 1):
+        table.append([row * column for column in range(width + 1)])
+    return table
 
 
 def compose_dicts_simple(back, front):
