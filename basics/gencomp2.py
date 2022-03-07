@@ -10,6 +10,7 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
 from collections.abc import Iterable
+from email.policy import default
 import itertools
 
 
@@ -462,7 +463,13 @@ def compose_dicts_simple(back, front):
       ...
     TypeError: unhashable type: 'set'
     """
-    ...  # FIXME: Implement this.
+    d = {}
+    for front_key, front_value in front.items():
+        if hash(front_value):
+            o = object()
+            if back.get(front_value, o) != o:
+                d[front_key] = back[front_value]
+    return d
 
 
 def compose_dicts(back, front):
