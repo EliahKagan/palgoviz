@@ -465,7 +465,6 @@ def compose_dicts_simple(back, front):
     """
     d = {}
     for key, value in front.items():
-        hash(value)
         o = object()
         if back.get(value, o) != o:
             d[key] = back[value]
