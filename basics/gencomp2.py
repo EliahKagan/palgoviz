@@ -10,9 +10,7 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
 from collections.abc import Iterable
-from email.policy import default
 import itertools
-from typing import Type
 
 
 def product_two(a, b):
@@ -501,14 +499,14 @@ def compose_dicts(back, front):
     >>> compose_dicts({}, {42: (set(),)})
     {}
     """
-    def in_back(element):
+    d = {}
+    for key, value in front.items():
         try:
-            return element in back
-        except TypeError:
-            return False
+            d[key] = back[value]
+        except (TypeError, KeyError):
+            pass
 
-    return {key: back[value]
-            for key, value in front.items() if in_back(value)}
+    return d
 
 
 def compose_dicts_view(back, front):
