@@ -255,14 +255,14 @@ def three_sum_indices_4(a, b, c, target):
 
     This is the fourth of four implementations.
 
-    >>> list(three_sum_indices_3([1, 2, 3], [10, 9], [7, 9, 8], 20))
+    >>> list(three_sum_indices_4([1, 2, 3], [10, 9], [7, 9, 8], 20))
     [(0, 0, 1), (1, 0, 2), (2, 0, 0), (2, 1, 2)]
-    >>> next(three_sum_indices_3([0] * 10, [0] * 20, [0] * 30, 0))
+    >>> next(three_sum_indices_4([0] * 10, [0] * 20, [0] * 30, 0))
     Traceback (most recent call last):
       ...
     StopIteration
     >>> from itertools import repeat as r
-    >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
+    >>> sum(1 for _ in three_sum_indices_4(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
     return ((i, j, k) for (i, x), (j, y), (k, z)
