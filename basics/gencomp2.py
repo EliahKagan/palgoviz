@@ -424,6 +424,10 @@ def compose_dicts_simple(back, front):
     TypeError: unhashable type: 'list'
     >>> compose_dicts_simple(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts_simple({}, {42: (set(),)})
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'set'
     """
     return {key: back[value] for key, value in front.items() if value in back}
 
@@ -458,6 +462,8 @@ def compose_dicts(back, front):
     {10: 40, 20: 30, 40: 20}
     >>> compose_dicts(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts({}, {42: (set(),)})
+    {}
     """
     def in_back(possible_key):
         try:
