@@ -9,7 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
-from collections.abc import Hashable, Iterable
+from collections.abc import Iterable
 import itertools
 
 
@@ -464,10 +464,13 @@ def compose_dicts(back, front):
     >>> compose_dicts({}, {42: (set(),)})
     {}
     """
-    # FIXME: "Hashable" types can have non-hashable instances. Make a test that
-    # fails on this incorrect implementation. Revert this and keep the test.
-    return {key: back[value] for key, value in front.items()
-            if isinstance(value, Hashable) and value in back}
+    def in_back(possible_key):
+        try:
+            return possible_key in back
+        except TypeError:
+            return False
+
+    return {key: back[value] for key, value in front.items() if in_back(value)}
 
 
 def compose_dicts_view(back, front):
