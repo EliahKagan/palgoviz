@@ -9,7 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
-import collections
+from collections.abc import Iterable
 import itertools
 
 
@@ -361,11 +361,10 @@ def flatten2(iterable):
     ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
     for element in iterable:
-        if isinstance(element, collections.abc.Iterable):
+        if isinstance(element, Iterable):
             for sub_element in element:
-                if isinstance(sub_element, collections.abc.Iterable):
-                    for sub_sub_element in sub_element:
-                        yield sub_sub_element
+                if isinstance(sub_element, Iterable):
+                    yield from sub_element
 
 
 def ungroup(rows):
