@@ -360,11 +360,10 @@ def flatten2(iterable):
     >>> list(flatten2('turtles'))  # It's turtles all the way down.
     ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
-    for element in iterable:
-        if isinstance(element, Iterable):
-            for sub_element in element:
-                if isinstance(sub_element, Iterable):
-                    yield from sub_element
+    return(sub_sub_element
+           for element in iterable if isinstance(element, Iterable)
+           for sub_element in element if isinstance(sub_element, Iterable)
+           for sub_sub_element in sub_element)
 
 
 def ungroup(rows):
