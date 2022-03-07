@@ -501,14 +501,14 @@ def compose_dicts(back, front):
     >>> compose_dicts({}, {42: (set(),)})
     {}
     """
-    def safe_in(element, collection):
+    def in_back(element):
         try:
-            return element in collection
+            return element in back
         except TypeError:
             return False
 
     return {key: back[value]
-            for key, value in front.items() if safe_in(value, back)}
+            for key, value in front.items() if in_back(value)}
 
 
 def compose_dicts_view(back, front):
