@@ -500,16 +500,14 @@ def compose_dicts(back, front):
     >>> compose_dicts({}, {42: (set(),)})
     {}
     """
-    hashable_front = {}
-
+    d = {}
     for key, value in front.items():
         try:
-            hash(value)
-        except TypeError:
-            continue
-        hashable_front[key] = value
+            d[key] = back[value]
+        except (TypeError, KeyError):
+            pass
 
-    return compose_dicts_simple(back, hashable_front)
+    return d
 
 
 def compose_dicts_view(back, front):
