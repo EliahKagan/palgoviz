@@ -380,6 +380,10 @@ def compose_dicts_simple(back, front):
     TypeError: unhashable type: 'list'
     >>> compose_dicts_simple(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts_simple({}, {42: (set(),)})
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'set'
     """
     ...  # FIXME: Implement this.
 
@@ -414,6 +418,8 @@ def compose_dicts(back, front):
     {10: 40, 20: 30, 40: 20}
     >>> compose_dicts(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts({}, {42: (set(),)})
+    {}
     """
     ...  # FIXME: Implement this.
 
