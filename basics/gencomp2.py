@@ -385,11 +385,9 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    edges = set()
-    for source, destinations in rows.items():
-        for destination in destinations:
-            edges.add((source, destination))
-    return edges
+    return {(source, destination)
+            for source, destinations in rows.items()
+            for destination in destinations}
 
 
 def make_mul_table(height, width):
