@@ -462,6 +462,12 @@ class TestComposeDictsSimpleAndComposeDicts:
             (('b', 'c'), ['d', 'e']), (None, ('b', 'c')), ('a', None),
         ]
 
+    def test_back_value_hashability_need_not_be_obvious(self, implementation):
+        """The back dict's values can nonhashable objects of hashable type."""
+        back = {42: (set(),)}
+        front = {'foo': 42}
+        assert implementation(back, front) == {'foo': (set(),)}
+
 
 class TestComposeDictsSimple:
     """A test specific to the compose_dicts_simple function."""
@@ -477,6 +483,16 @@ class TestComposeDictsSimple:
             gencomp2.compose_dicts_simple(d2, d1)
 
         assert exc_info.exconly() == "TypeError: unhashable type: 'list'"
+
+    def test_front_values_must_really_be_hashable_objects(self):
+        """Even non-hashable front values of hashable type raise TypeError."""
+        back = {}
+        front = {42: (set(),)}
+
+        with pytest.raises(TypeError) as exc_info:
+            gencomp2.compose_dicts_simple(back, front)
+
+        assert exc_info.exconly() == "TypeError: unhashable type: 'set'"
 
 
 class TestComposeDicts:
@@ -497,6 +513,24 @@ class TestComposeDicts:
         d2 = {('b', 'c'): 30, None: 20, 'a': 40}
         result = gencomp2.compose_dicts(d2, d1)
         assert list(result.items()) == [(10, 40), (20, 30), (40, 20)]
+
+    def test_front_values_can_be_unhashable_objects_of_hashable_type(self):
+        """Unhashable front values are skipped even when of hashable type."""
+        back = {}
+        front = {42: (set(),)}
+        assert gencomp2.compose_dicts(back, front) == {}
+
+    def test_unhashable_front_values_of_hashable_type_do_not_harm_order(self):
+        """
+        Composition stability is unaffected by non-hashable front values even
+        when of hashable type.
+        """
+        back = {
+            'forty-one': [4, 1], 'forty-three': [4, 3], 'forty-two': [4, 2],
+        }
+        front = {43: 'forty-three', 42: (set(),), 41: 'forty-one'}
+        result =  gencomp2.compose_dicts(back, front)
+        assert list(result.items()) == [(43, [4, 3]), (41, [4, 1])]
 
 
 class TestComposeDictsView:
@@ -538,14 +572,19 @@ class TestComposeDictsView:
         assert exc_info.exconly() == "KeyError: 'vermillion'", \
                'The intermediate key is reported not present after the change.'
 
+        status_colors['danger'] = 'red'
+
+        assert get_rgb('danger') == 0xFF0000, \
+               'Correct value after rolling back the change.'
+
     def test_broken_mappings_ok_if_unused(self, color_rgbs, status_colors):
-        """After a change breaks a mapping, unrealted mappings still work."""
+        """After a change breaks a mapping, unrelated mappings still work."""
         get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
         status_colors['danger'] = 'vermillion'
         assert get_rgb('meh') == 0x0000FF
 
     def test_unhashable_mappings_fail_to_map(self, color_rgbs, status_colors):
-        """Lookups using a newly unhashable front value raises TypeError."""
+        """Lookups using a newly unhashable front value raise TypeError."""
         get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
 
         assert get_rgb('danger') == 0xFF0000, \
@@ -558,14 +597,50 @@ class TestComposeDictsView:
 
         assert exc_info.exconly() == "TypeError: unhashable type: 'list'"
 
+        status_colors['danger'] = 'red'
+
+        assert get_rgb('danger') == 0xFF0000, \
+               'Correct value after rolling back the change.'
+
     def test_unhashable_mappings_ok_if_unused(self, color_rgbs, status_colors):
         """Unhashable front values don't break unrelated lookups."""
         get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
         status_colors['danger'] = [227, 66, 52]  # RGB values for vermillion.
         assert get_rgb('meh') == 0x0000FF
 
-    # TODO: Maybe add another test case to show that mappings that are broken,
-    #       but then subsequently fixed, start working again.
+    def test_unhashable_objects_of_hashable_type_fail_to_map(self,
+                                                             color_rgbs,
+                                                             status_colors):
+        """
+        Lookups using a newly unhashable front value whose type is hashable
+        raise TypeError.
+        """
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+
+        assert get_rgb('danger') == 0xFF0000, \
+               'Correct value before the change.'
+
+        # isinstance(tuple, Hashable), but this tuple object is not hashable.
+        status_colors['danger'] = (set(),)
+
+        with pytest.raises(TypeError) as exc_info:
+            get_rgb('danger')
+
+        assert exc_info.exconly() == "TypeError: unhashable type: 'set'"
+
+        status_colors['danger'] = 'red'
+
+        assert get_rgb('danger') == 0xFF0000, \
+               'Correct value after rolling back the change.'
+
+    def test_unhashable_mappings_ok_if_unused(self, color_rgbs, status_colors):
+        """Unhashable front values don't break unrelated lookups."""
+        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
+
+        # isinstance(tuple, Hashable), but this tuple object is not hashable.
+        status_colors['danger'] = (set(),)
+
+        assert get_rgb('meh') == 0x0000FF
 
 
 if __name__ == '__main__':
