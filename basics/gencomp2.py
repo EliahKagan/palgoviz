@@ -384,7 +384,11 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    ...  # FIXME: Implement this.
+    all_edges = set()
+    for key, value in rows.items():
+        for element in value:
+            all_edges.add((key, element))
+    return all_edges
 
 
 def make_mul_table(height, width):
