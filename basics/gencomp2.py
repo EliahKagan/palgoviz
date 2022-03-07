@@ -417,10 +417,7 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    table = []
-    for row in range(height + 1):
-        table.append([row * column for column in range(width + 1)])
-    return table
+    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
 
 
 def compose_dicts_simple(back, front):
