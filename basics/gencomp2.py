@@ -652,8 +652,8 @@ def is_hermitian(matrix):
 
     This implementation consists of a single, easily understood, line of code.
 
-    Hint: Does the logic in one of your transpose implementations have a weaker
-    precondition than it current docstring says it requires?
+    Hint: Does the logic in one of your transpose implementations work on more
+    inputs than the description in its docstring guarantees?
 
     >>> is_hermitian(())
     True
@@ -718,7 +718,8 @@ def is_hermitian_alt(matrix):
     ...                   (4.4 - 1j, 0, 0.9 + 0.2j, -2.6)))
     True
     """
-    # NOTE: I can't use itertools.product, as that uses O(len(matrix)) space.
+    # NOTE: I can't use itertools.combinations_with_replacement or
+    #       itertools.product, as they would use O(len(matrix)) space.
 
     indices = range(len(matrix))
 
