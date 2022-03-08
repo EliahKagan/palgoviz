@@ -482,10 +482,10 @@ def compose_dicts_view(back, front):
     except that errors are raised only when necessary, are deferred as long as
     possible, and reflect what really prevented the operation from succeeding.
 
-    That is, if front maps x to y, and y is hashable but not a key of back, a
-    KeyError is raised. They KeyError is about y, not x. If y is not hashable,
-    a TypeError is raised about y. Other lookups that don't have to go through
-    y are not affected.
+    That is, if front maps x to y, and y is hashable but not a key of back,
+    passing x to the returned function raises KeyError, reporting that y (not
+    x) is absent. If y is not hashable, a TypeError is raised about y. Other
+    lookups than x, assuming they don't also go through y, are not affected.
 
     Changes to back and front are always accounted for, even when they occur
     between calls to compose_dicts_view and the function it returned.
