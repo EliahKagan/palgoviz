@@ -319,11 +319,9 @@ def count_tree_nodes_instrumented(root):
     old_count_tree_nodes = count_tree_nodes
     count_tree_nodes = decorators.peek_return(count_tree_nodes)
     try:
-        count = count_tree_nodes(root)
+        return count_tree_nodes(root)
     finally:
         count_tree_nodes = old_count_tree_nodes
-
-    return count
 
 
 if __name__ == '__main__':
