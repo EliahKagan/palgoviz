@@ -478,16 +478,22 @@ def compose_dicts_view(back, front):
     """
     Make a function that acts as a view into the composition of back and front.
 
-    Calling the returned function is like subscripting the dict returned by a
-    previous call to compose_dicts_simple(back, front), except that TypeError
-    is raised only when necessary, and subsequent changes to back and front are
-    always accounted for.
+    Calls to the returned function take O(1) time and behave like subscripting
+    the dict returned by a previous call to compose_dicts_simple(back, front),
+    except that:
 
-    Another way to say this is that each call to the function is like calling
-    compose_dicts_simple(back, front) and subscripting the result, except
-    TypeError is raised only when necessary, and it is more efficient: Calling
-    compose_dicts_simple(back, front) takes linear time, but calling the
-    function returned by compose_dicts_view(back, front) takes constant time.
+    i.  Changes to back and front are accounted for, even when they occur
+        between calls to compose_dicts_view and to the function it returned.
+
+    ii. Errors are raised only when necessary, are deferred as long as
+        possible, and reflect what really prevented the operation from
+        succeeding.
+
+        That is, if front maps x to y, and y is not a key of back, passing x to
+        the returned function raises a KeyError reporting that y (not x) is
+        absent. Or, if y is not even hashable, then passing x raises a
+        TypeError about y. Other lookups than x, assuming they don't also go
+        through y, remain unaffected.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
     ...                      concern='yellow', alarm='orange', danger='red')
