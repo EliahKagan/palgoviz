@@ -583,12 +583,9 @@ def matrix_square_flat(f, n):
     ... }
     True
     """
-    d = {}
     r = range(1, n + 1)
-    for i in r:
-        for j in r:
-            d[(i, j)] = sum(f(i, m) * f(m, j) for m in r)
-    return d
+    return {(i, j): sum(f(i, m) * f(m, j) for m in r)
+            for i in r for j in r}
 
 
 def matrix_square_nested(f, n):
