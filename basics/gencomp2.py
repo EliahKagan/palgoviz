@@ -488,7 +488,7 @@ def compose_dicts_view(back, front):
     lookups than x, assuming they don't also go through y, remain unaffected.
 
     Changes to back and front are always accounted for, even when they occur
-    between calls to compose_dicts_view and the function it returned.
+    between calls to compose_dicts_view and calls to the function it returned.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
     ...                      concern='yellow', alarm='orange', danger='red')
