@@ -577,7 +577,12 @@ def matrix_square_flat(f, n):
     ... }
     True
     """
-    ...  # FIXME: Implement this.
+    d = {}
+    r = range(n + 1, 1)
+    for y in r:
+        for x in r:
+            d[x, y] = sum(f(x, ))
+
 
 
 def matrix_square_nested(f, n):
