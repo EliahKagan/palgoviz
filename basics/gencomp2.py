@@ -584,7 +584,7 @@ def matrix_square_flat(f, n):
     True
     """
     r = range(1, n + 1)
-    return {(i, j): sum(f(i, m) * f(m, j) for m in r)
+    return {(i, j): sum(f(i, k) * f(k, j) for k in r)
             for i in r for j in r}
 
 
