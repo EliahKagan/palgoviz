@@ -397,7 +397,7 @@ def compose_dicts_simple(back, front):
 
     Keys in both front and the result should appear in the same order in each.
 
-    If any value of front is not hashable, raise TypeError. There are no
+    If any value of front is not hashable, raise TypeError. There are no other
     restrictions on either argument's keys or values.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
@@ -437,7 +437,7 @@ def compose_dicts(back, front):
 
     This is like compose_dicts_simple, but arguments' keys and values have no
     restrictions. (Note that, while front may have non-hashable values and
-    KeyError must not be raised, such values are certain not to be keys of
+    TypeError must not be raised, such values are certain not to be keys of
     back, because keys must always be hashable.)
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
