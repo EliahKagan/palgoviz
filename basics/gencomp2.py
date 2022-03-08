@@ -603,7 +603,8 @@ def matrix_square_nested(f, n):
     >>> matrix_square_nested(lambda i, j: b[i - 1][j - 1], 3)
     [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
     """
-    ...  # FIXME: Implement this.
+    r = range(1, n + 1)
+    return [[sum(f(i, k) * f(k, j) for k in r) for i in r] for j in r] # FIXME
 
 
 def transpose(matrix):
