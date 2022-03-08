@@ -549,11 +549,7 @@ def compose_dicts_view(back, front):
     >>> format(rgb_from_status('danger'), '06X')
     '000000'
     """
-    def view_function(key):
-        temp = front[key]
-        result = back[temp]
-        return result
-    return view_function
+    return lambda key: back[front[key]]
 
 
 def matrix_square_flat(f, n):
