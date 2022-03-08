@@ -9,6 +9,9 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
+from collections.abc import Iterable
+import itertools
+
 
 def product_two(a, b):
     """
@@ -28,7 +31,9 @@ def product_two(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    return ((x, y) for x in my_a for y in my_b)
 
 
 def product_two_alt(a, b):
@@ -49,7 +54,11 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    for x in my_a:
+        for y in my_b:
+            yield (x, y)
 
 
 def ascending_countdowns():
@@ -64,7 +73,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    ...  # FIXME: Implement this.
+    return (y for x in itertools.count() for y in range(x, -1, -1))
 
 
 def ascending_countdowns_alt():
@@ -80,7 +89,8 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    ...  # FIXME: Implement this.
+    for x in itertools.count():
+        yield from range(x, -1, -1)
 
 
 def three_sums(a, b, c):
@@ -102,7 +112,10 @@ def three_sums(a, b, c):
     >>> three_sums(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    return {x + y + z for x in my_a for y in my_b for z in my_c}
 
 
 def three_sums_alt(a, b, c):
@@ -127,7 +140,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    ...  # FIXME: Implement this.
+    return set(map(sum, itertools.product(a, b, c)))
 
 
 def three_sum_indices_1(a, b, c, target):
@@ -163,7 +176,18 @@ def three_sum_indices_1(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_1(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    for i, x in enumerate(my_a):
+        for j, y in enumerate(my_b):
+            if x == y:
+                continue
+            for k, z in enumerate(my_c):
+                if y == z or x == z:
+                    continue
+                if x + y + z == target:
+                    yield (i, j, k)
 
 
 def three_sum_indices_2(a, b, c, target):
@@ -186,7 +210,14 @@ def three_sum_indices_2(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_2(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    ...  # FIXME: Implement this.
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    return ((i, j, k)
+            for i, x in enumerate(my_a)
+            for j, y in enumerate(my_b) if x != y
+            for k, z in enumerate(my_c) if y != z and x != z
+            if x + y + z == target)
 
 
 def three_sum_indices_3(a, b, c, target):
@@ -209,7 +240,10 @@ def three_sum_indices_3(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    ...  # FIXME: Implement this.
+    labeled_triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
+    for (i, x), (j, y), (k, z) in labeled_triples:
+        if x + y + z == target and x != y and x != z and y != z:
+            yield (i, j, k)
 
 
 def three_sum_indices_4(a, b, c, target):
@@ -222,17 +256,50 @@ def three_sum_indices_4(a, b, c, target):
 
     This is the fourth of four implementations.
 
-    >>> list(three_sum_indices_3([1, 2, 3], [10, 9], [7, 9, 8], 20))
+    >>> list(three_sum_indices_4([1, 2, 3], [10, 9], [7, 9, 8], 20))
     [(0, 0, 1), (1, 0, 2), (2, 0, 0), (2, 1, 2)]
-    >>> next(three_sum_indices_3([0] * 10, [0] * 20, [0] * 30, 0))
+    >>> next(three_sum_indices_4([0] * 10, [0] * 20, [0] * 30, 0))
     Traceback (most recent call last):
       ...
     StopIteration
     >>> from itertools import repeat as r
-    >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
+    >>> sum(1 for _ in three_sum_indices_4(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    ...  # FIXME: Implement this.
+    return ((i, j, k) for (i, x), (j, y), (k, z)
+            in itertools.product(enumerate(a), enumerate(b), enumerate(c))
+            if x + y + z == target and x != y and x != z and y != z)
+
+
+def dot_product_slow(u, v):
+    """
+    Compute the dot product of real-valued vectors represented as dictionaries.
+
+    The dimension is arbitrarily high (but finite), with keys representing
+    components. The dictionaries need not have the same keys. If a key is
+    absent, treat it as if the key were present with a value of 0 or 0.0.
+
+    Running time is O(len(u) * len(v)).
+
+    >>> dot_product_slow({'a': 2, 'b': 3, 'c': 4, 'd': 5}, {'b': 0.5, 'd': 1})
+    6.5
+    >>> u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+    >>> v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+    >>> w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+    >>> uv = dot_product_slow(u, v)
+    >>> round(uv, 2)
+    21.56
+    >>> uv == dot_product_slow(v, u)
+    True
+    >>> dot_product_slow(u, w) == dot_product_slow(w, u) == 4.5
+    True
+    >>> dot_product_slow(v, w) == dot_product_slow(w, v) == 0
+    True
+    """
+    return sum(u_value * v_value
+               for (u_key, u_value), (v_key, v_value)
+               in itertools.product(u.items(), v.items())
+               if v_key == u_key)
 
 
 def dot_product(u, v):
@@ -260,7 +327,11 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    ...  # FIXME: Implement this.
+    if len(u) > len(v):  # u should be smaller
+        u, v = v, u
+
+    return sum(u_value * v.get(u_key, 0)
+               for u_key, u_value in u.items())
 
 
 def flatten2(iterable):
@@ -289,7 +360,10 @@ def flatten2(iterable):
     >>> list(flatten2('turtles'))  # It's turtles all the way down.
     ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
-    ...  # FIXME: Implement this.
+    return (sub_sub_element
+            for element in iterable if isinstance(element, Iterable)
+            for sub_element in element if isinstance(sub_element, Iterable)
+            for sub_sub_element in sub_element)
 
 
 def ungroup(rows):
@@ -297,8 +371,9 @@ def ungroup(rows):
     Return a set of all edges in a graph represented by a given adjacency list.
 
     An adjacency list (sometimes called "adjacency lists") is a jagged table
-    that maps vertices to collections of their outward neighbors. That is, when
-    a graph has an edge from u to v, its adjacency list's row for u contains v.
+    that maps vertices (sources) to collections of their outward neighbors
+    (destinations). That is, when a graph has an edge from u to v, its
+    adjacency list's row for u contains v.
 
     >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
@@ -310,7 +385,9 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    ...  # FIXME: Implement this.
+    return {(source, destination)
+            for source, destinations in rows.items()
+            for destination in destinations}
 
 
 def make_mul_table(height, width):
@@ -340,7 +417,7 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    ...  # FIXME: Implement this.
+    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
 
 
 def compose_dicts_simple(back, front):
@@ -354,7 +431,7 @@ def compose_dicts_simple(back, front):
 
     Keys in both front and the result should appear in the same order in each.
 
-    If any value of front is not hashable, raise TypeError. There are no
+    If any value of front is not hashable, raise TypeError. There are no other
     restrictions on either argument's keys or values.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
@@ -380,8 +457,13 @@ def compose_dicts_simple(back, front):
     TypeError: unhashable type: 'list'
     >>> compose_dicts_simple(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts_simple({}, {42: (set(),)})
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'set'
     """
-    ...  # FIXME: Implement this.
+    return {key: back[value]
+            for key, value in front.items() if value in back}
 
 
 def compose_dicts(back, front):
@@ -390,7 +472,7 @@ def compose_dicts(back, front):
 
     This is like compose_dicts_simple, but arguments' keys and values have no
     restrictions. (Note that, while front may have non-hashable values and
-    KeyError must not be raised, such values are certain not to be keys of
+    TypeError must not be raised, such values are certain not to be keys of
     back, because keys must always be hashable.)
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
@@ -414,8 +496,17 @@ def compose_dicts(back, front):
     {10: 40, 20: 30, 40: 20}
     >>> compose_dicts(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts({}, {42: (set(),)})
+    {}
     """
-    ...  # FIXME: Implement this.
+    d = {}
+    for key, value in front.items():
+        try:
+            d[key] = back[value]
+        except (TypeError, KeyError):
+            pass
+
+    return d
 
 
 def compose_dicts_view(back, front):
@@ -430,7 +521,7 @@ def compose_dicts_view(back, front):
     Another way to say this is that each call to the function is like calling
     compose_dicts_simple(back, front) and subscripting the result, except
     TypeError is raised only when necessary, and it is more efficient: Calling
-    compose_dicts_simple(back, front) takes linear time, but each call to the
+    compose_dicts_simple(back, front) takes linear time, but calling the
     function returned by compose_dicts_view(back, front) takes constant time.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
