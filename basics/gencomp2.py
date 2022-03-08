@@ -479,16 +479,20 @@ def compose_dicts_view(back, front):
 
     Calls to the returned function take O(1) time and behave like subscripting
     the dict returned by a previous call to compose_dicts_simple(back, front),
-    except that errors are raised only when necessary, are deferred as long as
-    possible, and reflect what really prevented the operation from succeeding.
+    except that:
 
-    That is, if front maps x to y, and y is not a key of back, passing x to the
-    returned function raises a KeyError reporting that y (not x) is absent. Or,
-    if y is not even hashable, then passing x raises a TypeError about y. Other
-    lookups than x, assuming they don't also go through y, remain unaffected.
+    i.  Changes to back and front are accounted for, even when they occur
+        between calls to compose_dicts_view and to the function it returned.
 
-    Changes to back and front are always accounted for, even when they occur
-    between calls to compose_dicts_view and calls to the function it returned.
+    ii. Errors are raised only when necessary, are deferred as long as
+        possible, and reflect what really prevented the operation from
+        succeeding.
+
+        That is, if front maps x to y, and y is not a key of back, passing x to
+        the returned function raises a KeyError reporting that y (not x) is
+        absent. Or, if y is not even hashable, then passing x raises a
+        TypeError about y. Other lookups than x, assuming they don't also go
+        through y, remain unaffected.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
     ...                      concern='yellow', alarm='orange', danger='red')
