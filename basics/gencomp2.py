@@ -685,13 +685,12 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    s = set()
+
     weights_nd = set(weights)
     biases_nd = set(biases)
-    for w in weights_nd:
-        for b in biases_nd:
-            s.add(lambda x: w*x + b)
-    return s
+    def generate_funct(w, b):
+        return lambda x: w*x + b
+    return {generate_funct(w, b) for w in weights_nd for b in biases_nd}
 
 
 if __name__ == '__main__':
