@@ -652,7 +652,7 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    # FIXME: implement this
+    return tuple(zip(*matrix))
 
 
 def affines(weights, biases):
