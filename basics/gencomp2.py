@@ -626,15 +626,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    if matrix == ():
+    if matrix == (): # needed since I don't know a better way to find columns.
         return ()
-    l = []
+
     rows = range(len(matrix))
     columns = range(len(matrix[0]))  # FIXME: find a more pythonic way to find number of columns
-    for j in columns:
-        l.append(tuple(matrix[i][j] for i in rows))
-    return tuple(l)
 
+    return tuple(tuple(matrix[i][j] for i in rows) for j in columns)
 
 
 def transpose_alt(matrix):
