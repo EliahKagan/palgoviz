@@ -629,8 +629,10 @@ def transpose(matrix):
     if matrix == ():
         return ()
     l = []
-    for x in range(len(matrix[0])):
-        l.append(tuple(matrix[index][x] for index in range(len(matrix))))
+    rows = range(len(matrix))
+    columns = range(len(matrix[0]))  # FIXME: find a more pythonic way to find number of columns
+    for j in columns:
+        l.append(tuple(matrix[i][j] for i in rows))
     return tuple(l)
 
 
