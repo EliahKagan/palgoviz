@@ -51,10 +51,6 @@ class TestBobcat(unittest.TestCase):
         bobcat = Bobcat(weird_name)
         self.assertEqual(str(bobcat), expected_str)
 
-    def test_bobcat_name_attribute_has_name(self):
-        bobcat = Bobcat('Countess von Willdebrandt')
-        self.assertEqual(bobcat.name, 'Countess von Willdebrandt')
-
     def test_same_named_bobcats_are_the_same(self):
         first = Bobcat('Countess von Willdebrandt')
         second = Bobcat('Countess von Willdebrandt')
@@ -79,6 +75,20 @@ class TestBobcat(unittest.TestCase):
         first = Bobcat('Countess von Willdebrandt')
         second = Bobcat('Countess von Willdebrandt')
         self.assertEqual(hash(first), hash(second))
+
+    def test_name_attribute_has_name(self):
+        bobcat = Bobcat('Countess von Willdebrandt')
+        self.assertEqual(bobcat.name, 'Countess von Willdebrandt')
+
+    def test_new_attributes_cannot_be_created(self):
+        bobcat = Bobcat('Countess von Willdebrandt')
+        with self.assertRaises(AttributeError):
+            bobcat.namr = 'Ekaterina'  # Misspelling of "name".
+
+    def test_name_attribute_is_read_only(self):
+        bobcat = Bobcat('Countess von Willdebrandt')
+        with self.assertRaises(AttributeError):
+            bobcat.name = 'Ekaterina'
 
     def test_bobcats_seem_to_work_in_hash_based_containers(self):
         b1 = Bobcat('Countess von Willdebrandt')
