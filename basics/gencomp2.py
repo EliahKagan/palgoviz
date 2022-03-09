@@ -655,6 +655,10 @@ def transpose_alt(matrix):
     return tuple(zip(*matrix))
 
 
+def _make_affines(w, b):
+    return lambda x: w*x + b
+
+
 def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
@@ -685,12 +689,9 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-
-    weights_nd = set(weights)
-    biases_nd = set(biases)
-    def generate_funct(w, b):
-        return lambda x: w*x + b
-    return {generate_funct(w, b) for w in weights_nd for b in biases_nd}
+    unique_weights = set(weights)
+    unique_biases = set(biases)
+    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
 
 
 if __name__ == '__main__':
