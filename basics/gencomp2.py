@@ -604,7 +604,7 @@ def matrix_square_nested(f, n):
     [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
     """
     r = range(1, n + 1)
-    return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r] # FIXME
+    return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r]
 
 
 def transpose(matrix):
@@ -626,7 +626,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    ...  # FIXME: Implement this.
+    if matrix == ():
+        return ()
+    l = []
+    for x in range(len(matrix[0])):
+        l.append(tuple(matrix[index][x] for index in range(len(matrix))))
+    return tuple(l)
+
 
 
 def transpose_alt(matrix):
