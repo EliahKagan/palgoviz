@@ -685,7 +685,13 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    ...  # FIXME: Implement this.
+    s = set()
+    weights_nd = set(weights)
+    biases_nd = set(biases)
+    for w in weights_nd:
+        for b in biases_nd:
+            s.add(lambda x: w*x + b)
+    return s
 
 
 if __name__ == '__main__':
