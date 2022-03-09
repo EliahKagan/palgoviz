@@ -626,13 +626,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    if matrix == (): # needed since I don't know a better way to find columns.
+    if matrix == (): # needed since I don't know a better way to find width.
         return ()
 
-    rows = range(len(matrix))
-    columns = range(len(matrix[0]))  # FIXME: find a more pythonic way to find number of columns
+    height = range(len(matrix))
+    width = range(len(matrix[0]))  # FIXME: find a more pythonic way to find width
 
-    return tuple(tuple(matrix[i][j] for i in rows) for j in columns)
+    return tuple(tuple(matrix[i][j] for i in height) for j in width)
 
 
 def transpose_alt(matrix):
@@ -652,7 +652,7 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    ...  # FIXME: Implement this.
+    # FIXME: implement this
 
 
 def affines(weights, biases):
