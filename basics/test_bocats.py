@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-"""Tests for the bobcat module."""
+"""Tests for the bobcats module."""
 
 import unittest
 
-from bobcat import Bobcat
+from bobcats import Bobcat
 
 
 # TODO: Maybe deduplicate code by using setUp() to construct the countess.
