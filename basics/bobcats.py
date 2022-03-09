@@ -12,6 +12,7 @@ class Bobcat:
     __slots__ = ('_name',)
 
     def __init__(self, name):
+        """Make a bobcat with the specified name."""
         if not isinstance(name, str):
             raise TypeError('got non-string value for bobcat name')
         if not name:
