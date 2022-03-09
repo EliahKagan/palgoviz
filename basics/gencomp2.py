@@ -626,13 +626,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    if matrix == (): # needed since I don't know a better way to find width.
+    if not matrix:
         return ()
 
-    height = range(len(matrix))
-    width = range(len(matrix[0]))  # FIXME: find a more pythonic way to find width
+    height = len(matrix)
+    width = len(matrix[0])
 
-    return tuple(tuple(matrix[i][j] for i in height) for j in width)
+    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
 
 
 def transpose_alt(matrix):
