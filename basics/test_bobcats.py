@@ -293,7 +293,7 @@ class TestFierceBobcat(unittest.TestCase):
         d = dict.fromkeys([fb1, fb2, fb3, fb4, fb5, fb6, fb7, fb8, fb9])
         self.assertListEqual(list(d), [fb1, fb2, fb3, fb4, fb8])
 
-    def test_fierce_and_regular_bobcats_in_hash_based_containers(self):
+    def test_fierce_and_regular_bobcats_work_in_hash_based_containers(self):
         fb1 = FierceBobcat('Mean Bob', 9500)
         b1 = Bobcat('Countess von Willdebrandt')
         fb2 = FierceBobcat('Mean Bob', 9499)
