@@ -420,12 +420,18 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    result = sentinel = object()
-    for result in iterable:
-        pass
-    if result is sentinel:
+    it = iter(iterable)
+
+    try:
+        item = next(it)
+    except StopIteration:
         raise IndexError("can't get last item from empty iterable")
-    return result
+
+    while True:
+        try:
+            item = next(it)
+        except StopIteration:
+            return item
 
 
 def pick(iterable, index):
@@ -452,12 +458,12 @@ def pick(iterable, index):
     4422
     """
     if index < 0:
-        raise IndexError('negative indices are not supported')
+        raise IndexError("negative indices are not supported")
 
     try:
         return next(drop(iterable, index))
     except StopIteration:
-        raise IndexError('index out of range') from None
+        raise IndexError("index out of range")
 
 
 def map_one(func, iterable):
@@ -1155,8 +1161,8 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
     not_there = object()
-    keys = tuple(subject_keys)
-    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in keys))
+    my_keys = tuple(subject_keys)
+    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
 
 
 if __name__ == '__main__':

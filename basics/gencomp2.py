@@ -32,9 +32,9 @@ def product_two(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    xs = list(a)
-    ys = list(b)
-    return ((x, y) for x in xs for y in ys)
+    my_a = tuple(a)
+    my_b = tuple(b)
+    return ((x, y) for x in my_a for y in my_b)
 
 
 def product_two_alt(a, b):
@@ -55,11 +55,11 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    xs = list(a)
-    ys = list(b)
-    for x in xs:
-        for y in ys:
-            yield x, y
+    my_a = tuple(a)
+    my_b = tuple(b)
+    for x in my_a:
+        for y in my_b:
+            yield (x, y)
 
 
 def ascending_countdowns():
@@ -74,7 +74,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    return (j for i in itertools.count() for j in range(i, -1, -1))
+    return (y for x in itertools.count() for y in range(x, -1, -1))
 
 
 def ascending_countdowns_alt():
@@ -90,8 +90,8 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    for i in itertools.count():
-        yield from range(i, -1, -1)
+    for x in itertools.count():
+        yield from range(x, -1, -1)
 
 
 def three_sums(a, b, c):
@@ -113,7 +113,10 @@ def three_sums(a, b, c):
     >>> three_sums(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    return {sum(v) for v in itertools.product(a, b, c)}
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    return {x + y + z for x in my_a for y in my_b for z in my_c}
 
 
 def three_sums_alt(a, b, c):
@@ -138,10 +141,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    xs = list(a)
-    ys = list(b)
-    zs = list(c)
-    return {x + y + z for x in xs for y in ys for z in zs}
+    return set(map(sum, itertools.product(a, b, c)))
 
 
 def three_sum_indices_1(a, b, c, target):
@@ -177,9 +177,18 @@ def three_sum_indices_1(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_1(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    return ((i, j, k) for (i, x), (j, y), (k, z)
-            in itertools.product(enumerate(a), enumerate(b), enumerate(c))
-            if x != y != z != x and x + y + z == target)
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    for i, x in enumerate(my_a):
+        for j, y in enumerate(my_b):
+            if x == y:
+                continue
+            for k, z in enumerate(my_c):
+                if y == z or x == z:
+                    continue
+                if x + y + z == target:
+                    yield (i, j, k)
 
 
 def three_sum_indices_2(a, b, c, target):
@@ -202,11 +211,14 @@ def three_sum_indices_2(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_2(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
-
-    for (i, x), (j, y), (k, z) in triples:
-        if x != y and y != z and z != x and x + y + z == target:
-            yield i, j, k
+    my_a = tuple(a)
+    my_b = tuple(b)
+    my_c = tuple(c)
+    return ((i, j, k)
+            for i, x in enumerate(my_a)
+            for j, y in enumerate(my_b) if x != y
+            for k, z in enumerate(my_c) if y != z and x != z
+            if x + y + z == target)
 
 
 def three_sum_indices_3(a, b, c, target):
@@ -229,15 +241,10 @@ def three_sum_indices_3(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    xs = list(a)
-    ys = list(b)
-    zs = list(c)
-
-    return ((i, j, k)
-            for i, x in enumerate(xs)
-            for j, y in enumerate(ys) if x != y
-            for k, z in enumerate(zs) if x != z and y != z
-            if x + y + z == target)
+    labeled_triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
+    for (i, x), (j, y), (k, z) in labeled_triples:
+        if x + y + z == target and x != y and x != z and y != z:
+            yield (i, j, k)
 
 
 def three_sum_indices_4(a, b, c, target):
@@ -260,17 +267,40 @@ def three_sum_indices_4(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_4(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    xs = list(a)
-    ys = list(b)
-    zs = list(c)
+    return ((i, j, k) for (i, x), (j, y), (k, z)
+            in itertools.product(enumerate(a), enumerate(b), enumerate(c))
+            if x + y + z == target and x != y and x != z and y != z)
 
-    for i, x in enumerate(xs):
-        for j, y in enumerate(ys):
-            if x == y:
-                continue
-            for k, z in enumerate(zs):
-                if x != z and y != z and x + y + z == target:
-                    yield i, j, k
+
+def dot_product_slow(u, v):
+    """
+    Compute the dot product of real-valued vectors represented as dictionaries.
+
+    The dimension is arbitrarily high (but finite), with keys representing
+    components. The dictionaries need not have the same keys. If a key is
+    absent, treat it as if the key were present with a value of 0 or 0.0.
+
+    Running time is O(len(u) * len(v)).
+
+    >>> dot_product_slow({'a': 2, 'b': 3, 'c': 4, 'd': 5}, {'b': 0.5, 'd': 1})
+    6.5
+    >>> u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
+    >>> v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
+    >>> w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
+    >>> uv = dot_product_slow(u, v)
+    >>> round(uv, 2)
+    21.56
+    >>> uv == dot_product_slow(v, u)
+    True
+    >>> dot_product_slow(u, w) == dot_product_slow(w, u) == 4.5
+    True
+    >>> dot_product_slow(v, w) == dot_product_slow(w, v) == 0
+    True
+    """
+    return sum(u_value * v_value
+               for (u_key, u_value), (v_key, v_value)
+               in itertools.product(u.items(), v.items())
+               if v_key == u_key)
 
 
 def dot_product(u, v):
@@ -298,10 +328,11 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    if len(v) < len(u):
+    if len(u) > len(v):  # u should be smaller
         u, v = v, u
 
-    return sum(value * v.get(key, 0) for key, value in u.items())
+    return sum(u_value * v.get(u_key, 0)
+               for u_key, u_value in u.items())
 
 
 def flatten2(iterable):
@@ -330,10 +361,10 @@ def flatten2(iterable):
     >>> list(flatten2('turtles'))  # It's turtles all the way down.
     ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
-    return (subsubelement
+    return (sub_sub_element
             for element in iterable if isinstance(element, Iterable)
-            for subelement in element if isinstance(subelement, Iterable)
-            for subsubelement in subelement)
+            for sub_element in element if isinstance(sub_element, Iterable)
+            for sub_sub_element in sub_element)
 
 
 def ungroup(rows):
@@ -341,8 +372,9 @@ def ungroup(rows):
     Return a set of all edges in a graph represented by a given adjacency list.
 
     An adjacency list (sometimes called "adjacency lists") is a jagged table
-    that maps vertices to collections of their outward neighbors. That is, when
-    a graph has an edge from u to v, its adjacency list's row for u contains v.
+    that maps vertices (sources) to collections of their outward neighbors
+    (destinations). That is, when a graph has an edge from u to v, its
+    adjacency list's row for u contains v.
 
     >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
@@ -354,7 +386,9 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    return {(src, dest) for src, row in rows.items() for dest in row}
+    return {(source, destination)
+            for source, destinations in rows.items()
+            for destination in destinations}
 
 
 def make_mul_table(height, width):
@@ -429,7 +463,8 @@ def compose_dicts_simple(back, front):
       ...
     TypeError: unhashable type: 'set'
     """
-    return {key: back[value] for key, value in front.items() if value in back}
+    return {key: back[value]
+            for key, value in front.items() if value in back}
 
 
 def compose_dicts(back, front):
@@ -465,13 +500,14 @@ def compose_dicts(back, front):
     >>> compose_dicts({}, {42: (set(),)})
     {}
     """
-    def in_back(possible_key):
+    d = {}
+    for key, value in front.items():
         try:
-            return possible_key in back
-        except TypeError:
-            return False
+            d[key] = back[value]
+        except (TypeError, KeyError):
+            pass
 
-    return {key: back[value] for key, value in front.items() if in_back(value)}
+    return d
 
 
 def compose_dicts_view(back, front):
@@ -548,10 +584,9 @@ def matrix_square_flat(f, n):
     ... }
     True
     """
-    indices = range(1, n + 1)
-
-    return {(i, j): sum(f(i, k) * f(k, j) for k in indices)
-            for i in indices for j in indices}
+    r = range(1, n + 1)
+    return {(i, j): sum(f(i, k) * f(k, j) for k in r)
+            for i in r for j in r}
 
 
 def matrix_square_nested(f, n):
@@ -569,11 +604,8 @@ def matrix_square_nested(f, n):
     >>> matrix_square_nested(lambda i, j: b[i - 1][j - 1], 3)
     [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
     """
-    indices = range(1, n + 1)
-
-    return [[sum(f(i, k) * f(k, j) for k in indices)
-             for j in indices]
-            for i in indices]
+    r = range(1, n + 1)
+    return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r]
 
 
 def transpose(matrix):
@@ -595,7 +627,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    return tuple(zip(*matrix))
+    if not matrix:
+        return ()
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
 
 
 def transpose_alt(matrix):
@@ -615,14 +653,11 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    if not matrix:
-        return ()
+    return tuple(zip(*matrix))
 
-    height = len(matrix)
-    width = len(matrix[0])
 
-    return tuple(tuple(matrix[j][i] for j in range(height))
-                 for i in range(width))
+def _make_affines(w, b):
+    return lambda x: w*x + b
 
 
 def submap(func, rows):
@@ -769,13 +804,9 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    bs = set(biases)
-    return {_make_affine(w, b) for w in set(weights) for b in bs}
-
-
-def _make_affine(weight, bias):
-    """Makes an affine function that multiplies weight and adds bias."""
-    return lambda x: weight * x + bias
+    unique_weights = set(weights)
+    unique_biases = set(biases)
+    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
 
 
 def mean(iterable):
