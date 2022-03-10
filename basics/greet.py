@@ -18,7 +18,7 @@ def make_greeter(lang):
     >>> make_greeter('en')('Stalin')  # But we greet Stalin in English???
     Hello, Stalin!
     """
-    pass  # FIXME: implement this
+    return lambda name: hello(name, lang)
 
 
 def hello(name, lang='en'):
