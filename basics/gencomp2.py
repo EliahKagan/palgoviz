@@ -9,6 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
+from collections.abc import Iterable
 import itertools
 
 
@@ -359,7 +360,10 @@ def flatten2(iterable):
     >>> list(flatten2('turtles'))  # It's turtles all the way down.
     ['t', 'u', 'r', 't', 'l', 'e', 's']
     """
-    ...  # FIXME: Implement this.
+    return (sub_sub_element
+            for element in iterable if isinstance(element, Iterable)
+            for sub_element in element if isinstance(sub_element, Iterable)
+            for sub_sub_element in sub_element)
 
 
 def ungroup(rows):
@@ -367,8 +371,9 @@ def ungroup(rows):
     Return a set of all edges in a graph represented by a given adjacency list.
 
     An adjacency list (sometimes called "adjacency lists") is a jagged table
-    that maps vertices to collections of their outward neighbors. That is, when
-    a graph has an edge from u to v, its adjacency list's row for u contains v.
+    that maps vertices (sources) to collections of their outward neighbors
+    (destinations). That is, when a graph has an edge from u to v, its
+    adjacency list's row for u contains v.
 
     >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
@@ -380,7 +385,9 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    ...  # FIXME: Implement this.
+    return {(source, destination)
+            for source, destinations in rows.items()
+            for destination in destinations}
 
 
 def make_mul_table(height, width):
@@ -410,7 +417,7 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    ...  # FIXME: Implement this.
+    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
 
 
 def compose_dicts_simple(back, front):
@@ -424,7 +431,7 @@ def compose_dicts_simple(back, front):
 
     Keys in both front and the result should appear in the same order in each.
 
-    If any value of front is not hashable, raise TypeError. There are no
+    If any value of front is not hashable, raise TypeError. There are no other
     restrictions on either argument's keys or values.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
@@ -450,8 +457,13 @@ def compose_dicts_simple(back, front):
     TypeError: unhashable type: 'list'
     >>> compose_dicts_simple(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts_simple({}, {42: (set(),)})
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'set'
     """
-    ...  # FIXME: Implement this.
+    return {key: back[value]
+            for key, value in front.items() if value in back}
 
 
 def compose_dicts(back, front):
@@ -460,7 +472,7 @@ def compose_dicts(back, front):
 
     This is like compose_dicts_simple, but arguments' keys and values have no
     restrictions. (Note that, while front may have non-hashable values and
-    KeyError must not be raised, such values are certain not to be keys of
+    TypeError must not be raised, such values are certain not to be keys of
     back, because keys must always be hashable.)
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
@@ -484,24 +496,39 @@ def compose_dicts(back, front):
     {10: 40, 20: 30, 40: 20}
     >>> compose_dicts(d1, d2)
     {('b', 'c'): ['d', 'e'], None: ('b', 'c'), 'a': None}
+    >>> compose_dicts({}, {42: (set(),)})
+    {}
     """
-    ...  # FIXME: Implement this.
+    d = {}
+    for key, value in front.items():
+        try:
+            d[key] = back[value]
+        except (TypeError, KeyError):
+            pass
+
+    return d
 
 
 def compose_dicts_view(back, front):
     """
     Make a function that acts as a view into the composition of back and front.
 
-    Calling the returned function is like subscripting the dict returned by a
-    previous call to compose_dicts_simple(back, front), except that TypeError
-    is raised only when necessary, and subsequent changes to back and front are
-    always accounted for.
+    Calls to the returned function take O(1) time and behave like subscripting
+    the dict returned by a previous call to compose_dicts_simple(back, front),
+    except that:
 
-    Another way to say this is that each call to the function is like calling
-    compose_dicts_simple(back, front) and subscripting the result, except
-    TypeError is raised only when necessary, and it is more efficient: Calling
-    compose_dicts_simple(back, front) takes linear time, but calling the
-    function returned by compose_dicts_view(back, front) takes constant time.
+    i.  Changes to back and front are accounted for, even when they occur
+        between calls to compose_dicts_view and to the function it returned.
+
+    ii. Errors are raised only when necessary, are deferred as long as
+        possible, and reflect what really prevented the operation from
+        succeeding.
+
+        That is, if front maps x to y, and y is not a key of back, passing x to
+        the returned function raises a KeyError reporting that y (not x) is
+        absent. Or, if y is not even hashable, then passing x raises a
+        TypeError about y. Other lookups than x, assuming they don't also go
+        through y, remain unaffected.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
     ...                      concern='yellow', alarm='orange', danger='red')
@@ -528,7 +555,7 @@ def compose_dicts_view(back, front):
     >>> format(rgb_from_status('danger'), '06X')
     '000000'
     """
-    ...  # FIXME: Implement this.
+    return lambda key: back[front[key]]
 
 
 def matrix_square_flat(f, n):
@@ -556,7 +583,9 @@ def matrix_square_flat(f, n):
     ... }
     True
     """
-    ...  # FIXME: Implement this.
+    r = range(1, n + 1)
+    return {(i, j): sum(f(i, k) * f(k, j) for k in r)
+            for i in r for j in r}
 
 
 def matrix_square_nested(f, n):
@@ -574,7 +603,8 @@ def matrix_square_nested(f, n):
     >>> matrix_square_nested(lambda i, j: b[i - 1][j - 1], 3)
     [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
     """
-    ...  # FIXME: Implement this.
+    r = range(1, n + 1)
+    return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r]
 
 
 def transpose(matrix):
@@ -596,7 +626,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    ...  # FIXME: Implement this.
+    if not matrix:
+        return ()
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
 
 
 def transpose_alt(matrix):
@@ -616,7 +652,11 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    ...  # FIXME: Implement this.
+    return tuple(zip(*matrix))
+
+
+def _make_affines(w, b):
+    return lambda x: w*x + b
 
 
 def affines(weights, biases):
@@ -649,7 +689,9 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    ...  # FIXME: Implement this.
+    unique_weights = set(weights)
+    unique_biases = set(biases)
+    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
 
 
 if __name__ == '__main__':
