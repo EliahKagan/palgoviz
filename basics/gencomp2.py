@@ -513,16 +513,22 @@ def compose_dicts_view(back, front):
     """
     Make a function that acts as a view into the composition of back and front.
 
-    Calling the returned function is like subscripting the dict returned by a
-    previous call to compose_dicts_simple(back, front), except that TypeError
-    is raised only when necessary, and subsequent changes to back and front are
-    always accounted for.
+    Calls to the returned function take O(1) time and behave like subscripting
+    the dict returned by a previous call to compose_dicts_simple(back, front),
+    except that:
 
-    Another way to say this is that each call to the function is like calling
-    compose_dicts_simple(back, front) and subscripting the result, except
-    TypeError is raised only when necessary, and it is more efficient: Calling
-    compose_dicts_simple(back, front) takes linear time, but calling the
-    function returned by compose_dicts_view(back, front) takes constant time.
+    i.  Changes to back and front are accounted for, even when they occur
+        between calls to compose_dicts_view and to the function it returned.
+
+    ii. Errors are raised only when necessary, are deferred as long as
+        possible, and reflect what really prevented the operation from
+        succeeding.
+
+        That is, if front maps x to y, and y is not a key of back, passing x to
+        the returned function raises a KeyError reporting that y (not x) is
+        absent. Or, if y is not even hashable, then passing x raises a
+        TypeError about y. Other lookups than x, assuming they don't also go
+        through y, remain unaffected.
 
     >>> status_colors = dict(unspecified='gray', OK='green', meh='blue',
     ...                      concern='yellow', alarm='orange', danger='red')
@@ -549,7 +555,7 @@ def compose_dicts_view(back, front):
     >>> format(rgb_from_status('danger'), '06X')
     '000000'
     """
-    ...  # FIXME: Implement this.
+    return lambda key: back[front[key]]
 
 
 def matrix_square_flat(f, n):
@@ -577,7 +583,9 @@ def matrix_square_flat(f, n):
     ... }
     True
     """
-    ...  # FIXME: Implement this.
+    r = range(1, n + 1)
+    return {(i, j): sum(f(i, k) * f(k, j) for k in r)
+            for i in r for j in r}
 
 
 def matrix_square_nested(f, n):
@@ -595,7 +603,8 @@ def matrix_square_nested(f, n):
     >>> matrix_square_nested(lambda i, j: b[i - 1][j - 1], 3)
     [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
     """
-    ...  # FIXME: Implement this.
+    r = range(1, n + 1)
+    return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r]
 
 
 def transpose(matrix):
@@ -617,7 +626,13 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    ...  # FIXME: Implement this.
+    if not matrix:
+        return ()
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
 
 
 def transpose_alt(matrix):
@@ -637,7 +652,11 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    ...  # FIXME: Implement this.
+    return tuple(zip(*matrix))
+
+
+def _make_affines(w, b):
+    return lambda x: w*x + b
 
 
 def affines(weights, biases):
@@ -670,7 +689,9 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    ...  # FIXME: Implement this.
+    unique_weights = set(weights)
+    unique_biases = set(biases)
+    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
 
 
 if __name__ == '__main__':
