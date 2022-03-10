@@ -28,15 +28,19 @@ def pwarn(message):
     pmessage('WARNING', message)
 
 
+def greet_in_file(file, lang): # will rename
+    names = set()
+    for line in file:
+        name = line.strip()
+        if name and name not in names:
+            hello(name, lang)
+            names.add(name)
+
+
 def greet_all(path, lang):
     """Greet all in a file given the path and language."""
     with open(path, encoding='utf-8') as file:
-        names = set()
-        for line in file:
-            name = line.strip()
-            if name and name not in names:
-                hello(name, lang)
-                names.add(name)
+        greet_in_file(file, lang)
 
 
 def greet_all_try(path, lang):
@@ -47,12 +51,7 @@ def greet_all_try(path, lang):
     """
     file = open(path, encoding='utf-8')
     try:
-        names = set()
-        for line in file:
-            name = line.strip()
-            if name and name not in names:
-                hello(name, lang)
-                names.add(name)
+        greet_in_file(file, lang)
     finally:
         file.close()
 
