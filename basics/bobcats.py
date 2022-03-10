@@ -68,7 +68,7 @@ class FierceBobcat(Bobcat):
 
         if fierceness <= self.FIERCENESS_CUTOFF:
             raise ValueError(
-                f'{fierceness} fireceness is not fierce for a bobcat')
+                f'a fierceness of {fierceness} is not fierce for a bobcat')
 
         self._fierceness = fierceness
 
@@ -77,10 +77,10 @@ class FierceBobcat(Bobcat):
         return (type(self).__name__
                 + f'(name={self.name!r}, fierceness={self.fierceness!r})')
 
-    # FIXME: Simplify, or at least clarify, this implementation.
     def __eq__(self, other):
         """Check if this and other represent the same fierce bobcat."""
         if not isinstance(other, type(self)):
+            # Ensure we're unequal to bobcats that don't know about fierceness.
             return False if isinstance(other, Bobcat) else NotImplemented
 
         return super().__eq__(other) and self.fierceness == other.fierceness

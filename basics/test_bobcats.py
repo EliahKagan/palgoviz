@@ -167,7 +167,9 @@ class TestFierceBobcat(unittest.TestCase):
         self.assertEqual(repr(bobcat), expected_repr)
 
     def test_repr_uses_reprs_of_both_name_and_fierceness(self):
-        expected_repr = "FierceBobcat(name='Mean Bob', fierceness=Fraction(9090000, 1007))"
+        expected_repr = (
+            "FierceBobcat(name='Mean Bob', fierceness=Fraction(9090000, 1007))"
+        )
         bobcat = FierceBobcat('Mean Bob', Fraction(9_090_000, 1007))
         self.assertEqual(repr(bobcat), expected_repr)
 
