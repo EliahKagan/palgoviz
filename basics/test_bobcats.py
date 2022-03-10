@@ -61,12 +61,12 @@ class TestBobcat(unittest.TestCase):
         second = Bobcat('Countess von Willdebruvft')
         self.assertNotEqual(first, second)
 
-    def test_no_bobcat_is_not_a_bobcat(self):
+    def test_bobcats_are_unequal_to_non_bobcats(self):
         bobcat = Bobcat('Countess von Willdebrandt')
         non_bobcat = 'Countess von Willdebrandt'
         self.assertNotEqual(bobcat, non_bobcat)
 
-    def test_no_non_bobcat_is_a_bobcat(self):
+    def test_non_bobcats_are_unequal_to_bobcats(self):
         bobcat = Bobcat('Countess von Willdebrandt')
         non_bobcat = 'Countess von Willdebrandt'
         self.assertNotEqual(non_bobcat, bobcat)
