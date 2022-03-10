@@ -20,11 +20,13 @@ def make_greeter(lang):
     >>> make_greeter('en')('Stalin')  # But we greet Stalin in English???
     Hello, Stalin!
     """
-    if lang not in FORMATS:
-        raise ValueError(f'{lang} is an unrecognized language code.')
+    try:
+        lang_formatted = FORMATS[lang]   # dictionary test
+    except KeyError as error:
+        raise ValueError(f'{lang} is an unrecognized language code.') from error
 
     def greeter(name):
-        print(FORMATS[lang].format(name))   # dictionary test
+        print(lang_formatted.format(name))
 
     return greeter
 
