@@ -57,7 +57,7 @@ def greet_all_try(path, lang):
         file.close()
 
 
-def run():
+def run(name_reading_greeter):
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
@@ -78,7 +78,7 @@ def run():
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        greet_all_try(path, lang)
+        name_reading_greeter(path, lang)
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
@@ -87,4 +87,5 @@ def run():
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
-    sys.exit(run()) # for exit codes in powershell, $LASTEXITCODE
+    # For exit codes in powershell, $LASTEXITCODE.
+    sys.exit(run(greet_all))
