@@ -2,7 +2,7 @@
 
 """Hello world example."""
 
-FORMATS = {
+_FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
 }
@@ -25,7 +25,7 @@ def make_greeter(lang):
     ValueError: zx is an unrecognized language code.
     """
     try:
-        lang_format = FORMATS[lang]
+        lang_format = _FORMATS[lang]
     except KeyError as error:
         raise ValueError(f'{lang} is an unrecognized language code.') from error
 
