@@ -8,9 +8,10 @@ Usage:
     greetall FILENAME [LANG]
 """
 
+from multiprocessing.sharedctypes import Value
 import sys
 
-from greet import hello, FORMATS
+from greet import make_greeter
 
 
 def pmessage(prefix, message):
@@ -28,20 +29,21 @@ def pwarn(message):
     pmessage('WARNING', message)
 
 
-def greet_names(name_lines, lang):
+def greet_names(name_lines, greeter):
     """Greet each name in name_lines in given language."""
     greeted = set()
     for line in name_lines:
         name = line.strip()
         if name and name not in greeted:
-            hello(name, lang)
+            greeter(name)
             greeted.add(name)
 
 
 def greet_all(path, lang):
     """Greet all in a file given the path and language."""
+    greeter = make_greeter(lang)
     with open(path, encoding='utf-8') as file:
-        greet_names(file, lang)
+        greet_names(file, greeter)
 
 
 def greet_all_try(path, lang):
@@ -50,9 +52,10 @@ def greet_all_try(path, lang):
 
     Uses an explicit try-finally instead of a with statement.
     """
+    greeter = make_greeter(lang)
     file = open(path, encoding='utf-8')
     try:
-        greet_names(file, lang)
+        greet_names(file, greeter)
     finally:
         file.close()
 
@@ -72,14 +75,10 @@ def run(name_reading_greeter):
         case [_, path, lang, *_]:
             pwarn('Too many arguments, see docstring for usage')
 
-    if lang not in FORMATS:
-        perror('Did not pass a valid language code')
-        return 1
-
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
         name_reading_greeter(path, lang)
-    except OSError as error:
+    except (OSError, ValueError) as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
         return 1
