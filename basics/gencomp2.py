@@ -652,7 +652,11 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    # FIXME: implement this
+    return tuple(zip(*matrix))
+
+
+def _make_affines(w, b):
+    return lambda x: w*x + b
 
 
 def affines(weights, biases):
@@ -685,7 +689,9 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    ...  # FIXME: Implement this.
+    unique_weights = set(weights)
+    unique_biases = set(biases)
+    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
 
 
 if __name__ == '__main__':
