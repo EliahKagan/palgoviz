@@ -10,7 +10,7 @@ FORMATS = {
 
 def make_greeter(lang):
     """
-    Make a greeter function that greets the user in the language passed by lang
+    Make a function that greets by name in the language specified by lang.
 
     >>> greet = make_greeter('es')
     >>> greet('David')
@@ -25,12 +25,12 @@ def make_greeter(lang):
     ValueError: zx is an unrecognized language code.
     """
     try:
-        lang_formatted = FORMATS[lang]   # dictionary test
+        lang_format = FORMATS[lang]
     except KeyError as error:
         raise ValueError(f'{lang} is an unrecognized language code.') from error
 
     def greeter(name):
-        print(lang_formatted.format(name))
+        print(lang_format.format(name))
 
     return greeter
 
