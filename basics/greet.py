@@ -18,7 +18,13 @@ def make_greeter(lang):
     >>> make_greeter('en')('Stalin')  # But we greet Stalin in English???
     Hello, Stalin!
     """
-    return lambda name: hello(name, lang)
+    def greeter(name):
+        try:
+            print(FORMATS[lang].format(name))   # dictionary test
+        except KeyError as error:
+            raise ValueError(f'{lang} is an unrecognized language code.') from error
+
+    return greeter
 
 
 def hello(name, lang='en'):
@@ -36,10 +42,8 @@ def hello(name, lang='en'):
       ...
     ValueError: el is an unrecognized language code.
     """
-    try:
-        print(FORMATS[lang].format(name))   # dictionary test
-    except KeyError as error:
-        raise ValueError(f'{lang} is an unrecognized language code.') from error
+    greeter = make_greeter(lang)
+    greeter(name)
 
 
 def run():
