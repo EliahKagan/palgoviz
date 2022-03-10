@@ -74,8 +74,8 @@ def run(name_reading_greeter):
 
     try:
         greeter = make_greeter(lang)
-    except ValueError:
-        perror('Did not pass a valid language code')
+    except ValueError as error:
+        perror(error)
         return 1
 
     # Uses EAFP (easier to ask forgiveness than permission).

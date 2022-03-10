@@ -30,7 +30,7 @@ ERROR in greetall.py: Did not pass a filename
 >>> status
 1
 >>> print(output)
-ERROR in greetall.py: Did not pass a valid language code
+ERROR in greetall.py: qx is an unrecognized language code.
 
 >>> status, output = gso('python greetall.py names.txt en foo')
 >>> status
