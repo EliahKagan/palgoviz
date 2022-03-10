@@ -1,5 +1,7 @@
 """The scourge of immutable bobcats."""
 
+from numbers import Real
+
 
 class Bobcat:
     """
@@ -40,3 +42,52 @@ class Bobcat:
     def name(self):
         """The name bobcat-naming robots gave to this bobcat."""
         return self._name
+
+
+class FierceBobcat(Bobcat):
+    """
+    A bobcat so fierce its name might not be unique.
+
+    Naming robots run away so fast from bobcats whose fierceness exceeds 9000
+    that they don't always take the time to make sure the name they give is not
+    the name of any other bobcat. Fortunately, no two bobcats are equally
+    fierce. Instances of this class represent such fierce bobcats.
+    """
+
+    __slots__ = ('_fierceness',)
+
+    FIERCENESS_CUTOFF = 9000
+    """Fierceness must be strictly greater than this level."""
+
+    def __init__(self, name, fierceness):
+        """Make a bobcat with the specified name and fierceness."""
+        super().__init__(name)
+
+        if not isinstance(fierceness, Real):
+            raise TypeError('fierceness must be a real number')
+
+        if fierceness <= self.FIERCENESS_CUTOFF:
+            raise ValueError(
+                f'{fierceness} fireceness is not fierce for a bobcat')
+
+        self._fierceness = fierceness
+
+    def __repr__(self):
+        """Representation of this bobcat that can be run as Python code."""
+        return (type(self).__name__
+                + f'(name={self.name!r}, fierceness={self.fierceness!r})')
+
+    # FIXME: Simplify, or at least clarify, this implementation.
+    def __eq__(self, other):
+        """Check if this and other represent the same fierce bobcat."""
+        if not isinstance(other, type(self)):
+            return False if isinstance(other, Bobcat) else NotImplemented
+
+        return super().__eq__(other) and self.fierceness == other.fierceness
+
+    def __hash__(self):
+        return hash((self.name, self.fierceness))
+
+    @property
+    def fierceness(self):
+        return self._fierceness
