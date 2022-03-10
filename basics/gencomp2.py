@@ -627,13 +627,7 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    if not matrix:
-        return ()
-
-    height = len(matrix)
-    width = len(matrix[0])
-
-    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
+    return tuple(zip(*matrix))
 
 
 def transpose_alt(matrix):
@@ -653,11 +647,13 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    return tuple(zip(*matrix))
+    if not matrix:
+        return ()
 
+    height = len(matrix)
+    width = len(matrix[0])
 
-def _make_affines(w, b):
-    return lambda x: w*x + b
+    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
 
 
 def submap(func, rows):
@@ -774,6 +770,10 @@ def is_hermitian_alt(matrix):
                for i in indices for j in indices)
 
 
+def _make_affine(w, b):
+    return lambda x: w*x + b
+
+
 def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
@@ -806,7 +806,7 @@ def affines(weights, biases):
     """
     unique_weights = set(weights)
     unique_biases = set(biases)
-    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
+    return {_make_affine(w, b) for w in unique_weights for b in unique_biases}
 
 
 def mean(iterable):
