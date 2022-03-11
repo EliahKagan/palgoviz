@@ -19,7 +19,7 @@ class Greeter:
             raise ValueError(f'{lang} is an unrecognized language code.')
         self.lang = lang
 
-    def greet(self, name):
+    def __call__(self, name):
         print(_FORMATS[self.lang].format(name))
 
 
