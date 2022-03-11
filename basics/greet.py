@@ -8,6 +8,21 @@ _FORMATS = {
 }
 
 
+class Greeter:
+    """
+    Callable object that greets people by name in a specified language
+    """
+
+    def __init__(self, lang):
+        """Create a greeter from the language code."""
+        if lang not in _FORMATS:
+            raise ValueError(f'{lang} is an unrecognized language code.')
+        self.lang = lang
+
+    def greet(self, name):
+        print(_FORMATS[self.lang].format(name))
+
+
 def make_greeter(lang):
     """
     Make a function that greets by name in the language specified by lang.
