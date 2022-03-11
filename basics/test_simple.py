@@ -56,21 +56,9 @@ class TestIsSorted(unittest.TestCase):
         items = (ch for ch in 'aa')
         self.assertTrue(is_sorted(items))
 
-    def test_descending_two_element_list_is_not_sorted(self):
-        items = ['b', 'a']
-        self.assertFalse(is_sorted(items))
-
-    def test_descending_two_element_generator_is_not_sorted(self):
-        items = ['b', 'a']
-        self.assertFalse(is_sorted(items))
-
     def test_sorted_short_but_nontrivial_list_is_sorted(self):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         self.assertTrue(is_sorted(items))
-
-    def test_unsorted_short_but_nontrivial_list_is_not_sorted(self):
-        items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'quux', 'spam', 'ham']
-        self.assertFalse(is_sorted(items))
 
 
 if __name__ == '__main__':
