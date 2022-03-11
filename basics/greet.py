@@ -23,17 +23,11 @@ class Greeter:
 
     def __init__(self, lang):
         """Create a greeter from the language code."""
-        if lang not in _FORMATS:
-            raise ValueError(f'{lang} is an unrecognized language code.')
-        self._lang = lang
+        self.lang = lang
 
     def __call__(self, name):
         """Greet a person by name."""
-        try:
-            print(_FORMATS[self._lang].format(name))
-        except KeyError as error:
-            message = f'{self._lang} is an unrecognized language code.'
-            raise ValueError(message) from error
+        print(_FORMATS[self._lang].format(name))
 
     @property
     def lang(self):
