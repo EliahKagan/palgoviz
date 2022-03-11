@@ -5,7 +5,7 @@ import io
 import sys
 import unittest
 
-from simple import alert, answer, is_sorted
+from simple import alert, answer, bail_if, is_sorted
 
 
 class TestAnswer(unittest.TestCase):
@@ -104,6 +104,32 @@ class TestAlert(unittest.TestCase):
     def _out(self):
         """The text written to standard error."""
         return self._stderr.getvalue()
+
+
+class TestBailIf(unittest.TestCase):
+    """Tests or the bail_if function."""
+
+    __slots__ = ()
+
+    def test_exits_on_literal_true_condition(self):
+        with self.assertRaises(SystemExit):
+            bail_if(True)
+
+    def test_no_exit_on_literal_false_condition(self):
+        try:
+            bail_if(False)
+        except SystemExit:
+            self.fail('bail_if raised SystemExit when given False condition')
+
+    def test_exits_on_truthy_condition(self):
+        with self.assertRaises(SystemExit):
+            bail_if('0')
+
+    def test_no_exit_on_falsy_condition(self):
+        try:
+            bail_if('')
+        except SystemExit:
+            self.fail("bail_if raised SystemExit when passed the empty string")
 
 
 if __name__ == '__main__':
