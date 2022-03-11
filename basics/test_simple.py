@@ -1,8 +1,11 @@
 """Tests for the simple functions in simple.py."""
 
+import contextlib
+import io
+import sys
 import unittest
 
-from simple import answer, is_sorted
+from simple import answer, die, is_sorted
 
 
 class TestAnswer(unittest.TestCase):
@@ -71,6 +74,39 @@ class TestIsSorted(unittest.TestCase):
     def test_unsorted_short_but_nontrivial_list_is_not_sorted(self):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'quux', 'spam', 'ham']
         self.assertFalse(is_sorted(items))
+
+
+class TestDie(unittest.TestCase):
+    """Tests for the die function."""
+
+    __slots__ = ('_old_argv', '_old_stderr', '_stderr')
+
+    def setUp(self):
+        """Monkey-patch command-line arguments and standard error."""
+        self._old_argv = sys.argv
+        self._old_stderr = sys.stderr
+        sys.argv = ['PROGNAME']
+        sys.stderr = self._stderr = io.StringIO()
+
+    def tearDown(self):
+        """Restore original command-line arguments and standard error."""
+        sys.stderr = self._old_stderr
+        sys.argv = self._old_argv
+
+    def test_system_exit_is_attempted_with_status_1(self):
+        with self.assertRaises(SystemExit) as context:
+            die('the parrot is too badly stunned')
+
+        self.assertEqual(context.exception.code, 1)
+
+    def test_prefixed_message_is_printed_to_stderr(self):
+        with contextlib.suppress(SystemExit):
+            die('the parrot is too badly stunned')
+
+        output = self._stderr.getvalue()
+
+        self.assertEqual(output,
+                         'PROGNAME: error: the parrot is too badly stunned\n')
 
 
 if __name__ == '__main__':
