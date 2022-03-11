@@ -53,8 +53,7 @@ def make_greeter(lang):
       ...
     ValueError: qx is an unrecognized language code.
     """
-    greeter = Greeter(lang)
-    return greeter
+    return Greeter(lang)
 
 
 def hello(name, lang='en'):
