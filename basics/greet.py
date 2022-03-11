@@ -28,12 +28,21 @@ def make_greeter(lang):
     Traceback (most recent call last):
       ...
     ValueError: zx is an unrecognized language code.
+    >>> greet.lang = 'qx'
+    >>> greet('Churchill')
+    Traceback (most recent call last):
+      ...
+    ValueError: qx is an unrecognized language code.
     """
     if lang not in _FORMATS:
         raise ValueError(f'{lang} is an unrecognized language code.')
 
     def greeter(name):
-        print(_FORMATS[greeter.lang].format(name))
+        try:
+            print(_FORMATS[greeter.lang].format(name))
+        except KeyError as error:
+            message = f'{greeter.lang} is an unrecognized language code.'
+            raise ValueError(message) from error
 
     greeter.lang = lang
 
