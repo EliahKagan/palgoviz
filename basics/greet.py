@@ -28,6 +28,7 @@ class Greeter:
         self._lang = lang
 
     def __call__(self, name):
+        """Greet a person by name."""
         try:
             print(_FORMATS[self._lang].format(name))
         except KeyError as error:
@@ -36,6 +37,7 @@ class Greeter:
 
     @property
     def lang(self):
+        """The language this Greeter will greet in."""
         return self._lang
 
     @lang.setter
