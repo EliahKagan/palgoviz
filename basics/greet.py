@@ -13,6 +13,8 @@ def make_greeter(lang):
     Make a function that greets by name in the language specified by lang.
 
     >>> greet = make_greeter('es')
+    >>> greet.lang
+    'es'
     >>> greet('David')
     ¡Hola, David!
     >>> greet('Eliah')
@@ -31,6 +33,8 @@ def make_greeter(lang):
 
     def greeter(name):
         print(lang_format.format(name))
+
+    greeter.lang = lang
 
     return greeter
 
