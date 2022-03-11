@@ -10,8 +10,16 @@ _FORMATS = {
 
 class Greeter:
     """
-    Callable object that greets people by name in a specified language
+    Callable object that greets people by name in a specified language.
+
+    >>> g = Greeter('en')
+    >>> g.lung = 'es'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'Greeter' object has no attribute 'lung'
     """
+
+    __slots__ = ('lang',)
 
     def __init__(self, lang):
         """Create a greeter from the language code."""
