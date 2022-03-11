@@ -20,7 +20,11 @@ class Greeter:
         self.lang = lang
 
     def __call__(self, name):
-        print(_FORMATS[self.lang].format(name))
+        try:
+            print(_FORMATS[self.lang].format(name))
+        except KeyError as error:
+            message = f'{self.lang} is an unrecognized language code.'
+            raise ValueError(message) from error
 
 
 def make_greeter(lang):
@@ -49,18 +53,7 @@ def make_greeter(lang):
       ...
     ValueError: qx is an unrecognized language code.
     """
-    if lang not in _FORMATS:
-        raise ValueError(f'{lang} is an unrecognized language code.')
-
-    def greeter(name):
-        try:
-            print(_FORMATS[greeter.lang].format(name))
-        except KeyError as error:
-            message = f'{greeter.lang} is an unrecognized language code.'
-            raise ValueError(message) from error
-
-    greeter.lang = lang
-
+    greeter = Greeter(lang)
     return greeter
 
 
