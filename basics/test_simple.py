@@ -1,8 +1,11 @@
 """Tests for the simple functions in simple.py."""
 
+import fractions
+import io
+import sys
 import unittest
 
-from simple import answer, is_sorted
+from simple import alert, answer, is_sorted
 
 
 class TestAnswer(unittest.TestCase):
@@ -71,6 +74,36 @@ class TestIsSorted(unittest.TestCase):
     def test_unsorted_short_but_nontrivial_list_is_not_sorted(self):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'quux', 'spam', 'ham']
         self.assertFalse(is_sorted(items))
+
+
+class TestAlert(unittest.TestCase):
+    """Tests for the alert function."""
+
+    __slots__ = ('_old_stderr', '_stderr')
+
+    def setUp(self):
+        """Monkey-patch ("redirect") standard error."""
+        self._old_stderr = sys.stderr
+        self._stderr = sys.stderr = io.StringIO()
+
+    def tearDown(self):
+        """Restore standard error."""
+        sys.stderr = self._old_stderr
+
+    def test_strings_are_printed_with_alert_prefix_and_newline(self):
+        """When message is a string, it is placed literally in the output."""
+        alert('the parrot is too badly stunned')
+        self.assertEqual(self._out, 'alert: the parrot is too badly stunned\n')
+
+    def test_str_not_repr_is_printed_with_alert_prefix_and_newline(self):
+        """When message is not a string, it is converted with str, not repr."""
+        alert(fractions.Fraction(3, 2))
+        self.assertEqual(self._out, 'alert: 3/2\n')
+
+    @property
+    def _out(self):
+        """The text written to standard error."""
+        return self._stderr.getvalue()
 
 
 if __name__ == '__main__':
