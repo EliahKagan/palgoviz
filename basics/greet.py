@@ -19,6 +19,9 @@ def make_greeter(lang):
     ¡Hola, David!
     >>> greet('Eliah')
     ¡Hola, Eliah!
+    >>> greet.lang = 'en'
+    >>> greet('David')
+    Hello, David!
     >>> make_greeter('en')('Stalin')  # But we greet Stalin in English???
     Hello, Stalin!
     >>> greet = make_greeter('zx')
@@ -26,13 +29,11 @@ def make_greeter(lang):
       ...
     ValueError: zx is an unrecognized language code.
     """
-    try:
-        lang_format = _FORMATS[lang]
-    except KeyError as error:
-        raise ValueError(f'{lang} is an unrecognized language code.') from error
+    if lang not in _FORMATS:
+        raise ValueError(f'{lang} is an unrecognized language code.')
 
     def greeter(name):
-        print(lang_format.format(name))
+        print(_FORMATS[greeter.lang].format(name))
 
     greeter.lang = lang
 
