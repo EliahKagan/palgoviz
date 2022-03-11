@@ -19,20 +19,30 @@ class Greeter:
     AttributeError: 'Greeter' object has no attribute 'lung'
     """
 
-    __slots__ = ('lang',)
+    __slots__ = ('_lang',)
 
     def __init__(self, lang):
         """Create a greeter from the language code."""
         if lang not in _FORMATS:
             raise ValueError(f'{lang} is an unrecognized language code.')
-        self.lang = lang
+        self._lang = lang
 
     def __call__(self, name):
         try:
-            print(_FORMATS[self.lang].format(name))
+            print(_FORMATS[self._lang].format(name))
         except KeyError as error:
-            message = f'{self.lang} is an unrecognized language code.'
+            message = f'{self._lang} is an unrecognized language code.'
             raise ValueError(message) from error
+
+    @property
+    def lang(self):
+        return self._lang
+
+    @lang.setter
+    def lang(self, value):
+        if value not in _FORMATS:
+            raise ValueError(f'{value} is an unrecognized language code.')
+        self._lang = value
 
 
 def make_greeter(lang):
@@ -56,7 +66,6 @@ def make_greeter(lang):
       ...
     ValueError: zx is an unrecognized language code.
     >>> greet.lang = 'qx'
-    >>> greet('Churchill')
     Traceback (most recent call last):
       ...
     ValueError: qx is an unrecognized language code.
