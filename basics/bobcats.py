@@ -11,7 +11,7 @@ class Bobcat:
     name. Subclasses are not required to preserve this property.
     """
 
-    __slots__ = ('_name',)
+    __slots__ = ('__name',)
 
     def __init__(self, name):
         """Make a bobcat with the specified name."""
@@ -19,7 +19,7 @@ class Bobcat:
             raise TypeError('got non-string value for bobcat name')
         if not name:
             raise ValueError('bobcat names must be least one character long')
-        self._name = name
+        self.__name = name
 
     def __repr__(self):
         """Representation of this bobcat that can be run as Python code."""
@@ -41,7 +41,7 @@ class Bobcat:
     @property
     def name(self):
         """The name bobcat-naming robots gave to this bobcat."""
-        return self._name
+        return self.__name
 
 
 class FierceBobcat(Bobcat):
