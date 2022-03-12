@@ -50,8 +50,11 @@ class Greeter:
 
         >>> Greeter('en')
         Greeter('en')
+        >>> class MyGreeter(Greeter): pass
+        >>> MyGreeter('en')
+        MyGreeter('en')
         """
-        return f"Greeter({self.lang!r})"
+        return f"{type(self).__name__}({self.lang!r})"
 
     @property
     def lang(self):
