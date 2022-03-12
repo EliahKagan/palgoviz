@@ -5,7 +5,7 @@ import io
 import sys
 import unittest
 
-from simple import alert, answer, bail_if, is_sorted
+from simple import alert, answer, bail_if, is_sorted, parse_yes_no
 
 
 class TestAnswer(unittest.TestCase):
@@ -20,6 +20,28 @@ class TestAnswer(unittest.TestCase):
     def test_the_answer_is_an_int(self):
         result = answer()
         self.assertIsInstance(result, int)
+
+
+class TestParseYesNo(unittest.TestCase):
+    """Tests for the parse_yes_no function."""
+
+    __slots__ = ()
+
+    def test_yes_parses_true(self):
+        self.assertTrue(parse_yes_no('yes'))
+
+    def test_no_parses_false(self):
+        self.assertFalse(parse_yes_no('no'))
+
+    def test_capitalized_yes_parses_true(self):
+        self.assertTrue(parse_yes_no('Yes'))
+
+    def test_capitalized_no_parses_false(self):
+        self.assertFalse(parse_yes_no('No'))
+
+    def test_text_other_than_yes_or_no_fails_to_parse(self):
+        with self.assertRaises(ValueError):
+            parse_yes_no('ness')
 
 
 class TestIsSorted(unittest.TestCase):
