@@ -100,6 +100,22 @@ class TestBobcat(unittest.TestCase):
         d = dict.fromkeys([b1, b2, b3, b4, b5, b6, b7, b8])
         self.assertListEqual(list(d), [b1, b2, b4, b5, b6])
 
+    @unittest.skip("We haven't decided if name mangling is justified here.")
+    def test_private_attribute_is_mangled_to_avoid_derived_class_clashes(self):
+        """This intends to test that __name is used rather than _name."""
+        class NameRememberingBobcat(Bobcat):
+            def __init__(self, own_name, name):
+                super().__init__(own_name)
+                self._name = name
+
+            @property
+            def remembered_name(self):
+                return self._name
+
+        bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
+        self.assertEqual(bobcat.name, 'Ekaterina')
+        self.assertEqual(bobcat.remembered_name, 'Phineas')
+
 
 class TestFierceBobcat(unittest.TestCase):
     """Tests for the FierceBobcat class."""
