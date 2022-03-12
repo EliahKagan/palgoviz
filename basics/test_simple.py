@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Tests for the simple code in simple.py."""
 
 import fractions
