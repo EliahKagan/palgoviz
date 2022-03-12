@@ -29,6 +29,22 @@ class Greeter:
         """Greet a person by name."""
         print(_FORMATS[self._lang].format(name))
 
+    def __eq__(self, other):
+        """
+        Two Greeter of the same lang should evalulate as equal
+        >>> a = Greeter('en')
+        >>> b = Greeter('es')
+        >>> c = Greeter('en')
+        >>> a == b
+        False
+        >>> a == c
+        True
+        """
+        if self.lang == other.lang:
+            return True
+        return False
+
+
     @property
     def lang(self):
         """The language this Greeter will greet in."""
