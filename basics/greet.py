@@ -41,7 +41,7 @@ class Greeter:
         False
         """
         if not isinstance(other, Greeter):
-            return False
+            return NotImplemented
         return self.lang == other.lang
 
     @property
