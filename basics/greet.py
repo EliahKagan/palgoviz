@@ -5,6 +5,7 @@
 _FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
+    "g'bx": "G''x'ygz''b'q {} ''q'''q'''''!'",  # FIXME: Remove after debugging.
 }
 
 
@@ -50,8 +51,10 @@ class Greeter:
 
         >>> Greeter('en')
         Greeter('en')
+        >>> Greeter("g'bx")
+        Greeter("g'bx")
         """
-        return f"Greeter('{self.lang}')"
+        return f"Greeter({self.lang!r})"
 
     @property
     def lang(self):
