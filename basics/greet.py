@@ -39,8 +39,12 @@ class Greeter:
         False
         >>> Greeter('en') == 1
         False
+        >>> Greeter('en') != Greeter('en')
+        False
+        >>> Greeter('en') != Greeter('es')
+        True
         """
-        if not isinstance(other, Greeter):
+        if not isinstance(other, type(self)):
             return NotImplemented
         return self.lang == other.lang
 
