@@ -95,7 +95,7 @@ class TestBobcat(unittest.TestCase):
         b4 = Bobcat('Bob')
         b5 = Bobcat('Ekaterina')
         b6 = Bobcat('T\'plak\'\'H"my\\0qQ\x00g\\n\nh"\\')
-        b7 = Bobcat('Ekaterina') # Same as b5.
+        b7 = Bobcat('Ekaterina')  # Same as b5.
         b8 = Bobcat('Countess von Willdebrandt')  # Same as b1, again.
 
         d = dict.fromkeys([b1, b2, b3, b4, b5, b6, b7, b8])
@@ -310,7 +310,7 @@ class TestFierceBobcat(unittest.TestCase):
         fb6 = FierceBobcat('Mean Bob', 9500)  # Same as fb1, again.
         fb7 = FierceBobcat('Mean Bob', 9500.0)  # Same as fb1, yet again.
         fb8 = FierceBobcat('G\'bhuj\'\'H"my\\0qQ\x00g\\n\nh"\\', 9670)
-        fb9 = FierceBobcat('Ekaterina II', 9499.0) # Same as fb4.
+        fb9 = FierceBobcat('Ekaterina II', 9499.0)  # Same as fb4.
 
         d = dict.fromkeys([fb1, fb2, fb3, fb4, fb5, fb6, fb7, fb8, fb9])
         self.assertListEqual(list(d), [fb1, fb2, fb3, fb4, fb8])
@@ -328,7 +328,7 @@ class TestFierceBobcat(unittest.TestCase):
         fb6 = FierceBobcat('Mean Bob', 9500)  # Same as fb1, again.
         fb7 = FierceBobcat('Mean Bob', 9500.0)  # Same as fb1, yet again.
         fb8 = FierceBobcat('G\'bhuj\'\'H"my\\0qQ\x00g\\n\nh"\\', 9670)
-        fb9 = FierceBobcat('Countess von Willdebrandt', 9499.0) # Same as fb4.
+        fb9 = FierceBobcat('Countess von Willdebrandt', 9499.0)  # Same as fb4.
         b5 = Bobcat('Countess von Willdebrandt')  # Same as b1, again.
 
         d = dict.fromkeys(
