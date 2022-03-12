@@ -1,4 +1,9 @@
-"""The scourge of immutable bobcats."""
+"""
+The scourge of immutable bobcats.
+
+This code modeled regular and extra-fierce bobcats, until most of it was lost
+in a bobcat attack. Fortunately, unit tests in test_bobcats.py were not harmed.
+"""
 
 
 class Bobcat:
