@@ -68,6 +68,9 @@ class Greeter:
         self._lang = value
 
 
+# TODO: Implement FrozenGreeter.
+
+
 def make_greeter(lang):
     """
     Make a function that greets by name in the language specified by lang.
