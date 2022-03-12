@@ -63,6 +63,7 @@ class TestBobcat(unittest.TestCase):
         self.assertNotEqual(first, second)
 
     def test_bobcats_are_not_equal_to_non_bobcats(self):
+        # TODO: Use subTest.
         bobcat = Bobcat('Countess von Willdebrandt')
         non_bobcat = 'Countess von Willdebrandt'
         self.assertNotEqual(bobcat, non_bobcat)
@@ -112,6 +113,7 @@ class TestBobcat(unittest.TestCase):
             def remembered_name(self):
                 return self._name
 
+        # TODO: Use subTest.
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         self.assertEqual(bobcat.name, 'Ekaterina')
         self.assertEqual(bobcat.remembered_name, 'Phineas')
@@ -167,6 +169,7 @@ class TestFierceBobcat(unittest.TestCase):
             FierceBobcat('Mean Bob', 9000)
 
     def test_the_only_problem_with_bools_is_they_are_not_fierce_enough(self):
+        # TODO: Use subTest or other parameterization.
         with self.assertRaises(ValueError):
             FierceBobcat('Mean Bob', False)
         with self.assertRaises(ValueError):
@@ -231,7 +234,7 @@ class TestFierceBobcat(unittest.TestCase):
         float_bob = FierceBobcat('Mean Bob', 9500.0)
         fraction_bob = FierceBobcat('Mean Bob', Fraction(9500, 1))
 
-        # TODO: Maybe use subtests or other parameterization here.
+        # TODO: Use subTest or other parameterization.
         self.assertEqual(int_bob, float_bob)
         self.assertEqual(int_bob, fraction_bob)
         self.assertEqual(float_bob, int_bob)
@@ -255,12 +258,14 @@ class TestFierceBobcat(unittest.TestCase):
         self.assertNotEqual(first, second)
 
     def test_fierce_bobcats_are_not_equal_to_regular_bobcats(self):
+        # TODO: Use subTest.
         regular = Bobcat('Countess von Willdebrandt')
         fierce = FierceBobcat('Countess von Willdebrandt', 17_346_802)
         self.assertNotEqual(fierce, regular)
         self.assertNotEqual(regular, fierce)
 
     def test_fierce_bobcats_are_not_equal_to_non_bobcats(self):
+        # TODO: Use subTest.
         bobcat = FierceBobcat('Mean Bob', 9500)
         non_bobcat = ('Mean Bob', 9500)
         self.assertNotEqual(bobcat, non_bobcat)
@@ -278,6 +283,7 @@ class TestFierceBobcat(unittest.TestCase):
 
         int_bob_hash = hash(int_bob)
 
+        # TODO: Use subTest or other parameterization.
         self.assertEqual(hash(float_bob), int_bob_hash)
         self.assertEqual(hash(fraction_bob), int_bob_hash)
 
