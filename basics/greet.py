@@ -37,7 +37,11 @@ class Greeter:
         True
         >>> Greeter('en') == Greeter('es')
         False
+        >>> Greeter('en') == 1
+        False
         """
+        if not isinstance(other, Greeter):
+            return False
         return self.lang == other.lang
 
     @property
