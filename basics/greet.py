@@ -31,19 +31,14 @@ class Greeter:
 
     def __eq__(self, other):
         """
-        Two Greeter of the same lang should evalulate as equal
-        >>> a = Greeter('en')
-        >>> b = Greeter('es')
-        >>> c = Greeter('en')
-        >>> a == b
-        False
-        >>> a == c
-        True
-        """
-        if self.lang == other.lang:
-            return True
-        return False
+        Check if two Greeters greet in the same language.
 
+        >>> Greeter('en') == Greeter('en')
+        True
+        >>> Greeter('en') == Greeter('es')
+        False
+        """
+        return self.lang == other.lang
 
     @property
     def lang(self):
