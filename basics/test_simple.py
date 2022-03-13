@@ -4,7 +4,7 @@
 
 import unittest
 
-from simple import MY_NONE, Widget
+from simple import MY_NONE, Widget, answer
 
 
 class TestMyNone(unittest.TestCase):
@@ -36,14 +36,28 @@ class TestWidget(unittest.TestCase):
         self.assertEqual(widget.size, 'just barely visible')
 
     def test_color_can_be_changed(self):
-        widget = Widget('vast', 'mauve')
-        widget.color = 'royal purple'
-        self.assertEqual(widget.color, 'royal purple')
+        widget = Widget('vast', 'mauve')  # Arrange.
+        widget.color = 'royal purple'  # Act.
+        self.assertEqual(widget.color, 'royal purple')  # Assert.
 
     def test_new_attributes_cannot_be_added(self):
         widget = Widget('vast', 'mauve')
         with self.assertRaises(AttributeError):
             widget.favorite_desert = 'Sahara'
+
+
+class TestAnswer(unittest.TestCase):
+    """Test the answer() function."""
+
+    __slots__ = ()
+
+    def test_the_answer_is_42(self):
+        answer_to_the_question = answer()
+        self.assertEqual(answer_to_the_question, 42)
+
+    def test_the_answer_is_an_int(self):
+        answer_to_the_question = answer()
+        self.assertIsInstance(answer_to_the_question, int)
 
 
 if __name__ == '__main__':
