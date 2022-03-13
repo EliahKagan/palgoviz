@@ -57,7 +57,10 @@ def greet_all_try(path, greeter):
         file.close()
 
 
-def run(*, names_processor=greet_all, greeter_factory=greet.FrozenGreeter):
+DEPENDENCIES = dict(names_processor=greet_all, greeter_factory=greet.FrozenGreeter)
+
+
+def run(*, names_processor, greeter_factory):
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
@@ -90,4 +93,4 @@ def run(*, names_processor=greet_all, greeter_factory=greet.FrozenGreeter):
 
 if __name__ == '__main__':  # If we are running this module as a script.
     # For exit codes in powershell, $LASTEXITCODE.
-    sys.exit(run())
+    sys.exit(run(**DEPENDENCIES))
