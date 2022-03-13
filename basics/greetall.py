@@ -57,10 +57,20 @@ def greet_all_try(path, greeter):
         file.close()
 
 
-DEPENDENCIES = dict(names_processor=greet_all, greeter_factory=greet.FrozenGreeter)
+class Config:
+    """Configuration specifying dependencies for the run() function."""
+
+    __slots__ = ('names_processor', 'greeter_factory')
+
+    def __init__(self,
+                 names_processor=greet_all,
+                 greeter_factory=greet.FrozenGreeter):
+        """Create a run configuration, optionally customizing dependencies."""
+        self.names_processor = names_processor
+        self.greeter_factory = greeter_factory
 
 
-def run(*, names_processor, greeter_factory):
+def run(configuration):
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
@@ -76,14 +86,14 @@ def run(*, names_processor, greeter_factory):
             pwarn('Too many arguments, see docstring for usage')
 
     try:
-        greeter = greeter_factory(lang)
+        greeter = configuration.greeter_factory(lang)
     except ValueError as error:
         perror(error)
         return 1
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        names_processor(path, greeter)
+        configuration.names_processor(path, greeter)
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
@@ -93,4 +103,4 @@ def run(*, names_processor, greeter_factory):
 
 if __name__ == '__main__':  # If we are running this module as a script.
     # For exit codes in powershell, $LASTEXITCODE.
-    sys.exit(run(**DEPENDENCIES))
+    sys.exit(run(Config()))
