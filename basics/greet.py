@@ -8,6 +8,10 @@ _FORMATS = {
 }
 
 
+# TODO: Extract shared parts of Greeter and FrozenGreeter to an abstract base
+#       class.
+
+
 class Greeter:
     """
     Callable object that greets people by name in a specified language.
