@@ -60,6 +60,7 @@ class Greeter:
             return NotImplemented
         return self.lang == other.lang
 
+
     def __repr__(self):
         """
         Representation of this Greeter as python code.
@@ -142,6 +143,17 @@ class FrozenGreeter:
         if not isinstance(other, type(self)):
             return NotImplemented
         return self.lang == other.lang
+
+    def __hash__(self):
+        """
+        Hash a FrozenGreeter. If x == y, hash(x) should = hash(y).
+
+        >>> fg1 = FrozenGreeter('en')
+        >>> fg2 = FrozenGreeter('en')
+        >>> hash(fg1) == hash(fg2)
+        True
+        """
+        return hash(self._lang)
 
     def __repr__(self):
         """
