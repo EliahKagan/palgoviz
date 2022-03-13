@@ -29,6 +29,33 @@ class Greeter:
         """Greet a person by name."""
         print(_FORMATS[self._lang].format(name))
 
+    def __eq__(self, other):
+        """
+        Check if two Greeters greet in the same language.
+
+        >>> Greeter('en') == Greeter('en')
+        True
+        >>> Greeter('en') == Greeter('es')
+        False
+        >>> Greeter('en') == 1
+        False
+        """
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.lang == other.lang
+
+    def __repr__(self):
+        """
+        Representation of this Greeter as python code.
+
+        >>> Greeter('en')
+        Greeter('en')
+        >>> class MyGreeter(Greeter): pass
+        >>> MyGreeter('en')
+        MyGreeter('en')
+        """
+        return f"{type(self).__name__}({self.lang!r})"
+
     @property
     def lang(self):
         """The language this Greeter will greet in."""
@@ -39,6 +66,9 @@ class Greeter:
         if value not in _FORMATS:
             raise ValueError(f'{value} is an unrecognized language code.')
         self._lang = value
+
+
+# TODO: Implement FrozenGreeter.
 
 
 def make_greeter(lang):
