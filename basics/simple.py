@@ -24,4 +24,5 @@ def answer():
 
 def is_sorted(items):
     """Check if an iterable is sorted."""
-    return True  # FIXME: Not all iterables are sorted.
+    my_items = list(items)
+    return my_items == sorted(my_items)
