@@ -85,6 +85,10 @@ class TestIsSorted(unittest.TestCase):
         items = ['a', 'b']
         self.assertTrue(is_sorted(items))
 
+    def test_descending_two_element_list_is_not_sorted(self):
+        items = ['b', 'a']
+        self.assertFalse(is_sorted(items))
+
     def test_ascending_two_element_generator_is_sorted(self):
         items = (ch for ch in 'ab')
         self.assertTrue(is_sorted(items))
