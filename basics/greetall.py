@@ -90,4 +90,4 @@ def run(names_processor, greeter_factory):
 
 if __name__ == '__main__':  # If we are running this module as a script.
     # For exit codes in powershell, $LASTEXITCODE.
-    sys.exit(run(greet_all, greet.Greeter))
+    sys.exit(run(greet_all, greet.FrozenGreeter))
