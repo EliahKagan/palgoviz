@@ -33,7 +33,16 @@ class Greeter:
         self.lang = lang
 
     def __call__(self, name):
-        """Greet a person by name."""
+        """
+        Greet a person by name.
+
+        >>> g = Greeter('es')
+        >>> g('David')
+        ¡Hola, David!
+        >>> g.lang = 'en'
+        >>> g('Eliah')
+        Hello, Eliah!
+        """
         print(_FORMATS[self._lang].format(name))
 
     def __eq__(self, other):
@@ -65,7 +74,15 @@ class Greeter:
 
     @property
     def lang(self):
-        """The language this Greeter will greet in."""
+        """
+        The language this Greeter will greet in.
+
+        >>> g = Greeter('en')
+        >>> g.lang = 'qx'
+        Traceback (most recent call last):
+          ...
+        ValueError: qx is an unrecognized language code.
+        """
         return self._lang
 
     @lang.setter
@@ -102,7 +119,13 @@ class FrozenGreeter:
         self._lang = lang
 
     def __call__(self, name):
-        """Greet a person by name."""
+        """
+        Greet a person by name.
+
+        >>> g = FrozenGreeter('es')
+        >>> g('David')
+        ¡Hola, David!
+        """
         print(_FORMATS[self._lang].format(name))
 
     def __eq__(self, other):
