@@ -148,7 +148,7 @@ class TestAlert(unittest.TestCase):
 
 
 class TestBailIf(unittest.TestCase):
-    """Tests or the bail_if function."""
+    """Tests for the bail_if function."""
 
     __slots__ = ()
 
