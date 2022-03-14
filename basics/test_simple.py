@@ -4,7 +4,7 @@
 
 import unittest
 
-from simple import MY_NONE, Widget
+from simple import MY_NONE, Widget, answer, is_sorted
 
 
 class TestMyNone(unittest.TestCase):
@@ -36,14 +36,80 @@ class TestWidget(unittest.TestCase):
         self.assertEqual(widget.size, 'just barely visible')
 
     def test_color_can_be_changed(self):
-        widget = Widget('vast', 'mauve')
-        widget.color = 'royal purple'
-        self.assertEqual(widget.color, 'royal purple')
+        widget = Widget('vast', 'mauve')  # Arrange.
+        widget.color = 'royal purple'  # Act.
+        self.assertEqual(widget.color, 'royal purple')  # Assert.
 
     def test_new_attributes_cannot_be_added(self):
         widget = Widget('vast', 'mauve')
         with self.assertRaises(AttributeError):
             widget.favorite_desert = 'Sahara'
+
+
+class TestAnswer(unittest.TestCase):
+    """Test the answer() function."""
+
+    __slots__ = ()
+
+    def test_the_answer_is_42(self):
+        answer_to_the_question = answer()
+        self.assertEqual(answer_to_the_question, 42)
+
+    def test_the_answer_is_an_int(self):
+        answer_to_the_question = answer()
+        self.assertIsInstance(answer_to_the_question, int)
+
+
+class TestIsSorted(unittest.TestCase):
+    """Tests for the is_sorted function."""
+
+    __slots__ = ()
+
+    def test_empty_list_is_sorted(self):
+        items = []
+        self.assertTrue(is_sorted(items))
+
+    def test_empty_generator_is_sorted(self):
+        items = (x for x in ())
+        self.assertTrue(is_sorted(items))
+
+    def test_one_element_list_is_sorted(self):
+        items = [76]
+        self.assertTrue(is_sorted(items))
+
+    def test_one_element_generator_is_sorted(self):
+        items = (x for x in (76,))
+        self.assertTrue(is_sorted(items))
+
+    def test_ascending_two_element_list_is_sorted(self):
+        items = ['a', 'b']
+        self.assertTrue(is_sorted(items))
+
+    def test_descending_two_element_list_is_not_sorted(self):
+        items = ['b', 'a']
+        self.assertFalse(is_sorted(items))
+
+    def test_descending_two_element_generator_is_not_sorted(self):
+        items = (x for x in (3, 2))
+        self.assertFalse(is_sorted(items))
+
+    def test_ascending_two_element_generator_is_sorted(self):
+        items = (ch for ch in 'ab')
+        self.assertTrue(is_sorted(items))
+
+    def test_equal_two_element_list_is_sorted(self):
+        items = ['a', 'a']
+        self.assertTrue(is_sorted(items))
+
+    def test_equal_two_element_generator_is_sorted(self):
+        items = (ch for ch in 'aa')
+        self.assertTrue(is_sorted(items))
+
+    def test_sorted_short_but_nontrivial_list_is_sorted(self):
+        items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+        self.assertTrue(is_sorted(items))
+
+    # FIXME: Add test of unsorted short but nontrivial list.
 
 
 if __name__ == '__main__':

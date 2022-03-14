@@ -10,7 +10,7 @@ Usage:
 
 import sys
 
-from greet import make_greeter
+import greet
 
 
 def pmessage(prefix, message):
@@ -57,7 +57,20 @@ def greet_all_try(path, greeter):
         file.close()
 
 
-def run(name_reading_greeter):
+class Config:
+    """Configuration specifying dependencies for the run() function."""
+
+    __slots__ = ('names_processor', 'greeter_factory')
+
+    def __init__(self,
+                 names_processor=greet_all,
+                 greeter_factory=greet.FrozenGreeter):
+        """Create a run configuration, optionally customizing dependencies."""
+        self.names_processor = names_processor
+        self.greeter_factory = greeter_factory
+
+
+def run(configuration):
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
@@ -73,14 +86,14 @@ def run(name_reading_greeter):
             pwarn('Too many arguments, see docstring for usage')
 
     try:
-        greeter = make_greeter(lang)
+        greeter = configuration.greeter_factory(lang)
     except ValueError as error:
         perror(error)
         return 1
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        name_reading_greeter(path, greeter)
+        configuration.names_processor(path, greeter)
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
@@ -90,4 +103,4 @@ def run(name_reading_greeter):
 
 if __name__ == '__main__':  # If we are running this module as a script.
     # For exit codes in powershell, $LASTEXITCODE.
-    sys.exit(run(greet_all))
+    sys.exit(run(Config()))

@@ -19,4 +19,10 @@ def answer():
     """
     Return the int said to answer the question of life/the universe/everything.
     """
-    return 43  # FIXME: Should be 42.
+    return 42
+
+
+def is_sorted(items):
+    """Check if an iterable is sorted."""
+    my_items = list(items)
+    return my_items == sorted(my_items)
