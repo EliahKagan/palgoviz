@@ -120,8 +120,9 @@ class TestAlert(unittest.TestCase):
 
     def test_simple_message(self):
         message = "Wall is still up."
+        expected = 'alert: Wall is still up.\n'
         alert(message)
-        self.assertEqual(self.my_stderr.getvalue(), "alert: Wall is still up.\n")
+        self.assertEqual(self.my_stderr.getvalue(), expected)
 
 
 if __name__ == '__main__':
