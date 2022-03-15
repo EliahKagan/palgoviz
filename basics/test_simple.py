@@ -4,52 +4,48 @@
 
 import unittest
 
-from simple import MY_NONE, Widget, answer, is_sorted
+import io
+
+import sys
+
+from simple import MY_NONE, Widget, answer, is_sorted, alert
 
 
 class TestMyNone(unittest.TestCase):
     """The MY_NONE constant doesn't need any tests. Here's one anyway."""
 
-    __slots__ = ()
-
     def test_my_none_is_none(self):
         self.assertIsNone(MY_NONE)
 
 
-# TODO: Extract common code to a setUp method.
 class TestWidget(unittest.TestCase):
     """Tests for the Widget class."""
 
-    __slots__ = ()
+    def setUp(self):
+        """Make a Widget for testing."""
+        self.widget = Widget('vast', 'mauve')  # Arrange
 
     def test_size_attribute_has_size(self):
-        widget = Widget('vast', 'mauve')
-        self.assertEqual(widget.size, 'vast')
+        self.assertEqual(self.widget.size, 'vast')
 
     def test_color_attribute_has_color(self):
-        widget = Widget('vast', 'mauve')
-        self.assertEqual(widget.color, 'mauve')
+        self.assertEqual(self.widget.color, 'mauve')
 
     def test_size_can_be_changed(self):
-        widget = Widget('vast', 'mauve')
-        widget.size = 'just barely visible'
-        self.assertEqual(widget.size, 'just barely visible')
+        self.widget.size = 'just barely visible'
+        self.assertEqual(self.widget.size, 'just barely visible')
 
     def test_color_can_be_changed(self):
-        widget = Widget('vast', 'mauve')  # Arrange.
-        widget.color = 'royal purple'  # Act.
-        self.assertEqual(widget.color, 'royal purple')  # Assert.
+        self.widget.color = 'royal purple'  # Act.
+        self.assertEqual(self.widget.color, 'royal purple')  # Assert.
 
     def test_new_attributes_cannot_be_added(self):
-        widget = Widget('vast', 'mauve')
         with self.assertRaises(AttributeError):
-            widget.favorite_desert = 'Sahara'
+            self.widget.favorite_desert = 'Sahara'
 
 
 class TestAnswer(unittest.TestCase):
     """Test the answer() function."""
-
-    __slots__ = ()
 
     def test_the_answer_is_42(self):
         answer_to_the_question = answer()
@@ -62,8 +58,6 @@ class TestAnswer(unittest.TestCase):
 
 class TestIsSorted(unittest.TestCase):
     """Tests for the is_sorted function."""
-
-    __slots__ = ()
 
     def test_empty_list_is_sorted(self):
         items = []
@@ -109,7 +103,25 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         self.assertTrue(is_sorted(items))
 
-    # FIXME: Add test of unsorted short but nontrivial list.
+    def test_unsorted_short_but_nontrivial_is_unsorted(self):
+        items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
+        self.assertFalse(is_sorted(items))
+
+class TestAlert(unittest.TestCase):
+    """Tests for the alert function."""
+
+    def setUp(self):
+        self.old_err = sys.stderr
+        self.my_stderr = sys.stderr = io.StringIO()
+
+    def tearDown(self):
+        sys.stderr = self.old_err
+
+    def test_alert_and_newline_are_printed_with_string(self):
+        message = "Wall is still up."
+        expected = 'alert: Wall is still up.\n'
+        alert(message)
+        self.assertEqual(self.my_stderr.getvalue(), expected)
 
 
 if __name__ == '__main__':
