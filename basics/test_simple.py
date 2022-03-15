@@ -118,7 +118,7 @@ class TestAlert(unittest.TestCase):
     def tearDown(self):
         sys.stderr = self.old_err
 
-    def test_simple_message(self):
+    def test_alert_and_newline_are_printed_with_string(self):
         message = "Wall is still up."
         expected = 'alert: Wall is still up.\n'
         alert(message)
