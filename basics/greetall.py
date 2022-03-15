@@ -10,7 +10,7 @@ Usage:
 
 import sys
 
-from greet import hello, FORMATS
+import greet
 
 
 def pmessage(prefix, message):
@@ -28,18 +28,23 @@ def pwarn(message):
     pmessage('WARNING', message)
 
 
-def greet_all(path, lang):
+def greet_names(name_lines, greeter):
+    """Greet each name in name_lines in given language."""
+    greeted = set()
+    for line in name_lines:
+        name = line.strip()
+        if name and name not in greeted:
+            greeter(name)
+            greeted.add(name)
+
+
+def greet_all(path, greeter):
     """Greet all in a file given the path and language."""
     with open(path, encoding='utf-8') as file:
-        names = set()
-        for line in file:
-            name = line.strip()
-            if name and name not in names:
-                hello(name, lang)
-                names.add(name)
+        greet_names(file, greeter)
 
 
-def greet_all_try(path, lang):
+def greet_all_try(path, greeter):
     """
     Greet all in a file given the path and language.
 
@@ -47,17 +52,25 @@ def greet_all_try(path, lang):
     """
     file = open(path, encoding='utf-8')
     try:
-        names = set()
-        for line in file:
-            name = line.strip()
-            if name and name not in names:
-                hello(name, lang)
-                names.add(name)
+        greet_names(file, greeter)
     finally:
         file.close()
 
 
-def run():
+class Config:
+    """Configuration specifying dependencies for the run() function."""
+
+    __slots__ = ('names_processor', 'greeter_factory')
+
+    def __init__(self,
+                 names_processor=greet_all,
+                 greeter_factory=greet.FrozenGreeter):
+        """Create a run configuration, optionally customizing dependencies."""
+        self.names_processor = names_processor
+        self.greeter_factory = greeter_factory
+
+
+def run(configuration):
     """Run the script."""
     # Uses LBYL (look before you leap).
     # block comments, (VSCODE) control + K + C, uncomment control + K + U
@@ -72,13 +85,15 @@ def run():
         case [_, path, lang, *_]:
             pwarn('Too many arguments, see docstring for usage')
 
-    if lang not in FORMATS:
-        perror('Did not pass a valid language code')
+    try:
+        greeter = configuration.greeter_factory(lang)
+    except ValueError as error:
+        perror(error)
         return 1
 
     # Uses EAFP (easier to ask forgiveness than permission).
     try:
-        greet_all_try(path, lang)
+        configuration.names_processor(path, greeter)
     except OSError as error:
         # Something went wrong opening or reading (or closing) the file.
         perror(error)
@@ -87,4 +102,5 @@ def run():
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
-    sys.exit(run()) # for exit codes in powershell, $LASTEXITCODE
+    # For exit codes in powershell, $LASTEXITCODE.
+    sys.exit(run(Config()))
