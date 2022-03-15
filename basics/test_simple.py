@@ -109,7 +109,9 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         self.assertTrue(is_sorted(items))
 
-    # FIXME: Add test of unsorted short but nontrivial list.
+    def test_unsorted_short_but_nontrivial_is_unsorted(self):
+        items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
+        self.assertFalse(is_sorted(items))
 
 
 if __name__ == '__main__':
