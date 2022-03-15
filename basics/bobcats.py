@@ -11,7 +11,7 @@ class Bobcat:
     A named bobcat.
 
     Direct instances of this class represent bobcats distinguishable solely by
-    name. Subclasses are not required to preserve this property.
+    name. Subclasses are not required to preserve this invariant.
     """
 
 
