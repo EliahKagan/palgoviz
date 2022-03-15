@@ -56,18 +56,6 @@ class FierceBobcat(Bobcat):
     in the same family, where everyone has a different name.)
 
     Instances of this class represent such fierce bobcats.
-
-    To restate the invariant in the Bobcat docstring, if these are all true:
-
-        isinstance(a, Bobcat)
-        isinstance(b, Bobcat)
-        a.name == b.name
-        a != b
-
-    Then at least one of these is false:
-
-        type(a) is Bobcat
-        type(b) is Bobcat
     """
 
     __slots__ = ('_fierceness',)
