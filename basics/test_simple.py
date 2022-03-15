@@ -10,16 +10,12 @@ from simple import MY_NONE, Widget, answer, is_sorted
 class TestMyNone(unittest.TestCase):
     """The MY_NONE constant doesn't need any tests. Here's one anyway."""
 
-    __slots__ = ()
-
     def test_my_none_is_none(self):
         self.assertIsNone(MY_NONE)
 
 
 class TestWidget(unittest.TestCase):
     """Tests for the Widget class."""
-
-    __slots__ = ()
 
     def setUp(self):
         self.widget = Widget('vast', 'mauve')  # Arrange
@@ -46,8 +42,6 @@ class TestWidget(unittest.TestCase):
 class TestAnswer(unittest.TestCase):
     """Test the answer() function."""
 
-    __slots__ = ()
-
     def test_the_answer_is_42(self):
         answer_to_the_question = answer()
         self.assertEqual(answer_to_the_question, 42)
@@ -59,8 +53,6 @@ class TestAnswer(unittest.TestCase):
 
 class TestIsSorted(unittest.TestCase):
     """Tests for the is_sorted function."""
-
-    __slots__ = ()
 
     def test_empty_list_is_sorted(self):
         items = []
