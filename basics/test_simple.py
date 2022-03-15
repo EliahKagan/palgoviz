@@ -4,7 +4,11 @@
 
 import unittest
 
-from simple import MY_NONE, Widget, answer, is_sorted
+import io
+
+import sys
+
+from simple import MY_NONE, Widget, answer, is_sorted, alert
 
 
 class TestMyNone(unittest.TestCase):
@@ -18,6 +22,7 @@ class TestWidget(unittest.TestCase):
     """Tests for the Widget class."""
 
     def setUp(self):
+        """Make a Widget for testing."""
         self.widget = Widget('vast', 'mauve')  # Arrange
 
     def test_size_attribute_has_size(self):
@@ -101,6 +106,22 @@ class TestIsSorted(unittest.TestCase):
     def test_unsorted_short_but_nontrivial_is_unsorted(self):
         items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
         self.assertFalse(is_sorted(items))
+
+class TestAlert(unittest.TestCase):
+    """Tests for the alert function."""
+
+    def setUp(self):
+        self.my_stderr = io.StringIO()
+        self.old_err = sys.stderr
+        sys.stderr = self.my_stderr
+
+    def tearDown(self):
+        sys.stderr = self.old_err
+
+    def test_simple_message(self):
+        message = "Wall is still up."
+        alert(message)
+        self.assertEqual(self.my_stderr.getvalue(), "alert: Wall is still up.\n")
 
 
 if __name__ == '__main__':

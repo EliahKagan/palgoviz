@@ -1,5 +1,6 @@
 """Some simple code, for unit testing."""
 
+import sys
 
 MY_NONE = None
 
@@ -26,3 +27,8 @@ def is_sorted(items):
     """Check if an iterable is sorted."""
     my_items = list(items)
     return my_items == sorted(my_items)
+
+
+def alert(message):
+    """Print an alert to standard error, with a simple "alert:" prefix."""
+    print(f'alert: {message}', file=sys.stderr)
