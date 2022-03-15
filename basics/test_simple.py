@@ -111,9 +111,8 @@ class TestAlert(unittest.TestCase):
     """Tests for the alert function."""
 
     def setUp(self):
-        self.my_stderr = io.StringIO()
         self.old_err = sys.stderr
-        sys.stderr = self.my_stderr
+        self.my_stderr = sys.stderr = io.StringIO()
 
     def tearDown(self):
         sys.stderr = self.old_err
