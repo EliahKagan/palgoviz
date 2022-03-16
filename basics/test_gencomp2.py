@@ -643,5 +643,85 @@ class TestComposeDictsView:
         assert get_rgb('meh') == 0x0000FF
 
 
+@pytest.fixture(name='make_matrix_indexer')
+def fixture_make_matrix_indexer():
+    """Make a factory of binary functions that 1-based index nested tuples."""
+    return lambda nested_tuple: lambda i, j: nested_tuple[i - 1][j - 1]
+
+
+class TestMatrixSquareFlat:
+    """Tests for the matrix_square_flat function."""
+
+    __slots__ = ()
+
+    def test_empty_matrix_squares_empty(self, make_matrix_indexer):
+        """With a matrix size n=0, the result is an empty dictionary."""
+        f = make_matrix_indexer(())
+        n = 0
+        assert gencomp2.matrix_square_flat(f, n) == {}
+
+    def test_1_by_1_matrix_squares_as_scalar(self, make_matrix_indexer):
+        """The square of a 1-by-1 matrix is a 1-by-1 matrix of the square."""
+        matrix = ((3,),)
+        f = make_matrix_indexer(matrix)
+        n = 1
+        assert gencomp2.matrix_square_flat(f, n) == {(1, 1): 9}
+
+    def test_2_by_2_matrix(self, make_matrix_indexer):
+        """Squaring a 2x2 matrix representing i gives one representing -1."""
+        matrix = ((0, -1), (-1, 0))
+        f = make_matrix_indexer(matrix)
+        n = 2
+        assert gencomp2.matrix_square_flat(f, n) == {
+            (1, 1): 1, (1, 2): 0,
+            (2, 1): 0, (2, 2): 1,
+        }
+
+    def test_3_by_3_matrix(self, make_matrix_indexer):
+        """Squaring a 3x3 matrix produces the correct result."""
+        matrix = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+        f = make_matrix_indexer(matrix)
+        n = 3
+        assert gencomp2.matrix_square_flat(f, n) == {
+            (1, 1):  30, (1, 2):  36, (1, 3):  42,
+            (2, 1):  66, (2, 2):  81, (2, 3):  96,
+            (3, 1): 102, (3, 2): 126, (3, 3): 150,
+        }
+
+
+class TestMatrixSquareNested:
+    """Tests for the matrix_square_nested function."""
+
+    __slots__ = ()
+
+    def test_empty_matrix_squares_empty(self, make_matrix_indexer):
+        """With a matrix size n=0, the result is an empty dictionary."""
+        f = make_matrix_indexer(())
+        n = 0
+        assert gencomp2.matrix_square_nested(f, n) == []
+
+    def test_1_by_1_matrix_squares_as_scalar(self, make_matrix_indexer):
+        """The square of a 1-by-1 matrix is a 1-by-1 matrix of the square."""
+        matrix = ((3,),)
+        f = make_matrix_indexer(matrix)
+        n = 1
+        assert gencomp2.matrix_square_nested(f, n) == [[9]]
+
+    def test_2_by_2_matrix(self, make_matrix_indexer):
+        """Squaring a 2x2 matrix representing i gives one representing -1."""
+        matrix = ((0, -1), (-1, 0))
+        f = make_matrix_indexer(matrix)
+        n = 2
+        assert gencomp2.matrix_square_nested(f, n) == [[1, 0], [0, 1]]
+
+    def test_3_by_3_matrix(self, make_matrix_indexer):
+        """Squaring a 3x3 matrix produces the correct result."""
+        matrix = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+        f = make_matrix_indexer(matrix)
+        n = 3
+        result = gencomp2.matrix_square_nested(f, n)
+        assert result == [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main())
