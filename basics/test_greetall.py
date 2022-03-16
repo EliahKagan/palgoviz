@@ -3,11 +3,12 @@
 """Tests for greetall.py."""
 
 import sys
-from typing import NamedTuple, Protocol, runtime_checkable
+from typing import Any, NamedTuple, Protocol, runtime_checkable
 
 import pytest
 from typeguard import typechecked
 
+import greet
 import greetall
 
 
@@ -25,14 +26,29 @@ class Invoker(Protocol):  # pylint: disable=too-few-public-methods
     def __call__(self, *__args: str) -> Result: ...
 
 
+@pytest.fixture(name='names_processor',
+                params=[greetall.greet_all, greetall.greet_all_try])
+def fixture_names_processor(request: Any):
+    return request.param
+
+
+@pytest.fixture(name='greeter_factory',
+                params=[greet.Greeter, greet.FrozenGreeter])
+def fixture_greeter_factory(request: Any):
+    return request.param
+
+
 @pytest.fixture(name='invoke')
 @typechecked
 def fixture_invoke(capsys: pytest.CaptureFixture,
-                   monkeypatch: pytest.MonkeyPatch) -> Invoker:
+                   monkeypatch: pytest.MonkeyPatch,
+                   names_processor: Any,
+                   greeter_factory: Any) -> Invoker:
     """Helper to return a function that automates input and output."""
     def invoker(*args: str) -> Result:
         monkeypatch.setattr('sys.argv', ['PROGNAME', *args])
-        status = greetall.run(greetall.Config())  # TODO: Parametrize.
+        config = greetall.Config(names_processor, greeter_factory)
+        status = greetall.run(config)
         outerr = capsys.readouterr()
         return Result(status, outerr.out, outerr.err)
 
