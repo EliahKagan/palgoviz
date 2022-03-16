@@ -32,7 +32,7 @@ def fixture_invoke(capsys: pytest.CaptureFixture,
     """Helper to return a function that automates input and output."""
     def invoker(*args: str) -> Result:
         monkeypatch.setattr('sys.argv', ['PROGNAME', *args])
-        status = greetall.run()
+        status = greetall.run(greetall.Config())  # TODO: Parametrize.
         outerr = capsys.readouterr()
         return Result(status, outerr.out, outerr.err)
 
