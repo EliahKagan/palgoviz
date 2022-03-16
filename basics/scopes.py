@@ -1,6 +1,4 @@
-"""
-How variable scoping works in Python.
-"""
+"""How variable scoping works in Python."""
 
 x = 'outer'
 
@@ -11,6 +9,21 @@ x = 'outer'
 def f():
     print(x)
     x = 'inner'
+
+
+def g():
+    x = "outer"
+    print(x)
+    def inner():
+        nonlocal x
+        x = "OUTER"
+    inner()
+    print(x)
+
+
+def h():
+    global x
+    x = "global"
 
 
 def demo():
@@ -27,13 +40,20 @@ def make_square_printer(x):
     return printer
 
 
-printers = []
-for n in 2, 3, 7:
-    printers.append(make_square_printer(n))
+def test_printers():
+    printers = []
+    for n in 2, 3, 7:
+        printers.append(make_square_printer(n))
 
-# print(printers)
+    # print(printers)
 
-for printer in printers:
-    square = 50  # Makes no difference.
-    print(f'Calling {printer.__name__}:', end='  ')
-    printer()
+    for printer in printers:
+        square = 50  # Makes no difference.
+        print(f'Calling {printer.__name__}:', end='  ')
+        printer()
+
+
+def call_h():
+    print(x)
+    h()
+    print(x)
