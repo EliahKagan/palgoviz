@@ -763,5 +763,87 @@ class TestTranspose:
         implementation(matrix) == ((1, 3, 5), (2, 4, 6))
 
 
+@pytest.fixture(name='all_are_iterators')
+def fixture_all_are_iterators():
+    """Make a function that checks for an iterable of iterators."""
+    return lambda rows: all(isinstance(row, Iterator) for row in rows)
+
+
+class TestSubmap:
+    """Tests for the submap function."""
+
+    __slots__ = ()
+
+    @pytest.mark.parametrize('rows', [
+        [],
+        (),
+        set(),
+        range(0),
+        iter([]),
+        iter(()),
+        iter(set()),
+        iter(range(0)),
+    ])
+    def test_empty_iterable_submaps_empty(self, rows):
+        """Sub-mapping an empty iterable gives an empty iterator."""
+        result = gencomp2.submap(len, rows)
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_iterable_of_heterogeneous_iterables(self, all_are_iterators):
+        """Sub-mapping an iterable of different iterables maps each of them."""
+        rows = reversed([iter(range(10)), (x - 1 for x in (1, 4, 7)), [2, 3]])
+        result = gencomp2.submap(lambda x: x**2, rows)
+        assert isinstance(result, Iterator)
+
+        out_rows = list(result)
+        assert all_are_iterators(out_rows)
+
+        assert [list(out_row) for out_row in out_rows] == [
+            [4, 9],
+            [0, 9, 36],
+            [0, 1, 4, 9, 16, 25, 36, 49, 64, 81],
+        ]
+
+    def test_iterable_of_strings(self, all_are_iterators):
+        """Sub-mapping an iterable of strings maps each string's characters."""
+        rows = ['Ifvsjtujdbmmz', 'Qsphsbnnfe', 'BMhpsjuinjd', 'Dpnqvufs']
+        result = gencomp2.submap(lambda c: chr(ord(c) - 1), rows)
+        assert isinstance(result, Iterator)
+
+        out_rows = list(result)
+        assert all_are_iterators(out_rows)
+
+        assert [''.join(out_row) for out_row in out_rows] == [
+            'Heuristically', 'Programmed', 'ALgorithmic', 'Computer'
+        ]
+
+    def test_iterable_of_iterable_of_sequence(self):
+        """Sub-mapping a nested nested iterable maps the nested iterable."""
+        rows = (([] for _ in range(1)) for _ in range(1))
+        result = gencomp2.submap(len, rows)
+        out_row = next(result)
+        out_row_elem = next(out_row)
+
+        assert out_row_elem == 0
+
+        with pytest.raises(StopIteration):
+            next(out_row)
+
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_duplicate_iterators_are_consumed(self, all_are_iterators):
+        """Sub-mapping an iterable of iterators performs no materialization."""
+        rows = [iter(range(1, 4))] * 2
+        result = gencomp2.submap(lambda x: x, rows)
+        assert isinstance(result, Iterator)
+
+        out_rows = list(result)
+        assert all_are_iterators(out_rows)
+
+        assert [list(out_row) for out_row in out_rows] == [[1, 2, 3], []]
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main())
