@@ -613,8 +613,8 @@ def identity_matrix(n):
     """
     Make an n-by-n identity matrix, represented as a nested list.
 
-    This implementation is self-contained (using only builtins) and consists of
-    a single statement, which fits easily on one line.
+    This implementation is self-contained (except that it may use builtins) and
+    consists of a single statement, which fits easily on one line.
 
     >>> identity_matrix(0)
     []
@@ -663,7 +663,7 @@ def identity_matrix_alt(n):
 
     This alternative implementation uses a helper function that computes a row,
     which itself uses a helper function that computes an entry. Both helpers
-    are implemented as top-level functions.
+    should be written as top-level functions, with tests in test_gencomp2.py.
 
     >>> identity_matrix_alt(0)
     []
@@ -1037,7 +1037,7 @@ def my_dropwhile(predicate, iterable):
 
     Consider: Can takewhile be used to implement dropwhile? Why or why not?
 
-    The is the first of two implementations. It does not use comprehensions.
+    This is the first of two implementations. It does not use comprehensions.
 
     >>> next(my_dropwhile(lambda x: x % 17 != 0, iter(range(40, 100))))
     51
@@ -1087,12 +1087,13 @@ def outdegrees(rows):
 
     rows is a directed graph's adjacency list, supplied as a dictionary (see
     ungroup, above). The outdegree (or out-degree) of a vertex is how many
-    forward neighbors it has, i.e., the number edges coming out of the vertex.
+    forward neighbors it has, i.e., the number of edges coming out of the
+    vertex.
 
-    The algorithm should have the best possible worst-case asymptotic time
-    complexity. [FIXME: Put the complexity, for n vertices and m edges, here.]
+    Your algorithm should have the best possible worst-case asymptotic time
+    complexity. [Please write the running time, for n nodes and m edges, here.]
 
-    NOTE: This can, and probably should, be done with a single line of code.
+    Note: This can, and probably should, be done with a single line of code.
 
     FIXME: Needs tests.
     """
@@ -1108,12 +1109,10 @@ def indegrees(rows):
     backward (i.e., reverse) neighbors it has; i.e., how many vertices have it
     as a forward neighbor; i.e., the number of edges coming into the vertex.
 
-    The algorithm should have the best possible worst-case asymptotic time
-    complexity. [FIXME: Put the complexity, for n vertices and m edges, here.]
+    Your algorithm should have the best possible worst-case asymptotic time
+    complexity. [Please write the running time, for n nodes and m edges, here.]
 
-    Consider: What if the rows were sets instead of lists?
-
-    NOTE: This can, and probably should, be done with a single line of code.
+    Note: This can, and probably should, be done with a single line of code.
 
     FIXME: Needs tests.
     """

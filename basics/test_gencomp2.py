@@ -129,7 +129,7 @@ class TestThreeSumIndices:
             next(result)
 
     def test_when_all_combinations_work_all_are_found(self, implementation):
-        """When input is "stacked" so all sums win, the are all reported."""
+        """When input is "stacked" so all sums win, they are all reported."""
         a = itertools.repeat(1, 10)
         b = itertools.repeat(2, 20)
         c = itertools.repeat(3, 30)
@@ -927,9 +927,9 @@ class TestIdentityMatrix:
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]]
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]],
     ])
-    def test_1_on_diagonal_0_off(self, implementation, n, expected):
+    def test_diagonal_are_1s_others_are_0s(self, implementation, n, expected):
         """Entries are the Kronecker delta function of the indices."""
         assert implementation(n) == expected
 
