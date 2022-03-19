@@ -7,7 +7,7 @@ import io
 import sys
 import unittest
 
-from simple import MY_NONE, Widget, answer, is_sorted, alert
+from simple import MY_NONE, Widget, answer, is_sorted, alert, bail_if
 
 
 class TestMyNone(unittest.TestCase):
@@ -135,6 +135,19 @@ class TestAlert(unittest.TestCase):
     def _actual(self):
         """Result printed by alert()."""
         return self._my_stderr.getvalue()
+
+
+class TestBail(unittest.TestCase):
+    """Tests for the bail_if function."""
+
+    def test_bails_if_true(self):
+        exit_code = None
+        try:
+            bail_if(True)
+        except SystemExit as exitobject:
+            exit_code = exitobject.code
+        self.assertEqual(exit_code, 1)
+
 
 
 if __name__ == '__main__':
