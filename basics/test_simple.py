@@ -111,23 +111,30 @@ class TestAlert(unittest.TestCase):
     """Tests for the alert function."""
 
     def setUp(self):
+        """Redirect standard error."""
         self._old_err = sys.stderr
         self._my_stderr = sys.stderr = io.StringIO()
 
     def tearDown(self):
+        """Restore original standard error."""
         sys.stderr = self._old_err
 
     def test_alert_and_newline_are_printed_with_string(self):
         message = "Wall is still up."
         expected = 'alert: Wall is still up.\n'
         alert(message)
-        self.assertEqual(self._my_stderr.getvalue(), expected)
+        self.assertEqual(self._actual, expected)
 
     def test_alert_with_nonstring_message_prints_str_of_message(self):
         message = Fraction(2, 3)
         expected = "alert: 2/3\n"
         alert(message)
-        self.assertEqual(self._my_stderr.getvalue(), expected)
+        self.assertEqual(self._actual, expected)
+
+    @property
+    def _actual(self):
+        """Result printed by alert()."""
+        return self._my_stderr.getvalue()
 
 
 if __name__ == '__main__':
