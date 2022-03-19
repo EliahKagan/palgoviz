@@ -608,6 +608,93 @@ def matrix_square_nested(f, n):
     return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r]
 
 
+def identity_matrix(n):
+    """
+    Make an n-by-n identity matrix, represented as a nested list.
+
+    This implementation is self-contained (using only builtins) and consists of
+    a single statement, which fits easily on one line.
+
+    >>> identity_matrix(0)
+    []
+    >>> identity_matrix(1)
+    [[1]]
+    >>> identity_matrix(2)
+    [[1, 0], [0, 1]]
+    >>> identity_matrix(3)
+    [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    >>> identity_matrix(4)
+    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    >>> from pprint import pprint
+    >>> pprint(identity_matrix(15))
+    [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
+    """
+    return [[int(i == j) for j in range(n)] for i in range(n)]
+
+
+def _kronecker_delta(i, j):
+    """Kronecker delta. 1 if i == j. 0 otherwise."""
+    return 1 if i == j else 0
+
+
+def _identity_matrix_row(n, i):
+    """Return the ith row of an n-by-n identity matrix (0-based indexing)."""
+    return [_kronecker_delta(i, j) for j in range(n)]
+
+
+def identity_matrix_alt(n):
+    """
+    Make an n-by-n identity matrix, represented as a nested list.
+
+    This alternative implementation uses a helper function that computes a row,
+    which itself uses a helper function that computes an entry. Both helpers
+    are implemented as top-level functions.
+
+    >>> identity_matrix_alt(0)
+    []
+    >>> identity_matrix_alt(1)
+    [[1]]
+    >>> identity_matrix_alt(2)
+    [[1, 0], [0, 1]]
+    >>> identity_matrix_alt(3)
+    [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    >>> identity_matrix_alt(4)
+    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    >>> from pprint import pprint
+    >>> pprint(identity_matrix_alt(15))
+    [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
+    """
+    return [_identity_matrix_row(n, i) for i in range(n)]
+
+
 def transpose(matrix):
     """
     Transpose a matrix represented as a tuple of tuples.
