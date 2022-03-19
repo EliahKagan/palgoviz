@@ -123,6 +123,12 @@ class TestAlert(unittest.TestCase):
         alert(message)
         self.assertEqual(self.my_stderr.getvalue(), expected)
 
+    def test_alert_with_nonstring_message(self):
+        message = 1
+        expected = "alert: 1\n"
+        alert(message)
+        self.assertEqual(self.my_stderr.getvalue(), expected)
+
 
 if __name__ == '__main__':
     unittest.main()
