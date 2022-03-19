@@ -9,6 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
+from collections import Counter
 from collections.abc import Iterable
 import itertools
 import operator
@@ -1034,7 +1035,7 @@ def my_dropwhile(predicate, iterable):
 
     This behaves the same as itertools.dropwhile.
 
-    [Can dropwhile be implemented in terms of takewhile? Why or why not?]
+    Consider: Can takewhile be used to implement dropwhile? Why or why not?
 
     The is the first of two implementations. It does not use comprehensions.
 
@@ -1078,6 +1079,45 @@ def my_dropwhile_alt(predicate, iterable):
     """
     yielding = False
     return (x for x in iterable if yielding or (yielding := not predicate(x)))
+
+
+def outdegrees(rows):
+    """
+    Given an adjacency list, make a Counter that maps vertices to outdegrees.
+
+    rows is a directed graph's adjacency list, supplied as a dictionary (see
+    ungroup, above). The outdegree (or out-degree) of a vertex is how many
+    forward neighbors it has, i.e., the number edges coming out of the vertex.
+
+    The algorithm should have the best possible worst-case asymptotic time
+    complexity. [FIXME: Put the complexity, for n vertices and m edges, here.]
+
+    NOTE: This can, and probably should, be done with a single line of code.
+
+    FIXME: Needs tests.
+    """
+    return Counter({vertex: len(row) for vertex, row in rows.items()})
+
+
+def indegrees(rows):
+    """
+    Given an adjacency list, make a Counter that maps vertices to indegrees.
+
+    rows is a directed graph's adjacency list, supplied as a dictionary (as
+    described above). The indegree (or in-degree) of a vertex is how many
+    backward (i.e., reverse) neighbors it has; i.e., how many vertices have it
+    as a forward neighbor; i.e., the number of edges coming into the vertex.
+
+    The algorithm should have the best possible worst-case asymptotic time
+    complexity. [FIXME: Put the complexity, for n vertices and m edges, here.]
+
+    Consider: What if the rows were sets instead of lists?
+
+    NOTE: This can, and probably should, be done with a single line of code.
+
+    FIXME: Needs tests.
+    """
+    return Counter(itertools.chain.from_iterable(rows.values()))
 
 
 if __name__ == '__main__':
