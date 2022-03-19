@@ -2,11 +2,10 @@
 
 """Tests for the simple code in simple.py."""
 
-import unittest
-
+from fractions import Fraction
 import io
-
 import sys
+import unittest
 
 from simple import MY_NONE, Widget, answer, is_sorted, alert
 
@@ -123,9 +122,9 @@ class TestAlert(unittest.TestCase):
         alert(message)
         self.assertEqual(self.my_stderr.getvalue(), expected)
 
-    def test_alert_with_nonstring_message(self):
-        message = 1
-        expected = "alert: 1\n"
+    def test_alert_with_nonstring_message_prints_str_of_message(self):
+        message = Fraction(2, 3)
+        expected = "alert: 2/3\n"
         alert(message)
         self.assertEqual(self.my_stderr.getvalue(), expected)
 
