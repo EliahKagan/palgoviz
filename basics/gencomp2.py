@@ -1004,11 +1004,37 @@ def integrate(f, a, b, n):
     return mean(f(x) for x in floats_in_range(a, b, (b - a) / n)) * (b - a)
 
 
+def my_takewhile(predicate, iterable):
+    """
+    Yield elements of iterable until some element does not satisfy predicate.
+
+    This behaves the same as itertools.takewhile.
+
+    >>> next(my_takewhile(lambda _: True, []))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(my_takewhile(lambda x: x < 10, range(1, 1_000_000_000_000_000)))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    >>> list(my_takewhile(lambda x: x, iter([3, {12}, [], 4, 'abc'])))
+    [3, {12}]
+    >>> words = ['foo', 'bar', 'baz', 'quux', 'ham', 'egg', 'spam', 'foobar']
+    >>> list(my_takewhile(lambda a: len(a) == 3, map(str.upper, words)))
+    ['FOO', 'BAR', 'BAZ']
+    """
+    for element in iterable:
+        if not predicate(element):
+            break
+        yield element
+
+
 def my_dropwhile(predicate, iterable):
     """
     Yield elements of iterable starting at the first not to satisfy predicate.
 
     This behaves the same as itertools.dropwhile.
+
+    [Can dropwhile be implemented in terms of takewhile? Why or why not?]
 
     The is the first of two implementations. It does not use comprehensions.
 
