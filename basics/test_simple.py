@@ -106,27 +106,28 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
         self.assertFalse(is_sorted(items))
 
+
 class TestAlert(unittest.TestCase):
     """Tests for the alert function."""
 
     def setUp(self):
-        self.old_err = sys.stderr
-        self.my_stderr = sys.stderr = io.StringIO()
+        self._old_err = sys.stderr
+        self._my_stderr = sys.stderr = io.StringIO()
 
     def tearDown(self):
-        sys.stderr = self.old_err
+        sys.stderr = self._old_err
 
     def test_alert_and_newline_are_printed_with_string(self):
         message = "Wall is still up."
         expected = 'alert: Wall is still up.\n'
         alert(message)
-        self.assertEqual(self.my_stderr.getvalue(), expected)
+        self.assertEqual(self._my_stderr.getvalue(), expected)
 
     def test_alert_with_nonstring_message_prints_str_of_message(self):
         message = Fraction(2, 3)
         expected = "alert: 2/3\n"
         alert(message)
-        self.assertEqual(self.my_stderr.getvalue(), expected)
+        self.assertEqual(self._my_stderr.getvalue(), expected)
 
 
 if __name__ == '__main__':
