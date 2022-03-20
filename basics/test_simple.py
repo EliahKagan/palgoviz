@@ -141,12 +141,15 @@ class TestBailIf(unittest.TestCase):
     """Tests for the bail_if function."""
 
     def test_bails_if_true(self):
-        try:
+        with self.assertRaises(SystemExit) as cm:
             bail_if(True)
-        except SystemExit as exitobject:
-            self.assertEqual(exitobject.code, 1)
-        else:
-            self.fail("condition was True but didn't exit.")
+
+        # FIXME: Figure out why the pytest test runner seemed to indicate that
+        # the test worked even with this code in the with block, and even when
+        # testing a deliberately broken bail_if implementation that never
+        # attempted to exit.
+        eobject = cm.exception
+        self.assertEqual(eobject.code, 1)
 
 
 if __name__ == '__main__':
