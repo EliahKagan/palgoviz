@@ -147,7 +147,10 @@ class TestBailIf(unittest.TestCase):
         self.assertEqual(eobject.code, 1)
 
     def test_does_not_bail_if_false(self):
-        bail_if(False)
+        try:
+            bail_if(False)
+        except SystemExit:
+            self.fail("Bailed although condition was false.")
 
 
 if __name__ == '__main__':
