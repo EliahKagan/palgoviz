@@ -137,17 +137,16 @@ class TestAlert(unittest.TestCase):
         return self._my_stderr.getvalue()
 
 
-class TestBail(unittest.TestCase):
+class TestBailIf(unittest.TestCase):
     """Tests for the bail_if function."""
 
     def test_bails_if_true(self):
-        exit_code = None
         try:
             bail_if(True)
         except SystemExit as exitobject:
-            exit_code = exitobject.code
-        self.assertEqual(exit_code, 1)
-
+            self.assertEqual(exitobject.code, 1)
+        else:
+            self.fail("condition was True but didn't exit.")
 
 
 if __name__ == '__main__':
