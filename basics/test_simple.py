@@ -146,6 +146,9 @@ class TestBailIf(unittest.TestCase):
         eobject = cm.exception
         self.assertEqual(eobject.code, 1)
 
+    def test_does_not_bail_if_false(self):
+        bail_if(False)
+
 
 if __name__ == '__main__':
     unittest.main()
