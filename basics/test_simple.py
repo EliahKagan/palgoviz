@@ -79,12 +79,22 @@ class TestIsSorted(unittest.TestCase):
         self.assertTrue(is_sorted(items))
 
     def test_descending_two_element_list_is_not_sorted(self):
-        items = ['b', 'a']
-        self.assertFalse(is_sorted(items))
+        with self.subTest(kind='strings'):
+            items = ['b', 'a']
+            self.assertFalse(is_sorted(items))
+
+        with self.subTest(kind='integers'):
+            items = [3, 2]
+            self.assertFalse(is_sorted(items))
 
     def test_descending_two_element_generator_is_not_sorted(self):
-        items = (x for x in (3, 2))
-        self.assertFalse(is_sorted(items))
+        with self.subTest(kind='strings'):
+            items = (x for x in ('b', 'a'))
+            self.assertFalse(is_sorted(items))
+
+        with self.subTest(kind='integers'):
+            items = (x for x in (3, 2))
+            self.assertFalse(is_sorted(items))
 
     def test_ascending_two_element_generator_is_sorted(self):
         items = (ch for ch in 'ab')
