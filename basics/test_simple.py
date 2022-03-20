@@ -146,9 +146,21 @@ class TestBailIf(unittest.TestCase):
         eobject = cm.exception
         self.assertEqual(eobject.code, 1)
 
+    def test_bails_if_truthy(self):
+        with self.assertRaises(SystemExit) as cm:
+            bail_if(1)
+        eobject = cm.exception
+        self.assertEqual(eobject.code, 1)
+
     def test_does_not_bail_if_false(self):
         try:
             bail_if(False)
+        except SystemExit:
+            self.fail("Bailed although condition was false.")
+
+    def test_does_not_bail_if_falsey(self):
+        try:
+            bail_if(0)
         except SystemExit:
             self.fail("Bailed although condition was false.")
 
