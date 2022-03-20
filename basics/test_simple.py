@@ -162,7 +162,7 @@ class TestBailIf(unittest.TestCase):
         try:
             bail_if(0)
         except SystemExit:
-            self.fail("Bailed although condition was false.")
+            self.fail("Bailed although condition was falsey.")
 
 
 if __name__ == '__main__':
