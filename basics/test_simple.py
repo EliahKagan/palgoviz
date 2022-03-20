@@ -150,29 +150,31 @@ class TestAlert(unittest.TestCase):
 class TestBailIf(unittest.TestCase):
     """Tests for the bail_if function."""
 
-    def test_bails_if_true(self):
-        with self.assertRaises(SystemExit) as cm:
-            bail_if(True)
-        eobject = cm.exception
-        self.assertEqual(eobject.code, 1)
-
     def test_bails_if_truthy(self):
-        with self.assertRaises(SystemExit) as cm:
-            bail_if(1)
-        eobject = cm.exception
-        self.assertEqual(eobject.code, 1)
+        with self.subTest(kind='integer'):
+            with self.assertRaises(SystemExit) as cm:
+                bail_if(1)
+            eobject = cm.exception
+            self.assertEqual(eobject.code, 1)
 
-    def test_does_not_bail_if_false(self):
-        try:
-            bail_if(False)
-        except SystemExit:
-            self.fail("Bailed although condition was false.")
+        with self.subTest(kind='boolean'):
+            with self.assertRaises(SystemExit) as cm:
+                bail_if(True)
+            eobject = cm.exception
+            self.assertEqual(eobject.code, 1)
 
     def test_does_not_bail_if_falsey(self):
-        try:
-            bail_if(0)
-        except SystemExit:
-            self.fail("Bailed although condition was falsey.")
+        with self.subTest(kind='integer'):
+            try:
+                bail_if(0)
+            except SystemExit:
+                self.fail("Bailed although condition was falsey.")
+
+        with self.subTest(kind='boolean'):
+            try:
+                bail_if(False)
+            except SystemExit:
+                self.fail("Bailed although condition was false.")
 
 
 if __name__ == '__main__':
