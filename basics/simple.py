@@ -32,3 +32,8 @@ def is_sorted(items):
 def alert(message):
     """Print an alert to standard error, with a simple "alert:" prefix."""
     print(f'alert: {message}', file=sys.stderr)
+
+
+def bail_if(condition):
+    """Exit indicating failure if the condition evaluates as true."""
+    if condition: sys.exit(1)
