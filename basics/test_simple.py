@@ -2,13 +2,12 @@
 
 """Tests for the simple code in simple.py."""
 
+from fractions import Fraction
+import io
+import sys
 import unittest
 
-import io
-
-import sys
-
-from simple import MY_NONE, Widget, answer, is_sorted, alert
+from simple import MY_NONE, Widget, answer, is_sorted, alert, bail_if
 
 
 class TestMyNone(unittest.TestCase):
@@ -80,12 +79,22 @@ class TestIsSorted(unittest.TestCase):
         self.assertTrue(is_sorted(items))
 
     def test_descending_two_element_list_is_not_sorted(self):
-        items = ['b', 'a']
-        self.assertFalse(is_sorted(items))
+        with self.subTest(kind='strings'):
+            items = ['b', 'a']
+            self.assertFalse(is_sorted(items))
+
+        with self.subTest(kind='integers'):
+            items = [3, 2]
+            self.assertFalse(is_sorted(items))
 
     def test_descending_two_element_generator_is_not_sorted(self):
-        items = (x for x in (3, 2))
-        self.assertFalse(is_sorted(items))
+        with self.subTest(kind='strings'):
+            items = (x for x in ('b', 'a'))
+            self.assertFalse(is_sorted(items))
+
+        with self.subTest(kind='integers'):
+            items = (x for x in (3, 2))
+            self.assertFalse(is_sorted(items))
 
     def test_ascending_two_element_generator_is_sorted(self):
         items = (ch for ch in 'ab')
@@ -107,21 +116,54 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
         self.assertFalse(is_sorted(items))
 
+
 class TestAlert(unittest.TestCase):
     """Tests for the alert function."""
 
     def setUp(self):
-        self.old_err = sys.stderr
-        self.my_stderr = sys.stderr = io.StringIO()
+        """Redirect standard error."""
+        self._old_err = sys.stderr
+        self._my_stderr = sys.stderr = io.StringIO()
 
     def tearDown(self):
-        sys.stderr = self.old_err
+        """Restore original standard error."""
+        sys.stderr = self._old_err
 
     def test_alert_and_newline_are_printed_with_string(self):
         message = "Wall is still up."
         expected = 'alert: Wall is still up.\n'
         alert(message)
-        self.assertEqual(self.my_stderr.getvalue(), expected)
+        self.assertEqual(self._actual, expected)
+
+    def test_alert_with_nonstring_message_prints_str_of_message(self):
+        message = Fraction(2, 3)
+        expected = "alert: 2/3\n"
+        alert(message)
+        self.assertEqual(self._actual, expected)
+
+    @property
+    def _actual(self):
+        """Result printed by alert()."""
+        return self._my_stderr.getvalue()
+
+
+class TestBailIf(unittest.TestCase):
+    """Tests for the bail_if function."""
+
+    def test_bails_if_truthy(self):
+        for value in (True, 1):
+            with self.subTest(value=value):
+                with self.assertRaises(SystemExit) as cm:
+                    bail_if(value)
+                self.assertEqual(cm.exception.code, 1)
+
+    def test_does_not_bail_if_falsey(self):
+        for value in (False, 0):
+            with self.subTest(value=value):
+                try:
+                    bail_if(value)
+                except SystemExit:
+                    self.fail("Bailed although condition was falsey.")
 
 
 if __name__ == '__main__':
