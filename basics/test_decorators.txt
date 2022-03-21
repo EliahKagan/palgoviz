@@ -1,15 +1,10 @@
-"""Some basic decorators."""
+Old decorators.py doctests
+==========================
 
-import functools
-import itertools
+    >>> from decorators import *
 
 
-def peek_arg(func):
-    """
-    Decorator wrapping a unary function and showing calls to it.
-
-    This peeks at the argument passed when the function is called.
-    It does not show the value returned.
+Old doctests for @peek_arg:
 
     >>> @peek_arg
     ... def square(n): return n**2
@@ -22,21 +17,9 @@ def peek_arg(func):
     >>> hello('Bob')
     hello('Bob')
     Hello, Bob!
-    """
-    @functools.wraps(func)
-    def wrapper(arg):
-        print(f'{func.__name__}({arg!r})')
-        return func(arg)
-
-    return wrapper
 
 
-def peek_return(func):
-    """
-    Decorator wrapping a unary function and showing its return values.
-
-    This peeks at the value returned by the function. It does not print
-    anything at the time the function is called.
+Old doctests for @peek_return:
 
     >>> @peek_return
     ... def square(x): return x**2
@@ -49,19 +32,9 @@ def peek_return(func):
     >>> hello('Bob')
     Hello, Bob!
     hello('Bob') -> None
-    """
-    @give_metadata_from(func)
-    def wrapper(arg):
-        result = func(arg)
-        print(f'{func.__name__}({arg!r}) -> {result!r}')
-        return result
-
-    return wrapper
 
 
-def call(func):
-    """
-    Decorator to call a parameterless function immediately.
+Old doctests for @call:
 
     >>> @call
     ... def hi():
@@ -69,14 +42,9 @@ def call(func):
     Hi, world!
     >>> hi()
     Hi, world!
-    """
-    func()
-    return func
 
 
-def call_with(*args, **kwargs):
-    """
-    Parameterized decorator to call a function immediately with arguments.
+Old doctests for @call_with():
 
     >>> @call_with('Dr. Evil', 'Albuquerque', exclaim=True)
     ... def welcome(name, place, exclaim=False):
@@ -96,17 +64,9 @@ def call_with(*args, **kwargs):
     Hello, user. Welcome to the internet.
     >>> print_sum(-8, 2, 14, 9, verbose=False)
     17
-    """
-    def decorator(func):
-        func(*args, **kwargs)
-        return func
-
-    return decorator
 
 
-def thrice(func):
-    """
-    Decorator to repeat a parameterless function three times (with no return).
+Old doctests for @thrice:
 
     >>> @thrice
     ... def hello(): print('Hello, world!')
@@ -117,19 +77,9 @@ def thrice(func):
     >>> @thrice
     ... def answer(): return 42
     >>> answer()  # No output; the wrapped function always returns None.
-    >>>
-    """
-    @functools.wraps(func)
-    def wrapper():
-        for _ in range(3):
-            func()
-
-    return wrapper
 
 
-def repeat(count):
-    """
-    Parameterized decorator to repeat a function a given number of times.
+Old doctests for @repeat:
 
     >>> @repeat(2)
     ... def bye():
@@ -137,46 +87,18 @@ def repeat(count):
     >>> bye()
     Cya later!
     Cya later!
-    """
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper():
-            for _ in range(count):
-                func()
-
-        return wrapper
-
-    return decorator
 
 
-def peek_one(func):
-    """
-    Decorator that does the work of @peek_arg and @peek_return.
-
-    Two for the price of one!
+Old doctests for @peek_one:
 
     >>> @peek_one
     ... def square(x): return x**2
     >>> result = square(3)
     square(3)
     square(3) -> 9
-    """
-    @functools.wraps(func)
-    def wrapper(arg):
-        print(f'{func.__name__}({arg!r})')
-        result = func(arg)
-        print(f'{func.__name__}({arg!r}) -> {result!r}')
-        return result
-
-    return wrapper
 
 
-def peek(func):
-    r"""
-    Decorator to report calls with arbitrary arguments, and to report returns.
-
-    This is like @peek_one (or @peek_arg and @peek_return), but the func need
-    not be unary. Positional and keyword arguments are passed along to func.
+Old doctests for @peek:
 
     >>> @peek
     ... def square(x): return x**2
@@ -190,36 +112,9 @@ def peek(func):
     proclaim('Hello', 'world', sep=': ', end='!\n')
     Good news: Hello: world!
     proclaim('Hello', 'world', sep=': ', end='!\n') -> None
-    """
-    @functools.wraps(func)
-    def wrapper(*pargs, **kwargs):
-        kvs = (f'{key}={value!r}' for key, value in kwargs.items())
-        args_string = ', '.join(itertools.chain(map(repr, pargs), kvs))
-
-        print(f'{func.__name__}({args_string})')
-        result = func(*pargs, **kwargs)
-        print(f'{func.__name__}({args_string}) -> {result!r}')
-        return result
-
-    return wrapper
 
 
-def give_metadata_from(wrapped):
-    """Parameterized decorater to give a function's metadata to a wrapper."""
-    def decorator(wrapper):
-        wrapper.__name__ = wrapped.__name__
-        wrapper.__module__ = wrapped.__module__
-        wrapper.__qualname__ = wrapped.__qualname__
-        wrapper.__doc__ = wrapped.__doc__
-        wrapper.__annotations__ = wrapped.__annotations__
-        return wrapper
-
-    return decorator
-
-
-def memoize(func):
-    """
-    Decorator that memoizes a naive implementation of an algorithm.
+Old doctests for @memoize:
 
     >>> @memoize
     ... def f(n):
@@ -244,28 +139,9 @@ def memoize(func):
     8
     >>> f(2)
     4
-    """
-    cache = {}
-
-    @functools.wraps(func)
-    def wrapper(arg):
-        if arg not in cache:
-            cache[arg] = func(arg)
-        return cache[arg]
-
-    return wrapper
 
 
-def memoize_by(key):
-    """
-    Parameterized decorator for caching using a key selector.
-
-    This is like @memoize except the specified key selector function, key, maps
-    arguments to hashable objects that are used as dictionary keys.
-
-    NOTE: Argument values are NOT stored. For example, in @memoize_by(id),
-    objects whose ids are taken are *not* kept alive by their ids being cached.
-    Cached ids may become invalid by outliving the objects they came from.
+Old doctests for @memoize_by():
 
     >>> @memoize_by(str.casefold)
     ... def length(text):
@@ -281,28 +157,9 @@ def memoize_by(key):
     5
     >>> length('bye')
     3
-    """
-    def decorator(func):
-        cache = {}
-
-        @functools.wraps(func)
-        def wrapper(arg):
-            if key(arg) not in cache:
-                cache[key(arg)] = func(arg)
-            return cache[key(arg)]
-
-        return wrapper
-
-    return decorator
 
 
-def int_fn(func):
-    """
-    Decorator that type-checks a unary function from int to int.
-
-    Decorating a unary function definition with @int_fn causes the function to
-    raise an exception if it is called with an argument that is not an int or
-    if it returns a value that is not an int.
+Old doctests for @int_fn:
 
     >>> @int_fn
     ... def f(n):
@@ -316,37 +173,22 @@ def int_fn(func):
     1
     >>> f(1.1)
     Traceback (most recent call last):
-      ...
+        ...
     TypeError: f must be called with int, got float
     >>> @int_fn
     ... def g(n):
     ...     return n / 2
     >>> g(4)
     Traceback (most recent call last):
-      ...
+        ...
     TypeError: g must return an int, returned float
     >>> g(5)
     Traceback (most recent call last):
-      ...
+        ...
     TypeError: g must return an int, returned float
-    """
-    @functools.wraps(func)
-    def wrapper(arg):
-        if not isinstance(arg, int):
-            raise TypeError(f'{func.__name__} must be called with int,'
-                            f' got {type(arg).__name__}')
-        result = func(arg)
-        if not isinstance(result, int):
-            raise TypeError(f'{func.__name__} must return an int,'
-                            f' returned {type(result).__name__}')
-        return result
-
-    return wrapper
 
 
-def count_calls(func):
-    """
-    Decorator like peek_arg, but that also counts calls to the function.
+Old doctests for @count_calls:
 
     >>> @count_calls
     ... def square(n): return n**2
@@ -368,20 +210,9 @@ def count_calls(func):
     >>> hello('Mary')
     hello('Mary'), call 3
     Hello, Mary!
-    """
-    counter = itertools.count(1)
-
-    @functools.wraps(func)
-    def wrapper(arg):
-        print(f'{func.__name__}({arg!r}), call {next(counter)}')
-        return func(arg)
-
-    return wrapper
 
 
-def convert_arg(converter):
-    """
-    Parametrized decorator to convert data going into a unary function.
+Old doctests for @convert_arg():
 
     >>> @convert_arg(int)
     ... def square(n):
@@ -409,21 +240,9 @@ def convert_arg(converter):
     ...     return text * 2
     >>> munge2('pqr')  # Outer convert upcases, inner converter appends.
     'PQRabPQRab'
-    """
-    def decorator(func):
-
-        @functools.wraps(func)
-        def wrapper(arg):
-            return func(converter(arg))
-
-        return wrapper
-
-    return decorator
 
 
-def convert_return(converter):
-    """
-    Parametrized decorator to convert data coming out of a unary function.
+Old doctests for @convert_return():
 
     >>> @convert_return(list)
     ... def digits_lowtohigh(positive_integer):
@@ -450,7 +269,7 @@ def convert_return(converter):
     ...         positive_integer //= 10
     >>> digits_hightolow(4294967295)
     Traceback (most recent call last):
-      ...
+        ...
     TypeError: 'generator' object is not subscriptable
 
     >>> @convert_arg(int)                     # OK.
@@ -492,15 +311,5 @@ def convert_return(converter):
     ...         positive_integer //= 10
     >>> digits_hightolow(4294967295.3)
     Traceback (most recent call last):
-      ...
+        ...
     TypeError: 'generator' object is not subscriptable
-    """
-    def decorator(func):
-
-        @functools.wraps(func)
-        def wrapper(arg):
-            return converter(func(arg))
-
-        return wrapper
-
-    return decorator

@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
-"""Some recursion examples."""
+"""
+Some recursion examples.
+
+See also object_graph.py.
+"""
 
 import bisect
 import collections
+
+import decorators
 
 
 def countdown(n):
@@ -187,7 +193,6 @@ def binary_search(values, x):
     >>> binary_search([10, 20], 15)
     >>>
     """
-
     def help_binary(low, high):  # high is an inclusive endpoint.
         if low > high:
             return None
@@ -533,8 +538,35 @@ def leaf_sum(root):
     57
     >>> leaf_sum(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
+    >>> from fibonacci import fib, fib_nest
+    >>> leaf_sum(fib_nest(10))
+    55
+    >>> all(leaf_sum(fib_nest(i)) == x for i, x in zip(range(401), fib()))
+    True
     """
-    ...  # FIXME: Implement this.
+    cache = {}
+
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
+
+        if id(parent) not in cache:
+            cache[id(parent)] = sum(traverse(child) for child in parent)
+
+        return cache[id(parent)]
+
+    return traverse(root)
+
+
+def _traverse(parent, cache):
+    """Traverse the tree for leaf_sum_alt."""
+    if not isinstance(parent, tuple):
+        return parent
+
+    if id(parent) not in cache:
+        cache[id(parent)] = sum(_traverse(child, cache) for child in parent)
+
+    return cache[id(parent)]
 
 
 def leaf_sum_alt(root):
@@ -555,8 +587,57 @@ def leaf_sum_alt(root):
     57
     >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
+    >>> from fibonacci import fib, fib_nest
+    >>> leaf_sum_alt(fib_nest(10))
+    55
+    >>> all(leaf_sum_alt(fib_nest(i)) == x for i, x in zip(range(401), fib()))
+    True
     """
-    ...  # FIXME: Implement this.
+    cache = {}
+    return _traverse(root, cache)
+
+
+def leaf_sum_dec(root):
+    """
+    Using recursion, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    This is like leaf_sum (and leaf_sum_alt), but @decorators.memoize_by is
+    used for memoization, which is safe for the same reason the sums table
+    works in leaf_sum: a tuple structure (i.e., one where only leaves are
+    permitted to be non-tuples) is ineligible for garbage collection as long as
+    its root is accessible. This holds even in the presence of concurrency
+    considerations, since tuples are immutable.
+
+    Note that it would not be safe to cache calls to the top-level function
+    leaf_sum_dec by id. This must go on the helper function, since nothing can
+    be assumed about lifetime of objects across top-level calls.
+
+    >>> leaf_sum_dec(3)
+    3
+    >>> leaf_sum_dec(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum_dec(root)
+    57
+    >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    >>> from fibonacci import fib, fib_nest
+    >>> leaf_sum_dec(fib_nest(10))
+    55
+    >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))
+    True
+    """
+    @decorators.memoize_by(id)
+    def traverse(parent):
+        if not isinstance(parent, tuple):
+            return parent
+
+        return sum(traverse(child) for child in parent)
+
+    return traverse(root)
 
 
 if __name__ == '__main__':
