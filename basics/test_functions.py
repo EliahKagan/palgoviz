@@ -2,6 +2,7 @@
 
 """Tests for the functions in functions.py."""
 
+from collections.abc import Iterator
 import functools
 import itertools
 import unittest
@@ -188,6 +189,52 @@ class TestAsFunc(unittest.TestCase):
 
         self.assertEqual(g(), 9)
         self.assertEqual(g(), 16)
+
+
+@parameterized_class(('implementation_name',), [
+    ('as_iterator_limited',),
+    ('as_iterator_limited_alt',),
+])
+class TestAsIteratorLimited(_NamedImplementationTestCase):
+    """
+    Tests for the as_iterator_limited and as_iterator_limited_alt functions.
+    """
+
+    __slots__ = ()
+
+    def test_iterator_calls_simple_f_until_sentinel(self):
+        d = {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'}
+        k = 'a'
+
+        def f():
+            nonlocal k
+            k = d[k]
+            return k
+
+        it = self.implementation(f, 'd')
+        self.assertEqual(next(it), 'b')
+        self.assertEqual(next(it), 'c')
+        with self.assertRaises(StopIteration):
+            next(it)
+
+    @parameterized.expand([
+        ('make_counter', 2000, list(range(2000))),
+        ('make_counter_alt', 2000, list(range(2000))),
+        ('make_next_fibonacci', 89, [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]),
+        ('make_next_fibonacci_alt', 89, [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]),
+    ])
+    def test_iterator_calls_f_until_sentinel(self, f_name, sentinel, expected):
+        """
+        Iterators on synthesized iterator-like functions "round trip."
+
+        Calling as_iterator_limited{_alt} on synthesized functions that
+        themselves behave like calling next() on an iterator behaves as
+        expected.
+        """
+        f_impl = getattr(functions, f_name)
+        it = self.implementation(f_impl(), sentinel)
+        self.assertIsInstance(it, Iterator)
+        self.assertListEqual(list(it), expected)
 
 
 @functools.cache
