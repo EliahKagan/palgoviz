@@ -151,14 +151,14 @@ class TestBailIf(unittest.TestCase):
     """Tests for the bail_if function."""
 
     def test_bails_if_truthy(self):
-        for value in (True, 1):
+        for value in (True, 1, 1.1, 'hello', object()):
             with self.subTest(value=value):
                 with self.assertRaises(SystemExit) as cm:
                     bail_if(value)
                 self.assertEqual(cm.exception.code, 1)
 
     def test_does_not_bail_if_falsey(self):
-        for value in (False, 0):
+        for value in (False, 0, 0.0, '', None):
             with self.subTest(value=value):
                 try:
                     bail_if(value)
