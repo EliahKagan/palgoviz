@@ -4,13 +4,25 @@
 
 from collections.abc import Iterator
 import functools
+import io
 import itertools
+import sys
 import unittest
 
 from parameterized import parameterized, parameterized_class
 
 import fibonacci
 import functions
+import recursion
+
+_original_count_tree_nodes = functions.count_tree_nodes
+
+
+@functools.cache
+def _fib5k():
+    """Return a list of the first 5000 Fibonacci numbers, read from a file."""
+    with open('fib5k.txt', encoding='utf-8') as file:
+        return list(map(int, file))
 
 
 # TODO: Replace this with a parameterized-decorator factory (so it will be a
@@ -336,11 +348,48 @@ class TestCountTreeNodes(_NamedImplementationTestCase):
         self.assertEqual(result, expected)
 
 
-@functools.cache
-def _fib5k():
-    """Return a list of the first 5000 Fibonacci numbers, read from a file."""
-    with open('fib5k.txt', encoding='utf-8') as file:
-        return list(map(int, file))
+# TODO: If reused, extract the stdout-redirecting fixture to its own class.
+class CountTreeNodesInstrumented(unittest.TestCase):
+    """Tests for the count_tree_nodes_instrumented function."""
+
+    __slots__ = ('_old_stdout', '_stdout')
+
+    def setUp(self):
+        """Monkeypatch ("redirect") standard output to capture it for tests."""
+        self._old_stdout = sys.stdout
+        self._stdout = sys.stdout = io.StringIO()
+
+    def tearDown(self):
+        """Restore standard output."""
+        sys.stdout = self._old_stdout
+
+    # TODO: Add para to docstring explaining why this test does so many things.
+    def test_function_patched_and_restored_when_no_exception_is_raised(self):
+        """count_tree_nodes is patched/unpatched in the absence of errors."""
+        # TODO: Should this force an "error" status rather than mere "failure"?
+        self.assertIs(functions.count_tree_nodes, _original_count_tree_nodes,
+            "count_tree_nodes was ALREADY wrong at the START of the test")
+
+        root = recursion.make_deep_tuple(2)
+        result = functions.count_tree_nodes_instrumented(root)
+        output = self._out
+
+        self.assertEqual(result, 3)
+
+        self.assertEqual(output, 'count_tree_nodes(()) -> 1\n'
+                                 'count_tree_nodes(((),)) -> 2\n'
+                                 'count_tree_nodes((((),),)) -> 3\n')
+
+        self.assertIs(functions.count_tree_nodes, _original_count_tree_nodes,
+            "count_tree_nodes_instrumented failed to restore count_tree_nodes")
+
+        # FIXME: Call count_tree_nodes and show the behavior is also restored.
+
+
+    @property
+    def _out(self):
+        """The text sent so far to stdout during a single test."""
+        return self._stdout.getvalue()
 
 
 if __name__ == '__main__':
