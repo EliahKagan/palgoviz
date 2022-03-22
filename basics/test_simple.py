@@ -7,6 +7,8 @@ import io
 import sys
 import unittest
 
+from parameterized import parameterized
+
 from simple import MY_NONE, Widget, answer, is_sorted, alert, bail_if
 
 
@@ -129,9 +131,12 @@ class TestAlert(unittest.TestCase):
         """Restore original standard error."""
         sys.stderr = self._old_err
 
-    def test_alert_and_newline_are_printed_with_string(self):
-        message = "Wall is still up."
-        expected = 'alert: Wall is still up.\n'
+    @parameterized.expand([
+        ("Wall is still up.", "alert: Wall is still up.\n"),
+        ("in your base.", "alert: in your base.\n"),
+        ("killing your dudes.", "alert: killing your dudes.\n"),
+    ])
+    def test_alert_and_newline_are_printed_with_string(self, message, expected):
         alert(message)
         self.assertEqual(self._actual, expected)
 
