@@ -135,6 +135,9 @@ class TestAlert(unittest.TestCase):
         ("Wall is still up.", "alert: Wall is still up.\n"),
         ("in your base.", "alert: in your base.\n"),
         ("killing your dudes.", "alert: killing your dudes.\n"),
+        ('refusing to say hello', 'alert: refusing to say hello\n'),
+        ('3609 squirrels complained', 'alert: 3609 squirrels complained\n'),
+        ('boycott whalebone skis', 'alert: boycott whalebone skis\n'),
     ])
     def test_alert_and_newline_are_printed_with_string(self, message, expected):
         alert(message)
