@@ -237,6 +237,45 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
         self.assertListEqual(list(it), expected)
 
 
+@parameterized_class(('implementation_name',), [
+    ('as_iterator',),
+    ('as_iterator_alt',),
+])
+class TestAsIteratorLimited(_NamedImplementationTestCase):
+    """Tests for the as_iterator and as_iterator_alt functions."""
+
+    __slots__ = ()
+
+    def test_iterator_calls_simple_f(self):
+        d = {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e', 'e': 'a'}
+        k = 'a'
+
+        def f():
+            nonlocal k
+            k = d[k]
+            return k
+
+        it = self.implementation(f)
+        self.assertIsInstance(it, Iterator)
+        prefix = list(itertools.islice(it, 12))
+        self.assertListEqual(prefix, list('bcdeabcdeabc'))
+
+    @parameterized.expand([
+        ('make_counter', 2000, list(range(2000))),
+        ('make_counter_alt', 2000, list(range(2000))),
+        ('make_next_fibonacci', 11, [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]),
+        ('make_next_fibonacci_alt', 11, [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]),
+    ])
+    def test_iterator_calls_f(self, f_name, prefix_length, expected):
+        f_impl = getattr(functions, f_name)
+
+        it = self.implementation(f_impl())
+        self.assertIsInstance(it, Iterator)
+
+        prefix = list(itertools.islice(it, prefix_length))
+        self.assertListEqual(prefix, expected)
+
+
 @functools.cache
 def _fib5k():
     """Return a list of the first 5000 Fibonacci numbers, read from a file."""
