@@ -3,6 +3,7 @@
 """Tests for the functions in functions.py."""
 
 import functools
+import itertools
 import unittest
 
 from parameterized import parameterized, parameterized_class
@@ -150,6 +151,43 @@ class TestMakeNextFibonacci(_NamedImplementationTestCase):
         self.assertEqual(f(), 55)
         self.assertEqual(f(), 89)
         self.assertEqual(g(), 5)
+
+
+class TestAsFunc(unittest.TestCase):
+    """Tests for the as_func function."""
+
+    __slots__ = ()
+
+    @parameterized.expand([
+        ('range', range(3)),
+        ('range_iterator', iter(range(3))),
+        ('list', [0, 1, 2]),
+        ('list_iterator', iter([0, 1, 2])),
+        ('generator', (x for x in (0, 1, 2))),
+    ])
+    def test_returned_function_calls_next_on_iterable(self, _name, iterable):
+        f = functions.as_func(iterable)
+
+        self.assertEqual(f(), 0)
+        self.assertEqual(f(), 1)
+        self.assertEqual(f(), 2)
+
+        with self.assertRaises(StopIteration):
+            f()
+
+    def test_calls_to_separate_functions_iterate_independently(self):
+        f = functions.as_func([10, 20, 30])
+        self.assertEqual(f(), 10)
+        self.assertEqual(f(), 20)
+
+        g = functions.as_func(x**2 for x in itertools.count(2))
+        self.assertEqual(f(), 30)
+        self.assertEqual(g(), 4)
+        with self.assertRaises(StopIteration):
+            f()
+
+        self.assertEqual(g(), 9)
+        self.assertEqual(g(), 16)
 
 
 @functools.cache
