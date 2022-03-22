@@ -9,6 +9,7 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
+import fibonacci
 import functions
 
 
@@ -274,6 +275,65 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
 
         prefix = list(itertools.islice(it, prefix_length))
         self.assertListEqual(prefix, expected)
+
+
+@parameterized_class(('implementation_name',), [
+    ('count_tree_nodes',),
+    ('count_tree_nodes_alt',),
+])
+class TestCountTreeNodes(_NamedImplementationTestCase):
+    """Tests for the count_tree_nodes and count_tree_nodes_alt functions."""
+
+    __slots__ = ()
+
+    def test_str_has_one_node(self):
+        """Strings (like other non-tuple iterables) are taken as leaves."""
+        root = 'a parrot'
+        result = self.implementation(root)
+        self.assertEqual(result, 1)
+
+    def test_empty_tuple_has_one_node(self):
+        """An empty tuple is taken as a leaf."""
+        root = ()
+        result = self.implementation(root)
+        self.assertEqual(result, 1)
+
+    def test_small_nontrivial_nested_tuple_of_ints_is_fully_traversed(self):
+        """A nested tuple of varying depth has its internal and leaf nodes."""
+        root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+        result = self.implementation(root)
+        self.assertEqual(result, 22)
+
+    def test_list_containing_nontrivial_nested_tuple_has_only_one_node(self):
+        """A list, even of tuple(s), is taken as a leaf (so not traversed)."""
+        root = [((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))]
+        result = self.implementation(root)
+        self.assertEqual(result, 1)
+
+    @parameterized.expand([
+        ('n_equals_0', 0, 1),
+        ('n_equals_1', 1, 1),
+        ('n_equals_2', 2, 3),
+        ('n_equals_3', 3, 5),
+        ('n_equals_4', 4, 9),
+        ('n_equals_5', 5, 15),
+        ('n_equals_6', 6, 25),
+        ('n_equals_7', 7, 41),
+        ('n_equals_8', 8, 67),
+        ('n_equals_9', 9, 109),
+        ('n_equals_10', 10, 177),
+        ('n_equals_11', 11, 287),
+        ('n_equals_12', 12, 465),
+        ('n_equals_13', 13, 753),
+        ('n_equals_14', 14, 1219),
+        ('n_equals_15', 15, 1973),
+        ('n_equals_16', 16, 3193),
+    ])
+    def test_fibonacci_structure_is_fully_traversed(self, _name, n, expected):
+        """Structures of Fibonacci subproblems have internal and leaf nodes."""
+        root = fibonacci.fib_nest(n)
+        result = self.implementation(root)
+        self.assertEqual(result, expected)
 
 
 @functools.cache
