@@ -69,3 +69,14 @@ class PowSquarer:
         9
         """
         return number**2
+
+
+def make_squarer():
+    """
+    Return a function that squares.
+
+    >>> f = make_squarer()
+    >>> f(3)
+    9
+    """
+    return lambda x: x**2
