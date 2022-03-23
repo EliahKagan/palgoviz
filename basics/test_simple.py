@@ -7,9 +7,9 @@ import io
 import sys
 import unittest
 
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 
-from simple import MY_NONE, MulSquarer, Widget, answer, is_sorted, alert, bail_if
+from simple import MY_NONE, MulSquarer, PowSquarer, Widget, answer, is_sorted, alert, bail_if
 
 
 class TestMyNone(unittest.TestCase):
@@ -174,31 +174,35 @@ class TestBailIf(unittest.TestCase):
                     self.fail("Bailed although condition was falsey.")
 
 
-class TestMulSquarer(unittest.TestCase):
+@parameterized_class(('name', 'implementation'), [
+    ('Mul', MulSquarer),
+    ('Pow', PowSquarer),
+])
+class TestSquarer(unittest.TestCase):
     """Testts for the MulSquarer class."""
 
     def test_positive_ints_are_squared(self):
         for num, expected in ((0, 0), (1, 1), (2, 4), (3, 9)):
             with self.subTest(num=num):
-                squarer = MulSquarer()
+                squarer = self.implementation()
                 self.assertEqual(squarer(num), expected)
 
     def test_positive_floats_are_squared(self):
         for num, expected in ((0.0, 0.0), (1.0, 1.0), (2.2, 4.84), (3.1, 9.61)):
             with self.subTest(num=num):
-                squarer = MulSquarer()
+                squarer = self.implementation()
                 self.assertAlmostEqual(squarer(num), expected)
 
     def test_negative_ints_are_squared(self):
         for num, expected in ((-1, 1), (-2, 4), (-3, 9), (-4, 16)):
             with self.subTest(num=num):
-                squarer = MulSquarer()
+                squarer = self.implementation()
                 self.assertEqual(squarer(num), expected)
 
     def test_negative_floats_are_squared(self):
         for num, expected in ((-1.2, 1.44), (-1.0, 1.0), (-2.2, 4.84), (-3.1, 9.61)):
             with self.subTest(num=num):
-                squarer = MulSquarer()
+                squarer = self.implementation()
                 self.assertAlmostEqual(squarer(num), expected)
 
 
