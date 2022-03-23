@@ -179,31 +179,47 @@ class TestBailIf(unittest.TestCase):
     ('Pow', PowSquarer),
 ])
 class TestSquarer(unittest.TestCase):
-    """Testts for the MulSquarer class."""
+    """Tests for the MulSquarer class."""
 
-    def test_positive_ints_are_squared(self):
-        for num, expected in ((0, 0), (1, 1), (2, 4), (3, 9)):
-            with self.subTest(num=num):
-                squarer = self.implementation()
-                self.assertEqual(squarer(num), expected)
+    @parameterized.expand([
+        ('pos_0', 0, 0),
+        ('pos_1', 1, 1),
+        ('pos_2', 2, 4),
+        ('pos_3', 3, 9),
+    ])
+    def test_positive_ints_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertEqual(squarer(num), expected)
 
-    def test_positive_floats_are_squared(self):
-        for num, expected in ((0.0, 0.0), (1.0, 1.0), (2.2, 4.84), (3.1, 9.61)):
-            with self.subTest(num=num):
-                squarer = self.implementation()
-                self.assertAlmostEqual(squarer(num), expected)
+    @parameterized.expand([
+        ('pos_0.0', 0.0, 0.0),
+        ('pos_1.0', 1.0, 1.0),
+        ('pos_2.2', 2.2, 4.84),
+        ('pos_3.1', 3.1, 9.61),
+    ])
+    def test_positive_floats_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertAlmostEqual(squarer(num), expected)
 
-    def test_negative_ints_are_squared(self):
-        for num, expected in ((-1, 1), (-2, 4), (-3, 9), (-4, 16)):
-            with self.subTest(num=num):
-                squarer = self.implementation()
-                self.assertEqual(squarer(num), expected)
+    @parameterized.expand([
+        ('neg_1', -1, 1),
+        ('neg_2', -2, 4),
+        ('neg_3', -3, 9),
+        ('neg_4', -4, 16),
+    ])
+    def test_negative_ints_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertEqual(squarer(num), expected)
 
-    def test_negative_floats_are_squared(self):
-        for num, expected in ((-1.2, 1.44), (-1.0, 1.0), (-2.2, 4.84), (-3.1, 9.61)):
-            with self.subTest(num=num):
-                squarer = self.implementation()
-                self.assertAlmostEqual(squarer(num), expected)
+    @parameterized.expand([
+        ('neg_1.2', -1.2, 1.44),
+        ('neg_1.0', -1.0, 1.0),
+        ('neg_2.2', -2.2, 4.84),
+        ('neg_3.1', -3.1, 9.61),
+    ])
+    def test_negative_floats_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertAlmostEqual(squarer(num), expected)
 
 
 if __name__ == '__main__':
