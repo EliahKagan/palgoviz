@@ -9,7 +9,16 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
-from simple import MY_NONE, make_squarer, MulSquarer, PowSquarer, Widget, answer, is_sorted, alert, bail_if
+from simple import (
+    MY_NONE,
+    make_squarer,
+    MulSquarer,
+    PowSquarer,
+    Widget,
+    answer,
+    is_sorted,
+    alert,
+    bail_if)
 
 
 class TestMyNone(unittest.TestCase):
