@@ -27,6 +27,14 @@ class MutableGreeter:
 
     @classmethod
     def from_greeter(cls, greeter):
+        """
+        Construct a MutableGreeter from a greeter.
+
+        >>> f = FrozenGreeter('en')
+        >>> m = MutableGreeter.from_greeter(f)
+        >>> m('World')
+        Hello, World!
+        """
         return cls(greeter.lang)
 
     def __init__(self, lang):
@@ -116,6 +124,14 @@ class FrozenGreeter:
 
     @classmethod
     def from_greeter(cls, greeter):
+        """
+        Construct a FrozenGreeter from a greeter.
+
+        >>> m = MutableGreeter('en')
+        >>> f = FrozenGreeter.from_greeter(m)
+        >>> f('World')
+        Hello, World!
+        """
         return cls(greeter.lang)
 
     def __init__(self, lang):
