@@ -25,6 +25,17 @@ class MutableGreeter:
 
     __slots__ = ('_lang',)
 
+    @staticmethod
+    def get_known_langs():
+        """
+        Get known language codes.
+
+        >>> t = MutableGreeter.get_known_langs()
+        >>> t
+        ('en', 'es')
+        """
+        return tuple(_FORMATS)
+
     @classmethod
     def from_greeter(cls, greeter):
         """
@@ -121,6 +132,17 @@ class FrozenGreeter:
     """
 
     __slots__ = ('_lang',)
+
+    @staticmethod
+    def get_known_langs():
+        """
+        Get known language codes.
+
+        >>> t = FrozenGreeter.get_known_langs()
+        >>> t
+        ('en', 'es')
+        """
+        return tuple(_FORMATS)
 
     @classmethod
     def from_greeter(cls, greeter):
