@@ -9,7 +9,7 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
-from simple import MY_NONE, MulSquarer, PowSquarer, Widget, answer, is_sorted, alert, bail_if
+from simple import MY_NONE, make_squarer, MulSquarer, PowSquarer, Widget, answer, is_sorted, alert, bail_if
 
 
 class TestMyNone(unittest.TestCase):
@@ -177,6 +177,7 @@ class TestBailIf(unittest.TestCase):
 @parameterized_class(('name', 'implementation'), [
     ('Mul', MulSquarer),
     ('Pow', PowSquarer),
+    ('func', staticmethod(make_squarer)),
 ])
 class TestSquarer(unittest.TestCase):
     """Tests for the MulSquarer class."""
