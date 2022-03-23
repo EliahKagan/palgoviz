@@ -114,7 +114,9 @@ def add_all(values):
 
 def linear_search_good(values, x):
     """
-    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    Return an index to some occurrence of x in values, if any.
+
+    If there is no such occurrence, None is returned.
 
     >>> linear_search_good([], 9)
     >>> linear_search_good([2, 3], 2)
@@ -132,7 +134,9 @@ def linear_search_good(values, x):
 
 def linear_search_iterative(values, x):
     """
-    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    Return an index to some occurrence of x in values, if any.
+
+    If there is no such occurrence, None is returned.
 
     >>> linear_search_iterative([], 9)
     >>> linear_search_iterative([2, 3], 2)
@@ -150,7 +154,9 @@ def linear_search_iterative(values, x):
 
 def linear_search(values, x):
     """
-    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    Return an index to some occurrence of x in values, if any.
+
+    If there is no such occurrence, None is returned.
 
     >>> linear_search([], 9)
     >>> linear_search([2, 3], 2)
@@ -275,7 +281,7 @@ def merge_two_slow(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
 
-    If values2 is empty, this is equivilant to a binary insertion sort
+    If values2 is empty, this is equivalent to a binary insertion sort.
 
     >>> merge_two_slow([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -305,7 +311,7 @@ def merge_two(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
 
-    If values2 is empty, this is equivilant to a binary insertion sort
+    If values2 is empty, this is equivalent to a binary insertion sort.
 
     >>> merge_two([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -342,7 +348,7 @@ def merge_two_alt(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
 
-    If values2 is empty, this is equivilant to a binary insertion sort
+    If values2 is empty, this is equivalent to a binary insertion sort.
 
     >>> merge_two_alt([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -380,7 +386,7 @@ def merge_two_alt(values1, values2):
 
 def merge_sort(values):
     """
-    Sorts using merge_two recursively.
+    Sort using merge_two recursively.
 
     >>> merge_sort([])
     []
@@ -394,9 +400,11 @@ def merge_sort(values):
     [10, 20]
     >>> merge_sort([3, 3])
     [3, 3]
-    >>> merge_sort([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort(a)
     [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
-    >>> merge_sort(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
     >>> merge_sort([0.0, 0, False])  # Succeeds, because it's a stable sort.
     [0.0, 0, False]
@@ -412,29 +420,37 @@ def merge_sort(values):
     return helper(list(values))
 
 
-def merge_sort_bottom_up(values):
+def merge_sort_bottom_up_unstable(values):
     """
-    Sorts bottom-up, using merge_two, iteratively.
+    Sort bottom-up, using merge_two, iteratively. Unstable.
 
-    >>> merge_sort_bottom_up([])
+    This implementation is an unstable sort. Both top-down and bottom-up
+    mergesorts are typically stable, and stable implementations tend to be
+    strongly preferred, but one of the notable approaches to bottom-up
+    mergesort is unstable. This is the same algorithm as presented in
+    *Algorithms* by Dasgupta, Papadimitriou, and Vazirani, 1st ed., p.51.
+
+    >>> merge_sort_bottom_up_unstable([])
     []
-    >>> merge_sort_bottom_up(())
+    >>> merge_sort_bottom_up_unstable(())
     []
-    >>> merge_sort_bottom_up((2,))
+    >>> merge_sort_bottom_up_unstable((2,))
     [2]
-    >>> merge_sort_bottom_up([10, 20])
+    >>> merge_sort_bottom_up_unstable([10, 20])
     [10, 20]
-    >>> merge_sort_bottom_up([20, 10])
+    >>> merge_sort_bottom_up_unstable([20, 10])
     [10, 20]
-    >>> merge_sort_bottom_up([3, 3])
+    >>> merge_sort_bottom_up_unstable([3, 3])
     [3, 3]
-    >>> merge_sort_bottom_up([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort_bottom_up_unstable(a)
     [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
-    >>> merge_sort_bottom_up(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort_bottom_up_unstable(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> merge_sort_bottom_up([7, 6, 5, 4, 3, 2, 1])
+    >>> merge_sort_bottom_up_unstable([7, 6, 5, 4, 3, 2, 1])
     [1, 2, 3, 4, 5, 6, 7]
-    >>> merge_sort_bottom_up([0.0, 0, False])  # Fails. It's not a stable sort.
+    >>> merge_sort_bottom_up_unstable([0.0, 0, False])  # doctest: +SKIP
     [0.0, 0, False]
     """
     if not values:
