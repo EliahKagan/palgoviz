@@ -11,6 +11,7 @@ from parameterized import parameterized, parameterized_class
 
 from simple import (
     MY_NONE,
+    Squarer,
     make_squarer,
     MulSquarer,
     PowSquarer,
@@ -230,6 +231,13 @@ class TestSquarer(unittest.TestCase):
     def test_negative_floats_are_squared(self, _name, num, expected):
         squarer = self.implementation()
         self.assertAlmostEqual(squarer(num), expected)
+
+    @unittest.skip("Haven't implemented repr yet.")
+    def test_repr(self):
+        """repr shows type and looks like Python code."""
+        expected = f'{self.implementation.__name__}()'
+        squarer = self.implementation()
+        self.assertEqual(repr(squarer), expected)
 
 
 if __name__ == '__main__':

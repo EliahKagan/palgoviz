@@ -1,6 +1,7 @@
 """Some simple code, for unit testing."""
 
 import sys
+from abc import ABC, abstractmethod
 
 MY_NONE = None
 
@@ -39,7 +40,16 @@ def bail_if(condition):
     if condition: sys.exit(1)
 
 
-class MulSquarer:
+class Squarer(ABC):
+    """Abstract class representing squarers."""
+
+    __slots__ = ()
+
+    @abstractmethod
+    def __call__(self, number): ...
+
+
+class MulSquarer(Squarer):
     """Callable object that squares numbers with the * operator."""
 
     __slots__ = ()
@@ -55,7 +65,7 @@ class MulSquarer:
         return number * number
 
 
-class PowSquarer:
+class PowSquarer(Squarer):
     """Callable object that squares numbers with the ** operator."""
 
     __slots__ = ()
