@@ -46,10 +46,13 @@ class Squarer(ABC):
     __slots__ = ()
 
     @abstractmethod
-    def __call__(self, number): ...
+    def __call__(self, number):
+        """Square a number."""
+        ...
 
 
-class MulSquarer(Squarer):
+@Squarer.register
+class MulSquarer:
     """Callable object that squares numbers with the * operator."""
 
     __slots__ = ()
@@ -65,7 +68,8 @@ class MulSquarer(Squarer):
         return number * number
 
 
-class PowSquarer(Squarer):
+@Squarer.register
+class PowSquarer:
     """Callable object that squares numbers with the ** operator."""
 
     __slots__ = ()
