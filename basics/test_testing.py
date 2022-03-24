@@ -55,6 +55,18 @@ class TestOrderIndistinct(unittest.TestCase):
     ]
     """Labeled pairs of distinct values of, and containing, the same type."""
 
+    _VALUE_SEQUENCES = [
+        ('letters', ['Y', 'X', 'C', 'A', 'E', 'B', 'D']),
+        ('ints', [4, 9, 3, 7, 5, 15, 0, 18, 19, 11, 12, 16, 17, 14, 1, 13, 8]),
+        ('str lists', [
+            ['ham', 'spam', 'eggs'],
+            ['foo', 'bar', 'baz', 'quux', 'foobar'],
+            ['Alice', 'Bob', 'Carol', 'Cassidy', 'Christine', 'Derek'],
+        ]),
+        ('just objs', [object(), object(), object(), object(), object()]),
+    ]
+    """Labeled sequences of values, for testing stable sorting."""
+
     __slots__ = ()
 
     def test_cannot_construct_with_no_arguments(self):
@@ -72,8 +84,7 @@ class TestOrderIndistinct(unittest.TestCase):
         """Passing a single argument to the constructor works."""
         try:
             OrderIndistinct(value)
-        except TypeError as error:
-            # TODO: This feels over-engineered. Is this test case even needed?
+        except TypeError as error:  # Makes TypeError "FAIL" (not "ERROR").
             description = 'TypeError calling OrderIndistinct with one argument'
             msg_info = f'(message: {error})'
             self.fail(f'{description} {msg_info}')
@@ -236,19 +247,19 @@ class TestOrderIndistinct(unittest.TestCase):
         with self.assertRaises(TypeError):
             hash(oi)
 
-    # TODO: Parameterize this test method with more inputs to sorted().
-    def test_not_rearranged_by_sorted_builtin(self):
+    @parameterized.expand(_VALUE_SEQUENCES)
+    def test_not_rearranged_by_sorted_builtin(self, _label, values):
         """sorted is stable, so it preserves OrderIndistinct objects' order."""
-        before_sorting = [OrderIndistinct(x) for x in 'YXCAEBD']
+        before_sorting = [OrderIndistinct(x) for x in values]
         after_sorting = sorted(before_sorting)
         self.assertListEqual(before_sorting, after_sorting)
 
-    # TODO: Parameterize this test method with more inputs to list.sort().
-    def test_not_rearranged_by_list_sort_method(self):
+    @parameterized.expand(_VALUE_SEQUENCES)
+    def test_not_rearranged_by_list_sort_method(self, _label, values):
         """
         list.sort is stable, so it preserves OrderIndistict objects' order.
         """
-        original = [OrderIndistinct(x) for x in 'YXCAEBD']
+        original = [OrderIndistinct(x) for x in values]
         copy = original[:]
         copy.sort()
         self.assertListEqual(original, copy)
