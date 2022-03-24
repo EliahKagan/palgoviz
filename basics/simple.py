@@ -37,3 +37,46 @@ def alert(message):
 def bail_if(condition):
     """Exit indicating failure if the condition evaluates as true."""
     if condition: sys.exit(1)
+
+
+class MulSquarer:
+    """Callable object that squares numbers with the * operator."""
+
+    __slots__ = ()
+
+    def __call__(self, number):
+        """
+        Square a number using the * operator.
+
+        >>> m = MulSquarer()
+        >>> m(3)
+        9
+        """
+        return number * number
+
+
+class PowSquarer:
+    """Callable object that squares numbers with the ** operator."""
+
+    __slots__ = ()
+
+    def __call__(self, number):
+        """
+        Square a number using the ** operator.
+
+        >>> p = PowSquarer()
+        >>> p(3)
+        9
+        """
+        return number**2
+
+
+def make_squarer():
+    """
+    Return a function that squares.
+
+    >>> f = make_squarer()
+    >>> f(3)
+    9
+    """
+    return lambda x: x**2
