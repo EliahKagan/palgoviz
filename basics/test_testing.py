@@ -134,6 +134,12 @@ class TestOrderIndistinct(unittest.TestCase):
         with self.subTest(comparison='== new'):
             self.assertEqual(oi.value, new_value)
 
+    def test_new_attributes_cannot_be_created(self):
+        """Assigning to a nonexistent attribute raises AttributeError."""
+        oi = OrderIndistinct(42)
+        with self.assertRaises(AttributeError):
+            oi.valur = 76  # Misspelling of "value".
+
     @parameterized.expand(_VALUE_ARGUMENTS)
     def test_we_get_a_new_object_even_with_the_same_value(self, _label, value):
         """
@@ -240,7 +246,7 @@ class TestOrderIndistinct(unittest.TestCase):
             hash(oi)
 
     def test_not_rearranged_by_sorted_builtin(self):
-        """sorted is stable, so it preserve OrderIndistinct objects' order."""
+        """sorted is stable, so it preserves OrderIndistinct objects' order."""
         before_sorting = [OrderIndistinct(x) for x in 'YXCAEBD']
         after_sorting = sorted(before_sorting)
         self.assertListEqual(before_sorting, after_sorting)
