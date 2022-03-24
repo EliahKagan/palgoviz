@@ -2,13 +2,23 @@
 
 """Tests for the simple code in simple.py."""
 
+from fractions import Fraction
+import io
+import sys
 import unittest
 
-import io
+from parameterized import parameterized, parameterized_class
 
-import sys
-
-from simple import MY_NONE, Widget, answer, is_sorted, alert
+from simple import (
+    MY_NONE,
+    make_squarer,
+    MulSquarer,
+    PowSquarer,
+    Widget,
+    answer,
+    is_sorted,
+    alert,
+    bail_if)
 
 
 class TestMyNone(unittest.TestCase):
@@ -80,12 +90,22 @@ class TestIsSorted(unittest.TestCase):
         self.assertTrue(is_sorted(items))
 
     def test_descending_two_element_list_is_not_sorted(self):
-        items = ['b', 'a']
-        self.assertFalse(is_sorted(items))
+        with self.subTest(kind='strings'):
+            items = ['b', 'a']
+            self.assertFalse(is_sorted(items))
+
+        with self.subTest(kind='integers'):
+            items = [3, 2]
+            self.assertFalse(is_sorted(items))
 
     def test_descending_two_element_generator_is_not_sorted(self):
-        items = (x for x in (3, 2))
-        self.assertFalse(is_sorted(items))
+        with self.subTest(kind='strings'):
+            items = (x for x in ('b', 'a'))
+            self.assertFalse(is_sorted(items))
+
+        with self.subTest(kind='integers'):
+            items = (x for x in (3, 2))
+            self.assertFalse(is_sorted(items))
 
     def test_ascending_two_element_generator_is_sorted(self):
         items = (ch for ch in 'ab')
@@ -107,21 +127,109 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
         self.assertFalse(is_sorted(items))
 
+
 class TestAlert(unittest.TestCase):
     """Tests for the alert function."""
 
     def setUp(self):
-        self.old_err = sys.stderr
-        self.my_stderr = sys.stderr = io.StringIO()
+        """Redirect standard error."""
+        self._old_err = sys.stderr
+        self._my_stderr = sys.stderr = io.StringIO()
 
     def tearDown(self):
-        sys.stderr = self.old_err
+        """Restore original standard error."""
+        sys.stderr = self._old_err
 
-    def test_alert_and_newline_are_printed_with_string(self):
-        message = "Wall is still up."
-        expected = 'alert: Wall is still up.\n'
+    @parameterized.expand([
+        ("Wall is still up.", "alert: Wall is still up.\n"),
+        ("in your base.", "alert: in your base.\n"),
+        ("killing your dudes.", "alert: killing your dudes.\n"),
+        ('refusing to say hello', 'alert: refusing to say hello\n'),
+        ('3609 squirrels complained', 'alert: 3609 squirrels complained\n'),
+        ('boycott whalebone skis', 'alert: boycott whalebone skis\n'),
+    ])
+    def test_alert_and_newline_are_printed_with_string(self, message, expected):
         alert(message)
-        self.assertEqual(self.my_stderr.getvalue(), expected)
+        self.assertEqual(self._actual, expected)
+
+    def test_alert_with_nonstring_message_prints_str_of_message(self):
+        message = Fraction(2, 3)
+        expected = "alert: 2/3\n"
+        alert(message)
+        self.assertEqual(self._actual, expected)
+
+    @property
+    def _actual(self):
+        """Result printed by alert()."""
+        return self._my_stderr.getvalue()
+
+
+class TestBailIf(unittest.TestCase):
+    """Tests for the bail_if function."""
+
+    def test_bails_if_truthy(self):
+        for value in (True, 1, 1.1, 'hello', object()):
+            with self.subTest(value=value):
+                with self.assertRaises(SystemExit) as cm:
+                    bail_if(value)
+                self.assertEqual(cm.exception.code, 1)
+
+    def test_does_not_bail_if_falsey(self):
+        for value in (False, 0, 0.0, '', None):
+            with self.subTest(value=value):
+                try:
+                    bail_if(value)
+                except SystemExit:
+                    self.fail("Bailed although condition was falsey.")
+
+
+@parameterized_class(('name', 'implementation'), [
+    ('Mul', MulSquarer),
+    ('Pow', PowSquarer),
+    ('func', staticmethod(make_squarer)),
+])
+class TestSquarer(unittest.TestCase):
+    """Tests for the MulSquarer class."""
+
+    @parameterized.expand([
+        ('pos_0', 0, 0),
+        ('pos_1', 1, 1),
+        ('pos_2', 2, 4),
+        ('pos_3', 3, 9),
+    ])
+    def test_positive_ints_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertEqual(squarer(num), expected)
+
+    @parameterized.expand([
+        ('pos_0.0', 0.0, 0.0),
+        ('pos_1.0', 1.0, 1.0),
+        ('pos_2.2', 2.2, 4.84),
+        ('pos_3.1', 3.1, 9.61),
+    ])
+    def test_positive_floats_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertAlmostEqual(squarer(num), expected)
+
+    @parameterized.expand([
+        ('neg_1', -1, 1),
+        ('neg_2', -2, 4),
+        ('neg_3', -3, 9),
+        ('neg_4', -4, 16),
+    ])
+    def test_negative_ints_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertEqual(squarer(num), expected)
+
+    @parameterized.expand([
+        ('neg_1.2', -1.2, 1.44),
+        ('neg_1.0', -1.0, 1.0),
+        ('neg_2.2', -2.2, 4.84),
+        ('neg_3.1', -3.1, 9.61),
+    ])
+    def test_negative_floats_are_squared(self, _name, num, expected):
+        squarer = self.implementation()
+        self.assertAlmostEqual(squarer(num), expected)
 
 
 if __name__ == '__main__':

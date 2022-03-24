@@ -17,6 +17,7 @@ dependencies:
   - python-graphviz
 
   # For testing
+  - parameterized
   - pytest
 
   # For linting
