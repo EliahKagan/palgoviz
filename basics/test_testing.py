@@ -14,17 +14,20 @@ from parameterized import parameterized
 
 from testing import OrderIndistinct
 
-_VALUE_ARGUMENTS = [
+_VALUE_ARGS_WITHOUT_JUST_OBJ = [
     ('int', 42),
     ('str', 'ham'),
     ('list of str', ['foo', 'bar', 'baz', 'quux', 'foobar']),
     ('list of int', [10, 20, 30, 40, 50, 60, 70]),
-    ('just obj', object()),
+    ('Fraction', Fraction(5, 9)),
     ('None', None),
 ]
+"""Labeled values of, or containing, different types; but not object()."""
+
+_VALUE_ARGS = _VALUE_ARGS_WITHOUT_JUST_OBJ + [('just obj', object())]
 """Some labeled values of, or containing, different types."""
 
-_VALUE_ARGUMENTS_WITH_EXPECTED_ORDER_INDISTINCT_REPR = [
+_VALUE_ARGS_WITH_EXPECTED_REPR = [
     ('int', 42, 'OrderIndistinct(42)'),
     ('str', 'ham', "OrderIndistinct('ham')"),
     ('list of str',
@@ -36,28 +39,17 @@ _VALUE_ARGUMENTS_WITH_EXPECTED_ORDER_INDISTINCT_REPR = [
     ('Fraction', Fraction(5, 9), 'OrderIndistinct(Fraction(5, 9))'),
     ('None', None, 'OrderIndistinct(None)'),
 ]
-"""
-Some labeled values and expected reprs of OrderIndistinct objects with them.
-
-Unlike _VALUE_ARGUMENTS and _DISTINCT_VALUE_PAIRS, this uses a Fraction in
-place of a direct object instance, because Fractions are good at showing bugs
-where str is used instead of repr, and because repr(object()) varies.
-
-TODO: Once this module contains tests not related to OrderIndistinct, refactor,
-probably either (a) splitting the test module (and maybe testing.py too), or
-(b) moving this, and other contants if they turn out to be specific to testing
-OrderIndistinct, into TestOrderIndistinct, as class attributes.
-"""
+"""Labeled values and expected OrderIndistinct object reprs."""
 
 _DISTINCT_VALUE_PAIRS = [
     ('ints', 42, 76),
     ('strs', 'ham', 'foo'),
     ('lists of str', ['foo', 'bar'], ['foo', 'baz']),
     ('lists of int', [1, 2, 3, 4, 5], [1, 3, 4, 3, 5]),
-    ('just objs', object(), object()),
     ('singletons', None, ...),
+    ('just objs', object(), object()),
 ]
-"""Some labeled pairs of distinct values of, and containing, the same type."""
+"""Labeled pairs of distinct values of, and containing, the same type."""
 
 
 class TestOrderIndistinct(unittest.TestCase):
@@ -75,7 +67,7 @@ class TestOrderIndistinct(unittest.TestCase):
         with self.assertRaises(TypeError):
             OrderIndistinct(10, 20)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_can_construct_with_single_argument(self, _label, value):
         """Passing a single argument to the constructor works."""
         try:
@@ -86,23 +78,21 @@ class TestOrderIndistinct(unittest.TestCase):
             msg_info = f'(message: {error})'
             self.fail(f'{description} {msg_info}')
 
-    @parameterized.expand(_VALUE_ARGUMENTS_WITH_EXPECTED_ORDER_INDISTINCT_REPR)
+    @parameterized.expand(_VALUE_ARGS_WITH_EXPECTED_REPR)
     def test_repr_shows_type_with_value_arg(self, _label, value, expected):
         """The repr looks like code that could've created the object."""
         oi = OrderIndistinct(value)
         actual = repr(oi)
         self.assertEqual(actual, expected)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
-    def test_repr_roundtrips_by_eval(self, label, value):
+    @parameterized.expand(_VALUE_ARGS_WITHOUT_JUST_OBJ)
+    def test_repr_roundtrips_by_eval(self, _label, value):
         """The repr is Python code that when eval'd gives an equal object."""
-        if label == 'just obj':
-            self.skipTest('separate direct instances of object are unequal')
         original = OrderIndistinct(value)
         copy = eval(repr(original))
         self.assertEqual(original, copy)
 
-    @parameterized.expand(_VALUE_ARGUMENTS_WITH_EXPECTED_ORDER_INDISTINCT_REPR)
+    @parameterized.expand(_VALUE_ARGS_WITH_EXPECTED_REPR)
     def test_repr_correct_in_derived_class(self, _label, value, base_expected):
         """The repr shows a derived-class name (and also the correct value)."""
         class Derived(OrderIndistinct): pass
@@ -111,19 +101,19 @@ class TestOrderIndistinct(unittest.TestCase):
         actual = repr(oi)
         self.assertEqual(actual, derived_expected)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_value_attr_has_original_value_arg(self, _label, value):
         """A positional argument on construction writes the value attribute."""
         oi = OrderIndistinct(value)
         self.assertEqual(oi.value, value)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_value_attr_has_original_value_keyword_arg(self, _label, value):
         """A value= keyword arg on construction writes the value attribute."""
         oi = OrderIndistinct(value=value)
         self.assertEqual(oi.value, value)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_value_attribute_can_be_changed(self, _label, new_value):
         """The value attribute is read-write. Reads see earlier writes."""
         old_value = object()
@@ -140,7 +130,7 @@ class TestOrderIndistinct(unittest.TestCase):
         with self.assertRaises(AttributeError):
             oi.valur = 76  # Misspelling of "value".
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_we_get_a_new_object_even_with_the_same_value(self, _label, value):
         """
         Calling OrderIndistinct always construct a new object.
@@ -151,7 +141,7 @@ class TestOrderIndistinct(unittest.TestCase):
         second = OrderIndistinct(value)
         self.assertIsNot(first, second)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_equal_when_value_is_equal(self, _label, value):
         """From the same value argument, OrderIndistint objects are equal."""
         # In unittest tests, we usually use assertEqual/assertNotEqual rather
@@ -179,7 +169,7 @@ class TestOrderIndistinct(unittest.TestCase):
         with self.subTest(comparison='!='):
             self.assertTrue(first != second)
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_not_less_with_same_value(self, _label, value):
         """From the same value argument, "<" is false."""
         first = OrderIndistinct(value)
@@ -193,7 +183,7 @@ class TestOrderIndistinct(unittest.TestCase):
         second = OrderIndistinct(rhs)
         self.assertFalse(first < second)  # No assertNotLess method.
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_not_greater_with_same_value(self, _label, value):
         """From the same value argument, ">" is false."""
         first = OrderIndistinct(value)
@@ -207,7 +197,7 @@ class TestOrderIndistinct(unittest.TestCase):
         second = OrderIndistinct(rhs)
         self.assertFalse(first > second)  # No assertNotGreater method.
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_less_or_equal_with_same_value(self, _label, value):
         """From the same value argument, "<=" is true."""
         first = OrderIndistinct(value)
@@ -221,7 +211,7 @@ class TestOrderIndistinct(unittest.TestCase):
         second = OrderIndistinct(rhs)
         self.assertFalse(first <= second)  # No assertNotLessEqual method.
 
-    @parameterized.expand(_VALUE_ARGUMENTS)
+    @parameterized.expand(_VALUE_ARGS)
     def test_greater_or_equal_with_same_value(self, _label, value):
         """With OrderIndistincts of the same value argument, ">=" is true."""
         first = OrderIndistinct(value)
