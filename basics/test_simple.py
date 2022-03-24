@@ -189,8 +189,8 @@ class TestBailIf(unittest.TestCase):
     ('Pow', PowSquarer),
     ('func', staticmethod(make_squarer)),
 ])
-class TestSquarer(unittest.TestCase):
-    """Tests for the MulSquarer class."""
+class TestAllSquarers(unittest.TestCase):
+    """Tests for any kind of Squarer."""
 
     @parameterized.expand([
         ('pos_0', 0, 0),
@@ -232,17 +232,21 @@ class TestSquarer(unittest.TestCase):
         squarer = self.implementation()
         self.assertAlmostEqual(squarer(num), expected)
 
+
+@parameterized_class(('name', 'implementation'), [
+    ('Mul', MulSquarer),
+    ('Pow', PowSquarer),
+])
+class TestSquarerClasses(unittest.TestCase):
+    """Tests for the custom Squarer classes."""
+
     def test_repr(self):
         """repr shows type and looks like Python code."""
-        if self.name == 'func':
-            self.skipTest("make_squarer doesn't support custom represenations.")
         expected = f'{self.implementation.__name__}()'
         squarer = self.implementation()
         self.assertEqual(repr(squarer), expected)
 
     def test_squarer_is_a_squarer(self):
-        if self.name == 'func':
-            self.skipTest("make_squarer doesn't create Squarer instances.")
         squarer = self.implementation()
         self.assertIsInstance(squarer, Squarer)
 
