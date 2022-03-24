@@ -239,6 +239,12 @@ class TestSquarer(unittest.TestCase):
         squarer = self.implementation()
         self.assertEqual(repr(squarer), expected)
 
+    def test_squarer_is_a_squarer(self):
+        if self.name == 'func':
+            self.skipTest("make_squarer doesn't create Squarer instances.")
+        squarer = self.implementation()
+        self.assertIsInstance(squarer, Squarer)
+
 
 if __name__ == '__main__':
     unittest.main()
