@@ -229,7 +229,8 @@ class TestOrderIndistinct(unittest.TestCase):
         self.assertGreaterEqual(first, second)
 
     @parameterized.expand(_DISTINCT_VALUE_PAIRS)
-    def test_not_greater_or_equal_with_different_values(self, _label, lhs, rhs):
+    def test_not_greater_or_equal_with_different_values(self,
+                                                        _label, lhs, rhs):
         """From different value arguments, ">=" is false."""
         first = OrderIndistinct(lhs)
         second = OrderIndistinct(rhs)
@@ -245,11 +246,22 @@ class TestOrderIndistinct(unittest.TestCase):
         with self.assertRaises(TypeError):
             hash(oi)
 
+    # TODO: Parameterize this test method with more inputs to sorted().
     def test_not_rearranged_by_sorted_builtin(self):
         """sorted is stable, so it preserves OrderIndistinct objects' order."""
         before_sorting = [OrderIndistinct(x) for x in 'YXCAEBD']
         after_sorting = sorted(before_sorting)
         self.assertListEqual(before_sorting, after_sorting)
+
+    # TODO: Parameterize this test method with more inputs to list.sort().
+    def test_not_rearranged_by_list_sort_method(self):
+        """
+        list.sort is stable, so it preserves OrderIndistict objects' order.
+        """
+        original = [OrderIndistinct(x) for x in 'YXCAEBD']
+        copy = original[:]
+        copy.sort()
+        self.assertListEqual(original, copy)
 
 
 if __name__ == '__main__':
