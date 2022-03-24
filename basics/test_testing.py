@@ -14,46 +14,46 @@ from parameterized import parameterized
 
 from testing import OrderIndistinct
 
-_VALUE_ARGS_WITHOUT_JUST_OBJ = [
-    ('int', 42),
-    ('str', 'ham'),
-    ('list of str', ['foo', 'bar', 'baz', 'quux', 'foobar']),
-    ('list of int', [10, 20, 30, 40, 50, 60, 70]),
-    ('Fraction', Fraction(5, 9)),
-    ('None', None),
-]
-"""Labeled values of, or containing, different types; but not object()."""
-
-_VALUE_ARGS = _VALUE_ARGS_WITHOUT_JUST_OBJ + [('just obj', object())]
-"""Some labeled values of, or containing, different types."""
-
-_VALUE_ARGS_WITH_EXPECTED_REPR = [
-    ('int', 42, 'OrderIndistinct(42)'),
-    ('str', 'ham', "OrderIndistinct('ham')"),
-    ('list of str',
-     ['foo', 'bar', 'baz', 'quux', 'foobar'],
-     "OrderIndistinct(['foo', 'bar', 'baz', 'quux', 'foobar'])"),
-    ('list of int',
-     [10, 20, 30, 40, 50, 60, 70],
-     "OrderIndistinct([10, 20, 30, 40, 50, 60, 70])"),
-    ('Fraction', Fraction(5, 9), 'OrderIndistinct(Fraction(5, 9))'),
-    ('None', None, 'OrderIndistinct(None)'),
-]
-"""Labeled values and expected OrderIndistinct object reprs."""
-
-_DISTINCT_VALUE_PAIRS = [
-    ('ints', 42, 76),
-    ('strs', 'ham', 'foo'),
-    ('lists of str', ['foo', 'bar'], ['foo', 'baz']),
-    ('lists of int', [1, 2, 3, 4, 5], [1, 3, 4, 3, 5]),
-    ('singletons', None, ...),
-    ('just objs', object(), object()),
-]
-"""Labeled pairs of distinct values of, and containing, the same type."""
-
 
 class TestOrderIndistinct(unittest.TestCase):
     """Tests for the OrderIndistinct class."""
+
+    _VALUE_ARGS_WITHOUT_JUST_OBJ = [
+        ('int', 42),
+        ('str', 'ham'),
+        ('list of str', ['foo', 'bar', 'baz', 'quux', 'foobar']),
+        ('list of int', [10, 20, 30, 40, 50, 60, 70]),
+        ('Fraction', Fraction(5, 9)),
+        ('None', None),
+    ]
+    """Labeled values of, or containing, different types; but not object()."""
+
+    _VALUE_ARGS = _VALUE_ARGS_WITHOUT_JUST_OBJ + [('just obj', object())]
+    """Some labeled values of, or containing, different types."""
+
+    _VALUE_ARGS_WITH_EXPECTED_REPR = [
+        ('int', 42, 'OrderIndistinct(42)'),
+        ('str', 'ham', "OrderIndistinct('ham')"),
+        ('list of str',
+        ['foo', 'bar', 'baz', 'quux', 'foobar'],
+        "OrderIndistinct(['foo', 'bar', 'baz', 'quux', 'foobar'])"),
+        ('list of int',
+        [10, 20, 30, 40, 50, 60, 70],
+        "OrderIndistinct([10, 20, 30, 40, 50, 60, 70])"),
+        ('Fraction', Fraction(5, 9), 'OrderIndistinct(Fraction(5, 9))'),
+        ('None', None, 'OrderIndistinct(None)'),
+    ]
+    """Labeled values and expected OrderIndistinct object reprs."""
+
+    _DISTINCT_VALUE_PAIRS = [
+        ('ints', 42, 76),
+        ('strs', 'ham', 'foo'),
+        ('lists of str', ['foo', 'bar'], ['foo', 'baz']),
+        ('lists of int', [1, 2, 3, 4, 5], [1, 3, 4, 3, 5]),
+        ('singletons', None, ...),
+        ('just objs', object(), object()),
+    ]
+    """Labeled pairs of distinct values of, and containing, the same type."""
 
     __slots__ = ()
 
