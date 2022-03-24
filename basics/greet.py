@@ -90,7 +90,7 @@ class MutableGreeter:
 
     def __repr__(self):
         """
-        Representation of this MutableGreeter as python code.
+        Representation of this MutableGreeter as Python code.
 
         >>> MutableGreeter('en')
         MutableGreeter('en')

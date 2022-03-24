@@ -50,9 +50,12 @@ class Squarer(ABC):
         """Square a number."""
         ...
 
+    def __repr__(self):
+        """Represent this Squarer as Python code."""
+        return f"{type(self).__name__}()"
 
-@Squarer.register
-class MulSquarer:
+
+class MulSquarer(Squarer):
     """Callable object that squares numbers with the * operator."""
 
     __slots__ = ()
@@ -68,8 +71,7 @@ class MulSquarer:
         return number * number
 
 
-@Squarer.register
-class PowSquarer:
+class PowSquarer(Squarer):
     """Callable object that squares numbers with the ** operator."""
 
     __slots__ = ()

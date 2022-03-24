@@ -232,9 +232,10 @@ class TestSquarer(unittest.TestCase):
         squarer = self.implementation()
         self.assertAlmostEqual(squarer(num), expected)
 
-    @unittest.skip("Haven't implemented repr yet.")
     def test_repr(self):
         """repr shows type and looks like Python code."""
+        if self.name == 'func':
+            self.skipTest("make_squarer doesn't support custom represenations.")
         expected = f'{self.implementation.__name__}()'
         squarer = self.implementation()
         self.assertEqual(repr(squarer), expected)
