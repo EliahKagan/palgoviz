@@ -2,8 +2,6 @@
 
 import sys
 from abc import ABC, abstractmethod
-import enum
-import functools
 
 MY_NONE = None
 
@@ -100,9 +98,7 @@ def make_squarer():
     return lambda x: x**2
 
 
-@functools.total_ordering
-@enum.unique
-class BearBowl(enum.Enum):
+class BearBowl:
     """
     A bowl of porridge Goldilocks tasted while trespassing in a bear kitchen.
 
@@ -111,17 +107,3 @@ class BearBowl(enum.Enum):
     >>> BearBowl.TOO_COLD < BearBowl.JUST_RIGHT < BearBowl.TOO_HOT
     True
     """
-
-    TOO_COLD = 1
-    JUST_RIGHT = 2
-    TOO_HOT = 3
-
-    def __repr__(self):
-        """eval-able representation (attribute-access expression)."""
-        return str(self)
-
-    def __lt__(self, other):
-        """Compare by heat. Cooler bowls compare less than warmer bowls."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.value < other.value
