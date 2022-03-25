@@ -19,6 +19,7 @@ dependencies:
   # For testing
   - parameterized
   - pytest
+  - pytest-subtests
 
   # For linting
   - flake8
