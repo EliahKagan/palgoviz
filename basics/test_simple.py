@@ -250,24 +250,11 @@ class TestSquarerClasses(unittest.TestCase):
         squarer = self.implementation()
         self.assertIsInstance(squarer, Squarer)
 
-    # Eliah's version
-    def test_squarer_equality_comparison_is_by_type(self):
-        lhs_type = self.implementation
-        for rhs_type in MulSquarer, PowSquarer:
-            squarer1 = lhs_type()
-            squarer2 = rhs_type()
-            with self.subTest(lhs_type=lhs_type, rhs_type=rhs_type):
-                if lhs_type is rhs_type:
-                    self.assertEqual(squarer1, squarer2)
-                else:
-                    self.assertNotEqual(squarer1, squarer2)
-
     def test_two_squarers_of_same_type_are_equal(self):
         squarer1 = self.implementation()
         squarer2 = self.implementation()
         self.assertEqual(squarer1, squarer2)
 
-    # Eliah's version
     def test_two_squarers_of_different_type_are_not_equal(self):
         other_types = (squarer for squarer in (MulSquarer, PowSquarer)
                        if squarer is not self.implementation)
@@ -277,17 +264,6 @@ class TestSquarerClasses(unittest.TestCase):
             squarer2 = other_type()
             with self.subTest(other_type=other_type):
                 self.assertNotEqual(squarer1, squarer2)
-
-    # David's initial version
-    # def test_two_squarers_of_different_type_are_not_equal(self):
-    #     if self.implementation is MulSquarer:
-    #         squarer1 = self.implementation()
-    #         squarer2 = PowSquarer()
-    #         self.assertNotEqual(squarer1, squarer2)
-    #     elif self.implementation is PowSquarer:
-    #         squarer1 = self.implementation()
-    #         squarer2 = MulSquarer()
-    #         self.assertNotEqual(squarer1, squarer2)
 
 
 if __name__ == '__main__':
