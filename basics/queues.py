@@ -26,12 +26,15 @@ class Queue(ABC):
         """Extract an element from this queue."""
 
 
-class FifoQueue(Queue):  # FIXME: For now, keep only the hierarchy rooted here.
+class FifoQueue(Queue):
     """Abstract class representing a first-in first-out queue (a "queue")."""
 
     __slots__ = ()
 
-    # TODO: Add a create() method that opaquely instantiates some subclass.
+    @staticmethod
+    def create():
+        """Opaquely instantiate some reasonable concrete FifoQueue subclass."""
+        return DequeFifoQueue()
 
     @abstractmethod
     def enqueue(self, item):
@@ -47,7 +50,10 @@ class LifoQueue(Queue):
 
     __slots__ = ()
 
-    # TODO: Add a create() method that opaquely instantiates some subclass.
+    @staticmethod
+    def create():
+        """Opaquely instantiate some reasonable concrete LifoQueue subclass."""
+        return ListLifoQueue()
 
     @abstractmethod
     def enqueue(self, item):
