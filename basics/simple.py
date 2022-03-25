@@ -105,3 +105,45 @@ def make_squarer():
     9
     """
     return lambda x: x**2
+
+
+class Toggle:
+    """
+    Callable object returning alternating bools.
+
+    >>> tf = Toggle(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = Toggle(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
+
+
+def make_toggle(start):
+    """
+    Create a function that returns alternating bools.
+
+    >>> tf = make_toggle(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = make_toggle(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
