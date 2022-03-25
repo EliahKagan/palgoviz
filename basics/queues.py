@@ -80,6 +80,28 @@ class DequeFifoQueue(FifoQueue):
         return self._items.popleft()
 
 
+class SlowFifoQueue(FifoQueue):
+    """A FIFO queue (i.e., a "queue") based on a list. Quadratic dequeueing."""
+
+    __slots__ = ('_items',)
+
+    def __init__(self):
+        """"Create a new slow list-based FIFO queue."""
+        self._items = []
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
+    def enqueue(self, item):
+        self._items.append(item)
+
+    def dequeue(self):
+        return self._items.pop(0)
+
+
 class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
