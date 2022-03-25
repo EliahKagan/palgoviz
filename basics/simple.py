@@ -54,6 +54,12 @@ class Squarer(ABC):
         """Represent this Squarer as Python code."""
         return f"{type(self).__name__}()"
 
+    def __eq__(self, other):
+        """Check if two Squarers are of the same type."""
+        if not isinstance(other, Squarer):
+            return NotImplemented
+        return type(self) is type(other)
+
 
 class MulSquarer(Squarer):
     """Callable object that squares numbers with the * operator."""
