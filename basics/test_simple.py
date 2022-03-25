@@ -236,6 +236,11 @@ class TestAllSquarers(unittest.TestCase):
 class TestSquarerClasses(unittest.TestCase):
     """Tests for the custom Squarer classes."""
 
+    _SQUARERS = [
+        ('Mul', MulSquarer),
+        ('Pow', PowSquarer),
+    ]
+
     @parameterized.expand([
         ('Mul', MulSquarer, 'MulSquarer()'),
         ('Pow', PowSquarer, 'PowSquarer()'),
@@ -245,12 +250,12 @@ class TestSquarerClasses(unittest.TestCase):
         squarer = impl()
         self.assertEqual(repr(squarer), expected)
 
-    @parameterized.expand([('Mul', MulSquarer), ('Pow', PowSquarer)])
+    @parameterized.expand(_SQUARERS)
     def test_squarer_is_a_squarer(self, _name, impl):
         squarer = impl()
         self.assertIsInstance(squarer, Squarer)
 
-    @parameterized.expand([('Mul', MulSquarer), ('Pow', PowSquarer)])
+    @parameterized.expand(_SQUARERS)
     def test_squarers_of_same_type_are_equal(self, _name, impl):
         squarer1 = impl()
         squarer2 = impl()
@@ -266,7 +271,7 @@ class TestSquarerClasses(unittest.TestCase):
         squarer2 = impl2()
         self.assertNotEqual(squarer1, squarer2)
 
-    @parameterized.expand([('Mul', MulSquarer), ('Pow', PowSquarer)])
+    @parameterized.expand(_SQUARERS)
     def test_squarers_of_same_type_hash_equal(self, _name, impl):
         squarer1 = impl()
         squarer2 = impl()
