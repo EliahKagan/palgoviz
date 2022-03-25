@@ -349,7 +349,7 @@ class TestCountTreeNodes(_NamedImplementationTestCase):
 
 
 # TODO: If reused, extract the stdout-redirecting fixture to its own class.
-class CountTreeNodesInstrumented(unittest.TestCase):
+class TestCountTreeNodesInstrumented(unittest.TestCase):
     """Tests for the count_tree_nodes_instrumented function."""
 
     __slots__ = ('_old_stdout', '_stdout')
