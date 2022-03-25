@@ -237,12 +237,11 @@ class TestSquarerClasses(unittest.TestCase):
     """Tests for the custom Squarer classes."""
 
     @parameterized.expand([
-        ('Mul', MulSquarer),
-        ('Pow', PowSquarer),
+        ('Mul', MulSquarer, 'MulSquarer()'),
+        ('Pow', PowSquarer, 'PowSquarer()'),
     ])
-    def test_repr(self, _name, impl):
+    def test_repr(self, _name, impl, expected):
         """repr shows type and looks like Python code."""
-        expected = f'{impl.__name__}()'
         squarer = impl()
         self.assertEqual(repr(squarer), expected)
 
@@ -258,16 +257,17 @@ class TestSquarerClasses(unittest.TestCase):
         ('Mul', MulSquarer),
         ('Pow', PowSquarer),
     ])
-    def test_two_squarers_of_same_type_are_equal(self, _name, impl):
+    def test_squarers_of_same_type_are_equal(self, _name, impl):
         squarer1 = impl()
         squarer2 = impl()
         self.assertEqual(squarer1, squarer2)
 
     @parameterized.expand([
-        ('Mulfisrt', MulSquarer, PowSquarer),
-        ('Powfirst', PowSquarer, MulSquarer),
+        ('Mul, Pow', MulSquarer, PowSquarer),
+        ('Pow, Mul', PowSquarer, MulSquarer),
     ])
-    def test_two_squarers_of_different_type_are_not_equal(self, _name, impl1, impl2):
+    def test_squarers_of_different_types_are_not_equal(self, _name,
+                                                       impl1, impl2):
         squarer1 = impl1()
         squarer2 = impl2()
         self.assertNotEqual(squarer1, squarer2)
