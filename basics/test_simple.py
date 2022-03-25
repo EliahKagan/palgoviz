@@ -285,6 +285,28 @@ class TestBearBowl(unittest.TestCase):
     def test_too_hot_is_not_a_number(self):
         self.assertNotIsInstance(BearBowl.TOO_HOT, Number)
 
+    # Their reprs are code that evaluates to them (if BearBowl is in scope):
+
+    def test_too_cold_repr_shows_attribute_access_from_class(self):
+        self.assertEqual(repr(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
+
+    def test_just_right_repr_shows_attribute_access_from_class(self):
+        self.assertEqual(repr(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
+
+    def test_too_hot_repr_shows_attribute_access_from_class(self):
+        self.assertEqual(repr(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
+
+    # Their strs are that same code that evaluates to them:
+
+    def test_too_cold_str_shows_attribute_access_from_class(self):
+        self.assertEqual(str(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
+
+    def test_just_right_str_shows_attribute_access_from_class(self):
+        self.assertEqual(str(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
+
+    def test_too_hot_str_shows_attribute_access_from_class(self):
+        self.assertEqual(str(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
+
     # They know their names, accessible through the name attribute:
 
     def test_too_cold_name_attribute_is_too_cold(self):
@@ -296,7 +318,7 @@ class TestBearBowl(unittest.TestCase):
     def test_too_hot_name_attribute_is_too_hot(self):
         self.assertEqual(BearBowl.TOO_HOT.name, 'TOO_HOT')
 
-    # They are equal to themselves, as usual:
+    # They are, as one would expect, equal to themselves:
 
     def test_too_cold_equals_too_cold(self):
         self.assertEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
@@ -388,28 +410,6 @@ class TestBearBowl(unittest.TestCase):
 
     def test_too_hot_greater_than_or_equal_to_itself(self):
         self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
-
-    # Bowls' reprs are code that evaluates to them (if BearBowl is in scope):
-
-    def test_too_cold_repr_shows_attribute_access_from_class(self):
-        self.assertEqual(repr(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
-
-    def test_just_right_repr_shows_attribute_access_from_class(self):
-        self.assertEqual(repr(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
-
-    def test_too_hot_repr_shows_attribute_access_from_class(self):
-        self.assertEqual(repr(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
-
-    # Bowls' strs are likewise code that evaluates to them:
-
-    def test_too_cold_str_shows_attribute_access_from_class(self):
-        self.assertEqual(str(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
-
-    def test_just_right_str_shows_attribute_access_from_class(self):
-        self.assertEqual(str(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
-
-    def test_too_hot_str_shows_attribute_access_from_class(self):
-        self.assertEqual(str(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
 
 
 if __name__ == '__main__':
