@@ -33,7 +33,7 @@ def fixture_names_processor(request: Any):
 
 
 @pytest.fixture(name='greeter_factory',
-                params=[greet.Greeter, greet.FrozenGreeter])
+                params=[greet.MutableGreeter, greet.FrozenGreeter])
 def fixture_greeter_factory(request: Any):
     return request.param
 
