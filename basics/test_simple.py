@@ -240,36 +240,36 @@ class TestSquarerClasses(unittest.TestCase):
         ('Mul', MulSquarer),
         ('Pow', PowSquarer),
     ])
-    def test_repr(self, _name, implementation):
+    def test_repr(self, _name, impl):
         """repr shows type and looks like Python code."""
-        expected = f'{implementation.__name__}()'
-        squarer = implementation()
+        expected = f'{impl.__name__}()'
+        squarer = impl()
         self.assertEqual(repr(squarer), expected)
 
     @parameterized.expand([
         ('Mul', MulSquarer),
         ('Pow', PowSquarer),
     ])
-    def test_squarer_is_a_squarer(self, _name, implementation):
-        squarer = implementation()
+    def test_squarer_is_a_squarer(self, _name, impl):
+        squarer = impl()
         self.assertIsInstance(squarer, Squarer)
 
     @parameterized.expand([
         ('Mul', MulSquarer),
         ('Pow', PowSquarer),
     ])
-    def test_two_squarers_of_same_type_are_equal(self, _name, implementation):
-        squarer1 = implementation()
-        squarer2 = implementation()
+    def test_two_squarers_of_same_type_are_equal(self, _name, impl):
+        squarer1 = impl()
+        squarer2 = impl()
         self.assertEqual(squarer1, squarer2)
 
     @parameterized.expand([
         ('Mulfisrt', MulSquarer, PowSquarer),
         ('Powfirst', PowSquarer, MulSquarer),
     ])
-    def test_two_squarers_of_different_type_are_not_equal(self, _name, first, second):
-        squarer1 = first()
-        squarer2 = second()
+    def test_two_squarers_of_different_type_are_not_equal(self, _name, impl1, impl2):
+        squarer1 = impl1()
+        squarer2 = impl2()
         self.assertNotEqual(squarer1, squarer2)
 
 
