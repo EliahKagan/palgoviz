@@ -233,37 +233,45 @@ class TestAllSquarers(unittest.TestCase):
         self.assertAlmostEqual(squarer(num), expected)
 
 
-@parameterized_class(('name', 'implementation'), [
-    ('Mul', MulSquarer),
-    ('Pow', PowSquarer),
-])
 class TestSquarerClasses(unittest.TestCase):
     """Tests for the custom Squarer classes."""
 
-    def test_repr(self):
+    @parameterized.expand([
+        ('Mul', MulSquarer),
+        ('Pow', PowSquarer),
+    ])
+    def test_repr(self, _name, implementation):
         """repr shows type and looks like Python code."""
-        expected = f'{self.implementation.__name__}()'
-        squarer = self.implementation()
+        expected = f'{implementation.__name__}()'
+        squarer = implementation()
         self.assertEqual(repr(squarer), expected)
 
-    def test_squarer_is_a_squarer(self):
-        squarer = self.implementation()
+    @parameterized.expand([
+        ('Mul', MulSquarer),
+        ('Pow', PowSquarer),
+    ])
+    def test_squarer_is_a_squarer(self, _name, implementation):
+        squarer = implementation()
         self.assertIsInstance(squarer, Squarer)
 
-    def test_two_squarers_of_same_type_are_equal(self):
-        squarer1 = self.implementation()
-        squarer2 = self.implementation()
+    @parameterized.expand([
+        ('Mul', MulSquarer),
+        ('Pow', PowSquarer),
+    ])
+    def test_two_squarers_of_same_type_are_equal(self, _name, implementation):
+        squarer1 = implementation()
+        squarer2 = implementation()
         self.assertEqual(squarer1, squarer2)
 
-    def test_two_squarers_of_different_type_are_not_equal(self):
-        other_types = (squarer for squarer in (MulSquarer, PowSquarer)
-                       if squarer is not self.implementation)
+    def test_a_MulSquarer_is_not_equal_to_a_PowSquarer(self):
+        squarer1 = MulSquarer()
+        squarer2 = PowSquarer()
+        self.assertNotEqual(squarer1, squarer2)
 
-        for other_type in other_types:
-            squarer1 = self.implementation()
-            squarer2 = other_type()
-            with self.subTest(other_type=other_type):
-                self.assertNotEqual(squarer1, squarer2)
+    def test_a_PowSquarer_is_not_equal_to_a_MulSquarer(self):
+        squarer1 = PowSquarer()
+        squarer2 = MulSquarer()
+        self.assertNotEqual(squarer1, squarer2)
 
 
 if __name__ == '__main__':
