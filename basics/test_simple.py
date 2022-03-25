@@ -266,6 +266,12 @@ class TestSquarerClasses(unittest.TestCase):
         squarer2 = impl2()
         self.assertNotEqual(squarer1, squarer2)
 
+    @parameterized.expand([('Mul', MulSquarer), ('Pow', PowSquarer)])
+    def test_squarers_of_same_type_hash_equal(self, _name, impl):
+        squarer1 = impl()
+        squarer2 = impl()
+        self.assertEqual(hash(squarer1), hash(squarer2))
+
 
 if __name__ == '__main__':
     unittest.main()

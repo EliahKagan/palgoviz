@@ -60,6 +60,9 @@ class Squarer(ABC):
             return NotImplemented
         return type(self) is type(other)
 
+    def __hash__(self):
+        return hash(type(self))
+
 
 class MulSquarer(Squarer):
     """Callable object that squares numbers with the * operator."""
