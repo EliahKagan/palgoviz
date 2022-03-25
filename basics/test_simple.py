@@ -263,14 +263,11 @@ class TestSquarerClasses(unittest.TestCase):
         squarer2 = implementation()
         self.assertEqual(squarer1, squarer2)
 
-    def test_a_MulSquarer_is_not_equal_to_a_PowSquarer(self):
-        squarer1 = MulSquarer()
-        squarer2 = PowSquarer()
-        self.assertNotEqual(squarer1, squarer2)
-
-    def test_a_PowSquarer_is_not_equal_to_a_MulSquarer(self):
-        squarer1 = PowSquarer()
-        squarer2 = MulSquarer()
+    @parameterized.expand([
+        ('Mulfisrt', MulSquarer(), PowSquarer()),
+        ('Powfirst', PowSquarer(), MulSquarer()),
+    ])
+    def test_two_squarers_of_different_type_are_not_equal(self, _name, squarer1, squarer2):
         self.assertNotEqual(squarer1, squarer2)
 
 
