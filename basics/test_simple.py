@@ -2,6 +2,7 @@
 
 """Tests for the simple code in simple.py."""
 
+from abc import ABC, abstractmethod
 from fractions import Fraction
 import io
 from numbers import Number
@@ -283,13 +284,13 @@ class TestSquarerClasses(unittest.TestCase):
         self.assertEqual(hash(squarer1), hash(squarer2))
 
 
-class TestMakeToggle(unittest.TestCase):
-    """Tests for the make_toggle function. (See also TestToggleClass below.)"""
+class _TestToggleBase(ABC, unittest.TestCase):
+    """Shared tests for the make_toggle function and the Toggle class."""
 
     @property
+    @abstractmethod
     def implementation(self):
         """The toggle-factory implementation being tested."""
-        return make_toggle
 
     def test_zero_arguments_not_accepted(self):
         with self.assertRaises(TypeError):
@@ -357,9 +358,16 @@ class TestMakeToggle(unittest.TestCase):
         self.assertIs(ft2(), True)
         self.assertIs(ft1(), False)
 
+class TestMakeToggle(_TestToggleBase):
+    """Tests for the make_toggle function."""
 
-class TestToggleClass(TestMakeToggle):
-    """Tests for the Toggle class. (Includes tests from TestMakeToggle.)"""
+    @property
+    def implementation(self):
+        return make_toggle
+
+
+class TestToggleClass(_TestToggleBase):
+    """Tests for the Toggle class."""
 
     @property
     def implementation(self):
@@ -433,6 +441,9 @@ class TestToggleClass(TestMakeToggle):
         toggle = Toggle(start)
         with self.assertRaises(TypeError):
             hash(toggle)
+
+
+del _TestToggleBase
 
 
 class TestBearBowl(unittest.TestCase):
