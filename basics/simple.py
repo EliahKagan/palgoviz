@@ -54,6 +54,15 @@ class Squarer(ABC):
         """Represent this Squarer as Python code."""
         return f"{type(self).__name__}()"
 
+    def __eq__(self, other):
+        """Check if two Squarers are of the same type."""
+        if not isinstance(other, Squarer):
+            return NotImplemented
+        return type(self) is type(other)
+
+    def __hash__(self):
+        return hash(type(self))
+
 
 class MulSquarer(Squarer):
     """Callable object that squares numbers with the * operator."""
@@ -96,3 +105,45 @@ def make_squarer():
     9
     """
     return lambda x: x**2
+
+
+class Toggle:
+    """
+    Callable object returning alternating bools.
+
+    >>> tf = Toggle(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = Toggle(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
+
+
+def make_toggle(start):
+    """
+    Create a function that returns alternating bools.
+
+    >>> tf = make_toggle(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = make_toggle(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
