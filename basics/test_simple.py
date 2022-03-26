@@ -2,7 +2,6 @@
 
 """Tests for the simple code in simple.py."""
 
-from abc import ABC, abstractmethod
 from fractions import Fraction
 import io
 from numbers import Number
@@ -17,14 +16,12 @@ from simple import (
     MulSquarer,
     PowSquarer,
     Squarer,
-    Toggle,
     Widget,
     alert,
     answer,
     bail_if,
     is_sorted,
     make_squarer,
-    make_toggle,
 )
 
 
