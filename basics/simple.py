@@ -127,6 +127,24 @@ class Toggle:
     False
     """
 
+    __slots__ = ('_state',)
+
+    def __init__(self, start):
+        """Create a Toggle from the start bool."""
+        if not isinstance(start, bool):
+            raise TypeError(f'{start} is not an instance of bool.')
+        self._state = start
+
+    def __call__(self):
+        """Flip the state."""
+        old_state = self._state
+        self._state = not self._state
+        return old_state
+
+    def __repr__(self):
+        """Represent this Toggle as Python code."""
+        return f"{type(self).__name__}.({self._state})"
+
 
 def make_toggle(start):
     """
@@ -147,3 +165,12 @@ def make_toggle(start):
     >>> ft()
     False
     """
+    state = start
+
+    def toggle():
+        nonlocal state
+        old_state = state
+        state = not state
+        return old_state
+
+    return toggle
