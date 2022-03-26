@@ -19,7 +19,8 @@ from simple import (
     answer,
     is_sorted,
     alert,
-    bail_if)
+    bail_if,
+    make_toggle)
 
 
 class TestMyNone(unittest.TestCase):
@@ -277,6 +278,44 @@ class TestSquarerClasses(unittest.TestCase):
         squarer2 = impl()
         self.assertEqual(hash(squarer1), hash(squarer2))
 
+
+class TestMakeToggle(unittest.TestCase):
+    """Test make_toggle function."""
+
+    impl = staticmethod(make_toggle)
+
+    def test_start_true_returns_true_on_first_call(self):
+        tf = self.impl(True)
+        self.assertIs(tf(), True)
+
+    def test_start_false_returns_false_on_first_call(self):
+        tf = self.impl(False)
+        self.assertIs(tf(), False)
+
+    def test_start_true_returns_false_on_second_call(self):
+        tf = self.impl(True)
+        tf()
+        self.assertIs(tf(), False)
+
+    def test_start_false_returns_true_on_second_call(self):
+        tf = self.impl(False)
+        tf()
+        self.assertIs(tf(), True)
+
+    def test_sequence_with_start_true(self):
+        tf = self.impl(True)
+        for call_number, value in ((1, True),
+                                   (2, False),
+                                   (3, True),
+                                   (4, False),
+                                   (5, True),
+                                   (6, False),
+                                   (7, True),
+                                   (8, False),
+                                   (9, True),
+                                   (10, False)):
+            with self.subTest(call=call_number):
+                self.assertIs(tf(), value)
 
 if __name__ == '__main__':
     unittest.main()
