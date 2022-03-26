@@ -54,6 +54,15 @@ class Squarer(ABC):
         """Represent this Squarer as Python code."""
         return f"{type(self).__name__}()"
 
+    def __eq__(self, other):
+        """Check if two Squarers are of the same type."""
+        if not isinstance(other, Squarer):
+            return NotImplemented
+        return type(self) is type(other)
+
+    def __hash__(self):
+        return hash(type(self))
+
 
 class MulSquarer(Squarer):
     """Callable object that squares numbers with the * operator."""
@@ -96,6 +105,86 @@ def make_squarer():
     9
     """
     return lambda x: x**2
+
+
+def _ensure_toggle_start_bool(start):
+    """Helper for Toggle and make_toggle. Ensure start is the correct type."""
+    if not isinstance(start, bool):
+        raise TypeError(f'start must be bool, got {type(start).__name__}')
+
+
+class Toggle:
+    """
+    Callable object returning alternating bools.
+
+    >>> tf = Toggle(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = Toggle(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
+
+    __slots__ = ('_value',)
+
+    def __init__(self, start):
+        """Make a Toggle that will return the given value when first called."""
+        _ensure_toggle_start_bool(start)
+        self._value = start
+
+    def __repr__(self):
+        """eval-able representation of this Toggle."""
+        return f'{type(self).__name__}({self._value!r})'
+
+    def __eq__(self, other):
+        """Toggles are equal when they would return the same bool if called."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._value == other._value  # TODO: Use the "is" operator here.
+
+    def __call__(self):
+        """Return a bool different from what the next call will return."""
+        ret = self._value
+        self._value = not ret
+        return ret
+
+
+def make_toggle(start):
+    """
+    Create a function that returns alternating bools.
+
+    >>> tf = make_toggle(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = make_toggle(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
+    _ensure_toggle_start_bool(start)
+
+    def toggle():
+        nonlocal start
+        ret = start
+        start = not start
+        return ret
+
+    return toggle
 
 
 class BearBowl:
