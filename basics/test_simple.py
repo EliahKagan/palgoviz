@@ -12,6 +12,7 @@ from parameterized import parameterized, parameterized_class
 from simple import (
     MY_NONE,
     Squarer,
+    Toggle,
     make_squarer,
     MulSquarer,
     PowSquarer,
@@ -307,6 +308,12 @@ class TestMakeToggle(unittest.TestCase):
         for call_number, expected in enumerate(expected_results, 1):
             with self.subTest(call=call_number):
                 self.assertIs(tf(), expected)
+
+
+class TestToggleClass(TestMakeToggle):
+    """Test Toggle class."""
+
+    impl = Toggle
 
 
 if __name__ == '__main__':
