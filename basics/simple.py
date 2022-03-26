@@ -143,7 +143,7 @@ class Toggle:
 
     def __repr__(self):
         """Represent this Toggle as Python code."""
-        return f"{type(self).__name__}.({self._state})"
+        return f"{type(self).__name__}({self._state})"
 
 
 def make_toggle(start):

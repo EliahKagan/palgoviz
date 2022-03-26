@@ -290,8 +290,8 @@ class TestMakeToggle(unittest.TestCase):
         self.assertIs(tf(), True)
 
     def test_start_false_returns_false_on_first_call(self):
-        tf = self.impl(False)
-        self.assertIs(tf(), False)
+        ft = self.impl(False)
+        self.assertIs(ft(), False)
 
     def test_start_true_cycles_true_false(self):
         tf = self.impl(True)
@@ -302,18 +302,44 @@ class TestMakeToggle(unittest.TestCase):
                 self.assertIs(tf(), expected)
 
     def test_start_false_cycles_false_true(self):
-        tf = self.impl(False)
+        ft = self.impl(False)
         expected_results = [False, True] * 5
 
         for call_number, expected in enumerate(expected_results, 1):
             with self.subTest(call=call_number):
-                self.assertIs(tf(), expected)
+                self.assertIs(ft(), expected)
 
 
 class TestToggleClass(TestMakeToggle):
     """Test Toggle class."""
 
     impl = Toggle
+
+    def test_repr_true(self):
+        tf = self.impl(True)
+        self.assertEqual(repr(tf), 'Toggle(True)')
+
+    def test_repr_false(self):
+        ft = self.impl(False)
+        self.assertEqual(repr(ft), 'Toggle(False)')
+
+    def test_repr_cycle_start_true(self):
+        tf = self.impl(True)
+        expected_results = ['Toggle(False)', 'Toggle(True)'] * 5
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                tf()
+                self.assertEqual(repr(tf), expected)
+
+    def test_repr_cycle_start_false(self):
+        ft = self.impl(False)
+        expected_results = ['Toggle(True)', 'Toggle(False)'] * 5
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                ft()
+                self.assertEqual(repr(ft), expected)
 
 
 if __name__ == '__main__':
