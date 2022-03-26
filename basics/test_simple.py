@@ -304,17 +304,9 @@ class TestMakeToggle(unittest.TestCase):
 
     def test_sequence_with_start_true(self):
         tf = self.impl(True)
-        for call_number, value in ((1, True),
-                                   (2, False),
-                                   (3, True),
-                                   (4, False),
-                                   (5, True),
-                                   (6, False),
-                                   (7, True),
-                                   (8, False),
-                                   (9, True),
-                                   (10, False)):
-            with self.subTest(call=call_number):
+        expected_results = [True, False] * 5
+        for index, value in enumerate(expected_results, start=1):
+            with self.subTest(index=index):
                 self.assertIs(tf(), value)
 
 if __name__ == '__main__':
