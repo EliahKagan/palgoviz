@@ -292,16 +292,6 @@ class TestMakeToggle(unittest.TestCase):
         tf = self.impl(False)
         self.assertIs(tf(), False)
 
-    def test_start_true_returns_false_on_second_call(self):
-        tf = self.impl(True)
-        tf()
-        self.assertIs(tf(), False)
-
-    def test_start_false_returns_true_on_second_call(self):
-        tf = self.impl(False)
-        tf()
-        self.assertIs(tf(), True)
-
     def test_start_true_cycles_true_false(self):
         tf = self.impl(True)
         expected_results = [True, False] * 5
@@ -309,6 +299,15 @@ class TestMakeToggle(unittest.TestCase):
         for call_number, expected in enumerate(expected_results, 1):
             with self.subTest(call=call_number):
                 self.assertIs(tf(), expected)
+
+    def test_start_false_cycles_false_true(self):
+        tf = self.impl(False)
+        expected_results = [False, True] * 5
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                self.assertIs(tf(), expected)
+
 
 if __name__ == '__main__':
     unittest.main()
