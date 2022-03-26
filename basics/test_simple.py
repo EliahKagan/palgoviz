@@ -25,6 +25,7 @@ from simple import (
     is_sorted,
     make_squarer,
     make_toggle,
+    make_toggle_alt,
 )
 
 
@@ -285,7 +286,7 @@ class TestSquarerClasses(unittest.TestCase):
 
 
 class _TestToggleBase(ABC, unittest.TestCase):
-    """Shared tests for the make_toggle function and the Toggle class."""
+    """Shared tests for the make_toggle{,_alt} functions and Toggle class."""
 
     @property
     @abstractmethod
@@ -378,6 +379,14 @@ class TestMakeToggle(_TestToggleBase):
     @property
     def implementation(self):
         return make_toggle
+
+
+class TestMakeToggleAlt(_TestToggleBase):
+    """Tests for the make_toggle_alt function."""
+
+    @property
+    def implementation(self):
+        return make_toggle_alt
 
 
 class TestToggleClass(_TestToggleBase):
