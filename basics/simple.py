@@ -150,7 +150,7 @@ class Toggle:
         """Toggles are equal when they would return the same bool if called."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self._value == other._value  # TODO: Use the "is" operator here.
+        return self._value is other._value
 
     def __call__(self):
         """Return a bool different from what the next call will return."""
