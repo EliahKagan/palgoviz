@@ -302,12 +302,13 @@ class TestMakeToggle(unittest.TestCase):
         tf()
         self.assertIs(tf(), True)
 
-    def test_sequence_with_start_true(self):
+    def test_start_true_cycles_true_false(self):
         tf = self.impl(True)
         expected_results = [True, False] * 5
-        for index, value in enumerate(expected_results, start=1):
-            with self.subTest(index=index):
-                self.assertIs(tf(), value)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                self.assertIs(tf(), expected)
 
 if __name__ == '__main__':
     unittest.main()
