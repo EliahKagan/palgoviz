@@ -145,6 +145,8 @@ class Toggle:
         """Represent this Toggle as Python code."""
         return f"{type(self).__name__}({self._state})"
 
+    # TODO: Implement __eq__.
+
 
 def make_toggle(start):
     """

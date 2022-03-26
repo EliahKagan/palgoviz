@@ -309,6 +309,8 @@ class TestMakeToggle(unittest.TestCase):
             with self.subTest(call=call_number):
                 self.assertIs(ft(), expected)
 
+    # TODO: Test parameter-type validation.
+
 
 class TestToggleClass(TestMakeToggle):
     """Test Toggle class."""
@@ -340,6 +342,14 @@ class TestToggleClass(TestMakeToggle):
             with self.subTest(call=call_number):
                 ft()
                 self.assertEqual(repr(ft), expected)
+
+    # FIXME: Decide on, and carry out, one of the following:
+    #
+    #  (1) Give test_repr_cycle_start_true and test_repr_cycle_start_false
+    #      more descriptive names that make claims about what they are testing.
+    #
+    #  (2) Consolidate both of them into one method, decorated with
+    #      @parameterized.expand.
 
 
 if __name__ == '__main__':
