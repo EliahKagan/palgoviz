@@ -109,6 +109,12 @@ def make_squarer():
     return lambda x: x**2
 
 
+def _ensure_toggle_start_bool(start):
+    """Helper for Toggle and make_toggle. Ensure start is the correct type."""
+    if not isinstance(start, bool):
+        raise TypeError(f'start must be bool, got {type(start).__name__}')
+
+
 class Toggle:
     """
     Callable object returning alternating bools.
@@ -128,6 +134,29 @@ class Toggle:
     >>> ft()
     False
     """
+
+    __slots__ = ('_value',)
+
+    def __init__(self, start):
+        """Make a Toggle that will return the given value when first called."""
+        _ensure_toggle_start_bool(start)
+        self._value = start
+
+    def __repr__(self):
+        """eval-able representation of this Toggle."""
+        return f'{type(self).__name__}({self._value!r})'
+
+    def __eq__(self, other):
+        """Toggles are equal when they would return the same bool if called."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._value == other._value  # TODO: Use the "is" operator here.
+
+    def __call__(self):
+        """Return a bool different from what the next call will return."""
+        ret = self._value
+        self._value = not ret
+        return ret
 
 
 def make_toggle(start):
@@ -149,6 +178,15 @@ def make_toggle(start):
     >>> ft()
     False
     """
+    _ensure_toggle_start_bool(start)
+
+    def toggle():
+        nonlocal start
+        ret = start
+        start = not start
+        return ret
+
+    return toggle
 
 
 @functools.total_ordering
