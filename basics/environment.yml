@@ -23,5 +23,6 @@ dependencies:
 
   # For linting
   - flake8
+  - mypy>=0.940
   - pylint
   - pyright
