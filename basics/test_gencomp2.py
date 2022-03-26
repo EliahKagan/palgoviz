@@ -763,6 +763,45 @@ class TestTranspose:
         implementation(matrix) == ((1, 3, 5), (2, 4, 6))
 
 
+class TestIdentityMatrixAltHelpers:
+    """Tests for the _kronecker_delta and _identity_matrix_row functions."""
+
+    __slots__ = ()
+
+    @pytest.mark.parametrize('i, j', [
+        [0, 1], [0, 2], [0, 3],
+        [1, 0], [1, 2], [1, 3],
+        [2, 0], [2, 1], [2, 3],
+        [3, 0], [3, 1], [3, 2],
+    ])
+    def test_kronecker_delta_is_0_with_not_equal_args(self, i, j):
+        assert gencomp2._kronecker_delta(i, j) == 0
+
+    @pytest.mark.parametrize('arg', [0, 1, 2, 3])
+    def test_kronecker_delta_is_1_with_equal_args(self, arg):
+        assert gencomp2._kronecker_delta(arg, arg) == 1
+
+    @pytest.mark.parametrize('n, i, expected', [
+        [1, 0, [1]],
+        [2, 0, [1, 0]],
+        [2, 1, [0, 1]],
+        [3, 0, [1, 0, 0]],
+        [3, 1, [0, 1, 0]],
+        [3, 2, [0, 0, 1]],
+        [4, 0, [1, 0, 0, 0]],
+        [4, 1, [0, 1, 0, 0]],
+        [4, 2, [0, 0, 1, 0]],
+        [4, 3, [0, 0, 0, 1]],
+        [5, 0, [1, 0, 0, 0, 0]],
+        [5, 1, [0, 1, 0, 0, 0]],
+        [5, 2, [0, 0, 1, 0, 0]],
+        [5, 3, [0, 0, 0, 1, 0]],
+        [5, 4, [0, 0, 0, 0, 1]],
+    ])
+    def test_identity_matrix_row(self, n, i, expected):
+        assert gencomp2._identity_matrix_row(n, i) == expected
+
+
 @pytest.mark.parametrize('implementation', [
     gencomp2.identity_matrix,
     gencomp2.identity_matrix_alt,
