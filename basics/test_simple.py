@@ -312,22 +312,20 @@ class _TestToggleBase(ABC, unittest.TestCase):
                     self.implementation(arg)
 
     def test_true_start_alternates_bool_objects_true_false(self):
+        expected_results = [True, False, True, False, True, False]
         toggle = self.implementation(True)
-        self.assertIs(toggle(), True)
-        self.assertIs(toggle(), False)
-        self.assertIs(toggle(), True)
-        self.assertIs(toggle(), False)
-        self.assertIs(toggle(), True)
-        self.assertIs(toggle(), False)
+
+        for change_count, expected in enumerate(expected_results, 1):
+            with self.subTest(changes=change_count):
+                self.assertIs(toggle(), expected)
 
     def test_false_start_alternates_bool_objects_false_true(self):
+        expected_results = [False, True, False, True, False, True]
         toggle = self.implementation(False)
-        self.assertIs(toggle(), False)
-        self.assertIs(toggle(), True)
-        self.assertIs(toggle(), False)
-        self.assertIs(toggle(), True)
-        self.assertIs(toggle(), False)
-        self.assertIs(toggle(), True)
+
+        for change_count, expected in enumerate(expected_results, 1):
+            with self.subTest(changes=change_count):
+                self.assertIs(toggle(), expected)
 
     def test_true_start_cycles_true_false_indefinitely(self):
         toggle = self.implementation(True)
@@ -342,21 +340,37 @@ class _TestToggleBase(ABC, unittest.TestCase):
     def test_separate_toggles_maintain_independent_state(self):
         tf1 = self.implementation(True)
         ft1 = self.implementation(False)
-        self.assertIs(tf1(), True)
-        self.assertIs(ft1(), False)
-        self.assertIs(tf1(), False)
-        self.assertIs(tf1(), True)
-        self.assertIs(ft1(), True)
-        self.assertIs(ft1(), False)
+
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=1):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=1):
+            self.assertIs(ft1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=2):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=3):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=2):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=3):
+            self.assertIs(ft1(), False)
 
         ft2 = self.implementation(False)
-        self.assertIs(ft1(), True)
-        self.assertIs(ft2(), False)
+
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft1', changes=4):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft2', changes=1):
+            self.assertIs(ft2(), False)
+
         tf2 = self.implementation(True)
-        self.assertIs(tf2(), True)
-        self.assertIs(tf1(), False)
-        self.assertIs(ft2(), True)
-        self.assertIs(ft1(), False)
+
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf2', changes=1):
+            self.assertIs(tf2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf1', changes=4):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft2', changes=2):
+            self.assertIs(ft2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
+            self.assertIs(ft1(), False)
 
 class TestMakeToggle(_TestToggleBase):
     """Tests for the make_toggle function."""
