@@ -281,6 +281,7 @@ class TestSquarerClasses(unittest.TestCase):
         self.assertEqual(hash(squarer1), hash(squarer2))
 
 
+# TODO: Reorganize these tests to all inherit from a common abstract base class.
 class TestMakeToggle(unittest.TestCase):
     """Tests for the make_toggle function."""
 
