@@ -5,7 +5,6 @@
 from fractions import Fraction
 import io
 import sys
-from typing import Type
 import unittest
 
 from parameterized import parameterized, parameterized_class
@@ -282,7 +281,7 @@ class TestSquarerClasses(unittest.TestCase):
 
 
 class TestMakeToggle(unittest.TestCase):
-    """Test make_toggle function."""
+    """Tests for the make_toggle function."""
 
     impl = staticmethod(make_toggle)
 
@@ -318,18 +317,18 @@ class TestMakeToggle(unittest.TestCase):
 
 
 class TestToggleClass(TestMakeToggle):
-    """Test Toggle class."""
+    """Tests for the Toggle class."""
 
     impl = Toggle
 
     def test_repr_true(self):
         """repr shows True and looks like Python code."""
-        tf = self.impl(True)
+        tf = Toggle(True)
         self.assertEqual(repr(tf), 'Toggle(True)')
 
     def test_repr_false(self):
         """repr shows False and looks like Python code."""
-        ft = self.impl(False)
+        ft = Toggle(False)
         self.assertEqual(repr(ft), 'Toggle(False)')
 
     @parameterized.expand([
@@ -338,7 +337,7 @@ class TestToggleClass(TestMakeToggle):
     ])
     def test_repr_cycles(self, _name, start, expected_results):
         """bool literal in repr changes with each call to the object."""
-        toggle = self.impl(start)
+        toggle = Toggle(start)
 
         for call_number, expected in enumerate(expected_results, 1):
             with self.subTest(call=call_number):
@@ -378,6 +377,7 @@ class TestToggleClass(TestMakeToggle):
         toggle = Toggle(start)
         with self.assertRaises(TypeError):
             hash(toggle)
+
 
 if __name__ == '__main__':
     unittest.main()
