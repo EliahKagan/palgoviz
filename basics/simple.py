@@ -107,6 +107,11 @@ def make_squarer():
     return lambda x: x**2
 
 
+def _check_toggle_param(start):
+    if not isinstance(start, bool):
+        raise TypeError(f'{start} is not an instance of bool.')
+
+
 class Toggle:
     """
     Callable object returning alternating bools.
@@ -131,8 +136,7 @@ class Toggle:
 
     def __init__(self, start):
         """Create a Toggle from the start bool."""
-        if not isinstance(start, bool):
-            raise TypeError(f'{start} is not an instance of bool.')
+        _check_toggle_param(start)
         self._state = start
 
     def __call__(self):
@@ -167,8 +171,7 @@ def make_toggle(start):
     >>> ft()
     False
     """
-    if not isinstance(start, bool):
-        raise TypeError(f'{start} is not an instance of bool.')
+    _check_toggle_param(start)
 
     state = start
 
