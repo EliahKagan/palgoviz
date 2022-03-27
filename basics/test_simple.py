@@ -5,6 +5,7 @@
 from fractions import Fraction
 import io
 import sys
+from typing import Type
 import unittest
 
 from parameterized import parameterized, parameterized_class
@@ -372,6 +373,11 @@ class TestToggleClass(TestMakeToggle):
         with self.subTest(compare='varying,fixed'):
             assert_methods[assertion](varying, fixed)
 
+    @parameterized.expand([('true', True), ('false', False)])
+    def test_hashing_toggle_raises_typeerror(self, _name, start):
+        toggle = Toggle(start)
+        with self.assertRaises(TypeError):
+            hash(toggle)
 
 if __name__ == '__main__':
     unittest.main()
