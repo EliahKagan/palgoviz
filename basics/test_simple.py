@@ -322,18 +322,21 @@ class TestToggleClass(TestMakeToggle):
     impl = Toggle
 
     def test_repr_true(self):
+        """repr shows True and looks like Python code."""
         tf = self.impl(True)
         self.assertEqual(repr(tf), 'Toggle(True)')
 
     def test_repr_false(self):
+        """repr shows False and looks like Python code."""
         ft = self.impl(False)
         self.assertEqual(repr(ft), 'Toggle(False)')
 
     @parameterized.expand([
-        ('tf', True, ['Toggle(False)', 'Toggle(True)'] * 5),
-        ('ft', False, ['Toggle(True)', 'Toggle(False)'] * 5),
+        ('true', True, ['Toggle(False)', 'Toggle(True)'] * 5),
+        ('false', False, ['Toggle(True)', 'Toggle(False)'] * 5),
     ])
     def test_repr_cycles(self, _name, start, expected_results):
+        """bool literal in repr changes with each call to the object."""
         toggle = self.impl(start)
 
         for call_number, expected in enumerate(expected_results, 1):
