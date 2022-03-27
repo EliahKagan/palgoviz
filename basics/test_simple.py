@@ -309,7 +309,11 @@ class TestMakeToggle(unittest.TestCase):
             with self.subTest(call=call_number):
                 self.assertIs(ft(), expected)
 
-    # TODO: Test parameter-type validation.
+    def test_raises_TypeError_if_nonbool_is_passed(self):
+        for value in (0, 1, 0.0, 1.1, '', 'j3j', None, object()):
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError):
+                    self.impl(value)
 
 
 class TestToggleClass(TestMakeToggle):
