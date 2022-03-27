@@ -354,6 +354,23 @@ class TestToggleClass(TestMakeToggle):
             with self.subTest(lhs_start=lhs_start, rhs_start=rhs_start):
                 self.assertNotEqual(Toggle(lhs_start), Toggle(rhs_start))
 
+    @parameterized.expand([
+        ('odd small', 1, 'eq'),
+        ('even small', 2, 'ne'),
+        ('odd big', 11, 'eq'),
+        ('even big', 12, 'ne'),
+    ])
+    def test_toggle_equality_is_correct_after_state_changes(self, _name,
+                                                            calls, assertion):
+        assert_methods = {'eq': self.assertEqual, 'ne': self.assertNotEqual}
+        fixed = Toggle(True)
+        varying = Toggle(False)
+        for _ in range(calls):
+            varying()
+        with self.subTest(compare='fixed,varying'):
+            assert_methods[assertion](fixed, varying)
+        with self.subTest(compare='varying,fixed'):
+            assert_methods[assertion](varying, fixed)
 
 
 if __name__ == '__main__':
