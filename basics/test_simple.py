@@ -319,7 +319,7 @@ class TestMakeToggle(unittest.TestCase):
 class TestToggleClass(TestMakeToggle):
     """Tests for the Toggle class."""
 
-    impl = Toggle
+    impl = Toggle  # So inherited tests test the Toggle class.
 
     def test_repr_true(self):
         """repr shows True and looks like Python code."""
