@@ -167,6 +167,9 @@ def make_toggle(start):
     >>> ft()
     False
     """
+    if not isinstance(start, bool):
+        raise TypeError(f'{start} is not an instance of bool.')
+
     state = start
 
     def toggle():
