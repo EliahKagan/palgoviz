@@ -149,7 +149,11 @@ class Toggle:
         """Represent this Toggle as Python code."""
         return f"{type(self).__name__}({self._state})"
 
-    # TODO: Implement __eq__.
+    def __eq__(self, other):
+        """Check if two Togglers have the same state."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._state == other._state
 
 
 def make_toggle(start):

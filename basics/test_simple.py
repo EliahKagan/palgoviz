@@ -344,6 +344,17 @@ class TestToggleClass(TestMakeToggle):
                 toggle()
                 self.assertEqual(repr(toggle), expected)
 
+    def test_toggle_objects_with_same_state_are_equal(self):
+        for start in (True, False):
+            with self.subTest(start=start):
+                self.assertEqual(Toggle(start), Toggle(start))
+
+    def test_toggle_objects_with_different_state_are_not_equal(self):
+        for start in (True, False):
+            with self.subTest(start=start):
+                self.assertNotEqual(Toggle(start), Toggle(not start))
+
+
 
 if __name__ == '__main__':
     unittest.main()
