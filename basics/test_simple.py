@@ -373,6 +373,7 @@ class _TestToggleBase(ABC, unittest.TestCase):
         with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
             self.assertIs(ft1(), False)
 
+
 class TestMakeToggle(_TestToggleBase):
     """Tests for the make_toggle function."""
 
