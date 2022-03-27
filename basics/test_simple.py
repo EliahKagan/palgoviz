@@ -21,7 +21,8 @@ from simple import (
     is_sorted,
     alert,
     bail_if,
-    make_toggle)
+    make_toggle,
+    make_toggle_alt)
 
 
 class TestMyNone(unittest.TestCase):
@@ -349,6 +350,12 @@ class TestMakeToggle(unittest.TestCase):
             self.assertIs(ft2(), True)
         with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
             self.assertIs(ft1(), False)
+
+
+class TestMakeToggleAlt(TestMakeToggle):
+    """Tests for the make_toggle_alt function."""
+
+    impl = staticmethod(make_toggle_alt)
 
 
 class TestToggleClass(TestMakeToggle):
