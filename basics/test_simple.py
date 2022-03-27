@@ -374,7 +374,7 @@ class TestToggleClass(TestMakeToggle):
             assert_methods[assertion](varying, fixed)
 
     @parameterized.expand([('true', True), ('false', False)])
-    def test_hashing_toggle_raises_typeerror(self, _name, start):
+    def test_hashing_toggle_raises_TypeError(self, _name, start):
         toggle = Toggle(start)
         with self.assertRaises(TypeError):
             hash(toggle)
