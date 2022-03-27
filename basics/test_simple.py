@@ -315,6 +315,41 @@ class TestMakeToggle(unittest.TestCase):
                 with self.assertRaises(TypeError):
                     self.impl(value)
 
+    def test_separate_toggles_maintain_independent_state(self):
+        tf1 = self.impl(True)
+        ft1 = self.impl(False)
+
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=1):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=1):
+            self.assertIs(ft1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=2):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=3):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=2):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=3):
+            self.assertIs(ft1(), False)
+
+        ft2 = self.impl(False)
+
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft1', changes=4):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft2', changes=1):
+            self.assertIs(ft2(), False)
+
+        tf2 = self.impl(True)
+
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf2', changes=1):
+            self.assertIs(tf2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf1', changes=4):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft2', changes=2):
+            self.assertIs(ft2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
+            self.assertIs(ft1(), False)
+
 
 class TestToggleClass(TestMakeToggle):
     """Tests for the Toggle class."""
