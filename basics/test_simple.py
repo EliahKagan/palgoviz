@@ -329,31 +329,17 @@ class TestToggleClass(TestMakeToggle):
         ft = self.impl(False)
         self.assertEqual(repr(ft), 'Toggle(False)')
 
-    def test_repr_cycle_start_true(self):
-        expected_results = ['Toggle(False)', 'Toggle(True)'] * 5
-        tf = self.impl(True)
+    @parameterized.expand([
+        ('tf', True, ['Toggle(False)', 'Toggle(True)'] * 5),
+        ('ft', False, ['Toggle(True)', 'Toggle(False)'] * 5),
+    ])
+    def test_repr_cycles(self, _name, start, expected_results):
+        toggle = self.impl(start)
 
         for call_number, expected in enumerate(expected_results, 1):
             with self.subTest(call=call_number):
-                tf()
-                self.assertEqual(repr(tf), expected)
-
-    def test_repr_cycle_start_false(self):
-        expected_results = ['Toggle(True)', 'Toggle(False)'] * 5
-        ft = self.impl(False)
-
-        for call_number, expected in enumerate(expected_results, 1):
-            with self.subTest(call=call_number):
-                ft()
-                self.assertEqual(repr(ft), expected)
-
-    # FIXME: Decide on, and carry out, one of the following:
-    #
-    #  (1) Give test_repr_cycle_start_true and test_repr_cycle_start_false
-    #      more descriptive names that make claims about what they are testing.
-    #
-    #  (2) Consolidate both of them into one method, decorated with
-    #      @parameterized.expand.
+                toggle()
+                self.assertEqual(repr(toggle), expected)
 
 
 if __name__ == '__main__':
