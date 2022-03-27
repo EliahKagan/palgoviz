@@ -1,6 +1,7 @@
 """Some simple code, for unit testing."""
 
 import sys
+import itertools
 from abc import ABC, abstractmethod
 
 MY_NONE = None
@@ -186,3 +187,27 @@ def make_toggle(start):
         return old_state
 
     return toggle
+
+
+def make_toggle_alt(start):
+    """
+    Create a function that returns alternating bools, using itertools.cycle.
+
+    >>> tf = make_toggle_alt(True)
+    >>> tf()
+    True
+    >>> tf()
+    False
+    >>> tf()
+    True
+    >>> ft = make_toggle_alt(False)
+    >>> ft()
+    False
+    >>> ft()
+    True
+    >>> ft()
+    False
+    """
+    _check_toggle_param(start)
+    it = itertools.cycle([start, not start])
+    return lambda: next(it)
