@@ -13,6 +13,8 @@ from parameterized import parameterized, parameterized_class
 from simple import (
     BearBowl,
     MY_NONE,
+    Squarer,
+    Toggle,
     MulSquarer,
     PowSquarer,
     Squarer,
@@ -22,6 +24,8 @@ from simple import (
     bail_if,
     is_sorted,
     make_squarer,
+    make_toggle,
+    make_toggle_alt,
 )
 
 
@@ -279,6 +283,147 @@ class TestSquarerClasses(unittest.TestCase):
         squarer1 = impl()
         squarer2 = impl()
         self.assertEqual(hash(squarer1), hash(squarer2))
+
+
+# TODO: Reorganize these tests to all inherit from a common abstract base class.
+class TestMakeToggle(unittest.TestCase):
+    """Tests for the make_toggle function."""
+
+    impl = staticmethod(make_toggle)
+
+    def test_start_true_returns_true_on_first_call(self):
+        tf = self.impl(True)
+        self.assertIs(tf(), True)
+
+    def test_start_false_returns_false_on_first_call(self):
+        ft = self.impl(False)
+        self.assertIs(ft(), False)
+
+    def test_start_true_cycles_true_false(self):
+        expected_results = [True, False] * 5
+        tf = self.impl(True)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                self.assertIs(tf(), expected)
+
+    def test_start_false_cycles_false_true(self):
+        expected_results = [False, True] * 5
+        ft = self.impl(False)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                self.assertIs(ft(), expected)
+
+    def test_raises_TypeError_if_nonbool_is_passed(self):
+        for value in (0, 1, 0.0, 1.1, '', 'j3j', None, object()):
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError):
+                    self.impl(value)
+
+    def test_separate_toggles_maintain_independent_state(self):
+        tf1 = self.impl(True)
+        ft1 = self.impl(False)
+
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=1):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=1):
+            self.assertIs(ft1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=2):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=3):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=2):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=3):
+            self.assertIs(ft1(), False)
+
+        ft2 = self.impl(False)
+
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft1', changes=4):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft2', changes=1):
+            self.assertIs(ft2(), False)
+
+        tf2 = self.impl(True)
+
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf2', changes=1):
+            self.assertIs(tf2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf1', changes=4):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft2', changes=2):
+            self.assertIs(ft2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
+            self.assertIs(ft1(), False)
+
+
+class TestMakeToggleAlt(TestMakeToggle):
+    """Tests for the make_toggle_alt function."""
+
+    impl = staticmethod(make_toggle_alt)
+
+
+class TestToggleClass(TestMakeToggle):
+    """Tests for the Toggle class."""
+
+    impl = Toggle  # So inherited tests test the Toggle class.
+
+    def test_repr_true(self):
+        """repr shows True and looks like Python code."""
+        tf = Toggle(True)
+        self.assertEqual(repr(tf), 'Toggle(True)')
+
+    def test_repr_false(self):
+        """repr shows False and looks like Python code."""
+        ft = Toggle(False)
+        self.assertEqual(repr(ft), 'Toggle(False)')
+
+    @parameterized.expand([
+        ('true', True, ['Toggle(False)', 'Toggle(True)'] * 5),
+        ('false', False, ['Toggle(True)', 'Toggle(False)'] * 5),
+    ])
+    def test_repr_cycles(self, _name, start, expected_results):
+        """bool literal in repr changes with each call to the object."""
+        toggle = Toggle(start)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                toggle()
+                self.assertEqual(repr(toggle), expected)
+
+    def test_toggle_objects_with_same_state_are_equal(self):
+        for start in (True, False):
+            with self.subTest(start=start):
+                self.assertEqual(Toggle(start), Toggle(start))
+
+    def test_toggle_objects_with_different_state_are_not_equal(self):
+        for lhs_start, rhs_start in ((True, False), (False, True)):
+            with self.subTest(lhs_start=lhs_start, rhs_start=rhs_start):
+                self.assertNotEqual(Toggle(lhs_start), Toggle(rhs_start))
+
+    @parameterized.expand([
+        ('odd small', 1, 'eq'),
+        ('even small', 2, 'ne'),
+        ('odd big', 11, 'eq'),
+        ('even big', 12, 'ne'),
+    ])
+    def test_toggle_equality_is_correct_after_state_changes(self, _name,
+                                                            calls, assertion):
+        assert_methods = {'eq': self.assertEqual, 'ne': self.assertNotEqual}
+        fixed = Toggle(True)
+        varying = Toggle(False)
+        for _ in range(calls):
+            varying()
+        with self.subTest(compare='fixed,varying'):
+            assert_methods[assertion](fixed, varying)
+        with self.subTest(compare='varying,fixed'):
+            assert_methods[assertion](varying, fixed)
+
+    @parameterized.expand([('true', True), ('false', False)])
+    def test_hashing_toggle_raises_TypeError(self, _name, start):
+        toggle = Toggle(start)
+        with self.assertRaises(TypeError):
+            hash(toggle)
 
 
 class TestBearBowl(unittest.TestCase):
