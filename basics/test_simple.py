@@ -350,9 +350,9 @@ class TestToggleClass(TestMakeToggle):
                 self.assertEqual(Toggle(start), Toggle(start))
 
     def test_toggle_objects_with_different_state_are_not_equal(self):
-        for start in (True, False):
-            with self.subTest(start=start):
-                self.assertNotEqual(Toggle(start), Toggle(not start))
+        for lhs_start, rhs_start in ((True, False), (False, True)):
+            with self.subTest(lhs_start=lhs_start, rhs_start=rhs_start):
+                self.assertNotEqual(Toggle(lhs_start), Toggle(rhs_start))
 
 
 
