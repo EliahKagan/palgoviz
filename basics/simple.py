@@ -1,8 +1,10 @@
 """Some simple code, for unit testing."""
 
+from abc import ABC, abstractmethod
+import enum
 import sys
 import itertools
-from abc import ABC, abstractmethod
+
 
 MY_NONE = None
 
@@ -213,7 +215,7 @@ def make_toggle_alt(start):
     return lambda: next(it)
 
 
-class BearBowl:
+class BearBowl(enum.Enum):
     """
     A bowl of porridge Goldilocks tasted while trespassing in a bear kitchen.
 
@@ -222,3 +224,31 @@ class BearBowl:
     >>> BearBowl.TOO_COLD < BearBowl.JUST_RIGHT < BearBowl.TOO_HOT
     True
     """
+    # Temperatures in Kelvin
+
+    TOO_HOT = 5778 # Approximate tempature of the sun
+    JUST_RIGHT = 288
+    TOO_COLD = 95 # Approximate surface temperature of Titan
+
+    def __lt__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value < other.value
+
+    def __le__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value <= other.value
+
+    def __gt__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value > other.value
+
+    def __ge__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value >= other.value
+
+    def __repr__(self):
+        return f'{type(self).__name__}.{self.name}'
