@@ -221,14 +221,20 @@ class BearBowl(enum.Enum):
 
     BearBowls compare by heat: a cooler bowl is less than a warmer bowl.
 
+    Temperatures are in Kelvin.
+
     >>> BearBowl.TOO_COLD < BearBowl.JUST_RIGHT < BearBowl.TOO_HOT
     True
     """
-    # Temperatures in Kelvin
 
-    TOO_HOT = 5778 # Approximate tempature of the sun
+    TOO_HOT = 5778
+    """Approximate tempature of the sun."""
+
     JUST_RIGHT = 288
-    TOO_COLD = 95 # Approximate surface temperature of Titan
+    """Non-fatal temperature for a bowl of porridge."""
+
+    TOO_COLD = 95
+    """Approximate surface temperature of Titan."""
 
     def __lt__(self, other):
         if not isinstance(other, type(self)):
