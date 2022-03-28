@@ -2,6 +2,7 @@
 
 """Tests for the simple code in simple.py."""
 
+from abc import ABC, abstractmethod
 from fractions import Fraction
 import io
 import sys
@@ -282,12 +283,13 @@ class TestSquarerClasses(unittest.TestCase):
 
 
 # TODO: Reorganize these tests to all inherit from a common abstract base class.
-class TestMakeToggle(unittest.TestCase):
-    """Tests for the make_toggle function."""
+class TestToggleAbstract(ABC, unittest.TestCase):
+    """Abstract class for tests for different kinds of toggle."""
 
     @property
+    @abstractmethod
     def impl(self):
-        return make_toggle
+        """The toggle factory implementation being tested."""
 
     def test_start_true_returns_true_on_first_call(self):
         tf = self.impl(True)
@@ -355,7 +357,14 @@ class TestMakeToggle(unittest.TestCase):
             self.assertIs(ft1(), False)
 
 
-class TestMakeToggleAlt(TestMakeToggle):
+class TestMakeToggle(TestToggleAbstract):
+    """Tests for the make_toggle function. """
+
+    @property
+    def impl(self):
+        return make_toggle
+
+class TestMakeToggleAlt(TestToggleAbstract):
     """Tests for the make_toggle_alt function."""
 
     @property
@@ -363,12 +372,12 @@ class TestMakeToggleAlt(TestMakeToggle):
         return make_toggle_alt
 
 
-class TestToggleClass(TestMakeToggle):
+class TestToggleClass(TestToggleAbstract):
     """Tests for the Toggle class."""
 
     @property
     def impl(self):
-        return Toggle  # So inherited tests test the Toggle class.
+        return Toggle
 
     def test_repr_true(self):
         """repr shows True and looks like Python code."""
@@ -427,6 +436,8 @@ class TestToggleClass(TestMakeToggle):
         with self.assertRaises(TypeError):
             hash(toggle)
 
+
+del TestToggleAbstract
 
 if __name__ == '__main__':
     unittest.main()
