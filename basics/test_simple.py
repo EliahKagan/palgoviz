@@ -282,8 +282,7 @@ class TestSquarerClasses(unittest.TestCase):
         self.assertEqual(hash(squarer1), hash(squarer2))
 
 
-# TODO: Reorganize these tests to all inherit from a common abstract base class.
-class TestToggleAbstract(ABC, unittest.TestCase):
+class _TestToggleAbstract(ABC, unittest.TestCase):
     """Abstract class for tests for different kinds of toggle."""
 
     @property
@@ -357,14 +356,14 @@ class TestToggleAbstract(ABC, unittest.TestCase):
             self.assertIs(ft1(), False)
 
 
-class TestMakeToggle(TestToggleAbstract):
-    """Tests for the make_toggle function. """
+class TestMakeToggle(_TestToggleAbstract):
+    """Tests for the make_toggle function."""
 
     @property
     def impl(self):
         return make_toggle
 
-class TestMakeToggleAlt(TestToggleAbstract):
+class TestMakeToggleAlt(_TestToggleAbstract):
     """Tests for the make_toggle_alt function."""
 
     @property
@@ -372,7 +371,7 @@ class TestMakeToggleAlt(TestToggleAbstract):
         return make_toggle_alt
 
 
-class TestToggleClass(TestToggleAbstract):
+class TestToggleClass(_TestToggleAbstract):
     """Tests for the Toggle class."""
 
     @property
@@ -437,7 +436,7 @@ class TestToggleClass(TestToggleAbstract):
             hash(toggle)
 
 
-del TestToggleAbstract
+del _TestToggleAbstract
 
 if __name__ == '__main__':
     unittest.main()
