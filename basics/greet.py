@@ -30,8 +30,9 @@ class MutableGreeter:
         """
         Get known language codes.
 
-        >>> t = MutableGreeter.get_known_langs()
-        >>> t
+        >>> MutableGreeter.get_known_langs()
+        ('en', 'es')
+        >>> MutableGreeter('es').get_known_langs()
         ('en', 'es')
         """
         return tuple(_FORMATS)
@@ -138,8 +139,9 @@ class FrozenGreeter:
         """
         Get known language codes.
 
-        >>> t = FrozenGreeter.get_known_langs()
-        >>> t
+        >>> FrozenGreeter.get_known_langs()
+        ('en', 'es')
+        >>> FrozenGreeter('es').get_known_langs()
         ('en', 'es')
         """
         return tuple(_FORMATS)
