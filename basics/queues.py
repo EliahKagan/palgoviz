@@ -18,7 +18,7 @@ class Queue(ABC):
         """The number of elements in this queue."""
 
     @abstractmethod
-    def enqueue(self):
+    def enqueue(self, item):
         """Insert an element into this queue."""
 
     @abstractmethod
