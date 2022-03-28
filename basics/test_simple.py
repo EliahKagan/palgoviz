@@ -285,7 +285,9 @@ class TestSquarerClasses(unittest.TestCase):
 class TestMakeToggle(unittest.TestCase):
     """Tests for the make_toggle function."""
 
-    impl = staticmethod(make_toggle)
+    @property
+    def impl(self):
+        return make_toggle
 
     def test_start_true_returns_true_on_first_call(self):
         tf = self.impl(True)
@@ -356,13 +358,17 @@ class TestMakeToggle(unittest.TestCase):
 class TestMakeToggleAlt(TestMakeToggle):
     """Tests for the make_toggle_alt function."""
 
-    impl = staticmethod(make_toggle_alt)
+    @property
+    def impl(self):
+        return make_toggle_alt
 
 
 class TestToggleClass(TestMakeToggle):
     """Tests for the Toggle class."""
 
-    impl = Toggle  # So inherited tests test the Toggle class.
+    @property
+    def impl(self):
+        return Toggle  # So inherited tests test the Toggle class.
 
     def test_repr_true(self):
         """repr shows True and looks like Python code."""
