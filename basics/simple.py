@@ -215,6 +215,7 @@ def make_toggle_alt(start):
     return lambda: next(it)
 
 
+# TODO: Remove all comparisons but __lt__ and use @functools.total_ordering.
 @enum.unique
 class BearBowl(enum.Enum):
     """
