@@ -230,7 +230,7 @@ class BearBowl(enum.Enum):
     """
 
     TOO_HOT = 5778
-    """Approximate tempature of the sun."""
+    """Approximate temperature of the sun."""
 
     JUST_RIGHT = 288
     """Non-fatal temperature for a bowl of porridge."""
