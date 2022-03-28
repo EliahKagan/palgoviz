@@ -215,6 +215,7 @@ def make_toggle_alt(start):
     return lambda: next(it)
 
 
+@enum.unique
 class BearBowl(enum.Enum):
     """
     A bowl of porridge Goldilocks tasted while trespassing in a bear kitchen.
