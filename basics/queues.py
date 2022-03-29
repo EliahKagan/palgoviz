@@ -60,7 +60,7 @@ class LifoQueue(Queue):
         """Insert an item at the "top" of this LIFO queue."""
 
     @abstractmethod
-    def dequeue(self, item):
+    def dequeue(self):
         """Extract the most recently inserted element from this LIFO queue."""
 
 
