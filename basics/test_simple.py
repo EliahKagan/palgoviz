@@ -2,6 +2,7 @@
 
 """Tests for the simple code in simple.py."""
 
+from abc import ABC, abstractmethod
 from fractions import Fraction
 import io
 from numbers import Number
@@ -285,11 +286,13 @@ class TestSquarerClasses(unittest.TestCase):
         self.assertEqual(hash(squarer1), hash(squarer2))
 
 
-# TODO: Reorganize these tests to all inherit from a common abstract base class.
-class TestMakeToggle(unittest.TestCase):
-    """Tests for the make_toggle function."""
+class _TestToggleAbstract(ABC, unittest.TestCase):
+    """Abstract class for tests for different kinds of toggle."""
 
-    impl = staticmethod(make_toggle)
+    @property
+    @abstractmethod
+    def impl(self):
+        """The toggle factory implementation being tested."""
 
     def test_start_true_returns_true_on_first_call(self):
         tf = self.impl(True)
@@ -357,16 +360,27 @@ class TestMakeToggle(unittest.TestCase):
             self.assertIs(ft1(), False)
 
 
-class TestMakeToggleAlt(TestMakeToggle):
+class TestMakeToggle(_TestToggleAbstract):
+    """Tests for the make_toggle function."""
+
+    @property
+    def impl(self):
+        return make_toggle
+
+class TestMakeToggleAlt(_TestToggleAbstract):
     """Tests for the make_toggle_alt function."""
 
-    impl = staticmethod(make_toggle_alt)
+    @property
+    def impl(self):
+        return make_toggle_alt
 
 
-class TestToggleClass(TestMakeToggle):
+class TestToggleClass(_TestToggleAbstract):
     """Tests for the Toggle class."""
 
-    impl = Toggle  # So inherited tests test the Toggle class.
+    @property
+    def impl(self):
+        return Toggle
 
     def test_repr_true(self):
         """repr shows True and looks like Python code."""
@@ -424,6 +438,9 @@ class TestToggleClass(TestMakeToggle):
         toggle = Toggle(start)
         with self.assertRaises(TypeError):
             hash(toggle)
+
+
+del _TestToggleAbstract
 
 
 class TestBearBowl(unittest.TestCase):
