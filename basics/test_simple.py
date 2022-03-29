@@ -2,24 +2,32 @@
 
 """Tests for the simple code in simple.py."""
 
+from abc import ABC, abstractmethod
 from fractions import Fraction
 import io
+from numbers import Number
 import sys
 import unittest
 
 from parameterized import parameterized, parameterized_class
 
 from simple import (
+    BearBowl,
     MY_NONE,
     Squarer,
-    make_squarer,
+    Toggle,
     MulSquarer,
     PowSquarer,
+    Squarer,
     Widget,
-    answer,
-    is_sorted,
     alert,
-    bail_if)
+    answer,
+    bail_if,
+    is_sorted,
+    make_squarer,
+    make_toggle,
+    make_toggle_alt,
+)
 
 
 class TestMyNone(unittest.TestCase):
@@ -276,6 +284,321 @@ class TestSquarerClasses(unittest.TestCase):
         squarer1 = impl()
         squarer2 = impl()
         self.assertEqual(hash(squarer1), hash(squarer2))
+
+
+class _TestToggleAbstract(ABC, unittest.TestCase):
+    """Abstract class for tests for different kinds of toggle."""
+
+    @property
+    @abstractmethod
+    def impl(self):
+        """The toggle factory implementation being tested."""
+
+    def test_start_true_returns_true_on_first_call(self):
+        tf = self.impl(True)
+        self.assertIs(tf(), True)
+
+    def test_start_false_returns_false_on_first_call(self):
+        ft = self.impl(False)
+        self.assertIs(ft(), False)
+
+    def test_start_true_cycles_true_false(self):
+        expected_results = [True, False] * 5
+        tf = self.impl(True)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                self.assertIs(tf(), expected)
+
+    def test_start_false_cycles_false_true(self):
+        expected_results = [False, True] * 5
+        ft = self.impl(False)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                self.assertIs(ft(), expected)
+
+    def test_raises_TypeError_if_nonbool_is_passed(self):
+        for value in (0, 1, 0.0, 1.1, '', 'j3j', None, object()):
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError):
+                    self.impl(value)
+
+    def test_separate_toggles_maintain_independent_state(self):
+        tf1 = self.impl(True)
+        ft1 = self.impl(False)
+
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=1):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=1):
+            self.assertIs(ft1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=2):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1', toggle='tf1', changes=3):
+            self.assertIs(tf1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=2):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1', toggle='ft1', changes=3):
+            self.assertIs(ft1(), False)
+
+        ft2 = self.impl(False)
+
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft1', changes=4):
+            self.assertIs(ft1(), True)
+        with self.subTest(exist='tf1,ft1,ft2', toggle='ft2', changes=1):
+            self.assertIs(ft2(), False)
+
+        tf2 = self.impl(True)
+
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf2', changes=1):
+            self.assertIs(tf2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='tf1', changes=4):
+            self.assertIs(tf1(), False)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft2', changes=2):
+            self.assertIs(ft2(), True)
+        with self.subTest(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
+            self.assertIs(ft1(), False)
+
+
+class TestMakeToggle(_TestToggleAbstract):
+    """Tests for the make_toggle function."""
+
+    @property
+    def impl(self):
+        return make_toggle
+
+class TestMakeToggleAlt(_TestToggleAbstract):
+    """Tests for the make_toggle_alt function."""
+
+    @property
+    def impl(self):
+        return make_toggle_alt
+
+
+class TestToggleClass(_TestToggleAbstract):
+    """Tests for the Toggle class."""
+
+    @property
+    def impl(self):
+        return Toggle
+
+    def test_repr_true(self):
+        """repr shows True and looks like Python code."""
+        tf = Toggle(True)
+        self.assertEqual(repr(tf), 'Toggle(True)')
+
+    def test_repr_false(self):
+        """repr shows False and looks like Python code."""
+        ft = Toggle(False)
+        self.assertEqual(repr(ft), 'Toggle(False)')
+
+    @parameterized.expand([
+        ('true', True, ['Toggle(False)', 'Toggle(True)'] * 5),
+        ('false', False, ['Toggle(True)', 'Toggle(False)'] * 5),
+    ])
+    def test_repr_cycles(self, _name, start, expected_results):
+        """bool literal in repr changes with each call to the object."""
+        toggle = Toggle(start)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with self.subTest(call=call_number):
+                toggle()
+                self.assertEqual(repr(toggle), expected)
+
+    def test_toggle_objects_with_same_state_are_equal(self):
+        for start in (True, False):
+            with self.subTest(start=start):
+                self.assertEqual(Toggle(start), Toggle(start))
+
+    def test_toggle_objects_with_different_state_are_not_equal(self):
+        for lhs_start, rhs_start in ((True, False), (False, True)):
+            with self.subTest(lhs_start=lhs_start, rhs_start=rhs_start):
+                self.assertNotEqual(Toggle(lhs_start), Toggle(rhs_start))
+
+    @parameterized.expand([
+        ('odd small', 1, 'eq'),
+        ('even small', 2, 'ne'),
+        ('odd big', 11, 'eq'),
+        ('even big', 12, 'ne'),
+    ])
+    def test_toggle_equality_is_correct_after_state_changes(self, _name,
+                                                            calls, assertion):
+        assert_methods = {'eq': self.assertEqual, 'ne': self.assertNotEqual}
+        fixed = Toggle(True)
+        varying = Toggle(False)
+        for _ in range(calls):
+            varying()
+        with self.subTest(compare='fixed,varying'):
+            assert_methods[assertion](fixed, varying)
+        with self.subTest(compare='varying,fixed'):
+            assert_methods[assertion](varying, fixed)
+
+    @parameterized.expand([('true', True), ('false', False)])
+    def test_hashing_toggle_raises_TypeError(self, _name, start):
+        toggle = Toggle(start)
+        with self.assertRaises(TypeError):
+            hash(toggle)
+
+
+del _TestToggleAbstract
+
+
+class TestBearBowl(unittest.TestCase):
+    """
+    Tests for the BearBowl class.
+
+    TODO: I have separated most test methods below into groups, each described
+    by a comment. This suggests that the groups should be written as individual
+    methods, with parameterization. Decide whether to do this and, if so, how.
+    """
+
+    # The three bowls really are bowls:
+
+    def test_too_cold_is_a_bowl(self):
+        self.assertIsInstance(BearBowl.TOO_COLD, BearBowl)
+
+    def test_just_right_is_a_bowl(self):
+        self.assertIsInstance(BearBowl.JUST_RIGHT, BearBowl)
+
+    def test_too_hot_is_a_bowl(self):
+        self.assertIsInstance(BearBowl.TOO_HOT, BearBowl)
+
+    # They are not numbers:
+
+    def test_too_cold_is_not_a_number(self):
+        self.assertNotIsInstance(BearBowl.TOO_COLD, Number)
+
+    def test_just_right_is_not_a_number(self):
+        self.assertNotIsInstance(BearBowl.JUST_RIGHT, Number)
+
+    def test_too_hot_is_not_a_number(self):
+        self.assertNotIsInstance(BearBowl.TOO_HOT, Number)
+
+    # Their reprs are code that evaluates to them (if BearBowl is in scope):
+
+    def test_too_cold_repr_shows_attribute_access_from_class(self):
+        self.assertEqual(repr(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
+
+    def test_just_right_repr_shows_attribute_access_from_class(self):
+        self.assertEqual(repr(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
+
+    def test_too_hot_repr_shows_attribute_access_from_class(self):
+        self.assertEqual(repr(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
+
+    # Their strs are that same code that evaluates to them:
+
+    def test_too_cold_str_shows_attribute_access_from_class(self):
+        self.assertEqual(str(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
+
+    def test_just_right_str_shows_attribute_access_from_class(self):
+        self.assertEqual(str(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
+
+    def test_too_hot_str_shows_attribute_access_from_class(self):
+        self.assertEqual(str(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
+
+    # They know their names, accessible through the name attribute:
+
+    def test_too_cold_name_attribute_is_too_cold(self):
+        self.assertEqual(BearBowl.TOO_COLD.name, 'TOO_COLD')
+
+    def test_just_right_name_attribute_is_just_right(self):
+        self.assertEqual(BearBowl.JUST_RIGHT.name, 'JUST_RIGHT')
+
+    def test_too_hot_name_attribute_is_too_hot(self):
+        self.assertEqual(BearBowl.TOO_HOT.name, 'TOO_HOT')
+
+    # They are, as one would expect, equal to themselves:
+
+    def test_too_cold_equals_too_cold(self):
+        self.assertEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
+
+    def test_just_right_equals_just_right(self):
+        self.assertEqual(BearBowl.JUST_RIGHT, BearBowl.JUST_RIGHT)
+
+    def test_too_hot_equals_too_hot(self):
+        self.assertEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
+
+    # They (i.e., differently named bowls) are not equal to each other:
+
+    def test_too_cold_not_equal_to_just_right(self):
+        with self.subTest(lhs=BearBowl.TOO_COLD, rhs=BearBowl.JUST_RIGHT):
+            self.assertNotEqual(BearBowl.TOO_COLD, BearBowl.JUST_RIGHT)
+        with self.subTest(lhs=BearBowl.JUST_RIGHT, rhs=BearBowl.TOO_COLD):
+            self.assertNotEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_COLD)
+
+    def test_too_cold_not_equal_to_too_hot(self):
+        with self.subTest(lhs=BearBowl.TOO_COLD, rhs=BearBowl.TOO_HOT):
+            self.assertNotEqual(BearBowl.TOO_COLD, BearBowl.TOO_HOT)
+        with self.subTest(lhs=BearBowl.TOO_HOT, rhs=BearBowl.TOO_COLD):
+            self.assertNotEqual(BearBowl.TOO_HOT, BearBowl.TOO_COLD)
+
+    def test_just_right_not_equal_to_too_hot(self):
+        with self.subTest(lhs=BearBowl.JUST_RIGHT, rhs=BearBowl.TOO_HOT):
+            self.assertNotEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_HOT)
+        with self.subTest(lhs=BearBowl.TOO_HOT, rhs=BearBowl.JUST_RIGHT):
+            self.assertNotEqual(BearBowl.TOO_HOT, BearBowl.JUST_RIGHT)
+
+    # Cooler bowls compare less than warmer bowls:
+
+    def test_too_cold_less_than_just_right(self):
+        self.assertLess(BearBowl.TOO_COLD, BearBowl.JUST_RIGHT)
+
+    def test_too_cold_less_than_too_hot(self):
+        self.assertLess(BearBowl.TOO_COLD, BearBowl.TOO_HOT)
+
+    def test_just_right_less_than_too_hot(self):
+        self.assertLess(BearBowl.JUST_RIGHT, BearBowl.TOO_HOT)
+
+    # Warmer bowls compare greater than cooler bowls:
+
+    def test_just_right_greater_than_too_cold(self):
+        self.assertGreater(BearBowl.JUST_RIGHT, BearBowl.TOO_COLD)
+
+    def test_too_hot_greater_than_too_cold(self):
+        self.assertGreater(BearBowl.TOO_HOT, BearBowl.TOO_COLD)
+
+    def test_too_hot_greater_than_just_right(self):
+        self.assertGreater(BearBowl.TOO_HOT, BearBowl.JUST_RIGHT)
+
+    # Bowls compare less than or equal to bowls that are no warmer:
+
+    def test_too_cold_less_than_or_equal_to_itself(self):
+        self.assertLessEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
+
+    def test_too_cold_less_than_or_equal_to_just_right(self):
+        self.assertLessEqual(BearBowl.TOO_COLD, BearBowl.JUST_RIGHT)
+
+    def test_too_cold_less_than_or_equal_to_too_hot(self):
+        self.assertLessEqual(BearBowl.TOO_COLD, BearBowl.TOO_HOT)
+
+    def test_just_right_less_than_or_equal_to_itself(self):
+        self.assertLessEqual(BearBowl.JUST_RIGHT, BearBowl.JUST_RIGHT)
+
+    def test_just_right_less_than_or_equal_to_too_hot(self):
+        self.assertLessEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_HOT)
+
+    def test_too_hot_less_than_or_equal_to_itself(self):
+        self.assertLessEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
+
+    # Bowls compare greater than or equal to bowls that are no cooler:
+
+    def test_too_cold_greater_than_or_equal_to_itself(self):
+        self.assertGreaterEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
+
+    def test_just_right_greater_than_or_equal_to_too_cold(self):
+        self.assertGreaterEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_COLD)
+
+    def test_just_right_greater_than_or_equal_to_itself(self):
+        self.assertGreaterEqual(BearBowl.JUST_RIGHT, BearBowl.JUST_RIGHT)
+
+    def test_too_hot_greater_than_or_equal_to_too_cold(self):
+        self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.TOO_COLD)
+
+    def test_too_hot_greater_than_or_equal_to_just_right(self):
+        self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.JUST_RIGHT)
+
+    def test_too_hot_greater_than_or_equal_to_itself(self):
+        self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
 
 
 if __name__ == '__main__':
