@@ -144,7 +144,7 @@ class TestOrderIndistinct(unittest.TestCase):
     @parameterized.expand(_VALUE_ARGS)
     def test_we_get_a_new_object_even_with_the_same_value(self, _label, value):
         """
-        Calling OrderIndistinct always construct a new object.
+        Calling OrderIndistinct always constructs a new object.
 
         This behavior is important because OrderIndistinct is a mutable type.
         """
