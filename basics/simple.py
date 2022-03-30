@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 import enum
 import functools
-import sys
 import itertools
+import sys
 
 
 MY_NONE = None
