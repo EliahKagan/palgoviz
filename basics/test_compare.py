@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Tests for the testing facilities in testing.py.
+Tests for the types in compare.py.
 
 TODO: Once bobcats.py and test_bobcats.py are merged in, make note of design
 and stylistic differences between these tests and the ones in test_bobcats.py.
@@ -12,7 +12,7 @@ import unittest
 
 from parameterized import parameterized
 
-from testing import OrderIndistinct
+from compare import OrderIndistinct
 
 
 class TestOrderIndistinct(unittest.TestCase):
