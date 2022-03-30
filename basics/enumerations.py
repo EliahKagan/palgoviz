@@ -5,6 +5,7 @@
 import enum
 import functools
 
+
 @functools.total_ordering
 @enum.unique
 class BearBowl(enum.Enum):
