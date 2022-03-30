@@ -2,8 +2,9 @@
 
 from abc import ABC, abstractmethod
 import enum
-import sys
+import functools
 import itertools
+import sys
 
 
 MY_NONE = None
@@ -215,7 +216,7 @@ def make_toggle_alt(start):
     return lambda: next(it)
 
 
-# TODO: Remove all comparisons but __lt__ and use @functools.total_ordering.
+@functools.total_ordering
 @enum.unique
 class BearBowl(enum.Enum):
     """
@@ -242,21 +243,6 @@ class BearBowl(enum.Enum):
         if not isinstance(other, type(self)):
             return NotImplemented
         return self.value < other.value
-
-    def __le__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.value <= other.value
-
-    def __gt__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.value > other.value
-
-    def __ge__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.value >= other.value
 
     def __repr__(self):
         return str(self)

@@ -14,11 +14,10 @@ from parameterized import parameterized, parameterized_class
 from simple import (
     BearBowl,
     MY_NONE,
-    Squarer,
-    Toggle,
     MulSquarer,
     PowSquarer,
     Squarer,
+    Toggle,
     Widget,
     alert,
     answer,

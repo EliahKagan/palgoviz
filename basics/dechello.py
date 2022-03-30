@@ -1,6 +1,6 @@
 """Demonstration of simple decorated function."""
 
-from decorators import peek_arg, call
+from decorators import call, peek_arg
 
 
 @peek_arg
