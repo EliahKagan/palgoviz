@@ -10,7 +10,7 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 import itertools
 import operator
 
@@ -607,6 +607,66 @@ def matrix_square_nested(f, n):
     """
     r = range(1, n + 1)
     return [[sum(f(i, k) * f(k, j) for k in r) for j in r] for i in r]
+
+
+def matrix_dimensions(matrix):
+    """
+    Given a matrix as a nested sequence, return its height and width.
+
+    If matrix is not a sequence of sequences, raise TypeError.
+
+    If matrix is empty, or has any empty rows, raise ValueError.
+
+    If matrix is jagged--that is, its rows differ in width--raise ValueError.
+
+    >>> matrix_dimensions(((0, -1), (-1, 0)))
+    (2, 2)
+    >>> matrix_dimensions([[1, 2], [3, 4], [5, 6]])
+    (3, 2)
+    >>> matrix_dimensions([(1, 2, 3), 'ABC'])
+    (2, 3)
+    >>> matrix_dimensions([])
+    Traceback (most recent call last):
+      ...
+    ValueError: empty matrix not supported
+    >>> matrix_dimensions([[], []])
+    Traceback (most recent call last):
+      ...
+    ValueError: zero-width nonempty matrix not supported
+    >>> matrix_dimensions([[3, 4], [5]])
+    Traceback (most recent call last):
+      ...
+    ValueError: jagged grid not supported (must be rectangular)
+    >>> matrix_dimensions([[4], [], [5]])
+    Traceback (most recent call last):
+      ...
+    ValueError: jagged grid not supported (must be rectangular)
+    >>> matrix_dimensions(3)
+    Traceback (most recent call last):
+      ...
+    TypeError: matrix is not a sequence
+    >>> matrix_dimensions([[4], [], {10, 20}])
+    Traceback (most recent call last):
+      ...
+    TypeError: row is not a sequence
+    """
+    if not isinstance(matrix, Sequence):
+        raise TypeError('matrix is not a sequence')
+
+    if not all(isinstance(row, Sequence) for row in matrix):
+        raise TypeError('row is not a sequence')
+
+    height = len(matrix)
+    if height == 0:
+        raise ValueError('empty matrix not supported')
+
+    width = len(matrix[0])
+    if any(len(row) != width for row in matrix):
+        raise ValueError('jagged grid not supported (must be rectangular)')
+    if width == 0:
+        raise ValueError('zero-width nonempty matrix not supported')
+
+    return height, width
 
 
 def identity_matrix(n):
