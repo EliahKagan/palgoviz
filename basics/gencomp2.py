@@ -1365,6 +1365,19 @@ def indegrees(rows):
     return Counter(itertools.chain.from_iterable(rows.values()))
 
 
+def count_nodes(root):
+    """
+    Given a tree structure represented as a nested iterable whose leaves are
+    empty iterables, count the total number of (both internal and leaf) nodes.
+
+    Definitely use no more than one (fairly short) line of code.
+
+    FIXME: Needs tests.
+    """
+    return 1 + sum(count_nodes(child) for child in root)
+
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
