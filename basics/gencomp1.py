@@ -1165,6 +1165,53 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
 
 
+def distinct_eager_simple(iterable):
+    """
+    Make a list of first occurrences of equal items. Assume items are hashable.
+
+    This takes O(n) time, where n is the number of items in iterable. It is the
+    same task as in distinct_unstable above, but now it is stable: values are
+    output in the same order they appeared in the input, and when equal values
+    appear in the input, the first one (and no others) appears in the output.
+
+    Another way to look at this is that it is the same task as distinct_simple
+    above, except that it is eager rather than lazy: the values are returned
+    all at once in a list, rather than each being computed and yielded only
+    once needed.
+
+    Don't use anything but builtins. This is more complicated than
+    distinct_unstable, but simpler than distinct_simple. It fits easily in one
+    line, though you may prefer to use two. Don't use loops or comprehensions.
+
+    Hint: Sets aren't ordered, but what is?
+
+    FIXME: Needs tests.
+    """
+    reversal = list(iterable)[::-1]
+    return list(reversed(dict.fromkeys(reversal)))
+
+
+def distinct_eager(iterable, *, key=None):
+    """
+    Make a list of first occurrences of values whose associated keys are equal.
+
+    This is like distinct_eager_simple above, but a key selector may be passed.
+    Continue to assume items are hashable. Don't use anything but builtins.
+
+    This takes O(n) time, where n is the number of items in the iterable. It is
+    the same task as distinct above, except that it is eager rather than lazy.
+    Aside from the code to deal with when key is not passed, this fits
+    comfortably in two lines. Use a comprehension but no loops.
+
+    FIXME: Needs tests.
+    """
+    if key is None:
+        key = lambda x: x
+
+    mapping = {key(element): element for element in list(iterable)[::-1]}
+    return list(reversed(mapping.values()))
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
