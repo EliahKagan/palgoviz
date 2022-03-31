@@ -122,7 +122,7 @@ def suffix_product(sequences, start):
     This behaves like itertools.product(*sequences[start:]). It uses only
     O(len(sequences) - start) auxiliary space. Other requirements are the same
     as for prefix_product above, including that this is recursive and does not
-    use a helper function.
+    use a helper function. FIXME: This is actually slower. Document why.
 
     >>> list(suffix_product([['a', 'b'], ['x', 'y']], 0))
     [('a', 'x'), ('a', 'y'), ('b', 'x'), ('b', 'y')]
