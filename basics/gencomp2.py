@@ -834,6 +834,27 @@ def matrix_dimensions(matrix):
     return height, width
 
 
+def matrix_multiply(a, b):
+    """
+    Given matrices as nested sequences, compute their product as a nested list.
+
+    Use matrix_dimensions to check that they are well-formed and find their
+    heights and widths. Retain its prohibition on empty matrices. In addition
+    to any exceptions it may raise, raise ValueError if a and b are well-formed
+    matrices that cannot be multiplied due to incompatible dimensions.
+
+    # FIXME: Needs tests.
+    """
+    m, n = matrix_dimensions(a)
+    n_, p = matrix_dimensions(b)
+    if n != n_:
+        raise ValueError(
+            f"can't multiple {n}-column matrix by {n_}-row matrix")
+
+    return [[sum(a[i][j] * b[j][k]) for j in range(n)]
+            for i in range(m) for k in range(p)]
+
+
 def identity_matrix(n):
     """
     Make an n-by-n identity matrix, represented as a nested list.
