@@ -63,6 +63,171 @@ def product_two_alt(a, b):
             yield (x, y)
 
 
+def product_two_flexible(a, b):
+    """
+    Like product_two above, but a is permitted to be an infinite iterable.
+
+    >>> list(product_two('hi', 'bye'))
+    [('h', 'b'), ('h', 'y'), ('h', 'e'), ('i', 'b'), ('i', 'y'), ('i', 'e')]
+    >>> list(product_two(range(0), range(2)))
+    []
+    >>> list(product_two(range(2), range(0)))
+    []
+    >>> it = product_two((x - 1 for x in (1, 2)), (x + 5 for x in (3, 4)))
+    >>> next(it)
+    (0, 8)
+    >>> list(it)
+    [(0, 9), (1, 8), (1, 9)]
+    >>> from itertools import count, islice
+    >>> list(islice(product_two_flexible(count(), 'abc'), 7))
+    [(0, 'a'), (0, 'b'), (0, 'c'), (1, 'a'), (1, 'b'), (1, 'c'), (2, 'a')]
+    >>> list(islice(product_two_flexible(count(), (ch for ch in 'abc')), 7))
+    [(0, 'a'), (0, 'b'), (0, 'c'), (1, 'a'), (1, 'b'), (1, 'c'), (2, 'a')]
+    """
+    my_b = list(b)
+    return ((x, y) for x in a for y in my_b)
+
+
+def prefix_product(sequences, stop):
+    """
+    Cartesian product of sequences[0], sequences[1], ..., sequences[stop - 1].
+
+    This returns an iterator that yields tuples from the Cartesian product of a
+    prefix of sequences, behaving like itertools.product(*sequences[:stop]).
+    Like itertools.product, this is lazy. Unlike itertools.product, it requires
+    the input iterables to be sequences and does not materialize them. For this
+    reason, it uses only O(stop) auxiliary space.
+
+    sequences is assumed to be a sequence of sequences. stop is assumed to be
+    an integer in range(len(sequences) + 1). This function is recursive and
+    does not use a helper function; it only calls itself.
+
+    >>> list(prefix_product([['a', 'b'], ['x', 'y']], 2))
+    [('a', 'x'), ('a', 'y'), ('b', 'x'), ('b', 'y')]
+    """
+    if stop == 0:
+        yield ()
+        return
+
+    for prefix_tuple in prefix_product(sequences, stop - 1):
+        for last_element in sequences[stop - 1]:
+            yield (*prefix_tuple, last_element)
+
+
+def suffix_product(sequences, start):
+    """
+    Cartesian product of sequences[start], sequences[start + 1], ...,
+    sequences[-1].
+
+    This behaves like itertools.product(*sequences[start:]). It uses only
+    O(len(sequences) - start) auxiliary space. Other requirements are the same
+    as for prefix_product above, including that this is recursive and does not
+    use a helper function.
+
+    >>> list(suffix_product([['a', 'b'], ['x', 'y']], 0))
+    [('a', 'x'), ('a', 'y'), ('b', 'x'), ('b', 'y')]
+    """
+    if start == len(sequences):
+        yield ()
+        return
+
+    for first_element in sequences[start]:
+        for suffix_tuple in suffix_product(sequences, start + 1):
+            yield (first_element, *suffix_tuple)
+
+
+def my_product(*iterables):
+    """
+    Cartesian product. Like itertools.product, but with no repeat parameter.
+
+    This implementation uses prefix_product for most of its functionality (and
+    it does not call anything else, besides builtins).
+
+    Other than how this does not support repeat, and that itertools.product is
+    likely to be faster by a constant factor because it is (carefully)
+    implemented in C, there are two differences that may be important:
+
+    i.  itertools.product is iterative, so large len(iterables) does not cause
+        it to raise RecursionError.
+
+    ii. The time complexity of itertools.product, when one iterates through the
+        entire result, is:
+
+            O(reduce(mul, map(len, iterables)) * len(iterables))
+
+        For my_product, it is slightly worse:
+
+            O(reduce(mul, map(len, iterables)) * len(iterables)**2)
+
+        (Why? What are prefix_product and suffix_product's time complexities?)
+
+    >>> from pprint import pprint
+    >>> pprint(list(my_product('ab', 'cde', 'fg', 'hi')),
+    ...        compact=True)
+    [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+     ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+     ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+     ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+     ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+     ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+     ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+     ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
+    >>> pprint(list(my_product(iter('ab'), 'cde', iter('fg'), 'hi')),
+    ...        compact=True)
+    [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+     ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+     ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+     ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+     ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+     ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+     ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+     ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
+    >>> from itertools import islice
+    >>> sum(map(sum, islice(my_product(*([(0, 1)] * 500)), 10_000)))
+    64608
+    """
+    sequences = [list(iterable) for iterable in iterables]
+    return prefix_product(sequences, len(sequences))
+
+
+def my_product_alt(*iterables):
+    """
+    Cartesian product. Like itertools.product, but with no repeat parameter.
+
+    This implementation uses suffix_product for most of its functionality (and
+    it does not call anything else, besides builtins).
+
+    The other considerations documented for my_product above apply here too.
+
+    >>> from pprint import pprint
+    >>> pprint(list(my_product_alt('ab', 'cde', 'fg', 'hi')),
+    ...        compact=True)
+    [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+     ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+     ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+     ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+     ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+     ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+     ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+     ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
+    >>> pprint(list(my_product_alt(iter('ab'), 'cde', iter('fg'), 'hi')),
+    ...        compact=True)
+    [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+     ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+     ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+     ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+     ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+     ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+     ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+     ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
+    >>> from itertools import islice
+    >>> sum(map(sum, islice(my_product_alt(*([(0, 1)] * 500)), 10_000)))
+    64608
+    """
+    sequences = [list(iterable) for iterable in iterables]
+    return suffix_product(sequences, 0)
+
+
 def ascending_countdowns():
     """
     Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
