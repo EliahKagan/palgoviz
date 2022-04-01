@@ -21,13 +21,9 @@ class TestBearBowl(unittest.TestCase):
 
     # The three bowls really are bowls:
 
-    @parameterized.expand([
-        ('TOO_COLD', BearBowl.TOO_COLD),
-        ('JUST_RIGHT', BearBowl.JUST_RIGHT),
-        ('TOO_HOT', BearBowl.TOO_HOT),
-    ])
-    def test_enumerator_is_a_bowl(self, _name, enumerator):
-        self.assertIsInstance(enumerator, BearBowl)
+    @parameterized.expand(['TOO_COLD', 'JUST_RIGHT', 'TOO_HOT'])
+    def test_enumerator_is_a_bowl(self, name):
+        self.assertIsInstance(getattr(BearBowl, name), BearBowl)
 
     # They are not numbers:
 
