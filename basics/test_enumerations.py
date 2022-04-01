@@ -112,7 +112,7 @@ class TestBearBowl(unittest.TestCase):
         rhs = getattr(BearBowl, rhs_name)
         self.assertGreater(lhs, rhs)
 
-    # Bowls compare less than or equal to bowls that are no warmer:
+    # Bowls compare less than or equal to bowls that are no cooler:
 
     @parameterized.expand([
         ('TC_TC', 'TOO_COLD', 'TOO_COLD'),
@@ -128,7 +128,7 @@ class TestBearBowl(unittest.TestCase):
         rhs = getattr(BearBowl, rhs_name)
         self.assertLessEqual(lhs, rhs)
 
-    # Bowls compare greater than or equal to bowls that are no cooler:
+    # Bowls compare greater than or equal to bowls that are no warmer:
 
     @parameterized.expand([
         ('TC_TC', 'TOO_COLD', 'TOO_COLD'),
