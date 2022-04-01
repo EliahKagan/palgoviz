@@ -321,14 +321,14 @@ def three_sum_indices_1(a, b, c, target):
     This is the first of four implementations, which cover all four
     combinations of two independent choices:
 
-        (A) Two implementations return generator expressions and do not contain
-            loops. The other two are written as generator functions and do not
-            use comprehensions.
+    i.  Two implementations return generator expressions and do not contain
+        loops. The other two are written as generator functions and do not use
+        comprehensions.
 
-        (B) Two implementations use something from itertools to simplify and
-            shorten their code, but are slower in some situations (though the
-            worst case efficiency is the same). The other two don't do that,
-            instead avoiding doing extra work.
+    ii. Two implementations use something from itertools to simplify and
+        shorten their code, but are slower in some situations (though the worst
+        case efficiency is the same). The other two don't do that, instead
+        avoiding doing extra work.
 
     It is acceptable for all four implementations to take time proportional to
     the product of the lengths of a, b, and c, even on average.
