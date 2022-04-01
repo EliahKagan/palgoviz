@@ -5,6 +5,8 @@
 from numbers import Number
 import unittest
 
+from parameterized import parameterized
+
 from enumerations import BearBowl
 
 
@@ -19,14 +21,13 @@ class TestBearBowl(unittest.TestCase):
 
     # The three bowls really are bowls:
 
-    def test_too_cold_is_a_bowl(self):
-        self.assertIsInstance(BearBowl.TOO_COLD, BearBowl)
-
-    def test_just_right_is_a_bowl(self):
-        self.assertIsInstance(BearBowl.JUST_RIGHT, BearBowl)
-
-    def test_too_hot_is_a_bowl(self):
-        self.assertIsInstance(BearBowl.TOO_HOT, BearBowl)
+    @parameterized.expand([
+        ('TOO_COLD', BearBowl.TOO_COLD),
+        ('JUST_RIGHT', BearBowl.JUST_RIGHT),
+        ('TOO_HOT', BearBowl.TOO_HOT),
+    ])
+    def test_enumerator_is_a_bowl(self, _name, enumerator):
+        self.assertIsInstance(enumerator, BearBowl)
 
     # They are not numbers:
 
