@@ -1381,6 +1381,35 @@ def my_chain(*iterables):
 my_chain.from_iterable = _chain_from_iterable
 
 
+_ALPHA_LEN = 26
+"""Number of distinct letters in the English alphabet."""
+
+
+def encrypt(key, cleartext):
+    """
+    Encrypt a message with a polyalphabetic cipher.
+
+    The key is an iterable of one or more integers in range(26). The message,
+    cleartext, is a string that may be assumed to consist only of unaccented
+    lower-case English letters. The kth letter of the resulting ciphertext is
+    obtained by cycling the kth letter of cleartext around the alphabet by the
+    number of positions indicated by the kth element of key, except that if you
+    run out of elements of key, reuse the key starting from the beginning.
+
+    FIXME: Needs tests.
+    """
+    return ''.join(chr(ord('a') + (ord(ch) - ord('a') + r) % _ALPHA_LEN)
+                   for r, ch in zip(itertools.cycle(key), cleartext))
+
+
+def decrypt(key, ciphertext):
+    """
+    Decrypt a message encrypted (as by encrypt) with a polyalphabetic cipher.
+
+    FIXME: Needs tests.
+    """
+    return encrypt(((_ALPHA_LEN - r) for r in key), ciphertext)
+
 
 if __name__ == '__main__':
     import doctest
