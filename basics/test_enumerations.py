@@ -5,165 +5,116 @@
 from numbers import Number
 import unittest
 
+from parameterized import parameterized
+
 from enumerations import BearBowl
 
 
 class TestBearBowl(unittest.TestCase):
-    """
-    Tests for the BearBowl class.
+    """Tests for the BearBowl class."""
 
-    TODO: I have separated most test methods below into groups, each described
-    by a comment. This suggests that the groups should be written as individual
-    methods, with parameterization. Decide whether to do this and, if so, how.
-    """
+    @parameterized.expand(['TOO_COLD', 'JUST_RIGHT', 'TOO_HOT'])
+    def test_bowl_is_a_bowl(self, name):
+        bowl = getattr(BearBowl, name)
+        self.assertIsInstance(bowl, BearBowl)
 
-    # The three bowls really are bowls:
+    @parameterized.expand(['TOO_COLD', 'JUST_RIGHT', 'TOO_HOT'])
+    def test_bowl_is_not_a_number(self, name):
+        bowl = getattr(BearBowl, name)
+        self.assertNotIsInstance(bowl, Number)
 
-    def test_too_cold_is_a_bowl(self):
-        self.assertIsInstance(BearBowl.TOO_COLD, BearBowl)
+    @parameterized.expand([
+        ('TOO_COLD', 'BearBowl.TOO_COLD'),
+        ('JUST_RIGHT', 'BearBowl.JUST_RIGHT'),
+        ('TOO_HOT', 'BearBowl.TOO_HOT'),
+    ])
+    def test_bowl_repr_shows_attribute_access_from_class(self, name, expected):
+        bowl = getattr(BearBowl, name)
+        self.assertEqual(repr(bowl), expected)
 
-    def test_just_right_is_a_bowl(self):
-        self.assertIsInstance(BearBowl.JUST_RIGHT, BearBowl)
+    @parameterized.expand([
+        ('TOO_COLD', 'BearBowl.TOO_COLD'),
+        ('JUST_RIGHT', 'BearBowl.JUST_RIGHT'),
+        ('TOO_HOT', 'BearBowl.TOO_HOT'),
+    ])
+    def test_bowl_str_shows_attribute_access_from_class(self, name, expected):
+        bowl = getattr(BearBowl, name)
+        self.assertEqual(str(bowl), expected)
 
-    def test_too_hot_is_a_bowl(self):
-        self.assertIsInstance(BearBowl.TOO_HOT, BearBowl)
+    @parameterized.expand(['TOO_COLD', 'JUST_RIGHT', 'TOO_HOT'])
+    def test_bowl_name_attribute_is_too_cold(self, name):
+        bowl = getattr(BearBowl, name)
+        self.assertEqual(bowl.name, name)
 
-    # They are not numbers:
+    @parameterized.expand(['TOO_COLD', 'JUST_RIGHT', 'TOO_HOT'])
+    def test_bowl_equals_itself(self, name):
+        lhs = getattr(BearBowl, name)
+        rhs = getattr(BearBowl, name)
+        self.assertEqual(lhs, rhs)
 
-    def test_too_cold_is_not_a_number(self):
-        self.assertNotIsInstance(BearBowl.TOO_COLD, Number)
+    @parameterized.expand([
+        ('TC_JR', 'TOO_COLD', 'JUST_RIGHT'),
+        ('JR_TC', 'JUST_RIGHT', 'TOO_COLD'),
+        ('TC_TH', 'TOO_COLD', 'TOO_HOT'),
+        ('TH_TC', 'TOO_HOT', 'TOO_COLD'),
+        ('JR_TH', 'JUST_RIGHT', 'TOO_HOT'),
+        ('TH_JR', 'TOO_HOT', 'JUST_RIGHT'),
+    ])
+    def test_differently_named_bowls_are_not_equal(self, _label,
+                                                   lhs_name, rhs_name):
+        lhs = getattr(BearBowl, lhs_name)
+        rhs = getattr(BearBowl, rhs_name)
+        self.assertNotEqual(lhs, rhs)
 
-    def test_just_right_is_not_a_number(self):
-        self.assertNotIsInstance(BearBowl.JUST_RIGHT, Number)
+    @parameterized.expand([
+        ('TC_JR', 'TOO_COLD', 'JUST_RIGHT'),
+        ('TC_TH', 'TOO_COLD', 'TOO_HOT'),
+        ('JR_TH', 'JUST_RIGHT', 'TOO_HOT'),
+    ])
+    def test_cooler_bowls_less_than_warmer_bowls(self, _label,
+                                                 lhs_name, rhs_name):
+        lhs = getattr(BearBowl, lhs_name)
+        rhs = getattr(BearBowl, rhs_name)
+        self.assertLess(lhs, rhs)
 
-    def test_too_hot_is_not_a_number(self):
-        self.assertNotIsInstance(BearBowl.TOO_HOT, Number)
+    @parameterized.expand([
+        ('JR_TC', 'JUST_RIGHT', 'TOO_COLD'),
+        ('TH_TC', 'TOO_HOT', 'TOO_COLD'),
+        ('TH_JR', 'TOO_HOT', 'JUST_RIGHT'),
+    ])
+    def test_warmer_bowls_greater_than_cooler_bowls(self, _label,
+                                                    lhs_name, rhs_name):
+        lhs = getattr(BearBowl, lhs_name)
+        rhs = getattr(BearBowl, rhs_name)
+        self.assertGreater(lhs, rhs)
 
-    # Their reprs are code that evaluates to them (if BearBowl is in scope):
+    @parameterized.expand([
+        ('TC_TC', 'TOO_COLD', 'TOO_COLD'),
+        ('TC_JR', 'TOO_COLD', 'JUST_RIGHT'),
+        ('TC_TH', 'TOO_COLD', 'TOO_HOT'),
+        ('JR_JR', 'JUST_RIGHT', 'JUST_RIGHT'),
+        ('JR_TH', 'JUST_RIGHT', 'TOO_HOT'),
+        ('TH_TH', 'TOO_HOT', 'TOO_HOT'),
+    ])
+    def test_bowls_less_equal_to_not_cooler_bowls(self, _label,
+                                                  lhs_name, rhs_name):
+        lhs = getattr(BearBowl, lhs_name)
+        rhs = getattr(BearBowl, rhs_name)
+        self.assertLessEqual(lhs, rhs)
 
-    def test_too_cold_repr_shows_attribute_access_from_class(self):
-        self.assertEqual(repr(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
-
-    def test_just_right_repr_shows_attribute_access_from_class(self):
-        self.assertEqual(repr(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
-
-    def test_too_hot_repr_shows_attribute_access_from_class(self):
-        self.assertEqual(repr(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
-
-    # Their strs are that same code that evaluates to them:
-
-    def test_too_cold_str_shows_attribute_access_from_class(self):
-        self.assertEqual(str(BearBowl.TOO_COLD), 'BearBowl.TOO_COLD')
-
-    def test_just_right_str_shows_attribute_access_from_class(self):
-        self.assertEqual(str(BearBowl.JUST_RIGHT), 'BearBowl.JUST_RIGHT')
-
-    def test_too_hot_str_shows_attribute_access_from_class(self):
-        self.assertEqual(str(BearBowl.TOO_HOT), 'BearBowl.TOO_HOT')
-
-    # They know their names, accessible through the name attribute:
-
-    def test_too_cold_name_attribute_is_too_cold(self):
-        self.assertEqual(BearBowl.TOO_COLD.name, 'TOO_COLD')
-
-    def test_just_right_name_attribute_is_just_right(self):
-        self.assertEqual(BearBowl.JUST_RIGHT.name, 'JUST_RIGHT')
-
-    def test_too_hot_name_attribute_is_too_hot(self):
-        self.assertEqual(BearBowl.TOO_HOT.name, 'TOO_HOT')
-
-    # They are, as one would expect, equal to themselves:
-
-    def test_too_cold_equals_too_cold(self):
-        self.assertEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
-
-    def test_just_right_equals_just_right(self):
-        self.assertEqual(BearBowl.JUST_RIGHT, BearBowl.JUST_RIGHT)
-
-    def test_too_hot_equals_too_hot(self):
-        self.assertEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
-
-    # They (i.e., differently named bowls) are not equal to each other:
-
-    def test_too_cold_not_equal_to_just_right(self):
-        with self.subTest(lhs=BearBowl.TOO_COLD, rhs=BearBowl.JUST_RIGHT):
-            self.assertNotEqual(BearBowl.TOO_COLD, BearBowl.JUST_RIGHT)
-        with self.subTest(lhs=BearBowl.JUST_RIGHT, rhs=BearBowl.TOO_COLD):
-            self.assertNotEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_COLD)
-
-    def test_too_cold_not_equal_to_too_hot(self):
-        with self.subTest(lhs=BearBowl.TOO_COLD, rhs=BearBowl.TOO_HOT):
-            self.assertNotEqual(BearBowl.TOO_COLD, BearBowl.TOO_HOT)
-        with self.subTest(lhs=BearBowl.TOO_HOT, rhs=BearBowl.TOO_COLD):
-            self.assertNotEqual(BearBowl.TOO_HOT, BearBowl.TOO_COLD)
-
-    def test_just_right_not_equal_to_too_hot(self):
-        with self.subTest(lhs=BearBowl.JUST_RIGHT, rhs=BearBowl.TOO_HOT):
-            self.assertNotEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_HOT)
-        with self.subTest(lhs=BearBowl.TOO_HOT, rhs=BearBowl.JUST_RIGHT):
-            self.assertNotEqual(BearBowl.TOO_HOT, BearBowl.JUST_RIGHT)
-
-    # Cooler bowls compare less than warmer bowls:
-
-    def test_too_cold_less_than_just_right(self):
-        self.assertLess(BearBowl.TOO_COLD, BearBowl.JUST_RIGHT)
-
-    def test_too_cold_less_than_too_hot(self):
-        self.assertLess(BearBowl.TOO_COLD, BearBowl.TOO_HOT)
-
-    def test_just_right_less_than_too_hot(self):
-        self.assertLess(BearBowl.JUST_RIGHT, BearBowl.TOO_HOT)
-
-    # Warmer bowls compare greater than cooler bowls:
-
-    def test_just_right_greater_than_too_cold(self):
-        self.assertGreater(BearBowl.JUST_RIGHT, BearBowl.TOO_COLD)
-
-    def test_too_hot_greater_than_too_cold(self):
-        self.assertGreater(BearBowl.TOO_HOT, BearBowl.TOO_COLD)
-
-    def test_too_hot_greater_than_just_right(self):
-        self.assertGreater(BearBowl.TOO_HOT, BearBowl.JUST_RIGHT)
-
-    # Bowls compare less than or equal to bowls that are no warmer:
-
-    def test_too_cold_less_than_or_equal_to_itself(self):
-        self.assertLessEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
-
-    def test_too_cold_less_than_or_equal_to_just_right(self):
-        self.assertLessEqual(BearBowl.TOO_COLD, BearBowl.JUST_RIGHT)
-
-    def test_too_cold_less_than_or_equal_to_too_hot(self):
-        self.assertLessEqual(BearBowl.TOO_COLD, BearBowl.TOO_HOT)
-
-    def test_just_right_less_than_or_equal_to_itself(self):
-        self.assertLessEqual(BearBowl.JUST_RIGHT, BearBowl.JUST_RIGHT)
-
-    def test_just_right_less_than_or_equal_to_too_hot(self):
-        self.assertLessEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_HOT)
-
-    def test_too_hot_less_than_or_equal_to_itself(self):
-        self.assertLessEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
-
-    # Bowls compare greater than or equal to bowls that are no cooler:
-
-    def test_too_cold_greater_than_or_equal_to_itself(self):
-        self.assertGreaterEqual(BearBowl.TOO_COLD, BearBowl.TOO_COLD)
-
-    def test_just_right_greater_than_or_equal_to_too_cold(self):
-        self.assertGreaterEqual(BearBowl.JUST_RIGHT, BearBowl.TOO_COLD)
-
-    def test_just_right_greater_than_or_equal_to_itself(self):
-        self.assertGreaterEqual(BearBowl.JUST_RIGHT, BearBowl.JUST_RIGHT)
-
-    def test_too_hot_greater_than_or_equal_to_too_cold(self):
-        self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.TOO_COLD)
-
-    def test_too_hot_greater_than_or_equal_to_just_right(self):
-        self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.JUST_RIGHT)
-
-    def test_too_hot_greater_than_or_equal_to_itself(self):
-        self.assertGreaterEqual(BearBowl.TOO_HOT, BearBowl.TOO_HOT)
+    @parameterized.expand([
+        ('TC_TC', 'TOO_COLD', 'TOO_COLD'),
+        ('JR_TC', 'JUST_RIGHT', 'TOO_COLD'),
+        ('JR_JR', 'JUST_RIGHT', 'JUST_RIGHT'),
+        ('TH_TC', 'TOO_HOT', 'TOO_COLD'),
+        ('TH_JR', 'TOO_HOT', 'JUST_RIGHT'),
+        ('TH_TH', 'TOO_HOT', 'TOO_HOT'),
+    ])
+    def test_bowls_greater_equal_to_not_warmer_bowls(self, _label,
+                                                     lhs_name, rhs_name):
+        lhs = getattr(BearBowl, lhs_name)
+        rhs = getattr(BearBowl, rhs_name)
+        self.assertGreaterEqual(lhs, rhs)
 
 
 if __name__ == '__main__':
