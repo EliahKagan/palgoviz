@@ -18,3 +18,4 @@ dependencies:
   # For testing
   - parameterized
   - pytest
+  - pytest-subtests
