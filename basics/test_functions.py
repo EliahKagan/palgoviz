@@ -363,28 +363,38 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
         """Restore standard output."""
         sys.stdout = self._old_stdout
 
-    # TODO: Add para to docstring explaining why this test does so many things.
     def test_function_patched_and_restored_when_no_exception_is_raised(self):
         """count_tree_nodes is patched/unpatched in the absence of errors."""
-        # TODO: Should this force an "error" status rather than mere "failure"?
-        self.assertIs(functions.count_tree_nodes, _original_count_tree_nodes,
-            "count_tree_nodes was ALREADY wrong at the START of the test")
+        if functions.count_tree_nodes is not _original_count_tree_nodes:
+            # Force an error (rather than mere failure).
+            raise Exception('count_tree_nodes ALREADY wrong at START of test')
 
-        root = recursion.make_deep_tuple(2)
-        result = functions.count_tree_nodes_instrumented(root)
-        output = self._out
+        root1 = recursion.make_deep_tuple(2)
+        result1 = functions.count_tree_nodes_instrumented(root1)
+        output1 = self._out
 
-        self.assertEqual(result, 3)
+        with self.subTest(run=1, instrumented=True, checking='return value'):
+            self.assertEqual(result1, 3)
 
-        self.assertEqual(output, 'count_tree_nodes(()) -> 1\n'
-                                 'count_tree_nodes(((),)) -> 2\n'
-                                 'count_tree_nodes((((),),)) -> 3\n')
+        with self.subTest(run=1, instrumented=True, checking='printed output'):
+            self.assertEqual(output1, 'count_tree_nodes(()) -> 1\n'
+                                      'count_tree_nodes(((),)) -> 2\n'
+                                      'count_tree_nodes((((),),)) -> 3\n')
 
-        self.assertIs(functions.count_tree_nodes, _original_count_tree_nodes,
-            "count_tree_nodes_instrumented failed to restore count_tree_nodes")
+        with self.subTest(run=1, instrumented=True,
+                          checking='restores original function'):
+            self.assertIs(functions.count_tree_nodes,
+                          _original_count_tree_nodes,
+                          'failed to restore count_tree_nodes')
 
-        # FIXME: Call count_tree_nodes and show the behavior is also restored.
+        # Call count_tree_nodes to check that its normal behavior is restored.
+        result2 = functions.count_tree_nodes(recursion.make_deep_tuple(3))
 
+        with self.subTest(run=2, instrumented=False, checking='return value'):
+            self.assertEqual(result2, 4)
+
+        with self.subTest(run=2, instrumented=False, checking='printed output'):
+            self.assertEqual(self._out, output1, 'no more should be printed')
 
     @property
     def _out(self):
