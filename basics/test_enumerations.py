@@ -7,7 +7,7 @@ import unittest
 
 from parameterized import parameterized
 
-from enumerations import BearBowl
+from enumerations import BearBowl, Guests
 
 
 class TestBearBowl(unittest.TestCase):
@@ -115,6 +115,23 @@ class TestBearBowl(unittest.TestCase):
         lhs = getattr(BearBowl, lhs_name)
         rhs = getattr(BearBowl, rhs_name)
         self.assertGreaterEqual(lhs, rhs)
+
+
+class TestGuests(unittest.TestCase):
+    """Tests for the Guests class."""
+
+    def test_intersection_of_party_and_party2(self):
+        """Only Alice and Frank attended both parties."""
+        expected = Guests.ALICE | Guests.FRANK
+        actual = Guests.PARTY & Guests.PARTY2
+        self.assertIs(actual, expected)
+
+    def test_union_of_party_and_party2(self):
+        """Alice, Bob, Cassidy, Erin, and Frank attended some party."""
+        expected = (Guests.ALICE | Guests.BOB | Guests.CASSIDY
+                    | Guests.ERIN | Guests.FRANK)
+        actual = Guests.PARTY | Guests.PARTY2
+        self.assertIs(actual, expected)
 
 
 if __name__ == '__main__':

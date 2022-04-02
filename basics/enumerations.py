@@ -46,6 +46,22 @@ class BearBowl(OrderedEnum, CodeReprEnum):
     """Approximate temperature of the sun."""
 
 
+class Guests(enum.Flag):
+    """Potential party guests."""
+    ALICE   = enum.auto()
+    BOB     = enum.auto()
+    CASSIDY = enum.auto()
+    DEREK   = enum.auto()
+    ERIN    = enum.auto()
+    FRANK   = enum.auto()
+    GERALD  = enum.auto()
+    HEATHER = enum.auto()
+
+    PARTY   = ALICE | CASSIDY | FRANK
+    PARTY2  = ALICE | BOB | ERIN | FRANK
+    PARTY3  = DEREK
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
