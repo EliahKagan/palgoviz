@@ -20,14 +20,14 @@ class BearBowl(enum.Enum):
     True
     """
 
-    TOO_HOT = 5778
-    """Approximate temperature of the sun."""
+    TOO_COLD = 95
+    """Approximate surface temperature of Titan."""
 
     JUST_RIGHT = 288
     """Non-fatal temperature for a bowl of porridge."""
 
-    TOO_COLD = 95
-    """Approximate surface temperature of Titan."""
+    TOO_HOT = 5778
+    """Approximate temperature of the sun."""
 
     def __lt__(self, other):
         if not isinstance(other, type(self)):
