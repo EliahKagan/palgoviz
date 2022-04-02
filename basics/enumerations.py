@@ -46,7 +46,17 @@ class BearBowl(OrderedEnum, CodeReprEnum):
     """Approximate temperature of the sun."""
 
 
-class Guests(enum.Flag):
+class BitsetEnum(enum.Flag):
+    """Instances of BitsetEnum support - and comparison operators."""
+
+    def __sub__(self, other):
+        """Subtraction works like in set."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self & ~other
+
+
+class Guests(BitsetEnum):
     """Potential party guests."""
     ALICE   = enum.auto()
     BOB     = enum.auto()

@@ -146,6 +146,12 @@ class TestGuests(unittest.TestCase):
         actual = Guests.PARTY & ~Guests.PARTY2
         self.assertIs(actual, expected)
 
+    def test_difference_party_party2_with_minus_operator(self):
+        """Cassidy attended party and did not attend party2 and - operator works."""
+        expected = Guests.CASSIDY
+        actual = Guests.PARTY - Guests.PARTY2
+        self.assertIs(actual, expected)
+
     def test_difference_party2_party(self):
         """Bob and Erin attended party2 and did not attend party."""
         expected = Guests.BOB | Guests.ERIN
