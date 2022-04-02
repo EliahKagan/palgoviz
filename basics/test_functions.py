@@ -402,13 +402,43 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
                           'failed to restore count_tree_nodes')
 
         # Call count_tree_nodes to check that its normal behavior is restored.
-        result2 = functions.count_tree_nodes(recursion.make_deep_tuple(3))
+        root2 = recursion.make_deep_tuple(3)
+        result2 = functions.count_tree_nodes(root2)
 
         with self.subTest(run=2, instrumented=False, checking='return value'):
             self.assertEqual(result2, 4)
 
         with self.subTest(run=2, instrumented=False, checking='printed output'):
             self.assertEqual(self._out, output1, 'no more should be printed')
+
+    def test_function_patched_and_restored_when_an_exception_propagates(self):
+        """
+        count_tree_nodes is patched/unpatched even in the presence of errors.
+        """
+        root1 = recursion.make_deep_tuple(5000)
+        with self.assertRaises(RecursionError):
+            functions.count_tree_nodes_instrumented(root1)
+
+        with self.subTest(run=1, instrumented=True, checking='printed output'):
+            self.assertEqual(self._out, '', 'no output should be printed')
+
+        with self.subTest(run=1, instrumented=True,
+                          checking='restores original function'):
+            self.assertIs(functions.count_tree_nodes,
+                          _original_count_tree_nodes,
+                          'failed to restore count_tree_nodes')
+
+        # Call count_tree_nodes to check that its normal behavior is restored.
+        root2 = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+        result2 = functions.count_tree_nodes(root2)
+
+        with self.subTest(run=2, instrumented=False, checking='return value'):
+            self.assertEqual(result2, 22)
+
+        with self.subTest(run=2, instrumented=False, checking='printed output'):
+            self.assertEqual(self._out, '', 'no output should be printed')
+
+    # TODO: Maybe add a test corresponding to the doctest that uses fib_nest(3).
 
     @property
     def _out(self):
