@@ -18,9 +18,7 @@ class OrderedEnum(enum.Enum):
 
 
 class CodeReprEnum(enum.Enum):
-    """
-    Enumeration whose instances' repr is python code.
-    """
+    """Enumeration whose instances' repr is Python code."""
     def __repr__(self):
         return str(self)
 
