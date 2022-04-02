@@ -57,7 +57,8 @@ class BitsetEnum(enum.Flag):
 
 
 class Guests(BitsetEnum):
-    """Potential party guests."""
+    """Potential party and/or trial guests."""
+
     ALICE   = enum.auto()
     BOB     = enum.auto()
     CASSIDY = enum.auto()
@@ -69,7 +70,14 @@ class Guests(BitsetEnum):
 
     PARTY   = ALICE | CASSIDY | FRANK
     PARTY2  = ALICE | BOB | ERIN | FRANK
-    PARTY3  = DEREK
+
+    # Trials can have guests and are not parties
+    # Trials are needed because the parties were a tad too wild.
+
+    ALICE_TRIAL = BOB | CASSIDY
+    BOB_TRIAL   = ALICE
+    ERIN_TRIAL  = ALICE | BOB
+    FRANK_TRIAL = BOB | CASSIDY | DEREK
 
 
 if __name__ == '__main__':
