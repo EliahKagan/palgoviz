@@ -8,28 +8,52 @@ _FORMATS = {
 }
 
 
-# TODO: Extract shared parts of Greeter and FrozenGreeter to an abstract base
-#       class.
+# TODO: Extract shared parts of MutableGreeter and FrozenGreeter to an abstract
+#       base class, which might be called AbstractGreeter, or just Greeter.
 
 
-class Greeter:
+class MutableGreeter:
     """
     Callable object that greets people by name in a specified language.
 
-    >>> g = Greeter('en')
+    >>> g = MutableGreeter('en')
     >>> g.lung = 'es'
     Traceback (most recent call last):
       ...
-    AttributeError: 'Greeter' object has no attribute 'lung'
+    AttributeError: 'MutableGreeter' object has no attribute 'lung'
     """
 
     __slots__ = ('_lang',)
 
+    @staticmethod
+    def get_known_langs():
+        """
+        Get known language codes.
+
+        >>> MutableGreeter.get_known_langs()
+        ('en', 'es')
+        >>> MutableGreeter('es').get_known_langs()
+        ('en', 'es')
+        """
+        return tuple(_FORMATS)
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """
+        Construct a MutableGreeter from a greeter.
+
+        >>> f = FrozenGreeter('en')
+        >>> m = MutableGreeter.from_greeter(f)
+        >>> m('World')
+        Hello, World!
+        """
+        return cls(greeter.lang)
+
     def __init__(self, lang):
         """
-        Create a greeter from the language code.
+        Create a MutableGreeter from the language code.
 
-        >>> Greeter('qx')
+        >>> MutableGreeter('qx')
         Traceback (most recent call last):
           ...
         ValueError: qx is an unrecognized language code.
@@ -40,7 +64,7 @@ class Greeter:
         """
         Greet a person by name.
 
-        >>> g = Greeter('es')
+        >>> g = MutableGreeter('es')
         >>> g('David')
         ¡Hola, David!
         >>> g.lang = 'en'
@@ -51,13 +75,13 @@ class Greeter:
 
     def __eq__(self, other):
         """
-        Check if two Greeters greet in the same language.
+        Check if two MutableGreeters greet in the same language.
 
-        >>> Greeter('en') == Greeter('en')
+        >>> MutableGreeter('en') == MutableGreeter('en')
         True
-        >>> Greeter('en') == Greeter('es')
+        >>> MutableGreeter('en') == MutableGreeter('es')
         False
-        >>> Greeter('en') == 1
+        >>> MutableGreeter('en') == 1
         False
         """
         if not isinstance(other, type(self)):
@@ -67,22 +91,22 @@ class Greeter:
 
     def __repr__(self):
         """
-        Representation of this Greeter as python code.
+        Representation of this MutableGreeter as Python code.
 
-        >>> Greeter('en')
-        Greeter('en')
-        >>> class MyGreeter(Greeter): pass
-        >>> MyGreeter('en')
-        MyGreeter('en')
+        >>> MutableGreeter('en')
+        MutableGreeter('en')
+        >>> class MyMutableGreeter(MutableGreeter): pass
+        >>> MyMutableGreeter('en')
+        MyMutableGreeter('en')
         """
         return f"{type(self).__name__}({self.lang!r})"
 
     @property
     def lang(self):
         """
-        The language this Greeter will greet in.
+        The language this MutableGreeter will greet in.
 
-        >>> g = Greeter('en')
+        >>> g = MutableGreeter('en')
         >>> g.lang = 'qx'
         Traceback (most recent call last):
           ...
@@ -109,6 +133,30 @@ class FrozenGreeter:
     """
 
     __slots__ = ('_lang',)
+
+    @staticmethod
+    def get_known_langs():
+        """
+        Get known language codes.
+
+        >>> FrozenGreeter.get_known_langs()
+        ('en', 'es')
+        >>> FrozenGreeter('es').get_known_langs()
+        ('en', 'es')
+        """
+        return tuple(_FORMATS)
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """
+        Construct a FrozenGreeter from a greeter.
+
+        >>> m = MutableGreeter('en')
+        >>> f = FrozenGreeter.from_greeter(m)
+        >>> f('World')
+        Hello, World!
+        """
+        return cls(greeter.lang)
 
     def __init__(self, lang):
         """
@@ -210,7 +258,7 @@ def make_greeter(lang):
       ...
     ValueError: qx is an unrecognized language code.
     """
-    return Greeter(lang)
+    return MutableGreeter(lang)
 
 
 def hello(name, lang='en'):

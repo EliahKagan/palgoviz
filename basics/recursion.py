@@ -7,9 +7,8 @@ See also object_graph.py.
 """
 
 import bisect
-import decorators
 
-from decorators import memoize_by
+import decorators
 
 
 def countdown(n):
