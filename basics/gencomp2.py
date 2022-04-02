@@ -1365,6 +1365,23 @@ def indegrees(rows):
     return Counter(itertools.chain.from_iterable(rows.values()))
 
 
+def _chain_from_iterable(iterables):
+    return (element for iterable in iterables for element in iterable)
+
+
+def my_chain(*iterables):
+    """
+    Chain iterables as itertools.chain does.
+
+    FIXME: Needs tests.
+    """
+    return _chain_from_iterable(iterables)
+
+
+my_chain.from_iterable = _chain_from_iterable
+
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
