@@ -355,20 +355,34 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
     __slots__ = ('_old_stdout', '_stdout')
 
     def setUp(self):
-        """Monkeypatch ("redirect") standard output to capture it for tests."""
-        self._old_stdout = sys.stdout
-        self._stdout = sys.stdout = io.StringIO()
+        """
+        Arrange the tests by checking a precondition and redirecting a stream.
 
-    def tearDown(self):
-        """Restore standard output."""
-        sys.stdout = self._old_stdout
+        This does two things:
 
-    def test_function_patched_and_restored_when_no_exception_is_raised(self):
-        """count_tree_nodes is patched/unpatched in the absence of errors."""
+        (1) Raise an exception if count_tree_nodes isn't the original function.
+
+        (2) Monkeypatch ("redirect") standard output to capture it for tests.
+
+        TODO: After we make a stdout-patching mixin, have this class use that.
+        """
         if functions.count_tree_nodes is not _original_count_tree_nodes:
             # Force an error (rather than mere failure).
             raise Exception('count_tree_nodes ALREADY wrong at START of test')
 
+        self._old_stdout = sys.stdout
+        self._stdout = sys.stdout = io.StringIO()
+
+    def tearDown(self):
+        """
+        Restore standard output.
+
+        TODO: Use mixin when available; see setUp docstring for details.
+        """
+        sys.stdout = self._old_stdout
+
+    def test_function_patched_and_restored_when_no_exception_is_raised(self):
+        """count_tree_nodes is patched/unpatched in the absence of errors."""
         root1 = recursion.make_deep_tuple(2)
         result1 = functions.count_tree_nodes_instrumented(root1)
         output1 = self._out
