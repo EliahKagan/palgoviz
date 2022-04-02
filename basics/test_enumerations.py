@@ -133,6 +133,37 @@ class TestGuests(unittest.TestCase):
         actual = Guests.PARTY | Guests.PARTY2
         self.assertIs(actual, expected)
 
+    def test_complement_of_party(self):
+        """Bob, Derek, Erin, Gerald, and Heather did not attended party."""
+        expected = (Guests.BOB | Guests.DEREK | Guests.ERIN
+                    | Guests.GERALD | Guests.HEATHER)
+        actual = ~Guests.PARTY
+        self.assertIs(actual, expected)
+
+    def test_difference_party_party2(self):
+        """Cassidy attended party and did not attend party2."""
+        expected = Guests.CASSIDY
+        actual = Guests.PARTY & ~Guests.PARTY2
+        self.assertIs(actual, expected)
+
+    def test_difference_party2_party(self):
+        """Bob and Erin attended party2 and did not attend party."""
+        expected = Guests.BOB | Guests.ERIN
+        actual = Guests.PARTY2 & ~Guests.PARTY
+        self.assertIs(actual, expected)
+
+    def test_symmetric_difference_party_party2(self):
+        """Bob, Cassidy, and Erin attended only one party."""
+        expected = Guests.BOB | Guests.CASSIDY | Guests.ERIN
+        actual = Guests.PARTY ^ Guests.PARTY2
+        self.assertIs(actual, expected)
+
+    def test_symmetric_difference_is_symmetric(self):
+        """Symmetric difference shouldn't change based on order."""
+        expected = Guests.PARTY ^ Guests.PARTY2
+        actual = Guests.PARTY2 ^ Guests.PARTY
+        self.assertIs(actual, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
