@@ -160,9 +160,9 @@ class TestGuests(unittest.TestCase):
 
     def test_symmetric_difference_is_symmetric(self):
         """Symmetric difference shouldn't change based on order."""
-        expected = Guests.PARTY ^ Guests.PARTY2
-        actual = Guests.PARTY2 ^ Guests.PARTY
-        self.assertIs(actual, expected)
+        lhs = Guests.PARTY ^ Guests.PARTY2
+        rhs = Guests.PARTY2 ^ Guests.PARTY
+        self.assertIs(lhs, rhs)
 
 
 if __name__ == '__main__':
