@@ -228,7 +228,7 @@ class TestGuests(unittest.TestCase):
     def test_bob_trial_not_proper_superset_erin_trial(self):
         self.assertFalse(Guests.BOB_TRIAL > Guests.ERIN_TRIAL)
 
-    # Test intersecting trials
+    # Test partially intersecting trials
 
     def test_frank_trial_not_subset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL <= Guests.ERIN_TRIAL)
