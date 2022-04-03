@@ -61,6 +61,12 @@ class BitsetEnum(enum.Flag):
             return NotImplemented
         return self & other == self
 
+    def __lt__(self, other):
+        """Less than works like it does in set."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__le__(other) and self != other
+
 
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""
