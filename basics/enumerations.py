@@ -76,7 +76,7 @@ class Guests(BitsetEnum):
 
     ALICE_TRIAL = BOB | CASSIDY
     BOB_TRIAL   = ALICE
-    ERIN_TRIAL  = ALICE | BOB
+    ERIN_TRIAL  = CASSIDY | DEREK
     FRANK_TRIAL = BOB | CASSIDY | DEREK
 
 

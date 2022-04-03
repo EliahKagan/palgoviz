@@ -170,6 +170,50 @@ class TestGuests(unittest.TestCase):
         rhs = Guests.PARTY2 ^ Guests.PARTY
         self.assertIs(lhs, rhs)
 
+    # Test for <
+
+    def test_alice_trial_proper_subset_frank_trial(self):
+        self.assertTrue(Guests.ALICE_TRIAL < Guests.FRANK_TRIAL)
+
+    def test_alice_trial_not_proper_subset_alice_trial(self):
+        self.assertFalse(Guests.ALICE_TRIAL < Guests.ALICE_TRIAL)
+
+    def test_frank_trial_not_proper_subset_alice_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL < Guests.ALICE_TRIAL)
+
+    # Tests for <=
+
+    def test_alice_trial_subset_frank_trial(self):
+        self.assertTrue(Guests.ALICE_TRIAL <= Guests.FRANK_TRIAL)
+
+    def test_alice_trial_subset_alice_trial(self):
+        self.assertTrue(Guests.ALICE_TRIAL <= Guests.ALICE_TRIAL)
+
+    def test_frank_trial_not_subset_alice_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL <= Guests.ALICE_TRIAL)
+
+    # Tests for >
+
+    def test_frank_trial_proper_superset_alice_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL > Guests.ALICE_TRIAL)
+
+    def test_frank_trial_not_proper_superset_frank_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL > Guests.FRANK_TRIAL)
+
+    def test_alice_trial_not_proper_superset_frank_trial(self):
+        self.assertFalse(Guests.ALICE_TRIAL > Guests.FRANK_TRIAL)
+
+    # Tests for >=
+
+    def test_frank_trial_superset_alice_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL >= Guests.ALICE_TRIAL)
+
+    def test_frank_trial_superset_frank_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL >= Guests.FRANK_TRIAL)
+
+    def test_alice_trial_not_superset_frank_trial(self):
+        self.assertFalse(Guests.ALICE_TRIAL >= Guests.FRANK_TRIAL)
+
 
 if __name__ == '__main__':
     unittest.main()
