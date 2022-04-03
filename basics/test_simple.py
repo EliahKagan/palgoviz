@@ -364,6 +364,7 @@ class TestMakeToggle(_TestToggleAbstract):
     def impl(self):
         return make_toggle
 
+
 class TestMakeToggleAlt(_TestToggleAbstract):
     """Tests for the make_toggle_alt function."""
 
