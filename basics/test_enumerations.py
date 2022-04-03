@@ -181,6 +181,12 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_not_proper_subset_alice_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL < Guests.ALICE_TRIAL)
 
+    def test_bob_trial_not_proper_subset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL < Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_proper_subset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL < Guests.ERIN_TRIAL)
+
     # Tests for <=
 
     def test_alice_trial_subset_frank_trial(self):
@@ -191,6 +197,12 @@ class TestGuests(unittest.TestCase):
 
     def test_frank_trial_not_subset_alice_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL <= Guests.ALICE_TRIAL)
+
+    def test_bob_trial_not_subset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL <= Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_subset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL <= Guests.ERIN_TRIAL)
 
     # Tests for >
 
@@ -203,6 +215,12 @@ class TestGuests(unittest.TestCase):
     def test_alice_trial_not_proper_superset_frank_trial(self):
         self.assertFalse(Guests.ALICE_TRIAL > Guests.FRANK_TRIAL)
 
+    def test_bob_trial_not_proper_superset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL > Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_proper_superset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL > Guests.ERIN_TRIAL)
+
     # Tests for >=
 
     def test_frank_trial_superset_alice_trial(self):
@@ -214,33 +232,11 @@ class TestGuests(unittest.TestCase):
     def test_alice_trial_not_superset_frank_trial(self):
         self.assertFalse(Guests.ALICE_TRIAL >= Guests.FRANK_TRIAL)
 
-    # Test disjoint trials
-
-    def test_bob_trial_not_subset_erin_trial(self):
-        self.assertFalse(Guests.BOB_TRIAL <= Guests.ERIN_TRIAL)
-
     def test_bob_trial_not_superset_erin_trial(self):
         self.assertFalse(Guests.BOB_TRIAL >= Guests.ERIN_TRIAL)
 
-    def test_bob_trial_not_proper_subset_erin_trial(self):
-        self.assertFalse(Guests.BOB_TRIAL < Guests.ERIN_TRIAL)
-
-    def test_bob_trial_not_proper_superset_erin_trial(self):
-        self.assertFalse(Guests.BOB_TRIAL > Guests.ERIN_TRIAL)
-
-    # Test partially intersecting trials
-
-    def test_frank_trial_not_subset_erin_trial(self):
-        self.assertFalse(Guests.FRANK_TRIAL <= Guests.ERIN_TRIAL)
-
     def test_frank_trial_not_superset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL >= Guests.ERIN_TRIAL)
-
-    def test_frank_trial_not_proper_subset_erin_trial(self):
-        self.assertFalse(Guests.FRANK_TRIAL < Guests.ERIN_TRIAL)
-
-    def test_frank_trial_not_proper_superset_erin_trial(self):
-        self.assertFalse(Guests.FRANK_TRIAL > Guests.ERIN_TRIAL)
 
 
 if __name__ == '__main__':
