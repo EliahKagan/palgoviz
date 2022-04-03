@@ -7,8 +7,24 @@ import functools
 
 
 @functools.total_ordering
+class OrderedEnum(enum.Enum):
+    """
+    Enumeration whose instances support order comparisons on their values.
+    """
+    def __lt__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value < other.value
+
+
+class CodeReprEnum(enum.Enum):
+    """Enumeration whose instances' repr is Python code."""
+    def __repr__(self):
+        return str(self)
+
+
 @enum.unique
-class BearBowl(enum.Enum):
+class BearBowl(OrderedEnum, CodeReprEnum):
     """
     A bowl of porridge Goldilocks tasted while trespassing in a bear kitchen.
 
@@ -20,22 +36,48 @@ class BearBowl(enum.Enum):
     True
     """
 
-    TOO_HOT = 5778
-    """Approximate temperature of the sun."""
+    TOO_COLD = 95
+    """Approximate surface temperature of Titan."""
 
     JUST_RIGHT = 288
     """Non-fatal temperature for a bowl of porridge."""
 
-    TOO_COLD = 95
-    """Approximate surface temperature of Titan."""
+    TOO_HOT = 5778
+    """Approximate temperature of the sun."""
 
-    def __lt__(self, other):
+
+class BitsetEnum(enum.Flag):
+    """Instances of BitsetEnum support - and comparison operators."""
+
+    def __sub__(self, other):
+        """Subtraction works like in set."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self.value < other.value
+        return self & ~other
 
-    def __repr__(self):
-        return str(self)
+
+class Guests(BitsetEnum):
+    """Potential party and/or trial guests."""
+
+    ALICE   = enum.auto()
+    BOB     = enum.auto()
+    CASSIDY = enum.auto()
+    DEREK   = enum.auto()
+    ERIN    = enum.auto()
+    FRANK   = enum.auto()
+    GERALD  = enum.auto()
+    HEATHER = enum.auto()
+
+    PARTY   = ALICE | CASSIDY | FRANK
+    PARTY2  = ALICE | BOB | ERIN | FRANK
+
+    # Trials can have guests and are not parties
+    # Trials are needed because the parties were a tad too wild.
+
+    ALICE_TRIAL = BOB | CASSIDY
+    BOB_TRIAL   = ALICE
+    ERIN_TRIAL  = ALICE | BOB
+    FRANK_TRIAL = BOB | CASSIDY | DEREK
 
 
 if __name__ == '__main__':
