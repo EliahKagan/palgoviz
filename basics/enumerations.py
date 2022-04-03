@@ -50,10 +50,16 @@ class BitsetEnum(enum.Flag):
     """Instances of BitsetEnum support - and comparison operators."""
 
     def __sub__(self, other):
-        """Subtraction works like in set."""
+        """Subtraction works like it does in set."""
         if not isinstance(other, type(self)):
             return NotImplemented
         return self & ~other
+
+    def __le__(self, other):
+        """Less equal works like it does in set."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self & other == self
 
 
 class Guests(BitsetEnum):
