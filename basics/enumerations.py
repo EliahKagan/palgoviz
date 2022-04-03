@@ -49,35 +49,37 @@ class BearBowl(OrderedEnum, CodeReprEnum):
 class BitsetEnum(enum.Flag):
     """Instances of BitsetEnum support - and comparison operators."""
 
+    # Using this technique to save memory from unecessarily created instances
+
     def __sub__(self, other):
         """Set difference."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self & ~other
+        return type(self)(self.value & ~other.value)
 
     def __le__(self, other):
         """Subset check."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self & other == self
+        return self.value & other.value == self.value
 
     def __lt__(self, other):
         """Proper subset check."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self != other and self.__le__(other)
+        return self.value != other.value and self.__le__(other)
 
     def __ge__(self, other):
         """Superset check."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self & other == other
+        return self.value & other.value == other.value
 
     def __gt__(self, other):
         """Proper superset check."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self != other and self.__ge__(other)
+        return self.value != other.value and self.__ge__(other)
 
 
 class Guests(BitsetEnum):
