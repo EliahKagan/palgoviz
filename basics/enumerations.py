@@ -65,7 +65,20 @@ class BitsetEnum(enum.Flag):
         """Less than works like it does in set."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self.__le__(other) and self != other
+        return self != other and self.__le__(other)
+
+    def __ge__(self, other):
+        """Greater equal works like it does in set."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self & other == other
+
+    def __gt__(self, other):
+        """Greater than works like it does in set."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self != other and self.__ge__(other)
+
 
 
 class Guests(BitsetEnum):
