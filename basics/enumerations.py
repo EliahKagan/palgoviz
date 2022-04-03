@@ -99,8 +99,8 @@ class Guests(BitsetEnum):
     # Trials are needed because the parties were a tad too wild.
 
     ALICE_TRIAL = BOB | CASSIDY
-    BOB_TRIAL   = ALICE
-    ERIN_TRIAL  = CASSIDY | DEREK
+    BOB_TRIAL   = ALICE | HEATHER
+    ERIN_TRIAL  = CASSIDY | DEREK | GERALD
     FRANK_TRIAL = BOB | CASSIDY | DEREK
 
 
