@@ -252,6 +252,12 @@ class TestGuests(unittest.TestCase):
             with self.subTest(guest=guest):
                 self.assertFalse(guest & Guests.CASSIDY_TRIAL)
 
+    def test_cassidy_trial_empty(self):
+        self.assertFalse(Guests.CASSIDY_TRIAL)
+
+    def test_alice_trial_nonempty(self):
+        self.assertTrue(Guests.ALICE_TRIAL)
+
 
 if __name__ == '__main__':
     unittest.main()
