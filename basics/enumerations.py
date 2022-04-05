@@ -80,13 +80,12 @@ class BitsetEnum(enum.Flag):
         return self != other and self.__ge__(other)
 
     def __len__(self):
-        """Amount of items in bitset."""
+        """Number of items in bitset."""
         count = 0
         val = self.value
-        while val != 0:
-            if val % 2 == 1:
-                count += 1
-            val = val >> 1
+        while val:
+            count += val & 1
+            val >>= 1
         return count
 
 
