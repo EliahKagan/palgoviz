@@ -258,6 +258,12 @@ class TestGuests(unittest.TestCase):
     def test_alice_trial_nonempty(self):
         self.assertTrue(Guests.ALICE_TRIAL)
 
+    def test_zero_attended_cassidy_trial(self):
+        self.assertEqual(len(Guests.CASSIDY_TRIAL), 0)
+
+    def test_three_attended_erin_trial(self):
+        self.assertEqual(len(Guests.ERIN_TRIAL), 3)
+
 
 if __name__ == '__main__':
     unittest.main()

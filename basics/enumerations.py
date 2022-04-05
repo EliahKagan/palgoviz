@@ -79,6 +79,16 @@ class BitsetEnum(enum.Flag):
             return NotImplemented
         return self != other and self.__ge__(other)
 
+    def __len__(self):
+        """Amount of items in bitset."""
+        count = 0
+        val = self.value
+        while val != 0:
+            if val % 2 == 1:
+                count += 1
+            val = val >> 1
+        return count
+
 
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""
