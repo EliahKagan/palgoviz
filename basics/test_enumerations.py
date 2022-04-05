@@ -238,6 +238,20 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_not_superset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL >= Guests.ERIN_TRIAL)
 
+    # Other tests
+
+    def test_nobody_attended_cassidy_trial(self):
+        for guest in (Guests.ALICE,
+                      Guests.BOB,
+                      Guests.CASSIDY,
+                      Guests.DEREK,
+                      Guests.ERIN,
+                      Guests.FRANK,
+                      Guests.GERALD,
+                      Guests.HEATHER):
+            with self.subTest(guest=guest):
+                self.assertFalse(guest & Guests.CASSIDY_TRIAL)
+
 
 if __name__ == '__main__':
     unittest.main()

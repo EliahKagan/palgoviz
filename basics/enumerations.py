@@ -98,10 +98,11 @@ class Guests(BitsetEnum):
     # Trials can have guests and are not parties
     # Trials are needed because the parties were a tad too wild.
 
-    ALICE_TRIAL = BOB | CASSIDY
-    BOB_TRIAL   = ALICE | HEATHER
-    ERIN_TRIAL  = CASSIDY | DEREK | GERALD
-    FRANK_TRIAL = BOB | CASSIDY | DEREK
+    ALICE_TRIAL   = BOB | CASSIDY
+    BOB_TRIAL     = ALICE | HEATHER
+    CASSIDY_TRIAL = 0
+    ERIN_TRIAL    = CASSIDY | DEREK | GERALD
+    FRANK_TRIAL   = BOB | CASSIDY | DEREK
 
 
 if __name__ == '__main__':
