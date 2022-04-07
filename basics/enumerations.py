@@ -81,12 +81,7 @@ class BitsetEnum(enum.Flag):
 
     def __len__(self):
         """Number of items in bitset."""
-        count = 0
-        val = self.value
-        while val:
-            count += val & 1
-            val >>= 1
-        return count
+        return self.value.bit_count()
 
 
 class Guests(BitsetEnum):
