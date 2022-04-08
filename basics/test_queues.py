@@ -21,8 +21,6 @@ def _unannotated_argspec(func):
 class TestAbstractQueues(unittest.TestCase):
     """Tests for abstract queue types."""
 
-    __slots__ = ()
-
     def test_is_abstract(self):
         self.assertTrue(inspect.isabstract(self.queue_type))
 
@@ -46,8 +44,6 @@ class TestAbstractQueues(unittest.TestCase):
 ])
 class TestQueueMethodSignatures(unittest.TestCase):
     """Tests for expected queue methods. All queue types should pass these."""
-
-    __slots__ = ()
 
     def test_bool_method_has_data_model_recommended_signature(self):
         """The __bool__ method accepts no arguments (besides self)."""
@@ -74,4 +70,47 @@ class TestQueueMethodSignatures(unittest.TestCase):
         self.assertTupleEqual(actual, expected)
 
 
-# FIXME: Add the rest of the tests.
+@parameterized_class(('name', 'queue_type'), [
+    ('FifoQueue', queues.FifoQueue),
+    ('LifoQueue', queues.LifoQueue),
+    ('DequeFifoQueue', queues.DequeFifoQueue),
+    ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
+    ('SlowFifoQueue', queues.SlowFifoQueue),
+    ('BiStackFifoQueue', queues.BiStackFifoQueue),
+    ('ListLifoQueue', queues.ListLifoQueue),
+    ('DequeLifoQueue', queues.DequeLifoQueue),
+    ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+])
+class TestCreateMethods(unittest.TestCase):
+    """Tests that create() class-methods work as expected."""
+
+    def test_create_creates_instance_of_class_it_is_called_on(self):
+        """
+        Calling create on a queue class creates an instance of that class.
+
+        It need not be a direct instance. When the class it is called on is
+        abstract, it will not be a direct instance. (Currently the abstract
+        queue classes with create() methods are FifoQueue and LifoQueue.)
+        """
+        queue = self.queue_type.create()
+        self.assertIsInstance(queue, self.queue_type)
+
+    def test_queue_returned_by_create_is_empty(self):
+        """create() methods return queues that are falsy, thus empty."""
+        queue = self.queue_type.create()
+        self.assertFalse(queue)
+
+
+@parameterized_class(('name', 'factory'), [
+    ('DequeFifoQueue', queues.DequeFifoQueue),
+    ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
+    ('SlowFifoQueue', queues.SlowFifoQueue),
+    ('BiStackFifoQueue', queues.BiStackFifoQueue),
+])
+class TestFifos(unittest.TestCase):
+    """Tests for concrete FIFO queue ("queue") behavior."""
+
+    # FIXME: Write these tests.
+
+
+# FIXME: Add the rest of the test classes.

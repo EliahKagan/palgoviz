@@ -37,10 +37,10 @@ class FifoQueue(Queue):
 
     __slots__ = ()
 
-    @staticmethod
-    def create():
+    @classmethod
+    def create(cls):
         """Opaquely instantiate some reasonable concrete FifoQueue subclass."""
-        return DequeFifoQueue()
+        return (DequeFifoQueue if cls is FifoQueue else cls)()
 
     @abstractmethod
     def enqueue(self, item):
@@ -56,10 +56,10 @@ class LifoQueue(Queue):
 
     __slots__ = ()
 
-    @staticmethod
-    def create():
+    @classmethod
+    def create(cls):
         """Opaquely instantiate some reasonable concrete LifoQueue subclass."""
-        return ListLifoQueue()
+        return (ListLifoQueue if cls is LifoQueue else cls)()
 
     @abstractmethod
     def enqueue(self, item):
