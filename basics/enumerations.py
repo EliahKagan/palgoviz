@@ -87,14 +87,14 @@ class BitsetEnum(enum.Flag):
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""
 
-    ALICE   = enum.auto()
-    BOB     = enum.auto()
-    CASSIDY = enum.auto()
-    DEREK   = enum.auto()
-    ERIN    = enum.auto()
-    FRANK   = enum.auto()
-    GERALD  = enum.auto()
-    HEATHER = enum.auto()
+    ALICE   = A = enum.auto()
+    BOB     = B = enum.auto()
+    CASSIDY = C = enum.auto()
+    DEREK   = D = enum.auto()
+    ERIN    = E = enum.auto()
+    FRANK   = F = enum.auto()
+    GERALD  = G = enum.auto()
+    HEATHER = H = enum.auto()
 
     PARTY   = ALICE | CASSIDY | FRANK
     PARTY2  = ALICE | BOB | ERIN | FRANK
