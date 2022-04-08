@@ -277,6 +277,19 @@ class TestGuests(unittest.TestCase):
     def test_guest_short_is_long(self, _name, short, long):
         self.assertIs(short, long)
 
+    @parameterized.expand([
+         ('A', Guests.A, 'ALICE'),
+         ('B', Guests.B, 'BOB'),
+         ('C', Guests.C, 'CASSIDY'),
+         ('D', Guests.D, 'DEREK'),
+         ('E', Guests.E, 'ERIN'),
+         ('F', Guests.F, 'FRANK'),
+         ('G', Guests.G, 'GERALD'),
+         ('H', Guests.H, 'HEATHER'),
+    ])
+    def test_short_has_correct_name_attribute(self, _name, short, expected):
+        self.assertEqual(short.name, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
