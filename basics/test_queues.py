@@ -37,10 +37,12 @@ class TestAbstractQueues(unittest.TestCase):
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
     ('DequeFifoQueue', queues.DequeFifoQueue),
+    ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
     ('BiStackFifoQueue', queues.BiStackFifoQueue),
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
+    ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
 ])
 class TestQueueMethodSignatures(unittest.TestCase):
     """Tests for expected queue methods. All queue types should pass these."""

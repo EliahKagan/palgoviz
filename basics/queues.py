@@ -92,6 +92,32 @@ class DequeFifoQueue(FifoQueue):
         return self._items.popleft()
 
 
+class AltDequeFifoQueue(FifoQueue):
+    """
+    A FIFO queue (i.e., a "queue") based on a collections.deque.
+
+    Like DequeFifoQueue but elements move through in the other direction.
+    """
+
+    __slots__ = ('_items',)
+
+    def __init__(self):
+        """Create a new empty alternative deque-based FIFO queue."""
+        self._items = collections.deque()
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
+    def enqueue(self, item):
+        self._items.appendleft(item)
+
+    def dequeue(self):
+        return self._items.pop()
+
+
 class SlowFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a list. Quadratic dequeueing."""
 
@@ -141,10 +167,14 @@ class BiStackFifoQueue(FifoQueue):
         return self._out.pop()
 
 
-class _ListOrDequeLifoQueue(LifoQueue):
-    """ListLifoQueue/DequeLifoQueue base class (implementation detail)."""
+class ListLifoQueue(LifoQueue):
+    """A LIFO queue (i.e., a stack) based on a list."""
 
     __slots__ = ('_items',)
+
+    def __init__(self):
+        """Create a new list-based LIFO queue."""
+        self._items = []
 
     def __bool__(self):
         return bool(self._items)
@@ -159,21 +189,49 @@ class _ListOrDequeLifoQueue(LifoQueue):
         return self._items.pop()
 
 
-class ListLifoQueue(_ListOrDequeLifoQueue):
-    """A LIFO queue (i.e., a stack) based on a list."""
-
-    __slots__ = ()
-
-    def __init__(self):
-        """Create a new list-based LIFO queue."""
-        self._items = []
-
-
-class DequeLifoQueue(_ListOrDequeLifoQueue):
+class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
 
-    __slots__ = ()
+    __slots__ = ('_items',)
 
     def __init__(self):
-        """Create a new deque-based LIFO queue."""
+        """Create a new empty deque-based LIFO queue."""
         self._items = collections.deque()
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
+    def enqueue(self, item):
+        self._items.append(item)
+
+    def dequeue(self):
+        return self._items.pop()
+
+
+class AltDequeLifoQueue(LifoQueue):
+    """
+    A LIFO queue (i.e., a stack) based on a collections.deque.
+
+    Like DequeLifoQueue but elements are pushed and popped at the other end.
+    """
+
+    __slots__ = ('_items',)
+
+    def __init__(self):
+        """Create a new empty alternative deque-based LIFO queue."""
+        self._items = collections.deque()
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
+    def enqueue(self, item):
+        self._items.appendleft(item)
+
+    def dequeue(self):
+        return self._items.popleft()
