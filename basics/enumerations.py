@@ -83,6 +83,12 @@ class BitsetEnum(enum.Flag):
         """Number of items in bitset."""
         return self.value.bit_count()
 
+    def isdisjoint(self, other):
+        """Check if disjoint with other."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return not (self & other)
+
 
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""

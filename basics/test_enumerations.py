@@ -290,6 +290,11 @@ class TestGuests(unittest.TestCase):
     def test_short_has_correct_name_attribute(self, _name, short, expected):
         self.assertEqual(short.name, expected)
 
+    def test_bob_trial_is_disjoint_erin_trial(self):
+        self.assertTrue(Guests.BOB_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
+
+    def test_frank_trial_is_not_disjoint_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
 
 if __name__ == '__main__':
     unittest.main()
