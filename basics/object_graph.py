@@ -7,10 +7,11 @@ objects and directed edges for references.
 See also: the objgraph PyPI package.
 """
 
+import html
+
 from graphviz import Digraph
 
 import decorators
-import html
 
 
 def draw_one_tuple(root):
