@@ -1,4 +1,10 @@
-"""Queues, in the general sense."""
+"""
+Queues, in the general sense.
+
+TODO: To focus on fundamental operations of generalized queues, the initial
+implementations of the types in this module do not override __repr__.
+Eventually, however, that should be fixed (and this paragraph removed).
+"""
 
 from abc import ABC, abstractmethod
 import collections
