@@ -87,7 +87,7 @@ class BitsetEnum(enum.Flag):
         """Check if disjoint with other."""
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self & other == type(self)(0)
+        return not (self & other)
 
 
 class Guests(BitsetEnum):
