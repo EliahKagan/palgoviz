@@ -242,7 +242,41 @@ class TestFifos(unittest.TestCase):
             item = fifo.dequeue()
             self.assertEqual(item, 'spam')
 
-    # FIXME: Add the rest of the test cases that belong in TestFifos.
+    def test_mixed_enqueues_and_dequeues_dequeue_in_fifo_order(self):
+        """Interleaved operations behave properly as a "queue"."""
+        fifo = self.queue_type()
+        fifo.enqueue(10)
+        fifo.enqueue(30)
+        fifo.enqueue(20)
+
+        with self.subTest(size=len(fifo), dequeue=1):
+            item = fifo.dequeue()
+            self.assertEqual(item, 10)
+
+        with self.subTest(size=len(fifo), dequeue=2):
+            item = fifo.dequeue()
+            self.assertEqual(item, 30)
+
+        fifo.enqueue(50)
+        fifo.enqueue(40)
+
+        with self.subTest(size=len(fifo), dequeue=3):
+            item = fifo.dequeue()
+            self.assertEqual(item, 20)
+
+        fifo.enqueue(60)
+
+        with self.subTest(size=len(fifo), dequeue=4):
+            item = fifo.dequeue()
+            self.assertEqual(item, 50)
+
+        with self.subTest(size=len(fifo), dequeue=5):
+            item = fifo.dequeue()
+            self.assertEqual(item, 40)
+
+        with self.subTest(size=len(fifo), dequeue=6):
+            item = fifo.dequeue()
+            self.assertEqual(item, 60)
 
 
 @parameterized_class(('name', 'queue_type'), [
@@ -271,7 +305,38 @@ class TestLifos(unittest.TestCase):
             item = lifo.dequeue()
             self.assertEqual(item, 'ham')
 
-    # FIXME: Add the rest of the test cases that belong in TestLifos.
+    def test_mixed_enqueues_and_dequeues_dequeue_in_lifo_order(self):
+        """Interleaved operations behave properly as a stack."""
+        lifo = self.queue_type()
+        lifo.enqueue(10)
+        lifo.enqueue(30)
+        lifo.enqueue(20)
 
+        with self.subTest(len(lifo), dequeue=1):
+            item = lifo.dequeue()
+            self.assertEqual(item, 20)
 
-# FIXME: Add the rest of the test classes, if any.
+        with self.subTest(len(lifo), dequeue=2):
+            item = lifo.dequeue()
+            self.assertEqual(item, 30)
+
+        lifo.enqueue(50)
+        lifo.enqueue(40)
+
+        with self.subTest(size=len(lifo), dequeue=3):
+            item = lifo.dequeue()
+            self.assertEqual(item, 40)
+
+        lifo.enqueue(60)
+
+        with self.subTest(size=len(lifo), dequeue=4):
+            item = lifo.dequeue()
+            self.assertEqual(item, 60)
+
+        with self.subTest(size=len(lifo), dequeue=5):
+            item = lifo.dequeue()
+            self.assertEqual(item, 50)
+
+        with self.subTest(size=len(lifo), dequeue=6):
+            item = lifo.dequeue()
+            self.assertEqual(item, 10)
