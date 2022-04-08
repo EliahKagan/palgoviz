@@ -228,7 +228,50 @@ class TestFifos(unittest.TestCase):
         """FIFO queue classes are subclasses of FifoQueue."""
         self.assertTrue(issubclass(self.queue_type, queues.FifoQueue))
 
-    # FIXME: Add the rest of the test cases that belong in this class.
+    def test_first_dequeues_before_second(self):
+        """When two items are enqueued, they dequeue in the same order."""
+        fifo = self.queue_type()
+        fifo.enqueue('ham')
+        fifo.enqueue('spam')
+
+        with self.subTest(dequeue=1):
+            item = fifo.dequeue()
+            self.assertEqual(item, 'ham')
+
+        with self.subTest(dequeue=2):
+            item = fifo.dequeue()
+            self.assertEqual(item, 'spam')
+
+    # FIXME: Add the rest of the test cases that belong in TestFifos.
 
 
-# FIXME: Add the rest of the test classes.
+@parameterized_class(('name', 'queue_type'), [
+    ('ListLifoQueue', queues.ListLifoQueue),
+    ('DequeLifoQueue', queues.DequeLifoQueue),
+    ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+])
+class TestLifos(unittest.TestCase):
+    """Tests for concrete LIFO queue (stack) behavior."""
+
+    def test_if_lifoqueue(self):
+        """LIFO queue classes are subclasses of LifoQueue."""
+        self.assertTrue(issubclass(self.queue_type, queues.LifoQueue))
+
+    def test_first_dequeues_after_second(self):
+        """When two items are enqueued, they dequeue in reverse order."""
+        lifo = self.queue_type()
+        lifo.enqueue('ham')
+        lifo.enqueue('spam')
+
+        with self.subTest(dequeue=1):
+            item = lifo.dequeue()
+            self.assertEqual(item, 'spam')
+
+        with self.subTest(dequeue=2):
+            item = lifo.dequeue()
+            self.assertEqual(item, 'ham')
+
+    # FIXME: Add the rest of the test cases that belong in TestLifos.
+
+
+# FIXME: Add the rest of the test classes, if any.
