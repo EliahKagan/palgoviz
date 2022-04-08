@@ -1,9 +1,20 @@
-"""Tests for queues.py."""
+"""
+Tests for queues.py.
 
+TODO: These tests are currently organized in such a way that test runners group
+them by shared behavior. Modify this file so test runners instead group them by
+what class is being tested. But do it without a major change to the testing
+logic and organization in this file. In particular, retain the meaning and
+order of all currently existing test classes, as well as the names, meaning,
+and order of all test methods in each currently existing test class. (But if
+you prefer it this way after doing so, please feel free to revert the change.)
+"""
+
+from collections import Counter
 import inspect
 import unittest
 
-from parameterized import parameterized_class
+from parameterized import parameterized, parameterized_class
 
 import queues
 
@@ -81,8 +92,12 @@ class TestQueueMethodSignatures(unittest.TestCase):
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
 ])
-class TestCreateMethods(unittest.TestCase):
-    """Tests that create() class-methods work as expected."""
+class TestSubclasses(unittest.TestCase):
+    """Tests for leaf and non-leaf subclasses of Queue."""
+
+    def test_is_queue(self):
+        """All queue classes are subclasses of Queue."""
+        self.assertTrue(issubclass(self.queue_type, queues.Queue))
 
     def test_create_creates_instance_of_class_it_is_called_on(self):
         """
@@ -95,13 +110,112 @@ class TestCreateMethods(unittest.TestCase):
         queue = self.queue_type.create()
         self.assertIsInstance(queue, self.queue_type)
 
-    def test_queue_returned_by_create_is_empty(self):
+    def test_create_creates_empty_instance(self):
         """create() methods return queues that are falsy, thus empty."""
         queue = self.queue_type.create()
         self.assertFalse(queue)
 
 
-@parameterized_class(('name', 'factory'), [
+@parameterized_class(('name', 'queue_type'), [
+    ('DequeFifoQueue', queues.DequeFifoQueue),
+    ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
+    ('SlowFifoQueue', queues.SlowFifoQueue),
+    ('BiStackFifoQueue', queues.BiStackFifoQueue),
+    ('ListLifoQueue', queues.ListLifoQueue),
+    ('DequeLifoQueue', queues.DequeLifoQueue),
+    ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+])
+class TestConcreteQueues(unittest.TestCase):
+    """Tests for concrete queue types."""
+
+    def test_falsy_on_creation(self):
+        """A new queue is empty, and thus false."""
+        queue = self.queue_type()
+        self.assertFalse(queue)
+
+    def test_length_zero_on_creation(self):
+        """A new queue is empty, and thus has exactly zero items."""
+        queue = self.queue_type()
+        length = len(queue)
+        self.assertEqual(length, 0)
+
+    def test_truthy_after_enqueue(self):
+        """A queue with an element in it is nonempty, and thus true."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        self.assertTrue(queue)
+
+    def test_length_1_after_enqueue(self):
+        """After exactly 1 enqueue and no dequeues, a queue has 1 item."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        length = len(queue)
+        self.assertEqual(length, 1)
+
+    def test_falsy_after_enqueue_dequeue(self):
+        """After exactly 1 enqueue and dequeue, a queue is false again."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        queue.dequeue()
+        self.assertFalse(queue)
+
+    def test_length_0_after_enqueue_dequeue(self):
+        """After exactly 1 enqueue and dequeue, a queue has 0 items."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        queue.dequeue()
+        length = len(queue)
+        self.assertEqual(length, 0)
+
+    def test_singleton_queue_dequeues_enqueued_item(self):
+        """After exactly 1 enqueue, a dequeue gives the enqueued item."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        dequeued_item = queue.dequeue()
+        self.assertEqual(dequeued_item, 'ham')
+
+    def test_cannot_dequeue_from_empty_queue(self):
+        """
+        When a queue is empty, attempting to dequeue raises LookupError.
+
+        NOTE: Usually the LookupError subtype IndexError should be raised.
+        """
+        queue = self.queue_type()
+
+        # Give error result (not mere fail) if queue is somehow nonempty.
+        if queue:
+            raise Exception("new queue is truthy, can't continue")
+        if len(queue) != 0:
+            raise Exception("new queue has nonzero len, can't continue")
+
+        with self.assertRaises(LookupError):
+            queue.dequeue()
+
+    @parameterized.expand([
+        ('distinct strings',
+         ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']),
+        ('distinct numbers', range(0, 1000, 10)),
+        ('distinct tuples', [(10, 20), (31, 17), (9, 87), (-14, 2)]),
+        ('all identical', [object()] * 200),  # 200 of the same object
+        ('nondistinct frozensets',
+         [frozenset({'ab', 'cd'}), frozenset({'ab', 'cd'}), frozenset()]),
+    ])
+    def test_dequeuing_gives_enqueued_items_in_some_order(self,
+                                                          _label,
+                                                          in_items):
+        queue = self.queue_type()
+
+        for item in in_items:
+            queue.enqueue(item)
+
+        out_items = []
+        while queue:
+            out_items.append(queue.dequeue())
+
+        self.assertEqual(Counter(out_items), Counter(in_items))
+
+
+@parameterized_class(('name', 'queue_type'), [
     ('DequeFifoQueue', queues.DequeFifoQueue),
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
@@ -110,7 +224,11 @@ class TestCreateMethods(unittest.TestCase):
 class TestFifos(unittest.TestCase):
     """Tests for concrete FIFO queue ("queue") behavior."""
 
-    # FIXME: Write these tests.
+    def test_is_fifoqueue(self):
+        """FIFO queue classes are subclasses of FifoQueue."""
+        self.assertTrue(issubclass(self.queue_type, queues.FifoQueue))
+
+    # FIXME: Add the rest of the test cases that belong in this class.
 
 
 # FIXME: Add the rest of the test classes.
