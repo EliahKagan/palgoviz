@@ -264,6 +264,19 @@ class TestGuests(unittest.TestCase):
     def test_three_attended_erin_trial(self):
         self.assertEqual(len(Guests.ERIN_TRIAL), 3)
 
+    @parameterized.expand([
+         ('A', Guests.A, Guests.ALICE),
+         ('B', Guests.B, Guests.BOB),
+         ('C', Guests.C, Guests.CASSIDY),
+         ('D', Guests.D, Guests.DEREK),
+         ('E', Guests.E, Guests.ERIN),
+         ('F', Guests.F, Guests.FRANK),
+         ('G', Guests.G, Guests.GERALD),
+         ('H', Guests.H, Guests.HEATHER),
+    ])
+    def test_guest_short_is_long(self, _name, short, long):
+        self.assertIs(short, long)
+
 
 if __name__ == '__main__':
     unittest.main()
