@@ -86,7 +86,8 @@ class BitsetEnum(enum.Flag):
     def isdisjoint(self, other):
         """Check if disjoint with other."""
         if not isinstance(other, type(self)):
-            raise TypeError(f'isdisjoint() not supported with types other than {type(self).__name__}')
+            raise TypeError('isdisjoint() not supported with types'
+                            f'other than {type(self).__name__}')
         return not (self & other)
 
 

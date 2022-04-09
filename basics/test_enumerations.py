@@ -370,6 +370,5 @@ class TestGuests(unittest.TestCase):
             Guests.ALICE_TRIAL.isdisjoint(Guests.BOB_TRIAL.value)
 
 
-
 if __name__ == '__main__':
     unittest.main()
