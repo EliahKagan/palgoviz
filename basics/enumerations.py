@@ -95,7 +95,7 @@ class BitsetEnum(enum.Flag):
         if not isinstance(other, type(self)):
             raise TypeError('overlaps() not supported with types'
                             f'other than {type(self).__name__}')
-        return (self & other) and True
+        return bool(self & other)
 
 
 class Guests(BitsetEnum):
