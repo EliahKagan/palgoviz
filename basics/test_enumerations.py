@@ -3,6 +3,7 @@
 """Tests for the enumerations in enumerations.py."""
 
 from numbers import Number
+from typing import Type
 import unittest
 
 from parameterized import parameterized
@@ -364,8 +365,10 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_is_not_disjoint_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
 
-    # FIXME: Test that isdisjoint() given a non-Guests argument raises
-    # TypeError. See the "rejects" tests above, and the fixme on isdisjoint().
+    def test_isdisjoint_rejects_other_type_operands(self):
+        with self.assertRaises(TypeError):
+            Guests.ALICE_TRIAL.isdisjoint(Guests.BOB_TRIAL.value)
+
 
 
 if __name__ == '__main__':
