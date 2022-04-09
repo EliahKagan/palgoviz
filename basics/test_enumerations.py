@@ -369,6 +369,14 @@ class TestGuests(unittest.TestCase):
         with self.assertRaises(TypeError):
             Guests.ALICE_TRIAL.isdisjoint(Guests.BOB_TRIAL.value)
 
+    def test_isdisjoint_returns_a_bool(self):
+        with self.subTest(result='True'):
+            result = Guests.BOB.isdisjoint(Guests.ALICE)
+            self.assertIsInstance(result, bool)
+        with self.subTest(result='False'):
+            result = Guests.FRANK.isdisjoint(Guests.FRANK)
+            self.assertIsInstance(result, bool)
+
     # Tests for overlaps()
 
     def test_bob_trial_not_overlaps_erin_trial(self):
@@ -383,10 +391,10 @@ class TestGuests(unittest.TestCase):
 
     def test_overlaps_returns_a_bool(self):
         with self.subTest(result='False'):
-            result = Guests.BOB_TRIAL.overlaps(Guests.ERIN_TRIAL)
+            result = Guests.BOB.overlaps(Guests.ALICE)
             self.assertIsInstance(result, bool)
         with self.subTest(result='True'):
-            result = Guests.FRANK_TRIAL.overlaps(Guests.ERIN_TRIAL)
+            result = Guests.FRANK.overlaps(Guests.FRANK)
             self.assertIsInstance(result, bool)
 
 
