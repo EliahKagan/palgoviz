@@ -381,6 +381,14 @@ class TestGuests(unittest.TestCase):
         with self.assertRaises(TypeError):
             Guests.ALICE_TRIAL.overlaps(Guests.BOB_TRIAL.value)
 
+    def test_overlaps_returns_a_bool(self):
+        with self.subTest(result='False'):
+            result = Guests.BOB_TRIAL.overlaps(Guests.ERIN_TRIAL)
+            self.assertIsInstance(result, bool)
+        with self.subTest(result='True'):
+            result = Guests.FRANK_TRIAL.overlaps(Guests.ERIN_TRIAL)
+            self.assertIsInstance(result, bool)
+
 
 if __name__ == '__main__':
     unittest.main()
