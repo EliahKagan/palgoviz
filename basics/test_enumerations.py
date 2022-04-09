@@ -3,6 +3,7 @@
 """Tests for the enumerations in enumerations.py."""
 
 from numbers import Number
+from typing import Type
 import unittest
 
 from parameterized import parameterized
@@ -120,6 +121,8 @@ class TestBearBowl(unittest.TestCase):
 class TestGuests(unittest.TestCase):
     """Tests for the Guests class."""
 
+    # Tests of set algebra operations that return another Guests bitset
+
     def test_intersection_of_party_and_party2(self):
         """Only Alice and Frank attended both parties."""
         expected = Guests.ALICE | Guests.FRANK
@@ -141,13 +144,13 @@ class TestGuests(unittest.TestCase):
         self.assertIs(actual, expected)
 
     def test_difference_party_party2(self):
-        """Cassidy attended party and did not attend party2."""
+        """Cassidy attended party but not party2."""
         expected = Guests.CASSIDY
         actual = Guests.PARTY & ~Guests.PARTY2
         self.assertIs(actual, expected)
 
     def test_difference_party_party2_with_minus_operator(self):
-        """Cassidy attended party and did not attend party2 and - operator works."""
+        """Cassidy attended party but not party2 (by the "-" operator)."""
         expected = Guests.CASSIDY
         actual = Guests.PARTY - Guests.PARTY2
         self.assertIs(actual, expected)
@@ -170,6 +173,36 @@ class TestGuests(unittest.TestCase):
         rhs = Guests.PARTY2 ^ Guests.PARTY
         self.assertIs(lhs, rhs)
 
+    def test_set_algebra_rejects_other_typed_operands(self):
+        """Set algebra combining Guests with non-Guests raises TypeError."""
+        with self.subTest(operator='&', lhs='Guests', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE & Guests.BOB.value
+        with self.subTest(operator='&', lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE.value & Guests.BOB
+
+        with self.subTest(operator='|', lhs='Guests', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE | Guests.BOB.value
+        with self.subTest(operator='|', lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE.value | Guests.BOB
+
+        with self.subTest(operator='^', lhs='Guests', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE ^ Guests.BOB.value
+        with self.subTest(operator='^', lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE.value ^ Guests.BOB
+
+        with self.subTest(operator='-', lhs='Guests', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE - Guests.BOB.value
+        with self.subTest(operator='-', lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE.value - Guests.BOB
+
     # Test for <
 
     def test_alice_trial_proper_subset_frank_trial(self):
@@ -186,6 +219,14 @@ class TestGuests(unittest.TestCase):
 
     def test_frank_trial_not_proper_subset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL < Guests.ERIN_TRIAL)
+
+    def test_proper_subset_rejects_other_typed_operands(self):
+        with self.subTest(lhs='Guest', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL < Guests.BOB_TRIAL.value
+        with self.subTest(lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL.value < Guests.BOB_TRIAL
 
     # Tests for <=
 
@@ -204,6 +245,14 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_not_subset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL <= Guests.ERIN_TRIAL)
 
+    def test_subset_rejects_other_typed_operands(self):
+        with self.subTest(lhs='Guest', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL <= Guests.BOB_TRIAL.value
+        with self.subTest(lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL.value <= Guests.BOB_TRIAL
+
     # Tests for >
 
     def test_frank_trial_proper_superset_alice_trial(self):
@@ -220,6 +269,14 @@ class TestGuests(unittest.TestCase):
 
     def test_frank_trial_not_proper_superset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL > Guests.ERIN_TRIAL)
+
+    def test_proper_superset_rejects_other_typed_operands(self):
+        with self.subTest(lhs='Guest', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL > Guests.BOB_TRIAL.value
+        with self.subTest(lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL.value > Guests.BOB_TRIAL
 
     # Tests for >=
 
@@ -238,7 +295,15 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_not_superset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL >= Guests.ERIN_TRIAL)
 
-    # Other tests
+    def test_superset_rejects_other_typed_operands(self):
+        with self.subTest(lhs='Guest', rhs='int'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL >= Guests.BOB_TRIAL.value
+        with self.subTest(lhs='int', rhs='Guests'):
+            with self.assertRaises(TypeError):
+                Guests.ALICE_TRIAL.value >= Guests.BOB_TRIAL
+
+    # Tests for __bool__, __len__, and related functionality
 
     def test_nobody_attended_cassidy_trial(self):
         for guest in (Guests.ALICE,
@@ -263,6 +328,8 @@ class TestGuests(unittest.TestCase):
 
     def test_three_attended_erin_trial(self):
         self.assertEqual(len(Guests.ERIN_TRIAL), 3)
+
+    # Tests for short (abbreviated) and long (full) enumerator names
 
     @parameterized.expand([
          ('A', Guests.A, Guests.ALICE),
@@ -290,11 +357,45 @@ class TestGuests(unittest.TestCase):
     def test_short_has_correct_name_attribute(self, _name, short, expected):
         self.assertEqual(short.name, expected)
 
+    # Tests for isdisjoint()
+
     def test_bob_trial_is_disjoint_erin_trial(self):
         self.assertTrue(Guests.BOB_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
 
     def test_frank_trial_is_not_disjoint_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
+
+    def test_isdisjoint_rejects_other_type_operands(self):
+        with self.assertRaises(TypeError):
+            Guests.ALICE_TRIAL.isdisjoint(Guests.BOB_TRIAL.value)
+
+    def test_isdisjoint_returns_a_bool(self):
+        with self.subTest(result='True'):
+            result = Guests.BOB.isdisjoint(Guests.ALICE)
+            self.assertIsInstance(result, bool)
+        with self.subTest(result='False'):
+            result = Guests.FRANK.isdisjoint(Guests.FRANK)
+            self.assertIsInstance(result, bool)
+
+    # Tests for overlaps()
+
+    def test_bob_trial_not_overlaps_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL.overlaps(Guests.ERIN_TRIAL))
+
+    def test_frank_trial_overlaps_erin_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL.overlaps(Guests.ERIN_TRIAL))
+
+    def test_overlaps_rejects_other_type_operands(self):
+        with self.assertRaises(TypeError):
+            Guests.ALICE_TRIAL.overlaps(Guests.BOB_TRIAL.value)
+
+    def test_overlaps_returns_a_bool(self):
+        with self.subTest(result='False'):
+            result = Guests.BOB.overlaps(Guests.ALICE)
+            self.assertIsInstance(result, bool)
+        with self.subTest(result='True'):
+            result = Guests.FRANK.overlaps(Guests.FRANK)
+            self.assertIsInstance(result, bool)
 
 
 if __name__ == '__main__':
