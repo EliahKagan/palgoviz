@@ -11,7 +11,7 @@ def postfix_calculate(expression):
     either can be interpreted as a floating-point number or is one of the
     symbols "+", "-", "*", or "/", denoting a binary arithmetic operation.
 
-    In posfix notation, operands precede the operator that operates on them.
+    In postfix notation, operands precede the operator that operates on them.
 
     >>> postfix_calculate('3')
     3.0
@@ -24,4 +24,44 @@ def postfix_calculate(expression):
     >>> round(postfix_calculate('3 2.2 * 1 + 1 2 / -'), 10)
     7.1
     """
-    # FIXME: Implement this.
+    # step 1, Build the list I want
+    tokens = expression.split()
+
+    # while the list is not empty
+    while len(tokens) > 1:
+        #find first operator w/o modifying the list
+        for index, element in enumerate(tokens):
+            if element == '+':
+                result = float(tokens[index - 2]) + float(tokens[index - 1])
+                tokens.pop(index)
+                tokens.pop(index - 1)
+                tokens.pop(index - 2)
+                tokens.insert(index - 2, result)
+                break
+
+            if element == '-':
+                result = float(tokens[index - 2]) - float(tokens[index - 1])
+                tokens.pop(index)
+                tokens.pop(index - 1)
+                tokens.pop(index - 2)
+                tokens.insert(index - 2, result)
+                break
+
+            if element == '*':
+                result = float(tokens[index - 2]) * float(tokens[index - 1])
+                tokens.pop(index)
+                tokens.pop(index - 1)
+                tokens.pop(index - 2)
+                tokens.insert(index - 2, result)
+                break
+
+            if element == '/':
+                result = float(tokens[index - 2]) / float(tokens[index - 1])
+                tokens.pop(index)
+                tokens.pop(index - 1)
+                tokens.pop(index - 2)
+                tokens.insert(index - 2, result)
+                break
+
+    return float(tokens.pop())
+
