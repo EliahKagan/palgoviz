@@ -31,7 +31,7 @@ def _unannotated_argspec(func):
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
 ])
-class TestAbstractQueues(unittest.TestCase):
+class TestAbstract(unittest.TestCase):
     """Tests for abstract queue types."""
 
     def test_is_abstract(self):
@@ -55,7 +55,7 @@ class TestAbstractQueues(unittest.TestCase):
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
 ])
-class TestQueueMethodSignatures(unittest.TestCase):
+class TestSignatures(unittest.TestCase):
     """Tests for expected queue methods. All queue types should pass these."""
 
     def test_bool_method_has_data_model_recommended_signature(self):
@@ -127,7 +127,7 @@ class TestSubclasses(unittest.TestCase):
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
 ])
-class TestConcreteQueues(unittest.TestCase):
+class TestConcrete(unittest.TestCase):
     """Tests for concrete queue types."""
 
     def test_falsy_on_creation(self):
@@ -180,7 +180,7 @@ class TestConcreteQueues(unittest.TestCase):
         """
         When a queue is empty, attempting to dequeue raises LookupError.
 
-        NOTE: Usually the LookupError subtype IndexError should be raised.
+        NOTE: Usually the LookupError subclass IndexError should be raised.
         """
         queue = self.queue_type()
 
