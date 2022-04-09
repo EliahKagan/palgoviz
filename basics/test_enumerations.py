@@ -170,6 +170,131 @@ class TestGuests(unittest.TestCase):
         rhs = Guests.PARTY2 ^ Guests.PARTY
         self.assertIs(lhs, rhs)
 
+    # Test for <
+
+    def test_alice_trial_proper_subset_frank_trial(self):
+        self.assertTrue(Guests.ALICE_TRIAL < Guests.FRANK_TRIAL)
+
+    def test_alice_trial_not_proper_subset_alice_trial(self):
+        self.assertFalse(Guests.ALICE_TRIAL < Guests.ALICE_TRIAL)
+
+    def test_frank_trial_not_proper_subset_alice_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL < Guests.ALICE_TRIAL)
+
+    def test_bob_trial_not_proper_subset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL < Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_proper_subset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL < Guests.ERIN_TRIAL)
+
+    # Tests for <=
+
+    def test_alice_trial_subset_frank_trial(self):
+        self.assertTrue(Guests.ALICE_TRIAL <= Guests.FRANK_TRIAL)
+
+    def test_alice_trial_subset_alice_trial(self):
+        self.assertTrue(Guests.ALICE_TRIAL <= Guests.ALICE_TRIAL)
+
+    def test_frank_trial_not_subset_alice_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL <= Guests.ALICE_TRIAL)
+
+    def test_bob_trial_not_subset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL <= Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_subset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL <= Guests.ERIN_TRIAL)
+
+    # Tests for >
+
+    def test_frank_trial_proper_superset_alice_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL > Guests.ALICE_TRIAL)
+
+    def test_frank_trial_not_proper_superset_frank_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL > Guests.FRANK_TRIAL)
+
+    def test_alice_trial_not_proper_superset_frank_trial(self):
+        self.assertFalse(Guests.ALICE_TRIAL > Guests.FRANK_TRIAL)
+
+    def test_bob_trial_not_proper_superset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL > Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_proper_superset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL > Guests.ERIN_TRIAL)
+
+    # Tests for >=
+
+    def test_frank_trial_superset_alice_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL >= Guests.ALICE_TRIAL)
+
+    def test_frank_trial_superset_frank_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL >= Guests.FRANK_TRIAL)
+
+    def test_alice_trial_not_superset_frank_trial(self):
+        self.assertFalse(Guests.ALICE_TRIAL >= Guests.FRANK_TRIAL)
+
+    def test_bob_trial_not_superset_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL >= Guests.ERIN_TRIAL)
+
+    def test_frank_trial_not_superset_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL >= Guests.ERIN_TRIAL)
+
+    # Other tests
+
+    def test_nobody_attended_cassidy_trial(self):
+        for guest in (Guests.ALICE,
+                      Guests.BOB,
+                      Guests.CASSIDY,
+                      Guests.DEREK,
+                      Guests.ERIN,
+                      Guests.FRANK,
+                      Guests.GERALD,
+                      Guests.HEATHER):
+            with self.subTest(guest=guest):
+                self.assertFalse(guest & Guests.CASSIDY_TRIAL)
+
+    def test_cassidy_trial_empty(self):
+        self.assertFalse(Guests.CASSIDY_TRIAL)
+
+    def test_alice_trial_nonempty(self):
+        self.assertTrue(Guests.ALICE_TRIAL)
+
+    def test_zero_attended_cassidy_trial(self):
+        self.assertEqual(len(Guests.CASSIDY_TRIAL), 0)
+
+    def test_three_attended_erin_trial(self):
+        self.assertEqual(len(Guests.ERIN_TRIAL), 3)
+
+    @parameterized.expand([
+         ('A', Guests.A, Guests.ALICE),
+         ('B', Guests.B, Guests.BOB),
+         ('C', Guests.C, Guests.CASSIDY),
+         ('D', Guests.D, Guests.DEREK),
+         ('E', Guests.E, Guests.ERIN),
+         ('F', Guests.F, Guests.FRANK),
+         ('G', Guests.G, Guests.GERALD),
+         ('H', Guests.H, Guests.HEATHER),
+    ])
+    def test_guest_short_is_long(self, _name, short, long):
+        self.assertIs(short, long)
+
+    @parameterized.expand([
+         ('A', Guests.A, 'ALICE'),
+         ('B', Guests.B, 'BOB'),
+         ('C', Guests.C, 'CASSIDY'),
+         ('D', Guests.D, 'DEREK'),
+         ('E', Guests.E, 'ERIN'),
+         ('F', Guests.F, 'FRANK'),
+         ('G', Guests.G, 'GERALD'),
+         ('H', Guests.H, 'HEATHER'),
+    ])
+    def test_short_has_correct_name_attribute(self, _name, short, expected):
+        self.assertEqual(short.name, expected)
+
+    def test_bob_trial_is_disjoint_erin_trial(self):
+        self.assertTrue(Guests.BOB_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
+
+    def test_frank_trial_is_not_disjoint_erin_trial(self):
+        self.assertFalse(Guests.FRANK_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
 
 if __name__ == '__main__':
     unittest.main()

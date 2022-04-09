@@ -50,23 +50,61 @@ class BitsetEnum(enum.Flag):
     """Instances of BitsetEnum support - and comparison operators."""
 
     def __sub__(self, other):
-        """Subtraction works like in set."""
+        """Set difference."""
         if not isinstance(other, type(self)):
             return NotImplemented
         return self & ~other
+
+    def __le__(self, other):
+        """Subset check."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self & other == self
+
+    def __lt__(self, other):
+        """Proper subset check."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self != other and self.__le__(other)
+
+    def __ge__(self, other):
+        """Superset check."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self & other == other
+
+    def __gt__(self, other):
+        """Proper superset check."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self != other and self.__ge__(other)
+
+    def __len__(self):
+        """Number of items in bitset."""
+        return self.value.bit_count()
+
+    # FIXME: This kind of method should never return NotImplemented. Unlike
+    # "magic" methods like __le__, which are called indirectly (for operators
+    # like "<"), isdisjoint is meant to be called directly. So if it checks a
+    # type and finds it to be wrong, it should directly raise TypeError.
+    def isdisjoint(self, other):
+        """Check if disjoint with other."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return not (self & other)
 
 
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""
 
-    ALICE   = enum.auto()
-    BOB     = enum.auto()
-    CASSIDY = enum.auto()
-    DEREK   = enum.auto()
-    ERIN    = enum.auto()
-    FRANK   = enum.auto()
-    GERALD  = enum.auto()
-    HEATHER = enum.auto()
+    ALICE   = A = enum.auto()
+    BOB     = B = enum.auto()
+    CASSIDY = C = enum.auto()
+    DEREK   = D = enum.auto()
+    ERIN    = E = enum.auto()
+    FRANK   = F = enum.auto()
+    GERALD  = G = enum.auto()
+    HEATHER = H = enum.auto()
 
     PARTY   = ALICE | CASSIDY | FRANK
     PARTY2  = ALICE | BOB | ERIN | FRANK
@@ -74,10 +112,11 @@ class Guests(BitsetEnum):
     # Trials can have guests and are not parties
     # Trials are needed because the parties were a tad too wild.
 
-    ALICE_TRIAL = BOB | CASSIDY
-    BOB_TRIAL   = ALICE
-    ERIN_TRIAL  = ALICE | BOB
-    FRANK_TRIAL = BOB | CASSIDY | DEREK
+    ALICE_TRIAL   = BOB | CASSIDY
+    BOB_TRIAL     = ALICE | HEATHER
+    CASSIDY_TRIAL = 0
+    ERIN_TRIAL    = CASSIDY | DEREK | GERALD
+    FRANK_TRIAL   = BOB | CASSIDY | DEREK
 
 
 if __name__ == '__main__':
