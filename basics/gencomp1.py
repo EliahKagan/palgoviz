@@ -6,9 +6,6 @@ Generators and comprehensions.
 See also gencomp2.py and fibonacci.py.
 """
 
-import collections
-import itertools
-
 
 def my_enumerate(iterable, start=0):
     """
@@ -458,7 +455,7 @@ def tail(iterable, n):
     >>> list(it)  # Even with n=0, the iterable is iterated through.
     []
     """
-    return tuple(collections.deque(iterable, n))
+    # FIXME: Implement this.
 
 
 def pick(iterable, index):
@@ -517,16 +514,7 @@ def windowed(iterable, n):
     >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    iterator = iter(iterable)
-    queue = collections.deque(itertools.islice(iterator, n), maxlen=n)
-    if len(queue) < n:
-        return
-
-    yield tuple(queue)
-
-    for element in iterator:
-        queue.append(element)
-        yield tuple(queue)
+    # FIXME: Implement this.
 
 
 def map_one(func, iterable):
