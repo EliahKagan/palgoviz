@@ -29,22 +29,12 @@ def postfix_calculate(expression):
 
     while len(tokens) > 1:
         #find first operator w/o modifying the list
-        for index, element in enumerate(tokens):
-            if element == '+':
-                result = float(tokens[index - 2]) + float(tokens[index - 1])
-            elif element == '-':
-                result = float(tokens[index - 2]) - float(tokens[index - 1])
-            elif element == '*':
-                result = float(tokens[index - 2]) * float(tokens[index - 1])
-            elif element == '/':
-                result = float(tokens[index - 2]) / float(tokens[index - 1])
-            else:
-                continue
-
-            tokens.pop(index)
-            tokens.pop(index - 1)
-            tokens.pop(index - 2)
-            tokens.insert(index - 2, result)
-            break
+        ops = {'+': (lambda x,y: x + y), '-': (lambda x,y: x - y),  '*': (lambda x,y: x * y), '/': (lambda x,y: x / y)}
+        index, op = next((index, token) for index, token in enumerate(tokens) if token in ops)
+        result = ops[op](float(tokens[index - 2]), float(tokens[index - 1]))
+        tokens.pop(index)
+        tokens.pop(index - 1)
+        tokens.pop(index - 2)
+        tokens.insert(index - 2, result)
 
     return float(tokens.pop())
