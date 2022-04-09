@@ -90,6 +90,13 @@ class BitsetEnum(enum.Flag):
                             f'other than {type(self).__name__}')
         return not (self & other)
 
+    def overlaps(self, other):
+        """Check if overlaps with other."""
+        if not isinstance(other, type(self)):
+            raise TypeError('overlaps() not supported with types'
+                            f'other than {type(self).__name__}')
+        return (self & other) and True
+
 
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""

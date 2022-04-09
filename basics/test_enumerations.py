@@ -369,6 +369,18 @@ class TestGuests(unittest.TestCase):
         with self.assertRaises(TypeError):
             Guests.ALICE_TRIAL.isdisjoint(Guests.BOB_TRIAL.value)
 
+    # Tests for overlaps()
+
+    def test_bob_trial_not_overlaps_erin_trial(self):
+        self.assertFalse(Guests.BOB_TRIAL.overlaps(Guests.ERIN_TRIAL))
+
+    def test_frank_trial_overlaps_erin_trial(self):
+        self.assertTrue(Guests.FRANK_TRIAL.overlaps(Guests.ERIN_TRIAL))
+
+    def test_overlaps_rejects_other_type_operands(self):
+        with self.assertRaises(TypeError):
+            Guests.ALICE_TRIAL.overlaps(Guests.BOB_TRIAL.value)
+
 
 if __name__ == '__main__':
     unittest.main()
