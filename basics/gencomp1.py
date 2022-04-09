@@ -7,6 +7,7 @@ See also gencomp2.py and fibonacci.py.
 """
 
 import collections
+import itertools
 
 
 def my_enumerate(iterable, start=0):
@@ -490,6 +491,42 @@ def pick(iterable, index):
         return next(drop(iterable, index))
     except StopIteration:
         raise IndexError("index out of range")
+
+
+def windowed(iterable, n):
+    """
+    Yield all width-n subsequences of iterable, in order, as tuples.
+
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> from itertools import islice
+    >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+    iterator = iter(iterable)
+    queue = collections.deque(itertools.islice(iterator, n), maxlen=n)
+    if len(queue) < n:
+        return
+
+    yield tuple(queue)
+
+    for element in iterator:
+        queue.append(element)
+        yield tuple(queue)
 
 
 def map_one(func, iterable):
