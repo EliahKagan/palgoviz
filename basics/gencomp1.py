@@ -457,14 +457,7 @@ def tail(iterable, n):
     >>> list(it)  # Even with n=0, the iterable is iterated through.
     []
     """
-    queue = collections.deque()
-
-    for element in iterable:
-        queue.append(element)
-        if len(queue) > n:
-            queue.popleft()
-
-    return tuple(queue)
+    return tuple(collections.deque(iterable, n))
 
 
 def pick(iterable, index):
