@@ -356,7 +356,7 @@ class TestGuests(unittest.TestCase):
     def test_short_has_correct_name_attribute(self, _name, short, expected):
         self.assertEqual(short.name, expected)
 
-    # Tests for disjoint()
+    # Tests for isdisjoint()
 
     def test_bob_trial_is_disjoint_erin_trial(self):
         self.assertTrue(Guests.BOB_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
@@ -364,8 +364,8 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_is_not_disjoint_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
 
-    # FIXME: Test that disjoint() given a non-Guests argument raises TypeError.
-    # See the "rejects" tests above, and the fixme on enumerations.isdisjoint.
+    # FIXME: Test that isdisjoint() given a non-Guests argument raises
+    # TypeError. See the "rejects" tests above, and the fixme on isdisjoint().
 
 
 if __name__ == '__main__':
