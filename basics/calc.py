@@ -2,15 +2,6 @@
 
 """Calculator."""
 
-import operator
-
-_OPERATORS = {
-    '+': operator.add,
-    '-': operator.sub,
-    '*': operator.mul,
-    '/': operator.truediv,
-}
-
 
 def postfix_calculate(expression):
     """
@@ -33,22 +24,4 @@ def postfix_calculate(expression):
     >>> round(postfix_calculate('3 2.2 * 1 + 1 2 / -'), 10)
     7.1
     """
-    stack = []
-
-    for token in expression.split():
-        try:
-            stack.append(float(token))
-        except ValueError:
-            arg2 = stack.pop()
-            arg1 = stack.pop()
-            stack.append(_OPERATORS[token](arg1, arg2))
-
-    if len(stack) != 1:
-        raise ValueError('expression was ill-formed')
-
-    return stack[0]
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    # FIXME: Implement this.
