@@ -83,6 +83,10 @@ class BitsetEnum(enum.Flag):
         """Number of items in bitset."""
         return self.value.bit_count()
 
+    # FIXME: This kind of method should never return NotImplemented. Unlike
+    # "magic" methods like __le__, which are called indirectly (for operators
+    # like "<"), isdisjoint is meant to be called directly. So if it checks a
+    # type and finds it to be wrong, it should directly raise TypeError.
     def isdisjoint(self, other):
         """Check if disjoint with other."""
         if not isinstance(other, type(self)):

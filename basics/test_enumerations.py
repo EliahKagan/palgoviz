@@ -296,5 +296,6 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_is_not_disjoint_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
 
+
 if __name__ == '__main__':
     unittest.main()
