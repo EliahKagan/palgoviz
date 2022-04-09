@@ -238,7 +238,7 @@ class TestGuests(unittest.TestCase):
     def test_frank_trial_not_superset_erin_trial(self):
         self.assertFalse(Guests.FRANK_TRIAL >= Guests.ERIN_TRIAL)
 
-    # Other tests
+    # Tests for __bool__, __len__, and related functionality
 
     def test_nobody_attended_cassidy_trial(self):
         for guest in (Guests.ALICE,
@@ -263,6 +263,8 @@ class TestGuests(unittest.TestCase):
 
     def test_three_attended_erin_trial(self):
         self.assertEqual(len(Guests.ERIN_TRIAL), 3)
+
+    # Tests for short (abbreviated) and long (full) enumerator names
 
     @parameterized.expand([
          ('A', Guests.A, Guests.ALICE),
@@ -289,6 +291,8 @@ class TestGuests(unittest.TestCase):
     ])
     def test_short_has_correct_name_attribute(self, _name, short, expected):
         self.assertEqual(short.name, expected)
+
+    # Tests for disjoint()
 
     def test_bob_trial_is_disjoint_erin_trial(self):
         self.assertTrue(Guests.BOB_TRIAL.isdisjoint(Guests.ERIN_TRIAL))
