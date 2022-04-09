@@ -27,41 +27,24 @@ def postfix_calculate(expression):
     # step 1, Build the list I want
     tokens = expression.split()
 
-    # while the list is not empty
     while len(tokens) > 1:
         #find first operator w/o modifying the list
         for index, element in enumerate(tokens):
             if element == '+':
                 result = float(tokens[index - 2]) + float(tokens[index - 1])
-                tokens.pop(index)
-                tokens.pop(index - 1)
-                tokens.pop(index - 2)
-                tokens.insert(index - 2, result)
-                break
-
-            if element == '-':
+            elif element == '-':
                 result = float(tokens[index - 2]) - float(tokens[index - 1])
-                tokens.pop(index)
-                tokens.pop(index - 1)
-                tokens.pop(index - 2)
-                tokens.insert(index - 2, result)
-                break
-
-            if element == '*':
+            elif element == '*':
                 result = float(tokens[index - 2]) * float(tokens[index - 1])
-                tokens.pop(index)
-                tokens.pop(index - 1)
-                tokens.pop(index - 2)
-                tokens.insert(index - 2, result)
-                break
-
-            if element == '/':
+            elif element == '/':
                 result = float(tokens[index - 2]) / float(tokens[index - 1])
-                tokens.pop(index)
-                tokens.pop(index - 1)
-                tokens.pop(index - 2)
-                tokens.insert(index - 2, result)
-                break
+            else:
+                continue
+
+            tokens.pop(index)
+            tokens.pop(index - 1)
+            tokens.pop(index - 2)
+            tokens.insert(index - 2, result)
+            break
 
     return float(tokens.pop())
-
