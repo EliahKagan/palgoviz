@@ -6,6 +6,8 @@ Generators and comprehensions.
 See also gencomp2.py and fibonacci.py.
 """
 
+import collections
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -432,6 +434,37 @@ def last(iterable):
             item = next(it)
         except StopIteration:
             return item
+
+
+def tail(iterable, n):
+    """
+    Return a tuple of the last n elements of iterable.
+
+    If there are fewer than n elements in iterable, return all of them.
+
+    For an iterable of length L, this should take O(L) time and use
+    O(min(L, n)) auxiliary space.
+
+    >>> tail([], 0)
+    ()
+    >>> tail([], 1)
+    ()
+    >>> tail((x**2 for x in range(100)), 5)
+    (9025, 9216, 9409, 9604, 9801)
+    >>> it = iter(range(1000))
+    >>> tail(it, 0)
+    ()
+    >>> list(it)  # Even with n=0, the iterable is iterated through.
+    []
+    """
+    queue = collections.deque()
+
+    for element in iterable:
+        queue.append(element)
+        if len(queue) > n:
+            queue.popleft()
+
+    return tuple(queue)
 
 
 def pick(iterable, index):
