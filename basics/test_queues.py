@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Tests for queues.py.
 
@@ -340,3 +342,7 @@ class TestLifos(unittest.TestCase):
         with self.subTest(size=len(lifo), dequeue=6):
             item = lifo.dequeue()
             self.assertEqual(item, 10)
+
+
+if __name__ == '__main__':
+    unittest.main()
