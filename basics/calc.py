@@ -4,6 +4,11 @@
 
 import operator
 
+_OPERATORS = {'+': operator.add,
+              '-': operator.sub,
+              '*': operator.mul,
+              '/': operator.truediv}
+
 
 def postfix_calculate(expression):
     """
@@ -31,9 +36,8 @@ def postfix_calculate(expression):
 
     while len(tokens) > 1:
         #find first operator w/o modifying the list
-        ops = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.truediv}
-        index, op = next((index, token) for index, token in enumerate(tokens) if token in ops)
-        result = ops[op](float(tokens[index - 2]), float(tokens[index - 1]))
+        index, op = next((index, token) for index, token in enumerate(tokens) if token in _OPERATORS)
+        result = _OPERATORS[op](float(tokens[index - 2]), float(tokens[index - 1]))
         tokens.pop(index)
         tokens.pop(index - 1)
         tokens.pop(index - 2)
