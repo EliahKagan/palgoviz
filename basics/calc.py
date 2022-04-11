@@ -40,9 +40,8 @@ def postfix_calculate(expression):
             b = operands.pop()
             a = operands.pop()
             operands.append(_OPERATORS[token](a, b))
-            continue
-
-        operands.append(arg)
+        else:
+            operands.append(arg)
 
     return operands.pop()
 
