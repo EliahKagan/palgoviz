@@ -34,12 +34,12 @@ def postfix_calculate(expression):
     operands = []
 
     for token in expression.split():
-        if token in _OPERATORS:
+        try:
+            operands.append(float(token))
+        except ValueError:
             b = operands.pop()
             a = operands.pop()
             operands.append(_OPERATORS[token](a, b))
-        else:
-            operands.append(float(token))
 
     return operands.pop()
 
