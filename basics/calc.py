@@ -2,6 +2,8 @@
 
 """Calculator."""
 
+import operator
+
 
 def postfix_calculate(expression):
     """
@@ -29,7 +31,7 @@ def postfix_calculate(expression):
 
     while len(tokens) > 1:
         #find first operator w/o modifying the list
-        ops = {'+': (lambda x,y: x + y), '-': (lambda x,y: x - y),  '*': (lambda x,y: x * y), '/': (lambda x,y: x / y)}
+        ops = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.truediv}
         index, op = next((index, token) for index, token in enumerate(tokens) if token in ops)
         result = ops[op](float(tokens[index - 2]), float(tokens[index - 1]))
         tokens.pop(index)
