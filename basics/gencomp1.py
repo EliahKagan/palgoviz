@@ -458,11 +458,9 @@ def tail(iterable, n):
     []
     """
     my_deque = collections.deque()
-    count = 0
     for element in iterable:
         my_deque.append(element)
-        count += 1
-        if count > n:
+        if len(my_deque) > n:
             my_deque.popleft()
 
     return tuple(my_deque)
