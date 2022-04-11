@@ -42,9 +42,6 @@ def postfix_calculate(expression):
         b = float(tokens[index - 1])
         result = _OPERATORS[op](a, b)
 
-        tokens.pop(index)
-        tokens.pop(index - 1)
-        tokens.pop(index - 2)
-        tokens.insert(index - 2, result)
+        tokens[index - 2 : index + 1] = (result,)
 
     return float(tokens.pop())
