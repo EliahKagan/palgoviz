@@ -33,15 +33,15 @@ def postfix_calculate(expression):
     """
     # Build the list I want.
     tokens = expression.split()
+    operands = []
 
-    while len(tokens) > 1:
-        # Find next operator w/o modifying the list.
-        index, op = next((i, t) for i, t in enumerate(tokens) if t in _OPERATORS)
+    for element in tokens:
+        if element in _OPERATORS:
+            b = operands.pop()
+            a = operands.pop()
+            result = _OPERATORS[element](a, b)
+            operands.append(result)
+        else:
+            operands.append(float(element))
 
-        a = float(tokens[index - 2])
-        b = float(tokens[index - 1])
-        result = _OPERATORS[op](a, b)
-
-        tokens[index - 2 : index + 1] = (result,)
-
-    return float(tokens.pop())
+    return operands.pop()
