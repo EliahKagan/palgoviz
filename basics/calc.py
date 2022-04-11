@@ -31,17 +31,20 @@ def postfix_calculate(expression):
     >>> round(postfix_calculate('3 2.2 * 1 + 1 2 / -'), 10)
     7.1
     """
-    # Build the list I want.
-    tokens = expression.split()
     operands = []
 
-    for element in tokens:
-        if element in _OPERATORS:
+    for token in expression.split():
+        if token in _OPERATORS:
             b = operands.pop()
             a = operands.pop()
-            result = _OPERATORS[element](a, b)
+            result = _OPERATORS[token](a, b)
             operands.append(result)
         else:
-            operands.append(float(element))
+            operands.append(float(token))
 
     return operands.pop()
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
