@@ -42,6 +42,8 @@ def postfix_calculate(expression):
             operands.append(_OPERATORS[token](a, b))
         else:
             operands.append(arg)
+        finally:
+            print(token)
 
     return operands.pop()
 
