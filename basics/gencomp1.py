@@ -434,6 +434,30 @@ def last(iterable):
             return item
 
 
+def tail(iterable, n):
+    """
+    Return a tuple of the last n elements of iterable.
+
+    If there are fewer than n elements in iterable, return all of them.
+
+    For an iterable of length L, this should take O(L) time and use
+    O(min(L, n)) auxiliary space.
+
+    >>> tail([], 0)
+    ()
+    >>> tail([], 1)
+    ()
+    >>> tail((x**2 for x in range(100)), 5)
+    (9025, 9216, 9409, 9604, 9801)
+    >>> it = iter(range(1000))
+    >>> tail(it, 0)
+    ()
+    >>> list(it)  # Even with n=0, the iterable is iterated through.
+    []
+    """
+    # FIXME: Implement this.
+
+
 def pick(iterable, index):
     """
     Return the item from the iterable at the index (0-based indexing).
@@ -464,6 +488,33 @@ def pick(iterable, index):
         return next(drop(iterable, index))
     except StopIteration:
         raise IndexError("index out of range")
+
+
+def windowed(iterable, n):
+    """
+    Yield all width-n subsequences of iterable, in order, as tuples.
+
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> from itertools import islice
+    >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+    # FIXME: Implement this.
 
 
 def map_one(func, iterable):
