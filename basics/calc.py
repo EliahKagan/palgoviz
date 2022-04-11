@@ -31,13 +31,17 @@ def postfix_calculate(expression):
     >>> round(postfix_calculate('3 2.2 * 1 + 1 2 / -'), 10)
     7.1
     """
-    # step 1, Build the list I want
+    # Build the list I want.
     tokens = expression.split()
 
     while len(tokens) > 1:
-        #find first operator w/o modifying the list
-        index, op = next((index, token) for index, token in enumerate(tokens) if token in _OPERATORS)
-        result = _OPERATORS[op](float(tokens[index - 2]), float(tokens[index - 1]))
+        # Find next operator w/o modifying the list.
+        index, op = next((i, t) for i, t in enumerate(tokens) if t in _OPERATORS)
+
+        a = float(tokens[index - 2])
+        b = float(tokens[index - 1])
+        result = _OPERATORS[op](a, b)
+
         tokens.pop(index)
         tokens.pop(index - 1)
         tokens.pop(index - 2)
