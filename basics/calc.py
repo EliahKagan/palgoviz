@@ -37,8 +37,7 @@ def postfix_calculate(expression):
         if token in _OPERATORS:
             b = operands.pop()
             a = operands.pop()
-            result = _OPERATORS[token](a, b)
-            operands.append(result)
+            operands.append(_OPERATORS[token](a, b))
         else:
             operands.append(float(token))
 
