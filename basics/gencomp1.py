@@ -461,6 +461,52 @@ def tail(iterable, n):
     return tuple(collections.deque(iterable, n))
 
 
+def tail_opt(iterable, n):
+    """
+    Return a tuple of the last n elements of iterable, by slicing if supported.
+
+    As in tail (above), return all elements if there are fewer than n of them.
+
+    Unlike tail, tail_opt is never required to iterate through all elements,
+    even if it cannot use slicing (though usually it will have to).
+
+    >>> tail_opt([], 0)
+    ()
+    >>> tail_opt([], 1)
+    ()
+    >>> tail_opt((x**2 for x in range(100)), 5)
+    (9025, 9216, 9409, 9604, 9801)
+    >>> class MyList(list):
+    ...     def __iter__(self):
+    ...         print('Iterating.')
+    ...         return super().__iter__()
+    >>> a = MyList([10, 20, 30, 40])
+    >>> tail_opt(a, 6) == tail_opt(a, 5) == tail_opt(a, 4) == (10, 20, 30, 40)
+    True
+    >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
+    ((20, 30, 40), (30, 40), (40,), ())
+    >>> from itertools import chain
+    >>> it = chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> tail_opt(it, 3)
+    Iterating.
+    (20, 30, 40)
+    >>> tail_opt(range(1_000_000_000_000), 5)  # Hopefully this uses slicing!
+    (999999999995, 999999999996, 999999999997, 999999999998, 999999999999)
+    >>> tail_opt(dict.fromkeys(range(1000)), 3)
+    (997, 998, 999)
+    >>> sorted(tail_opt({'a', 'b', 'c', 'd', 'e'}, 128))
+    ['a', 'b', 'c', 'd', 'e']
+    """
+    if n == 0:
+        return ()  # Avoid slicing from -0 == 0 if the iterable is nonempty.
+
+    try:
+        tail_length = min(len(iterable), n)
+        return tuple(iterable[-tail_length:])
+    except TypeError:
+        return tail(iterable, n)
+
+
 def pick(iterable, index):
     """
     Return the item from the iterable at the index (0-based indexing).
