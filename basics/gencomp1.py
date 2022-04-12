@@ -482,6 +482,20 @@ def tail_opt(iterable, n):
     ()
     >>> tail_opt((x**2 for x in range(100)), 5)
     (9025, 9216, 9409, 9604, 9801)
+    >>> class MyList(list):
+    ...     def __iter__(self):
+    ...         print('Iterating.')
+    ...         return super().__iter__()
+    >>> a = MyList([10, 20, 30, 40])
+    >>> tail_opt(a, 6) == tail_opt(a, 5) == tail_opt(a, 4) == (10, 20, 30, 40)
+    True
+    >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
+    ((20, 30, 40), (30, 40), (40,), ())
+    >>> from itertools import chain
+    >>> it = chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> tail_opt(it, 3)
+    Iterating.
+    (20, 30, 40)
     >>> tail_opt(range(1_000_000_000_000), 5)  # Hopefully this uses slicing!
     (999999999995, 999999999996, 999999999997, 999999999998, 999999999999)
     >>> tail_opt(dict.fromkeys(range(1000)), 3)
