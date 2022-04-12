@@ -37,8 +37,8 @@ class TestAbstract(unittest.TestCase):
     def test_is_abstract(self):
         self.assertTrue(inspect.isabstract(self.queue_type))
 
-    def test_abstract_methods_are_bool_len_enqueue_dequeue(self):
-        expected = {'__bool__', '__len__', 'enqueue', 'dequeue'}
+    def test_abstract_methods_are_bool_len_enqueue_dequeue_peek(self):
+        expected = {'__bool__', '__len__', 'enqueue', 'dequeue', 'peek'}
         actual = self.queue_type.__abstractmethods__
         self.assertSetEqual(actual, expected)
 
@@ -80,6 +80,12 @@ class TestSignatures(unittest.TestCase):
         """The dequeue method accepts no arguments (except self)."""
         expected = (['self'], None, None, None, [], None)
         actual = _unannotated_argspec(self.queue_type.dequeue)
+        self.assertTupleEqual(actual, expected)
+
+    def test_peek_method_has_no_extra_parameters(self):
+        """The peek method accepts no arguments (except self)."""
+        expected = (['self'], None, None, None, [], None)
+        actual = _unannotated_argspec(self.queue_type.peek)
         self.assertTupleEqual(actual, expected)
 
 
@@ -169,12 +175,42 @@ class TestConcrete(unittest.TestCase):
         length = len(queue)
         self.assertEqual(length, 0)
 
+    def test_truthy_after_enqueue_peek(self):
+        """
+        After only enqueue and peek, a queue is nonempty, thus true.
+
+        Calling peek shouldn't modify the queue, so it shouldn't make it empty.
+        """
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        queue.peek()
+        self.assertTrue(queue)
+
+    def test_length_1_after_enqueue_peek(self):
+        """
+        After only enqueue and peek, a queue still has exactly 1 item.
+
+        Calling peek shouldn't modify the queue, including its size.
+        """
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        queue.peek()
+        length = len(queue)
+        self.assertEqual(length, 1)
+
     def test_singleton_queue_dequeues_enqueued_item(self):
         """After exactly 1 enqueue, a dequeue gives the enqueued item."""
         queue = self.queue_type()
         queue.enqueue('ham')
         dequeued_item = queue.dequeue()
         self.assertEqual(dequeued_item, 'ham')
+
+    def test_singleton_queue_peeks_enqueued_item(self):
+        """After exactly 1 enqueue, a peek reveals the enqueued item."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        peeked_item = queue.peek()
+        self.assertEqual(peeked_item, 'ham')
 
     def test_cannot_dequeue_from_empty_queue(self):
         """
@@ -192,6 +228,23 @@ class TestConcrete(unittest.TestCase):
 
         with self.assertRaises(LookupError):
             queue.dequeue()
+
+    def test_cannot_peek_from_empty_queue(self):
+        """
+        When a queue is empty, attempting to peek raises LookupError.
+
+        NOTE: Usually the LookupError subclass IndexError should be raised.
+        """
+        queue = self.queue_type()
+
+        # Give error result (not mere fail) if queue is somehow nonempty.
+        if queue:
+            raise Exception("new queue is truthy, can't continue")
+        if len(queue) != 0:
+            raise Exception("new queue has nonzero len, can't continue")
+
+        with self.assertRaises(LookupError):
+            queue.peek()
 
     @parameterized.expand([
         ('distinct strings',
@@ -244,6 +297,22 @@ class TestFifos(unittest.TestCase):
             item = fifo.dequeue()
             self.assertEqual(item, 'spam')
 
+    def test_peek_reveals_oldest_not_yet_dequeued(self):
+        """After two enqueues, peek always shows what should dequeue."""
+        fifo = self.queue_type()
+        fifo.enqueue('ham')
+        fifo.enqueue('spam')
+
+        with self.subTest(peek=1):
+            item = fifo.peek()
+            self.assertEqual(item, 'ham')
+
+        fifo.dequeue()
+
+        with self.subTest(peek=2):
+            item = fifo.peek()
+            self.assertEqual(item, 'spam')
+
     def test_mixed_enqueues_and_dequeues_dequeue_in_fifo_order(self):
         """Interleaved operations behave properly as a "queue"."""
         fifo = self.queue_type()
@@ -280,6 +349,50 @@ class TestFifos(unittest.TestCase):
             item = fifo.dequeue()
             self.assertEqual(item, 60)
 
+    def test_mixed_enqueues_and_dequeues_peeks_in_fifo_order(self):
+        """Interleaved peeks align with proper "queue"-order dequeuing."""
+        fifo = self.queue_type()
+        fifo.enqueue(10)
+        fifo.enqueue(30)
+        fifo.enqueue(20)
+
+        with self.subTest(size=len(fifo), peek=1):
+            item = fifo.peek()
+            self.assertEqual(item, 10)
+
+        fifo.dequeue()
+
+        with self.subTest(size=len(fifo), peek=2):
+            item = fifo.peek()
+            self.assertEqual(item, 30)
+
+        fifo.dequeue()
+        fifo.enqueue(50)
+        fifo.enqueue(40)
+
+        with self.subTest(size=len(fifo), peek=3):
+            item = fifo.peek()
+            self.assertEqual(item, 20)
+
+        fifo.dequeue()
+        fifo.enqueue(60)
+
+        with self.subTest(size=len(fifo), peek=4):
+            item = fifo.peek()
+            self.assertEqual(item, 50)
+
+        fifo.dequeue()
+
+        with self.subTest(size=len(fifo), peek=5):
+            item = fifo.peek()
+            self.assertEqual(item, 40)
+
+        fifo.dequeue()
+
+        with self.subTest(size=len(fifo), dequeue=6):
+            item = fifo.peek()
+            self.assertEqual(item, 60)
+
 
 @parameterized_class(('name', 'queue_type'), [
     ('ListLifoQueue', queues.ListLifoQueue),
@@ -305,6 +418,22 @@ class TestLifos(unittest.TestCase):
 
         with self.subTest(dequeue=2):
             item = lifo.dequeue()
+            self.assertEqual(item, 'ham')
+
+    def test_peek_reveals_newest_not_yet_dequeued(self):
+        """After two enqueues, peek always shows what should dequeue."""
+        lifo = self.queue_type()
+        lifo.enqueue('ham')
+        lifo.enqueue('spam')
+
+        with self.subTest(peek=1):
+            item = lifo.peek()
+            self.assertEqual(item, 'spam')
+
+        lifo.dequeue()
+
+        with self.subTest(peek=2):
+            item = lifo.peek()
             self.assertEqual(item, 'ham')
 
     def test_mixed_enqueues_and_dequeues_dequeue_in_lifo_order(self):
@@ -341,6 +470,50 @@ class TestLifos(unittest.TestCase):
 
         with self.subTest(size=len(lifo), dequeue=6):
             item = lifo.dequeue()
+            self.assertEqual(item, 10)
+
+    def test_mixed_enqueues_and_dequeues_peeks_in_lifo_order(self):
+        """Interleaved peeks align with proper stack-order dequeuing."""
+        lifo = self.queue_type()
+        lifo.enqueue(10)
+        lifo.enqueue(30)
+        lifo.enqueue(20)
+
+        with self.subTest(len(lifo), peek=1):
+            item = lifo.peek()
+            self.assertEqual(item, 20)
+
+        lifo.dequeue()
+
+        with self.subTest(len(lifo), peek=2):
+            item = lifo.peek()
+            self.assertEqual(item, 30)
+
+        lifo.dequeue()
+        lifo.enqueue(50)
+        lifo.enqueue(40)
+
+        with self.subTest(size=len(lifo), peek=3):
+            item = lifo.peek()
+            self.assertEqual(item, 40)
+
+        lifo.dequeue()
+        lifo.enqueue(60)
+
+        with self.subTest(size=len(lifo), peek=4):
+            item = lifo.peek()
+            self.assertEqual(item, 60)
+
+        lifo.dequeue()
+
+        with self.subTest(size=len(lifo), peek=5):
+            item = lifo.peek()
+            self.assertEqual(item, 50)
+
+        lifo.dequeue()
+
+        with self.subTest(size=len(lifo), peek=6):
+            item = lifo.peek()
             self.assertEqual(item, 10)
 
 

@@ -35,13 +35,11 @@ def postfix_calculate(expression):
 
     for token in expression.split():
         try:
-            arg = float(token)
+            operands.append(float(token))
         except ValueError:
             b = operands.pop()
             a = operands.pop()
             operands.append(_OPERATORS[token](a, b))
-        else:
-            operands.append(arg)
 
     return operands.pop()
 
