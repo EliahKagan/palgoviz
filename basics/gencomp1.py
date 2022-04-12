@@ -503,6 +503,8 @@ def tail_opt(iterable, n):
     >>> sorted(tail_opt({'a', 'b', 'c', 'd', 'e'}, 128))
     ['a', 'b', 'c', 'd', 'e']
     """
+    if n == 0:
+        return ()
     try:
         return tuple(iterable[-n:])
     except TypeError:
