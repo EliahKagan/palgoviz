@@ -480,14 +480,7 @@ def tail_opt(iterable, n):
     >>> sorted(tail_opt({'a', 'b', 'c', 'd', 'e'}, 128))
     ['a', 'b', 'c', 'd', 'e']
     """
-    if n == 0:
-        return ()  # Avoid slicing from -0 == 0 if the iterable is nonempty.
-
-    try:
-        tail_length = min(len(iterable), n)
-        return tuple(iterable[-tail_length:])
-    except TypeError:
-        return tail(iterable, n)
+    # FIXME: Implement this.
 
 
 def pick(iterable, index):
