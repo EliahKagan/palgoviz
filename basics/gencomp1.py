@@ -545,7 +545,7 @@ def pick(iterable, index):
 
 def windowed(iterable, n):
     """
-    Yield all width-n subsequences of iterable, in order, as tuples.
+    Yield all width-n contiguous subsequences of iterable, in order, as tuples.
 
     >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
     [(), (), (), (), (), ()]
@@ -567,7 +567,19 @@ def windowed(iterable, n):
     >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    # FIXME: Implement this.
+    queue = collections.deque()
+
+    for element in iterable:
+        if len(queue) == n:
+            yield tuple(queue)
+
+        queue.append(element)
+
+        if len(queue) > n:
+            queue.popleft()
+
+    if len(queue) == n:
+        yield tuple(queue)
 
 
 def map_one(func, iterable):
