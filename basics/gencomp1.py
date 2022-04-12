@@ -6,6 +6,8 @@ Generators and comprehensions.
 See also gencomp2.py and fibonacci.py.
 """
 
+import collections
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -455,7 +457,14 @@ def tail(iterable, n):
     >>> list(it)  # Even with n=0, the iterable is iterated through.
     []
     """
-    # FIXME: Implement this.
+    queue = collections.deque()
+
+    for element in iterable:
+        queue.append(element)
+        if len(queue) > n:
+            queue.popleft()
+
+    return tuple(queue)
 
 
 def pick(iterable, index):
