@@ -18,18 +18,27 @@ class Queue(ABC):
     @abstractmethod
     def __bool__(self):
         """True if this queue contains any elements, False if it is empty."""
+        raise NotImplementedError()
 
     @abstractmethod
     def __len__(self):
         """The number of elements in this queue."""
+        raise NotImplementedError()
 
     @abstractmethod
     def enqueue(self, item):
         """Insert an element into this queue."""
+        raise NotImplementedError()
 
     @abstractmethod
     def dequeue(self):
         """Extract an element from this queue."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def peek(self):
+        """Get the element that dequeue would extract and return."""
+        raise NotImplementedError()
 
 
 class FifoQueue(Queue):
@@ -45,10 +54,17 @@ class FifoQueue(Queue):
     @abstractmethod
     def enqueue(self, item):
         """Insert an element at the "front" of this FIFO queue."""
+        raise NotImplementedError()
 
     @abstractmethod
     def dequeue(self):
         """Extract the least recently inserted element from this FIFO queue."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def peek(self):
+        """Return the least recently inserted element from this FIFO queue."""
+        raise NotImplementedError()
 
 
 class LifoQueue(Queue):
@@ -64,10 +80,17 @@ class LifoQueue(Queue):
     @abstractmethod
     def enqueue(self, item):
         """Insert an item at the "top" of this LIFO queue."""
+        raise NotImplementedError()
 
     @abstractmethod
     def dequeue(self):
         """Extract the most recently inserted element from this LIFO queue."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def peek(self):
+        """Return the most recently inserted element from this LIFO queue."""
+        raise NotImplementedError()
 
 
 class DequeFifoQueue(FifoQueue):
@@ -90,6 +113,9 @@ class DequeFifoQueue(FifoQueue):
 
     def dequeue(self):
         return self._items.popleft()
+
+    def peek(self):
+        return self._items[0]
 
 
 class AltDequeFifoQueue(FifoQueue):
@@ -117,9 +143,12 @@ class AltDequeFifoQueue(FifoQueue):
     def dequeue(self):
         return self._items.pop()
 
+    def peek(self):
+        return self._items[-1]
+
 
 class SlowFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a list. Quadratic dequeueing."""
+    """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
 
     __slots__ = ('_items',)
 
@@ -138,6 +167,9 @@ class SlowFifoQueue(FifoQueue):
 
     def dequeue(self):
         return self._items.pop(0)
+
+    def peek(self):
+        return self._items[0]
 
 
 class BiStackFifoQueue(FifoQueue):
@@ -166,6 +198,9 @@ class BiStackFifoQueue(FifoQueue):
 
         return self._out.pop()
 
+    def peek(self):
+        return self._out[-1] if self._out else self._in[0]
+
 
 class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
@@ -188,6 +223,9 @@ class ListLifoQueue(LifoQueue):
     def dequeue(self):
         return self._items.pop()
 
+    def peek(self):
+        return self._items[-1]
+
 
 class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
@@ -209,6 +247,9 @@ class DequeLifoQueue(LifoQueue):
 
     def dequeue(self):
         return self._items.pop()
+
+    def peek(self):
+        return self._items[-1]
 
 
 class AltDequeLifoQueue(LifoQueue):
@@ -235,3 +276,6 @@ class AltDequeLifoQueue(LifoQueue):
 
     def dequeue(self):
         return self._items.popleft()
+
+    def peek(self):
+        return self._items[0]
