@@ -559,14 +559,19 @@ def flatten_levelorder(root):
     >>> list(flatten_levelorder(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
+    if not isinstance(root, tuple):
+        yield root
+        return
+
     queue = collections.deque((root,))
 
     while queue:
         element = queue.popleft()
-        if isinstance(element, tuple):
-            queue.extend(element)
-        else:
-            yield element
+        for subelement in element:
+            if isinstance(subelement, tuple):
+                queue.append(subelement)
+            else:
+                yield subelement
 
 
 def leaf_sum(root):
