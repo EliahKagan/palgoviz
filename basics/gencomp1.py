@@ -8,7 +8,6 @@ See also gencomp2.py and fibonacci.py.
 
 import collections
 import itertools
-import queue
 
 
 def my_enumerate(iterable, start=0):
@@ -402,12 +401,8 @@ def drop(iterable, n):
         raise ValueError("can't skip negatively many items")
 
     def helper():
-        # drop the first elements
         it = iter(iterable)
-        for _ in zip(range(n), it):
-            pass
-
-        #yield the rest
+        collections.deque(itertools.islice(it, n), maxlen=0)
         yield from it
 
     return helper()
