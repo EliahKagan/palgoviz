@@ -569,17 +569,17 @@ def windowed(iterable, n):
     """
     queue = collections.deque()
 
-    for element in iterable:
-        if len(queue) == n:
-            yield tuple(queue)
+    if n == 0:
+        yield tuple(queue)
 
+    for element in iterable:
         queue.append(element)
 
         if len(queue) > n:
             queue.popleft()
 
-    if len(queue) == n:
-        yield tuple(queue)
+        if len(queue) == n:
+            yield tuple(queue)
 
 
 def map_one(func, iterable):
