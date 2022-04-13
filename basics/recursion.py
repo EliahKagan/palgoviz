@@ -564,10 +564,10 @@ def flatten_levelorder(root):
 
     while queue:
         element = queue.popleft()
-        if not isinstance(element, tuple):
-            yield element
-        else:
+        if isinstance(element, tuple):
             queue.extend(element)
+        else:
+            yield element
 
 
 def leaf_sum(root):
