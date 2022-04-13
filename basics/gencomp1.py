@@ -571,7 +571,7 @@ def windowed(iterable, n):
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
     it = iter(iterable)
-    queue = collections.deque(itertools.islice(it, n))
+    queue = collections.deque(itertools.islice(it, n), n)
 
     if n > len(queue):
         return
@@ -580,7 +580,6 @@ def windowed(iterable, n):
 
     for element in it:
         queue.append(element)
-        queue.popleft()
         yield tuple(queue)
 
 
