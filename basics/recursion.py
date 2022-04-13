@@ -561,11 +561,11 @@ def flatten_levelorder(root):
     """
     queue = collections.deque()
 
-    def append_or_yield(element):
-        if isinstance(element, tuple):
-            queue.append(element)
+    def append_or_yield(node):
+        if isinstance(node, tuple):
+            queue.append(node)
         else:
-            yield element
+            yield node
 
     yield from append_or_yield(root)
 
