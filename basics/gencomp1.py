@@ -294,6 +294,8 @@ def take(iterable, n):
 
         itertools.islice(iterable, n)
 
+    Please don't call islice in this implementation.
+
     >>> next(take(range(3), 0))
     Traceback (most recent call last):
       ...
@@ -355,6 +357,8 @@ def drop(iterable, n):
     This behaves like itertools.islice with a start of n and a stop of None:
 
         itertools.islice(iterable, n, None)
+
+    Please don't call islice in this implementation with more than 2 arguments.
 
     >>> list(drop(range(5), 0))
     [0, 1, 2, 3, 4]
