@@ -7,6 +7,7 @@ See also object_graph.py.
 """
 
 import bisect
+import collections
 
 import decorators
 
@@ -510,7 +511,17 @@ def flatten_iterative(root):
     >>> list(flatten_iterative(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    # FIXME: Implement this.
+    if not isinstance(root, tuple):
+        yield root
+
+    if root == ():
+        return
+
+    queue = collections.deque(root)
+
+
+
+
 
 
 def flatten_levelorder(root):
@@ -548,7 +559,18 @@ def flatten_levelorder(root):
     >>> list(flatten_levelorder(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    # FIXME: Implement this.
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    queue = collections.deque(root)
+
+    while queue:
+        element = queue.popleft()
+        if not isinstance(element, tuple):
+            yield element
+        else:
+            queue.extend(element)
 
 
 def leaf_sum(root):
