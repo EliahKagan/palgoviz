@@ -570,11 +570,8 @@ def windowed(iterable, n):
     >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    queue = collections.deque()
     it = iter(iterable)
-
-    for element in itertools.islice(it, n):
-        queue.append(element)
+    queue = collections.deque(itertools.islice(it, n))
 
     if n > len(queue):
         return
