@@ -561,18 +561,18 @@ def flatten_levelorder(root):
     """
     queue = collections.deque()
 
-    if isinstance(root, tuple):
-        queue.append(root)
-    else:
-        yield root
+    def append_or_yield(element):
+        if isinstance(element, tuple):
+            queue.append(element)
+        else:
+            yield element
+
+    yield from append_or_yield(root)
 
     while queue:
         parent = queue.popleft()
         for child in parent:
-            if isinstance(child, tuple):
-                queue.append(child)
-            else:
-                yield child
+            yield from append_or_yield(child)
 
 
 def leaf_sum(root):
