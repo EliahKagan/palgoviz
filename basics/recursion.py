@@ -559,8 +559,7 @@ def flatten_levelorder(root):
     >>> list(flatten_levelorder(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    queue = collections.deque()
-    queue.append(root)
+    queue = collections.deque((root,))
 
     while queue:
         element = queue.popleft()
