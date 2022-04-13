@@ -573,12 +573,14 @@ def windowed(iterable, n):
     for _, element in zip(range(n), it):
         queue.append(element)
 
+    if n > len(queue):
+        return
+
+    yield tuple(queue)
+
     for element in it:
-        yield tuple(queue)
         queue.append(element)
         queue.popleft()
-
-    if len(queue) == n:
         yield tuple(queue)
 
 
