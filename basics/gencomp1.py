@@ -8,6 +8,7 @@ See also gencomp2.py and fibonacci.py.
 
 import collections
 import itertools
+import queue
 
 
 def my_enumerate(iterable, start=0):
@@ -425,18 +426,10 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    it = iter(iterable)
-
-    try:
-        item = next(it)
-    except StopIteration:
-        raise IndexError("can't get last item from empty iterable")
-
-    while True:
-        try:
-            item = next(it)
-        except StopIteration:
-            return item
+    queue = collections.deque(iterable, 1)
+    if queue:
+        return queue[0]
+    raise IndexError("can't get last item from empty iterable")
 
 
 def tail(iterable, n):
