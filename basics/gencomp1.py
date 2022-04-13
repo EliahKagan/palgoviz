@@ -134,9 +134,9 @@ def my_all(iterable):
 
 def zip_two(first, second):
     """
-    Zips two iterables.
+    Zip two iterables.
 
-    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
+    Zips shortest like the built-in zip, but must take exactly 2 arguments.
 
     >>> list(zip_two([], []))
     []
@@ -187,7 +187,9 @@ def zip_two(first, second):
 
 def my_zip(*iterables):
     """
-    Zips two iterables. Like the built-in zip, but with no "strict" argument.
+    Zip any number of iterables.
+
+    This is like the built-in zip, but with no "strict" argument.
 
     >>> list(my_zip([], []))
     []
