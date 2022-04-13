@@ -566,8 +566,7 @@ def flatten_levelorder(root):
     queue = collections.deque((root,))
 
     while queue:
-        parent = queue.popleft()
-        for child in parent:
+        for child in queue.popleft():
             if isinstance(child, tuple):
                 queue.append(child)
             else:
