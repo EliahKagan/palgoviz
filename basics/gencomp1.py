@@ -7,6 +7,7 @@ See also gencomp2.py and fibonacci.py.
 """
 
 import collections
+import itertools
 
 
 def my_enumerate(iterable, start=0):
@@ -570,7 +571,7 @@ def windowed(iterable, n):
     queue = collections.deque()
     it = iter(iterable)
 
-    for _, element in zip(range(n), it):
+    for element in itertools.islice(it, n):
         queue.append(element)
 
     if n > len(queue):
