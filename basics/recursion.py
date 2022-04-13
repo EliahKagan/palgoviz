@@ -511,17 +511,14 @@ def flatten_iterative(root):
     >>> list(flatten_iterative(nest('hi', 3, 3))) == ['hi'] * 27
     True
     """
-    if not isinstance(root, tuple):
-        yield root
+    stack = [root]
 
-    if root == ():
-        return
-
-    queue = collections.deque(root)
-
-
-
-
+    while stack:
+        element = stack.pop()
+        if isinstance(element, tuple):
+            stack.extend(reversed(element))
+        else:
+            yield element
 
 
 def flatten_levelorder(root):
