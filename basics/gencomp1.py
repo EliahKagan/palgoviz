@@ -6,6 +6,9 @@ Generators and comprehensions.
 See also gencomp2.py and fibonacci.py.
 """
 
+import collections
+import itertools
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -131,9 +134,9 @@ def my_all(iterable):
 
 def zip_two(first, second):
     """
-    Zips two iterables.
+    Zip two iterables.
 
-    Zips shortest, like the built-in zip, but must take exactly 2 arguments.
+    Zips shortest like the built-in zip, but must take exactly 2 arguments.
 
     >>> list(zip_two([], []))
     []
@@ -184,7 +187,9 @@ def zip_two(first, second):
 
 def my_zip(*iterables):
     """
-    Zips two iterables. Like the built-in zip, but with no "strict" argument.
+    Zip any number of iterables.
+
+    This is like the built-in zip, but with no "strict" argument.
 
     >>> list(my_zip([], []))
     []
@@ -288,6 +293,8 @@ def take(iterable, n):
 
         itertools.islice(iterable, n)
 
+    Please don't call islice in this implementation.
+
     >>> next(take(range(3), 0))
     Traceback (most recent call last):
       ...
@@ -350,6 +357,8 @@ def drop(iterable, n):
 
         itertools.islice(iterable, n, None)
 
+    Please don't call islice in this implementation with more than 2 arguments.
+
     >>> list(drop(range(5), 0))
     [0, 1, 2, 3, 4]
     >>> list(drop(range(5), 1))
@@ -392,12 +401,8 @@ def drop(iterable, n):
         raise ValueError("can't skip negatively many items")
 
     def helper():
-        # drop the first elements
         it = iter(iterable)
-        for _ in zip(range(n), it):
-            pass
-
-        #yield the rest
+        collections.deque(itertools.islice(it, n), maxlen=0)
         yield from it
 
     return helper()
@@ -420,18 +425,78 @@ def last(iterable):
     >>> last('I code in all the scary animals in my house including Python')
     'n'
     """
-    it = iter(iterable)
+    queue = collections.deque(iterable, 1)
+    if queue:
+        return queue[0]
+    raise IndexError("can't get last item from empty iterable")
 
+
+def tail(iterable, n):
+    """
+    Return a tuple of the last n elements of iterable.
+
+    If there are fewer than n elements in iterable, return all of them.
+
+    For an iterable of length L, this should take O(L) time and use
+    O(min(L, n)) auxiliary space.
+
+    >>> tail([], 0)
+    ()
+    >>> tail([], 1)
+    ()
+    >>> tail((x**2 for x in range(100)), 5)
+    (9025, 9216, 9409, 9604, 9801)
+    >>> it = iter(range(1000))
+    >>> tail(it, 0)
+    ()
+    >>> list(it)  # Even with n=0, the iterable is iterated through.
+    []
+    """
+    return tuple(collections.deque(iterable, n))
+
+
+def tail_opt(iterable, n):
+    """
+    Return a tuple of the last n elements of iterable, by slicing if supported.
+
+    As in tail (above), return all elements if there are fewer than n of them.
+
+    Unlike tail, tail_opt is never required to iterate through all elements,
+    even if it cannot use slicing (though usually it will have to).
+
+    >>> tail_opt([], 0)
+    ()
+    >>> tail_opt([], 1)
+    ()
+    >>> tail_opt((x**2 for x in range(100)), 5)
+    (9025, 9216, 9409, 9604, 9801)
+    >>> class MyList(list):
+    ...     def __iter__(self):
+    ...         print('Iterating.')
+    ...         return super().__iter__()
+    >>> a = MyList([10, 20, 30, 40])
+    >>> tail_opt(a, 6) == tail_opt(a, 5) == tail_opt(a, 4) == (10, 20, 30, 40)
+    True
+    >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
+    ((20, 30, 40), (30, 40), (40,), ())
+    >>> from itertools import chain
+    >>> it = chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> tail_opt(it, 3)
+    Iterating.
+    (20, 30, 40)
+    >>> tail_opt(range(1_000_000_000_000), 5)  # Hopefully this uses slicing!
+    (999999999995, 999999999996, 999999999997, 999999999998, 999999999999)
+    >>> tail_opt(dict.fromkeys(range(1000)), 3)
+    (997, 998, 999)
+    >>> sorted(tail_opt({'a', 'b', 'c', 'd', 'e'}, 128))
+    ['a', 'b', 'c', 'd', 'e']
+    """
+    if n == 0:
+        return ()
     try:
-        item = next(it)
-    except StopIteration:
-        raise IndexError("can't get last item from empty iterable")
-
-    while True:
-        try:
-            item = next(it)
-        except StopIteration:
-            return item
+        return tuple(iterable[-n:])
+    except TypeError:
+        return tail(iterable, n)
 
 
 def pick(iterable, index):
@@ -464,6 +529,43 @@ def pick(iterable, index):
         return next(drop(iterable, index))
     except StopIteration:
         raise IndexError("index out of range")
+
+
+def windowed(iterable, n):
+    """
+    Yield all width-n contiguous subsequences of iterable, in order, as tuples.
+
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> from itertools import islice
+    >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+    it = iter(iterable)
+    queue = collections.deque(itertools.islice(it, n), n)
+
+    if n > len(queue):
+        return
+
+    yield tuple(queue)
+
+    for element in it:
+        queue.append(element)
+        yield tuple(queue)
 
 
 def map_one(func, iterable):
