@@ -605,9 +605,9 @@ def flatten_iterative_observed(root, observer):
         parent, element = stack.pop()
         if parent is not None:
             observer(parent, element)
+
         if isinstance(element, tuple):
-            for child in reversed(element):
-                stack.append((element, child))
+            stack.extend((element, child) for child in reversed(element))
         else:
             yield element
 
