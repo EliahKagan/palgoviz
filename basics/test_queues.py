@@ -12,7 +12,6 @@ and order of all test methods in each currently existing test class. (But if
 you prefer it this way after doing so, please feel free to revert the change.)
 """
 
-from collections import Counter
 import inspect
 import unittest
 
@@ -261,9 +260,10 @@ class TestConcrete(unittest.TestCase):
          ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']),
         ('distinct numbers', range(0, 1000, 10)),
         ('distinct tuples', [(10, 20), (31, 17), (9, 87), (-14, 2)]),
-        ('all identical', [object()] * 200),  # 200 of the same object
-        ('nondistinct frozensets',
-         [frozenset({'ab', 'cd'}), frozenset({'ab', 'cd'}), frozenset()]),
+        ('distinct lists', [list(range(n)) for n in range(10)]),
+        ('identical lists', [['a', 'parrot']] * 10),
+        ('equal lists', [['a', 'parrot'] for _ in range(10)]),
+        ('not-all-distinct sets', [{'ab', 'cd'}, {'ab', 'cd'}, set()]),
     ])
     def test_dequeuing_gives_enqueued_items_in_some_order(self,
                                                           _label,
@@ -277,7 +277,7 @@ class TestConcrete(unittest.TestCase):
         while queue:
             out_items.append(queue.dequeue())
 
-        self.assertEqual(Counter(out_items), Counter(in_items))
+        self.assertListEqual(sorted(in_items), sorted(out_items))
 
 
 @parameterized_class(('name', 'queue_type'), [
