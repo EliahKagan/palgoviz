@@ -788,40 +788,6 @@ def leaf_sum_dec(root):
     return traverse(root)
 
 
-def leaf_sum_iterative(root):
-    """
-    Without recursive calls, sum non-tuples accessible through nested tuples.
-
-    Overlapping subproblems (the same tuple object in multiple places) are
-    solved only once; the solution is cached and reused.
-
-    This is like leaf_sum, leaf_sum_alt, and leaf_sum_dec, except those use the
-    language's ability to call functions recursively, while this doesn't, not
-    even indirectly. The algorithm used here is permitted to be recursive, but
-    the implementation must be iterative, involving no recursive functions.
-
-    Combinator-based techniques, such as when a function that calls one of its
-    parameters is passed to itself, are likewise not allowed.
-
-    >>> leaf_sum_iterative(3)
-    3
-    >>> leaf_sum_iterative(())
-    0
-    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
-    >>> leaf_sum_iterative(root)
-    57
-    >>> leaf_sum_iterative(nest(seed=1, degree=2, height=200))
-    1606938044258990275541962092341162602522202993782792835301376
-    >>> from fibonacci import fib, fib_nest
-    >>> leaf_sum_iterative(fib_nest(10))
-    55
-    >>> all(leaf_sum_iterative(fib_nest(i)) == x
-    ...                        for i, x in zip(range(401), fib()))
-    True
-    """
-    # FIXME: Implement this.
-
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
