@@ -113,7 +113,7 @@ class LifoQueue(Queue):
 class PriorityQueue(Queue):
     """Abstract class representing a priority queue."""
 
-    __slots__  = ()
+    __slots__ = ()
 
     @classmethod
     def create(cls):
@@ -357,7 +357,6 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
 
     __slots__ = ('_items',)
-
 
     def __init__(self):
         """Create a new empty max priority queue supporting fast extraction."""

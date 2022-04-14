@@ -554,6 +554,7 @@ class TestPriorityQueues(unittest.TestCase):
     """
 
     def test_is_priority_queue(self):
+        """Priority queue classes are subclasses of PriorityQueue."""
         self.assertTrue(issubclass(self.queue_type, queues.PriorityQueue))
 
     def test_dequeue_high_after_enqueue_low_high(self):
