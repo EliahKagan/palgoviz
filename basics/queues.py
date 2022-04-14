@@ -11,7 +11,6 @@ constructible from an iterable? Should they themselves be iterable? Reversible?
 from abc import ABC, abstractmethod
 import bisect
 import collections
-import operator
 
 
 def _identity_function(arg):
@@ -27,7 +26,7 @@ def _indexed_min(iterable, *, key):
     raises ValueError when passed an empty iterable.
     """
     try:
-        return min(enumerate(iterable), key=operator.itemgetter(1))
+        return min(enumerate(iterable), key=lambda pair: key(pair[1]))
     except ValueError as error:
         raise IndexError("can't get indexed min of empty iterable") from error
 
