@@ -599,12 +599,15 @@ def flatten_iterative_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    stack = [(None, root)]
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    stack = list((root, child) for child in reversed(root))
 
     while stack:
         parent, node = stack.pop()
-        if parent is not None:  # TODO: Try an approach that elides this check.
-            observer(parent, node)
+        observer(parent, node)
 
         if isinstance(node, tuple):
             stack.extend((node, child) for child in reversed(node))
@@ -684,18 +687,22 @@ def flatten_levelorder_observed(root, observer):
     (5,)  ->  5
     [1, 3, 4, 6, 2, 5]
     """
-    queue = collections.deque((root,))  # TODO: Try enqueuing only tuples.
+    queue = collections.deque()
+
+    def visit(node):
+        if isinstance(node, tuple):
+            queue.append(node)
+        else:
+            yield node
+
+    yield from visit(root)
 
     while queue:
         parent = queue.popleft()
 
-        if not isinstance(parent, tuple):
-            yield parent
-            continue
-
         for child in parent:
             observer(parent, child)
-            queue.append(child)
+            yield from visit(child)
 
 
 def leaf_sum(root):
