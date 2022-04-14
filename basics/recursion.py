@@ -8,6 +8,7 @@ See also object_graph.py.
 
 import bisect
 import collections
+import enum
 
 import decorators
 
@@ -445,9 +446,18 @@ def nest(seed, degree, height):
     return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
 
 
+def observe_edge(parent, child):
+    """
+    Print a representation of an edge from parent to child in a tree.
+
+    This is a simple edge observer. See the "..._observed" functions below.
+    """
+    print(f'{parent!r}  ->  {child!r}')
+
+
 def flatten(root):
     """
-    Using recursion, lazily flatten a tuple, yielding all non-tuple leaves.
+    Recursively lazily flatten a nested tuple, yielding all non-tuple leaves.
 
     This returns an iterator that yields all leaves in the order the repr shows
     them. If root is not a tuple, it is considered to be the one and only leaf.
@@ -482,13 +492,47 @@ def flatten(root):
         yield from flatten(element)
 
 
+def flatten_observed(root, observer):
+    """
+    Recursively lazily flatten a nested tuple. Call an observer for each edge.
+
+    This is like flatten (above), but it also calls observer(parent, child) for
+    each child found, in the order they are found.
+
+    >>> list(flatten_observed((), observe_edge))
+    []
+    >>> list(flatten_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (2,)  ->  2
+    (1, (2,), 3)  ->  3
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (5,)  ->  5
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    [1, 2, 3, 4, 5, 6]
+    """
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    for child in root:
+        observer(root, child)
+        yield from flatten_observed(child, observer)
+
+
 def flatten_iterative(root):
     """
-    Without recursion, lazily flatten a tuple, yielding all non-tuple leaves.
+    Nonrecursively lazily flatten a tuple, yielding all non-tuple leaves.
 
     This is like flatten (above), but using a purely iterative algorithm.
-
-    (This is not recursive, but it relates to other functions in this module.)
 
     >>> list(flatten_iterative(()))
     []
@@ -521,6 +565,53 @@ def flatten_iterative(root):
             yield element
 
 
+def flatten_iterative_observed(root, observer):
+    """
+    Nonrecursively lazily flatten a tuple. Call an observer for each edge.
+
+    This is like flatten_iterative (above), but it also calls
+    observer(parent, child) for each child found, in the order the usual
+    recursive algorithm (implemented in flatten, above) would find them.
+
+    Various iterative algorithms discover nodes in different orders. There are
+    no requirements on the order in which the algorithm used here discovers
+    nodes, so long as the observer can't tell this apart from flatten_observed.
+
+    [But you should also look at the order the nodes are really discovered in.]
+
+    >>> list(flatten_iterative_observed((), observe_edge))
+    []
+    >>> list(flatten_iterative_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_iterative_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (2,)  ->  2
+    (1, (2,), 3)  ->  3
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (5,)  ->  5
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    [1, 2, 3, 4, 5, 6]
+    """
+    stack = [(None, root)]
+
+    while stack:
+        parent, node = stack.pop()
+        if parent is not None:  # TODO: Try an approach that elides this check.
+            observer(parent, node)
+
+        if isinstance(node, tuple):
+            stack.extend((node, child) for child in reversed(node))
+        else:
+            yield node
+
+
 def flatten_levelorder(root):
     """
     Lazily flatten a tuple in breadth-first order (level order).
@@ -532,8 +623,6 @@ def flatten_levelorder(root):
 
     Leaves at the same level are yielded in the same relative order flatten and
     flatten_iterative yields them: left to right.
-
-    (This is not recursive, but it relates to other functions in this module.)
 
     >>> list(flatten_levelorder(()))
     []
@@ -564,6 +653,49 @@ def flatten_levelorder(root):
             queue.extend(element)
         else:
             yield element
+
+
+def flatten_levelorder_observed(root, observer):
+    """
+    Lazily flatten a tuple breadth-first. Call an observer for each edge.
+
+    This is like flatten_levelorder (above), but it also calls
+    observer(parent, child) for each child found, in the order they are found.
+
+    NOTE: The code here can be simpler than in flatten_iterative_observed.
+
+    >>> list(flatten_levelorder_observed((), observe_edge))
+    []
+    >>> list(flatten_levelorder_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_levelorder_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (1, (2,), 3)  ->  3
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    (2,)  ->  2
+    (5,)  ->  5
+    [1, 3, 4, 6, 2, 5]
+    """
+    queue = collections.deque((root,))  # TODO: Try enqueuing only tuples.
+
+    while queue:
+        parent = queue.popleft()
+
+        if not isinstance(parent, tuple):
+            yield parent
+            continue
+
+        for child in parent:
+            observer(parent, child)
+            queue.append(child)
 
 
 def leaf_sum(root):
@@ -682,6 +814,97 @@ def leaf_sum_dec(root):
         return sum(traverse(child) for child in parent)
 
     return traverse(root)
+
+
+@enum.unique
+class _Action(enum.Enum):
+    """States for a memoizing state machine for summing nested tuple leaves."""
+
+    CHECK_ARGUMENT = enum.auto()
+    DISPATCH_COMPUTATION = enum.auto()
+    RETRIEVE_RESULT = enum.auto()
+
+
+class _Frame:
+    """Stack frame for iteratively implemented recursive nested-tuple sum."""
+
+    __slots__ = ('action', 'node', 'acc', 'iterator')
+
+    def __init__(self, node):
+        self.action = _Action.CHECK_ARGUMENT
+        self.node = node
+        self.acc = 0
+        # self.iterator is deliberately not assigned yet.
+
+
+def leaf_sum_iterative(root):
+    """
+    Without recursive calls, sum non-tuples accessible through nested tuples.
+
+    Overlapping subproblems (the same tuple object in multiple places) are
+    solved only once; the solution is cached and reused.
+
+    This is like leaf_sum, leaf_sum_alt, and leaf_sum_dec, except those use the
+    language's ability to call functions recursively, while this doesn't, not
+    even indirectly. The algorithm used here is permitted to be recursive, but
+    the implementation must be iterative, involving no recursive functions.
+
+    Combinator-based techniques, such as when a function that calls one of its
+    parameters is passed to itself, are likewise not allowed.
+
+    >>> leaf_sum_iterative(3)
+    3
+    >>> leaf_sum_iterative(())
+    0
+    >>> root = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
+    >>> leaf_sum_iterative(root)
+    57
+    >>> leaf_sum_iterative(nest(seed=1, degree=2, height=200))
+    1606938044258990275541962092341162602522202993782792835301376
+    >>> from fibonacci import fib, fib_nest
+    >>> leaf_sum_iterative(fib_nest(10))
+    55
+    >>> all(leaf_sum_iterative(fib_nest(i)) == x
+    ...                        for i, x in zip(range(401), fib()))
+    True
+    """
+    stack = [_Frame(root)]
+    cache = {}
+
+    while stack:
+        frame = stack[-1]
+
+        match frame.action:
+            case _Action.CHECK_ARGUMENT:
+                if not isinstance(frame.node, tuple):
+                    result = frame.node
+                    del stack[-1]
+                elif id(frame.node) in cache:
+                    result = cache[id(frame.node)]
+                    del stack[-1]
+                else:
+                    frame.action = _Action.DISPATCH_COMPUTATION
+                    frame.iterator = iter(frame.node)
+
+            case _Action.DISPATCH_COMPUTATION:
+                try:
+                    child = next(frame.iterator)
+                except StopIteration:
+                    result = cache[id(frame.node)] = frame.acc
+                    del stack[-1]
+                else:
+                    frame.action = _Action.RETRIEVE_RESULT
+                    stack.append(_Frame(child))
+
+            case _Action.RETRIEVE_RESULT:
+                frame.action = _Action.DISPATCH_COMPUTATION
+                frame.acc += result
+                del result
+
+            case _:
+                raise AssertionError(f'invalid action: {frame.action!r}')
+
+    return result
 
 
 if __name__ == '__main__':
