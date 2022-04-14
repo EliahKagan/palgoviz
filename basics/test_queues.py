@@ -556,27 +556,68 @@ class TestPriorityQueues(unittest.TestCase):
     def test_is_priority_queue(self):
         self.assertTrue(issubclass(self.queue_type, queues.PriorityQueue))
 
-    @parameterized.expand([
-        ('low, high', 'ham', 'spam', 'spam', 'ham'),
-        ('high, low', 'spam', 'ham', 'spam', 'ham'),
-    ])
-    def test_high_dequeues_before_low(self, _label,
-                                      in1, in2, expected_out1, expected_out2):
-        """When two items are enqueued, the greater of them dequeues first."""
+    def test_dequeue_high_after_enqueue_low_high(self):
+        """When 2 items are enqueued, low first, the higher dequeues first."""
         pq = self.queue_type()
-        pq.enqueue(in1)
-        pq.enqueue(in2)
+        pq.enqueue('ham')
+        pq.enqueue('spam')
 
         with self.subTest(dequeue=1):
             item = pq.dequeue()
-            self.assertEqual(item, expected_out1)
+            self.assertEqual(item, 'spam')
 
         with self.subTest(dequeue=2):
             item = pq.dequeue()
-            self.assertEqual(item, expected_out2)
+            self.assertEqual(item, 'ham')
 
-    # FIXME: Add the three other test methods needed here.
-    # (Compare to TestFifos and TestLifos; the methods correspond.)
+    def test_dequeue_high_after_enqueue_high_low(self):
+        """When 2 items are enqueued, high first, the higher dequeues first."""
+        pq = self.queue_type()
+        pq.enqueue('spam')
+        pq.enqueue('ham')
+
+        with self.subTest(dequeue=1):
+            item = pq.dequeue()
+            self.assertEqual(item, 'spam')
+
+        with self.subTest(dequeue=2):
+            item = pq.dequeue()
+            self.assertEqual(item, 'ham')
+
+    def test_peek_high_after_enqueue_low_high(self):
+        """When 2 items are enqueued, low first, peek returns the second."""
+        pq = self.queue_type()
+        pq.enqueue('ham')
+        pq.enqueue('spam')
+
+        with self.subTest(peek=1):
+            item = pq.peek()
+            self.assertEqual(item, 'spam')
+
+        pq.dequeue()
+
+        with self.subTest(peek=2):
+            item = pq.peek()
+            self.assertEqual(item, 'ham')
+
+    def test_peek_high_after_enqueue_high_low(self):
+        """When 2 items are enqueued, high first, peek returns the first."""
+        pq = self.queue_type()
+        pq.enqueue('spam')
+        pq.enqueue('ham')
+
+        with self.subTest(peek=1):
+            item = pq.peek()
+            self.assertEqual(item, 'spam')
+
+        pq.dequeue()
+
+        with self.subTest(peek=2):
+            item = pq.peek()
+            self.assertEqual(item, 'ham')
+
+    # FIXME: Add the other test methods required here (interleaved operations).
+
 
 if __name__ == '__main__':
     unittest.main()
