@@ -599,16 +599,15 @@ def flatten_iterative_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    stack = [root]
+    stack = [(None, root)]
 
     while stack:
-        element = stack.pop()
-        if stack:
-            observer(stack.pop(), element)
+        parent, element = stack.pop()
+        if parent is not None:
+            observer(parent, element)
         if isinstance(element, tuple):
-            for subelement in reversed(element):
-                stack.append(element)
-                stack.append(subelement)
+            for child in reversed(element):
+                stack.append((element, child))
         else:
             yield element
 
