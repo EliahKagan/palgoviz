@@ -4,12 +4,10 @@
 
 import operator
 
-_OPERATORS = {
-    '+': operator.add,
-    '-': operator.sub,
-    '*': operator.mul,
-    '/': operator.truediv,
-}
+_OPERATORS = {'+': operator.add,
+              '-': operator.sub,
+              '*': operator.mul,
+              '/': operator.truediv}
 
 
 def postfix_calculate(expression):
@@ -20,7 +18,7 @@ def postfix_calculate(expression):
     either can be interpreted as a floating-point number or is one of the
     symbols "+", "-", "*", or "/", denoting a binary arithmetic operation.
 
-    In posfix notation, operands precede the operator that operates on them.
+    In postfix notation, operands precede the operator that operates on them.
 
     >>> postfix_calculate('3')
     3.0
@@ -33,20 +31,17 @@ def postfix_calculate(expression):
     >>> round(postfix_calculate('3 2.2 * 1 + 1 2 / -'), 10)
     7.1
     """
-    stack = []
+    operands = []
 
     for token in expression.split():
         try:
-            stack.append(float(token))
+            operands.append(float(token))
         except ValueError:
-            arg2 = stack.pop()
-            arg1 = stack.pop()
-            stack.append(_OPERATORS[token](arg1, arg2))
+            b = operands.pop()
+            a = operands.pop()
+            operands.append(_OPERATORS[token](a, b))
 
-    if len(stack) != 1:
-        raise ValueError('expression was ill-formed')
-
-    return stack[0]
+    return operands.pop()
 
 
 if __name__ == '__main__':

@@ -514,11 +514,11 @@ def flatten_iterative(root):
     stack = [root]
 
     while stack:
-        node = stack.pop()
-        if isinstance(node, tuple):
-            stack.extend(reversed(node))
+        element = stack.pop()
+        if isinstance(element, tuple):
+            stack.extend(reversed(element))
         else:
-            yield node
+            yield element
 
 
 def flatten_levelorder(root):
@@ -559,11 +559,11 @@ def flatten_levelorder(root):
     queue = collections.deque((root,))
 
     while queue:
-        node = queue.popleft()
-        if isinstance(node, tuple):
-            queue.extend(node)
+        element = queue.popleft()
+        if isinstance(element, tuple):
+            queue.extend(element)
         else:
-            yield node
+            yield element
 
 
 def leaf_sum(root):
