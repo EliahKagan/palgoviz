@@ -616,7 +616,87 @@ class TestPriorityQueues(unittest.TestCase):
             item = pq.peek()
             self.assertEqual(item, 'ham')
 
-    # FIXME: Add the other test methods required here (interleaved operations).
+    def test_mixed_enqueues_and_dequeues_always_dequeue_max(self):
+        """Interleaved operations behave properly as a max priority queue."""
+        pq = self.queue_type()
+        pq.enqueue(10)
+        pq.enqueue(30)
+        pq.enqueue(20)
+
+        with self.subTest(size=len(pq), dequeue=1):
+            item = pq.dequeue()
+            self.assertEqual(item, 30)
+
+        with self.subTest(size=len(pq), dequeue=2):
+            item = pq.dequeue()
+            self.assertEqual(item, 20)
+
+        pq.enqueue(50)
+        pq.enqueue(40)
+
+        with self.subTest(size=len(pq), dequeue=3):
+            item = pq.dequeue()
+            self.assertEqual(item, 50)
+
+        pq.enqueue(60)
+
+        with self.subTest(size=len(pq), dequeue=4):
+            item = pq.dequeue()
+            self.assertEqual(item, 60)
+
+        with self.subTest(size=len(pq), dequeue=5):
+            item = pq.dequeue()
+            self.assertEqual(item, 40)
+
+        with self.subTest(size=len(pq), dequeue=6):
+            item = pq.dequeue()
+            self.assertEqual(item, 10)
+
+    def test_mixed_enqueues_and_dequeues_always_peek_max(self):
+        """
+        Interleaved peeks align with proper max priority queue order dequeuing.
+        """
+        pq = self.queue_type()
+        pq.enqueue(10)
+        pq.enqueue(30)
+        pq.enqueue(20)
+
+        with self.subTest(size=len(pq), peek=1):
+            item = pq.peek()
+            self.assertEqual(item, 30)
+
+        pq.dequeue()
+
+        with self.subTest(size=len(pq), peek=2):
+            item = pq.peek()
+            self.assertEqual(item, 20)
+
+        pq.dequeue()
+        pq.enqueue(50)
+        pq.enqueue(40)
+
+        with self.subTest(size=len(pq), peek=3):
+            item = pq.peek()
+            self.assertEqual(item, 50)
+
+        pq.dequeue()
+        pq.enqueue(60)
+
+        with self.subTest(size=len(pq), peek=4):
+            item = pq.peek()
+            self.assertEqual(item, 60)
+
+        pq.dequeue()
+
+        with self.subTest(size=len(pq), peek=5):
+            item = pq.peek()
+            self.assertEqual(item, 40)
+
+        pq.dequeue()
+
+        with self.subTest(size=len(pq), dequeue=6):
+            item = pq.peek()
+            self.assertEqual(item, 10)
 
 
 if __name__ == '__main__':
