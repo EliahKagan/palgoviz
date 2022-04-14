@@ -7,6 +7,7 @@ See also object_graph.py.
 """
 
 import bisect
+import collections
 
 import decorators
 
@@ -446,7 +447,7 @@ def nest(seed, degree, height):
 
 def flatten(root):
     """
-    Using recursion, lazily flatten a tuple, yielding all leaves (non-tuples).
+    Using recursion, lazily flatten a tuple, yielding all non-tuple leaves.
 
     This returns an iterator that yields all leaves in the order the repr shows
     them. If root is not a tuple, it is considered to be the one and only leaf.
@@ -479,6 +480,90 @@ def flatten(root):
 
     for element in root:
         yield from flatten(element)
+
+
+def flatten_iterative(root):
+    """
+    Without recursion, lazily flatten a tuple, yielding all non-tuple leaves.
+
+    This is like flatten (above), but using a purely iterative algorithm.
+
+    (This is not recursive, but it relates to other functions in this module.)
+
+    >>> list(flatten_iterative(()))
+    []
+    >>> list(flatten_iterative(3))
+    [3]
+    >>> list(flatten_iterative([3]))
+    [[3]]
+    >>> list(flatten_iterative((3,)))
+    [3]
+    >>> list(flatten_iterative((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(flatten_iterative((2, ((3,), 7))))
+    [2, 3, 7]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> list(flatten_iterative(root1))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(flatten_iterative(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(flatten_iterative(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+    stack = [root]
+
+    while stack:
+        element = stack.pop()
+        if isinstance(element, tuple):
+            stack.extend(reversed(element))
+        else:
+            yield element
+
+
+def flatten_levelorder(root):
+    """
+    Lazily flatten a tuple in breadth-first order (level order).
+
+    This is like flatten and flatten_iterative (above), but those flatten in
+    depth-first order. In contrast, this function yields leaves closer to the
+    root before yielding leaves farther from the root. The same leaves are all
+    eventually yielded, but often in a different order.
+
+    Leaves at the same level are yielded in the same relative order flatten and
+    flatten_iterative yields them: left to right.
+
+    (This is not recursive, but it relates to other functions in this module.)
+
+    >>> list(flatten_levelorder(()))
+    []
+    >>> list(flatten_levelorder(3))
+    [3]
+    >>> list(flatten_levelorder([3]))
+    [[3]]
+    >>> list(flatten_levelorder((3,)))
+    [3]
+    >>> list(flatten_levelorder((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(flatten_levelorder((2, ((3,), 7))))
+    [2, 7, 3]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> list(flatten_levelorder(root1))
+    [1, 2, 3, 12, 4, 5, 6, 11, 7, 8, 10, 9]
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(flatten_levelorder(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(flatten_levelorder(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+    queue = collections.deque((root,))
+
+    while queue:
+        element = queue.popleft()
+        if isinstance(element, tuple):
+            queue.extend(element)
+        else:
+            yield element
 
 
 def leaf_sum(root):
