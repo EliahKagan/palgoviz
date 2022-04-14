@@ -599,7 +599,14 @@ def flatten_iterative_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    # FIXME: Implement this.
+    stack = [root]
+
+    while stack:
+        element = stack.pop()
+        if isinstance(element, tuple):
+            stack.extend(reversed(element))
+        else:
+            yield element
 
 
 def flatten_levelorder(root):
@@ -674,7 +681,17 @@ def flatten_levelorder_observed(root, observer):
     (5,)  ->  5
     [1, 3, 4, 6, 2, 5]
     """
-    # FIXME: Implement this.
+    queue = collections.deque((root,))
+    count = 0
+
+    while queue:
+        element = queue.popleft()
+        if isinstance(element, tuple):
+            for subelement in element:
+                observer(element, subelement)
+            queue.extend(element)
+        else:
+            yield element
 
 
 def leaf_sum(root):
