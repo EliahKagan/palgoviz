@@ -518,7 +518,14 @@ def flatten_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    # FIXME: Implement this.
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    for element in root:
+        observer(root, element)
+        yield from flatten_observed(element, observer)
 
 
 def flatten_iterative(root):
