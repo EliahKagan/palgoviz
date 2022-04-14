@@ -9,6 +9,7 @@ Eventually, however, that should be fixed (and this paragraph removed).
 from abc import ABC, abstractmethod
 import bisect
 import collections
+import operator
 
 
 def _identity_function(arg):
@@ -17,17 +18,19 @@ def _identity_function(arg):
 
 
 def _indexed_min(iterable, *, key):
-    def select_value_without_index(indexed_value):
-        _, value = indexed_value
-        return key(value)
+    """
+    Find the minimum of enumerate(iterable), comparing by value (not index).
 
+    If iterable is empty, IndexError is raised. This differs from min, which
+    raises ValueError when passed an empty iterable.
+    """
     try:
-        return min(enumerate(iterable), key=select_value_without_index)
+        return min(enumerate(iterable), key=operator.itemgetter(1))
     except ValueError as error:
         raise IndexError("can't get indexed min of empty iterable") from error
 
 
-# TODO: Extract this class to be public in another module, for reuse.
+# TODO: Extract something like this class to compare.py, for reuse.
 class _ReverseComparing:
     """Opaque wrapper, providing reversed order comparisons."""
 
@@ -68,6 +71,7 @@ class _ReverseComparing:
 
     def __hash__(self):
         return hash(self._item)
+
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
@@ -411,7 +415,7 @@ class FastEnqueuePriorityQueue(_FlatPriorityQueueBase):
         return _indexed_min(self._items, key=self._key)
 
 
-class FastDequeuingPriorityQueue(_FlatPriorityQueueBase):
+class FastDequeuePriorityQueue(_FlatPriorityQueueBase):
     """A priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
 
     __slots__ = ()
