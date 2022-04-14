@@ -682,7 +682,6 @@ def flatten_levelorder_observed(root, observer):
     [1, 3, 4, 6, 2, 5]
     """
     queue = collections.deque((root,))
-    count = 0
 
     while queue:
         element = queue.popleft()
