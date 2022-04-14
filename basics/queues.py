@@ -330,6 +330,16 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
 
     __slots__ = ('_items',)
 
+    def __init__(self):
+        """Create a new empty max priority queue supporting fast insertion."""
+        self._items = []
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
     def enqueue(self, item):
         self._items.append(item)
 
@@ -347,6 +357,17 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
 
     __slots__ = ('_items',)
+
+
+    def __init__(self):
+        """Create a new empty max priority queue supporting fast extraction."""
+        self._items = []
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
 
     def enqueue(self, item):
         bisect.insort_right(self._items, item)

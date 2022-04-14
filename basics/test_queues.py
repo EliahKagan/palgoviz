@@ -30,6 +30,7 @@ def _unannotated_argspec(func):
     ('Queue', queues.Queue),
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
+    ('PriorityQueue', queues.PriorityQueue),
 ])
 class TestAbstract(unittest.TestCase):
     """Tests for abstract queue types."""
@@ -47,6 +48,7 @@ class TestAbstract(unittest.TestCase):
     ('Queue', queues.Queue),
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
+    ('PriorityQueue', queues.PriorityQueue),
     ('DequeFifoQueue', queues.DequeFifoQueue),
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
@@ -54,6 +56,9 @@ class TestAbstract(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
+
 ])
 class TestSignatures(unittest.TestCase):
     """Tests for expected queue methods. All queue types should pass these."""
@@ -92,6 +97,7 @@ class TestSignatures(unittest.TestCase):
 @parameterized_class(('name', 'queue_type'), [
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
+    ('PriorityQueue', queues.PriorityQueue),
     ('DequeFifoQueue', queues.DequeFifoQueue),
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
@@ -99,6 +105,8 @@ class TestSignatures(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
 ])
 class TestSubclasses(unittest.TestCase):
     """Tests for leaf and non-leaf subclasses of Queue."""
@@ -132,6 +140,8 @@ class TestSubclasses(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
 ])
 class TestConcrete(unittest.TestCase):
     """Tests for concrete queue types."""
@@ -516,6 +526,57 @@ class TestLifos(unittest.TestCase):
             item = lifo.peek()
             self.assertEqual(item, 10)
 
+
+@parameterized_class(('name', 'queue_type'), [
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
+])
+class TestPriorityQueues(unittest.TestCase):
+    """
+    Tests for concrete priority queues. Max priority queue behavior is assumed.
+
+    NOTE: This API is unstable and expected to change in the near future.
+
+    TODO: It is best for priority queue types to be versatile: able to act as
+    either a min priority queue or a max priority queue, and also accepting an
+    arbitrary key selector function. Therefore, no tests require presence of a
+    MaxPriorityQueue abstract class, since that would not often be a good
+    design. But for simplicity, our initial design involves just max priority
+    queue behavior. These tests currently expect that behavior. These are max
+    rather than min priority queues because that makes one of the concrete
+    classes easier to implement using standard library facilities. But there is
+    a good argument our priority queues should, by default, operate as min
+    priority queues instead: Python programmers are likely to expect a min
+    default, because the heapq module provides low-level binary minheap (not
+    maxheap) operations. Eventually, we should redesign our priority queues,
+    possibly changing the min/max default, and definitely having all concrete
+    implementations' initializers accept key= and reverse= arguments.
+    """
+
+    def test_is_priority_queue(self):
+        self.assertTrue(issubclass(self.queue_type, queues.PriorityQueue))
+
+    @parameterized.expand([
+        ('low, high', 'ham', 'spam', 'spam', 'ham'),
+        ('high, low', 'spam', 'ham', 'spam', 'ham'),
+    ])
+    def test_high_dequeues_before_low(self, _label,
+                                      in1, in2, expected_out1, expected_out2):
+        """When two items are enqueued, the greater of them dequeues first."""
+        pq = self.queue_type()
+        pq.enqueue(in1)
+        pq.enqueue(in2)
+
+        with self.subTest(dequeue=1):
+            item = pq.dequeue()
+            self.assertEqual(item, expected_out1)
+
+        with self.subTest(dequeue=2):
+            item = pq.dequeue()
+            self.assertEqual(item, expected_out2)
+
+    # FIXME: Add the three other test methods needed here.
+    # (Compare to TestFifos and TestLifos; the methods correspond.)
 
 if __name__ == '__main__':
     unittest.main()
