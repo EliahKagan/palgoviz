@@ -7,8 +7,67 @@ Eventually, however, that should be fixed (and this paragraph removed).
 """
 
 from abc import ABC, abstractmethod
+import bisect
 import collections
 
+
+def _identity_function(arg):
+    """Identity function. Returns its argument unchanged."""
+    return arg
+
+
+def _indexed_min(iterable, *, key):
+    def select_value_without_index(indexed_value):
+        _, value = indexed_value
+        return key(value)
+
+    try:
+        return min(enumerate(iterable), key=select_value_without_index)
+    except ValueError as error:
+        raise IndexError("can't get indexed min of empty iterable") from error
+
+
+# TODO: Extract this class to be public in another module, for reuse.
+class _ReverseComparing:
+    """Opaque wrapper, providing reversed order comparisons."""
+
+    __slots__ = ('_item',)
+
+    def __init__(self, item, *, key=None):
+        """
+        Create a reverse-comparing wrapper for an item.
+
+        A key preselector function may be passed as key.
+        """
+        self._item = (item if key is None else key(item))
+
+    def __eq__(self, other):
+        if not isinstance(other, _ReverseComparing):
+            return NotImplemented
+        return other._item == self._item
+
+    def __lt__(self, other):
+        if not isinstance(other, _ReverseComparing):
+            return NotImplemented
+        return other._item < self._item
+
+    def __gt__(self, other):
+        if not isinstance(other, _ReverseComparing):
+            return NotImplemented
+        return other._item > self._item
+
+    def __le__(self, other):
+        if not isinstance(other, _ReverseComparing):
+            return NotImplemented
+        return other._item <= self._item
+
+    def __ge__(self, other):
+        if not isinstance(other, _ReverseComparing):
+            return NotImplemented
+        return other._item >= self._item
+
+    def __hash__(self):
+        return hash(self._item)
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
@@ -90,6 +149,33 @@ class LifoQueue(Queue):
     @abstractmethod
     def peek(self):
         """Return the most recently inserted element from this LIFO queue."""
+        raise NotImplementedError()
+
+
+class PriorityQueue(Queue):
+    """Abstract class representing a priority queue."""
+
+    __slots__  = ()
+
+    @classmethod
+    def create(cls):
+        """Opaquely instantiate some reasonable PriorityQueue subclass."""
+        # TODO: Once BinaryMinheapPriorityQueue is implemented, default to it.
+        return (FastEnqueuePriorityQueue if cls is PriorityQueue else cls)()
+
+    @abstractmethod
+    def enqueue(self, item):
+        """Insert an item into this priority queue."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def dequeue(self):
+        """Extract the priority element from this priority queue."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def peek(self):
+        """Return (but keep) the priority element from this priority queue."""
         raise NotImplementedError()
 
 
@@ -279,3 +365,65 @@ class AltDequeLifoQueue(LifoQueue):
 
     def peek(self):
         return self._items[0]
+
+
+class _FlatPriorityQueueBase(PriorityQueue):
+    """Implementation detail for code reuse implementing priority queues."""
+
+    __slots__ = ('_key', '_items')
+
+    def __init__(self, *, key=None, reverse=False):
+        """Create a new empty priority queue."""
+        if reverse:
+            self._key = lambda item: _ReverseComparing(item, key=key)
+        elif key is None:
+            self._key = _identity_function
+        else:
+            self._key = key
+
+        self._items = []
+
+    def __bool__(self):
+        return bool(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
+
+class FastEnqueuePriorityQueue(_FlatPriorityQueueBase):
+    """A priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
+
+    __slots__ = ()
+
+    def enqueue(self, item):
+        self._items.append(item)
+
+    def dequeue(self):
+        i, _ = _indexed_min(self._items, key=self._key)
+        self._items[i], self._items[-1] = self._items[-1], self._items[i]
+        return self._items.pop()
+
+    def peek(self):
+        _, value = _indexed_min(self._items, key=self._key)
+        return value
+
+    def _indexed_priority_item(self):
+        return _indexed_min(self._items, key=self._key)
+
+
+class FastDequeuingPriorityQueue(_FlatPriorityQueueBase):
+    """A priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
+
+    __slots__ = ()
+
+    def __init__(self, *, key=None, reverse=False):
+        super().__init__(key=key, reverse=not reverse)
+
+    def enqueue(self, item):
+        bisect.insort(self._items, item, key=self._key)
+
+    def dequeue(self):
+        return self._items.pop()
+
+    def peek(self):
+        return self._items[-1]
