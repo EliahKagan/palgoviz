@@ -8,7 +8,6 @@ See also object_graph.py.
 
 import bisect
 import collections
-import enum
 
 import decorators
 
@@ -519,13 +518,7 @@ def flatten_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    if not isinstance(root, tuple):
-        yield root
-        return
-
-    for child in root:
-        observer(root, child)
-        yield from flatten_observed(child, observer)
+    # FIXME: Implement this.
 
 
 def flatten_iterative(root):
@@ -599,20 +592,7 @@ def flatten_iterative_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    if not isinstance(root, tuple):
-        yield root
-        return
-
-    stack = list((root, child) for child in reversed(root))
-
-    while stack:
-        parent, node = stack.pop()
-        observer(parent, node)
-
-        if isinstance(node, tuple):
-            stack.extend((node, child) for child in reversed(node))
-        else:
-            yield node
+    # FIXME: Implement this.
 
 
 def flatten_levelorder(root):
@@ -687,22 +667,7 @@ def flatten_levelorder_observed(root, observer):
     (5,)  ->  5
     [1, 3, 4, 6, 2, 5]
     """
-    queue = collections.deque()
-
-    def visit(node):
-        if isinstance(node, tuple):
-            queue.append(node)
-        else:
-            yield node
-
-    yield from visit(root)
-
-    while queue:
-        parent = queue.popleft()
-
-        for child in parent:
-            observer(parent, child)
-            yield from visit(child)
+    # FIXME: Implement this.
 
 
 def leaf_sum(root):
@@ -823,27 +788,6 @@ def leaf_sum_dec(root):
     return traverse(root)
 
 
-@enum.unique
-class _Action(enum.Enum):
-    """States for a memoizing state machine for summing nested tuple leaves."""
-
-    CHECK_ARGUMENT = enum.auto()
-    DISPATCH_COMPUTATION = enum.auto()
-    RETRIEVE_RESULT = enum.auto()
-
-
-class _Frame:
-    """Stack frame for iteratively implemented recursive nested-tuple sum."""
-
-    __slots__ = ('action', 'node', 'acc', 'iterator')
-
-    def __init__(self, node):
-        self.action = _Action.CHECK_ARGUMENT
-        self.node = node
-        self.acc = 0
-        # self.iterator is deliberately not assigned yet.
-
-
 def leaf_sum_iterative(root):
     """
     Without recursive calls, sum non-tuples accessible through nested tuples.
@@ -875,43 +819,7 @@ def leaf_sum_iterative(root):
     ...                        for i, x in zip(range(401), fib()))
     True
     """
-    stack = [_Frame(root)]
-    cache = {}
-
-    while stack:
-        frame = stack[-1]
-
-        match frame.action:
-            case _Action.CHECK_ARGUMENT:
-                if not isinstance(frame.node, tuple):
-                    result = frame.node
-                    del stack[-1]
-                elif id(frame.node) in cache:
-                    result = cache[id(frame.node)]
-                    del stack[-1]
-                else:
-                    frame.action = _Action.DISPATCH_COMPUTATION
-                    frame.iterator = iter(frame.node)
-
-            case _Action.DISPATCH_COMPUTATION:
-                try:
-                    child = next(frame.iterator)
-                except StopIteration:
-                    result = cache[id(frame.node)] = frame.acc
-                    del stack[-1]
-                else:
-                    frame.action = _Action.RETRIEVE_RESULT
-                    stack.append(_Frame(child))
-
-            case _Action.RETRIEVE_RESULT:
-                frame.action = _Action.DISPATCH_COMPUTATION
-                frame.acc += result
-                del result
-
-            case _:
-                raise AssertionError(f'invalid action: {frame.action!r}')
-
-    return result
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':
