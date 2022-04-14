@@ -12,7 +12,6 @@ and order of all test methods in each currently existing test class. (But if
 you prefer it this way after doing so, please feel free to revert the change.)
 """
 
-from collections import Counter
 import inspect
 import unittest
 
@@ -30,6 +29,7 @@ def _unannotated_argspec(func):
     ('Queue', queues.Queue),
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
+    ('PriorityQueue', queues.PriorityQueue),
 ])
 class TestAbstract(unittest.TestCase):
     """Tests for abstract queue types."""
@@ -47,6 +47,7 @@ class TestAbstract(unittest.TestCase):
     ('Queue', queues.Queue),
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
+    ('PriorityQueue', queues.PriorityQueue),
     ('DequeFifoQueue', queues.DequeFifoQueue),
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
@@ -54,6 +55,9 @@ class TestAbstract(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
+
 ])
 class TestSignatures(unittest.TestCase):
     """Tests for expected queue methods. All queue types should pass these."""
@@ -92,6 +96,7 @@ class TestSignatures(unittest.TestCase):
 @parameterized_class(('name', 'queue_type'), [
     ('FifoQueue', queues.FifoQueue),
     ('LifoQueue', queues.LifoQueue),
+    ('PriorityQueue', queues.PriorityQueue),
     ('DequeFifoQueue', queues.DequeFifoQueue),
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
@@ -99,6 +104,8 @@ class TestSignatures(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
 ])
 class TestSubclasses(unittest.TestCase):
     """Tests for leaf and non-leaf subclasses of Queue."""
@@ -132,6 +139,8 @@ class TestSubclasses(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
 ])
 class TestConcrete(unittest.TestCase):
     """Tests for concrete queue types."""
@@ -251,9 +260,10 @@ class TestConcrete(unittest.TestCase):
          ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']),
         ('distinct numbers', range(0, 1000, 10)),
         ('distinct tuples', [(10, 20), (31, 17), (9, 87), (-14, 2)]),
-        ('all identical', [object()] * 200),  # 200 of the same object
-        ('nondistinct frozensets',
-         [frozenset({'ab', 'cd'}), frozenset({'ab', 'cd'}), frozenset()]),
+        ('distinct lists', [list(range(n)) for n in range(10)]),
+        ('identical lists', [['a', 'parrot']] * 10),
+        ('equal lists', [['a', 'parrot'] for _ in range(10)]),
+        ('not-all-distinct sets', [{'ab', 'cd'}, {'ab', 'cd'}, set()]),
     ])
     def test_dequeuing_gives_enqueued_items_in_some_order(self,
                                                           _label,
@@ -267,7 +277,7 @@ class TestConcrete(unittest.TestCase):
         while queue:
             out_items.append(queue.dequeue())
 
-        self.assertEqual(Counter(out_items), Counter(in_items))
+        self.assertListEqual(sorted(in_items), sorted(out_items))
 
 
 @parameterized_class(('name', 'queue_type'), [
@@ -514,6 +524,179 @@ class TestLifos(unittest.TestCase):
 
         with self.subTest(size=len(lifo), peek=6):
             item = lifo.peek()
+            self.assertEqual(item, 10)
+
+
+@parameterized_class(('name', 'queue_type'), [
+    ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
+    ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
+])
+class TestPriorityQueues(unittest.TestCase):
+    """
+    Tests for concrete priority queues. Max priority queue behavior is assumed.
+
+    NOTE: This API is unstable and expected to change in the near future.
+
+    TODO: It is best for priority queue types to be versatile: able to act as
+    either a min priority queue or a max priority queue, and also accepting an
+    arbitrary key selector function. Therefore, no tests require presence of a
+    MaxPriorityQueue abstract class, since that would not often be a good
+    design. But for simplicity, our initial design involves just max priority
+    queue behavior. These tests currently expect that behavior. These are max
+    rather than min priority queues because that makes one of the concrete
+    classes easier to implement using standard library facilities. But there is
+    a good argument our priority queues should, by default, operate as min
+    priority queues instead: Python programmers are likely to expect a min
+    default, because the heapq module provides low-level binary minheap (not
+    maxheap) operations. Eventually, we should redesign our priority queues,
+    possibly changing the min/max default, and definitely having all concrete
+    implementations' initializers accept key= and reverse= arguments.
+    """
+
+    def test_is_priority_queue(self):
+        """Priority queue classes are subclasses of PriorityQueue."""
+        self.assertTrue(issubclass(self.queue_type, queues.PriorityQueue))
+
+    def test_dequeue_high_after_enqueue_low_high(self):
+        """When 2 items are enqueued, low first, the higher dequeues first."""
+        pq = self.queue_type()
+        pq.enqueue('ham')
+        pq.enqueue('spam')
+
+        with self.subTest(dequeue=1):
+            item = pq.dequeue()
+            self.assertEqual(item, 'spam')
+
+        with self.subTest(dequeue=2):
+            item = pq.dequeue()
+            self.assertEqual(item, 'ham')
+
+    def test_dequeue_high_after_enqueue_high_low(self):
+        """When 2 items are enqueued, high first, the higher dequeues first."""
+        pq = self.queue_type()
+        pq.enqueue('spam')
+        pq.enqueue('ham')
+
+        with self.subTest(dequeue=1):
+            item = pq.dequeue()
+            self.assertEqual(item, 'spam')
+
+        with self.subTest(dequeue=2):
+            item = pq.dequeue()
+            self.assertEqual(item, 'ham')
+
+    def test_peek_high_after_enqueue_low_high(self):
+        """When 2 items are enqueued, low first, peek returns the second."""
+        pq = self.queue_type()
+        pq.enqueue('ham')
+        pq.enqueue('spam')
+
+        with self.subTest(peek=1):
+            item = pq.peek()
+            self.assertEqual(item, 'spam')
+
+        pq.dequeue()
+
+        with self.subTest(peek=2):
+            item = pq.peek()
+            self.assertEqual(item, 'ham')
+
+    def test_peek_high_after_enqueue_high_low(self):
+        """When 2 items are enqueued, high first, peek returns the first."""
+        pq = self.queue_type()
+        pq.enqueue('spam')
+        pq.enqueue('ham')
+
+        with self.subTest(peek=1):
+            item = pq.peek()
+            self.assertEqual(item, 'spam')
+
+        pq.dequeue()
+
+        with self.subTest(peek=2):
+            item = pq.peek()
+            self.assertEqual(item, 'ham')
+
+    def test_mixed_enqueues_and_dequeues_always_dequeue_max(self):
+        """Interleaved operations behave properly as a max priority queue."""
+        pq = self.queue_type()
+        pq.enqueue(10)
+        pq.enqueue(30)
+        pq.enqueue(20)
+
+        with self.subTest(size=len(pq), dequeue=1):
+            item = pq.dequeue()
+            self.assertEqual(item, 30)
+
+        with self.subTest(size=len(pq), dequeue=2):
+            item = pq.dequeue()
+            self.assertEqual(item, 20)
+
+        pq.enqueue(50)
+        pq.enqueue(40)
+
+        with self.subTest(size=len(pq), dequeue=3):
+            item = pq.dequeue()
+            self.assertEqual(item, 50)
+
+        pq.enqueue(60)
+
+        with self.subTest(size=len(pq), dequeue=4):
+            item = pq.dequeue()
+            self.assertEqual(item, 60)
+
+        with self.subTest(size=len(pq), dequeue=5):
+            item = pq.dequeue()
+            self.assertEqual(item, 40)
+
+        with self.subTest(size=len(pq), dequeue=6):
+            item = pq.dequeue()
+            self.assertEqual(item, 10)
+
+    def test_mixed_enqueues_and_dequeues_always_peek_max(self):
+        """
+        Interleaved peeks align with proper max priority queue order dequeuing.
+        """
+        pq = self.queue_type()
+        pq.enqueue(10)
+        pq.enqueue(30)
+        pq.enqueue(20)
+
+        with self.subTest(size=len(pq), peek=1):
+            item = pq.peek()
+            self.assertEqual(item, 30)
+
+        pq.dequeue()
+
+        with self.subTest(size=len(pq), peek=2):
+            item = pq.peek()
+            self.assertEqual(item, 20)
+
+        pq.dequeue()
+        pq.enqueue(50)
+        pq.enqueue(40)
+
+        with self.subTest(size=len(pq), peek=3):
+            item = pq.peek()
+            self.assertEqual(item, 50)
+
+        pq.dequeue()
+        pq.enqueue(60)
+
+        with self.subTest(size=len(pq), peek=4):
+            item = pq.peek()
+            self.assertEqual(item, 60)
+
+        pq.dequeue()
+
+        with self.subTest(size=len(pq), peek=5):
+            item = pq.peek()
+            self.assertEqual(item, 40)
+
+        pq.dequeue()
+
+        with self.subTest(size=len(pq), dequeue=6):
+            item = pq.peek()
             self.assertEqual(item, 10)
 
 

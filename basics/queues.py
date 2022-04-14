@@ -2,8 +2,10 @@
 Queues, in the general sense.
 
 TODO: To focus on fundamental operations of generalized queues, the initial
-implementations of the types in this module do not override __repr__.
-Eventually, however, that should be fixed (and this paragraph removed).
+implementations of types in this module won't override __repr__. Eventually,
+that should be fixed (and this note removed). Design decisions to accompany
+implementing __repr__ may include: Should (all or some of) the queue types be
+constructible from an iterable? Should they themselves be iterable? Reversible?
 """
 
 
@@ -19,6 +21,10 @@ class LifoQueue:
     """Abstract class representing a last-in first-out queue (a stack)."""
 
 
+class PriorityQueue:
+    """Abstract class representing a priority queue."""
+
+
 class DequeFifoQueue:
     """A FIFO queue (i.e., a "queue") based on a collections.deque."""
 
@@ -32,7 +38,7 @@ class AltDequeFifoQueue:
 
 
 class SlowFifoQueue:
-    """A FIFO queue (i.e., a "queue") based on a list. Quadratic dequeueing."""
+    """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
 
 
 class BiStackFifoQueue:
@@ -53,3 +59,11 @@ class AltDequeLifoQueue:
 
     Like DequeLifoQueue but elements are pushed and popped at the other end.
     """
+
+
+class FastEnqueueMaxPriorityQueue:
+    """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
+
+
+class FastDequeueMaxPriorityQueue:
+    """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
