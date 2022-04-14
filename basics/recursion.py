@@ -603,8 +603,12 @@ def flatten_iterative_observed(root, observer):
 
     while stack:
         element = stack.pop()
+        if stack:
+            observer(stack.pop(), element)
         if isinstance(element, tuple):
-            stack.extend(reversed(element))
+            for subelement in reversed(element):
+                stack.append(element)
+                stack.append(subelement)
         else:
             yield element
 
