@@ -12,12 +12,11 @@ and order of all test methods in each currently existing test class. (But if
 you prefer it this way after doing so, please feel free to revert the change.)
 """
 
+from abc import ABC, abstractmethod
 import inspect
 import unittest
 
-from abc import ABC, abstractmethod
-
-from parameterized import parameterized, parameterized_class
+from parameterized import parameterized
 
 import queues
 
@@ -642,7 +641,8 @@ class _Bases:
                 self.assertEqual(item, 10)
 
 
-class TestQueue(_Bases.TestAbstract, _Bases.TestSignatures):
+class TestQueue(_Bases.TestAbstract,
+                _Bases.TestSignatures):
     """Tests for Queue class."""
 
     @property
@@ -650,7 +650,9 @@ class TestQueue(_Bases.TestAbstract, _Bases.TestSignatures):
         return queues.Queue
 
 
-class TestFifoQueue(_Bases.TestAbstract, _Bases.TestSignatures, _Bases.TestSubclasses):
+class TestFifoQueue(_Bases.TestAbstract,
+                    _Bases.TestSignatures,
+                    _Bases.TestSubclasses):
     """Tests for FifoQueue class."""
 
     @property
@@ -658,7 +660,9 @@ class TestFifoQueue(_Bases.TestAbstract, _Bases.TestSignatures, _Bases.TestSubcl
         return queues.FifoQueue
 
 
-class TestLifoQueue(_Bases.TestAbstract, _Bases.TestSignatures, _Bases.TestSubclasses):
+class TestLifoQueue(_Bases.TestAbstract,
+                    _Bases.TestSignatures,
+                    _Bases.TestSubclasses):
     """Tests for LifoQueue class."""
 
     @property
@@ -666,7 +670,9 @@ class TestLifoQueue(_Bases.TestAbstract, _Bases.TestSignatures, _Bases.TestSubcl
         return queues.LifoQueue
 
 
-class TestPriorityQueue(_Bases.TestAbstract, _Bases.TestSignatures, _Bases.TestSubclasses):
+class TestPriorityQueue(_Bases.TestAbstract,
+                        _Bases.TestSignatures,
+                        _Bases.TestSubclasses):
     """Tests for PriorityQueue class."""
 
     @property
@@ -674,7 +680,9 @@ class TestPriorityQueue(_Bases.TestAbstract, _Bases.TestSignatures, _Bases.TestS
         return queues.PriorityQueue
 
 
-class TestDequeFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestFifos):
+class TestDequeFifoQueue(_Bases.TestSignatures,
+                         _Bases.TestSubclasses,
+                         _Bases.TestFifos):
     """Tests for DequeFifoQueue class."""
 
     @property
@@ -682,7 +690,9 @@ class TestDequeFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.Te
         return queues.DequeFifoQueue
 
 
-class TestAltDequeFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestFifos):
+class TestAltDequeFifoQueue(_Bases.TestSignatures,
+                            _Bases.TestSubclasses,
+                            _Bases.TestFifos):
     """Tests for AltDequeFifoQueue class."""
 
     @property
@@ -690,7 +700,9 @@ class TestAltDequeFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases
         return queues.AltDequeFifoQueue
 
 
-class TestSlowFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestFifos):
+class TestSlowFifoQueue(_Bases.TestSignatures,
+                        _Bases.TestSubclasses,
+                        _Bases.TestFifos):
     """Tests for SlowFifoQueue class."""
 
     @property
@@ -698,7 +710,9 @@ class TestSlowFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.Tes
         return queues.SlowFifoQueue
 
 
-class TestBiStackFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestFifos):
+class TestBiStackFifoQueue(_Bases.TestSignatures,
+                           _Bases.TestSubclasses,
+                           _Bases.TestFifos):
     """Tests for BiStackFifoQueue class."""
 
     @property
@@ -706,7 +720,9 @@ class TestBiStackFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.
         return queues.BiStackFifoQueue
 
 
-class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestFifos):
+class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
+                                    _Bases.TestSubclasses,
+                                    _Bases.TestFifos):
     """Tests for SinglyLinkedListFifoQueue class."""
 
     @property
@@ -714,7 +730,9 @@ class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses
         return queues.SinglyLinkedListFifoQueue
 
 
-class TestListLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestLifos):
+class TestListLifoQueue(_Bases.TestSignatures,
+                        _Bases.TestSubclasses,
+                        _Bases.TestLifos):
     """Tests for ListLifoQueue class."""
 
     @property
@@ -722,7 +740,9 @@ class TestListLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.Tes
         return queues.ListLifoQueue
 
 
-class TestDequeLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestLifos):
+class TestDequeLifoQueue(_Bases.TestSignatures,
+                         _Bases.TestSubclasses,
+                         _Bases.TestLifos):
     """Tests for DequeLifoQueue class."""
 
     @property
@@ -730,7 +750,9 @@ class TestDequeLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.Te
         return queues.DequeLifoQueue
 
 
-class TestAltDequeLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestLifos):
+class TestAltDequeLifoQueue(_Bases.TestSignatures,
+                            _Bases.TestSubclasses,
+                            _Bases.TestLifos):
     """Tests for AltDequeLifoQueue class."""
 
     @property
@@ -738,7 +760,9 @@ class TestAltDequeLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases
         return queues.AltDequeLifoQueue
 
 
-class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestLifos):
+class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures,
+                                    _Bases.TestSubclasses,
+                                    _Bases.TestLifos):
     """Tests for SinglyLinkedListLifoQueue class."""
 
     @property
@@ -746,7 +770,9 @@ class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures, _Bases.TestSubclasses
         return queues.SinglyLinkedListLifoQueue
 
 
-class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestPriorityQueues):
+class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures,
+                                      _Bases.TestSubclasses,
+                                      _Bases.TestPriorityQueues):
     """Tests for FastEnqueueMaxPriorityQueue class."""
 
     @property
@@ -754,7 +780,9 @@ class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures, _Bases.TestSubclass
         return queues.FastEnqueueMaxPriorityQueue
 
 
-class TestFastDequeueMaxPriorityQueue(_Bases.TestSignatures, _Bases.TestSubclasses, _Bases.TestPriorityQueues):
+class TestFastDequeueMaxPriorityQueue(_Bases.TestSignatures,
+                                      _Bases.TestSubclasses,
+                                      _Bases.TestPriorityQueues):
     """Tests for FastDequeueMaxPriorityQueue class."""
 
     @property
