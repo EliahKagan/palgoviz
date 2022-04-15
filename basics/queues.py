@@ -36,7 +36,6 @@ class _Node:
         return self._element
 
 
-
 def _indexed_max(iterable):
     """
     Find the maximum of enumerate(iterable), comparing by value (not index).
