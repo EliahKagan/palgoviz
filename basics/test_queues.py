@@ -682,6 +682,7 @@ class TestPriorityQueue(_Bases.TestAbstract,
 
 class TestDequeFifoQueue(_Bases.TestSignatures,
                          _Bases.TestSubclasses,
+                         _Bases.TestConcrete,
                          _Bases.TestFifos):
     """Tests for DequeFifoQueue class."""
 
@@ -692,6 +693,7 @@ class TestDequeFifoQueue(_Bases.TestSignatures,
 
 class TestAltDequeFifoQueue(_Bases.TestSignatures,
                             _Bases.TestSubclasses,
+                            _Bases.TestConcrete,
                             _Bases.TestFifos):
     """Tests for AltDequeFifoQueue class."""
 
@@ -702,6 +704,7 @@ class TestAltDequeFifoQueue(_Bases.TestSignatures,
 
 class TestSlowFifoQueue(_Bases.TestSignatures,
                         _Bases.TestSubclasses,
+                        _Bases.TestConcrete,
                         _Bases.TestFifos):
     """Tests for SlowFifoQueue class."""
 
@@ -712,6 +715,7 @@ class TestSlowFifoQueue(_Bases.TestSignatures,
 
 class TestBiStackFifoQueue(_Bases.TestSignatures,
                            _Bases.TestSubclasses,
+                           _Bases.TestConcrete,
                            _Bases.TestFifos):
     """Tests for BiStackFifoQueue class."""
 
@@ -722,6 +726,7 @@ class TestBiStackFifoQueue(_Bases.TestSignatures,
 
 class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
+                                    _Bases.TestConcrete,
                                     _Bases.TestFifos):
     """Tests for SinglyLinkedListFifoQueue class."""
 
@@ -732,6 +737,7 @@ class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
 
 class TestListLifoQueue(_Bases.TestSignatures,
                         _Bases.TestSubclasses,
+                        _Bases.TestConcrete,
                         _Bases.TestLifos):
     """Tests for ListLifoQueue class."""
 
@@ -742,6 +748,7 @@ class TestListLifoQueue(_Bases.TestSignatures,
 
 class TestDequeLifoQueue(_Bases.TestSignatures,
                          _Bases.TestSubclasses,
+                         _Bases.TestConcrete,
                          _Bases.TestLifos):
     """Tests for DequeLifoQueue class."""
 
@@ -752,6 +759,7 @@ class TestDequeLifoQueue(_Bases.TestSignatures,
 
 class TestAltDequeLifoQueue(_Bases.TestSignatures,
                             _Bases.TestSubclasses,
+                            _Bases.TestConcrete,
                             _Bases.TestLifos):
     """Tests for AltDequeLifoQueue class."""
 
@@ -762,6 +770,7 @@ class TestAltDequeLifoQueue(_Bases.TestSignatures,
 
 class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
+                                    _Bases.TestConcrete,
                                     _Bases.TestLifos):
     """Tests for SinglyLinkedListLifoQueue class."""
 
@@ -772,6 +781,7 @@ class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures,
 
 class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures,
                                       _Bases.TestSubclasses,
+                                      _Bases.TestConcrete,
                                       _Bases.TestPriorityQueues):
     """Tests for FastEnqueueMaxPriorityQueue class."""
 
@@ -782,6 +792,7 @@ class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures,
 
 class TestFastDequeueMaxPriorityQueue(_Bases.TestSignatures,
                                       _Bases.TestSubclasses,
+                                      _Bases.TestConcrete,
                                       _Bases.TestPriorityQueues):
     """Tests for FastDequeueMaxPriorityQueue class."""
 
