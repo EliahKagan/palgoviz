@@ -14,6 +14,29 @@ import collections
 import operator
 
 
+class _Node:
+    """A singly linked list node."""
+
+    __slots__ = ('_element', 'next')
+
+    def __init__(self, /, element, next_node=None):
+        """Create a new node with the given element and optional next node."""
+        self._element = element
+        self.next = next_node
+
+    def __repr__(self):
+        typename = type(self).__name__
+        if self.next is None:
+            return f'{typename}({self.element!r})'
+        return f'{typename}({self.element!r}, {self.next!r})'
+
+    @property
+    def element(self):
+        """The element ("payload") held in this node."""
+        return self._element
+
+
+
 def _indexed_max(iterable):
     """
     Find the maximum of enumerate(iterable), comparing by value (not index).
@@ -246,6 +269,40 @@ class BiStackFifoQueue(FifoQueue):
         return self._out[-1] if self._out else self._in[0]
 
 
+class SinglyLinkedListFifoQueue(FifoQueue):
+    """A FIFO queue (i.e., a "queue") based on a singly linked list."""
+
+    __slots__ = ('_front_sentinel', '_back', '_size')
+
+    def __init__(self):
+        """Create a new empty singly-linked-list-based FIFO queue."""
+        self._front_sentinel = self._back = _Node(None)  # Sentinel node.
+        self._size = 0
+
+    def __bool__(self):
+        return self._size != 0
+
+    def __len__(self):
+        return self._size
+
+    def enqueue(self, item):
+        self._back.next = _Node(item)
+        self._back = self._back.next
+        self._size += 1
+
+    def dequeue(self):
+        item = self.peek()
+        self._front_sentinel.next = self._front_sentinel.next.next
+        self._size -= 1
+        return item
+
+    def peek(self):
+        if not self:
+            raise LookupError('empty queue has no first element')
+
+        return self._front_sentinel.next.element
+
+
 class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
 
@@ -323,6 +380,39 @@ class AltDequeLifoQueue(LifoQueue):
 
     def peek(self):
         return self._items[0]
+
+
+class SinglyLinkedListLifoQueue(LifoQueue):
+    """A LIFO queue (i.e., a stack) based on a singly linked list."""
+
+    __slots__ = ('_top', '_size')
+
+    def __init__(self):
+        """Create a new empty singly-linked-list-based LIFO queue."""
+        self._top = None
+        self._size = 0
+
+    def __bool__(self):
+        return self._top is not None
+
+    def __len__(self):
+        return self._size
+
+    def enqueue(self, item):
+        self._top = _Node(item, self._top)
+        self._size += 1
+
+    def dequeue(self):
+        item = self.peek()
+        self._top = self._top.next
+        self._size -= 1
+        return item
+
+    def peek(self):
+        if self._top is None:
+            raise LookupError('empty queue has no first element')
+
+        return self._top.element
 
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):

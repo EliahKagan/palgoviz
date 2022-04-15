@@ -52,12 +52,13 @@ class TestAbstract(unittest.TestCase):
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
     ('BiStackFifoQueue', queues.BiStackFifoQueue),
+    ('SinglyLinkedListFifoQueue', queues.SinglyLinkedListFifoQueue),
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('SinglyLinkedListLifoQueue', queues.SinglyLinkedListLifoQueue),
     ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
     ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
-
 ])
 class TestSignatures(unittest.TestCase):
     """Tests for expected queue methods. All queue types should pass these."""
@@ -101,9 +102,11 @@ class TestSignatures(unittest.TestCase):
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
     ('BiStackFifoQueue', queues.BiStackFifoQueue),
+    ('SinglyLinkedListFifoQueue', queues.SinglyLinkedListFifoQueue),
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('SinglyLinkedListLifoQueue', queues.SinglyLinkedListLifoQueue),
     ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
     ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
 ])
@@ -136,9 +139,11 @@ class TestSubclasses(unittest.TestCase):
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
     ('BiStackFifoQueue', queues.BiStackFifoQueue),
+    ('SinglyLinkedListFifoQueue', queues.SinglyLinkedListFifoQueue),
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('SinglyLinkedListLifoQueue', queues.SinglyLinkedListLifoQueue),
     ('FastEnqueueMaxPriorityQueue', queues.FastEnqueueMaxPriorityQueue),
     ('FastDequeueMaxPriorityQueue', queues.FastDequeueMaxPriorityQueue),
 ])
@@ -285,6 +290,7 @@ class TestConcrete(unittest.TestCase):
     ('AltDequeFifoQueue', queues.AltDequeFifoQueue),
     ('SlowFifoQueue', queues.SlowFifoQueue),
     ('BiStackFifoQueue', queues.BiStackFifoQueue),
+    ('SinglyLinkedListFifoQueue', queues.SinglyLinkedListFifoQueue),
 ])
 class TestFifos(unittest.TestCase):
     """Tests for concrete FIFO queue ("queue") behavior."""
@@ -408,6 +414,7 @@ class TestFifos(unittest.TestCase):
     ('ListLifoQueue', queues.ListLifoQueue),
     ('DequeLifoQueue', queues.DequeLifoQueue),
     ('AltDequeLifoQueue', queues.AltDequeLifoQueue),
+    ('SinglyLinkedListLifoQueue', queues.SinglyLinkedListLifoQueue),
 ])
 class TestLifos(unittest.TestCase):
     """Tests for concrete LIFO queue (stack) behavior."""
