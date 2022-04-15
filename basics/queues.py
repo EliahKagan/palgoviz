@@ -45,6 +45,10 @@ class BiStackFifoQueue:
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
 
+class SinglyLinkedListFifoQueue:
+    """A FIFO queue (i.e., a "queue") based on a singly linked list."""
+
+
 class ListLifoQueue:
     """A LIFO queue (i.e., a stack) based on a list."""
 
@@ -59,6 +63,10 @@ class AltDequeLifoQueue:
 
     Like DequeLifoQueue but elements are pushed and popped at the other end.
     """
+
+
+class SinglyLinkedListLifoQueue:
+    """A LIFO queue (i.e., a stack) based on a singly linked list."""
 
 
 class FastEnqueueMaxPriorityQueue:
