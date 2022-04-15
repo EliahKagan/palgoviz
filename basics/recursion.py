@@ -445,9 +445,18 @@ def nest(seed, degree, height):
     return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
 
 
+def observe_edge(parent, child):
+    """
+    Print a representation of an edge from parent to child in a tree.
+
+    This is a simple edge observer. See the "..._observed" functions below.
+    """
+    print(f'{parent!r}  ->  {child!r}')
+
+
 def flatten(root):
     """
-    Using recursion, lazily flatten a tuple, yielding all non-tuple leaves.
+    Recursively lazily flatten a nested tuple, yielding all non-tuple leaves.
 
     This returns an iterator that yields all leaves in the order the repr shows
     them. If root is not a tuple, it is considered to be the one and only leaf.
@@ -482,13 +491,48 @@ def flatten(root):
         yield from flatten(element)
 
 
+def flatten_observed(root, observer):
+    """
+    Recursively lazily flatten a nested tuple. Call an observer for each edge.
+
+    This is like flatten (above), but it also calls observer(parent, child) for
+    each child found, in the order they are found.
+
+    >>> list(flatten_observed((), observe_edge))
+    []
+    >>> list(flatten_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (2,)  ->  2
+    (1, (2,), 3)  ->  3
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (5,)  ->  5
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    [1, 2, 3, 4, 5, 6]
+    """
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    for element in root:
+        observer(root, element)
+        yield from flatten_observed(element, observer)
+
+
 def flatten_iterative(root):
     """
-    Without recursion, lazily flatten a tuple, yielding all non-tuple leaves.
+    Nonrecursively lazily flatten a tuple, yielding all non-tuple leaves.
 
     This is like flatten (above), but using a purely iterative algorithm.
-
-    (This is not recursive, but it relates to other functions in this module.)
 
     >>> list(flatten_iterative(()))
     []
@@ -521,6 +565,53 @@ def flatten_iterative(root):
             yield element
 
 
+def flatten_iterative_observed(root, observer):
+    """
+    Nonrecursively lazily flatten a tuple. Call an observer for each edge.
+
+    This is like flatten_iterative (above), but it also calls
+    observer(parent, child) for each child found, in the order the usual
+    recursive algorithm (implemented in flatten, above) would find them.
+
+    Various iterative algorithms discover nodes in different orders. There are
+    no requirements on the order in which the algorithm used here discovers
+    nodes, so long as the observer can't tell this apart from flatten_observed.
+
+    [But you should also look at the order the nodes are really discovered in.]
+
+    >>> list(flatten_iterative_observed((), observe_edge))
+    []
+    >>> list(flatten_iterative_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_iterative_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (2,)  ->  2
+    (1, (2,), 3)  ->  3
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (5,)  ->  5
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    [1, 2, 3, 4, 5, 6]
+    """
+    stack = [(None, root)]
+
+    while stack:
+        parent, element = stack.pop()
+        if parent is not None:
+            observer(parent, element)
+
+        if isinstance(element, tuple):
+            stack.extend((element, child) for child in reversed(element))
+        else:
+            yield element
+
+
 def flatten_levelorder(root):
     """
     Lazily flatten a tuple in breadth-first order (level order).
@@ -532,8 +623,6 @@ def flatten_levelorder(root):
 
     Leaves at the same level are yielded in the same relative order flatten and
     flatten_iterative yields them: left to right.
-
-    (This is not recursive, but it relates to other functions in this module.)
 
     >>> list(flatten_levelorder(()))
     []
@@ -561,6 +650,47 @@ def flatten_levelorder(root):
     while queue:
         element = queue.popleft()
         if isinstance(element, tuple):
+            queue.extend(element)
+        else:
+            yield element
+
+
+def flatten_levelorder_observed(root, observer):
+    """
+    Lazily flatten a tuple breadth-first. Call an observer for each edge.
+
+    This is like flatten_levelorder (above), but it also calls
+    observer(parent, child) for each child found, in the order they are found.
+
+    NOTE: The code here can be simpler than in flatten_iterative_observed.
+
+    >>> list(flatten_levelorder_observed((), observe_edge))
+    []
+    >>> list(flatten_levelorder_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_levelorder_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (1, (2,), 3)  ->  3
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    (2,)  ->  2
+    (5,)  ->  5
+    [1, 3, 4, 6, 2, 5]
+    """
+    queue = collections.deque((root,))
+
+    while queue:
+        element = queue.popleft()
+        if isinstance(element, tuple):
+            for subelement in element:
+                observer(element, subelement)
             queue.extend(element)
         else:
             yield element
