@@ -295,7 +295,7 @@ class TestConcrete(unittest.TestCase):
 class TestFifos(unittest.TestCase):
     """Tests for concrete FIFO queue ("queue") behavior."""
 
-    def test_is_fifoqueue(self):
+    def test_is_fifo_queue(self):
         """FIFO queue classes are subclasses of FifoQueue."""
         self.assertTrue(issubclass(self.queue_type, queues.FifoQueue))
 
@@ -419,7 +419,7 @@ class TestFifos(unittest.TestCase):
 class TestLifos(unittest.TestCase):
     """Tests for concrete LIFO queue (stack) behavior."""
 
-    def test_if_lifoqueue(self):
+    def test_is_lifo_queue(self):
         """LIFO queue classes are subclasses of LifoQueue."""
         self.assertTrue(issubclass(self.queue_type, queues.LifoQueue))
 
