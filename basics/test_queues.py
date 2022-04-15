@@ -1,16 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Tests for queues.py.
-
-TODO: These tests are currently organized in such a way that test runners group
-them by shared behavior. Modify this file so test runners instead group them by
-what class is being tested. But do it without a major change to the testing
-logic and organization in this file. In particular, retain the meaning and
-order of all currently existing test classes, as well as the names, meaning,
-and order of all test methods in each currently existing test class. (But if
-you prefer it this way after doing so, please feel free to revert the change.)
-"""
+"""Tests for queues.py."""
 
 from abc import ABC, abstractmethod
 import inspect
@@ -46,7 +36,9 @@ class _Bases:
             self.assertSetEqual(actual, expected)
 
     class TestSignatures(_QueueTestCase):
-        """Tests for expected queue methods. All queue types should pass these."""
+        """
+        Tests for expected queue methods. All queue types should pass these.
+        """
 
         def test_bool_method_has_data_model_recommended_signature(self):
             """The __bool__ method accepts no arguments (besides self)."""
@@ -147,7 +139,8 @@ class _Bases:
             """
             After only enqueue and peek, a queue is nonempty, thus true.
 
-            Calling peek shouldn't modify the queue, so it shouldn't make it empty.
+            Calling peek shouldn't modify the queue, so it shouldn't make it
+            empty.
             """
             queue = self.queue_type()
             queue.enqueue('ham')
@@ -474,24 +467,28 @@ class _Bases:
 
     class TestPriorityQueues(_QueueTestCase):
         """
-        Tests for concrete priority queues. Max priority queue behavior is assumed.
+        Tests for concrete priority queues.
+
+        Expects max priority queue behavior.
 
         NOTE: This API is unstable and expected to change in the near future.
 
-        TODO: It is best for priority queue types to be versatile: able to act as
-        either a min priority queue or a max priority queue, and also accepting an
-        arbitrary key selector function. Therefore, no tests require presence of a
-        MaxPriorityQueue abstract class, since that would not often be a good
-        design. But for simplicity, our initial design involves just max priority
-        queue behavior. These tests currently expect that behavior. These are max
-        rather than min priority queues because that makes one of the concrete
-        classes easier to implement using standard library facilities. But there is
-        a good argument our priority queues should, by default, operate as min
-        priority queues instead: Python programmers are likely to expect a min
-        default, because the heapq module provides low-level binary minheap (not
-        maxheap) operations. Eventually, we should redesign our priority queues,
-        possibly changing the min/max default, and definitely having all concrete
-        implementations' initializers accept key= and reverse= arguments.
+        TODO: It is best for priority queue types to be versatile: able to act
+        as either a min priority queue or a max priority queue, and also
+        accepting an arbitrary key selector function. Therefore, no tests
+        require presence of a MaxPriorityQueue abstract class, since that would
+        not often be a good design. But for simplicity, our initial design
+        involves just max priority queue behavior. These tests currently expect
+        that behavior. These are max rather than min priority queues because
+        that makes one of the concrete classes easier to implement using
+        standard library facilities. But there is a good argument our priority
+        queues should, by default, operate as min priority queues instead:
+        Python programmers are likely to expect a min default, because the
+        heapq module provides low-level binary minheap (not maxheap)
+        operations. Eventually, we should redesign our priority queues,
+        possibly changing the min/max default, and definitely having all
+        concrete implementations' initializers accept key= and reverse=
+        arguments.
         """
 
         def test_is_priority_queue(self):
@@ -499,7 +496,9 @@ class _Bases:
             self.assertTrue(issubclass(self.queue_type, queues.PriorityQueue))
 
         def test_dequeue_high_after_enqueue_low_high(self):
-            """When 2 items are enqueued, low first, the higher dequeues first."""
+            """
+            When 2 items are enqueued, low first, the higher dequeues first.
+            """
             pq = self.queue_type()
             pq.enqueue('ham')
             pq.enqueue('spam')
@@ -513,7 +512,9 @@ class _Bases:
                 self.assertEqual(item, 'ham')
 
         def test_dequeue_high_after_enqueue_high_low(self):
-            """When 2 items are enqueued, high first, the higher dequeues first."""
+            """
+            When 2 items are enqueued, high first, the higher dequeues first.
+            """
             pq = self.queue_type()
             pq.enqueue('spam')
             pq.enqueue('ham')
@@ -527,7 +528,9 @@ class _Bases:
                 self.assertEqual(item, 'ham')
 
         def test_peek_high_after_enqueue_low_high(self):
-            """When 2 items are enqueued, low first, peek returns the second."""
+            """
+            When 2 items are enqueued, low first, peek returns the second.
+            """
             pq = self.queue_type()
             pq.enqueue('ham')
             pq.enqueue('spam')
@@ -543,7 +546,9 @@ class _Bases:
                 self.assertEqual(item, 'ham')
 
         def test_peek_high_after_enqueue_high_low(self):
-            """When 2 items are enqueued, high first, peek returns the first."""
+            """
+            When 2 items are enqueued, high first, peek returns the first.
+            """
             pq = self.queue_type()
             pq.enqueue('spam')
             pq.enqueue('ham')
@@ -559,7 +564,9 @@ class _Bases:
                 self.assertEqual(item, 'ham')
 
         def test_mixed_enqueues_and_dequeues_always_dequeue_max(self):
-            """Interleaved operations behave properly as a max priority queue."""
+            """
+            Interleaved operations behave properly as a max priority queue.
+            """
             pq = self.queue_type()
             pq.enqueue(10)
             pq.enqueue(30)
@@ -596,7 +603,8 @@ class _Bases:
 
         def test_mixed_enqueues_and_dequeues_always_peek_max(self):
             """
-            Interleaved peeks align with proper max priority queue order dequeuing.
+            Interleaved peeks align with proper max priority queue order
+            dequeuing.
             """
             pq = self.queue_type()
             pq.enqueue(10)
