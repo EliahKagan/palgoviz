@@ -9,28 +9,30 @@ support construction from an iterable? Be iterable themselves? Reversible?
 Should distinct queue objects ever be equal? To objects of a different type?
 """
 
+from abc import ABC, abstractmethod
 
-class Queue:
+
+class Queue(ABC):
     """Abstract class representing a generalized queue."""
 
 
-class FifoQueue:
+class FifoQueue(Queue):
     """Abstract class representing a first-in first-out queue (a "queue")."""
 
 
-class LifoQueue:
+class LifoQueue(Queue):
     """Abstract class representing a last-in first-out queue (a stack)."""
 
 
-class PriorityQueue:
+class PriorityQueue(Queue):
     """Abstract class representing a priority queue."""
 
 
-class DequeFifoQueue:
+class DequeFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a collections.deque."""
 
 
-class AltDequeFifoQueue:
+class AltDequeFifoQueue(FifoQueue):
     """
     A FIFO queue (i.e., a "queue") based on a collections.deque.
 
@@ -38,27 +40,27 @@ class AltDequeFifoQueue:
     """
 
 
-class SlowFifoQueue:
+class SlowFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
 
 
-class BiStackFifoQueue:
+class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
 
-class SinglyLinkedListFifoQueue:
+class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 
 
-class ListLifoQueue:
+class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
 
 
-class DequeLifoQueue:
+class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
 
 
-class AltDequeLifoQueue:
+class AltDequeLifoQueue(LifoQueue):
     """
     A LIFO queue (i.e., a stack) based on a collections.deque.
 
@@ -66,13 +68,13 @@ class AltDequeLifoQueue:
     """
 
 
-class SinglyLinkedListLifoQueue:
+class SinglyLinkedListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a singly linked list."""
 
 
-class FastEnqueueMaxPriorityQueue:
+class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
 
 
-class FastDequeueMaxPriorityQueue:
+class FastDequeueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
