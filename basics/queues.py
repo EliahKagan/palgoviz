@@ -2,10 +2,11 @@
 Queues, in the general sense.
 
 TODO: To focus on fundamental operations of generalized queues, the initial
-implementations of types in this module won't override __repr__. Eventually,
+implementations of these queue types might not override __repr__. Eventually,
 that should be fixed (and this note removed). Design decisions to accompany
-implementing __repr__ may include: Should (all or some of) the queue types be
-constructible from an iterable? Should they themselves be iterable? Reversible?
+implementing __repr__ might include: Should (all or some of) the queue types
+support construction from an iterable? Be iterable themselves? Reversible?
+Should distinct queue objects ever be equal? To objects of a different type?
 """
 
 from abc import ABC, abstractmethod
