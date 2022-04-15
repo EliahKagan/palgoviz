@@ -1,0 +1,28 @@
+distinct_unstable (gencomp1)
+distinct_unstable_lt (gencomp1)
+distinct_unstable_lt_alt (gencomp1)
+distinct_eager_simple (gencomp1)
+distinct_eager (gencomp1)
+product_two_flexible
+prefix_product
+suffix_product
+my_product
+my_product_alt [should be my_product_slow]
+matrix_dimensions
+matrix_multiply [needs tests]
+identity_matrix
+identity_matrix_alt
+submap
+is_hermitian
+is_hermitian_alt
+mean
+floats_in_range
+integrate
+my_takewhile
+my_dropwhile
+my_dropwhile_alt
+outdegrees [needs tests]
+indegrees [needs tests]
+my_chain
+encrypt
+decrypt
