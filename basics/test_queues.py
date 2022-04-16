@@ -84,7 +84,8 @@ class _Bases:
 
             It need not be a direct instance. When the class it is called on is
             abstract, it will not be a direct instance. (Currently the abstract
-            queue classes with create() methods are FifoQueue and LifoQueue.)
+            queue classes with create() methods are FifoQueue, LifoQueue, and
+            PriorityQueue.)
             """
             queue = self.queue_type.create()
             self.assertIsInstance(queue, self.queue_type)
