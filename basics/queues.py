@@ -145,9 +145,7 @@ class SlowFifoQueue(FifoQueue):
         self._list.append(item)
 
     def dequeue(self):
-        result = self._list[0]
-        del self._list[0]
-        return result
+        return self._list.pop(0)
 
     def peek(self):
         return self._list[0]
