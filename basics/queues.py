@@ -196,6 +196,32 @@ class ListLifoQueue(LifoQueue):
 class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
 
+    __slots__ = ('_queue',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._queue = collections.deque()
+
+    def __bool__(self):
+        return bool(self._queue)
+
+    def __len__(self):
+        return len(self._queue)
+
+    def enqueue(self, item):
+        self._queue.append(item)
+
+    def dequeue(self):
+        return self._queue.pop()
+
+    def peek(self):
+        return self._queue[-1]
+
+    def create():
+        """Creates an instance of the DequeLifoQueue class."""
+        return DequeLifoQueue()
+
 
 class AltDequeLifoQueue(LifoQueue):
     """
