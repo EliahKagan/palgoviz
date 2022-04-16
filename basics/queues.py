@@ -230,6 +230,32 @@ class AltDequeLifoQueue(LifoQueue):
     Like DequeLifoQueue but elements are pushed and popped at the other end.
     """
 
+    __slots__ = ('_queue',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._queue = collections.deque()
+
+    def __bool__(self):
+        return bool(self._queue)
+
+    def __len__(self):
+        return len(self._queue)
+
+    def enqueue(self, item):
+        self._queue.appendleft(item)
+
+    def dequeue(self):
+        return self._queue.popleft()
+
+    def peek(self):
+        return self._queue[-0]
+
+    def create():
+        """Creates an instance of the AltDequeLifoQueue class."""
+        return AltDequeLifoQueue()
+
 
 class SinglyLinkedListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a singly linked list."""
