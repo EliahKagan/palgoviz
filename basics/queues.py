@@ -166,6 +166,32 @@ class SinglyLinkedListFifoQueue(FifoQueue):
 class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
 
+    __slots__ = ('_list',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._list = []
+
+    def __bool__(self):
+        return bool(self._list)
+
+    def __len__(self):
+        return len(self._list)
+
+    def enqueue(self, item):
+        self._list.append(item)
+
+    def dequeue(self):
+        return self._list.pop()
+
+    def peek(self):
+        return self._list[-1]
+
+    def create():
+        """Creates an instance of the ListLifoQueue class."""
+        return ListLifoQueue()
+
 
 class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
