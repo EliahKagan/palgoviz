@@ -15,6 +15,27 @@ from abc import ABC, abstractmethod
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
 
+    @abstractmethod
+    def __bool__(self):
+        ...
+
+    @abstractmethod
+    def __len__(self):
+        ...
+
+    @abstractmethod
+    def enqueue(self, item):
+        ...
+
+    @abstractmethod
+    def dequeue(self):
+        ...
+
+    @abstractmethod
+    def peek(self):
+        ...
+
+
 
 class FifoQueue(Queue):
     """Abstract class representing a first-in first-out queue (a "queue")."""
