@@ -128,6 +128,35 @@ class AltDequeFifoQueue(FifoQueue):
 class SlowFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
 
+    __slots__ = ('_list',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._list = []
+
+    def __bool__(self):
+        return bool(self._list)
+
+    def __len__(self):
+        return len(self._list)
+
+    def enqueue(self, item):
+        self._list.append(item)
+
+    def dequeue(self):
+        self._list.reverse()
+        result = self._list.pop()
+        self._list.reverse()
+        return result
+
+    def peek(self):
+        return self._list[0]
+
+    def create():
+        """Creates an instance of the SlowFifoQueue class."""
+        return SlowFifoQueue()
+
 
 class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
