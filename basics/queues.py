@@ -120,6 +120,7 @@ class AltDequeFifoQueue(FifoQueue):
     def peek(self):
         return self._queue[-1]
 
+    @staticmethod
     def create():
         """Creates an instance of the AltDequeFifoQueue class."""
         return AltDequeFifoQueue()
@@ -150,6 +151,7 @@ class SlowFifoQueue(FifoQueue):
     def peek(self):
         return self._list[0]
 
+    @staticmethod
     def create():
         """Creates an instance of the SlowFifoQueue class."""
         return SlowFifoQueue()
@@ -188,6 +190,7 @@ class ListLifoQueue(LifoQueue):
     def peek(self):
         return self._list[-1]
 
+    @staticmethod
     def create():
         """Creates an instance of the ListLifoQueue class."""
         return ListLifoQueue()
@@ -218,6 +221,7 @@ class DequeLifoQueue(LifoQueue):
     def peek(self):
         return self._queue[-1]
 
+    @staticmethod
     def create():
         """Creates an instance of the DequeLifoQueue class."""
         return DequeLifoQueue()
@@ -252,6 +256,7 @@ class AltDequeLifoQueue(LifoQueue):
     def peek(self):
         return self._queue[-0]
 
+    @staticmethod
     def create():
         """Creates an instance of the AltDequeLifoQueue class."""
         return AltDequeLifoQueue()
