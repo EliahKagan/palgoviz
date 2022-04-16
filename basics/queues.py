@@ -40,29 +40,35 @@ class Queue(ABC):
 class FifoQueue(Queue):
     """Abstract class representing a first-in first-out queue (a "queue")."""
 
-    @staticmethod
-    def create():
-        """Creates an instance of the DequeFifoQueue class."""
-        return DequeFifoQueue()
+    @classmethod
+    def create(cls):
+        """Creates a FifoQueue instance."""
+        if cls is FifoQueue:
+            return DequeFifoQueue()
+        return cls()
 
 
 class LifoQueue(Queue):
     """Abstract class representing a last-in first-out queue (a stack)."""
 
-    @staticmethod
-    def create():
-        """Creates an instance of the ListLifoQueue class."""
-        return ListLifoQueue()
+    @classmethod
+    def create(cls):
+        """Creates a LifoQueue instance."""
+        if cls is LifoQueue:
+            return ListLifoQueue()
+        return cls()
 
 
 class PriorityQueue(Queue):
     """Abstract class representing a priority queue."""
 
     # TODO: Investigate which PriorityQueue should be default.
-    @staticmethod
-    def create():
-        """Creates an instance of the FastEnqueueMaxPriorityQueue class."""
-        return FastEnqueueMaxPriorityQueue()
+    @classmethod
+    def create(cls):
+        """Creates a LifoQueue instance."""
+        if cls is PriorityQueue:
+            return FastEnqueueMaxPriorityQueue()
+        return cls()
 
 
 class DequeFifoQueue(FifoQueue):
@@ -120,11 +126,6 @@ class AltDequeFifoQueue(FifoQueue):
     def peek(self):
         return self._queue[-1]
 
-    @staticmethod
-    def create():
-        """Creates an instance of the AltDequeFifoQueue class."""
-        return AltDequeFifoQueue()
-
 
 class SlowFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
@@ -150,11 +151,6 @@ class SlowFifoQueue(FifoQueue):
 
     def peek(self):
         return self._list[0]
-
-    @staticmethod
-    def create():
-        """Creates an instance of the SlowFifoQueue class."""
-        return SlowFifoQueue()
 
 
 class BiStackFifoQueue(FifoQueue):
@@ -190,11 +186,6 @@ class ListLifoQueue(LifoQueue):
     def peek(self):
         return self._list[-1]
 
-    @staticmethod
-    def create():
-        """Creates an instance of the ListLifoQueue class."""
-        return ListLifoQueue()
-
 
 class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
@@ -220,11 +211,6 @@ class DequeLifoQueue(LifoQueue):
 
     def peek(self):
         return self._queue[-1]
-
-    @staticmethod
-    def create():
-        """Creates an instance of the DequeLifoQueue class."""
-        return DequeLifoQueue()
 
 
 class AltDequeLifoQueue(LifoQueue):
@@ -255,11 +241,6 @@ class AltDequeLifoQueue(LifoQueue):
 
     def peek(self):
         return self._queue[-0]
-
-    @staticmethod
-    def create():
-        """Creates an instance of the AltDequeLifoQueue class."""
-        return AltDequeLifoQueue()
 
 
 class SinglyLinkedListLifoQueue(LifoQueue):
