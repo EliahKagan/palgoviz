@@ -15,6 +15,7 @@ def _unannotated_argspec(func):
     """Get the full argspec of a callable object, but without annotations."""
     return inspect.getfullargspec(func)[:6]
 
+
 class _Bases:
     """Base classes for tests for queues module."""
 
@@ -227,7 +228,7 @@ class _Bases:
 
         @parameterized.expand([
             ('distinct strings',
-            ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']),
+             ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']),
             ('distinct numbers', range(0, 1000, 10)),
             ('distinct tuples', [(10, 20), (31, 17), (9, 87), (-14, 2)]),
             ('distinct lists', [list(range(n)) for n in range(10)]),
@@ -236,8 +237,8 @@ class _Bases:
             ('not-all-distinct sets', [{'ab', 'cd'}, {'ab', 'cd'}, set()]),
         ])
         def test_dequeuing_gives_enqueued_items_in_some_order(self,
-                                                            _label,
-                                                            in_items):
+                                                              _label,
+                                                              in_items):
             queue = self.queue_type()
 
             for item in in_items:
