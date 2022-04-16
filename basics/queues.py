@@ -10,6 +10,7 @@ Should distinct queue objects ever be equal? To objects of a different type?
 """
 
 from abc import ABC, abstractmethod
+import collections
 
 
 class Queue(ABC):
@@ -66,6 +67,28 @@ class PriorityQueue(Queue):
 
 class DequeFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a collections.deque."""
+
+    __slots__ = ('_queue',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._queue = collections.deque()
+
+    def __bool__(self):
+        return bool(self._queue)
+
+    def __len__(self):
+        return len(self._queue)
+
+    def enqueue(self, item):
+        self._queue.append(item)
+
+    def dequeue(self):
+        return self._queue.popleft()
+
+    def peek(self):
+        return self._queue[0]
 
 
 class AltDequeFifoQueue(FifoQueue):
