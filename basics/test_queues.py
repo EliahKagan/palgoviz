@@ -226,6 +226,24 @@ class TestConcrete(unittest.TestCase):
         peeked_item = queue.peek()
         self.assertEqual(peeked_item, 'ham')
 
+    def test_repeated_singleton_queue_dequeues_enqueued_item(self):
+        """After an enqueue, dequeue, and enqueue, dequeue still works."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        queue.dequeue()
+        queue.enqueue('spam')
+        dequeued_item = queue.dequeue()
+        self.assertEqual(dequeued_item, 'spam')
+
+    def test_repeated_singleton_queue_peeks_enqueued_item(self):
+        """After an enqueue, dequeue, and enqueue, peek works."""
+        queue = self.queue_type()
+        queue.enqueue('ham')
+        queue.dequeue()
+        queue.enqueue('spam')
+        peeked_item = queue.peek()
+        self.assertEqual(peeked_item, 'spam')
+
     def test_cannot_dequeue_from_empty_queue(self):
         """
         When a queue is empty, attempting to dequeue raises LookupError.
