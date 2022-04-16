@@ -272,11 +272,11 @@ class BiStackFifoQueue(FifoQueue):
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 
-    __slots__ = ('_front_sentinel', '_back', '_size')
+    __slots__ = ('_front', '_back', '_size')
 
     def __init__(self):
         """Create a new empty singly-linked-list-based FIFO queue."""
-        self._front_sentinel = self._back = _Node(None)  # Sentinel node.
+        self._front = self._back = None
         self._size = 0
 
     def __bool__(self):
@@ -286,21 +286,30 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         return self._size
 
     def enqueue(self, item):
-        self._back.next = _Node(item)
-        self._back = self._back.next
+        if self:
+            self._back.next = _Node(item)
+            self._back = self._back.next
+        else:
+            self._front = self._back = _Node(item)
+
         self._size += 1
 
     def dequeue(self):
         item = self.peek()
-        self._front_sentinel.next = self._front_sentinel.next.next
+
+        self._front = self._front.next
+        if self._front is None:
+            self._back = None
+
         self._size -= 1
+
         return item
 
     def peek(self):
         if not self:
             raise LookupError('empty queue has no first element')
 
-        return self._front_sentinel.next.element
+        return self._front.element
 
 
 class ListLifoQueue(LifoQueue):
