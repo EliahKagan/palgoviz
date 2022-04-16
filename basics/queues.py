@@ -98,6 +98,32 @@ class AltDequeFifoQueue(FifoQueue):
     Like DequeFifoQueue but elements move through in the other direction.
     """
 
+    __slots__ = ('_queue',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._queue = collections.deque()
+
+    def __bool__(self):
+        return bool(self._queue)
+
+    def __len__(self):
+        return len(self._queue)
+
+    def enqueue(self, item):
+        self._queue.appendleft(item)
+
+    def dequeue(self):
+        return self._queue.pop()
+
+    def peek(self):
+        return self._queue[-1]
+
+    def create():
+        """Creates an instance of the AltDequeFifoQueue class."""
+        return AltDequeFifoQueue()
+
 
 class SlowFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
