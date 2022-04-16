@@ -36,17 +36,32 @@ class Queue(ABC):
         ...
 
 
-
 class FifoQueue(Queue):
     """Abstract class representing a first-in first-out queue (a "queue")."""
+
+    @staticmethod
+    def create():
+        """Creates an instance of the DequeFifoQueue class."""
+        return DequeFifoQueue()
 
 
 class LifoQueue(Queue):
     """Abstract class representing a last-in first-out queue (a stack)."""
 
+    @staticmethod
+    def create():
+        """Creates an instance of the ListLifoQueue class."""
+        return ListLifoQueue()
+
 
 class PriorityQueue(Queue):
     """Abstract class representing a priority queue."""
+
+    # TODO: Investigate which PriorityQueue should be default.
+    @staticmethod
+    def create():
+        """Creates an instance of the FastEnqueueMaxPriorityQueue class."""
+        return FastEnqueueMaxPriorityQueue()
 
 
 class DequeFifoQueue(FifoQueue):
