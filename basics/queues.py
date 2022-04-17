@@ -306,8 +306,12 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
 
     # NOTE: List.pop is O(1)
     def dequeue(self):
-        return self._list.pop()
+        if self._list:
+            return self._list.pop()
+        raise LookupError("Can't dequeue from empty queue")
 
     # NOTE: Indexing into a list is O(1)
     def peek(self):
-        return self._list[-1]
+        if self._list:
+            return self._list[-1]
+        raise LookupError("Can't peek from empty queue")
