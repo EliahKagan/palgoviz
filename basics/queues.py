@@ -296,8 +296,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._deque)
 
-    # NOTE: At least O(n) because of insert
-    # NOTE: Ask Eliah about any guarantees since we only insert second to last item
+    # NOTE: At least O(n) because of insert and loop iteration
     def enqueue(self, item):
         if not self._deque or item >= self._deque[-1]:
             self._deque.append(item)
