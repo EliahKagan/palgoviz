@@ -266,7 +266,7 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     def enqueue(self, item):
         self._list.append(item)
 
-    # NOTE: O(n) due to max
+    # NOTE: O(n) due to max and remove
     def dequeue(self):
         if self._list:
             result = max(self._list)
