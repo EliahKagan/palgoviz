@@ -731,7 +731,8 @@ class _Bases:
              ['foo', 'bar', 'bar', 'baz', 'foo', 'bar'],
              ['foo', 'foo', 'baz', 'bar', 'bar', 'bar']),
         ])
-        def test_enqueues_then_dequeues_descending_order(self, _label, in_items,
+        def test_enqueues_then_dequeues_descending_order(self, _label,
+                                                         in_items,
                                                          expected_out_items):
             """Items dequeue in reverse-sorted order, no matter how many."""
             # Ensure error (not mere failure) if the test is itself wrong.
