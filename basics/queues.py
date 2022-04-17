@@ -250,6 +250,36 @@ class SinglyLinkedListLifoQueue(LifoQueue):
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
 
+    __slots__ = ('_list',)
+
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._list = []
+
+    def __bool__(self):
+        return bool(self._list)
+
+    def __len__(self):
+        return len(self._list)
+
+    # NOTE: O(1) since list.append is O(1)
+    def enqueue(self, item):
+        self._list.append(item)
+
+    # NOTE: O(n) due to max
+    def dequeue(self):
+        if self._list:
+            result = max(self._list)
+            self._list.remove(result)
+            return result
+        raise LookupError("Can't dequeue from empty queue")
+
+    # NOTE: O(n) due to max
+    def peek(self):
+        if self._list:
+            return max(self._list)
+        raise LookupError("Can't peek from empty queue")
+
 
 class FastDequeueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
@@ -266,10 +296,9 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
+    # NOTE: At least O(n) because of insert
+    # NOTE: Ask Eliah about any guarantees since we only insert second to last item
     def enqueue(self, item):
-        # NOTE: Technically O(n) because of insert
-        # but I suspect the guarantee is a tad stronger
-        # since we are guarnteed to only insert near the end.
         if self._list and item < self._list[-1]:
             self._list.insert(-1, item)
         else:
