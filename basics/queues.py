@@ -250,6 +250,10 @@ class SinglyLinkedListLifoQueue(LifoQueue):
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
 
+
+class FastDequeueMaxPriorityQueue(PriorityQueue):
+    """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
+
     __slots__ = ('_list',)
 
     def __init__(self):
@@ -263,17 +267,18 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
         return len(self._list)
 
     def enqueue(self, item):
+        # NOTE: Technically O(n) because of insert
+        # but I suspect the guarantee is a tad stronger
+        # since we are guarnteed to only insert near the end.
         if self._list and item < self._list[-1]:
             self._list.insert(-1, item)
         else:
             self._list.append(item)
 
+    # NOTE: List.pop is O(1)
     def dequeue(self):
         return self._list.pop()
 
+    # NOTE: Indexing into a list is O(1)
     def peek(self):
         return self._list[-1]
-
-
-class FastDequeueMaxPriorityQueue(PriorityQueue):
-    """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
