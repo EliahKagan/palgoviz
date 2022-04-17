@@ -249,7 +249,7 @@ class _Bases:
             while queue:
                 out_items.append(queue.dequeue())
 
-            self.assertListEqual(sorted(in_items), sorted(out_items))
+            self.assertListEqual(sorted(out_items), sorted(in_items))
 
     class TestFifos(_QueueTestCase):
         """Tests for concrete FIFO queue ("queue") behavior."""
@@ -368,6 +368,27 @@ class _Bases:
                 item = fifo.peek()
                 self.assertEqual(item, 60)
 
+        def test_enqueues_then_dequeues_preserve_order(self):
+            """Items dequeue in enqueue order, no matter how many."""
+            in_items = [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11]
+            expected_out_items = [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11]
+
+            # Ensure error (not mere failure) if the test is itself wrong.
+            if expected_out_items != in_items:
+                raise Exception('bad test: expected should equal input')
+
+            fifo = self.queue_type()
+
+            for item in in_items:
+                fifo.enqueue(item)
+
+            out_items = []
+            while fifo:
+                out_items.append(fifo.dequeue())
+
+            self.assertListEqual(out_items, expected_out_items)
+
+
     class TestLifos(_QueueTestCase):
         """Tests for concrete LIFO queue (stack) behavior."""
 
@@ -484,6 +505,26 @@ class _Bases:
             with self.subTest(size=len(lifo), peek=6):
                 item = lifo.peek()
                 self.assertEqual(item, 10)
+
+        def test_enqueues_then_dequeues_reverse_order(self):
+            """Items dequeue in reverse order, no matter how many."""
+            in_items = [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11]
+            expected_out_items = [11, 12, 7, 4, 8, 3, 9, 2, 10, 1, 6, 5]
+
+            # Ensure error (not mere failure) if the test is itself wrong.
+            if expected_out_items != in_items[::-1]:
+                raise Exception('bad test: expected should reverse input')
+
+            lifo = self.queue_type()
+
+            for item in in_items:
+                lifo.enqueue(item)
+
+            out_items = []
+            while lifo:
+                out_items.append(lifo.dequeue())
+
+            self.assertListEqual(out_items, expected_out_items)
 
     class TestPriorityQueues(_QueueTestCase):
         """
@@ -667,6 +708,26 @@ class _Bases:
             with self.subTest(size=len(pq), dequeue=6):
                 item = pq.peek()
                 self.assertEqual(item, 10)
+
+        def test_enqueues_then_dequeues_descending_order(self):
+            """Items dequeue in reverse-sorted order, no matter how many."""
+            in_items = [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11]
+            expected_out_items = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
+            # Ensure error (not mere failure) if the test is itself wrong.
+            if expected_out_items != sorted(in_items, reverse=True):
+                raise Exception('bad test: expected should reverse input')
+
+            pq = self.queue_type()
+
+            for item in in_items:
+                pq.enqueue(item)
+
+            out_items = []
+            while pq:
+                out_items.append(pq.dequeue())
+
+            self.assertListEqual(out_items, expected_out_items)
 
 
 class TestQueue(_Bases.TestAbstract,
