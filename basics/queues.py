@@ -250,6 +250,30 @@ class SinglyLinkedListLifoQueue(LifoQueue):
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
 
+    __slots__ = ('_list',)
+
+    def __init__(self):
+        """Construct a DequeFifoQueue from an empty deque."""
+        self._list = []
+
+    def __bool__(self):
+        return bool(self._list)
+
+    def __len__(self):
+        return len(self._list)
+
+    def enqueue(self, item):
+        if self._list and item < self._list[-1]:
+            self._list.insert(-1, item)
+        else:
+            self._list.append(item)
+
+    def dequeue(self):
+        return self._list.pop()
+
+    def peek(self):
+        return self._list[-1]
+
 
 class FastDequeueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
