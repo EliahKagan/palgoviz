@@ -369,13 +369,16 @@ class _Bases:
                 self.assertEqual(item, 60)
 
         @parameterized.expand([
-            ('len5', ['e', 'd', 'c', 'a', 'b'], ['e', 'd', 'c', 'a', 'b']),
-            ('len12',
+            ('distinct 5',
+             ['e', 'd', 'c', 'a', 'b'],
+             ['e', 'd', 'c', 'a', 'b']),
+            ('distinct 12',
              [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11],
              [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11]),
-            ('duped',
+            ('some dupes',
              ['foo', 'bar', 'bar', 'baz', 'foo', 'bar'],
              ['foo', 'bar', 'bar', 'baz', 'foo', 'bar']),
+            ('all dupes', [3, 3, 3], [3, 3, 3]),
         ])
         def test_enqueues_then_dequeues_preserve_order(self, _label, in_items,
                                                        expected_out_items):
@@ -513,13 +516,16 @@ class _Bases:
                 self.assertEqual(item, 10)
 
         @parameterized.expand([
-            ('len5', ['e', 'd', 'c', 'a', 'b'], ['b', 'a', 'c', 'd', 'e']),
-            ('len12',
+            ('distinct 5',
+             ['e', 'd', 'c', 'a', 'b'],
+             ['b', 'a', 'c', 'd', 'e']),
+            ('distinct 12',
              [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11],
              [11, 12, 7, 4, 8, 3, 9, 2, 10, 1, 6, 5]),
-            ('duped',
+            ('some dupes',
              ['foo', 'bar', 'bar', 'baz', 'foo', 'bar'],
              ['bar', 'foo', 'baz', 'bar', 'bar', 'foo']),
+            ('all dupes', [3, 3, 3], [3, 3, 3]),
         ])
         def test_enqueues_then_dequeues_reverse_order(self, _label, in_items,
                                                       expected_out_items):
@@ -723,13 +729,16 @@ class _Bases:
                 self.assertEqual(item, 10)
 
         @parameterized.expand([
-            ('len5', ['e', 'd', 'c', 'a', 'b'], ['e', 'd', 'c', 'b', 'a']),
-            ('len12',
+            ('distinct 5',
+             ['e', 'd', 'c', 'a', 'b'],
+             ['e', 'd', 'c', 'b', 'a']),
+            ('distinct 12',
              [5, 6, 1, 10, 2, 9, 3, 8, 4, 7, 12, 11],
              [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]),
-            ('duped',
+            ('some dupes',
              ['foo', 'bar', 'bar', 'baz', 'foo', 'bar'],
              ['foo', 'foo', 'baz', 'bar', 'bar', 'bar']),
+            ('all dupes', [3, 3, 3], [3, 3, 3]),
         ])
         def test_enqueues_then_dequeues_descending_order(self, _label,
                                                          in_items,
