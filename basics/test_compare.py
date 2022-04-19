@@ -148,6 +148,189 @@ class TestWeakDiamond(unittest.TestCase):
 class TestPatient(unittest.TestCase):
     """Tests for the Patient class."""
 
+    def test_initials_starts_as_construction_initials(self):
+        patient = Patient('XY', 500)
+        self.assertEqual(patient.initials, 'XY')
+
+    def test_initials_change_when_assigned(self):
+        patient = Patient('WZ', 600)
+        patient.initials = 'UV'
+        self.assertEqual(patient.initials, 'UV')
+
+    def test_priority_starts_as_start_priority(self):
+        patient = Patient('YX', 550)
+        self.assertEqual(patient.priority, 550)
+
+    def test_priority_can_be_increased(self):
+        patient = Patient('ZW', 900)
+        patient.priority += 50
+        self.assertEqual(patient.priority, 950)
+
+    def test_priority_can_be_decreased(self):
+        patient = Patient('VU', 900)
+        patient.priority -= 50
+        self.assertEqual(patient.priority, 850)
+
+    def test_mrn_is_int(self):
+        patient = Patient('GP', 8080)
+        self.assertIsInstance(patient.mrn, int)
+
+    def test_mrn_different_with_same_initials_and_priority(self):
+        p = Patient('AB', 1000)
+        q = Patient('AB', 1000)
+        self.assertNotEqual(p.mrn, q.mrn)
+
+    def test_mrn_different_with_same_initials_different_priority(self):
+        p = Patient('CD', 1010)
+        q = Patient('CD', 1100)
+        self.assertNotEqual(p.mrn, q.mrn)
+
+    def test_mrn_different_with_different_initials_same_priority(self):
+        p = Patient('EF', 2000)
+        q = Patient('GH', 2000)
+        self.assertNotEqual(p.mrn, q.mrn)
+
+    def test_mrn_different_with_different_initials_and_priority(self):
+        p = Patient('IJ', 2100)
+        q = Patient('KL', 2010)
+        self.assertNotEqual(p.mrn, q.mrn)
+
+    def test_mrn_cannot_be_set(self):
+        patient = Patient('MN', 3000)
+        with self.assertRaises(AttributeError):
+            patient.mrn = 1472
+
+    def test_new_attributes_cannot_be_created(self):
+        patient = Patient('OP', 2865)
+        with self.assertRaises(AttributeError):
+            patient.nonexistent_attribute = 76
+
+    def test_repr_shows_mrn_initials_priority(self):
+        patient = Patient('QF', 999)
+        mrn = patient.mrn
+        if not isinstance(mrn, int):
+            raise Exception("mrn isn't an int, can't create expected repr")
+        expected = f"<Patient mrn={patient.mrn} initials='QF' priority=999>"
+
+        actual = repr(patient)
+        self.assertEqual(actual, expected)
+
+    def test_repr_reflects_changed_initials(self):
+        patient = Patient('RG', 999)
+        mrn = patient.mrn
+        if not isinstance(mrn, int):
+            raise Exception("mrn isn't an int, can't create expected repr")
+
+        expected = f"<Patient mrn={patient.mrn} initials='GR' priority=999>"
+        patient.initials = 'GR'
+
+        actual = repr(patient)
+        self.assertEqual(actual, expected)
+
+    def test_repr_reflects_changed_priority(self):
+        patient = Patient('SH', 999)
+        mrn = patient.mrn
+        if not isinstance(mrn, int):
+            raise Exception("mrn isn't an int, can't create expected repr")
+
+        expected = f"<Patient mrn={patient.mrn} initials='SH' priority=570>"
+        patient.priority = 570
+
+        actual = repr(patient)
+        self.assertEqual(actual, expected)
+
+    def test_equal_to_self(self):
+        patient = Patient('AZ', 6871)
+        self.assertEqual(patient, patient)
+
+    def test_not_equal_to_other_with_same_initials_and_priority(self):
+        lhs = Patient('BA', 1000)
+        rhs = Patient('BA', 1000)
+        self.assertNotEqual(lhs, rhs)
+
+    def test_not_equal_to_other_with_same_initials_different_priority(self):
+        lhs = Patient('DC', 1010)
+        rhs = Patient('DC', 1100)
+        self.assertNotEqual(lhs, rhs)
+
+    def test_not_equal_to_other_with_different_initials_same_priority(self):
+        lhs = Patient('FE', 2000)
+        rhs = Patient('HG', 2000)
+        self.assertNotEqual(lhs, rhs)
+
+    def test_not_equal_to_other_with_different_initials_and_priority(self):
+        lhs = Patient('JI', 2100)
+        rhs = Patient('LK', 2010)
+        self.assertNotEqual(lhs, rhs)
+
+    def test_equal_to_shallow_copy(self):
+        """Patient records are flat so even shallow copying works."""
+        original = Patient('DW', 13187)
+        duplicate = copy.copy(original)
+        self.assertEqual(original, duplicate)
+
+    def test_equal_to_deep_copy(self):
+        """Deep copying works (though is overkill) for patient records."""
+        original = Patient('EX', 12221)
+        duplicate = copy.deepcopy(original)
+        self.assertEqual(original, duplicate)
+
+    def test_equal_to_pickling_clone(self):
+        """Patient records can be serialized and deserialized by pickling."""
+        original = Patient('FY', 11800)
+        duplicate = pickle.loads(pickle.dumps(original))
+        self.assertEqual(original, duplicate)
+
+    @parameterized.expand([
+        ('same initials', 'XX', 'XX', 1001, 1001),
+        ('co initials', 'XX', 'YY', 1001, 1001),
+        ('contra initials', 'YY', 'XX', 1001, 1001),
+    ])
+    def test_not_less_same_priority_patient(self, _label,
+                                            lhs_initials, rhs_initials,
+                                            lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs < rhs)
+
+    @parameterized.expand([
+        ('same initials', 'WW', 'WW', 1000, 1002),
+        ('co initials', 'WW', 'ZZ', 1000, 1002),
+        ('contra initials', 'ZZ', 'WW', 1000, 1002),
+    ])
+    def test_less_than_higher_priority_patient(self, _label,
+                                               lhs_initials, rhs_initials,
+                                               lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertTrue(lhs < rhs)
+
+    @parameterized.expand([
+        ('same initials', 'XX', 'XX', 1001, 1001),
+        ('co initials', 'XX', 'YY', 1001, 1001),
+        ('contra initials', 'YY', 'XX', 1001, 1001),
+    ])
+    def test_not_less_equal_same_priority_patient(self, _label,
+                                                  lhs_initials, rhs_initials,
+                                                  lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs <= rhs)
+
+    @parameterized.expand([
+        ('same initials', 'WW', 'WW', 1000, 1002),
+        ('co initials', 'WW', 'ZZ', 1000, 1002),
+        ('contra initials', 'ZZ', 'WW', 1000, 1002),
+    ])
+    def test_less_equal_higher_priority_patient(self, _label,
+                                                lhs_initials, rhs_initials,
+                                                lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertTrue(lhs <= rhs)
+
+    # FIXME: Write the rest of the comparison tests.
+
 
 class TestOrderIndistinct(unittest.TestCase):
     """
