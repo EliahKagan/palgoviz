@@ -786,11 +786,9 @@ class _Bases:
             elements, such as comparison sorts, either already work with any
             weak ordering, or can be made to work without much redesign.
 
-            Most sorts, and all priority queues, should be designed so they
-            work with any weak ordering. Storing instances of _Patient
-            (implemented above) in a priority queue may illuminate why this is
-            important. In contrast, some partial orderings, like "is a [proper]
-            subset" on sets, offer even fewer guarantees than weak orderings,
+            Storing Patient instances in a priority queue may illuminate why
+            this is important to support. In contrast, some partial orderings,
+            like "<" on sets, offer even fewer guarantees than weak orderings,
             and most comparison-based algorithms can't feasibly support them.
 
             Even though this page is about C++, not Python, it may be helpful:
