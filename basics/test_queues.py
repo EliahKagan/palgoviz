@@ -264,7 +264,8 @@ class _Bases:
             """
             When a queue is empty, attempting to dequeue raises LookupError.
 
-            NOTE: Usually the LookupError subclass IndexError should be raised.
+            It is allowed, and often preferable, to raise an instance of a
+            suitable subclass of LookupError, such as IndexError.
             """
             queue = self.queue_type()
 
@@ -281,7 +282,8 @@ class _Bases:
             """
             When a queue is empty, attempting to peek raises LookupError.
 
-            NOTE: Usually the LookupError subclass IndexError should be raised.
+            It is allowed, and often preferable, to raise an instance of a
+            suitable subclass of LookupError, such as IndexError.
             """
             queue = self.queue_type()
 
