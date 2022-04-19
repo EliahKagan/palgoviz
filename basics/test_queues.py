@@ -829,10 +829,10 @@ class _Bases:
             somewhat increases the likelihood that bugs will cause failures.
             """
             pq = self.queue_type()
-            pq.enqueue(compare.WeakDiamond.NORTH)
-            pq.enqueue(compare.WeakDiamond.EAST)
-            pq.enqueue(compare.WeakDiamond.SOUTH)
             pq.enqueue(compare.WeakDiamond.WEST)
+            pq.enqueue(compare.WeakDiamond.SOUTH)
+            pq.enqueue(compare.WeakDiamond.EAST)
+            pq.enqueue(compare.WeakDiamond.NORTH)
 
             with self.subTest('NORTH is considered highest'):
                 out = pq.dequeue()
