@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Some recursion examples.
+Some recursion examples (and a few related iterative implementations).
 
 See also object_graph.py.
 """
@@ -277,6 +277,7 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
+# FIXME: Test that merge_two_slow is a stable merge. Fix it if it is not.
 def merge_two_slow(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -307,6 +308,7 @@ def merge_two_slow(values1, values2):
     return resultlist
 
 
+# FIXME: Test that merge_two is a stable merge. Fix it if it is not.
 def merge_two(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -344,6 +346,7 @@ def merge_two(values1, values2):
     return resultlist
 
 
+# FIXME: Test that merge_two_alt is a stable merge. Fix it if it is not.
 def merge_two_alt(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -384,6 +387,9 @@ def merge_two_alt(values1, values2):
     return resultlist
 
 
+# FIXME: Let merge_sort take a keyword-only "merge" argument specifying what
+# two-way merging function to use. If absent, use merge_two or merge_two_alt.
+# Test it with three two-way mergers defined here, and with none specified.
 def merge_sort(values):
     """
     Sort using merge_two recursively.
@@ -420,6 +426,10 @@ def merge_sort(values):
     return helper(list(values))
 
 
+# FIXME: Let merge_sort_bottom_up_unstable take a keyword-only "merge" argument
+# specifying what two-way merging function to use. If absent, use merge_two or
+# merge_two_alt. Test it with three two-way mergers defined here, and with none
+# specified.
 def merge_sort_bottom_up_unstable(values):
     """
     Sort bottom-up, using merge_two, iteratively. Unstable.
@@ -464,6 +474,12 @@ def merge_sort_bottom_up_unstable(values):
         queue.append(merge_two(left, right))
 
     return queue[0]
+
+
+# FIXME: Implement merge_sort_bottom_up_stable, along the same lines as
+# merge_sort_bottom_up_unstable (above). What has to change to make it stable?
+# (Like the other merge sort implementations in this module, this should accept
+# an optional merger keyword-only argument taking a two-way merge function.)
 
 
 def make_deep_tuple(depth):

@@ -2,8 +2,68 @@
 Types that compare in special ways.
 
 The main use for this module (at least currently) is to help in building tests
-for code that sorts, searches, or otherwise makes use of order comparisons.
+for code that sorts or searches, or otherwise makes use of order comparisons.
 """
+
+import enum
+
+
+@enum.unique
+class WeakDiamond(enum.Enum):
+    """
+    Cardinal directions, ordered by how north they are.
+
+    More southerly directions compare less than more northerly directions.
+
+    This is a simple example of a weak ordering that isn't a total ordering.
+    The equivalence classes are {NORTH}, {EAST, WEST}, {SOUTH}.
+    """
+
+    NORTH = enum.auto()
+    SOUTH = enum.auto()
+    EAST = enum.auto()
+    WEST = enum.auto()
+
+    def __lt__(self, other):
+        """Check if this is farther south than another direction."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._rank < other._rank
+
+    def __gt__(self, other):
+        """Check if this is farther north than another direction."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._rank > other._rank
+
+    def __le__(self, other):
+        """
+        Check if this is farther south than, or the same as, another direction.
+        """
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self < other or self is other
+
+    def __ge__(self, other):
+        """
+        Check if this is farther north than, or the same as, another direction.
+        """
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self > other or self is other
+
+    @property
+    def _rank(self):
+        """Totally ordered key selector. Helper for order comparisons."""
+        match self:
+            case WeakDiamond.SOUTH:
+                return 0
+            case WeakDiamond.EAST | WeakDiamond.WEST:
+                return 1
+            case WeakDiamond.NORTH:
+                return 2
+
+        raise AssertionError('unexpected enumeration instance')
 
 
 class Patient:
