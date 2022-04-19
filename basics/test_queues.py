@@ -769,7 +769,7 @@ class _Bases:
 
             self.assertListEqual(out_items, expected_out_items)
 
-        def test_ordering_can_be_weak(self):
+        def test_ordering_can_be_weak_Patient(self):
             """
             Priority queue elements do not have to be totally ordered.
 
@@ -795,26 +795,58 @@ class _Bases:
 
                 https://en.cppreference.com/w/cpp/concepts/strict_weak_order
             """
-            p = compare.Patient('AB', 1040)
-            q = compare.Patient('CD', 1890)
-            r = compare.Patient('EF', 1040)
-            s = compare.Patient('GH', 1890)
+            in1 = compare.Patient('AB', 1040)
+            in2 = compare.Patient('CD', 1890)
+            in3 = compare.Patient('EF', 1040)
+            in4 = compare.Patient('GH', 1890)
 
             pq = self.queue_type()
-            pq.enqueue(p)
-            pq.enqueue(q)
-            pq.enqueue(r)
-            pq.enqueue(s)
+            pq.enqueue(in1)
+            pq.enqueue(in2)
+            pq.enqueue(in3)
+            pq.enqueue(in4)
 
             with self.subTest(expected_priority=1890):
-                item1 = pq.dequeue()
-                item2 = pq.dequeue()
-                self.assertSetEqual({item1, item2}, {q, s})
+                out1 = pq.dequeue()
+                out2 = pq.dequeue()
+                self.assertSetEqual({out1, out2}, {in2, in4})
 
             with self.subTest(expected_priority=1040):
-                item1 = pq.dequeue()
-                item2 = pq.dequeue()
-                self.assertSetEqual({item1, item2}, {p, r})
+                out1 = pq.dequeue()
+                out2 = pq.dequeue()
+                self.assertSetEqual({out1, out2}, {in1, in3})
+
+        def test_ordering_can_be_weak_WeakDiamond(self):
+            """
+            Priority queue elements do not have to be totally ordered
+            (alternative).
+
+            See the test_ordering_can_be_weak_Patient docstring (above) for an
+            explanation of weak ordering.
+
+            Various ways of failing to support arbitrary weak orderings will
+            succeed on some inputs and fail on others. Having this other test
+            somewhat increases the likelihood that bugs will cause failures.
+            """
+            pq = self.queue_type()
+            pq.enqueue(compare.WeakDiamond.NORTH)
+            pq.enqueue(compare.WeakDiamond.EAST)
+            pq.enqueue(compare.WeakDiamond.SOUTH)
+            pq.enqueue(compare.WeakDiamond.WEST)
+
+            with self.subTest('NORTH is considered highest'):
+                out = pq.dequeue()
+                self.assertEqual(out, compare.WeakDiamond.NORTH)
+
+            with self.subTest('EAST and WEST are considered medial'):
+                expected = {compare.WeakDiamond.EAST, compare.WeakDiamond.WEST}
+                out1 = pq.dequeue()
+                out2 = pq.dequeue()
+                self.assertSetEqual({out1, out2}, expected)
+
+            with self.subTest('SOUTH is considered lowest'):
+                out = pq.dequeue()
+                self.assertEqual(out, compare.WeakDiamond.SOUTH)
 
 
 class TestQueue(_Bases.TestAbstract,
