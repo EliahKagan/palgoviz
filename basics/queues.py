@@ -167,12 +167,13 @@ class BiStackFifoQueue(FifoQueue):
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 
-    __slots__ = ('_head',)
+    __slots__ = ('_head','_tail')
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a SinglyLinkedListFifoQueue from an empty Sll."""
         self._head = None
+        self._tail = None
 
     def __bool__(self):
         return bool(self._head)
@@ -187,31 +188,29 @@ class SinglyLinkedListFifoQueue(FifoQueue):
 
     def enqueue(self, item):
         new_node = Node(item)
-        new_node.nextn = self._head
-        self._head = new_node
+        if not self._head:
+            new_node.nextn = self._head
+            self._head = new_node
+            self._tail = new_node
+        else:
+            new_node = Node(item)
+            self._tail.nextn = new_node
+            self._tail = new_node
 
     def dequeue(self):
         if self._head:
-            if not self._head.nextn:
-                result = self._head.value
-                self._head = None
-                return result
-            else:
-                temp = self._head
-                while temp.nextn.nextn:
-                    temp = temp.nextn
-                result = temp.nextn.value
-                temp.nextn = None
-                return result
+            result = self._head.value
+            self._head = self._head.nextn
+            # NOTE: not sure this is necessary, but I don't like a tail w/o a head
+            if not self._head:
+                self._tail = None
+            return result
         else:
             raise LookupError("Can't dequeue from empty queue")
 
     def peek(self):
         if self._head:
-            temp = self._head
-            while temp.nextn:
-                temp = temp.nextn
-            return temp.value
+            return self._head.value
         else:
             raise LookupError("Can't peek from empty queue")
 
