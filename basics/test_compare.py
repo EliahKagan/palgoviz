@@ -2,12 +2,87 @@
 
 """Tests for the types in compare.py."""
 
+import copy
 from fractions import Fraction
+import pickle
 import unittest
 
 from parameterized import parameterized
 
-from compare import OrderIndistinct
+from compare import OrderIndistinct, Patient, WeakDiamond
+
+
+class TestWeakDiamond(unittest.TestCase):
+    """Tests for the WeakDiamond class."""
+
+    @parameterized.expand(['NORTH', 'SOUTH', 'EAST', 'WEST'])
+    def test_equal(self, name):
+        """Equality comparisons work in the usual way for enumerations."""
+        lhs = getattr(WeakDiamond, name)
+        rhs = getattr(WeakDiamond, name)
+        self.assertEqual(lhs, rhs)
+
+    @parameterized.expand([
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH'),
+        ('NORTH, EAST', 'NORTH', 'EAST'),
+        ('NORTH, WEST', 'NORTH', 'WEST'),
+        ('SOUTH, EAST', 'SOUTH', 'EAST'),
+        ('SOUTH, WEST', 'SOUTH', 'WEST'),
+        ('EAST, WEST', 'EAST', 'WEST'),
+    ])
+    def test_not_equal(self, _label, name1, name2):
+        """Not-equals comparisons work in the usual way for enumerations."""
+        for lhs_name, rhs_name in (name1, name2), (name2, name1):
+            with self.subTest(lhs=lhs_name, rhs=rhs_name):
+                lhs_comparand = getattr(WeakDiamond, lhs_name)
+                rhs_comparand = getattr(WeakDiamond, rhs_name)
+                self.assertNotEqual(lhs_comparand, rhs_comparand)
+
+    @parameterized.expand([
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH'),
+        ('SOUTH, EAST', 'SOUTH', 'EAST'),
+        ('SOUTH, WEST', 'SOUTH', 'WEST'),
+        ('EAST, NORTH', 'EAST', 'NORTH'),
+        ('WEST, NORTH', 'WEST', 'NORTH'),
+    ])
+    def test_souther_less_than_norther(self, _label, lhs_name, rhs_name):
+        """Farther south directions compare less than farther north ones."""
+        lhs_comparand = getattr(WeakDiamond, lhs_name)
+        rhs_comparand = getattr(WeakDiamond, rhs_name)
+        self.assertLess(lhs_comparand, rhs_comparand)
+
+
+    def test_souther_less_equal_norther_or_same(self, _label,
+                                                lhs_name, rhs_name):
+        """Directions are "<=" when they are "<" or they are "=="."""
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH'),
+        ('SOUTH, SOUTH', 'SOUTH', 'NORTH'),
+        ('SOUTH, EAST', 'SOUTH', 'EAST'),
+        ('SOUTH, WEST', 'SOUTH', 'WEST'),
+        ('EAST, EAST', 'EAST', 'NORTH'),
+        ('EAST, NORTH', 'EAST', 'NORTH'),
+        ('WEST, WEST', 'WEST', 'NORTH'),
+        ('WEST, NORTH', 'WEST', 'NORTH'),
+
+    @parameterized.expand([
+        ('NORTH, EAST', 'NORTH', 'EAST'),
+        ('NORTH, WEST', 'NORTH', 'WEST'),
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH'),
+        ('EAST, SOUTH', 'EAST', 'SOUTH'),
+        ('WEST, SOUTH', 'WEST', 'SOUTH'),
+    ])
+    def test_norther_greater_than_souther(self, _label, lhs_name, rhs_name):
+        """Farther north directions compare greater than farther south ones."""
+        lhs_comparand = getattr(WeakDiamond, lhs_name)
+        rhs_comparand = getattr(WeakDiamond, rhs_name)
+        self.assertGreater(lhs_comparand, rhs_comparand)
+
+    # def test_north_greater_than_south(self):
+    #    self.assertTrue(WeakDiamond.NORTH > WeakDiamond.SOUTH)
+
+
+class TestPatient(unittest.TestCase):
+    """Tests for the Patient class."""
 
 
 class TestOrderIndistinct(unittest.TestCase):
