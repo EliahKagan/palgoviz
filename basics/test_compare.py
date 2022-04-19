@@ -591,11 +591,11 @@ class TestOrderIndistinct(unittest.TestCase):
         ('int', 42, 'OrderIndistinct(42)'),
         ('str', 'ham', "OrderIndistinct('ham')"),
         ('list of str',
-        ['foo', 'bar', 'baz', 'quux', 'foobar'],
-        "OrderIndistinct(['foo', 'bar', 'baz', 'quux', 'foobar'])"),
+         ['foo', 'bar', 'baz', 'quux', 'foobar'],
+         "OrderIndistinct(['foo', 'bar', 'baz', 'quux', 'foobar'])"),
         ('list of int',
-        [10, 20, 30, 40, 50, 60, 70],
-        "OrderIndistinct([10, 20, 30, 40, 50, 60, 70])"),
+         [10, 20, 30, 40, 50, 60, 70],
+         "OrderIndistinct([10, 20, 30, 40, 50, 60, 70])"),
         ('Fraction', Fraction(5, 9), 'OrderIndistinct(Fraction(5, 9))'),
         ('None', None, 'OrderIndistinct(None)'),
     ]
@@ -662,7 +662,8 @@ class TestOrderIndistinct(unittest.TestCase):
     @parameterized.expand(_VALUE_ARGS_WITH_EXPECTED_REPR)
     def test_repr_correct_in_derived_class(self, _label, value, base_expected):
         """The repr shows a derived-class name (and also the correct value)."""
-        class Derived(OrderIndistinct): pass
+        class Derived(OrderIndistinct):
+            pass
         derived_expected = base_expected.replace('OrderIndistinct', 'Derived')
         oi = Derived(value)
         actual = repr(oi)
