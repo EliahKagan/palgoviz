@@ -15,70 +15,134 @@ from compare import OrderIndistinct, Patient, WeakDiamond
 class TestWeakDiamond(unittest.TestCase):
     """Tests for the WeakDiamond class."""
 
-    @parameterized.expand(['NORTH', 'SOUTH', 'EAST', 'WEST'])
-    def test_equal(self, name):
-        """Equality comparisons work in the usual way for enumerations."""
-        lhs = getattr(WeakDiamond, name)
-        rhs = getattr(WeakDiamond, name)
-        self.assertEqual(lhs, rhs)
+    @parameterized.expand([
+        ('NORTH, NORTH', 'NORTH', 'NORTH', True, False),
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH', False, True),
+        ('NORTH, EAST', 'NORTH', 'EAST', False, True),
+        ('NORTH, WEST', 'NORTH', 'WEST', False, True),
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH', False, True),
+        ('SOUTH, SOUTH', 'SOUTH', 'SOUTH', True, False),
+        ('SOUTH, EAST', 'SOUTH', 'EAST', False, True),
+        ('SOUTH, WEST', 'SOUTH', 'WEST', False, True),
+        ('EAST, NORTH', 'EAST', 'NORTH', False, True),
+        ('EAST, SOUTH', 'EAST', 'SOUTH', False, True),
+        ('EAST, EAST', 'EAST', 'EAST', True, False),
+        ('EAST, WEST', 'EAST', 'WEST', False, True),
+        ('WEST, NORTH', 'WEST', 'NORTH', False, True),
+        ('WEST, SOUTH', 'WEST', 'SOUTH', False, True),
+        ('WEST, EAST', 'WEST', 'EAST', False, True),
+        ('WEST, WEST', 'WEST', 'WEST', True, False),
+    ])
+    def test_equal(self, _label, lhs_name, rhs_name, expected_eq, expected_ne):
+        """Enumerators are equal (only) when they are the same direction."""
+        lhs = getattr(WeakDiamond, lhs_name)
+        rhs = getattr(WeakDiamond, rhs_name)
+        with self.subTest(op='=='):
+            actual = lhs == rhs
+            self.assertIs(actual, expected_eq)
+        with self.subTest(op='!='):
+            actual = lhs != rhs
+            self.assertIs(actual, expected_ne)
 
     @parameterized.expand([
-        ('NORTH, SOUTH', 'NORTH', 'SOUTH'),
-        ('NORTH, EAST', 'NORTH', 'EAST'),
-        ('NORTH, WEST', 'NORTH', 'WEST'),
-        ('SOUTH, EAST', 'SOUTH', 'EAST'),
-        ('SOUTH, WEST', 'SOUTH', 'WEST'),
-        ('EAST, WEST', 'EAST', 'WEST'),
+        ('NORTH, NORTH', 'NORTH', 'NORTH', False),
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH', False),
+        ('NORTH, EAST', 'NORTH', 'EAST', False),
+        ('NORTH, WEST', 'NORTH', 'WEST', False),
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH', True),
+        ('SOUTH, SOUTH', 'SOUTH', 'SOUTH', False),
+        ('SOUTH, EAST', 'SOUTH', 'EAST', True),
+        ('SOUTH, WEST', 'SOUTH', 'WEST', True),
+        ('EAST, NORTH', 'EAST', 'NORTH', True),
+        ('EAST, SOUTH', 'EAST', 'SOUTH', False),
+        ('EAST, EAST', 'EAST', 'EAST', False),
+        ('EAST, WEST', 'EAST', 'WEST', False),
+        ('WEST, NORTH', 'WEST', 'NORTH', True),
+        ('WEST, SOUTH', 'WEST', 'SOUTH', False),
+        ('WEST, EAST', 'WEST', 'EAST', False),
+        ('WEST, WEST', 'WEST', 'WEST', False),
     ])
-    def test_not_equal(self, _label, name1, name2):
-        """Not-equals comparisons work in the usual way for enumerations."""
-        for lhs_name, rhs_name in (name1, name2), (name2, name1):
-            with self.subTest(lhs=lhs_name, rhs=rhs_name):
-                lhs_comparand = getattr(WeakDiamond, lhs_name)
-                rhs_comparand = getattr(WeakDiamond, rhs_name)
-                self.assertNotEqual(lhs_comparand, rhs_comparand)
+    def test_less_than(self, _label, lhs_name, rhs_name, expected):
+        """A direction is less (only) when it is more south."""
+        lhs = getattr(WeakDiamond, lhs_name)
+        rhs = getattr(WeakDiamond, rhs_name)
+        actual = lhs < rhs
+        self.assertIs(actual, expected)
 
     @parameterized.expand([
-        ('SOUTH, NORTH', 'SOUTH', 'NORTH'),
-        ('SOUTH, EAST', 'SOUTH', 'EAST'),
-        ('SOUTH, WEST', 'SOUTH', 'WEST'),
-        ('EAST, NORTH', 'EAST', 'NORTH'),
-        ('WEST, NORTH', 'WEST', 'NORTH'),
+        ('NORTH, NORTH', 'NORTH', 'NORTH', False),
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH', True),
+        ('NORTH, EAST', 'NORTH', 'EAST', True),
+        ('NORTH, WEST', 'NORTH', 'WEST', True),
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH', False),
+        ('SOUTH, SOUTH', 'SOUTH', 'SOUTH', False),
+        ('SOUTH, EAST', 'SOUTH', 'EAST', False),
+        ('SOUTH, WEST', 'SOUTH', 'WEST', False),
+        ('EAST, NORTH', 'EAST', 'NORTH', False),
+        ('EAST, SOUTH', 'EAST', 'SOUTH', True),
+        ('EAST, EAST', 'EAST', 'EAST', False),
+        ('EAST, WEST', 'EAST', 'WEST', False),
+        ('WEST, NORTH', 'WEST', 'NORTH', False),
+        ('WEST, SOUTH', 'WEST', 'SOUTH', True),
+        ('WEST, EAST', 'WEST', 'EAST', False),
+        ('WEST, WEST', 'WEST', 'WEST', False),
     ])
-    def test_souther_less_than_norther(self, _label, lhs_name, rhs_name):
-        """Farther south directions compare less than farther north ones."""
-        lhs_comparand = getattr(WeakDiamond, lhs_name)
-        rhs_comparand = getattr(WeakDiamond, rhs_name)
-        self.assertLess(lhs_comparand, rhs_comparand)
-
-
-    def test_souther_less_equal_norther_or_same(self, _label,
-                                                lhs_name, rhs_name):
-        """Directions are "<=" when they are "<" or they are "=="."""
-        ('SOUTH, NORTH', 'SOUTH', 'NORTH'),
-        ('SOUTH, SOUTH', 'SOUTH', 'NORTH'),
-        ('SOUTH, EAST', 'SOUTH', 'EAST'),
-        ('SOUTH, WEST', 'SOUTH', 'WEST'),
-        ('EAST, EAST', 'EAST', 'NORTH'),
-        ('EAST, NORTH', 'EAST', 'NORTH'),
-        ('WEST, WEST', 'WEST', 'NORTH'),
-        ('WEST, NORTH', 'WEST', 'NORTH'),
+    def test_greater_than(self, _label, lhs_name, rhs_name, expected):
+        """A direction is greater (only) when it is more north."""
+        lhs = getattr(WeakDiamond, lhs_name)
+        rhs = getattr(WeakDiamond, rhs_name)
+        actual = lhs > rhs
+        self.assertIs(actual, expected)
 
     @parameterized.expand([
-        ('NORTH, EAST', 'NORTH', 'EAST'),
-        ('NORTH, WEST', 'NORTH', 'WEST'),
-        ('NORTH, SOUTH', 'NORTH', 'SOUTH'),
-        ('EAST, SOUTH', 'EAST', 'SOUTH'),
-        ('WEST, SOUTH', 'WEST', 'SOUTH'),
+        ('NORTH, NORTH', 'NORTH', 'NORTH', True),
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH', False),
+        ('NORTH, EAST', 'NORTH', 'EAST', False),
+        ('NORTH, WEST', 'NORTH', 'WEST', False),
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH', True),
+        ('SOUTH, SOUTH', 'SOUTH', 'SOUTH', True),
+        ('SOUTH, EAST', 'SOUTH', 'EAST', True),
+        ('SOUTH, WEST', 'SOUTH', 'WEST', True),
+        ('EAST, NORTH', 'EAST', 'NORTH', True),
+        ('EAST, SOUTH', 'EAST', 'SOUTH', False),
+        ('EAST, EAST', 'EAST', 'EAST', True),
+        ('EAST, WEST', 'EAST', 'WEST', False),
+        ('WEST, NORTH', 'WEST', 'NORTH', True),
+        ('WEST, SOUTH', 'WEST', 'SOUTH', False),
+        ('WEST, EAST', 'WEST', 'EAST', False),
+        ('WEST, WEST', 'WEST', 'WEST', True),
     ])
-    def test_norther_greater_than_souther(self, _label, lhs_name, rhs_name):
-        """Farther north directions compare greater than farther south ones."""
-        lhs_comparand = getattr(WeakDiamond, lhs_name)
-        rhs_comparand = getattr(WeakDiamond, rhs_name)
-        self.assertGreater(lhs_comparand, rhs_comparand)
+    def test_less_equal(self, _label, lhs_name, rhs_name, expected):
+        """A direction is "<=" (only) when it is less or it is equal."""
+        lhs = getattr(WeakDiamond, lhs_name)
+        rhs = getattr(WeakDiamond, rhs_name)
+        actual = lhs <= rhs
+        self.assertIs(actual, expected)
 
-    # def test_north_greater_than_south(self):
-    #    self.assertTrue(WeakDiamond.NORTH > WeakDiamond.SOUTH)
+    @parameterized.expand([
+        ('NORTH, NORTH', 'NORTH', 'NORTH', True),
+        ('NORTH, SOUTH', 'NORTH', 'SOUTH', True),
+        ('NORTH, EAST', 'NORTH', 'EAST', True),
+        ('NORTH, WEST', 'NORTH', 'WEST', True),
+        ('SOUTH, NORTH', 'SOUTH', 'NORTH', False),
+        ('SOUTH, SOUTH', 'SOUTH', 'SOUTH', True),
+        ('SOUTH, EAST', 'SOUTH', 'EAST', False),
+        ('SOUTH, WEST', 'SOUTH', 'WEST', False),
+        ('EAST, NORTH', 'EAST', 'NORTH', False),
+        ('EAST, SOUTH', 'EAST', 'SOUTH', True),
+        ('EAST, EAST', 'EAST', 'EAST', True),
+        ('EAST, WEST', 'EAST', 'WEST', False),
+        ('WEST, NORTH', 'WEST', 'NORTH', False),
+        ('WEST, SOUTH', 'WEST', 'SOUTH', True),
+        ('WEST, EAST', 'WEST', 'EAST', False),
+        ('WEST, WEST', 'WEST', 'WEST', True),
+    ])
+    def test_greater_equal(self, _label, lhs_name, rhs_name, expected):
+        """A direction is ">=" (only) when it is greater or it is equal."""
+        lhs = getattr(WeakDiamond, lhs_name)
+        rhs = getattr(WeakDiamond, rhs_name)
+        actual = lhs >= rhs
+        self.assertIs(actual, expected)
 
 
 class TestPatient(unittest.TestCase):

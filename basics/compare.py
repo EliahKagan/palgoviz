@@ -60,7 +60,7 @@ class WeakDiamond(enum.Enum):
                 return 0
             case WeakDiamond.EAST | WeakDiamond.WEST:
                 return 1
-            case WeakDiamond.WEST:
+            case WeakDiamond.NORTH:
                 return 2
 
         raise AssertionError('unexpected enumeration instance')
