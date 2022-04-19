@@ -272,36 +272,73 @@ class TestPatient(unittest.TestCase):
         """Patient records are flat so even shallow copying works."""
         original = Patient('DW', 13187)
         duplicate = copy.copy(original)
-        self.assertEqual(original, duplicate)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertEqual(original, duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertEqual(duplicate, original)
 
     def test_equal_to_deep_copy(self):
         """Deep copying works (though is overkill) for patient records."""
         original = Patient('EX', 12221)
         duplicate = copy.deepcopy(original)
-        self.assertEqual(original, duplicate)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertEqual(original, duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertEqual(duplicate, original)
 
     def test_equal_to_pickling_clone(self):
         """Patient records can be serialized and deserialized by pickling."""
         original = Patient('FY', 11800)
         duplicate = pickle.loads(pickle.dumps(original))
-        self.assertEqual(original, duplicate)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertEqual(original, duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertEqual(duplicate, original)
+
+    def test_not_less_than_itself(self):
+        patient = Patient('AM', 4041)
+        self.assertFalse(patient < patient)
+
+    def test_not_less_than_shallow_copy(self):
+        original = Patient('BN', 3074)
+        duplicate = copy.copy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertFalse(original < duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertFalse(duplicate < original)
+
+    def test_not_less_than_deep_copy(self):
+        original = Patient('CO', 1122)
+        duplicate = copy.deepcopy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertFalse(original < duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertFalse(duplicate < original)
+
+    def test_not_less_than_pickling_clone(self):
+        original = Patient('DP', 7970)
+        duplicate = pickle.loads(pickle.dumps(original))
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertFalse(original < duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertFalse(duplicate < original)
 
     @parameterized.expand([
         ('same initials', 'XX', 'XX', 1001, 1001),
-        ('co initials', 'XX', 'YY', 1001, 1001),
-        ('contra initials', 'YY', 'XX', 1001, 1001),
+        ('incr initials', 'XX', 'YY', 1001, 1001),
+        ('decr initials', 'YY', 'XX', 1001, 1001),
     ])
-    def test_not_less_same_priority_patient(self, _label,
-                                            lhs_initials, rhs_initials,
-                                            lhs_priority, rhs_priority):
+    def test_not_less_than_other_same_priority_patient(
+            self, _label,
+            lhs_initials, rhs_initials, lhs_priority, rhs_priority):
         lhs = Patient(lhs_initials, lhs_priority)
         rhs = Patient(rhs_initials, rhs_priority)
         self.assertFalse(lhs < rhs)
 
     @parameterized.expand([
         ('same initials', 'WW', 'WW', 1000, 1002),
-        ('co initials', 'WW', 'ZZ', 1000, 1002),
-        ('contra initials', 'ZZ', 'WW', 1000, 1002),
+        ('incr initials', 'WW', 'ZZ', 1000, 1002),
+        ('decr initials', 'ZZ', 'WW', 1000, 1002),
     ])
     def test_less_than_higher_priority_patient(self, _label,
                                                lhs_initials, rhs_initials,
@@ -311,21 +348,61 @@ class TestPatient(unittest.TestCase):
         self.assertTrue(lhs < rhs)
 
     @parameterized.expand([
-        ('same initials', 'XX', 'XX', 1001, 1001),
-        ('co initials', 'XX', 'YY', 1001, 1001),
-        ('contra initials', 'YY', 'XX', 1001, 1001),
+        ('same initials', 'PP', 'PP', 1002, 1000),
+        ('incr initials', 'PP', 'QQ', 1002, 1000),
+        ('decr initials', 'QQ', 'PP', 1002, 1000),
     ])
-    def test_not_less_equal_same_priority_patient(self, _label,
+    def test_not_less_than_lower_priority_patient(self, _label,
                                                   lhs_initials, rhs_initials,
                                                   lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs < rhs)
+
+    def test_less_than_or_equal_to_itself(self):
+        patient = Patient('AM', 4041)
+        self.assertTrue(patient <= patient)
+
+    def test_less_than_or_equal_to_shallow_copy(self):
+        original = Patient('BN', 3074)
+        duplicate = copy.copy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertTrue(original <= duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertTrue(duplicate <= original)
+
+    def test_less_than_or_equal_to_deep_copy(self):
+        original = Patient('CO', 1122)
+        duplicate = copy.deepcopy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertTrue(original <= duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertTrue(duplicate <= original)
+
+    def test_less_than_or_equal_to_pickling_clone(self):
+        original = Patient('DP', 7970)
+        duplicate = pickle.loads(pickle.dumps(original))
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertTrue(original <= duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertTrue(duplicate <= original)
+
+    @parameterized.expand([
+        ('same initials', 'XX', 'XX', 1001, 1001),
+        ('incr initials', 'XX', 'YY', 1001, 1001),
+        ('decr initials', 'YY', 'XX', 1001, 1001),
+    ])
+    def test_not_less_equal_other_same_priority_patient(
+            self, _label,
+            lhs_initials, rhs_initials, lhs_priority, rhs_priority):
         lhs = Patient(lhs_initials, lhs_priority)
         rhs = Patient(rhs_initials, rhs_priority)
         self.assertFalse(lhs <= rhs)
 
     @parameterized.expand([
         ('same initials', 'WW', 'WW', 1000, 1002),
-        ('co initials', 'WW', 'ZZ', 1000, 1002),
-        ('contra initials', 'ZZ', 'WW', 1000, 1002),
+        ('incr initials', 'WW', 'ZZ', 1000, 1002),
+        ('decr initials', 'ZZ', 'WW', 1000, 1002),
     ])
     def test_less_equal_higher_priority_patient(self, _label,
                                                 lhs_initials, rhs_initials,
@@ -334,7 +411,164 @@ class TestPatient(unittest.TestCase):
         rhs = Patient(rhs_initials, rhs_priority)
         self.assertTrue(lhs <= rhs)
 
-    # FIXME: Write the rest of the comparison tests.
+    @parameterized.expand([
+        ('same initials', 'PP', 'PP', 1002, 1000),
+        ('incr initials', 'PP', 'QQ', 1002, 1000),
+        ('decr initials', 'QQ', 'PP', 1002, 1000),
+    ])
+    def test_not_less_equal_lower_priority_patient(self, _label,
+                                                   lhs_initials, rhs_initials,
+                                                   lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs <= rhs)
+
+    def test_not_greater_than_itself(self):
+        patient = Patient('AM', 4041)
+        self.assertFalse(patient > patient)
+
+    def test_not_greater_than_shallow_copy(self):
+        original = Patient('BN', 3074)
+        duplicate = copy.copy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertFalse(original > duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertFalse(duplicate > original)
+
+    def test_not_greater_than_deep_copy(self):
+        original = Patient('CO', 1122)
+        duplicate = copy.deepcopy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertFalse(original > duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertFalse(duplicate > original)
+
+    def test_not_greater_than_pickling_clone(self):
+        original = Patient('DP', 7970)
+        duplicate = pickle.loads(pickle.dumps(original))
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertFalse(original > duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertFalse(duplicate > original)
+
+    @parameterized.expand([
+        ('same initials', 'XX', 'XX', 1001, 1001),
+        ('incr initials', 'XX', 'YY', 1001, 1001),
+        ('decr initials', 'YY', 'XX', 1001, 1001),
+    ])
+    def test_not_greater_than_other_same_priority_patient(
+            self, _label,
+            lhs_initials, rhs_initials, lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs > rhs)
+
+    @parameterized.expand([
+        ('same initials', 'WW', 'WW', 1000, 1002),
+        ('incr initials', 'WW', 'ZZ', 1000, 1002),
+        ('decr initials', 'ZZ', 'WW', 1000, 1002),
+    ])
+    def test_not_greater_than_higher_priority_patient(
+            self, _label,
+            lhs_initials, rhs_initials, lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs > rhs)
+
+    @parameterized.expand([
+        ('same initials', 'PP', 'PP', 1002, 1000),
+        ('incr initials', 'PP', 'QQ', 1002, 1000),
+        ('decr initials', 'QQ', 'PP', 1002, 1000),
+    ])
+    def test_greater_than_lower_priority_patient(self, _label,
+                                                 lhs_initials, rhs_initials,
+                                                 lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertTrue(lhs > rhs)
+
+    def test_greater_than_or_equal_to_itself(self):
+        patient = Patient('AM', 4041)
+        self.assertTrue(patient >= patient)
+
+    def test_greater_than_or_equal_to_shallow_copy(self):
+        original = Patient('BN', 3074)
+        duplicate = copy.copy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertTrue(original >= duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertTrue(duplicate >= original)
+
+    def test_greater_than_or_equal_to_deep_copy(self):
+        original = Patient('CO', 1122)
+        duplicate = copy.deepcopy(original)
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertTrue(original >= duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertTrue(duplicate >= original)
+
+    def test_greater_than_or_equal_to_pickling_clone(self):
+        original = Patient('DP', 7970)
+        duplicate = pickle.loads(pickle.dumps(original))
+        with self.subTest(lhs='orig', rhs='copy'):
+            self.assertTrue(original >= duplicate)
+        with self.subTest(lhs='copy', rhs='orig'):
+            self.assertTrue(duplicate >= original)
+
+    @parameterized.expand([
+        ('same initials', 'XX', 'XX', 1001, 1001),
+        ('incr initials', 'XX', 'YY', 1001, 1001),
+        ('decr initials', 'YY', 'XX', 1001, 1001),
+    ])
+    def test_not_greater_equal_other_same_priority_patient(
+            self, _label,
+            lhs_initials, rhs_initials, lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs >= rhs)
+
+    @parameterized.expand([
+        ('same initials', 'WW', 'WW', 1000, 1002),
+        ('incr initials', 'WW', 'ZZ', 1000, 1002),
+        ('decr initials', 'ZZ', 'WW', 1000, 1002),
+    ])
+    def test_not_greater_equal_higher_priority_patient(
+            self, _label,
+            lhs_initials, rhs_initials, lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertFalse(lhs >= rhs)
+
+    @parameterized.expand([
+        ('same initials', 'PP', 'PP', 1002, 1000),
+        ('incr initials', 'PP', 'QQ', 1002, 1000),
+        ('decr initials', 'QQ', 'PP', 1002, 1000),
+    ])
+    def test_greater_equal_lower_priority_patient(self, _label,
+                                                  lhs_initials, rhs_initials,
+                                                  lhs_priority, rhs_priority):
+        lhs = Patient(lhs_initials, lhs_priority)
+        rhs = Patient(rhs_initials, rhs_priority)
+        self.assertTrue(lhs >= rhs)
+
+    def test_order_comparison_reflects_priority_change(self):
+        patients = [Patient('LZ', 10), Patient('MY', 20), Patient('NX', 30),
+                    Patient('NK', 30), Patient('NS', 30), Patient('OW', 40),
+                    Patient('OV', 40), Patient('PV', 50), Patient('QU', 60)]
+        if patients != sorted(patients):
+            raise Exception("initial ordering wrong, can't test reordering")
+
+        # We will decrease QU's priority from 60 to 25, to be the third lowest.
+        expected = [patients[0], patients[1], patients[8],
+                    patients[2], patients[3], patients[4],
+                    patients[5], patients[6], patients[7]]
+
+        patients[8].priority -= 35
+        if patients[8].priority != 25:
+            raise Exception("couldn't change priority, can't test reordering")
+
+        actual = sorted(patients)
+        self.assertListEqual(actual, expected)
 
 
 class TestOrderIndistinct(unittest.TestCase):
