@@ -167,6 +167,54 @@ class BiStackFifoQueue(FifoQueue):
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 
+    __slots__ = ('_head',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a SinglyLinkedListFifoQueue from an empty Sll."""
+        self._head = None
+
+    def __bool__(self):
+        return bool(self._head)
+
+    def __len__(self):
+        temp = self._head
+        length = 0
+        while temp:
+            length += 1
+            temp = temp.nextn
+        return length
+
+    def enqueue(self, item):
+        new_node = Node(item)
+        new_node.nextn = self._head
+        self._head = new_node
+
+    def dequeue(self):
+        if self._head:
+            if not self._head.nextn:
+                result = self._head.value
+                self._head = None
+                return result
+            else:
+                temp = self._head
+                while temp.nextn.nextn:
+                    temp = temp.nextn
+                result = temp.nextn.value
+                temp.nextn = None
+                return result
+        else:
+            raise LookupError("Can't dequeue from empty queue")
+
+    def peek(self):
+        if self._head:
+            temp = self._head
+            while temp.nextn:
+                temp = temp.nextn
+            return temp.value
+        else:
+            raise LookupError("Can't peek from empty queue")
+
 
 class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
@@ -253,6 +301,43 @@ class AltDequeLifoQueue(LifoQueue):
 class SinglyLinkedListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a singly linked list."""
 
+    __slots__ = ('_head',)
+
+    # TODO: Investigate construction from iterables.
+    def __init__(self):
+        """Construct a SinglyLinkedListLifoQueue from an empty Sll."""
+        self._head = None
+
+    def __bool__(self):
+        return bool(self._head)
+
+    def __len__(self):
+        temp = self._head
+        length = 0
+        while temp:
+            length += 1
+            temp = temp.nextn
+        return length
+
+    def enqueue(self, item):
+        new_node = Node(item)
+        new_node.nextn = self._head
+        self._head = new_node
+
+    def dequeue(self):
+        if self._head:
+            result = self._head.value
+            self._head = self._head.nextn
+            return result
+        else:
+            raise LookupError("Can't dequeue from empty queue")
+
+    def peek(self):
+        if self._head:
+            return self._head.value
+        else:
+            raise LookupError("Can't peek from empty queue")
+
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
@@ -324,3 +409,13 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
         if self._deque:
             return self._deque[-1]
         raise LookupError("Can't peek from empty queue")
+
+class Node:
+    """Singlely Linked List class for respective FiFo and Lifo queues"""
+
+    __slots__ = ('value', 'nextn')
+
+    def __init__(self, value= None):
+        """Initilize an empty SLL."""
+        self.value = value
+        self.nextn = None
