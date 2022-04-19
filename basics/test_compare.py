@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-"""Tests for the types in compare.py."""
+"""
+Tests for the types in compare.py.
+
+TODO: It may be interesting to compare these tests' style to the style in
+test_bobcats.py (once that is merged).
+"""
 
 import copy
 from fractions import Fraction
@@ -333,12 +338,7 @@ class TestPatient(unittest.TestCase):
 
 
 class TestOrderIndistinct(unittest.TestCase):
-    """
-    Tests for the OrderIndistinct class.
-
-    TODO: Once bobcats.py and test_bobcats.py are merged in, make note of
-    design and style differences between this and the test_bobcats tests.
-    """
+    """Tests for the OrderIndistinct class."""
 
     _VALUE_ARGS_WITHOUT_JUST_OBJ = [
         ('int', 42),
