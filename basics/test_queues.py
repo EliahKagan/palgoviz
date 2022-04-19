@@ -8,79 +8,13 @@ import unittest
 
 from parameterized import parameterized
 
+import compare
 import queues
 
 
 def _unannotated_argspec(func):
     """Get the full argspec of a callable object, but without annotations."""
     return inspect.getfullargspec(func)[:6]
-
-
-class _Patient:
-    """Medical patient under triage. (Example max-priority-queue item type.)"""
-
-    __slots__ = ('_mrn', 'initials', 'priority')
-
-    _next_mrn = 0  # The next patient gets this medical record number.
-
-    def __init__(self, initials, starting_priority):
-        """
-        Create a patient record for triage.
-
-        Use initials, not name, for privacy. Change them on patient request.
-
-        Pass a starting priority (severity), which may need to be updated. (In
-        some data structures, the record would need to be removed/reinserted.)
-        """
-        self._mrn = _Patient._next_mrn
-        _Patient._next_mrn += 1
-        self.initials = initials
-        self.priority = starting_priority
-
-    def __repr__(self):  # TODO: Maybe __str__ should be implemented too.
-        """Informative representation of this record, useful for debugging."""
-        mrn = f'mrn={self.mrn}'
-        initials = f'initials={self.initials!r}'  # Include the quote marks.
-        priority = f'priority={self.priority}'
-        return f'<{type(self).__name__} {mrn} {initials} {priority}>'
-
-    def __eq__(self, other):
-        """Check if two patient records have the same medical record number."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.mrn == other.mrn
-
-    def __lt__(self, other):
-        """Check if another patient should get priority over this one."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.priority < other.priority
-
-    def __gt__(self, other):
-        """Check if this patient should get priority over another one."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.priority > other.priority
-
-    def __le__(self, other):
-        """Check if a patient is, or should get priority over, this patient."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self < other or self == other
-
-    def __ge__(self, other):
-        """Check if this patient is, or should get priority over, a patient."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self > other or self == other
-
-    def __hash__(self):
-        return hash(self.mrn)
-
-    @property
-    def mrn(self):
-        """Medical record number. This never changes and is never reused."""
-        return self._mrn
 
 
 class _Bases:
@@ -863,10 +797,10 @@ class _Bases:
 
                 https://en.cppreference.com/w/cpp/concepts/strict_weak_order
             """
-            p = _Patient('AB', 1040)
-            q = _Patient('CD', 1890)
-            r = _Patient('EF', 1040)
-            s = _Patient('GH', 1890)
+            p = compare.Patient('AB', 1040)
+            q = compare.Patient('CD', 1890)
+            r = compare.Patient('EF', 1040)
+            s = compare.Patient('GH', 1890)
 
             pq = self.queue_type()
             pq.enqueue(p)
