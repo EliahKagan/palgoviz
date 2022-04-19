@@ -835,12 +835,24 @@ class _Bases:
             nor greater than" is transitive: if neither A < B nor B < A, and
             neither B < C nor C < B, then neither A < C nor C < A.
 
-            Most sorting algorithms, and all priority queue data structures,
-            should work with any weak ordering. Storing instances of _Patient
+            In a weak ordering, elements clump together by incomparability. If
+            X1, X2, ..., Xm can appear in any order, and Y1, Y1, ..., Yn can
+            appear in any order, but some Xi < Yj, then weak ordering
+            guarantees that every Xi is less than every Yj. That makes it so
+            algorithms that make use of ordering and permit indistinguishable
+            elements, such as comparison sorts, either already work with any
+            weak ordering, or can be made to work without much redesign.
+
+            Most sorts, and all priority queues, should be designed so they
+            work with any weak ordering. Storing instances of _Patient
             (implemented above) in a priority queue may illuminate why this is
             important. In contrast, some partial orderings, like "is a [proper]
-            subset" on sets, offer even fewer guarantees then weak orderings,
+            subset" on sets, offer even fewer guarantees than weak orderings,
             and most comparison-based algorithms can't feasibly support them.
+
+            Even though this page is about C++, not Python, it may be helpful:
+
+                https://en.cppreference.com/w/cpp/concepts/strict_weak_order
             """
             p = _Patient('AB', 1040)
             q = _Patient('CD', 1890)
