@@ -307,6 +307,7 @@ class _Bases:
         def test_dequeuing_gives_enqueued_items_in_some_order(self,
                                                               _label,
                                                               in_items):
+            """Items that can come out are all those that went in."""
             queue = self.queue_type()
 
             for item in in_items:
@@ -317,6 +318,12 @@ class _Bases:
                 out_items.append(queue.dequeue())
 
             self.assertListEqual(sorted(out_items), sorted(in_items))
+
+        def test_cannot_create_new_attributes(self):
+            """Assigning to a nonexistent attribute raises AttributeError."""
+            queue = self.queue_type()
+            with self.assertRaises(AttributeError):
+                queue.blah_blah_hopefully_not_an_existing_attribute_name = 42
 
     class TestFifos(_QueueTestCase):
         """Tests for concrete FIFO queue ("queue") behavior."""
