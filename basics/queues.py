@@ -15,6 +15,7 @@ import collections
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
+    __slots__ = ()
 
     @abstractmethod
     def __bool__(self):
@@ -40,6 +41,8 @@ class Queue(ABC):
 class FifoQueue(Queue):
     """Abstract class representing a first-in first-out queue (a "queue")."""
 
+    __slots__ = ()
+
     @classmethod
     def create(cls):
         """Creates a FifoQueue instance."""
@@ -51,6 +54,8 @@ class FifoQueue(Queue):
 class LifoQueue(Queue):
     """Abstract class representing a last-in first-out queue (a stack)."""
 
+    __slots__ = ()
+
     @classmethod
     def create(cls):
         """Creates a LifoQueue instance."""
@@ -61,6 +66,8 @@ class LifoQueue(Queue):
 
 class PriorityQueue(Queue):
     """Abstract class representing a priority queue."""
+
+    __slots__ = ()
 
     # TODO: Investigate which PriorityQueue should be default.
     @classmethod
