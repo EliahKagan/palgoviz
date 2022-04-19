@@ -81,27 +81,27 @@ class PriorityQueue(Queue):
 class DequeFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a collections.deque."""
 
-    __slots__ = ('_queue',)
+    __slots__ = ('_deque',)
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a DequeFifoQueue from an empty deque."""
-        self._queue = collections.deque()
+        self._deque = collections.deque()
 
     def __bool__(self):
-        return bool(self._queue)
+        return bool(self._deque)
 
     def __len__(self):
-        return len(self._queue)
+        return len(self._deque)
 
     def enqueue(self, item):
-        self._queue.append(item)
+        self._deque.append(item)
 
     def dequeue(self):
-        return self._queue.popleft()
+        return self._deque.popleft()
 
     def peek(self):
-        return self._queue[0]
+        return self._deque[0]
 
 
 class AltDequeFifoQueue(FifoQueue):
@@ -111,27 +111,27 @@ class AltDequeFifoQueue(FifoQueue):
     Like DequeFifoQueue but elements move through in the other direction.
     """
 
-    __slots__ = ('_queue',)
+    __slots__ = ('_deque',)
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
-        self._queue = collections.deque()
+        """Construct an AltDequeFifoQueu from an empty deque."""
+        self._deque = collections.deque()
 
     def __bool__(self):
-        return bool(self._queue)
+        return bool(self._deque)
 
     def __len__(self):
-        return len(self._queue)
+        return len(self._deque)
 
     def enqueue(self, item):
-        self._queue.appendleft(item)
+        self._deque.appendleft(item)
 
     def dequeue(self):
-        return self._queue.pop()
+        return self._deque.pop()
 
     def peek(self):
-        return self._queue[-1]
+        return self._deque[-1]
 
 
 class SlowFifoQueue(FifoQueue):
@@ -141,7 +141,7 @@ class SlowFifoQueue(FifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
+        """Construct a SlowFifoQueue from an empty list."""
         self._list = []
 
     def __bool__(self):
@@ -175,7 +175,7 @@ class ListLifoQueue(LifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
+        """Construct a ListLifoQueue from an empty list."""
         self._list = []
 
     def __bool__(self):
@@ -197,27 +197,27 @@ class ListLifoQueue(LifoQueue):
 class DequeLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a collections.deque."""
 
-    __slots__ = ('_queue',)
+    __slots__ = ('_deque',)
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
-        self._queue = collections.deque()
+        """Construct a DequeLifoQueue from an empty deque."""
+        self._deque = collections.deque()
 
     def __bool__(self):
-        return bool(self._queue)
+        return bool(self._deque)
 
     def __len__(self):
-        return len(self._queue)
+        return len(self._deque)
 
     def enqueue(self, item):
-        self._queue.append(item)
+        self._deque.append(item)
 
     def dequeue(self):
-        return self._queue.pop()
+        return self._deque.pop()
 
     def peek(self):
-        return self._queue[-1]
+        return self._deque[-1]
 
 
 class AltDequeLifoQueue(LifoQueue):
@@ -227,27 +227,27 @@ class AltDequeLifoQueue(LifoQueue):
     Like DequeLifoQueue but elements are pushed and popped at the other end.
     """
 
-    __slots__ = ('_queue',)
+    __slots__ = ('_deque',)
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
-        self._queue = collections.deque()
+        """Construct a AltDequeLifoQueue from an empty deque."""
+        self._deque = collections.deque()
 
     def __bool__(self):
-        return bool(self._queue)
+        return bool(self._deque)
 
     def __len__(self):
-        return len(self._queue)
+        return len(self._deque)
 
     def enqueue(self, item):
-        self._queue.appendleft(item)
+        self._deque.appendleft(item)
 
     def dequeue(self):
-        return self._queue.popleft()
+        return self._deque.popleft()
 
     def peek(self):
-        return self._queue[-0]
+        return self._deque[0]
 
 
 class SinglyLinkedListLifoQueue(LifoQueue):
@@ -260,7 +260,7 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     __slots__ = ('_list',)
 
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
+        """Construct a FastEnqueueMaxPriorityQueue from an empty list."""
         self._list = []
 
     def __bool__(self):
@@ -294,7 +294,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     __slots__ = ('_deque',)
 
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
+        """Construct a FastDequeueMaxPriorityQueue from an empty list."""
         self._deque = []
 
     def __bool__(self):
