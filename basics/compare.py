@@ -1,9 +1,8 @@
 """
 Types that compare in special ways.
 
-The main use for this module is to help in building tests for code that sorts,
-searches, or otherwise operates based on order comparisons, though it may have
-other uses.
+The main use for this module (at least currently) is to help in building tests
+for code that sorts, searches, or otherwise makes use of order comparisons.
 """
 
 
