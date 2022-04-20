@@ -167,24 +167,20 @@ class BiStackFifoQueue(FifoQueue):
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 
-    __slots__ = ('_head','_tail')
+    __slots__ = ('_head','_tail', '_len')
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a SinglyLinkedListFifoQueue from an empty Sll."""
         self._head = None
         self._tail = None
+        self._len = 0
 
     def __bool__(self):
         return bool(self._head)
 
     def __len__(self):
-        temp = self._head
-        length = 0
-        while temp:
-            length += 1
-            temp = temp.nextn
-        return length
+        return self._len
 
     def enqueue(self, item):
         new_node = Node(item)
@@ -192,10 +188,12 @@ class SinglyLinkedListFifoQueue(FifoQueue):
             new_node.nextn = self._head
             self._head = new_node
             self._tail = new_node
+            self._len += 1
         else:
             new_node = Node(item)
             self._tail.nextn = new_node
             self._tail = new_node
+            self._len += 1
 
     def dequeue(self):
         if self._head:
@@ -204,6 +202,7 @@ class SinglyLinkedListFifoQueue(FifoQueue):
             # NOTE: not sure this is necessary, but I don't like a tail w/o a head
             if not self._head:
                 self._tail = None
+            self._len -= 1
             return result
         else:
             raise LookupError("Can't dequeue from empty queue")
@@ -300,33 +299,31 @@ class AltDequeLifoQueue(LifoQueue):
 class SinglyLinkedListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a singly linked list."""
 
-    __slots__ = ('_head',)
+    __slots__ = ('_head','_len')
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a SinglyLinkedListLifoQueue from an empty Sll."""
         self._head = None
+        self._len = 0
 
     def __bool__(self):
         return bool(self._head)
 
     def __len__(self):
-        temp = self._head
-        length = 0
-        while temp:
-            length += 1
-            temp = temp.nextn
-        return length
+        return self._len
 
     def enqueue(self, item):
         new_node = Node(item)
         new_node.nextn = self._head
         self._head = new_node
+        self._len += 1
 
     def dequeue(self):
         if self._head:
             result = self._head.value
             self._head = self._head.nextn
+            self._len -= 1
             return result
         else:
             raise LookupError("Can't dequeue from empty queue")
