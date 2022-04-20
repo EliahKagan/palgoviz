@@ -160,6 +160,7 @@ class SlowFifoQueue(FifoQueue):
         return self._list[0]
 
 
+# TODO: Use an algo so that this amortized O(1) for any op
 class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
@@ -328,11 +329,10 @@ class AltDequeLifoQueue(LifoQueue):
 class SinglyLinkedListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a singly linked list."""
 
-    __slots__ = ('_head','_len')
+    __slots__ = ('_head', '_len')
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a SinglyLinkedListLifoQueue from an empty Sll."""
+        """Construct a SinglyLinkedListLifoQueue."""
         self._head = None
         self._len = 0
 
@@ -343,25 +343,22 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         return self._len
 
     def enqueue(self, item):
-        new_node = _Node(item)
-        new_node.nextn = self._head
-        self._head = new_node
+        self._head = _Node(item, self._head)
         self._len += 1
 
     def dequeue(self):
-        if self._head:
-            result = self._head.value
-            self._head = self._head.nextn
-            self._len -= 1
-            return result
-        else:
+        if not self._head:
             raise LookupError("Can't dequeue from empty queue")
 
+        result = self._head.value
+        self._head = self._head.nextn
+        self._len -= 1
+        return result
+
     def peek(self):
-        if self._head:
-            return self._head.value
-        else:
+        if not self._head:
             raise LookupError("Can't peek from empty queue")
+        return self._head.value
 
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
@@ -414,6 +411,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
         return len(self._list)
 
     # NOTE: At least O(n) because of insert and loop iteration
+    # TODO: this algo can be improved
     def enqueue(self, item):
         if not self._list or not (item < self._list[-1]):
             self._list.append(item)
