@@ -401,38 +401,38 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
 class FastDequeueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(n) enqueue, O(1) dequeue, and O(1) peek."""
 
-    __slots__ = ('_deque',)
+    __slots__ = ('_list',)
 
     def __init__(self):
         """Construct a FastDequeueMaxPriorityQueue from an empty list."""
-        self._deque = []
+        self._list = []
 
     def __bool__(self):
-        return bool(self._deque)
+        return bool(self._list)
 
     def __len__(self):
-        return len(self._deque)
+        return len(self._list)
 
     # NOTE: At least O(n) because of insert and loop iteration
     def enqueue(self, item):
-        if not self._deque or item >= self._deque[-1]:
-            self._deque.append(item)
+        if not self._list or item >= self._list[-1]:
+            self._list.append(item)
         else:
-            for index, element in enumerate(self._deque):
+            for index, element in enumerate(self._list):
                 if not(element < item):
-                    self._deque.insert(index, item)
+                    self._list.insert(index, item)
                     break
 
     # NOTE: List.pop is O(1)
     def dequeue(self):
-        if self._deque:
-            return self._deque.pop()
+        if self._list:
+            return self._list.pop()
         raise LookupError("Can't dequeue from empty queue")
 
     # NOTE: Indexing into a list is O(1)
     def peek(self):
-        if self._deque:
-            return self._deque[-1]
+        if self._list:
+            return self._list[-1]
         raise LookupError("Can't peek from empty queue")
 
 
