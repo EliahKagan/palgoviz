@@ -415,6 +415,9 @@ class _Node:
         self._value = value
         self.nextn = nextn
 
+    def __repr__(self):
+        return f"{type(self).__name__}({self._value!r}, {self.nextn!r})"
+
     @property
     def value(self):
         """The value of this node."""
