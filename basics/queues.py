@@ -200,13 +200,12 @@ class BiStackFifoQueue(FifoQueue):
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 
-    __slots__ = ('_head','_tail', '_len')
+    __slots__ = ('_head', '_tail', '_len')
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a SinglyLinkedListFifoQueue from an empty Sll."""
-        self._head = None
-        self._tail = None
+        self._head = self._tail = None
         self._len = 0
 
     def __bool__(self):
@@ -218,9 +217,7 @@ class SinglyLinkedListFifoQueue(FifoQueue):
     def enqueue(self, item):
         new_node = _Node(item)
         if not self._head:
-            new_node.nextn = self._head
-            self._head = new_node
-            self._tail = new_node
+            self._head = self._tail = new_node
         else:
             self._tail.nextn = new_node
             self._tail = new_node
