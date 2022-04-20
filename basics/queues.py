@@ -163,6 +163,40 @@ class SlowFifoQueue(FifoQueue):
 class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
+    __slots__ = ('_list1', '_list2')
+
+    def __init__(self):
+        """Construct a BistackFifoQueue from two empty lists."""
+        self._list1 = []
+        self._list2 = []
+
+    def __bool__(self):
+        return bool(self._list1)
+
+    def __len__(self):
+        return len(self._list1)
+
+    def enqueue(self, item):
+        while self._list1:
+            self._list2.append(self._list1.pop())
+
+        self._list1.append(item)
+
+        while self._list2:
+            self._list1.append(self._list2.pop())
+
+    def dequeue(self):
+        if self._list1:
+            return self._list1.pop()
+        else:
+            raise LookupError("Can't dequeue from empty queue")
+
+    def peek(self):
+        if self._list1:
+            return self._list1[-1]
+        else:
+            raise LookupError("Can't peek from empty queue")
+
 
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
