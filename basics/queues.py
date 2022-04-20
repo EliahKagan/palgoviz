@@ -241,7 +241,6 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         return self._head.value
 
 
-
 class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
 
