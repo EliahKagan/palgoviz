@@ -202,9 +202,8 @@ class SinglyLinkedListFifoQueue(FifoQueue):
 
     __slots__ = ('_head', '_tail', '_len')
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a SinglyLinkedListFifoQueue from an empty Sll."""
+        """Construct a SinglyLinkedListFifoQueue."""
         self._head = self._tail = None
         self._len = 0
 
@@ -215,30 +214,29 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         return self._len
 
     def enqueue(self, item):
-        new_node = _Node(item)
         if not self._head:
-            self._head = self._tail = new_node
+            self._head = self._tail = _Node(item)
         else:
-            self._tail.nextn = new_node
-            self._tail = new_node
+            self._tail.nextn = _Node(item)
+            self._tail = self._tail.nextn
         self._len += 1
 
     def dequeue(self):
-        if self._head:
-            result = self._head.value
-            self._head = self._head.nextn
-            if not self._head:
-                self._tail = None
-            self._len -= 1
-            return result
-        else:
+        if not self._head:
             raise LookupError("Can't dequeue from empty queue")
 
+        result = self._head.value
+        self._head = self._head.nextn
+        if not self._head:
+            self._tail = None
+        self._len -= 1
+        return result
+
     def peek(self):
-        if self._head:
-            return self._head.value
-        else:
+        if not self._head:
             raise LookupError("Can't peek from empty queue")
+        return self._head.value
+
 
 
 class ListLifoQueue(LifoQueue):
