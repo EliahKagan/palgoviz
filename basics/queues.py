@@ -226,9 +226,12 @@ class SinglyLinkedListFifoQueue(FifoQueue):
             raise LookupError("Can't dequeue from empty queue")
 
         result = self._head.value
-        self._head = self._head.nextn
-        if not self._head:
-            self._tail = None
+
+        if self._len == 1:
+            self._head = self._tail = None
+        else:
+            self._head = self._head.nextn
+
         self._len -= 1
         return result
 
