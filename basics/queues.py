@@ -421,7 +421,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
             self._deque.append(item)
         else:
             for index, element in enumerate(self._deque):
-                if element > item:
+                if not(element < item):
                     self._deque.insert(index, item)
                     break
 
