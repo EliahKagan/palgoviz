@@ -183,14 +183,14 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         return self._len
 
     def enqueue(self, item):
-        new_node = Node(item)
+        new_node = _Node(item)
         if not self._head:
             new_node.nextn = self._head
             self._head = new_node
             self._tail = new_node
             self._len += 1
         else:
-            new_node = Node(item)
+            new_node = _Node(item)
             self._tail.nextn = new_node
             self._tail = new_node
             self._len += 1
@@ -199,7 +199,6 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         if self._head:
             result = self._head.value
             self._head = self._head.nextn
-            # NOTE: not sure this is necessary, but I don't like a tail w/o a head
             if not self._head:
                 self._tail = None
             self._len -= 1
@@ -314,7 +313,7 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         return self._len
 
     def enqueue(self, item):
-        new_node = Node(item)
+        new_node = _Node(item)
         new_node.nextn = self._head
         self._head = new_node
         self._len += 1
@@ -406,12 +405,17 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
             return self._deque[-1]
         raise LookupError("Can't peek from empty queue")
 
-class Node:
-    """Singlely Linked List class for respective FiFo and Lifo queues"""
 
-    __slots__ = ('value', 'nextn')
+class _Node:
+    """Singly linked list node for FIFO and LIFO queues."""
 
-    def __init__(self, value= None):
-        """Initilize an empty SLL."""
-        self.value = value
-        self.nextn = None
+    __slots__ = ('_value', 'nextn')
+
+    def __init__(self, value, nextn=None):
+        self._value = value
+        self.nextn = nextn
+
+    @property
+    def value(self):
+        """The value of this node."""
+        return self._value
