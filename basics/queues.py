@@ -188,12 +188,10 @@ class SinglyLinkedListFifoQueue(FifoQueue):
             new_node.nextn = self._head
             self._head = new_node
             self._tail = new_node
-            self._len += 1
         else:
-            new_node = _Node(item)
             self._tail.nextn = new_node
             self._tail = new_node
-            self._len += 1
+        self._len += 1
 
     def dequeue(self):
         if self._head:
