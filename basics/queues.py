@@ -164,37 +164,39 @@ class SlowFifoQueue(FifoQueue):
 class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
-    __slots__ = ('_main_stack', '_temp_stack')
+    __slots__ = ('_pop_from', '_append_to')
 
     def __init__(self):
         """Construct a BistackFifoQueue from two empty lists."""
-        self._main_stack = []
-        self._temp_stack = []
+        self._pop_from = []
+        self._append_to = []
 
     def __bool__(self):
-        return bool(self._main_stack)
+        return bool(self._pop_from)
 
     def __len__(self):
-        return len(self._main_stack)
+        return len(self._pop_from) + len(self._append_to)
 
     def enqueue(self, item):
-        while self._main_stack:
-            self._temp_stack.append(self._main_stack.pop())
-
-        self._main_stack.append(item)
-
-        while self._temp_stack:
-            self._main_stack.append(self._temp_stack.pop())
+        if not self._pop_from:
+            self._pop_from.append(item)
+        else:
+            self._append_to.append(item)
 
     def dequeue(self):
-        if not self._main_stack:
+        if not self._pop_from:
             raise LookupError("Can't dequeue from empty queue")
-        return self._main_stack.pop()
+        else:
+            result = self._pop_from.pop()
+            if not self._pop_from:
+                while self._append_to:
+                    self._pop_from.append(self._append_to.pop())
+        return result
 
     def peek(self):
-        if not self._main_stack:
+        if not self._pop_from:
             raise LookupError("Can't peek from empty queue")
-        return self._main_stack[-1]
+        return self._pop_from[-1]
 
 
 class SinglyLinkedListFifoQueue(FifoQueue):
