@@ -85,7 +85,7 @@ class DequeFifoQueue(FifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeFifoQueue from an empty deque."""
+        """Construct a DequeFifoQueue using a deque."""
         self._deque = collections.deque()
 
     def __bool__(self):
@@ -115,7 +115,7 @@ class AltDequeFifoQueue(FifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct an AltDequeFifoQueu from an empty deque."""
+        """Construct an AltDequeFifoQueue using a deque."""
         self._deque = collections.deque()
 
     def __bool__(self):
@@ -141,7 +141,7 @@ class SlowFifoQueue(FifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a SlowFifoQueue from an empty list."""
+        """Construct a SlowFifoQueue using a list."""
         self._list = []
 
     def __bool__(self):
@@ -160,43 +160,42 @@ class SlowFifoQueue(FifoQueue):
         return self._list[0]
 
 
-# TODO: Use an algo so that this amortized O(1) for any op
 class BiStackFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
 
-    __slots__ = ('_front', '_backr')
+    __slots__ = ('_out', '_in')
 
     def __init__(self):
-        """Construct a BistackFifoQueue from two empty lists."""
-        self._front = []
-        self._backr = []
+        """Construct a BistackFifoQueue using lists."""
+        self._out = []
+        self._in = []
 
     def __bool__(self):
-        return bool(self._front)
+        return bool(self._out)
 
     def __len__(self):
-        return len(self._front) + len(self._backr)
+        return len(self._out) + len(self._in)
 
     def enqueue(self, item):
-        if not self._front:
-            self._front.append(item)
+        if not self._out:
+            self._out.append(item)
         else:
-            self._backr.append(item)
+            self._in.append(item)
 
     def dequeue(self):
-        if not self._front:
+        if not self._out:
             raise LookupError("Can't dequeue from empty queue")
 
-        result = self._front.pop()
-        if not self._front:
-            while self._backr:
-                self._front.append(self._backr.pop())
+        result = self._out.pop()
+        if not self._out:
+            while self._in:
+                self._out.append(self._in.pop())
         return result
 
     def peek(self):
-        if not self._front:
+        if not self._out:
             raise LookupError("Can't peek from empty queue")
-        return self._front[-1]
+        return self._out[-1]
 
 
 class SinglyLinkedListFifoQueue(FifoQueue):
@@ -205,7 +204,7 @@ class SinglyLinkedListFifoQueue(FifoQueue):
     __slots__ = ('_head', '_tail', '_len')
 
     def __init__(self):
-        """Construct a SinglyLinkedListFifoQueue."""
+        """Construct a SinglyLinkedListFifoQueue using an SLL Node."""
         self._head = self._tail = None
         self._len = 0
 
@@ -250,7 +249,7 @@ class ListLifoQueue(LifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a ListLifoQueue from an empty list."""
+        """Construct a ListLifoQueue using a list."""
         self._list = []
 
     def __bool__(self):
@@ -276,7 +275,7 @@ class DequeLifoQueue(LifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a DequeLifoQueue from an empty deque."""
+        """Construct a DequeLifoQueue using a deque."""
         self._deque = collections.deque()
 
     def __bool__(self):
@@ -306,7 +305,7 @@ class AltDequeLifoQueue(LifoQueue):
 
     # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a AltDequeLifoQueue from an empty deque."""
+        """Construct a AltDequeLifoQueue using a deque."""
         self._deque = collections.deque()
 
     def __bool__(self):
@@ -331,7 +330,7 @@ class SinglyLinkedListLifoQueue(LifoQueue):
     __slots__ = ('_head', '_len')
 
     def __init__(self):
-        """Construct a SinglyLinkedListLifoQueue."""
+        """Construct a SinglyLinkedListLifoQueue using SLL Nodes."""
         self._head = None
         self._len = 0
 
@@ -366,7 +365,7 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     __slots__ = ('_list',)
 
     def __init__(self):
-        """Construct a FastEnqueueMaxPriorityQueue from an empty list."""
+        """Construct a FastEnqueueMaxPriorityQueue using a list."""
         self._list = []
 
     def __bool__(self):
@@ -400,7 +399,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     __slots__ = ('_list',)
 
     def __init__(self):
-        """Construct a FastDequeueMaxPriorityQueue from an empty list."""
+        """Construct a FastDequeueMaxPriorityQueue using a list."""
         self._list = []
 
     def __bool__(self):
@@ -439,6 +438,7 @@ class _Node:
     __slots__ = ('_value', 'nextn')
 
     def __init__(self, value, nextn=None):
+        """Construct an SLL Node."""
         self._value = value
         self.nextn = nextn
 
