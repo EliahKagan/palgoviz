@@ -401,10 +401,8 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
         if not self._list or not (item < self._list[-1]):
             self._list.append(item)
         else:
-            for index, element in enumerate(self._list):
-                if not (element < item):
-                    self._list.insert(index, item)
-                    break
+            index = next(i for i, x in enumerate(self._list) if not x < item)
+            self._list.insert(index, item)
 
     def dequeue(self):
         if not self:
