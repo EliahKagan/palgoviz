@@ -7,10 +7,13 @@ that should be fixed (and this note removed). Design decisions to accompany
 implementing __repr__ might include: Should (all or some of) the queue types
 support construction from an iterable? Be iterable themselves? Reversible?
 Should distinct queue objects ever be equal? To objects of a different type?
+
+TODO: In particular, investigate construction from iterables.
 """
 
 from abc import ABC, abstractmethod
 import collections
+import itertools
 
 
 class Queue(ABC):
@@ -45,10 +48,8 @@ class FifoQueue(Queue):
 
     @classmethod
     def create(cls):
-        """Creates a FifoQueue instance."""
-        if cls is FifoQueue:
-            return DequeFifoQueue()
-        return cls()
+        """Create a FifoQueue instance."""
+        return DequeFifoQueue() if cls is FifoQueue else cls()
 
 
 class LifoQueue(Queue):
@@ -58,10 +59,8 @@ class LifoQueue(Queue):
 
     @classmethod
     def create(cls):
-        """Creates a LifoQueue instance."""
-        if cls is LifoQueue:
-            return ListLifoQueue()
-        return cls()
+        """Create a LifoQueue instance."""
+        return ListLifoQueue() if cls is LifoQueue else cls()
 
 
 class PriorityQueue(Queue):
@@ -72,10 +71,8 @@ class PriorityQueue(Queue):
     # TODO: Investigate which PriorityQueue should be default.
     @classmethod
     def create(cls):
-        """Creates a LifoQueue instance."""
-        if cls is PriorityQueue:
-            return FastEnqueueMaxPriorityQueue()
-        return cls()
+        """Create a PriorityQueue instance."""
+        return FastEnqueueMaxPriorityQueue() if cls is PriorityQueue else cls()
 
 
 class DequeFifoQueue(FifoQueue):
@@ -83,7 +80,6 @@ class DequeFifoQueue(FifoQueue):
 
     __slots__ = ('_deque',)
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a DequeFifoQueue using a deque."""
         self._deque = collections.deque()
@@ -113,7 +109,6 @@ class AltDequeFifoQueue(FifoQueue):
 
     __slots__ = ('_deque',)
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct an AltDequeFifoQueue using a deque."""
         self._deque = collections.deque()
@@ -139,7 +134,6 @@ class SlowFifoQueue(FifoQueue):
 
     __slots__ = ('_list',)
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a SlowFifoQueue using a list."""
         self._list = []
@@ -166,36 +160,34 @@ class BiStackFifoQueue(FifoQueue):
     __slots__ = ('_out', '_in')
 
     def __init__(self):
-        """Construct a BistackFifoQueue using lists."""
+        """Construct a BiStackFifoQueue using lists."""
         self._out = []
         self._in = []
 
     def __bool__(self):
-        return bool(self._out)
+        return bool(self._out or self._in)
 
     def __len__(self):
         return len(self._out) + len(self._in)
 
     def enqueue(self, item):
-        if not self._out:
-            self._out.append(item)
-        else:
-            self._in.append(item)
+        self._in.append(item)
 
     def dequeue(self):
-        if not self._out:
+        if not self:
             raise LookupError("Can't dequeue from empty queue")
 
-        result = self._out.pop()
         if not self._out:
             while self._in:
                 self._out.append(self._in.pop())
-        return result
+
+        return self._out.pop()
 
     def peek(self):
-        if not self._out:
+        if not self:
             raise LookupError("Can't peek from empty queue")
-        return self._out[-1]
+
+        return self._out[-1] if self._out else self._in[0]
 
 
 class SinglyLinkedListFifoQueue(FifoQueue):
@@ -204,7 +196,7 @@ class SinglyLinkedListFifoQueue(FifoQueue):
     __slots__ = ('_head', '_tail', '_len')
 
     def __init__(self):
-        """Construct a SinglyLinkedListFifoQueue using an SLL Node."""
+        """Construct a SinglyLinkedListFifoQueue, that will use SLL nodes."""
         self._head = self._tail = None
         self._len = 0
 
@@ -247,7 +239,6 @@ class ListLifoQueue(LifoQueue):
 
     __slots__ = ('_list',)
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a ListLifoQueue using a list."""
         self._list = []
@@ -273,7 +264,6 @@ class DequeLifoQueue(LifoQueue):
 
     __slots__ = ('_deque',)
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
         """Construct a DequeLifoQueue using a deque."""
         self._deque = collections.deque()
@@ -303,9 +293,8 @@ class AltDequeLifoQueue(LifoQueue):
 
     __slots__ = ('_deque',)
 
-    # TODO: Investigate construction from iterables.
     def __init__(self):
-        """Construct a AltDequeLifoQueue using a deque."""
+        """Construct an AltDequeLifoQueue using a deque."""
         self._deque = collections.deque()
 
     def __bool__(self):
@@ -330,7 +319,7 @@ class SinglyLinkedListLifoQueue(LifoQueue):
     __slots__ = ('_head', '_len')
 
     def __init__(self):
-        """Construct a SinglyLinkedListLifoQueue using SLL Nodes."""
+        """Construct a SinglyLinkedListLifoQueue, that will use SLL nodes."""
         self._head = None
         self._len = 0
 
@@ -374,11 +363,10 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
-    # NOTE: O(1) since list.append is O(1)
     def enqueue(self, item):
         self._list.append(item)
 
-    # NOTE: O(n) due to max and remove
+    # TODO: Try finding the index in O(n) time, then O(1) for remaining steps.
     def dequeue(self):
         if self._list:
             result = max(self._list)
@@ -386,7 +374,6 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
             return result
         raise LookupError("Can't dequeue from empty queue")
 
-    # NOTE: O(n) due to max
     def peek(self):
         if self._list:
             return max(self._list)
@@ -408,28 +395,25 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
-    # NOTE: At least O(n) because of insert and loop iteration
-    # TODO: this algo can be improved
+    # TODO: Simplify this code by calling a function in the bisect module.
     def enqueue(self, item):
-        if not self._list or not (item < self._list[-1]):
-            self._list.append(item)
+        try:
+            irange = range(len(self) - 1, -1, -1)
+            index = next(i for i in irange if not item < self._list[i])
+        except StopIteration:
+            self._list.insert(0, item)
         else:
-            for index, element in enumerate(self._list):
-                if not (element < item):
-                    self._list.insert(index, item)
-                    break
+            self._list.insert(index + 1, item)
 
-    # NOTE: List.pop is O(1)
     def dequeue(self):
-        if self._list:
-            return self._list.pop()
-        raise LookupError("Can't dequeue from empty queue")
+        if not self:
+            raise LookupError("Can't dequeue from empty queue")
+        return self._list.pop()
 
-    # NOTE: Indexing into a list is O(1)
     def peek(self):
-        if self._list:
-            return self._list[-1]
-        raise LookupError("Can't peek from empty queue")
+        if not self:
+            raise LookupError("Can't peek from empty queue")
+        return self._list[-1]
 
 
 class _Node:
