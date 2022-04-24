@@ -776,8 +776,8 @@ class _Bases:
             It is sufficient that order comparison is a weak ordering on all
             elements. This is a partial ordering where "is neither less than
             nor greater than" is transitive: if neither A < B nor B < A, and
-            neither B < C nor C < B, then neither A < C nor C < A. We often
-            write X ~ Y to mean that neither X < Y nor Y < X.
+            neither B < C nor C < B, then neither A < C nor C < A. We say X ~ Y
+            ("X is similar to Y") to mean that neither X < Y nor Y < X.
 
             In a weak ordering, elements clump together by similarity (~). If
             X1, X2, ..., Xm can appear in any order, and Y1, Y1, ..., Yn can
