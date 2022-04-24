@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 """
-Some recursion examples.
+Some recursion examples (and a few related iterative implementations).
 
 See also object_graph.py.
 """
 
 import bisect
+import collections
 
 import decorators
 
@@ -113,7 +114,9 @@ def add_all(values):
 
 def linear_search_good(values, x):
     """
-    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    Return an index to some occurrence of x in values, if any.
+
+    If there is no such occurrence, None is returned.
 
     >>> linear_search_good([], 9)
     >>> linear_search_good([2, 3], 2)
@@ -131,7 +134,9 @@ def linear_search_good(values, x):
 
 def linear_search_iterative(values, x):
     """
-    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    Return an index to some occurrence of x in values, if any.
+
+    If there is no such occurrence, None is returned.
 
     >>> linear_search_iterative([], 9)
     >>> linear_search_iterative([2, 3], 2)
@@ -149,7 +154,9 @@ def linear_search_iterative(values, x):
 
 def linear_search(values, x):
     """
-    Return an index to some occurrence of x in values, if any. Otherwise return None.
+    Return an index to some occurrence of x in values, if any.
+
+    If there is no such occurrence, None is returned.
 
     >>> linear_search([], 9)
     >>> linear_search([2, 3], 2)
@@ -237,7 +244,7 @@ def binary_search_iterative(values, x):
             low = halfway + 1
         elif x < values[halfway]:
             high = halfway - 1
-        else: # values[halfway] should = x, possibly add assert.
+        else:  # values[halfway] should = x, possibly add assert.
             return halfway
 
     return None
@@ -270,11 +277,12 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
+# FIXME: Test that merge_two_slow is a stable merge. Fix it if it is not.
 def merge_two_slow(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
 
-    If values2 is empty, this is equivilant to a binary insertion sort
+    If values2 is empty, this is equivalent to a binary insertion sort.
 
     >>> merge_two_slow([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -300,11 +308,12 @@ def merge_two_slow(values1, values2):
     return resultlist
 
 
+# FIXME: Test that merge_two is a stable merge. Fix it if it is not.
 def merge_two(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
 
-    If values2 is empty, this is equivilant to a binary insertion sort
+    If values2 is empty, this is equivalent to a binary insertion sort.
 
     >>> merge_two([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -337,11 +346,12 @@ def merge_two(values1, values2):
     return resultlist
 
 
+# FIXME: Test that merge_two_alt is a stable merge. Fix it if it is not.
 def merge_two_alt(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
 
-    If values2 is empty, this is equivilant to a binary insertion sort
+    If values2 is empty, this is equivalent to a binary insertion sort.
 
     >>> merge_two_alt([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -377,9 +387,12 @@ def merge_two_alt(values1, values2):
     return resultlist
 
 
+# FIXME: Let merge_sort take a keyword-only "merge" argument specifying what
+# two-way merging function to use. If absent, use merge_two or merge_two_alt.
+# Test it with three two-way mergers defined here, and with none specified.
 def merge_sort(values):
     """
-    Sorts using merge_two recursively.
+    Sort using merge_two recursively.
 
     >>> merge_sort([])
     []
@@ -393,10 +406,14 @@ def merge_sort(values):
     [10, 20]
     >>> merge_sort([3, 3])
     [3, 3]
-    >>> merge_sort([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort(a)
     [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
-    >>> merge_sort(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> merge_sort([0.0, 0, False])  # Succeeds, because it's a stable sort.
+    [0.0, 0, False]
     """
     def helper(values):
         # base case: length is less than 2, return the list
@@ -407,6 +424,62 @@ def merge_sort(values):
         return merge_two(helper(values[:halfway]), helper(values[halfway:]))
 
     return helper(list(values))
+
+
+# FIXME: Let merge_sort_bottom_up_unstable take a keyword-only "merge" argument
+# specifying what two-way merging function to use. If absent, use merge_two or
+# merge_two_alt. Test it with three two-way mergers defined here, and with none
+# specified.
+def merge_sort_bottom_up_unstable(values):
+    """
+    Sort bottom-up, using merge_two, iteratively. Unstable.
+
+    This implementation is an unstable sort. Both top-down and bottom-up
+    mergesorts are typically stable, and stable implementations tend to be
+    strongly preferred, but one of the notable approaches to bottom-up
+    mergesort is unstable. This is the same algorithm as presented in
+    *Algorithms* by Dasgupta, Papadimitriou, and Vazirani, 1st ed., p.51.
+
+    >>> merge_sort_bottom_up_unstable([])
+    []
+    >>> merge_sort_bottom_up_unstable(())
+    []
+    >>> merge_sort_bottom_up_unstable((2,))
+    [2]
+    >>> merge_sort_bottom_up_unstable([10, 20])
+    [10, 20]
+    >>> merge_sort_bottom_up_unstable([20, 10])
+    [10, 20]
+    >>> merge_sort_bottom_up_unstable([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort_bottom_up_unstable(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort_bottom_up_unstable(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> merge_sort_bottom_up_unstable([7, 6, 5, 4, 3, 2, 1])
+    [1, 2, 3, 4, 5, 6, 7]
+    >>> merge_sort_bottom_up_unstable([0.0, 0, False])  # doctest: +SKIP
+    [0.0, 0, False]
+    """
+    if not values:
+        return []
+
+    queue = collections.deque([x] for x in values)
+
+    while len(queue) > 1:
+        left = queue.popleft()
+        right = queue.popleft()
+        queue.append(merge_two(left, right))
+
+    return queue[0]
+
+
+# FIXME: Implement merge_sort_bottom_up_stable, along the same lines as
+# merge_sort_bottom_up_unstable (above). What has to change to make it stable?
+# (Like the other merge sort implementations in this module, this should accept
+# an optional merger keyword-only argument taking a two-way merge function.)
 
 
 def make_deep_tuple(depth):
@@ -444,9 +517,18 @@ def nest(seed, degree, height):
     return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
 
 
+def observe_edge(parent, child):
+    """
+    Print a representation of an edge from parent to child in a tree.
+
+    This is a simple edge observer. See the "..._observed" functions below.
+    """
+    print(f'{parent!r}  ->  {child!r}')
+
+
 def flatten(root):
     """
-    Using recursion, lazily flatten a tuple, yielding all leaves (non-tuples).
+    Recursively lazily flatten a nested tuple, yielding all non-tuple leaves.
 
     This returns an iterator that yields all leaves in the order the repr shows
     them. If root is not a tuple, it is considered to be the one and only leaf.
@@ -479,6 +561,211 @@ def flatten(root):
 
     for element in root:
         yield from flatten(element)
+
+
+def flatten_observed(root, observer):
+    """
+    Recursively lazily flatten a nested tuple. Call an observer for each edge.
+
+    This is like flatten (above), but it also calls observer(parent, child) for
+    each child found, in the order they are found.
+
+    >>> list(flatten_observed((), observe_edge))
+    []
+    >>> list(flatten_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (2,)  ->  2
+    (1, (2,), 3)  ->  3
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (5,)  ->  5
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    [1, 2, 3, 4, 5, 6]
+    """
+    # base case: we are at a leaf
+    if not isinstance(root, tuple):
+        yield root
+        return
+
+    for element in root:
+        observer(root, element)
+        yield from flatten_observed(element, observer)
+
+
+def flatten_iterative(root):
+    """
+    Nonrecursively lazily flatten a tuple, yielding all non-tuple leaves.
+
+    This is like flatten (above), but using a purely iterative algorithm.
+
+    >>> list(flatten_iterative(()))
+    []
+    >>> list(flatten_iterative(3))
+    [3]
+    >>> list(flatten_iterative([3]))
+    [[3]]
+    >>> list(flatten_iterative((3,)))
+    [3]
+    >>> list(flatten_iterative((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(flatten_iterative((2, ((3,), 7))))
+    [2, 3, 7]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> list(flatten_iterative(root1))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(flatten_iterative(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(flatten_iterative(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+    stack = [root]
+
+    while stack:
+        element = stack.pop()
+        if isinstance(element, tuple):
+            stack.extend(reversed(element))
+        else:
+            yield element
+
+
+def flatten_iterative_observed(root, observer):
+    """
+    Nonrecursively lazily flatten a tuple. Call an observer for each edge.
+
+    This is like flatten_iterative (above), but it also calls
+    observer(parent, child) for each child found, in the order the usual
+    recursive algorithm (implemented in flatten, above) would find them.
+
+    Various iterative algorithms discover nodes in different orders. There are
+    no requirements on the order in which the algorithm used here discovers
+    nodes, so long as the observer can't tell this apart from flatten_observed.
+
+    [But you should also look at the order the nodes are really discovered in.]
+
+    >>> list(flatten_iterative_observed((), observe_edge))
+    []
+    >>> list(flatten_iterative_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_iterative_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (2,)  ->  2
+    (1, (2,), 3)  ->  3
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (5,)  ->  5
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    [1, 2, 3, 4, 5, 6]
+    """
+    stack = [(None, root)]
+
+    while stack:
+        parent, element = stack.pop()
+        if parent is not None:
+            observer(parent, element)
+
+        if isinstance(element, tuple):
+            stack.extend((element, child) for child in reversed(element))
+        else:
+            yield element
+
+
+def flatten_levelorder(root):
+    """
+    Lazily flatten a tuple in breadth-first order (level order).
+
+    This is like flatten and flatten_iterative (above), but those flatten in
+    depth-first order. In contrast, this function yields leaves closer to the
+    root before yielding leaves farther from the root. The same leaves are all
+    eventually yielded, but often in a different order.
+
+    Leaves at the same level are yielded in the same relative order flatten and
+    flatten_iterative yields them: left to right.
+
+    >>> list(flatten_levelorder(()))
+    []
+    >>> list(flatten_levelorder(3))
+    [3]
+    >>> list(flatten_levelorder([3]))
+    [[3]]
+    >>> list(flatten_levelorder((3,)))
+    [3]
+    >>> list(flatten_levelorder((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(flatten_levelorder((2, ((3,), 7))))
+    [2, 7, 3]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> list(flatten_levelorder(root1))
+    [1, 2, 3, 12, 4, 5, 6, 11, 7, 8, 10, 9]
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(flatten_levelorder(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(flatten_levelorder(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+    queue = collections.deque((root,))
+
+    while queue:
+        element = queue.popleft()
+        if isinstance(element, tuple):
+            queue.extend(element)
+        else:
+            yield element
+
+
+def flatten_levelorder_observed(root, observer):
+    """
+    Lazily flatten a tuple breadth-first. Call an observer for each edge.
+
+    This is like flatten_levelorder (above), but it also calls
+    observer(parent, child) for each child found, in the order they are found.
+
+    NOTE: The code here can be simpler than in flatten_iterative_observed.
+
+    >>> list(flatten_levelorder_observed((), observe_edge))
+    []
+    >>> list(flatten_levelorder_observed(({()},), observe_edge))
+    ({()},)  ->  {()}
+    [{()}]
+    >>> root3 = ((1, (2,), 3), (4, (5,), (), 6))
+    >>> list(flatten_levelorder_observed(root3, observe_edge))
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (1, (2,), 3)
+    ((1, (2,), 3), (4, (5,), (), 6))  ->  (4, (5,), (), 6)
+    (1, (2,), 3)  ->  1
+    (1, (2,), 3)  ->  (2,)
+    (1, (2,), 3)  ->  3
+    (4, (5,), (), 6)  ->  4
+    (4, (5,), (), 6)  ->  (5,)
+    (4, (5,), (), 6)  ->  ()
+    (4, (5,), (), 6)  ->  6
+    (2,)  ->  2
+    (5,)  ->  5
+    [1, 3, 4, 6, 2, 5]
+    """
+    queue = collections.deque((root,))
+
+    while queue:
+        element = queue.popleft()
+        if isinstance(element, tuple):
+            for subelement in element:
+                observer(element, subelement)
+            queue.extend(element)
+        else:
+            yield element
 
 
 def leaf_sum(root):
