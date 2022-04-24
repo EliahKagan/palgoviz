@@ -8,6 +8,7 @@ for code that sorts or searches, or otherwise makes use of order comparisons.
 import enum
 
 
+# TODO: Decide whether WeakDiamond should implement __le__ and __ge__ at all.
 @enum.unique
 class WeakDiamond(enum.Enum):
     """
@@ -66,6 +67,7 @@ class WeakDiamond(enum.Enum):
         raise AssertionError('unexpected enumeration instance')
 
 
+# TODO: Decide whether Patient should implement __le__ and __ge__ at all.
 class Patient:
     """
     Medical patient under triage.
