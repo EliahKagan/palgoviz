@@ -13,6 +13,7 @@ TODO: In particular, investigate construction from iterables.
 
 from abc import ABC, abstractmethod
 import collections
+import itertools
 
 
 class Queue(ABC):
@@ -398,7 +399,8 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
 
     def enqueue(self, item):
         try:
-            index = next(i for i, x in zip(reversed(range(len(self))), reversed(self._list)) if item > x)
+            irange = range(len(self) - 1, -1, -1)
+            index = next(i for i in irange if item > self._list[i])
         except StopIteration:
             self._list.insert(0, item)
         else:
