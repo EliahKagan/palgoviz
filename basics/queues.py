@@ -363,11 +363,10 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
-    # NOTE: O(1) since list.append is O(1)
     def enqueue(self, item):
         self._list.append(item)
 
-    # NOTE: O(n) due to max and remove
+    # TODO: Try finding the index in O(n) time, then O(1) for remaining steps.
     def dequeue(self):
         if self._list:
             result = max(self._list)
@@ -375,7 +374,6 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
             return result
         raise LookupError("Can't dequeue from empty queue")
 
-    # NOTE: O(n) due to max
     def peek(self):
         if self._list:
             return max(self._list)
@@ -397,6 +395,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
+    # TODO: Simplify this code by calling a function in the bisect module.
     def enqueue(self, item):
         try:
             irange = range(len(self) - 1, -1, -1)
