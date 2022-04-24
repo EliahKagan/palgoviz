@@ -171,31 +171,29 @@ class BiStackFifoQueue(FifoQueue):
         self._in = []
 
     def __bool__(self):
-        return bool(self._out)
+        return bool(self._out or self._in)
 
     def __len__(self):
         return len(self._out) + len(self._in)
 
     def enqueue(self, item):
-        if not self._out:
-            self._out.append(item)
-        else:
-            self._in.append(item)
+        self._in.append(item)
 
     def dequeue(self):
-        if not self._out:
+        if not self:
             raise LookupError("Can't dequeue from empty queue")
 
-        result = self._out.pop()
         if not self._out:
             while self._in:
                 self._out.append(self._in.pop())
-        return result
+
+        return self._out.pop()
 
     def peek(self):
-        if not self._out:
+        if not self:
             raise LookupError("Can't peek from empty queue")
-        return self._out[-1]
+
+        return self._out[-1] if self._out else self._in[0]
 
 
 class SinglyLinkedListFifoQueue(FifoQueue):
