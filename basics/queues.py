@@ -396,7 +396,6 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
-    # NOTE: At least O(n) because of insert and loop iteration
     # TODO: this algo can be improved
     def enqueue(self, item):
         if not self._list or not (item < self._list[-1]):
@@ -407,17 +406,15 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
                     self._list.insert(index, item)
                     break
 
-    # NOTE: List.pop is O(1)
     def dequeue(self):
-        if self._list:
-            return self._list.pop()
-        raise LookupError("Can't dequeue from empty queue")
+        if not self:
+            raise LookupError("Can't dequeue from empty queue")
+        return self._list.pop()
 
-    # NOTE: Indexing into a list is O(1)
     def peek(self):
-        if self._list:
-            return self._list[-1]
-        raise LookupError("Can't peek from empty queue")
+        if not self:
+            raise LookupError("Can't peek from empty queue")
+        return self._list[-1]
 
 
 class _Node:
