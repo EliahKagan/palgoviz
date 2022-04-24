@@ -400,7 +400,7 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def enqueue(self, item):
         try:
             irange = range(len(self) - 1, -1, -1)
-            index = next(i for i in irange if item > self._list[i])
+            index = next(i for i in irange if not item < self._list[i])
         except StopIteration:
             self._list.insert(0, item)
         else:
