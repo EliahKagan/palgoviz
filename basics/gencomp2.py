@@ -120,9 +120,8 @@ def suffix_product(sequences, start):
     sequences[-1].
 
     This behaves like itertools.product(*sequences[start:]). It uses only
-    O(len(sequences) - start) auxiliary space. Other requirements are the same
-    as for prefix_product above, including that this is recursive and does not
-    use a helper function. FIXME: This is actually slower. Document why.
+    O(len(sequences) - start) auxiliary space. Like prefix_product above, this
+    is recursive and does not use a helper function.
 
     >>> list(suffix_product([['a', 'b'], ['x', 'y']], 0))
     [('a', 'x'), ('a', 'y'), ('b', 'x'), ('b', 'y')]
@@ -140,26 +139,16 @@ def my_product(*iterables):
     """
     Cartesian product. Like itertools.product, but with no repeat parameter.
 
-    This implementation uses prefix_product for most of its functionality (and
-    it does not call anything else, besides builtins).
+    This implementation uses one of prefix_product or suffix_product for most
+    of its functionality. It should use whichever one gives best performance.
+    Besides that one function, and builtins, it does not call anything else.
 
-    Other than how this does not support repeat, and that itertools.product is
-    likely to be faster by a constant factor because it is (carefully)
-    implemented in C, there are two differences that may be important:
-
-    i.  itertools.product is iterative, so large len(iterables) does not cause
-        it to raise RecursionError.
-
-    ii. The time complexity of itertools.product, when one iterates through the
-        entire result, is:
-
-            O(reduce(mul, map(len, iterables)) * len(iterables))
-
-        For my_product, it is slightly worse:
-
-            O(reduce(mul, map(len, iterables)) * len(iterables)**2)
-
-        (Why? What are prefix_product and suffix_product's time complexities?)
+    Important differences between this and itertools.product are that this does
+    not support repeat=; itertools.product is likely to be faster, because it
+    is (carefully) implemented in C; itertools.product is iterative, so large
+    len(iterables) do not cause it to raise RecursionError; and this function's
+    asymptotic time complexity is *slightly* greater than itertools.product's,
+    in a way that is unlikely to be relevant when len(iterables) is small.
 
     >>> from pprint import pprint
     >>> pprint(list(my_product('ab', 'cde', 'fg', 'hi')),
@@ -190,17 +179,16 @@ def my_product(*iterables):
     return prefix_product(sequences, len(sequences))
 
 
-def my_product_alt(*iterables):
+def my_product_slow(*iterables):
     """
     Cartesian product. Like itertools.product, but with no repeat parameter.
 
-    This implementation uses suffix_product for most of its functionality (and
-    it does not call anything else, besides builtins).
-
-    The other considerations documented for my_product above apply here too.
+    This implementation uses whichever of prefix_product or suffix_product is
+    unused by my_product. It is therefore slower. Like my_product, it calls
+    only prefix_product or suffix_product (not both) and perhaps builtins.
 
     >>> from pprint import pprint
-    >>> pprint(list(my_product_alt('ab', 'cde', 'fg', 'hi')),
+    >>> pprint(list(my_product_slow('ab', 'cde', 'fg', 'hi')),
     ...        compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
@@ -210,7 +198,7 @@ def my_product_alt(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> pprint(list(my_product_alt(iter('ab'), 'cde', iter('fg'), 'hi')),
+    >>> pprint(list(my_product_slow(iter('ab'), 'cde', iter('fg'), 'hi')),
     ...        compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
@@ -221,7 +209,7 @@ def my_product_alt(*iterables):
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
     >>> from itertools import islice
-    >>> sum(map(sum, islice(my_product_alt(*([(0, 1)] * 500)), 10_000)))
+    >>> sum(map(sum, islice(my_product_slow(*([(0, 1)] * 500)), 10_000)))
     64608
     """
     sequences = [list(iterable) for iterable in iterables]
