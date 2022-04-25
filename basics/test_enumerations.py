@@ -3,7 +3,6 @@
 """Tests for the enumerations in enumerations.py."""
 
 from numbers import Number
-from typing import Type
 import unittest
 
 from parameterized import parameterized
