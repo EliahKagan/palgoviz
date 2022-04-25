@@ -219,7 +219,8 @@ def count_tree_nodes_alt(root):
 
     This alternative implementation defines and calls a recursive helper
     function that does not return a value (really, it always returns None).
-    No other callables, besides this helper and maybe builtins, are ever used.
+    No other callables, besides the helper and maybe builtins, are ever used.
+    count_tree_nodes_alt never calls itself, nor does the helper ever call it.
 
     >>> count_tree_nodes_alt('a parrot')
     1
@@ -245,6 +246,11 @@ def count_tree_nodes_instrumented(root):
     have the modified behavior even if a prior call to it through this function
     raised an exception. But concurrent calls--like if it's called on another
     thread before a call to it through this function returns--need not be safe.
+
+    Likewise, no logic from @peek_return is reproduced. If its behavior were to
+    change--for example by using a different output format or even giving it by
+    an entirely different means, such as posting it to a network server--then
+    tests would need to change, but this function's implementation would not.
 
     >>> from recursion import make_deep_tuple
     >>> count_tree_nodes_instrumented(make_deep_tuple(2))
