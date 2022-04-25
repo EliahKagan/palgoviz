@@ -172,7 +172,7 @@ def my_product(*iterables):
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
     >>> from itertools import islice
-    >>> sum(map(sum, islice(my_product(*([(0, 1)] * 500)), 10_000)))
+    >>> sum(map(sum, islice(my_product(*([(0, 1)] * 900)), 10_000)))
     64608
     """
     sequences = [list(iterable) for iterable in iterables]
@@ -209,7 +209,7 @@ def my_product_slow(*iterables):
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
     >>> from itertools import islice
-    >>> sum(map(sum, islice(my_product_slow(*([(0, 1)] * 500)), 10_000)))
+    >>> sum(map(sum, islice(my_product_slow(*([(0, 1)] * 90)), 10_000)))
     64608
     """
     sequences = [list(iterable) for iterable in iterables]
