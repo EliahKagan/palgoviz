@@ -371,9 +371,10 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     def dequeue(self):
         if not self._list:
             raise LookupError("Can't dequeue from empty queue")
-        result = max(self._list)
-        self._list.remove(result)
-        return result
+        maxv = max(self._list)
+        index = self._list.index(maxv)
+        self._list[index], self._list[-1] = self._list[-1], self._list[index]
+        return self._list.pop()
 
     def peek(self):
         if not self._list:
