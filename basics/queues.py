@@ -369,16 +369,16 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
 
     # TODO: Try finding the index in O(n) time, then O(1) for remaining steps.
     def dequeue(self):
-        if self._list:
-            result = max(self._list)
-            self._list.remove(result)
-            return result
-        raise LookupError("Can't dequeue from empty queue")
+        if not self._list:
+            raise LookupError("Can't dequeue from empty queue")
+        result = max(self._list)
+        self._list.remove(result)
+        return result
 
     def peek(self):
-        if self._list:
-            return max(self._list)
-        raise LookupError("Can't peek from empty queue")
+        if not self._list:
+            raise LookupError("Can't peek from empty queue")
+        return max(self._list)
 
 
 class FastDequeueMaxPriorityQueue(PriorityQueue):
