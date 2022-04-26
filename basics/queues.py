@@ -12,11 +12,9 @@ TODO: In particular, investigate construction from iterables.
 """
 
 from abc import ABC, abstractmethod
-from ast import operator
 import bisect
 import collections
 import operator
-
 
 
 class Queue(ABC):
