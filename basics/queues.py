@@ -12,8 +12,10 @@ TODO: In particular, investigate construction from iterables.
 """
 
 from abc import ABC, abstractmethod
+from ast import operator
 import bisect
 import collections
+import operator
 
 
 
@@ -370,7 +372,7 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     def dequeue(self):
         if not self:
             raise LookupError("Can't dequeue from empty queue")
-        index, _ = max(enumerate(self._list), key=lambda t: t[1])
+        index, _ = max(enumerate(self._list), key=operator.itemgetter(1))
         self._list[index], self._list[-1] = self._list[-1], self._list[index]
         return self._list.pop()
 
