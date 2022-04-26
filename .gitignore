@@ -5,3 +5,8 @@ __pycache__/
 /*/.ipynb_checkpoints/*-checkpoint.py
 /*/.ipynb_checkpoints/*-checkpoint.txt
 /*/.ipynb_checkpoints/*-checkpoint.yml
+
+# Native (and Haskell) build files
+*.exe
+*.hi
+*.o
