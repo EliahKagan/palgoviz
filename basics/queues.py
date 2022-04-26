@@ -12,8 +12,9 @@ TODO: In particular, investigate construction from iterables.
 """
 
 from abc import ABC, abstractmethod
+import bisect
 import collections
-import itertools
+
 
 
 class Queue(ABC):
@@ -395,15 +396,8 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
-    # TODO: Simplify this code by calling a function in the bisect module.
     def enqueue(self, item):
-        try:
-            irange = range(len(self) - 1, -1, -1)
-            index = next(i for i in irange if not item < self._list[i])
-        except StopIteration:
-            self._list.insert(0, item)
-        else:
-            self._list.insert(index + 1, item)
+        bisect.insort(self._list, item)
 
     def dequeue(self):
         if not self:
