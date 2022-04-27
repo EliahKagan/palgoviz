@@ -144,11 +144,10 @@ def my_product(*iterables):
     Besides that one function, and builtins, it does not call anything else.
 
     Important differences between this and itertools.product are that this does
-    not support repeat=; itertools.product is likely to be faster, because it
-    is (carefully) implemented in C; itertools.product is iterative, so large
-    len(iterables) do not cause it to raise RecursionError; and this function's
-    asymptotic time complexity is *slightly* greater than itertools.product's,
-    in a way that is unlikely to be relevant when len(iterables) is small.
+    not support repeat=, itertools.product is likely to be faster because it is
+    (carefully) implemented in C, itertools.product is iterative so large
+    len(iterables) do not cause it to raise RecursionError, and this function's
+    asymptotic time complexity is slightly greater than itertools.product's.
 
     >>> from pprint import pprint
     >>> pprint(list(my_product('ab', 'cde', 'fg', 'hi')),
