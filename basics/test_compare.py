@@ -571,7 +571,6 @@ class TestPatient(unittest.TestCase):
         self.assertListEqual(actual, expected)
 
 
-@unittest.skip('The OrderIndistinct type is not yet implemented.')  # FIXME
 class TestOrderIndistinct(unittest.TestCase):
     """Tests for the OrderIndistinct class."""
 
