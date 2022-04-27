@@ -3,3 +3,8 @@ __pycache__/
 
 # Checkpoints from JupyterLab
 /*/.ipynb_checkpoints/*-checkpoint.*
+
+# Native (and Haskell) build files
+*.exe
+*.hi
+*.o
