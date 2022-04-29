@@ -143,11 +143,15 @@ def my_product(*iterables):
     of its functionality. It should use whichever one gives best performance.
     Besides that one function, and builtins, it does not call anything else.
 
-    Important differences between this and itertools.product are that this does
-    not support repeat=, itertools.product is likely to be faster because it is
-    (carefully) implemented in C, itertools.product is iterative so large
-    len(iterables) do not cause it to raise RecursionError, and this function's
-    asymptotic time complexity is slightly greater than itertools.product's.
+    Beyond not supporting repeat=, this differs from itertools.product in that:
+
+    (1) This is recursive, while itertools.product is iterative. So this fails
+        with RecursionError on large len(iterables). itertools.product doesn't.
+
+    (2) itertools.product has a speed advantage due to being implemented in C.
+
+    (3) itertools.product has another speed advantage due to using a different
+        algorithm that performs less copying to build up the tuples it yields.
 
     >>> from pprint import pprint
     >>> pprint(list(my_product('ab', 'cde', 'fg', 'hi')),
@@ -183,8 +187,8 @@ def my_product_slow(*iterables):
     Cartesian product. Like itertools.product, but with no repeat parameter.
 
     This implementation uses whichever of prefix_product or suffix_product is
-    unused by my_product. It is therefore slower. Like my_product, it calls
-    only prefix_product or suffix_product (not both) and perhaps builtins.
+    not used by my_product. So this is (usually) slower. Like my_product, this
+    calls only prefix_product or suffix_product (not both), and maybe builtins.
 
     >>> from pprint import pprint
     >>> pprint(list(my_product_slow('ab', 'cde', 'fg', 'hi')),
@@ -217,7 +221,7 @@ def my_product_slow(*iterables):
 
 def ascending_countdowns():
     """
-    Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
+    Yield integers counting down to 0 from 0, then from 1, then from 2, etc.
 
     This implementation returns a generator expression.
 
