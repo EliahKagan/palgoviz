@@ -850,46 +850,6 @@ class TestMatrixSquareNested:
         assert result == [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
 
 
-@pytest.mark.parametrize('implementation', [
-    gencomp2.transpose,
-    gencomp2.transpose_alt,
-])
-class TestTranspose:
-    """Tests for transpose and transpose_alt."""
-
-    __slots__ = ()
-
-    def test_empty_matrix_transposes_empty(self, implementation):
-        """With a 0x0 matrix, the result is also a 0x0 matrix."""
-        matrix = ()
-        assert implementation(matrix) == ()
-
-    def test_1_by_1_matrix_transposes_equal(self, implementation):
-        """With a 1x1 matrix, the result is an equal matrix."""
-        matrix = ((3,),)
-        assert implementation(matrix) == ((3,),)
-
-    def test_2_by_2_matrix(self, implementation):
-        """Transposing a 2x2 matrix produces the correct 2x2 result."""
-        matrix = ((1, 2), (3, 4))
-        assert implementation(matrix) == ((1, 3), (2, 4))
-
-    def test_3_by_3_matrix(self, implementation):
-        """Transposing a 3x3 matrix produces the correct 3x3 result."""
-        matrix = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
-        implementation(matrix) == ((1, 4, 7), (2, 5, 8), (3, 6, 9))
-
-    def test_2_by_3_matrix(self, implementation):
-        """Transposing a 2x3 matrix produces the correct 3x2 result."""
-        matrix = ((1, 2, 3), (4, 5, 6))
-        implementation(matrix) == ((1, 4), (2, 5), (3, 6))
-
-    def test_3_by_2_matrix(self, implementation):
-        """Transposing a 3x2 matrix produces the correct 2x3 result."""
-        matrix = ((1, 2), (3, 4), (5, 6))
-        implementation(matrix) == ((1, 3, 5), (2, 4, 6))
-
-
 class TestIdentityMatrixAltHelpers:
     """Tests for the _kronecker_delta and _identity_matrix_row functions."""
 
@@ -1104,6 +1064,46 @@ class TestIdentityMatrix:
         """Identity matrices' entries are all exactly int (not e.g. bool)."""
         result = implementation(n)
         assert all(type(entry) is int for row in result for entry in row)
+
+
+@pytest.mark.parametrize('implementation', [
+    gencomp2.transpose,
+    gencomp2.transpose_alt,
+])
+class TestTranspose:
+    """Tests for transpose and transpose_alt."""
+
+    __slots__ = ()
+
+    def test_empty_matrix_transposes_empty(self, implementation):
+        """With a 0x0 matrix, the result is also a 0x0 matrix."""
+        matrix = ()
+        assert implementation(matrix) == ()
+
+    def test_1_by_1_matrix_transposes_equal(self, implementation):
+        """With a 1x1 matrix, the result is an equal matrix."""
+        matrix = ((3,),)
+        assert implementation(matrix) == ((3,),)
+
+    def test_2_by_2_matrix(self, implementation):
+        """Transposing a 2x2 matrix produces the correct 2x2 result."""
+        matrix = ((1, 2), (3, 4))
+        assert implementation(matrix) == ((1, 3), (2, 4))
+
+    def test_3_by_3_matrix(self, implementation):
+        """Transposing a 3x3 matrix produces the correct 3x3 result."""
+        matrix = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+        implementation(matrix) == ((1, 4, 7), (2, 5, 8), (3, 6, 9))
+
+    def test_2_by_3_matrix(self, implementation):
+        """Transposing a 2x3 matrix produces the correct 3x2 result."""
+        matrix = ((1, 2, 3), (4, 5, 6))
+        implementation(matrix) == ((1, 4), (2, 5), (3, 6))
+
+    def test_3_by_2_matrix(self, implementation):
+        """Transposing a 3x2 matrix produces the correct 2x3 result."""
+        matrix = ((1, 2), (3, 4), (5, 6))
+        implementation(matrix) == ((1, 3, 5), (2, 4, 6))
 
 
 @pytest.fixture(name='all_are_iterators')
