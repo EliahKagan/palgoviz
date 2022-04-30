@@ -12,12 +12,22 @@ import gencomp2
 
 
 @pytest.mark.parametrize('implementation', [
-    itertools.product,
+    itertools.product,  # Included to help test that the tests are correct.
     gencomp2.product_two,
     gencomp2.product_two_alt,
+    gencomp2.product_two_flexible,
+    gencomp2.my_product,
+    gencomp2.my_product_slow,
 ])
 class TestProductTwo:
-    """Tests for product_two and product_two_alt."""
+    """
+    Shared tests for all Cartesian product functions in gencomp2.
+
+    These tests test only the Cartesian product of two iterables (binary
+    Cartesian products), even when the code under test is not restricted to
+    that. For that reason, these are all the tests for product_two and
+    product_two_alt, but the others have further tests below.
+    """
 
     __slots__ = ()
 
@@ -48,6 +58,119 @@ class TestProductTwo:
                                 (x + 5 for x in (3, 4)))
         assert isinstance(result, Iterator)
         assert list(result) == [(0, 8), (0, 9), (1, 8), (1, 9)]
+
+
+class TestProductTwoFlexible:
+    """Tests specific to product_two_flexible."""
+
+    __slots__ = ()
+
+    def test_product_of_infinite_iterator_and_sequence(self):
+        """
+        A Cartesian product with an infinite first argument generates values.
+
+        This tests the "flexible" logic where the first argument is not
+        materialized.
+        """
+        result = gencomp2.product_two_flexible(itertools.count(), 'abc')
+        assert isinstance(result, Iterator)
+        prefix = itertools.islice(result, 7)
+        assert list(prefix) == [
+            (0, 'a'), (0, 'b'), (0, 'c'),
+            (1, 'a'), (1, 'b'), (1, 'c'),
+            (2, 'a')
+        ]
+
+    def test_product_of_infinite_and_finite_iterators(self):
+        """
+        A Cartesian product with an infinite first argument reuses other
+        arguments.
+
+        This tests that, in the "flexible" logic where the first argument is
+        not materialized, other arguments are still materialized.
+        """
+        result = gencomp2.product_two_flexible(itertools.count(),
+                                               (ch for ch in 'abc'))
+        assert isinstance(result, Iterator)
+        prefix = itertools.islice(result, 7)
+        assert list(prefix) == [
+            (0, 'a'), (0, 'b'), (0, 'c'),
+            (1, 'a'), (1, 'b'), (1, 'c'),
+            (2, 'a')
+        ]
+
+
+@pytest.mark.parametrize('implementation', [
+    itertools.product,  # Included to help test that the tests are correct.
+    gencomp2.my_product,
+    gencomp2.my_product_slow,
+])
+class TestMyProductSlow:
+    """Tests specific to, and shared by, my_product and my_product_slow."""
+
+    __slots__ = ()
+
+    def test_product_of_sequences(self, implementation):
+        """A Cartesian product of several short sequences is computed."""
+        result = implementation('ab', 'cde', 'fg', 'hi')
+        assert isinstance(result, Iterator)
+        assert list(result) == [
+            ('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+            ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+            ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+            ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+            ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+            ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+            ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+            ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i'),
+        ]
+
+    def test_product_of_sequences_and_iterators(self, implementation):
+        """
+        A Cartesian product of a mix of sequences and iterators is computed.
+        """
+        result = implementation(iter('ab'), 'cde', iter('fg'), 'hi')
+        assert isinstance(result, Iterator)
+        assert list(result) == [
+            ('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+            ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+            ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+            ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+            ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+            ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+            ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+            ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i'),
+        ]
+
+    def test_long_product_of_pairs(self, implementation):
+        """
+        The first 10,000 of a 2**90-element Cartesian product sum correctly.
+        """
+        arguments = [(0, 1)] * 90
+        result = implementation(*arguments)
+        assert isinstance(result, Iterator)
+
+        prefix = itertools.islice(result, 10_000)
+        flattened_prefix_sum = sum(map(sum, prefix))
+        assert flattened_prefix_sum == 64_608
+
+
+class TestMyProduct:
+    """A test specific to my_product."""
+
+    __slots__ = ()
+
+    def test_long_product_of_pairs_seems_efficient(self):
+        """
+        The first 10,000 of a 2**900-element Cartesian product sum correctly.
+        """
+        arguments = [(0, 1)] * 90
+        result = gencomp2.my_product(*arguments)
+        assert isinstance(result, Iterator)
+
+        prefix = itertools.islice(result, 10_000)
+        flattened_prefix_sum = sum(map(sum, prefix))
+        assert flattened_prefix_sum == 64_608
 
 
 @pytest.mark.parametrize('implementation', [
