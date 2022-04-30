@@ -267,66 +267,70 @@ class TestThreeSumIndices:
         assert listed == expected, 'Values are correct and correctly ordered.'
 
 
+@pytest.mark.parametrize('implementation', [
+    gencomp2.dot_product_slow,
+    gencomp2.dot_product,
+])
 class TestDotProduct:
-    """Tests for the dot_product function."""
+    """Tests for the dot_product_slow and dot_product functions."""
 
     __slots__ = ()
 
-    def test_4_entries_dot_2_entries(self):
+    def test_4_entries_dot_2_entries(self, implementation):
         """Simple test: dot product of vectors of support 4 and 2."""
         u = {'a': 2, 'b': 3, 'c': 4, 'd': 5}
         v = {'b': 0.5, 'd': 1}
-        assert gencomp2.dot_product(u, v) == 6.5
+        assert implementation(u, v) == 6.5
 
-    def test_2_entries_dot_4_entries(self):
+    def test_2_entries_dot_4_entries(self, implementation):
         """Simple test: dot product of vectors of support 2 and 4."""
         u = {'a': 2, 'b': 3, 'c': 4, 'd': 5}
         v = {'b': 0.5, 'd': 1}
-        assert gencomp2.dot_product(v, u) == 6.5
+        assert implementation(v, u) == 6.5
 
-    def test_partially_overlapping_1(self):
+    def test_partially_overlapping_1(self, implementation):
         """Dot product of dicts whose keys partly overlap (1/3)."""
         u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
         v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
-        assert round(gencomp2.dot_product(u, v), 2) == 21.56
+        assert round(implementation(u, v), 2) == 21.56
 
-    def test_partially_overlapping_2(self):
+    def test_partially_overlapping_2(self, implementation):
         """Dot product of dicts whose keys partly overlap (2/3: reversed)."""
         u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
         v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
-        assert round(gencomp2.dot_product(v, u), 2) == 21.56
+        assert round(implementation(v, u), 2) == 21.56
 
-    def test_partially_overlapping_3(self):
+    def test_partially_overlapping_3(self, implementation):
         """Dot product of dicts whose keys partly overlap (3/3: symmetry)."""
         u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
         v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
-        uv = gencomp2.dot_product(u, v)
-        vu = gencomp2.dot_product(v, u)
+        uv = implementation(u, v)
+        vu = implementation(v, u)
         assert uv == vu
 
-    def test_single_key_overlapping_1(self):
+    def test_single_key_overlapping_1(self, implementation):
         """Dot product of dicts that share only one key (1/2)."""
         u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
         w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
-        assert gencomp2.dot_product(u, w) == 4.5
+        assert implementation(u, w) == 4.5
 
-    def test_single_key_overlapping_2(self):
+    def test_single_key_overlapping_2(self, implementation):
         """Dot product of dicts that share only one key (2/2: reversed)."""
         u = {'s': 1.1, 't': 7.6, 'x': 2.7, 'y': 1.4, 'z': 3.36, 'foo': 9}
         w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
-        assert gencomp2.dot_product(w, u) == 4.5
+        assert implementation(w, u) == 4.5
 
-    def test_no_keys_overlapping_is_zero_1(self):
+    def test_no_keys_overlapping_is_zero_1(self, implementation):
         """The dot product of dicts with disjoint keys is 0 (1/2)."""
         v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
         w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
-        assert gencomp2.dot_product(v, w) == 0
+        assert implementation(v, w) == 0
 
-    def test_no_keys_overlapping_is_zero_2(self):
+    def test_no_keys_overlapping_is_zero_2(self, implementation):
         """The dot product of dicts with disjoint keys is 0 (2/2: reversed)."""
         v = {'a': -1, 'y': 3.1, 'x': -4.2, 'bar': 1.9, 'z': 8.5, 'b': 1423.907}
         w = {'p': 8.3, 'q': -0.8, 'r': -2.9, 'foo': 0.5}
-        assert gencomp2.dot_product(w, v) == 0
+        assert implementation(w, v) == 0
 
 
 class TestFlatten2:
