@@ -170,6 +170,41 @@ def ascending_countdowns_alt():
         yield from range(x, -1, -1)
 
 
+class AscendingCountdowns:
+    """
+    Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
+
+    This is like ascending_countdowns and ascending_countdowns_alt, but
+    implemented as a class.
+
+    >>> from itertools import islice
+    >>> it = AscendingCountdowns()
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> list(islice(it, 25))
+    [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
+    >>> sum(islice(AscendingCountdowns(), 1_000_000))
+    471108945
+    """
+
+    __slots__ = ('_up', '_down')
+
+    def __init__(self):
+        self._up = self._down = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._down < 0:
+            self._up += 1
+            self._down = self._up
+
+        ret = self._down
+        self._down -= 1
+        return ret
+
+
 def three_sums(a, b, c):
     """
     Make a set of all sums x + y + z. Take x, y, z from a, b, c, respectively.
