@@ -16,6 +16,8 @@ TODO: Either move these functions to other modules or better explain what this
 
 import itertools
 
+from fibonacci import fib
+
 
 def make_counter(start=0):
     """
@@ -78,7 +80,8 @@ def make_next_fibonacci():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    ...  # FIXME: Implement this.
+    it = fib()
+    return lambda: next(it)
 
 
 def make_next_fibonacci_alt():
