@@ -152,7 +152,7 @@ def as_iterator_limited(func, end_sentinel):
     >>> list(as_iterator_limited(make_next_fibonacci_alt(), 89))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    ...  # FIXME: Implement this.
+    return iter(func, end_sentinel)
 
 
 def as_iterator_limited_alt(func, end_sentinel):
