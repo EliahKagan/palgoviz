@@ -101,7 +101,16 @@ def make_next_fibonacci_alt():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    ...  # FIXME: Implement this.
+    a = 0
+    b = 1
+
+    def next_fib():
+        nonlocal a, b
+        ret = a
+        a, b = b, a + b
+        return ret
+
+    return next_fib
 
 
 def as_func(iterable):
