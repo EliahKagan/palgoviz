@@ -53,12 +53,11 @@ def make_counter_alt(start=0):
     >>> [h(), f(), g(), h(), g(), h(), h(), g(), g(), f(), h()]
     [10, 4, 3, 11, 4, 12, 13, 5, 6, 5, 14]
     """
-    previous = start - 1
-
     def counter():
-        nonlocal previous
-        previous += 1
-        return previous
+        nonlocal start
+        current = start
+        start += 1
+        return current
 
     return counter
 
