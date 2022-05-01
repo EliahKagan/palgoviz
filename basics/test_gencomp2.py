@@ -100,13 +100,26 @@ class TestProductTwoFlexible:
         ]
 
 
+# NOTE: Although prefix_product and suffix_product appear in gencomp2.py before
+# my_product and my_product_slow, I've put the TestPrefixProduct and
+# TestSuffixProduct classes after TestMyProductSlow and TestMyProduct, so tests
+# for my_product and my_product_slow (which include those in TestProductTwo
+# above) aren't strewn across even more space within this test module.
+
+
 @pytest.mark.parametrize('implementation', [
     itertools.product,  # Included to help test that the tests are correct.
     gencomp2.my_product,
     gencomp2.my_product_slow,
 ])
 class TestMyProductSlow:
-    """Tests specific to, and shared by, my_product and my_product_slow."""
+    """
+    Tests specific to, and shared by, my_product and my_product_slow.
+
+    See TestProductTwo above for tests they share with other Cartesian product
+    functions. See TestMyProduct below for a test specific to my_product only
+    (and not also MyProductSlow).
+    """
 
     __slots__ = ()
 
@@ -171,6 +184,28 @@ class TestMyProduct:
         prefix = itertools.islice(result, 10_000)
         flattened_prefix_sum = sum(map(sum, prefix))
         assert flattened_prefix_sum == 64_608
+
+
+# FIXME: Make this a class (TestPrefixProduct). Add more tests.
+@pytest.mark.parametrize('sequences, stop, expected', [
+    ([['a', 'b'], ['x', 'y']], 0, [()]),
+    ([['a', 'b'], ['x', 'y']], 1, [('a',), ('b',)]),
+    ([['a', 'b'], ['x', 'y']], 2,
+        [('a', 'x'), ('a', 'y'), ('b', 'x'), ('b', 'y')]),
+])
+def test_prefix_product(sequences, stop, expected):
+    result = gencomp2.prefix_product(sequences, stop)
+    assert isinstance(result, Iterator)
+    assert list(result) == expected
+
+
+# class TestPrefixProduct:
+#     """Tests of the prefix_product function."""
+
+#     __slots__ = ()
+
+
+# FIXME: Implement TestSuffixProduct.
 
 
 @pytest.mark.parametrize('implementation', [
