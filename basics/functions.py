@@ -137,7 +137,8 @@ def as_func(iterable):
     >>> g()
     16
     """
-    ...  # FIXME: Implement this.
+    it = iter(iterable)
+    return lambda: next(it)
 
 
 def as_iterator_limited(func, end_sentinel):
