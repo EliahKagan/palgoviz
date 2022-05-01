@@ -14,6 +14,7 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
+import itertools
 
 def make_counter(start=0):
     """
@@ -31,7 +32,8 @@ def make_counter(start=0):
     >>> [h(), f(), g(), h(), g(), h(), h(), g(), g(), f(), h()]
     [10, 4, 3, 11, 4, 12, 13, 5, 6, 5, 14]
     """
-    ...  # FIXME: Implement this.
+    it = itertools.count(start)
+    return lambda: next(it)
 
 
 def make_counter_alt(start=0):
