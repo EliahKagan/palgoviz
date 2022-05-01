@@ -16,6 +16,7 @@ TODO: Either move these functions to other modules or better explain what this
 
 import itertools
 
+
 def make_counter(start=0):
     """
     Create and return a function that returns successive integers on each call.
