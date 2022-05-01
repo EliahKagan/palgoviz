@@ -114,7 +114,7 @@ def print_enumerated_alt(*, start=0):
     """
     Alternative implementation of print_enumerated.
 
-    This uses a generator expression.
+    This uses a generator expression. It also uses Enumerate, not my_enumerate.
 
     >>> print_enumerated_alt()
     index = 0, value = 5
@@ -131,7 +131,7 @@ def print_enumerated_alt(*, start=0):
     """
     lines = (f'{index = }, {value = }'
              for index, value
-             in my_enumerate(range(5, 10), start))
+             in Enumerate(range(5, 10), start))
 
     for line in lines:
         print(line)
@@ -914,7 +914,7 @@ class Windowed:
 
     This is like windowed, but implemented as a class.
 
-    Also, unlike in windowed, please do not use islice in this class.
+    Please implement this without using islice, at least initially.
 
     >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
     [(), (), (), (), (), ()]
@@ -963,7 +963,7 @@ def map_one(func, iterable):
     """
     Map values from the given iterable through the unary function func.
 
-    This is like the builtin map, except it doesn't accept multiple iterables.
+    This is like the built-in map, except it doesn't accept multiple iterables.
 
     That is, map accepts an n-ary function and n iterable arguments, but
     map_one requires a unary function and exactly one iterable argument.
@@ -1002,6 +1002,39 @@ def map_one_alt(func, iterable):
     [2, 5, 10, 17, 26]
     """
     return (func(element) for element in iterable)
+
+
+class MapOne:
+    """
+    Map an iterable through a unary function.
+
+    This is like the built-in map, except it doesn't accept multiple iterables.
+
+    This is like map_one and map_one_alt, but implemented as a class.
+
+    >>> list(MapOne(lambda x: x**2, range(1, 11)))
+    [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+    >>> next(MapOne(lambda x: x**2, range(0)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(MapOne(len, ['foobar', (10, 20), range(1000)]))
+    [6, 2, 1000]
+    >>> list(MapOne(lambda x: x + 1, (x**2 for x in range(1, 6))))
+    [2, 5, 10, 17, 26]
+    """
+
+    __slots__ = ('_func', '_iterator')
+
+    def __init__(self, func, iterable):
+        self._func = func
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self._func(next(self._iterator))
 
 
 def my_filter(predicate, iterable):
@@ -1060,6 +1093,43 @@ def my_filter_alt(predicate, iterable):
         return (element for element in iterable if element)
 
     return (element for element in iterable if predicate(element))
+
+
+class Filter:
+    """
+    Iterator of the values in an iterable that satisfy a predicate.
+
+    If the predicate is None instead of a function, the this yields the values
+    of the iterable that are truthy.
+
+    This is like my_filter and my_filter_alt, but implemented as a class.
+
+    >>> next(Filter(lambda n: n < 0, (0, 1, 2)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(Filter(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
+    ['ham', 'foo']
+    >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+    >>> list(Filter(None, (a[1:] for a in mixed)))
+    ['y', (2, 3)]
+    >>> list(Filter(None, ['hello', 'glorious', 'world']))
+    ['hello', 'glorious', 'world']
+    """
+
+    __slots__ = ('_predicate', '_iterator')
+
+    def __init__(self, predicate, iterable):
+        self._predicate = ((lambda x: x) if predicate is None else predicate)
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while not self._predicate(value := next(self._iterator)):
+            pass
+        return value
 
 
 def length_of(iterable):
@@ -1237,6 +1307,46 @@ def distinct_simple(iterable):
     return distinct(iterable)
 
 
+class DistinctSimple:
+    """
+    Iterator to only first occurrences of equal items.
+
+    This is like distinct_simple (above), but implemented as a class. So it is
+    permitted to assume all values of the input iterable are hashable.
+
+    >>> next(DistinctSimple([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(DistinctSimple({3}))
+    [3]
+    >>> list(DistinctSimple(('foo', 'foo')))
+    ['foo']
+    >>> list(DistinctSimple(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = DistinctSimple([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+    """
+
+    __slots__ = ('_history',  '_iterator')
+
+    def __init__(self, iterable):
+        self._history = set()
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while (item := next(self._iterator)) in self._history:
+            pass
+        self._history.add(item)
+        return item
+
+
 def distinct(iterable, *, key=None):
     """
     Yield only first occurrences of values whose associated keys are equal.
@@ -1292,6 +1402,59 @@ def distinct(iterable, *, key=None):
         if image not in elements:
             elements.add(image)
             yield element
+
+
+class Distinct:
+    """
+    Iterator to only first occurrences of values whose associated keys are
+    equal.
+
+    This is like distinct (above), but implemented as a class. The meaning and
+    restrictions on arguments used to construct a Distinct object are the same
+    as those documented for the arguments used to call the distinct function.
+
+    >>> next(Distinct([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(Distinct({3}))
+    [3]
+    >>> list(Distinct(('foo', 'foo')))
+    ['foo']
+    >>> list(Distinct(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = Distinct([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+
+    >>> list(Distinct(('foo', 'bar', 'foobar', 'baz', 'quux', 'wq'), key=len))
+    ['foo', 'foobar', 'quux', 'wq']
+    >>> list(Distinct(range(-3, 6), key=lambda x: x**2))
+    [-3, -2, -1, 0, 4, 5]
+    >>> list(Distinct([[1, 2, 3], [1, 3, 2], [1, 2, 3], [2, 1, 3]], key=tuple))
+    [[1, 2, 3], [1, 3, 2], [2, 1, 3]]
+    >>> middle = [[], []] * 100_000
+    >>> list(Distinct([3, *middle, 4], key=id))
+    [3, [], [], 4]
+    """
+
+    __slots__ = ('_history', '_key', '_iterator')
+
+    def __init__(self, iterable, *, key=None):
+        self._history = set()
+        self._key = ((lambda x: x) if key is None else key)
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self._key(item := next(self._iterator)) in self._history:
+            pass
+        self._history.add(self._key(item))
+        return item
 
 
 def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
@@ -1559,6 +1722,80 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     not_there = object()
     my_keys = tuple(subject_keys)
     return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
+
+
+class DistinctDictsByKeys(Distinct):
+    """
+    Iterator to dictionaries that differ from each previously seen dictionary
+    in their treatment of (at least one of) the subject keys.
+
+    This is the class version distinct_dicts_by_keys (above). See its docstring
+    for explanations of phrases "differ from ... treatment ... subject keys."
+
+    Arguments to the distinct_dict_by_keys correspond in meaning, and have the
+    same restrictions, as argument used to construct a DistinctDictsByKeys
+    object.
+
+    Do not call any top-level functions defined in this module. In particular,
+    do not call distinct. However, feel free to use (and call) classes defined
+    above. Just as distinct_dict_by_keys uses distinct, this class should
+    probably make use of Distinct, greatly simplifying the solution.
+
+    >>> ds1 = [{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
+    ...        {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
+    ...        {'a': 1, 'b': 2, 'c': 3, 'e': 5}]
+    >>> it = DistinctDictsByKeys(ds1, ['d', 'f'])
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> ds2 = [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'},
+    ...        {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'},
+    ...        {1.2: 'j', 7.1: 'v', 3.6: 'w', 4.4: 'k', 9.0: 'p', -2.7: 'u'},
+    ...        {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'},
+    ...        {1.2: 'j', 7.1: 'w', 3.6: 'x', 4.4: 'k', 9.0: 'r', -2.7: 't'},
+    ...        {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}]
+    >>> it = DistinctDictsByKeys(ds2, (x for x in (1.2, 5.8, 4.4)))
+    >>> for d in it: print(d)
+    {1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}
+    {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'}
+    {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'}
+    {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}
+    >>> list(it)  # Show that it was an iterator (and thus exhausted).
+    []
+    >>> list(DistinctDictsByKeys(ds2, ()))  # Make disagreement impossible.
+    [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}]
+    >>> x = object()
+    >>> y = object()
+    >>> ds2 = [{'p': x, 'q': y, 'r': object()} for _ in range(2)]
+    >>> sum(1 for _ in DistinctDictsByKeys(ds2, ('p', 'q')))
+    1
+    >>> sum(1 for _ in DistinctDictsByKeys(ds2, ('q', 'r')))
+    2
+    >>> cipher = {normal: object() for normal in range(1, 9)}
+    >>> cipher[4] = None
+    >>> decipher = {weird: normal for normal, weird in cipher.items()}
+    >>> ds3 = [{k: cipher[v] for k, v in d.items()} for d in ds1]
+    >>> for d in DistinctDictsByKeys(ds3, ['d', 'f']):
+    ...     print({k: decipher[weird] for k, weird in d.items()})
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    """
+
+    __slots__ = ('_iterator',)
+
+    def __init__(self, dicts, subject_keys):
+        not_there = object()
+        my_keys = tuple(subject_keys)
+
+        def key(dictionary):
+            return tuple(dictionary.get(k, not_there) for k in my_keys)
+
+        super().__init__(dicts, key=key)
 
 
 if __name__ == '__main__':
