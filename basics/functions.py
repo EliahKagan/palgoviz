@@ -324,12 +324,12 @@ def count_tree_nodes_instrumented(root):
     5
     """
     global count_tree_nodes
-    temp = count_tree_nodes
+    non_decorated = count_tree_nodes
     count_tree_nodes = peek_return(count_tree_nodes)
     try:
         result = count_tree_nodes(root)
     finally:
-        count_tree_nodes = temp
+        count_tree_nodes = non_decorated
     return result
 
 
