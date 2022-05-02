@@ -14,6 +14,10 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
+import itertools
+
+from fibonacci import fib
+
 
 def make_counter(start=0):
     """
@@ -31,7 +35,8 @@ def make_counter(start=0):
     >>> [h(), f(), g(), h(), g(), h(), h(), g(), g(), f(), h()]
     [10, 4, 3, 11, 4, 12, 13, 5, 6, 5, 14]
     """
-    ...  # FIXME: Implement this.
+    it = itertools.count(start)
+    return lambda: next(it)
 
 
 def make_counter_alt(start=0):
@@ -50,7 +55,13 @@ def make_counter_alt(start=0):
     >>> [h(), f(), g(), h(), g(), h(), h(), g(), g(), f(), h()]
     [10, 4, 3, 11, 4, 12, 13, 5, 6, 5, 14]
     """
-    ...  # FIXME: Implement this.
+    def counter():
+        nonlocal start
+        current = start
+        start += 1
+        return current
+
+    return counter
 
 
 def make_next_fibonacci():
@@ -69,7 +80,8 @@ def make_next_fibonacci():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    ...  # FIXME: Implement this.
+    it = fib()
+    return lambda: next(it)
 
 
 def make_next_fibonacci_alt():
@@ -89,7 +101,16 @@ def make_next_fibonacci_alt():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    ...  # FIXME: Implement this.
+    a = 0
+    b = 1
+
+    def next_fib():
+        nonlocal a, b
+        ret = a
+        a, b = b, a + b
+        return ret
+
+    return next_fib
 
 
 def as_func(iterable):
@@ -116,7 +137,8 @@ def as_func(iterable):
     >>> g()
     16
     """
-    ...  # FIXME: Implement this.
+    it = iter(iterable)
+    return lambda: next(it)
 
 
 def as_iterator_limited(func, end_sentinel):
@@ -130,7 +152,7 @@ def as_iterator_limited(func, end_sentinel):
     >>> list(as_iterator_limited(make_next_fibonacci_alt(), 89))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    ...  # FIXME: Implement this.
+    return iter(func, end_sentinel)
 
 
 def as_iterator_limited_alt(func, end_sentinel):
@@ -147,7 +169,11 @@ def as_iterator_limited_alt(func, end_sentinel):
     >>> list(as_iterator_limited_alt(make_next_fibonacci_alt(), 89))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    ...  # FIXME: Implement this.
+    while True:
+        result = func()
+        if result == end_sentinel:
+            return
+        yield result
 
 
 def as_iterator(func):
