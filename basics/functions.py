@@ -234,7 +234,6 @@ def count_tree_nodes(root):
     >>> [count_tree_nodes(fib_nest(k)) for k in range(17)]
     [1, 1, 3, 5, 9, 15, 25, 41, 67, 109, 177, 287, 465, 753, 1219, 1973, 3193]
     """
-    # Figure out where 0 is returned
     if not isinstance(root, tuple):
         return 1
 
