@@ -271,6 +271,7 @@ def count_tree_nodes_alt(root):
     [1, 1, 3, 5, 9, 15, 25, 41, 67, 109, 177, 287, 465, 753, 1219, 1973, 3193]
     """
     count = 0
+
     def count_nodes(root):
         nonlocal count
         count +=1
@@ -278,6 +279,7 @@ def count_tree_nodes_alt(root):
             return
         for element in root:
             count_nodes(element)
+
     count_nodes(root)
     return count
 
@@ -322,8 +324,13 @@ def count_tree_nodes_instrumented(root):
     5
     """
     global count_tree_nodes
+    temp = count_tree_nodes
     count_tree_nodes = peek_return(count_tree_nodes)
-    return count_tree_nodes(root)
+    try:
+        result = count_tree_nodes(root)
+    finally:
+        count_tree_nodes = temp
+    return result
 
 
 if __name__ == '__main__':
