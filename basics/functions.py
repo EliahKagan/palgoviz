@@ -327,10 +327,9 @@ def count_tree_nodes_instrumented(root):
     non_decorated = count_tree_nodes
     count_tree_nodes = peek_return(count_tree_nodes)
     try:
-        result = count_tree_nodes(root)
+        return count_tree_nodes(root)
     finally:
         count_tree_nodes = non_decorated
-    return result
 
 
 if __name__ == '__main__':
