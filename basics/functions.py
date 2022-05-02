@@ -15,6 +15,7 @@ TODO: Either move these functions to other modules or better explain what this
 """
 
 import itertools
+from decorators import peek_return
 
 from fibonacci import fib
 
@@ -321,7 +322,9 @@ def count_tree_nodes_instrumented(root):
     count_tree_nodes((1, (0, 1))) -> 5
     5
     """
-    ...  # FIXME: Implement this.
+    global count_tree_nodes
+    count_tree_nodes = peek_return(count_tree_nodes)
+    return count_tree_nodes(root)
 
 
 if __name__ == '__main__':
