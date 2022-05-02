@@ -172,19 +172,13 @@ class OrderIndistinct:
         return False
 
     def __le__(self, other):
-        if not isinstance(other, OrderIndistinct):
-            return NotImplemented
-        return self == other
+        return self.__eq__(other)
 
     def __gt__(self, other):
-        if not isinstance(other, OrderIndistinct):
-            return NotImplemented
-        return False
+        return self.__lt__(other)
 
     def __ge__(self, other):
-        if not isinstance(other, OrderIndistinct):
-            return NotImplemented
-        return self == other
+        return self.__eq__(other)
 
     def __repr__(self):
         """Represent this OrderIndistinct as Python code and show its value."""
