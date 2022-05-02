@@ -155,4 +155,39 @@ class OrderIndistinct:
 
     The purpose of this class is to help in testing sorts for stability.
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('value',)
+
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        if not isinstance(other, OrderIndistinct):
+            return NotImplemented
+        return self.value == other.value
+
+    def __lt__(self, other):
+        if not isinstance(other, OrderIndistinct):
+            return NotImplemented
+        return False
+
+    def __le__(self, other):
+        if not isinstance(other, OrderIndistinct):
+            return NotImplemented
+        return self == other
+
+    def __gt__(self, other):
+        if not isinstance(other, OrderIndistinct):
+            return NotImplemented
+        return False
+
+    def __ge__(self, other):
+        if not isinstance(other, OrderIndistinct):
+            return NotImplemented
+        return self == other
+
+    def __repr__(self):
+        """Represent this OrderIndistinct as Python code and show its value."""
+        return f"{type(self).__name__}({self.value!r})"
+
+
