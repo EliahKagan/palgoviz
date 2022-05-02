@@ -237,10 +237,7 @@ def count_tree_nodes(root):
     if not isinstance(root, tuple):
         return 1
 
-    count = 1
-    for element in root:
-        count += count_tree_nodes(element)
-    return count
+    return sum(count_tree_nodes(element) for element in root) + 1
 
 
 def count_tree_nodes_alt(root):
