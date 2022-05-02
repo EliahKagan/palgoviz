@@ -208,8 +208,7 @@ def as_iterator_alt(func):
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
     while True:
-        result = func()
-        yield result
+        yield func()
 
 
 def count_tree_nodes(root):
