@@ -177,6 +177,69 @@ def as_iterator_limited_alt(func, end_sentinel):
         yield result
 
 
+class CallableIterator:
+    """
+    Iterator that calls a parameterless function until a sentinel is reached.
+
+    The "function" can really be any callable (that can be called with no
+    arguments). Hence the name "CallableIterator". A CallableIterator instance
+    is not itself callable. Rather, it is an adapter that stands in front of a
+    callable and calls it to produce values.
+
+    CallableIterator is like as_iterator_limited and as_iterator_limited_alt,
+    but implemented as a class. When iter is called with two arguments, it
+    returns an instance of the callable_iterator class (which is implemented in
+    C), after which this class is named. The difference in usage between
+    callable_iterator and CallableIterator is that the only way to create an
+    instance of callable_iterator from Python code is to call the iter builtin
+    with two arguments, not by calling callable_iterator itself. In contrast,
+    like most classes, one can call CallableIterator to get an instance of it.
+
+    [NB: Callables and iterators should not be confused. It is very rare, and
+    typically a bad idea, for any object to be both callable and an iterator,
+    and neither callable_iterator nor CallableIterator involve such objects.]
+
+    >>> it = CallableIterator(make_counter_alt(), 2000)
+    >>> iter(it) is it
+    True
+    >>> list(it) == list(range(2000))
+    True
+
+    >>> from itertools import islice
+    >>> it = CallableIterator(make_next_fibonacci_alt(), 89)
+    >>> list(islice(it, 10))
+    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+    >>> next(it)
+    55
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    """
+
+    __slots__ = ('_func', '_end_sentinel')
+
+    def __init__(self, func, end_sentinel):
+        self._func = func
+        self._end_sentinel = end_sentinel
+
+    def __iter__(self):
+        return self
+
+    # FIXME: This is wrong (deliberately, to test the tests). Once __next__ has
+    # raised StopIteration, it needs to raise StopIteration on any later calls.
+    # Once the tests (including in test_functions.py) are written, fix the bug.
+    def __next__(self):
+        value = self._func()
+        if value == self._end_sentinel:
+            raise StopIteration()
+        return value
+
+
 def as_iterator(func):
     """
     Given a parameterless function, return an iterator that repeatedly calls
