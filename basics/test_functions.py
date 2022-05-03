@@ -254,7 +254,7 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
     ('as_iterator',),
     ('as_iterator_alt',),
 ])
-class TestAsIteratorLimited(_NamedImplementationTestCase):
+class TestAsIterator(_NamedImplementationTestCase):
     """Tests for the as_iterator and as_iterator_alt functions."""
 
     __slots__ = ()
