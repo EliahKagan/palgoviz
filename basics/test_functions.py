@@ -98,7 +98,6 @@ class TestMakeCounter(_NamedImplementationTestCase):
         results = [f() for _ in range(1000)]
         self.assertListEqual(results, expected_list)
 
-
     def test_calls_to_separate_counters_count_independently(self):
         f = self.implementation()
         self.assertEqual(f(), 0)
@@ -254,7 +253,7 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
     ('as_iterator',),
     ('as_iterator_alt',),
 ])
-class TestAsIteratorLimited(_NamedImplementationTestCase):
+class TestAsIterator(_NamedImplementationTestCase):
     """Tests for the as_iterator and as_iterator_alt functions."""
 
     __slots__ = ()
@@ -387,16 +386,16 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
         result1 = functions.count_tree_nodes_instrumented(root1)
         output1 = self._out
 
-        with self.subTest(run=1, instrumented=True, checking='return value'):
+        with self.subTest(run=1, instrumented=True, check='return value'):
             self.assertEqual(result1, 3)
 
-        with self.subTest(run=1, instrumented=True, checking='printed output'):
+        with self.subTest(run=1, instrumented=True, check='printed output'):
             self.assertEqual(output1, 'count_tree_nodes(()) -> 1\n'
                                       'count_tree_nodes(((),)) -> 2\n'
                                       'count_tree_nodes((((),),)) -> 3\n')
 
         with self.subTest(run=1, instrumented=True,
-                          checking='restores original function'):
+                          check='restores original function'):
             self.assertIs(functions.count_tree_nodes,
                           _original_count_tree_nodes,
                           'failed to restore count_tree_nodes')
@@ -405,10 +404,10 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
         root2 = recursion.make_deep_tuple(3)
         result2 = functions.count_tree_nodes(root2)
 
-        with self.subTest(run=2, instrumented=False, checking='return value'):
+        with self.subTest(run=2, instrumented=False, check='return value'):
             self.assertEqual(result2, 4)
 
-        with self.subTest(run=2, instrumented=False, checking='printed output'):
+        with self.subTest(run=2, instrumented=False, check='printed output'):
             self.assertEqual(self._out, output1, 'no more should be printed')
 
     def test_function_patched_and_restored_when_an_exception_propagates(self):
@@ -419,11 +418,11 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
         with self.assertRaises(RecursionError):
             functions.count_tree_nodes_instrumented(root1)
 
-        with self.subTest(run=1, instrumented=True, checking='printed output'):
+        with self.subTest(run=1, instrumented=True, check='printed output'):
             self.assertEqual(self._out, '', 'no output should be printed')
 
         with self.subTest(run=1, instrumented=True,
-                          checking='restores original function'):
+                          check='restores original function'):
             self.assertIs(functions.count_tree_nodes,
                           _original_count_tree_nodes,
                           'failed to restore count_tree_nodes')
@@ -432,13 +431,13 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
         root2 = ((2, 7, 1), (8, 6), (9, (4, 5)), ((((5, 4), 3), 2), 1))
         result2 = functions.count_tree_nodes(root2)
 
-        with self.subTest(run=2, instrumented=False, checking='return value'):
+        with self.subTest(run=2, instrumented=False, check='return value'):
             self.assertEqual(result2, 22)
 
-        with self.subTest(run=2, instrumented=False, checking='printed output'):
+        with self.subTest(run=2, instrumented=False, check='printed output'):
             self.assertEqual(self._out, '', 'no output should be printed')
 
-    # TODO: Maybe add a test corresponding to the doctest that uses fib_nest(3).
+    # TODO: Maybe add a test corresponding to the doctest using fib_nest(3).
 
     @property
     def _out(self):
