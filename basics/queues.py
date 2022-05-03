@@ -12,8 +12,9 @@ TODO: In particular, investigate construction from iterables.
 """
 
 from abc import ABC, abstractmethod
+import bisect
 import collections
-import itertools
+import operator
 
 
 class Queue(ABC):
@@ -366,18 +367,17 @@ class FastEnqueueMaxPriorityQueue(PriorityQueue):
     def enqueue(self, item):
         self._list.append(item)
 
-    # TODO: Try finding the index in O(n) time, then O(1) for remaining steps.
     def dequeue(self):
-        if self._list:
-            result = max(self._list)
-            self._list.remove(result)
-            return result
-        raise LookupError("Can't dequeue from empty queue")
+        if not self:
+            raise LookupError("Can't dequeue from empty queue")
+        index, _ = max(enumerate(self._list), key=operator.itemgetter(1))
+        self._list[index], self._list[-1] = self._list[-1], self._list[index]
+        return self._list.pop()
 
     def peek(self):
-        if self._list:
-            return max(self._list)
-        raise LookupError("Can't peek from empty queue")
+        if not self:
+            raise LookupError("Can't peek from empty queue")
+        return max(self._list)
 
 
 class FastDequeueMaxPriorityQueue(PriorityQueue):
@@ -395,15 +395,8 @@ class FastDequeueMaxPriorityQueue(PriorityQueue):
     def __len__(self):
         return len(self._list)
 
-    # TODO: Simplify this code by calling a function in the bisect module.
     def enqueue(self, item):
-        try:
-            irange = range(len(self) - 1, -1, -1)
-            index = next(i for i in irange if not item < self._list[i])
-        except StopIteration:
-            self._list.insert(0, item)
-        else:
-            self._list.insert(index + 1, item)
+        bisect.insort(self._list, item)
 
     def dequeue(self):
         if not self:
