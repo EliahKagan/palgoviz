@@ -42,6 +42,53 @@ def my_enumerate(iterable, start=0):
         start += 1
 
 
+class Enumerate:
+    """
+    Iterator that pairs items in an iterable with indices.
+
+    This is like the built-in enumerate, including that it is implemented as a
+    class rather than as a function.
+
+    >>> men = Enumerate(range(3,10000))
+    >>> next(men)
+    (0, 3)
+    >>> next(men)
+    (1, 4)
+    >>> next(men)
+    (2, 5)
+    >>> next(men)
+    (3, 6)
+    >>> list(Enumerate(['ham', 'spam', 'eggs']))
+    [(0, 'ham'), (1, 'spam'), (2, 'eggs')]
+    >>> men = Enumerate(range(3,10000), 3)
+    >>> next(men)
+    (3, 3)
+    >>> next(men)
+    (4, 4)
+    >>> next(men)
+    (5, 5)
+    >>> next(men)
+    (6, 6)
+    >>> list(Enumerate(['ham', 'spam', 'eggs'], 10))
+    [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
+    """
+
+    __slots__ = ('_index', '_iterator')
+
+    def __init__(self, iterable, start=0):
+        self._index = start
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        value = next(self._iterator)
+        index = self._index
+        self._index += 1
+        return index, value
+
+
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
     """
     Show the effect of my_enumerate on a sequence of 5, ..., 9 (inclusive).
@@ -67,7 +114,7 @@ def print_enumerated_alt(*, start=0):
     """
     Alternative implementation of print_enumerated.
 
-    This uses a generator expression.
+    This uses a generator expression. It also uses Enumerate, not my_enumerate.
 
     >>> print_enumerated_alt()
     index = 0, value = 5
@@ -84,7 +131,7 @@ def print_enumerated_alt(*, start=0):
     """
     lines = (f'{index = }, {value = }'
              for index, value
-             in my_enumerate(range(5, 10), start))
+             in Enumerate(range(5, 10), start))
 
     for line in lines:
         print(line)
@@ -185,6 +232,64 @@ def zip_two(first, second):
             return
 
 
+class ZipTwo:
+    """
+    Zip two iterables. Like zip_two, but implemented as a class.
+
+    Zips shortest like the built-in zip, but must take exactly 2 arguments.
+
+    >>> list(ZipTwo([], []))
+    []
+    >>> list(ZipTwo([10, 20], []))
+    []
+    >>> list(ZipTwo([], [30, 40]))
+    []
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in ZipTwo(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+    I ordered a 4k monitor but I got a gigantic bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat']
+    >>> for order, got in ZipTwo(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in ZipTwo(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> bobcats = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> for order, got in ZipTwo(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a BOBCAT instead!
+    I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+    """
+
+    __slots__ = ('_iterator1', '_iterator2')
+
+    def __init__(self, iterable1, iterable2):
+        self._iterator1 = iter(iterable1)
+        self._iterator2 = iter(iterable2)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return next(self._iterator1), next(self._iterator2)
+
+
 def my_zip(*iterables):
     """
     Zip any number of iterables.
@@ -267,6 +372,92 @@ def my_zip(*iterables):
             return
 
 
+class Zip:
+    """
+    Zip any number of iterables. Like my_zip, but implemented as a class.
+
+    This is like the built-in zip, but with no "strict" argument.
+
+    >>> list(Zip([], []))
+    []
+    >>> list(Zip([10, 20], []))
+    []
+    >>> list(Zip([], [30, 40]))
+    []
+    >>> list(Zip([]))
+    []
+    >>> list(Zip(()))
+    []
+    >>> list(Zip([10]))
+    [(10,)]
+    >>> list(Zip())
+    []
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in Zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+    I ordered a 4k monitor but I got a gigantic bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = ['bobcat', 'larger bobcat']
+    >>> for order, got in Zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> for order, got in Zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a bobcat instead!
+    I ordered a mechanical keyboard but I got a larger bobcat instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> bobcats = ['bobcat', 'larger bobcat', 'gigantic bobcat']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> for order, got in Zip(ordered, received):
+    ...     print(f'I ordered a {order} but I got a {got} instead!')
+    I ordered a gaming mouse but I got a BOBCAT instead!
+    I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard', '4k monitor']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> grunts = ['Doh!', 'Ow!', 'OOF!']
+    >>> for grunt, order, got in Zip(grunts, ordered, received):
+    ...     print(f'{grunt} I ordered a {order} but I got a {got} instead!')
+    Doh! I ordered a gaming mouse but I got a BOBCAT instead!
+    Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    OOF! I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
+
+    >>> ordered = ['gaming mouse', 'mechanical keyboard']
+    >>> received = (cat.upper() for cat in bobcats)
+    >>> grunts = ['Doh!', 'Ow!', 'OOF!']
+    >>> for grunt, order, got in Zip(grunts, ordered, received):
+    ...     print(f'{grunt} I ordered a {order} but I got a {got} instead!')
+    Doh! I ordered a gaming mouse but I got a BOBCAT instead!
+    Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
+    """
+
+    __slots__ = ('_iterators',)
+
+    def __init__(self, *iterables):
+        self._iterators = [iter(iterable) for iterable in iterables]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._iterators:
+            raise StopIteration()
+
+        # Use a list comprehension so StopIteration will propagate out of it.
+        return tuple([next(iterator) for iterator in self._iterators])
+
+
 def print_zipped():
     """
     Zip two enumerated things with my_enumerate and zip_two and print elements.
@@ -283,6 +474,15 @@ def print_zipped():
 
     for (word_index, word), (number_index, number) in zipped:
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
+
+
+def _validate_take_n_arg(n):
+    """Raise an appropriate exception unless n is a nonnegative int."""
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
 
 
 def take(iterable, n):
@@ -335,17 +535,87 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
+    _validate_take_n_arg(n)
+
+    def generate_slice():
+        for _, element in zip(range(n), iterable):
+            yield element
+
+    return generate_slice()
+
+
+class Take:
+    """
+    Iterator to the first n elements of iterable, or all if it doesn't have n.
+
+    This is like take, but implemented as a class. (Please don't call islice.)
+
+    >>> next(Take(range(3), 0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(Take(range(3), 1))
+    [0]
+    >>> list(Take(range(3), 2))
+    [0, 1]
+    >>> list(Take(range(3), 3))
+    [0, 1, 2]
+    >>> list(Take(range(3), 4))
+    [0, 1, 2]
+    >>> list(Take(range(3), 1_000_000))
+    [0, 1, 2]
+    >>> import itertools
+    >>> it = Take((x**2 for x in itertools.count(2)), 2)
+    >>> next(it)
+    4
+    >>> next(it)
+    9
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> Take(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> Take(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many items
+    >>> list(Take('pqr', True))  # OK, since bool is a subclass of int.
+    ['p']
+    >>> it = (x**2 for x in range(1, 6))
+    >>> list(Take(it, 2))
+    [1, 4]
+    >>> list(it)  # Make sure we didn't consume too much.
+    [9, 16, 25]
+    """
+
+    __slots__ = ('_remaining', '_iterator')
+
+    def __init__(self, iterable, n):
+        _validate_take_n_arg(n)
+        self._remaining = n
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        assert self._remaining >= 0
+        if self._remaining == 0:
+            raise StopIteration()
+        self._remaining -= 1
+        return next(self._iterator)
+
+
+def _validate_drop_n_arg(n):
+    """Raise an appropriate exception unless n is a nonnegative int."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError("can't yield negatively many items")
-
-    def slice():
-        for _, element in zip(range(n), iterable):
-            yield element
-
-    return slice()
+        raise ValueError("can't skip negatively many items")
 
 
 def drop(iterable, n):
@@ -394,11 +664,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-
-    if n < 0:
-        raise ValueError("can't skip negatively many items")
+    _validate_drop_n_arg(n)
 
     def helper():
         it = iter(iterable)
@@ -406,6 +672,69 @@ def drop(iterable, n):
         yield from it
 
     return helper()
+
+
+class Drop:
+    """
+    Iterator to all but the first n elements of an iterable.
+
+    This is like drop, but implemented as a class.
+
+    Please don't call islice in this implementation with more than 2 arguments.
+
+    >>> list(Drop(range(5), 0))
+    [0, 1, 2, 3, 4]
+    >>> list(Drop(range(5), 1))
+    [1, 2, 3, 4]
+    >>> list(Drop(range(5), 2))
+    [2, 3, 4]
+    >>> list(Drop(range(5), 4))
+    [4]
+    >>> list(Drop(range(5), 5))
+    []
+    >>> list(Drop(range(5), 6))
+    []
+    >>> list(Drop(range(5), 1_000_000))
+    []
+    >>> import itertools
+    >>> it = take(Drop(itertools.count(1), 1000), 2)
+    >>> next(it)
+    1001
+    >>> next(it)
+    1002
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> Drop(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> Drop(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't skip negatively many items
+    >>> list(Drop('pqr', True))  # OK, since bool is a subclass of int.
+    ['q', 'r']
+    """
+
+    __slots__ = ('_n', '_iterator')
+
+    def __init__(self, iterable, n):
+        _validate_drop_n_arg(n)
+        self._n = n
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._n is not None:
+            collections.deque(itertools.islice(self._iterator, self._n),
+                              maxlen=0)
+            self._n = None
+
+        return next(self._iterator)
 
 
 def last(iterable):
@@ -531,6 +860,15 @@ def pick(iterable, index):
         raise IndexError("index out of range")
 
 
+def _validate_windowed_n_arg(n):
+    """Raise an appropriate exception unless n is a nonnegative int."""
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("window width (n) cannot be negative")
+
+
 def windowed(iterable, n):
     """
     Yield all width-n contiguous subsequences of iterable, in order, as tuples.
@@ -555,6 +893,7 @@ def windowed(iterable, n):
     >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
+    _validate_windowed_n_arg(n)
     it = iter(iterable)
     queue = collections.deque(itertools.islice(it, n), n)
 
@@ -568,11 +907,63 @@ def windowed(iterable, n):
         yield tuple(queue)
 
 
+class Windowed:
+    """
+    Iterator to all width-n contiguous subsequences of iterable, in order, as
+    tuples.
+
+    This is like windowed, but implemented as a class.
+
+    Please implement this without using islice, at least initially.
+
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> from itertools import islice
+    >>> list(islice(Windowed(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+
+    __slots__ = ('_iterator', '_queue', '_started')
+
+    def __init__(self, iterable, n):
+        _validate_windowed_n_arg(n)
+        self._iterator = iter(iterable)
+        self._queue = collections.deque(maxlen=n)
+        self._started = False
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._started:
+            self._started = True
+            for _ in range(self._queue.maxlen):
+                self._queue.append(next(self._iterator))
+            return tuple(self._queue)
+
+        self._queue.append(next(self._iterator))
+        return tuple(self._queue)
+
+
 def map_one(func, iterable):
     """
     Map values from the given iterable through the unary function func.
 
-    This is like the builtin map, except it doesn't accept multiple iterables.
+    This is like the built-in map, except it doesn't accept multiple iterables.
 
     That is, map accepts an n-ary function and n iterable arguments, but
     map_one requires a unary function and exactly one iterable argument.
@@ -611,6 +1002,39 @@ def map_one_alt(func, iterable):
     [2, 5, 10, 17, 26]
     """
     return (func(element) for element in iterable)
+
+
+class MapOne:
+    """
+    Map an iterable through a unary function.
+
+    This is like the built-in map, except it doesn't accept multiple iterables.
+
+    This is like map_one and map_one_alt, but implemented as a class.
+
+    >>> list(MapOne(lambda x: x**2, range(1, 11)))
+    [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+    >>> next(MapOne(lambda x: x**2, range(0)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(MapOne(len, ['foobar', (10, 20), range(1000)]))
+    [6, 2, 1000]
+    >>> list(MapOne(lambda x: x + 1, (x**2 for x in range(1, 6))))
+    [2, 5, 10, 17, 26]
+    """
+
+    __slots__ = ('_func', '_iterator')
+
+    def __init__(self, func, iterable):
+        self._func = func
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self._func(next(self._iterator))
 
 
 def my_filter(predicate, iterable):
@@ -669,6 +1093,43 @@ def my_filter_alt(predicate, iterable):
         return (element for element in iterable if element)
 
     return (element for element in iterable if predicate(element))
+
+
+class Filter:
+    """
+    Iterator of the values in an iterable that satisfy a predicate.
+
+    If the predicate is None instead of a function, the this yields the values
+    of the iterable that are truthy.
+
+    This is like my_filter and my_filter_alt, but implemented as a class.
+
+    >>> next(Filter(lambda n: n < 0, (0, 1, 2)))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(Filter(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
+    ['ham', 'foo']
+    >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+    >>> list(Filter(None, (a[1:] for a in mixed)))
+    ['y', (2, 3)]
+    >>> list(Filter(None, ['hello', 'glorious', 'world']))
+    ['hello', 'glorious', 'world']
+    """
+
+    __slots__ = ('_predicate', '_iterator')
+
+    def __init__(self, predicate, iterable):
+        self._predicate = ((lambda x: x) if predicate is None else predicate)
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while not self._predicate(value := next(self._iterator)):
+            pass
+        return value
 
 
 def length_of(iterable):
@@ -943,6 +1404,46 @@ def distinct_simple(iterable):
     return distinct(iterable)
 
 
+class DistinctSimple:
+    """
+    Iterator to only first occurrences of equal items.
+
+    This is like distinct_simple (above), but implemented as a class. So it is
+    permitted to assume all values of the input iterable are hashable.
+
+    >>> next(DistinctSimple([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(DistinctSimple({3}))
+    [3]
+    >>> list(DistinctSimple(('foo', 'foo')))
+    ['foo']
+    >>> list(DistinctSimple(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = DistinctSimple([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+    """
+
+    __slots__ = ('_history',  '_iterator')
+
+    def __init__(self, iterable):
+        self._history = set()
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while (item := next(self._iterator)) in self._history:
+            pass
+        self._history.add(item)
+        return item
+
+
 def distinct(iterable, *, key=None):
     """
     Yield only first occurrences of values whose associated keys are equal.
@@ -998,6 +1499,59 @@ def distinct(iterable, *, key=None):
         if image not in elements:
             elements.add(image)
             yield element
+
+
+class Distinct:
+    """
+    Iterator to only first occurrences of values whose associated keys are
+    equal.
+
+    This is like distinct (above), but implemented as a class. The meaning and
+    restrictions on arguments used to construct a Distinct object are the same
+    as those documented for the arguments used to call the distinct function.
+
+    >>> next(Distinct([]))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(Distinct({3}))
+    [3]
+    >>> list(Distinct(('foo', 'foo')))
+    ['foo']
+    >>> list(Distinct(x**2 for x in range(-3, 6)))
+    [9, 4, 1, 0, 16, 25]
+    >>> it = Distinct([2, 1, 2, 4, 1, 7] * 100_000)
+    >>> next(it)
+    2
+    >>> list(it)
+    [1, 4, 7]
+
+    >>> list(Distinct(('foo', 'bar', 'foobar', 'baz', 'quux', 'wq'), key=len))
+    ['foo', 'foobar', 'quux', 'wq']
+    >>> list(Distinct(range(-3, 6), key=lambda x: x**2))
+    [-3, -2, -1, 0, 4, 5]
+    >>> list(Distinct([[1, 2, 3], [1, 3, 2], [1, 2, 3], [2, 1, 3]], key=tuple))
+    [[1, 2, 3], [1, 3, 2], [2, 1, 3]]
+    >>> middle = [[], []] * 100_000
+    >>> list(Distinct([3, *middle, 4], key=id))
+    [3, [], [], 4]
+    """
+
+    __slots__ = ('_history', '_key', '_iterator')
+
+    def __init__(self, iterable, *, key=None):
+        self._history = set()
+        self._key = ((lambda x: x) if key is None else key)
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self._key(item := next(self._iterator)) in self._history:
+            pass
+        self._history.add(self._key(item))
+        return item
 
 
 def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
@@ -1265,6 +1819,80 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     not_there = object()
     my_keys = tuple(subject_keys)
     return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
+
+
+class DistinctDictsByKeys(Distinct):
+    """
+    Iterator to dictionaries that differ from each previously seen dictionary
+    in their treatment of (at least one of) the subject keys.
+
+    This is the class version distinct_dicts_by_keys (above). See its docstring
+    for explanations of phrases "differ from ... treatment ... subject keys."
+
+    Arguments to the distinct_dict_by_keys correspond in meaning, and have the
+    same restrictions, as argument used to construct a DistinctDictsByKeys
+    object.
+
+    Do not call any top-level functions defined in this module. In particular,
+    do not call distinct. However, feel free to use (and call) classes defined
+    above. Just as distinct_dict_by_keys uses distinct, this class should
+    probably make use of Distinct, greatly simplifying the solution.
+
+    >>> ds1 = [{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
+    ...        {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
+    ...        {'a': 1, 'b': 2, 'c': 3, 'e': 5}]
+    >>> it = DistinctDictsByKeys(ds1, ['d', 'f'])
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    >>> next(it)
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> ds2 = [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'},
+    ...        {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'},
+    ...        {1.2: 'j', 7.1: 'v', 3.6: 'w', 4.4: 'k', 9.0: 'p', -2.7: 'u'},
+    ...        {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'},
+    ...        {1.2: 'j', 7.1: 'w', 3.6: 'x', 4.4: 'k', 9.0: 'r', -2.7: 't'},
+    ...        {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}]
+    >>> it = DistinctDictsByKeys(ds2, (x for x in (1.2, 5.8, 4.4)))
+    >>> for d in it: print(d)
+    {1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}
+    {1.2: 'j', 7.1: 'u', 3.6: 'v', 4.4: 'j', 9.0: 'o', -2.7: 't'}
+    {1.2: 'l', 7.1: 'v', 3.6: 'x', 4.4: 'l', 9.0: 'q', -2.7: 'v'}
+    {7.1: 'x', 3.6: 'y', 4.4: 'l', 9.0: 's', -2.7: 't'}
+    >>> list(it)  # Show that it was an iterator (and thus exhausted).
+    []
+    >>> list(DistinctDictsByKeys(ds2, ()))  # Make disagreement impossible.
+    [{1.2: 'j', 7.1: 't', 3.6: 'u', 4.4: 'k', 9.0: 'n', -2.7: 'q'}]
+    >>> x = object()
+    >>> y = object()
+    >>> ds2 = [{'p': x, 'q': y, 'r': object()} for _ in range(2)]
+    >>> sum(1 for _ in DistinctDictsByKeys(ds2, ('p', 'q')))
+    1
+    >>> sum(1 for _ in DistinctDictsByKeys(ds2, ('q', 'r')))
+    2
+    >>> cipher = {normal: object() for normal in range(1, 9)}
+    >>> cipher[4] = None
+    >>> decipher = {weird: normal for normal, weird in cipher.items()}
+    >>> ds3 = [{k: cipher[v] for k, v in d.items()} for d in ds1]
+    >>> for d in DistinctDictsByKeys(ds3, ['d', 'f']):
+    ...     print({k: decipher[weird] for k, weird in d.items()})
+    {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+    {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    """
+
+    __slots__ = ('_iterator',)
+
+    def __init__(self, dicts, subject_keys):
+        not_there = object()
+        my_keys = tuple(subject_keys)
+
+        def key(dictionary):
+            return tuple(dictionary.get(k, not_there) for k in my_keys)
+
+        super().__init__(dicts, key=key)
 
 
 def distinct_eager_simple(iterable):

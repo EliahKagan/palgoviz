@@ -15,6 +15,39 @@ import itertools
 import operator
 
 
+def empty():
+    """
+    Empty generator.
+
+    >>> it = empty()
+    >>> iter(it) is it
+    True
+    >>> list(it)
+    []
+    """
+    yield from ()
+
+
+class Empty:
+    """
+    Empty iterator.
+
+    >>> it = Empty()
+    >>> iter(it) is it
+    True
+    >>> list(it)
+    []
+    """
+
+    __slots__ = ()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration()
+
+
 def product_two(a, b):
     """
     Like itertools.product, but must be called with exactly two iterables.
@@ -64,6 +97,50 @@ def product_two_alt(a, b):
 
 
 # Temporary merge anchor: between product_two_alt & ProductTwo. FIXME
+
+
+class ProductTwo:
+    """
+    Like itertools.product, but must be called with exactly two iterables.
+
+    This implementation is as a class (as is itertools.product).
+
+    >>> list(ProductTwo('hi', 'bye'))
+    [('h', 'b'), ('h', 'y'), ('h', 'e'), ('i', 'b'), ('i', 'y'), ('i', 'e')]
+    >>> list(ProductTwo(range(0), range(2)))
+    []
+    >>> list(ProductTwo(range(2), range(0)))
+    []
+    >>> it = ProductTwo((x - 1 for x in (1, 2)), (x + 5 for x in (3, 4)))
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> next(it)
+    (0, 8)
+    >>> list(it)
+    [(0, 9), (1, 8), (1, 9)]
+    """
+
+    __slots__ = ('_a_elem', '_b', '_a_it', '_b_it')
+
+    def __init__(self, a, b):
+        self._a_elem = None
+        self._a_it = iter(list(a))
+        self._b = list(b)
+        self._b_it = Empty()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return self._advance()
+        except StopIteration:
+            self._a_elem = next(self._a_it)
+            self._b_it = iter(self._b)
+            return self._advance()
+
+    def _advance(self):
+        return self._a_elem, next(self._b_it)
 
 
 # Temporary merge anchor: between ProductTwo & product_two_flexible. FIXME
@@ -258,6 +335,41 @@ def ascending_countdowns_alt():
     """
     for x in itertools.count():
         yield from range(x, -1, -1)
+
+
+class AscendingCountdowns:
+    """
+    Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
+
+    This is like ascending_countdowns and ascending_countdowns_alt, but
+    implemented as a class.
+
+    >>> from itertools import islice
+    >>> it = AscendingCountdowns()
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> list(islice(it, 25))
+    [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
+    >>> sum(islice(AscendingCountdowns(), 1_000_000))
+    471108945
+    """
+
+    __slots__ = ('_up', '_down')
+
+    def __init__(self):
+        self._up = self._down = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._down < 0:
+            self._up += 1
+            self._down = self._up
+
+        ret = self._down
+        self._down -= 1
+        return ret
 
 
 def three_sums(a, b, c):
