@@ -15,6 +15,7 @@ TODO: Either move these functions to other modules or better explain what this
 """
 
 import itertools
+from decorators import peek_return
 
 from fibonacci import fib
 
@@ -188,7 +189,7 @@ def as_iterator(func):
     >>> list(islice(as_iterator(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    ...  # FIXME: Implement this.
+    return iter(func, object())
 
 
 def as_iterator_alt(func):
@@ -206,7 +207,8 @@ def as_iterator_alt(func):
     >>> list(islice(as_iterator_alt(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    ...  # FIXME: Implement this.
+    while True:
+        yield func()
 
 
 def count_tree_nodes(root):
@@ -232,7 +234,10 @@ def count_tree_nodes(root):
     >>> [count_tree_nodes(fib_nest(k)) for k in range(17)]
     [1, 1, 3, 5, 9, 15, 25, 41, 67, 109, 177, 287, 465, 753, 1219, 1973, 3193]
     """
-    ...  # FIXME: Implement this.
+    if not isinstance(root, tuple):
+        return 1
+
+    return sum(count_tree_nodes(element) for element in root) + 1
 
 
 def count_tree_nodes_alt(root):
@@ -261,7 +266,18 @@ def count_tree_nodes_alt(root):
     >>> [count_tree_nodes_alt(fib_nest(k)) for k in range(17)]
     [1, 1, 3, 5, 9, 15, 25, 41, 67, 109, 177, 287, 465, 753, 1219, 1973, 3193]
     """
-    ...  # FIXME: Implement this.
+    count = 0
+
+    def count_nodes(root):
+        nonlocal count
+        count +=1
+        if not isinstance(root, tuple):
+            return
+        for element in root:
+            count_nodes(element)
+
+    count_nodes(root)
+    return count
 
 
 def count_tree_nodes_instrumented(root):
@@ -303,7 +319,13 @@ def count_tree_nodes_instrumented(root):
     count_tree_nodes((1, (0, 1))) -> 5
     5
     """
-    ...  # FIXME: Implement this.
+    global count_tree_nodes
+    non_decorated = count_tree_nodes
+    count_tree_nodes = peek_return(count_tree_nodes)
+    try:
+        return count_tree_nodes(root)
+    finally:
+        count_tree_nodes = non_decorated
 
 
 if __name__ == '__main__':

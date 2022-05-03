@@ -711,7 +711,7 @@ class TestOrderIndistinct(unittest.TestCase):
 
     @parameterized.expand(_VALUE_ARGS)
     def test_equal_when_value_is_equal(self, _label, value):
-        """From the same value argument, OrderIndistint objects are equal."""
+        """From the same value argument, OrderIndistinct objects are equal."""
         # In unittest tests, we usually use assertEqual/assertNotEqual, rather
         # than writing the == and != operators with assertTrue/assertFalse.
         # However, when testing the == and != operators themselves, some people
