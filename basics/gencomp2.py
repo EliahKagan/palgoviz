@@ -63,6 +63,12 @@ def product_two_alt(a, b):
             yield (x, y)
 
 
+# Temporary merge anchor: between product_two_alt & ProductTwo. FIXME
+
+
+# Temporary merge anchor: between ProductTwo & product_two_flexible. FIXME
+
+
 def product_two_flexible(a, b):
     """
     Like product_two above, but a is permitted to be an infinite iterable.
@@ -86,6 +92,9 @@ def product_two_flexible(a, b):
     """
     my_b = list(b)
     return ((x, y) for x in a for y in my_b)
+
+
+# Temporary merge anchor: between product_two_flexible & prefix_product. FIXME
 
 
 def prefix_product(sequences, stop):
