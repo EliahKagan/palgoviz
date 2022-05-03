@@ -94,9 +94,6 @@ def product_two_alt(a, b):
             yield (x, y)
 
 
-# Temporary merge anchor: between product_two_alt & ProductTwo. FIXME
-
-
 class ProductTwo:
     """
     Like itertools.product, but must be called with exactly two iterables.
@@ -139,12 +136,6 @@ class ProductTwo:
 
     def _advance(self):
         return self._a_elem, next(self._b_it)
-
-
-# Temporary merge anchor: between ProductTwo & product_two_flexible. FIXME
-
-
-# Temporary merge anchor: between product_two_flexible & prefix_product. FIXME
 
 
 def ascending_countdowns():
