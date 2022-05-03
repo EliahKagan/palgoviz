@@ -15,9 +15,9 @@ TODO: Either move these functions to other modules or better explain what this
 """
 
 import itertools
+from decorators import peek_return
 
-import decorators
-import fibonacci
+from fibonacci import fib
 
 
 def make_counter(start=0):
@@ -58,9 +58,9 @@ def make_counter_alt(start=0):
     """
     def counter():
         nonlocal start
-        ret = start
+        current = start
         start += 1
-        return ret
+        return current
 
     return counter
 
@@ -81,7 +81,7 @@ def make_next_fibonacci():
     >>> [f(), f(), g()]
     [55, 89, 5]
     """
-    it = fibonacci.fib()
+    it = fib()
     return lambda: next(it)
 
 
@@ -171,10 +171,10 @@ def as_iterator_limited_alt(func, end_sentinel):
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
     while True:
-        value = func()
-        if value == end_sentinel:
-            break
-        yield value
+        result = func()
+        if result == end_sentinel:
+            return
+        yield result
 
 
 def as_iterator(func):
@@ -237,7 +237,7 @@ def count_tree_nodes(root):
     if not isinstance(root, tuple):
         return 1
 
-    return 1 + sum(count_tree_nodes(child) for child in root)
+    return sum(count_tree_nodes(element) for element in root) + 1
 
 
 def count_tree_nodes_alt(root):
@@ -268,16 +268,15 @@ def count_tree_nodes_alt(root):
     """
     count = 0
 
-    def count_below(parent):
+    def count_nodes(root):
         nonlocal count
-
-        count += 1
-        if not isinstance(parent, tuple):
+        count +=1
+        if not isinstance(root, tuple):
             return
-        for child in parent:
-            count_below(child)
+        for element in root:
+            count_nodes(element)
 
-    count_below(root)
+    count_nodes(root)
     return count
 
 
@@ -321,13 +320,12 @@ def count_tree_nodes_instrumented(root):
     5
     """
     global count_tree_nodes
-
-    old_count_tree_nodes = count_tree_nodes
-    count_tree_nodes = decorators.peek_return(count_tree_nodes)
+    non_decorated = count_tree_nodes
+    count_tree_nodes = peek_return(count_tree_nodes)
     try:
         return count_tree_nodes(root)
     finally:
-        count_tree_nodes = old_count_tree_nodes
+        count_tree_nodes = non_decorated
 
 
 if __name__ == '__main__':
