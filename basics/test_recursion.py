@@ -132,8 +132,8 @@ class TestMergeSort(unittest.TestCase):
     def test_sort_is_stable(self):
         vals = [0.0, 0, False]
         results = merge_sort(vals)
-        for val, result in zip(vals, results):
-            with self.subTest(result=result):
+        for i, (val, result) in enumerate(zip(vals, results)):
+            with self.subTest(index=i):
                 self.assertIs(result, val)
 
 
