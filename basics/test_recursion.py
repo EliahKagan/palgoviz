@@ -4,7 +4,7 @@
 
 import unittest
 
-from compare import OrderIndistinct
+from compare import OrderIndistinct, WeakDiamond
 from recursion import merge_two_slow
 
 
@@ -27,6 +27,14 @@ class TestMergeTwoSlow(unittest.TestCase):
             self.assertIs(r1, lhs)
         with self.subTest(result='r2'):
             self.assertIs(r2, rhs)
+
+    def test_is_a_stable_merge_when_some_items_compare_equal(self):
+        lhs = [WeakDiamond.SOUTH, WeakDiamond.EAST, WeakDiamond.NORTH]
+        rhs = [WeakDiamond.WEST, WeakDiamond.WEST]
+        expected = [WeakDiamond.SOUTH, WeakDiamond.EAST, WeakDiamond.WEST,
+                    WeakDiamond.WEST, WeakDiamond.NORTH]
+        result = merge_two_slow(lhs, rhs)
+        self.assertListEqual(result, expected)
 
 
 if __name__ == '__main__':
