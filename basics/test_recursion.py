@@ -91,7 +91,7 @@ class TestTwoWayMergers(unittest.TestCase):
 
 
 class TestMergeSort(unittest.TestCase):
-    """Tests for merge_sort function"""
+    """Tests for the merge_sort function."""
 
     def test_empty_list_sorts(self):
         result = merge_sort([])
@@ -117,24 +117,24 @@ class TestMergeSort(unittest.TestCase):
         result = merge_sort([3, 3])
         self.assertEqual(result, [3, 3])
 
-    def test_big_list_is_sorted(self):
+    def test_several_ints_are_sorted(self):
         vals = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-        result = merge_sort(vals)
         expected = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+        result = merge_sort(vals)
         self.assertEqual(result, expected)
 
-    def test_big_list_of_strings_is_sorted(self):
+    def test_several_strings_are_sorted(self):
         vals = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
-        result = merge_sort(vals)
         expected = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+        result = merge_sort(vals)
         self.assertEqual(result, expected)
 
     def test_sort_is_stable(self):
         vals = [0.0, 0, False]
-        r1, r2, r3 = merge_sort(vals)
-        for result, expected in ((r1, vals[0]), (r2,vals[1]), (r3, vals[2])):
+        results = merge_sort(vals)
+        for val, result in zip(vals, results):
             with self.subTest(result=result):
-                self.assertIs(result, expected)
+                self.assertIs(result, val)
 
 
 if __name__ == '__main__':
