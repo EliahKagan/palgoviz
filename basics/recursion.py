@@ -307,7 +307,6 @@ def merge_two_slow(values1, values2):
     return resultlist
 
 
-# FIXME: Test that merge_two is a stable merge. Fix it if it is not.
 def merge_two(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -335,9 +334,11 @@ def merge_two(values1, values2):
     index = 0
 
     for v1 in values1:
+        # Take everything from values2 that must be output before v1.
         while index < len(values2) and values2[index] < v1:
             resultlist.append(values2[index])
             index += 1
+
         resultlist.append(v1)
 
     resultlist.extend(values2[index:])
