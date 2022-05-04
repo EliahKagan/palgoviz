@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-"""
-Tests for the types in recursion.py.
-"""
+
+"""Tests for the functions in recursion.py."""
 
 import unittest
 
 from compare import OrderIndistinct
 from recursion import merge_two_slow
+
 
 class TestMergeTwoSlow(unittest.TestCase):
     """Tests for the merge_two_slow function."""
@@ -19,3 +19,6 @@ class TestMergeTwoSlow(unittest.TestCase):
         result = merge_two_slow(lhs, rhs)
         self.assertListEqual(result, expected)
 
+
+if __name__ == '__main__':
+    unittest.main()
