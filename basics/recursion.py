@@ -346,7 +346,6 @@ def merge_two(values1, values2):
     return resultlist
 
 
-# FIXME: Test that merge_two_alt is a stable merge. Fix it if it is not.
 def merge_two_alt(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -375,7 +374,7 @@ def merge_two_alt(values1, values2):
     index2 = 0
 
     while index1 < len(values1) and index2 < len(values2):
-        if values1[index1] <= values2[index2]:
+        if not (values1[index1] > values2[index2]):
             resultlist.append(values1[index1])
             index1 += 1
         else:
