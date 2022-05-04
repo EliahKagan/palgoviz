@@ -221,23 +221,24 @@ class CallableIterator:
     StopIteration
     """
 
-    __slots__ = ('_func', '_end_sentinel')
+    __slots__ = ('_func', '_end_sentinel', '_done')
 
     def __init__(self, func, end_sentinel):
         self._func = func
         self._end_sentinel = end_sentinel
+        self._done = False
 
     def __iter__(self):
         return self
 
-    # FIXME: This is wrong (deliberately, to test the tests). Once __next__ has
-    # raised StopIteration, it needs to raise StopIteration on any later calls.
-    # Once the tests (including in test_functions.py) are written, fix the bug.
     def __next__(self):
-        value = self._func()
-        if value == self._end_sentinel:
-            raise StopIteration()
-        return value
+        if not self._done:
+            value = self._func()
+            if value != self._end_sentinel:
+                return value
+            self._done = True
+
+        raise StopIteration()
 
 
 def as_iterator(func):
