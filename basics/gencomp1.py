@@ -1126,7 +1126,7 @@ class Filter:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self):  # TODO: Maybe implement this using a for loop instead.
         while not self._predicate(value := next(self._iterator)):
             pass
         return value
@@ -1437,7 +1437,7 @@ class DistinctSimple:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self):  # TODO: Maybe implement this with a for loop instead.
         while (item := next(self._iterator)) in self._history:
             pass
         self._history.add(item)
@@ -1547,7 +1547,7 @@ class Distinct:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self):  # TODO: Maybe implement this with a for loop instead.
         while self._key(item := next(self._iterator)) in self._history:
             pass
         self._history.add(self._key(item))

@@ -684,6 +684,60 @@ def flatten_iterative_observed(root, observer):
             yield element
 
 
+class Flatten:
+    """
+    Iterator to all non-tuple leaves (lazily flattens a tuple).
+
+    This is like flatten and flatten_iterative, but implemented as a class. Any
+    implementation strategy is permitted, except that only standard library
+    facilities (including builtins) may be used. In particular, Flatten must
+    never call any of the top-level flattening functions in this module.
+
+    >>> list(Flatten(()))
+    []
+    >>> list(Flatten(3))
+    [3]
+    >>> list(Flatten([3]))
+    [[3]]
+    >>> list(Flatten((3,)))
+    [3]
+    >>> list(Flatten((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(Flatten((2, ((3,), 7))))
+    [2, 3, 7]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> it = Flatten(root1)
+    >>> iter(it) is it
+    True
+    >>> list(it)
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    >>> list(it)  # next() after StopIteration must raise StopIteration again.
+    []
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(Flatten(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(Flatten(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+
+    __slots__ = ('_stack',)
+
+    def __init__(self, root):
+        self._stack = [root]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self._stack:
+            node = self._stack.pop()
+            if not isinstance(node, tuple):
+                return node
+            self._stack.extend(reversed(node))
+
+        raise StopIteration()
+
+
 def flatten_levelorder(root):
     """
     Lazily flatten a tuple in breadth-first order (level order).
@@ -766,6 +820,74 @@ def flatten_levelorder_observed(root, observer):
             queue.extend(element)
         else:
             yield element
+
+
+class FlattenLevelOrder:
+    """
+    Iterator to all non-tuple leaves, in breadth-first order (level order).
+
+    This is like flatten_levelorder (above), but implemented as a class, with
+    the additional requirement that, on an input tree of n nodes that flattens
+    into an m-item iterable, the auxiliary space complexity is O(n - m).
+
+    This class may make use of the standard library, including builtins. But it
+    shouldn't use any other functions or classes in this module or the project.
+
+    [Sub-exercise: Should we worry about how, when n == m, nonzero auxiliary
+    space is used? Explain why that uses positive auxiliary space. Then either
+    show this is a problem and state how the big-O expression should be written
+    to accommodate it, or show that it is not a problem and O(n - m) is still
+    correct. This is a bit more subtle than it seems. You should examine the
+    formal definition of big-O notation (including how it extends to multiple
+    variables), as well as the relationship between n and m in this setting.]
+
+    >>> list(FlattenLevelOrder(()))
+    []
+    >>> list(FlattenLevelOrder(3))
+    [3]
+    >>> list(FlattenLevelOrder([3]))
+    [[3]]
+    >>> list(FlattenLevelOrder((3,)))
+    [3]
+    >>> list(FlattenLevelOrder((2, 3, 7)))
+    [2, 3, 7]
+    >>> list(FlattenLevelOrder((2, ((3,), 7))))
+    [2, 7, 3]
+    >>> root1 = (1, (2, (3, (4, (5, (6, (7, (8, (9,), (), 10)), 11))), 12)))
+    >>> it = FlattenLevelOrder(root1)
+    >>> iter(it) is it
+    True
+    >>> list(it)
+    [1, 2, 3, 12, 4, 5, 6, 11, 7, 8, 10, 9]
+    >>> list(it)  # next() after StopIteration must raise StopIteration again.
+    []
+    >>> root2 = ('foo', ['bar'], ('baz', ['quux', ('foobar',)]))
+    >>> list(FlattenLevelOrder(root2))
+    ['foo', ['bar'], 'baz', ['quux', ('foobar',)]]
+    >>> list(FlattenLevelOrder(nest('hi', 3, 3))) == ['hi'] * 27
+    True
+    """
+
+    __slots__ = ('_queue', '_iterator')
+
+    def __init__(self, root):
+        self._iterator = (node for node in (root,))
+        self._queue = collections.deque()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while True:
+            for node in self._iterator:
+                if not isinstance(node, tuple):
+                    return node
+                self._queue.append(node)
+
+            if not self._queue:
+                raise StopIteration()
+
+            self._iterator = iter(self._queue.popleft())
 
 
 def leaf_sum(root):
