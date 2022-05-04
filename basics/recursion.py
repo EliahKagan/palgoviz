@@ -374,12 +374,12 @@ def merge_two_alt(values1, values2):
     index2 = 0
 
     while index1 < len(values1) and index2 < len(values2):
-        if not (values1[index1] > values2[index2]):
-            resultlist.append(values1[index1])
-            index1 += 1
-        else:
+        if values2[index2] < values1[index1]:
             resultlist.append(values2[index2])
             index2 += 1
+        else:
+            resultlist.append(values1[index1])
+            index1 += 1
 
     resultlist.extend(values1[index1:] or values2[index2:])
 
