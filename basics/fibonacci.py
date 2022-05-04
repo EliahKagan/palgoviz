@@ -409,6 +409,45 @@ def fib():
         a, b = b, a + b
 
 
+class Fib:
+    """
+    Iterator for the entire (infinite) Fibonacci sequence.
+
+    Like fib, but implemented as a class. Neither fib nor Fib uses the other.
+
+    >>> it = Fib()
+    >>> next(it)
+    0
+    >>> next(it)
+    1
+    >>> next(it)
+    1
+    >>> next(it)
+    2
+    >>> next(it)
+    3
+    >>> next(it)
+    5
+    >>> iter(it) is it
+    True
+    >>> next(it)
+    8
+    """
+
+    __slots__ = ('_a', '_b')
+
+    def __init__(self):
+        self._a = -1
+        self._b = 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self._a, self._b = self._b, self._a + self._b
+        return self._b
+
+
 def fib_n(n):
     """
     Return an iterator that yields the first n Fibonacci numbers.
