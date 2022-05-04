@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for the simple code in simple.py."""
+"""
+unittest tests for the simple code in simple.py.
+
+The purpose of this module is to introduce and practice techniques for writing
+tests with the unittest module (augmented with the parameterized package).
+
+See also test_simple_pytest.py for similar tests using pytest, not unittest.
+"""
 
 from abc import ABC, abstractmethod
 from fractions import Fraction
