@@ -389,7 +389,7 @@ def merge_two_alt(values1, values2):
 # FIXME: Let merge_sort take a keyword-only "merge" argument specifying what
 # two-way merging function to use. If absent, use merge_two or merge_two_alt.
 # Test it with three two-way mergers defined here, and with none specified.
-def merge_sort(values, merge=merge_two):
+def merge_sort(values, *, merge=merge_two):
     """
     Sort using merge_two recursively.
 
