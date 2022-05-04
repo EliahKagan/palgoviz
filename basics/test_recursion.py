@@ -15,9 +15,17 @@ class TestMergeTwoSlow(unittest.TestCase):
         result = merge_two_slow([1, 3, 5], [2, 4, 6])
         self.assertListEqual(result, [1, 2, 3, 4, 5, 6])
 
+    def test_left_first_and_last_interleaved_merges(self):
+        result = merge_two_slow([1, 3, 7], [2, 4, 6])
+        self.assertListEqual(result, [1, 2, 3, 4, 6, 7])
+
     def test_right_first_interleaved_merges(self):
         result = merge_two_slow([2, 4, 6], [1, 3, 5])
         self.assertListEqual(result, [1, 2, 3, 4, 5, 6])
+
+    def test_right_first_and_last_interleaved_merges(self):
+        result = merge_two_slow([2, 4, 6], [1, 3, 7])
+        self.assertListEqual(result, [1, 2, 3, 4, 6, 7])
 
     def test_empty_list_on_left_gives_right_side(self):
         result = merge_two_slow([], [2, 4, 6])
