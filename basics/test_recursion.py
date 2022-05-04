@@ -11,9 +11,9 @@ from recursion import merge_two, merge_two_alt, merge_two_slow
 
 
 @parameterized_class(('name', 'function'), [
-    ('merge_two_slow', staticmethod(merge_two_slow)),
-    ('merge_two', staticmethod(merge_two)),
-    ('merge_two_alt', staticmethod(merge_two_alt)),
+    (merge_two_slow.__name__, staticmethod(merge_two_slow)),
+    (merge_two.__name__, staticmethod(merge_two)),
+    (merge_two_alt.__name__, staticmethod(merge_two_alt)),
 ])
 class TestTwoWayMergers(unittest.TestCase):
     """Tests for the two way merge functions."""
