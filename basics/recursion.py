@@ -277,7 +277,6 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
-# FIXME: Test that merge_two_slow is a stable merge. Fix it if it is not.
 def merge_two_slow(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -301,9 +300,9 @@ def merge_two_slow(values1, values2):
     >>> merge_two_slow((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = list(values2)
-    for v1 in values1:
-        bisect.insort(resultlist, v1)
+    resultlist = list(values1)
+    for v2 in values2:
+        bisect.insort(resultlist, v2)
 
     return resultlist
 
