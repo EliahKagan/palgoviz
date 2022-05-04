@@ -12,66 +12,42 @@ class TestMergeTwoSlow(unittest.TestCase):
     """Tests for the merge_two_slow function."""
 
     def test_left_first_interleaved_merges(self):
-        lhs = [1, 3, 5]
-        rhs = [2, 4, 6]
-        expected = [1, 2, 3, 4, 5, 6]
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow([1, 3, 5], [2, 4, 6])
+        self.assertListEqual(result, [1, 2, 3, 4, 5, 6])
 
     def test_right_first_interleaved_merges(self):
-        lhs = [2, 4, 6]
-        rhs = [1, 3, 5]
-        expected = [1, 2, 3, 4, 5, 6]
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow([2, 4, 6], [1, 3, 5])
+        self.assertListEqual(result, [1, 2, 3, 4, 5, 6])
 
     def test_empty_list_on_left_gives_right_side(self):
-        lhs = []
-        rhs = [2, 4, 6]
-        expected = [2, 4, 6]
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow([], [2, 4, 6])
+        self.assertListEqual(result, [2, 4, 6])
 
     def test_empty_tuple_on_left_gives_right_side(self):
-        lhs = ()
-        rhs = [2, 4, 6]
-        expected = [2, 4, 6]
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow((), [2, 4, 6])
+        self.assertListEqual(result, [2, 4, 6])
 
     def test_empty_tuple_with_empty_list_gives_empty_list(self):
-        lhs = ()
-        rhs = []
-        expected = []
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow((), [])
+        self.assertListEqual(result, [])
 
     def test_empty_list_with_empty_tuple_gives_empty_list(self):
-        lhs = []
-        rhs = ()
-        expected = []
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow([], ())
+        self.assertListEqual(result, [])
 
     def test_empty_tuple_on_left_gives_right_side_as_list(self):
         """
         Merging an empty tuple with a tuple with duplicate leading items works.
         """
-        lhs = ()
-        rhs = (1, 1, 4, 7, 8)
-        expected = [1, 1, 4, 7, 8]
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow((), (1, 1, 4, 7, 8))
+        self.assertListEqual(result, [1, 1, 4, 7, 8])
 
     def test_empty_tuple_on_right_gives_left_side_as_list(self):
         """
         Merging a tuple with duplicate leading items with an empty tuple works.
         """
-        lhs = (1, 1, 4, 7, 8)
-        rhs = ()
-        expected = [1, 1, 4, 7, 8]
-        result = merge_two_slow(lhs, rhs)
-        self.assertListEqual(result, expected)
+        result = merge_two_slow((1, 1, 4, 7, 8), ())
+        self.assertListEqual(result, [1, 1, 4, 7, 8])
 
     def test_is_a_stable_merge_when_items_do_not_compare(self):
         lhs = [OrderIndistinct(1), OrderIndistinct(2), OrderIndistinct(3)]
