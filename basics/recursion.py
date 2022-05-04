@@ -302,7 +302,7 @@ def merge_two_slow(values1, values2):
     """
     resultlist = list(values1)
     for v2 in values2:
-        bisect.insort(resultlist, v2)
+        bisect.insort_right(resultlist, v2)
 
     return resultlist
 
