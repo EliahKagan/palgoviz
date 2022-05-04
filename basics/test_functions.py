@@ -206,6 +206,7 @@ class TestAsFunc(unittest.TestCase):
 @parameterized_class(('implementation_name',), [
     ('as_iterator_limited',),
     ('as_iterator_limited_alt',),
+    ('CallableIterator',),
 ])
 class TestAsIteratorLimited(_NamedImplementationTestCase):
     """
@@ -213,6 +214,11 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
     """
 
     __slots__ = ()
+
+    def test_iterator_is_fixed_point_of_iter(self):
+        """Calling iter on the iterator gives the same iterator object back."""
+        it = self.implementation(lambda: 'foo', 'bar')
+        self.assertIs(iter(it), it)
 
     def test_iterator_calls_simple_f_until_sentinel(self):
         d = {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'}
@@ -248,6 +254,31 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
         self.assertIsInstance(it, Iterator)
         self.assertListEqual(list(it), expected)
 
+    def test_next_on_exhausted_iterator_raises_without_calling(self):
+        """After next() raises StopIteration, it always does so again."""
+        calls = 0
+
+        def f():
+            nonlocal calls
+            calls += 1
+            return 42
+
+        it = self.implementation(f, 42)
+
+        with self.subTest("1 next() call - f called once"):
+            with self.assertRaises(StopIteration):
+                next(it)
+            self.assertEqual(calls, 1)
+
+        with self.subTest("2 next() calls - f should not be called again"):
+            with self.assertRaises(StopIteration):
+                next(it)
+            self.assertEqual(calls, 1)
+
+        with self.subTest("3 next() calls - f should not be called again"):
+            with self.assertRaises(StopIteration):
+                next(it)
+            self.assertEqual(calls, 1)
 
 @parameterized_class(('implementation_name',), [
     ('as_iterator',),
