@@ -7,14 +7,14 @@ expected to have substantial programming experience, but not necessarily any
 experience in Python, and not necessarily any experience with algorithms and
 data structures, other than the most basic topics such as using arrays.
 
-Graphviz is heavily used for visualizations. Not all topics have visualizatons
+Graphviz is heavily used for visualizations. Not all topics have visualizations
 as demos or exercises that produce visualizations, and probably some never
 will have them (since they may sometimes not be necessary or helpful), but it
 is likely that most topics will have them.
 
 This is a rough work in progress. In particular, project structure is not yet
 established. (Relatedly, the project is not yet in good shape to have wheels
-built from it, and it is not yet decided how many packages, if any, shoul be
+built from it, and it is not yet decided how many packages, if any, should be
 generated from it.)
 
 Currently most of the content is in `basics/`, including both basic and more
@@ -22,7 +22,7 @@ advanced topics. Material is being gradually pulled out of `basics/` to
 top-level directories, but right now the only one that exists is `math/`.
 Eventually, either much of what is currently in `basics/` will go in other
 top-level directories, or `basics/` will be renamed, or the project structure
-will change altogher so nothing corresponding to it even exists (maybe even
+will change altogether so nothing corresponding to it even exists (maybe even
 basic topics will be split out into multiple top-level directories, or maybe
 the directory structure will become flatter or markedly more nested).
 
