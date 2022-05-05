@@ -9,7 +9,9 @@ tests with the pytest module (augmented with the pytest-subtest package).
 See also test_simple.py for similar tests using unittest, not pytest.
 """
 
+from abc import ABC, abstractmethod
 from fractions import Fraction
+import operator
 import sys
 
 import pytest  # NOTE: Often we do NOT need this import to write pytest tests.
@@ -263,6 +265,171 @@ class TestSquarerClasses:
         lhs = implementation()
         rhs = implementation()
         assert hash(lhs) == hash(rhs)
+
+
+class _BaseTestToggleAbstract(ABC):
+    """Abstract class for tests for different kinds of toggle."""
+
+    __slots__ = ()
+
+    @property
+    @abstractmethod
+    def implementation(self):
+        """The toggle factory implementation being tested."""
+
+    def test_start_true_returns_true_on_first_call(self):
+        tf = self.implementation(True)
+        assert tf() is True
+
+    def test_start_false_returns_false_on_first_call(self):
+        ft = self.implementation(False)
+        assert ft() is False
+
+    def test_start_true_cycles_true_false(self, subtests):
+        expected_results = [True, False] * 5
+        tf = self.implementation(True)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with subtests.test(call=call_number):
+                assert tf() is expected
+
+    def test_start_false_cycles_false_true(self, subtests):
+        expected_results = [False, True] * 5
+        ft = self.implementation(False)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with subtests.test(call=call_number):
+                assert ft() is expected
+
+    @pytest.mark.parametrize('value',
+                             [0, 1, 0.0, 1.1, '', 'j3j', None, object()])
+    def test_raises_TypeError_if_nonbool_is_passed(self, value):
+        with pytest.raises(TypeError):
+            self.implementation(value)
+
+    def test_separate_toggles_maintain_independent_state(self, subtests):
+        tf1 = self.implementation(True)
+        ft1 = self.implementation(False)
+
+        with subtests.test(exist='tf1,ft1', toggle='tf1', changes=1):
+            assert tf1() is True
+        with subtests.test(exist='tf1,ft1', toggle='ft1', changes=1):
+            assert ft1() is False
+        with subtests.test(exist='tf1,ft1', toggle='tf1', changes=2):
+            assert tf1() is False
+        with subtests.test(exist='tf1,ft1', toggle='tf1', changes=3):
+            assert tf1() is True
+        with subtests.test(exist='tf1,ft1', toggle='ft1', changes=2):
+            assert ft1() is True
+        with subtests.test(exist='tf1,ft1', toggle='ft1', changes=3):
+            assert ft1() is False
+
+        ft2 = self.implementation(False)
+
+        with subtests.test(exist='tf1,ft1,ft2', toggle='ft1', changes=4):
+            assert ft1() is True
+        with subtests.test(exist='tf1,ft1,ft2', toggle='ft2', changes=1):
+            assert ft2() is False
+
+        tf2 = self.implementation(True)
+
+        with subtests.test(exist='tf1,ft1,ft2,tf2', toggle='tf2', changes=1):
+            assert tf2() is True
+        with subtests.test(exist='tf1,ft1,ft2,tf2', toggle='tf1', changes=4):
+            assert tf1() is False
+        with subtests.test(exist='tf1,ft1,ft2,tf2', toggle='ft2', changes=2):
+            assert ft2() is True
+        with subtests.test(exist='tf1,ft1,ft2,tf2', toggle='ft1', changes=5):
+            assert ft1() is False
+
+
+class TestMakeToggle(_BaseTestToggleAbstract):
+    """Tests for the make_toggle function."""
+
+    __slots__ = ()
+
+    @property
+    def implementation(self):
+        return make_toggle
+
+
+class TestMakeToggleAlt(_BaseTestToggleAbstract):
+    """Tests for the make_toggle_alt function."""
+
+    __slots__ = ()
+
+    @property
+    def implementation(self):
+        return make_toggle_alt
+
+
+class TestToggleClass(_BaseTestToggleAbstract):
+    """Tests for the Toggle class."""
+
+    __slots__ = ()
+
+    @property
+    def implementation(self):
+        return Toggle
+
+    def test_repr_true(self):
+        """repr in True state shows True and looks like Python code."""
+        tf = Toggle(True)
+        assert repr(tf) == 'Toggle(True)'
+
+    def test_repr_false(self):
+        """repr in False state shows False and looks like Python code."""
+        ft = Toggle(False)
+        assert repr(ft) == 'Toggle(False)'
+
+    @pytest.mark.parametrize('start, expected_results', [
+        (True, ['Toggle(False)', 'Toggle(True)'] * 5),
+        (False, ['Toggle(True)', 'Toggle(False)'] * 5),
+    ])
+    def test_repr_cycles(self, subtests, start, expected_results):
+        """bool literal in repr changes with each call to the object."""
+        toggle = Toggle(start)
+
+        for call_number, expected in enumerate(expected_results, 1):
+            with subtests.test(call=call_number):
+                toggle()
+                assert repr(toggle) == expected
+
+    @pytest.mark.parametrize('start', [True, False])
+    def test_toggle_objects_with_same_state_are_equal(self, start):
+        assert Toggle(start) == Toggle(start)
+
+    @pytest.mark.parametrize('lhs_start, rhs_start', [
+        (True, False),
+        (False, True),
+    ])
+    def test_toggle_objects_with_different_state_are_not_equal(self,
+                                                               lhs_start,
+                                                               rhs_start):
+        assert Toggle(lhs_start) != Toggle(rhs_start)
+
+    @pytest.mark.parametrize('calls, assertion', [
+        (1, operator.eq),
+        (2, operator.ne),
+        (11, operator.eq),
+        (12, operator.ne),
+    ])
+    def test_toggle_equality_is_correct_after_state_changes(self, subtests,
+                                                            calls, assertion):
+        fixed = Toggle(True)
+        varying = Toggle(False)
+        for _ in range(calls):
+            varying()
+        with subtests.test(compare='fixed,varying'):
+            assert assertion(fixed, varying)
+        with subtests.test(compare='varying,fixed'):
+            assert assertion(varying, fixed)
+
+    @pytest.mark.parametrize('start', [True, False])
+    def test_hashing_toggle_raises_TypeError(self, start):
+        toggle = Toggle(start)
+        with pytest.raises(TypeError):
+            hash(toggle)
 
 
 if __name__ == '__main__':

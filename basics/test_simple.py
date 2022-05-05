@@ -388,12 +388,12 @@ class TestToggleClass(_TestToggleAbstract):
         return Toggle
 
     def test_repr_true(self):
-        """repr shows True and looks like Python code."""
+        """repr in True state shows True and looks like Python code."""
         tf = Toggle(True)
         self.assertEqual(repr(tf), 'Toggle(True)')
 
     def test_repr_false(self):
-        """repr shows False and looks like Python code."""
+        """repr in False state shows False and looks like Python code."""
         ft = Toggle(False)
         self.assertEqual(repr(ft), 'Toggle(False)')
 
