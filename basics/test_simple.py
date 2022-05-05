@@ -68,7 +68,7 @@ class TestWidget(unittest.TestCase):
 
 
 class TestAnswer(unittest.TestCase):
-    """Test the answer() function."""
+    """Tests for the answer function."""
 
     def test_the_answer_is_42(self):
         answer_to_the_question = answer()

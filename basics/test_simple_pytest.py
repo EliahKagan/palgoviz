@@ -44,96 +44,97 @@ def widget():
     return Widget('vast', 'mauve')  # Arrange.
 
 
-def test_widget_size_attribute_has_size(widget):
-    assert widget.size == 'vast'
+class TestWidget:
+    """Tests for the Widget class."""
+
+    __slots__ = ()
+
+    def test_size_attribute_has_size(self, widget):
+        assert widget.size == 'vast'
+
+    def test_color_attribute_has_color(self, widget):
+        assert widget.color == 'mauve'
+
+    def test_size_can_be_changed(self, widget):
+        widget.size = 'just barely visible'
+        assert widget.size == 'just barely visible'
+
+    def test_color_can_be_changed(self, widget):
+        widget.color = 'royal purple'  # Act.
+        assert widget.color == 'royal purple'  # Assert.
+
+    def test_new_attributes_cannot_be_added(self, widget):
+        with pytest.raises(AttributeError):
+            widget.favorite_desert = 'Sahara'
 
 
-def test_widget_color_attribute_has_color(widget):
-    assert widget.color == 'mauve'
+class TestAnswer:
+    """Tests for the answer function."""
+
+    __slots__ = ()
+
+    def test_the_answer_is_42(self):
+        assert answer() == 42
+
+    def test_the_answer_is_an_int(self):
+        assert isinstance(answer(), int)
 
 
-def test_widget_size_can_be_changed(widget):
-    widget.size = 'just barely visible'
-    assert widget.size == 'just barely visible'
+class TestIsSorted:
+    """Tests for the is_sorted function."""
 
+    __slots__ = ()
 
-def test_widget_color_can_be_changed(widget):
-    widget.color = 'royal purple'  # Act.
-    assert widget.color == 'royal purple'  # Assert.
+    def test_empty_list_is_sorted(self):
+        items = []
+        assert is_sorted(items)
 
+    def test_empty_generator_is_sorted(self):
+        items = (x for x in ())
+        assert is_sorted(items)
 
-def test_widget_disallows_new_attribute_creation(widget):
-    with pytest.raises(AttributeError):
-        widget.favorite_desert = 'Sahara'
+    def test_one_element_list_is_sorted(self):
+        items = [76]
+        assert is_sorted(items)
 
+    def test_ascending_two_element_list_is_sorted(self):
+        items = ['a', 'b']
+        assert is_sorted(items)
 
-def test_the_answer_is_42():
-    assert answer() == 42
+    @pytest.mark.parametrize('_kind, items', [
+        ('strings', ['b', 'a']),
+        ('integers', [3, 2]),
+    ])
+    def test_descending_two_element_list_is_not_sorted(self, _kind, items):
+        assert not is_sorted(items)
 
+    @pytest.mark.parametrize('_kind, items', [
+        ('strings', (x for x in ('b', 'a'))),
+        ('integers', (x for x in (3, 2))),
+    ])
+    def test_descending_two_element_generator_is_not_sorted(self,
+                                                            _kind, items):
+        assert not is_sorted(items)
 
-def test_the_answer_is_an_int():
-    assert isinstance(answer(), int)
+    def test_ascending_two_element_generator_is_sorted(self):
+        items = (ch for ch in 'ab')
+        assert is_sorted(items)
 
+    def test_equal_two_element_list_is_sorted(self):
+        items = ['a', 'a']
+        assert is_sorted(items)
 
-def test_empty_list_is_sorted():
-    items = []
-    assert is_sorted(items)
+    def test_equal_two_element_generator_is_sorted(self):
+        items = (ch for ch in 'aa')
+        assert is_sorted(items)
 
+    def test_sorted_short_by_nontrivial_list_is_sorted(self):
+        items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+        assert is_sorted(items)
 
-def test_empty_generator_is_sorted():
-    items = (x for x in ())
-    assert is_sorted(items)
-
-
-def test_one_element_list_is_sorted():
-    items = [76]
-    assert is_sorted(items)
-
-
-def test_ascending_two_element_list_is_sorted():
-    items = ['a', 'b']
-    assert is_sorted(items)
-
-
-@pytest.mark.parametrize('_kind, items', [
-    ('strings', ['b', 'a']),
-    ('integers', [3, 2]),
-])
-def test_descending_two_element_list_is_not_sorted(_kind, items):
-    assert not is_sorted(items)
-
-
-@pytest.mark.parametrize('_kind, items', [
-    ('strings', (x for x in ('b', 'a'))),
-    ('integers', (x for x in (3, 2))),
-])
-def test_descending_two_element_generator_is_not_sorted(_kind, items):
-    assert not is_sorted(items)
-
-
-def test_ascending_two_element_generator_is_sorted():
-    items = (ch for ch in 'ab')
-    assert is_sorted(items)
-
-
-def test_equal_two_element_list_is_sorted():
-    items = ['a', 'a']
-    assert is_sorted(items)
-
-
-def test_equal_two_element_generator_is_sorted():
-    items = (ch for ch in 'aa')
-    assert is_sorted(items)
-
-
-def test_sorted_short_by_nontrivial_list_is_sorted():
-    items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    assert is_sorted(items)
-
-
-def test_unsorted_short_but_nontrivial_list_is_unsorted():
-    items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
-    assert not is_sorted(items)
+    def test_unsorted_short_but_nontrivial_list_is_unsorted(self):
+        items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
+        assert not is_sorted(items)
 
 
 @pytest.fixture
@@ -142,37 +143,46 @@ def readerr(capsys):
     return lambda: capsys.readouterr().err
 
 
-@pytest.mark.parametrize('message, expected', [
-    ("Wall is still up.", "alert: Wall is still up.\n"),
-    ("in your base.", "alert: in your base.\n"),
-    ("killing your dudes.", "alert: killing your dudes.\n"),
-    ('refusing to say hello', 'alert: refusing to say hello\n'),
-    ('3609 squirrels complained', 'alert: 3609 squirrels complained\n'),
-    ('boycott whalebone skis', 'alert: boycott whalebone skis\n'),
-])
-def test_alert_and_newline_are_printed_with_string(readerr, message, expected):
-    alert(message)
-    assert readerr() == expected
+class TestAlert:
+    """Tests for the alert function."""
+
+    __slots__ = ()
+
+    @pytest.mark.parametrize('message, expected', [
+        ("Wall is still up.", "alert: Wall is still up.\n"),
+        ("in your base.", "alert: in your base.\n"),
+        ("killing your dudes.", "alert: killing your dudes.\n"),
+        ('refusing to say hello', 'alert: refusing to say hello\n'),
+        ('3609 squirrels complained', 'alert: 3609 squirrels complained\n'),
+        ('boycott whalebone skis', 'alert: boycott whalebone skis\n'),
+    ])
+    def test_alert_and_newline_are_printed_with_string(self, readerr,
+                                                       message, expected):
+        alert(message)
+        assert readerr() == expected
+
+    def test_alert_with_nonstring_message_prints_str_of_message(self, readerr):
+        alert(Fraction(2, 3))
+        assert readerr() == 'alert: 2/3\n'
 
 
-def test_alert_with_nonstring_message_prints_str_of_message(readerr):
-    alert(Fraction(2, 3))
-    assert readerr() == 'alert: 2/3\n'
+class BailIf:
+    """Tests for the bail_if function."""
 
+    __slots__ = ()
 
-@pytest.mark.parametrize('value', [True, 1, 1.1, 'hello', object()])
-def test_bail_if_bails_if_truthy(value):
-    with pytest.raises(SystemExit) as exc_info:
-        bail_if(value)
-    assert exc_info.value.code == 1
+    @pytest.mark.parametrize('value', [True, 1, 1.1, 'hello', object()])
+    def test_bail_if_bails_if_truthy(self, value):
+        with pytest.raises(SystemExit) as exc_info:
+            bail_if(value)
+        assert exc_info.value.code == 1
 
-
-@pytest.mark.parametrize('value', [False, 0, 0.0, '', None])
-def test_bail_if_does_not_bail_if_falsy(value):
-    try:
-        bail_if(value)
-    except SystemExit:
-        pytest.fail('Bailed although condition was falsy.')
+    @pytest.mark.parametrize('value', [False, 0, 0.0, '', None])
+    def test_bail_if_does_not_bail_if_falsy(self, value):
+        try:
+            bail_if(value)
+        except SystemExit:
+            pytest.fail('Bailed although condition was falsy.')
 
 
 @pytest.mark.parametrize('implementation', [
