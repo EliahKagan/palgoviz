@@ -94,10 +94,10 @@ class TestMergeSort(unittest.TestCase):
     """Tests for the merge_sort function."""
 
     @parameterized.expand([
-        param('No_param'),
-        param('merge_two_slow', merge=merge_two_slow),
-        param('merge_two', merge=merge_two),
-        param('merge_two_alt', merge=merge_two_alt),
+        param('no_arg'),
+        param(merge_two_slow.__name__, merge=merge_two_slow),
+        param(merge_two.__name__, merge=merge_two),
+        param(merge_two_alt.__name__, merge=merge_two_alt),
     ])
     def test_empty_list_sorts(self, _name, **kwargs):
         result = merge_sort([], **kwargs)
