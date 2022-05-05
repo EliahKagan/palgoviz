@@ -91,10 +91,10 @@ class TestTwoWayMergers(unittest.TestCase):
 
 
 @parameterized_class(('name', 'kwargs'), [
-    ('no_args', {}),
-    (merge_two_slow.__name__, {'merge': merge_two_slow}),
-    (merge_two.__name__, {'merge': merge_two}),
-    (merge_two_alt.__name__, {'merge': merge_two_alt}),
+    ('no_args', dict()),
+    (merge_two_slow.__name__, dict(merge=merge_two_slow)),
+    (merge_two.__name__, dict(merge=merge_two)),
+    (merge_two_alt.__name__, dict(merge=merge_two_alt)),
 ])
 class TestMergeSort(unittest.TestCase):
     """Tests for the merge_sort function."""
