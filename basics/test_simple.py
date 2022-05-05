@@ -46,7 +46,7 @@ class TestWidget(unittest.TestCase):
 
     def setUp(self):
         """Make a Widget for testing."""
-        self.widget = Widget('vast', 'mauve')  # Arrange
+        self.widget = Widget('vast', 'mauve')  # Arrange.
 
     def test_size_attribute_has_size(self):
         self.assertEqual(self.widget.size, 'vast')

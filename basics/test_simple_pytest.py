@@ -41,7 +41,7 @@ def test_my_none_is_none():
 @pytest.fixture
 def widget():
     """Supply a newly created Widget instance for testing."""
-    return Widget('vast', 'mauve')  # Arrange
+    return Widget('vast', 'mauve')  # Arrange.
 
 
 def test_widget_size_attribute_has_size(widget):
@@ -58,8 +58,8 @@ def test_widget_size_can_be_changed(widget):
 
 
 def test_widget_color_can_be_changed(widget):
-    widget.color = 'royal purple'  # Ac.
-    assert widget.color == 'royal purple'
+    widget.color = 'royal purple'  # Act.
+    assert widget.color == 'royal purple'  # Assert.
 
 
 def test_widget_disallows_new_attribute_creation(widget):
