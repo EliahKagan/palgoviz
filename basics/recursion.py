@@ -277,7 +277,6 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
-# FIXME: Test that merge_two_slow is a stable merge. Fix it if it is not.
 def merge_two_slow(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -301,14 +300,13 @@ def merge_two_slow(values1, values2):
     >>> merge_two_slow((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = list(values2)
-    for v1 in values1:
-        bisect.insort(resultlist, v1)
+    resultlist = list(values1)
+    for v2 in values2:
+        bisect.insort_right(resultlist, v2)
 
     return resultlist
 
 
-# FIXME: Test that merge_two is a stable merge. Fix it if it is not.
 def merge_two(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -336,9 +334,11 @@ def merge_two(values1, values2):
     index = 0
 
     for v1 in values1:
+        # Take everything from values2 that must be output before v1.
         while index < len(values2) and values2[index] < v1:
             resultlist.append(values2[index])
             index += 1
+
         resultlist.append(v1)
 
     resultlist.extend(values2[index:])
@@ -346,7 +346,6 @@ def merge_two(values1, values2):
     return resultlist
 
 
-# FIXME: Test that merge_two_alt is a stable merge. Fix it if it is not.
 def merge_two_alt(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -375,12 +374,12 @@ def merge_two_alt(values1, values2):
     index2 = 0
 
     while index1 < len(values1) and index2 < len(values2):
-        if values1[index1] <= values2[index2]:
-            resultlist.append(values1[index1])
-            index1 += 1
-        else:
+        if values2[index2] < values1[index1]:
             resultlist.append(values2[index2])
             index2 += 1
+        else:
+            resultlist.append(values1[index1])
+            index1 += 1
 
     resultlist.extend(values1[index1:] or values2[index2:])
 
@@ -390,7 +389,7 @@ def merge_two_alt(values1, values2):
 # FIXME: Let merge_sort take a keyword-only "merge" argument specifying what
 # two-way merging function to use. If absent, use merge_two or merge_two_alt.
 # Test it with three two-way mergers defined here, and with none specified.
-def merge_sort(values):
+def merge_sort(values, *, merge=merge_two):
     """
     Sort using merge_two recursively.
 
@@ -421,7 +420,7 @@ def merge_sort(values):
             return values
 
         halfway = len(values) // 2
-        return merge_two(helper(values[:halfway]), helper(values[halfway:]))
+        return merge(helper(values[:halfway]), helper(values[halfway:]))
 
     return helper(list(values))
 
