@@ -4,7 +4,7 @@
 
 import unittest
 
-from parameterized import parameterized_class
+from parameterized import parameterized_class, parameterized, param
 
 from compare import OrderIndistinct, WeakDiamond
 from recursion import merge_sort, merge_two, merge_two_alt, merge_two_slow
@@ -93,8 +93,14 @@ class TestTwoWayMergers(unittest.TestCase):
 class TestMergeSort(unittest.TestCase):
     """Tests for the merge_sort function."""
 
-    def test_empty_list_sorts(self):
-        result = merge_sort([])
+    @parameterized.expand([
+        param('No_param'),
+        param('merge_two_slow', merge=merge_two_slow),
+        param('merge_two', merge=merge_two),
+        param('merge_two_alt', merge=merge_two_alt),
+    ])
+    def test_empty_list_sorts(self, _name, **kwargs):
+        result = merge_sort([], **kwargs)
         self.assertEqual(result, [])
 
     def test_empty_tuple_sorts(self):
