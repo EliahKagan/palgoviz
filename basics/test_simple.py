@@ -136,7 +136,7 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         self.assertTrue(is_sorted(items))
 
-    def test_unsorted_short_but_nontrivial_is_unsorted(self):
+    def test_unsorted_short_but_nontrivial_list_is_unsorted(self):
         items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
         self.assertFalse(is_sorted(items))
 
@@ -187,13 +187,13 @@ class TestBailIf(unittest.TestCase):
                     bail_if(value)
                 self.assertEqual(cm.exception.code, 1)
 
-    def test_does_not_bail_if_falsey(self):
+    def test_does_not_bail_if_falsy(self):
         for value in (False, 0, 0.0, '', None):
             with self.subTest(value=value):
                 try:
                     bail_if(value)
                 except SystemExit:
-                    self.fail("Bailed although condition was falsey.")
+                    self.fail("Bailed although condition was falsy.")
 
 
 @parameterized_class(('name', 'implementation'), [
@@ -202,7 +202,7 @@ class TestBailIf(unittest.TestCase):
     ('func', staticmethod(make_squarer)),
 ])
 class TestAllSquarers(unittest.TestCase):
-    """Tests for any kind of Squarer."""
+    """Tests for any kind of squarer."""
 
     @parameterized.expand([
         ('pos_0', 0, 0),
