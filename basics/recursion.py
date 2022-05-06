@@ -424,7 +424,16 @@ def merge_sort(values, *, merge=merge_two):
 
 def merge_sort_instrumented(values, *, merge=merge_two,
                             observe_node, observe_edge):
-    """Mergesort recursively. Notify observers of subproblem relationships."""
+    """
+    Mergesort recursively. Notify observers of subproblem relationships.
+
+    See the detailed description, discussion, and usage examples in
+    subproblems.ipynb (Mergesort - Drawing the tree of mergesort subproblems).
+
+    NOTE: observe_node must always called for each subproblem input exactly
+    once, and no object is passed as either argument to observe_edge until
+    after it has been passed to observe_node.
+    """
     def do_mergesort(parent, node):
         if parent is not None:
             observe_edge(parent, node)
