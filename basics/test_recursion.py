@@ -10,7 +10,7 @@ from compare import OrderIndistinct, WeakDiamond
 
 from recursion import (
     merge_sort,
-    merge_sort_bottom_up_stable,
+    merge_sort_bottom_up,
     merge_sort_bottom_up_unstable,
     merge_two,
     merge_two_alt,
@@ -103,8 +103,8 @@ _SORT_PARAMS = [
         staticmethod(merge_sort)),
     (merge_sort_bottom_up_unstable.__name__,
         staticmethod(merge_sort_bottom_up_unstable)),
-    (merge_sort_bottom_up_stable.__name__,
-        staticmethod(merge_sort_bottom_up_stable)),
+    (merge_sort_bottom_up.__name__,
+        staticmethod(merge_sort_bottom_up)),
 ]
 
 _MERGE_PARAMS = [
@@ -163,8 +163,8 @@ class TestMergeSort(unittest.TestCase):
 _STABLE_SORT_PARAMS = [
     (merge_sort.__name__,
         staticmethod(merge_sort)),
-    (merge_sort_bottom_up_stable.__name__,
-        staticmethod(merge_sort_bottom_up_stable)),
+    (merge_sort_bottom_up.__name__,
+        staticmethod(merge_sort_bottom_up)),
 ]
 
 _STABLE_COMBINED_PARAMS = [(f'{sort_name}_{merge_name}', sort, kwargs)

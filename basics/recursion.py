@@ -468,31 +468,31 @@ def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     return queue[0]
 
 
-def merge_sort_bottom_up_stable(values, *, merge=merge_two):
+def merge_sort_bottom_up(values, *, merge=merge_two):
     """
     Sort bottom-up, using a two way merge function, iteratively. Stable.
 
-    >>> merge_sort_bottom_up_stable([])
+    >>> merge_sort_bottom_up([])
     []
-    >>> merge_sort_bottom_up_stable(())
+    >>> merge_sort_bottom_up(())
     []
-    >>> merge_sort_bottom_up_stable((2,))
+    >>> merge_sort_bottom_up((2,))
     [2]
-    >>> merge_sort_bottom_up_stable([10, 20])
+    >>> merge_sort_bottom_up([10, 20])
     [10, 20]
-    >>> merge_sort_bottom_up_stable([20, 10])
+    >>> merge_sort_bottom_up([20, 10])
     [10, 20]
-    >>> merge_sort_bottom_up_stable([3, 3])
+    >>> merge_sort_bottom_up([3, 3])
     [3, 3]
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-    >>> merge_sort_bottom_up_stable(a)
+    >>> merge_sort_bottom_up(a)
     [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
-    >>> merge_sort_bottom_up_stable(b)
+    >>> merge_sort_bottom_up(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> merge_sort_bottom_up_stable([7, 6, 5, 4, 3, 2, 1])
+    >>> merge_sort_bottom_up([7, 6, 5, 4, 3, 2, 1])
     [1, 2, 3, 4, 5, 6, 7]
-    >>> merge_sort_bottom_up_stable([0.0, 0, False])
+    >>> merge_sort_bottom_up([0.0, 0, False])
     [0.0, 0, False]
     """
     if not values:
