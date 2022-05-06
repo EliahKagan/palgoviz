@@ -422,10 +422,6 @@ def merge_sort(values, *, merge=merge_two):
     return helper(list(values))
 
 
-# FIXME: Let merge_sort_bottom_up_unstable take a keyword-only "merge" argument
-# specifying what two-way merging function to use. If absent, use merge_two or
-# merge_two_alt. Test it with three two-way mergers defined here, and with none
-# specified.
 def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     """
     Sort bottom-up, using a two way merge function, iteratively. Unstable.
