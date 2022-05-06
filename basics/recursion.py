@@ -422,8 +422,8 @@ def merge_sort(values, *, merge=merge_two):
     return helper(list(values))
 
 
-def merge_sort_instrumented(values, *, merge=merge_two,
-                            observe_node, observe_edge):
+def merge_sort_observed(values, *, merge=merge_two,
+                        observe_node, observe_edge):
     """
     Mergesort recursively. Notify observers of subproblem relationships.
 
@@ -443,7 +443,9 @@ def merge_sort_instrumented(values, *, merge=merge_two,
             return node
 
         midpoint = len(node) // 2
-        return merge(do_mergesort(node, node[:midpoint]), do_mergesort(node, node[midpoint:]))
+        left = node[:midpoint]
+        right = node[midpoint:]
+        return merge(do_mergesort(node, left), do_mergesort(node, right))
 
     return do_mergesort(None, list(values))
 
