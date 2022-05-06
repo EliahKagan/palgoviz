@@ -101,39 +101,39 @@ class TestMergeSort(unittest.TestCase):
 
     def test_empty_list_sorts(self):
         result = merge_sort([], **self.kwargs)
-        self.assertEqual(result, [])
+        self.assertListEqual(result, [])
 
     def test_empty_tuple_sorts(self):
         result = merge_sort((), **self.kwargs)
-        self.assertEqual(result, [])
+        self.assertListEqual(result, [])
 
     def test_singleton_sorts(self):
         result = merge_sort((2,), **self.kwargs)
-        self.assertEqual(result, [2])
+        self.assertListEqual(result, [2])
 
     def test_two_element_sorted_list_is_unchanged(self):
         result = merge_sort([10, 20], **self.kwargs)
-        self.assertEqual(result, [10, 20])
+        self.assertListEqual(result, [10, 20])
 
     def test_two_element_unsorted_list_is_sorted(self):
         result = merge_sort([20, 10], **self.kwargs)
-        self.assertEqual(result, [10, 20])
+        self.assertListEqual(result, [10, 20])
 
     def test_two_element_equal_list_is_unchanged(self):
         result = merge_sort([3, 3], **self.kwargs)
-        self.assertEqual(result, [3, 3])
+        self.assertListEqual(result, [3, 3])
 
     def test_several_ints_are_sorted(self):
         vals = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
         expected = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
         result = merge_sort(vals, **self.kwargs)
-        self.assertEqual(result, expected)
+        self.assertListEqual(result, expected)
 
     def test_several_strings_are_sorted(self):
         vals = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
         expected = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         result = merge_sort(vals, **self.kwargs)
-        self.assertEqual(result, expected)
+        self.assertListEqual(result, expected)
 
     def test_sort_is_stable(self):
         vals = [0.0, 0, False]
@@ -145,7 +145,7 @@ class TestMergeSort(unittest.TestCase):
     def test_sort_is_stable_with_100_items(self):
         vals = [OrderIndistinct(x) for x in range(100)]
         result = merge_sort(vals, **self.kwargs)
-        self.assertEqual(result, vals)
+        self.assertListEqual(result, vals)
 
 
 if __name__ == '__main__':
