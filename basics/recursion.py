@@ -426,7 +426,7 @@ def merge_sort(values, *, merge=merge_two):
 # specifying what two-way merging function to use. If absent, use merge_two or
 # merge_two_alt. Test it with three two-way mergers defined here, and with none
 # specified.
-def merge_sort_bottom_up_unstable(values):
+def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     """
     Sort bottom-up, using merge_two, iteratively. Unstable.
 
@@ -467,7 +467,7 @@ def merge_sort_bottom_up_unstable(values):
     while len(queue) > 1:
         left = queue.popleft()
         right = queue.popleft()
-        queue.append(merge_two(left, right))
+        queue.append(merge(left, right))
 
     return queue[0]
 
@@ -476,6 +476,49 @@ def merge_sort_bottom_up_unstable(values):
 # merge_sort_bottom_up_unstable (above). What has to change to make it stable?
 # (Like the other merge sort implementations in this module, this should accept
 # an optional merger keyword-only argument taking a two-way merge function.)
+def merge_sort_bottom_up_stable(values, *, merge=merge_two):
+    """
+    Sort bottom-up, using merge_two, iteratively. Stable.
+
+    >>> merge_sort_bottom_up_stable([])
+    []
+    >>> merge_sort_bottom_up_stable(())
+    []
+    >>> merge_sort_bottom_up_stable((2,))
+    [2]
+    >>> merge_sort_bottom_up_stable([10, 20])
+    [10, 20]
+    >>> merge_sort_bottom_up_stable([20, 10])
+    [10, 20]
+    >>> merge_sort_bottom_up_stable([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort_bottom_up_stable(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort_bottom_up_stable(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> merge_sort_bottom_up_stable([7, 6, 5, 4, 3, 2, 1])
+    [1, 2, 3, 4, 5, 6, 7]
+    >>> merge_sort_bottom_up_stable([0.0, 0, False])
+    [0.0, 0, False]
+    """
+    if not values:
+        return []
+
+    before = collections.deque()
+    after = collections.deque([x] for x in values)
+
+    while len(after) > 1:
+        before, after = after, before
+        while len(before) > 1:
+            left = before.popleft()
+            right = before.popleft()
+            after.append(merge(left, right))
+        if before:
+            after.append(before.popleft())
+
+    return after[0]
 
 
 def make_deep_tuple(depth):
