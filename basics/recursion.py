@@ -501,18 +501,16 @@ def merge_sort_bottom_up_stable(values, *, merge=merge_two):
     queue = collections.deque([x] for x in values)
     queue2 = collections.deque()
 
-    def one_pass():
-        while len(queue) > 1:
-            left = queue.popleft()
-            right = queue.popleft()
-            queue2.append(merge(left, right))
-        if queue:
-            queue2.append(queue.popleft())
-
     while len(queue) > 1:
-        one_pass()
-        queue = queue2
-        queue2 = collections.deque()
+        queue, queue2 = queue2, queue
+
+        while len(queue2) > 1:
+            left = queue2.popleft()
+            right = queue2.popleft()
+            queue.append(merge(left, right))
+
+        if queue2:
+            queue.append(queue2.popleft())
 
     return queue[0]
 
