@@ -435,14 +435,15 @@ def merge_sort_instrumented(values, *, merge=merge_two,
     after it has been passed to observe_node.
     """
     def do_mergesort(parent, node):
+        observe_node(node)
         if parent is not None:
             observe_edge(parent, node)
 
         if len(node) < 2:
             return node
 
-        mid = len(node) // 2
-        return merge(do_mergesort(node, node[:mid]), do_mergesort(node[mid:]))
+        midpoint = len(node) // 2
+        return merge(do_mergesort(node, node[:midpoint]), do_mergesort(node, node[midpoint:]))
 
     return do_mergesort(None, list(values))
 
