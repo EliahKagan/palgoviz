@@ -503,12 +503,12 @@ def merge_sort_bottom_up_stable(values, *, merge=merge_two):
 
     def one_pass():
         while queue:
-            left = queue.popleft()
-            try:
-                right = queue.popleft()
-            except IndexError:
-                queue2.append(left)
+            if len(queue) == 1:
+                remainder = queue.pop()
+                queue2.append(remainder)
             else:
+                left = queue.popleft()
+                right = queue.popleft()
                 queue2.append(merge(left, right))
 
     while len(queue) > 1:
