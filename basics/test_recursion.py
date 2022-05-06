@@ -4,10 +4,10 @@
 
 import unittest
 
-from parameterized import parameterized_class, parameterized, param
+from parameterized import parameterized_class
 
 from compare import OrderIndistinct, WeakDiamond
-from recursion import merge_sort, merge_two, merge_two_alt, merge_two_slow
+from recursion import merge_sort, merge_sort_bottom_up_stable, merge_sort_bottom_up_unstable, merge_two, merge_two_alt, merge_two_slow
 
 
 @parameterized_class(('name', 'function'), [
@@ -90,12 +90,29 @@ class TestTwoWayMergers(unittest.TestCase):
         self.assertListEqual(result, expected)
 
 
-@parameterized_class(('name', 'kwargs'), [
+_SORT_PARAMS = [
+    (merge_sort.__name__,
+        staticmethod(merge_sort)),
+    (merge_sort_bottom_up_unstable.__name__,
+        staticmethod(merge_sort_bottom_up_unstable)),
+    (merge_sort_bottom_up_stable.__name__,
+        staticmethod(merge_sort_bottom_up_stable)),
+]
+
+_MERGE_PARAMS = [
     ('no_args', dict()),
     (merge_two_slow.__name__, dict(merge=merge_two_slow)),
     (merge_two.__name__, dict(merge=merge_two)),
     (merge_two_alt.__name__, dict(merge=merge_two_alt)),
-])
+]
+
+_COMBINED_PARAMS = [(sort_name, merge_name, sort, kwargs)
+                    for sort_name, sort in _SORT_PARAMS
+                    for merge_name, kwargs in _MERGE_PARAMS]
+
+
+@parameterized_class(('sort_name', 'merge_name', 'sort', 'kwargs'),
+                     _COMBINED_PARAMS)
 class TestMergeSort(unittest.TestCase):
     """Tests for the merge_sort function."""
 
