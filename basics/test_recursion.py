@@ -7,7 +7,7 @@ import unittest
 from parameterized import parameterized_class, parameterized, param
 
 from compare import OrderIndistinct, WeakDiamond
-from recursion import merge_sort, merge_sort_bottom_up_stable, merge_sort_bottom_up_unstable, merge_two, merge_two_alt, merge_two_slow
+from recursion import merge_sort, merge_two, merge_two_alt, merge_two_slow
 
 
 @parameterized_class(('name', 'function'), [
@@ -90,11 +90,6 @@ class TestTwoWayMergers(unittest.TestCase):
         self.assertListEqual(result, expected)
 
 
-@parameterized_class(('imp_name', 'implementation'),[
-    (merge_sort.__name__, staticmethod(merge_sort)),
-    (merge_sort_bottom_up_unstable.__name__, staticmethod(merge_sort_bottom_up_unstable)),
-    (merge_sort_bottom_up_stable.__name__, staticmethod(merge_sort_bottom_up_stable)),
-])
 @parameterized_class(('name', 'kwargs'), [
     ('no_args', dict()),
     (merge_two_slow.__name__, dict(merge=merge_two_slow)),
@@ -104,7 +99,6 @@ class TestTwoWayMergers(unittest.TestCase):
 class TestMergeSort(unittest.TestCase):
     """Tests for the merge_sort function."""
 
-    # FIXME: Add implementations for different merge sorts
     def test_empty_list_sorts(self):
         result = merge_sort([], **self.kwargs)
         self.assertListEqual(result, [])
