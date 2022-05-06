@@ -142,6 +142,11 @@ class TestMergeSort(unittest.TestCase):
             with self.subTest(index=i):
                 self.assertIs(result, val)
 
+    def test_sort_is_stable_with_100_items(self):
+        vals = [OrderIndistinct(x) for x in range(100)]
+        result = merge_sort(vals, **self.kwargs)
+        self.assertEqual(result, vals)
+
 
 if __name__ == '__main__':
     unittest.main()
