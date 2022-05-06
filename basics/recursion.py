@@ -388,7 +388,7 @@ def merge_two_alt(values1, values2):
 
 def merge_sort(values, *, merge=merge_two):
     """
-    Sort using merge_two recursively.
+    Mergesort recursively, using a two-way merge function.
 
     >>> merge_sort([])
     []
@@ -420,6 +420,22 @@ def merge_sort(values, *, merge=merge_two):
         return merge(helper(values[:halfway]), helper(values[halfway:]))
 
     return helper(list(values))
+
+
+def merge_sort_instrumented(values, *, merge=merge_two,
+                            observe_node, observe_edge):
+    """Mergesort recursively. Notify observers of subproblem relationships."""
+    def do_mergesort(parent, node):
+        if parent is not None:
+            observe_edge(parent, node)
+
+        if len(node) < 2:
+            return node
+
+        mid = len(node) // 2
+        return merge(do_mergesort(node, node[:mid]), do_mergesort(node[mid:]))
+
+    return do_mergesort(None, list(values))
 
 
 # FIXME: Let merge_sort_bottom_up_unstable take a keyword-only "merge" argument
