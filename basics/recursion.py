@@ -12,6 +12,39 @@ import collections
 import decorators
 
 
+def observe_node(node):
+    """
+    Print a representation of a node in a tree.
+
+    This is a simple node observer. It prefixes "node:" to distinguish its
+    output from other output.
+
+    See the "*_observed" functions below.
+    """
+    print(f'node:  {node!r}')
+
+
+def observe_edge(parent, child):
+    """
+    Print a representation of an edge from parent to child in a tree.
+
+    This is a simple edge observer. It shows the nodes' representations,
+    separated by "->". This tends to be adequately distinct from other output.
+
+    See the "*_observed" functions below.
+    """
+    print(f'{parent!r}  ->  {child!r}')
+
+
+def observe_edge_verbose(parent, child):
+    """
+    Print a labeled representation of an edge from parent to child in a tree.
+
+    This is the same as observe_edge (above), but "edge:" is prepended.
+    """
+    print(f'edge:  {parent!r}  ->  {child!r}')
+
+
 def countdown(n):
     """
     Count down from n, printing the positive numbers, one per line.
@@ -423,21 +456,36 @@ def merge_sort(values, *, merge=merge_two):
 
 
 def merge_sort_observed(values, *, merge=merge_two,
-                        observe_node, observe_edge):
+                        node_observer, edge_observer):
     """
     Mergesort recursively. Notify observers of subproblem relationships.
 
-    See the detailed description, discussion, and usage examples in
-    subproblems.ipynb (Mergesort - Drawing the tree of mergesort subproblems).
+    Observers are called while advancing, during splitting. See the
+    description, and usage examples in subproblems.ipynb (Mergesort - Drawing
+    the tree of mergesort subproblems).
 
-    NOTE: observe_node must always called for each subproblem input exactly
-    once, and no object is passed as either argument to observe_edge until
-    after it has been passed to observe_node.
+    NOTE: node_observer must always called for each subproblem input exactly
+    once, and no object is passed as either argument to edge_observer until
+    after it has been passed to node_observer.
+
+    >>> merge_sort_observed([3, 2, 1],
+    ...                     node_observer=observe_node,
+    ...                     edge_observer=observe_edge_verbose)
+    node:  [3, 2, 1]
+    node:  [3]
+    edge:  [3, 2, 1]  ->  [3]
+    node:  [2, 1]
+    edge:  [3, 2, 1]  ->  [2, 1]
+    node:  [2]
+    edge:  [2, 1]  ->  [2]
+    node:  [1]
+    edge:  [2, 1]  ->  [1]
+    [1, 2, 3]
     """
     def do_mergesort(parent, node):
-        observe_node(node)
+        node_observer(node)
         if parent is not None:
-            observe_edge(parent, node)
+            edge_observer(parent, node)
 
         if len(node) < 2:
             return node
@@ -576,15 +624,6 @@ def nest(seed, degree, height):
     if height < 0:
         raise ValueError('height cannot be negative')
     return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
-
-
-def observe_edge(parent, child):
-    """
-    Print a representation of an edge from parent to child in a tree.
-
-    This is a simple edge observer. See the "..._observed" functions below.
-    """
-    print(f'{parent!r}  ->  {child!r}')
 
 
 def flatten(root):
