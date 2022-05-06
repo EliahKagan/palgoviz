@@ -388,7 +388,7 @@ def merge_two_alt(values1, values2):
 
 def merge_sort(values, *, merge=merge_two):
     """
-    Mergesort recursively, using a two-way merge function.
+    Merge sort recursively using a two way merge function.
 
     >>> merge_sort([])
     []
@@ -448,13 +448,9 @@ def merge_sort_instrumented(values, *, merge=merge_two,
     return do_mergesort(None, list(values))
 
 
-# FIXME: Let merge_sort_bottom_up_unstable take a keyword-only "merge" argument
-# specifying what two-way merging function to use. If absent, use merge_two or
-# merge_two_alt. Test it with three two-way mergers defined here, and with none
-# specified.
 def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     """
-    Sort bottom-up, using merge_two, iteratively. Unstable.
+    Sort bottom-up, using a two way merge function, iteratively. Unstable.
 
     This implementation is an unstable sort. Both top-down and bottom-up
     mergesorts are typically stable, and stable implementations tend to be
@@ -498,53 +494,51 @@ def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     return queue[0]
 
 
-# FIXME: Implement merge_sort_bottom_up_stable, along the same lines as
-# merge_sort_bottom_up_unstable (above). What has to change to make it stable?
-# (Like the other merge sort implementations in this module, this should accept
-# an optional merger keyword-only argument taking a two-way merge function.)
-def merge_sort_bottom_up_stable(values, *, merge=merge_two):
+def merge_sort_bottom_up(values, *, merge=merge_two):
     """
-    Sort bottom-up, using merge_two, iteratively. Stable.
+    Sort bottom-up, using a two way merge function, iteratively. Stable.
 
-    >>> merge_sort_bottom_up_stable([])
+    >>> merge_sort_bottom_up([])
     []
-    >>> merge_sort_bottom_up_stable(())
+    >>> merge_sort_bottom_up(())
     []
-    >>> merge_sort_bottom_up_stable((2,))
+    >>> merge_sort_bottom_up((2,))
     [2]
-    >>> merge_sort_bottom_up_stable([10, 20])
+    >>> merge_sort_bottom_up([10, 20])
     [10, 20]
-    >>> merge_sort_bottom_up_stable([20, 10])
+    >>> merge_sort_bottom_up([20, 10])
     [10, 20]
-    >>> merge_sort_bottom_up_stable([3, 3])
+    >>> merge_sort_bottom_up([3, 3])
     [3, 3]
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-    >>> merge_sort_bottom_up_stable(a)
+    >>> merge_sort_bottom_up(a)
     [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
-    >>> merge_sort_bottom_up_stable(b)
+    >>> merge_sort_bottom_up(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> merge_sort_bottom_up_stable([7, 6, 5, 4, 3, 2, 1])
+    >>> merge_sort_bottom_up([7, 6, 5, 4, 3, 2, 1])
     [1, 2, 3, 4, 5, 6, 7]
-    >>> merge_sort_bottom_up_stable([0.0, 0, False])
+    >>> merge_sort_bottom_up([0.0, 0, False])
     [0.0, 0, False]
     """
     if not values:
         return []
 
-    before = collections.deque()
-    after = collections.deque([x] for x in values)
+    queue = collections.deque([x] for x in values)
+    queue2 = collections.deque()
 
-    while len(after) > 1:
-        before, after = after, before
-        while len(before) > 1:
-            left = before.popleft()
-            right = before.popleft()
-            after.append(merge(left, right))
-        if before:
-            after.append(before.popleft())
+    while len(queue) > 1:
+        queue, queue2 = queue2, queue
 
-    return after[0]
+        while len(queue2) > 1:
+            left = queue2.popleft()
+            right = queue2.popleft()
+            queue.append(merge(left, right))
+
+        if queue2:
+            queue.append(queue2.popleft())
+
+    return queue[0]
 
 
 def make_deep_tuple(depth):
