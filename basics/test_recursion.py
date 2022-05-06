@@ -121,7 +121,7 @@ _COMBINED_PARAMS = [(f'{sort_name}_{merge_name}', sort, kwargs)
 
 @parameterized_class(('label', 'sort', 'kwargs'), _COMBINED_PARAMS)
 class TestMergeSort(unittest.TestCase):
-    """Tests for the merge_sort function."""
+    """Tests for the merge sort functions."""
 
     def test_empty_list_sorts(self):
         result = self.sort([], **self.kwargs)
@@ -158,6 +158,23 @@ class TestMergeSort(unittest.TestCase):
         expected = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         result = self.sort(vals, **self.kwargs)
         self.assertListEqual(result, expected)
+
+
+_STABLE_SORT_PARAMS = [
+    (merge_sort.__name__,
+        staticmethod(merge_sort)),
+    (merge_sort_bottom_up_stable.__name__,
+        staticmethod(merge_sort_bottom_up_stable)),
+]
+
+_STABLE_COMBINED_PARAMS = [(f'{sort_name}_{merge_name}', sort, kwargs)
+                           for sort_name, sort in _STABLE_SORT_PARAMS
+                           for merge_name, kwargs in _MERGE_PARAMS]
+
+
+@parameterized_class(('label', 'sort', 'kwargs'), _STABLE_COMBINED_PARAMS)
+class TestMergeSortStability(unittest.TestCase):
+    """Tests that the merge sort functions intended to be stable are stable."""
 
     def test_sort_is_stable(self):
         vals = [0.0, 0, False]
