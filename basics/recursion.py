@@ -388,7 +388,7 @@ def merge_two_alt(values1, values2):
 
 def merge_sort(values, *, merge=merge_two):
     """
-    Sort using merge_two recursively.
+    Merge sort recursively using a two way merge function.
 
     >>> merge_sort([])
     []
@@ -426,9 +426,9 @@ def merge_sort(values, *, merge=merge_two):
 # specifying what two-way merging function to use. If absent, use merge_two or
 # merge_two_alt. Test it with three two-way mergers defined here, and with none
 # specified.
-def merge_sort_bottom_up_unstable(values):
+def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     """
-    Sort bottom-up, using merge_two, iteratively. Unstable.
+    Sort bottom-up, using a two way merge function, iteratively. Unstable.
 
     This implementation is an unstable sort. Both top-down and bottom-up
     mergesorts are typically stable, and stable implementations tend to be
@@ -467,7 +467,7 @@ def merge_sort_bottom_up_unstable(values):
     while len(queue) > 1:
         left = queue.popleft()
         right = queue.popleft()
-        queue.append(merge_two(left, right))
+        queue.append(merge(left, right))
 
     return queue[0]
 
