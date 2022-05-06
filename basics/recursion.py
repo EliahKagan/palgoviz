@@ -468,10 +468,6 @@ def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     return queue[0]
 
 
-# FIXME: Implement merge_sort_bottom_up_stable, along the same lines as
-# merge_sort_bottom_up_unstable (above). What has to change to make it stable?
-# (Like the other merge sort implementations in this module, this should accept
-# an optional merger keyword-only argument taking a two-way merge function.)
 def merge_sort_bottom_up_stable(values, *, merge=merge_two):
     """
     Sort bottom-up, using a two way merge function, iteratively. Stable.
@@ -499,7 +495,6 @@ def merge_sort_bottom_up_stable(values, *, merge=merge_two):
     >>> merge_sort_bottom_up_stable([0.0, 0, False])
     [0.0, 0, False]
     """
-    # FIXME: This is unstable, fix it so that it is stable
     if not values:
         return []
 
