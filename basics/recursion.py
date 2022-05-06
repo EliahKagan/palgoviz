@@ -460,9 +460,8 @@ def merge_sort_observed(values, *, merge=merge_two,
     """
     Mergesort recursively. Notify observers of subproblem relationships.
 
-    Observers are called while advancing, during splitting. See the
-    description, and usage examples in subproblems.ipynb (Mergesort - Drawing
-    the tree of mergesort subproblems).
+    Observers are called while advancing, during splitting. See description and
+    usage in subproblems.ipynb (Mergesort - Drawing subproblem trees).
 
     NOTE: node_observer must always called for each subproblem input exactly
     once, and no object is passed as either argument to edge_observer until
