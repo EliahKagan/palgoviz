@@ -1,10 +1,8 @@
 # Cached Python bytecode
 __pycache__/
 
-# Some kinds of non-notebook files created as Jupyter checkpoints
-/*/.ipynb_checkpoints/*-checkpoint.py
-/*/.ipynb_checkpoints/*-checkpoint.txt
-/*/.ipynb_checkpoints/*-checkpoint.yml
+# Checkpoints from JupyterLab
+/*/.ipynb_checkpoints/*-checkpoint.*
 
 # Native (and Haskell) build files
 *.exe
