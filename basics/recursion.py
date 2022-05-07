@@ -578,6 +578,7 @@ def merge_sort_bottom_up_unstable_observed(values, *, merge=merge_two,
     node:  [1, 3, 2]
     edge:  [1, 3, 2]  ->  [1]
     edge:  [1, 3, 2]  ->  [3, 2]
+    [1, 2, 3]
 
     FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
     """
@@ -604,6 +605,8 @@ def merge_sort_bottom_up_unstable_observed(values, *, merge=merge_two,
         edge_observer(sham_parent, sham_right)
 
         sham_queue.append(sham_parent)
+
+    return queue[0]
 
 
 def merge_sort_bottom_up(values, *, merge=merge_two):
@@ -651,6 +654,72 @@ def merge_sort_bottom_up(values, *, merge=merge_two):
             queue.append(queue2.popleft())
 
     return queue[0]
+
+
+def merge_sort_bottom_up_observed(values, *, merge=merge_two,
+                                  node_observer, edge_observer):
+    """
+    Stable bottom-up mergesort. Notify observers of subproblem relationships.
+
+    See subproblems.ipynb (Mergesort - Drawing subproblem trees).
+
+    NOTE: node_observer must always called for each subproblem input exactly
+    once, and no object is passed as either argument to edge_observer until
+    after it has been passed to node_observer.
+
+    TODO: At some point in the future, redesign to also observe merged results.
+
+    >>> merge_sort_bottom_up_observed([3, 2, 1],
+    ...                               node_observer=observe_node,
+    ...                               edge_observer=observe_edge_verbose)
+    node:  [3]
+    node:  [2]
+    node:  [1]
+    node:  [3, 2]
+    edge:  [3, 2]  ->  [3]
+    edge:  [3, 2]  ->  [2]
+    node:  [3, 2, 1]
+    edge:  [3, 2, 1]  ->  [3, 2]
+    edge:  [3, 2, 1]  ->  [1]
+    [1, 2, 3]
+
+    FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
+    """
+    if not values:
+        return []
+
+    primary = collections.deque([x] for x in values)
+    secondary = collections.deque()
+    sham_primary = collections.deque([x] for x in values)
+    sham_secondary = collections.deque()
+
+    for node in sham_primary:
+        node_observer(node)
+
+    while len(primary) > 1:
+        primary, secondary = secondary, primary
+        sham_primary, sham_secondary = sham_secondary, sham_primary
+
+        while len(secondary) > 1:
+            left = secondary.popleft()
+            right = secondary.popleft()
+            primary.append(merge(left, right))
+
+            sham_left = sham_secondary.popleft()
+            sham_right = sham_secondary.popleft()
+            sham_parent = sham_left + sham_right
+
+            node_observer(sham_parent)
+            edge_observer(sham_parent, sham_left)
+            edge_observer(sham_parent, sham_right)
+
+            sham_primary.append(sham_parent)
+
+        if secondary:
+            primary.append(secondary.popleft())
+            sham_primary.append(sham_secondary.popleft())
+
+    return primary[0]
 
 
 def make_deep_tuple(depth):
