@@ -467,6 +467,8 @@ def merge_sort_observed(values, *, merge=merge_two,
     once, and no object is passed as either argument to edge_observer until
     after it has been passed to node_observer.
 
+    TODO: At some point in the future, redesign to also observe merged results.
+
     >>> merge_sort_observed([3, 2, 1],
     ...                     node_observer=observe_node,
     ...                     edge_observer=observe_edge_verbose)
@@ -480,6 +482,8 @@ def merge_sort_observed(values, *, merge=merge_two,
     node:  [1]
     edge:  [2, 1]  ->  [1]
     [1, 2, 3]
+
+    FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
     """
     def do_mergesort(parent, node):
         node_observer(node)
@@ -499,7 +503,7 @@ def merge_sort_observed(values, *, merge=merge_two,
 
 def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     """
-    Sort bottom-up, using a two way merge function, iteratively. Unstable.
+    Mergesort bottom-up, using a two way merge function, iteratively. Unstable.
 
     This implementation is an unstable sort. Both top-down and bottom-up
     mergesorts are typically stable, and stable implementations tend to be
@@ -541,6 +545,65 @@ def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
         queue.append(merge(left, right))
 
     return queue[0]
+
+
+def merge_sort_bottom_up_unstable_observed(values, *, merge=merge_two,
+                                           node_observer, edge_observer):
+    """
+    Unstable bottom-up mergesort. Notify observers of subproblem relationships.
+
+    This reports subproblems in an order unchanged by merge operations. This is
+    the order in which they would be split, if this were a top-down algorithm,
+    and facilitates comparison to observations mach of such implementations.
+    This is to say that the lists shown in the subproblems tree will often be
+    lists that merge_sort_bottom_up_unstable would never have created. See
+    subproblems.ipynb (Mergesort - Drawing subproblem trees).
+
+    NOTE: node_observer must always called for each subproblem input exactly
+    once, and no object is passed as either argument to edge_observer until
+    after it has been passed to node_observer.
+
+    TODO: At some point in the future, redesign to also observe merged results.
+
+    >>> merge_sort_bottom_up_unstable_observed(
+    ...     [3, 2, 1],
+    ...     node_observer=observe_node,
+    ...     edge_observer=observe_edge_verbose)
+    node:  [3]
+    node:  [2]
+    node:  [1]
+    node:  [3, 2]
+    edge:  [3, 2]  ->  [3]
+    edge:  [3, 2]  ->  [2]
+    node:  [1, 3, 2]
+    edge:  [1, 3, 2]  ->  [1]
+    edge:  [1, 3, 2]  ->  [3, 2]
+
+    FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
+    """
+    if not values:
+        return []
+
+    queue = collections.deque([x] for x in values)
+
+    sham_queue = collections.deque([x] for x in values)
+    for node in sham_queue:
+        node_observer(node)
+
+    while len(queue) > 1:
+        left = queue.popleft()
+        right = queue.popleft()
+        queue.append(merge(left, right))
+
+        sham_left = sham_queue.popleft()
+        sham_right = sham_queue.popleft()
+        sham_parent = sham_left + sham_right
+
+        node_observer(sham_parent)
+        edge_observer(sham_parent, sham_left)
+        edge_observer(sham_parent, sham_right)
+
+        sham_queue.append(sham_parent)
 
 
 def merge_sort_bottom_up(values, *, merge=merge_two):
