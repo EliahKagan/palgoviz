@@ -127,12 +127,12 @@ def merge_sort_bottom_up_unstable_observed(values, *, merge=merge_two,
         node_observer(node)
 
     while len(queue) > 1:
-        left = queue.popleft()
         right = queue.popleft()
+        left = queue.popleft()
         queue.append(merge(left, right))
 
-        sham_left = sham_queue.popleft()
         sham_right = sham_queue.popleft()
+        sham_left = sham_queue.popleft()
         sham_parent = sham_left + sham_right
 
         node_observer(sham_parent)
