@@ -4,7 +4,7 @@
 Functions used in subproblems_wip.ipynb. Extracted from recursion.py.
 
 These functions are not of great enough interest to remain in recursion.py, and
-the exercises they serve did not work out and has been scrapped (with a hope
+the exercises they serve did not work out and have been scrapped (with a hope
 that some of the material may be reusable in some way).
 
 But some of the drawings those exercises produced are interesting and
@@ -48,8 +48,6 @@ def merge_sort_observed(values, *, merge=merge_two,
     once, and no object is passed as either argument to edge_observer until
     after it has been passed to node_observer.
 
-    TODO: At some point in the future, redesign to also observe merged results.
-
     >>> merge_sort_observed([3, 2, 1],
     ...                     node_observer=observe_node,
     ...                     edge_observer=observe_edge_verbose)
@@ -63,8 +61,6 @@ def merge_sort_observed(values, *, merge=merge_two,
     node:  [1]
     edge:  [2, 1]  ->  [1]
     [1, 2, 3]
-
-    FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
     """
     def do_mergesort(parent, node):
         node_observer(node)
@@ -98,8 +94,6 @@ def merge_sort_bottom_up_unstable_observed(values, *, merge=merge_two,
     once, and no object is passed as either argument to edge_observer until
     after it has been passed to node_observer.
 
-    TODO: At some point in the future, redesign to also observe merged results.
-
     >>> merge_sort_bottom_up_unstable_observed(
     ...     [3, 2, 1],
     ...     node_observer=observe_node,
@@ -114,8 +108,6 @@ def merge_sort_bottom_up_unstable_observed(values, *, merge=merge_two,
     edge:  [1, 3, 2]  ->  [1]
     edge:  [1, 3, 2]  ->  [3, 2]
     [1, 2, 3]
-
-    FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
     """
     if not values:
         return []
@@ -155,8 +147,6 @@ def merge_sort_bottom_up_observed(values, *, merge=merge_two,
     once, and no object is passed as either argument to edge_observer until
     after it has been passed to node_observer.
 
-    TODO: At some point in the future, redesign to also observe merged results.
-
     >>> merge_sort_bottom_up_observed([3, 2, 1],
     ...                               node_observer=observe_node,
     ...                               edge_observer=observe_edge_verbose)
@@ -170,8 +160,6 @@ def merge_sort_bottom_up_observed(values, *, merge=merge_two,
     edge:  [3, 2, 1]  ->  [3, 2]
     edge:  [3, 2, 1]  ->  [1]
     [1, 2, 3]
-
-    FIXME: Test sorting (not observer-notifying) behavior in test_recursion.py.
     """
     if not values:
         return []
