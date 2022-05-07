@@ -37,9 +37,7 @@ def my_enumerate(iterable, start=0):
     >>> list(my_enumerate(['ham', 'spam', 'eggs'], 10))
     [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
     """
-    for x in iterable:
-        yield (start, x)
-        start += 1
+    # FIXME: Implement this.
 
 
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
@@ -103,9 +101,7 @@ def my_any(iterable):
     >>> my_any(x > 100 for x in range(100))
     False
     """
-    for element in iterable:
-        if element: return True
-    return False
+    # FIXME: Implement this.
 
 
 def my_all(iterable):
@@ -127,9 +123,7 @@ def my_all(iterable):
     >>> my_all([1, 1, 1, 6, 7])
     True
     """
-    for element in iterable:
-        if not element: return False
-    return True
+    # FIXME: Implement this.
 
 
 def zip_two(first, second):
@@ -584,8 +578,7 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    for element in iterable:
-        yield func(element)
+    # FIXME: Implement this in one line, returning a generator expression.
 
 
 def map_one_alt(func, iterable):
@@ -606,7 +599,7 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    return (func(element) for element in iterable)
+    # FIXME: Implement this as a generator function.
 
 
 def my_filter(predicate, iterable):
@@ -630,12 +623,7 @@ def my_filter(predicate, iterable):
     >>> list(my_filter(None, ['hello', 'glorious', 'world']))
     ['hello', 'glorious', 'world']
     """
-    if predicate is None:
-        for element in iterable:
-            if element: yield element
-    else:
-        for element in iterable:
-            if predicate(element): yield element
+    # FIXME: Implement this. Have it return a generator expression.
 
 
 def my_filter_alt(predicate, iterable):
@@ -661,10 +649,7 @@ def my_filter_alt(predicate, iterable):
     >>> list(my_filter_alt(None, ['hello', 'glorious', 'world']))
     ['hello', 'glorious', 'world']
     """
-    if predicate is None:
-        return (element for element in iterable if element)
-
-    return (element for element in iterable if predicate(element))
+    # FIXME: Implement this as a generator function.
 
 
 def length_of(iterable):
@@ -684,7 +669,7 @@ def length_of(iterable):
     >>> length_of(set(object() for _ in range(100_000)))
     100000
     """
-    return sum(1 for _ in iterable)
+    # FIXME: Implement this in one short line (less than 40 characters).
 
 
 def length_of_opt(iterable):
@@ -710,10 +695,7 @@ def length_of_opt(iterable):
     >>> set(length_of_opt(range(2_000_000_000)) for _ in range(100_000))
     {2000000000}
     """
-    try:
-        return len(iterable)
-    except TypeError:
-        return sum(1 for _ in iterable)
+    # FIXME: Implement this.
 
 
 def how_many(predicate, iterable):
@@ -737,7 +719,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    return length_of(my_filter(predicate, iterable))
+    # FIXME: Implement this. Have it return a generator expression.
 
 
 def invert(dictionary):
@@ -749,8 +731,6 @@ def invert(dictionary):
     keys.
 
     This also needs the dictionary's values (not just its keys) to be hashable.
-
-    TODO: Document the behavior of invert when given a noninjective dictionary.
 
     >>> invert({})
     {}
@@ -772,10 +752,8 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
     """
-    inverse = {}
-    for key in dictionary:
-        inverse[dictionary[key]] = key
-    return inverse
+    # FIXME: Implement this in one line, using a comprehension.
+    # FIXME: Edit the docstring. Say what this does with noninjective dicts.
 
 
 def invert_alt(dictionary):
@@ -790,9 +768,6 @@ def invert_alt(dictionary):
 
     This alternative implementation behaves the same as invert (above) but uses
     a comprehension.
-
-    TODO: Document the behavior of invert_alt when given a noninjective
-    dictionary.
 
     >>> invert_alt({})
     {}
@@ -814,7 +789,8 @@ def invert_alt(dictionary):
     >>> invert_alt(invert_alt(d)) == d
     True
     """
-    return {value: key for key, value in dictionary.items()}
+    # FIXME: Implement this, without using a comprehension.
+    # FIXME: Edit the docstring. Say what this does with noninjective dicts.
 
 
 def distinct_simple(iterable):
@@ -888,15 +864,7 @@ def distinct(iterable, *, key=None):
     >>> list(distinct([3, *middle, 4], key=id))
     [3, [], [], 4]
     """
-    if key is None:
-        key = lambda x: x
-
-    elements = set()
-    for element in iterable:
-        image = key(element)
-        if image not in elements:
-            elements.add(image)
-            yield element
+    # FIXME: Implement this.
 
 
 def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
@@ -1161,9 +1129,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
-    not_there = object()
-    my_keys = tuple(subject_keys)
-    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':

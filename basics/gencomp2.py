@@ -31,9 +31,7 @@ def product_two(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
-    return ((x, y) for x in my_a for y in my_b)
+    # FIXME: Implement this.
 
 
 def product_two_alt(a, b):
@@ -54,11 +52,7 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
-    for x in my_a:
-        for y in my_b:
-            yield (x, y)
+    # FIXME: Implement this.
 
 
 def ascending_countdowns():
@@ -73,7 +67,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    return (y for x in itertools.count() for y in range(x, -1, -1))
+    # FIXME: Implement this.
 
 
 def ascending_countdowns_alt():
@@ -89,8 +83,7 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    for x in itertools.count():
-        yield from range(x, -1, -1)
+    # FIXME: Implement this.
 
 
 def three_sums(a, b, c):
@@ -112,10 +105,7 @@ def three_sums(a, b, c):
     >>> three_sums(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
-    my_c = tuple(c)
-    return {x + y + z for x in my_a for y in my_b for z in my_c}
+    # FIXME: Implement this.
 
 
 def three_sums_alt(a, b, c):
@@ -140,7 +130,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    return set(map(sum, itertools.product(a, b, c)))
+    # FIXME: Implement this.
 
 
 def three_sum_indices_1(a, b, c, target):
@@ -327,11 +317,7 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    if len(u) > len(v):  # u should be smaller
-        u, v = v, u
-
-    return sum(u_value * v.get(u_key, 0)
-               for u_key, u_value in u.items())
+    # FIXME: Implement this. Keep in mind the "min" in the running time.
 
 
 def flatten2(iterable):
@@ -385,9 +371,7 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    return {(source, destination)
-            for source, destinations in rows.items()
-            for destination in destinations}
+    # FIXME: Implement this.
 
 
 def make_mul_table(height, width):
@@ -417,7 +401,7 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
+    # FIXME: Implement this.
 
 
 def compose_dicts_simple(back, front):
@@ -655,10 +639,6 @@ def transpose_alt(matrix):
     return tuple(zip(*matrix))
 
 
-def _make_affines(w, b):
-    return lambda x: w*x + b
-
-
 def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
@@ -689,9 +669,7 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    unique_weights = set(weights)
-    unique_biases = set(biases)
-    return {_make_affines(w, b) for w in unique_weights for b in unique_biases}
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':
