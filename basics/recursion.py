@@ -554,10 +554,7 @@ def observe_edge(parent, child):
     """
     Print a representation of an edge from parent to child in a tree.
 
-    This is a simple edge observer. It shows the nodes' representations,
-    separated by "->". This tends to be adequately distinct from other output.
-
-    See the "*_observed" functions below.
+    This is a simple edge observer. See the "..._observed" functions below.
     """
     print(f'{parent!r}  ->  {child!r}')
 
