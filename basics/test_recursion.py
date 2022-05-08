@@ -21,6 +21,11 @@ from recursion import (
     merge_two_slow,
 )
 
+_NORTH = WeakDiamond.NORTH
+_SOUTH = WeakDiamond.SOUTH
+_EAST = WeakDiamond.EAST
+_WEST = WeakDiamond.WEST
+
 
 def _build_insort_test_parameters(expected):
     """
@@ -32,13 +37,6 @@ def _build_insort_test_parameters(expected):
     """
     return [(tuple(expected[:index] + expected[index + 1:]), item, expected)
             for index, item in enumerate(expected)]
-
-
-_NUMBERS = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
-"""Ten ints, for building insort test cases."""
-
-_WORDS = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-"""Eight words, for building insort test cases."""
 
 
 class TestInsortAbstract(ABC, unittest.TestCase):
@@ -99,6 +97,10 @@ class TestInsortAbstract(ABC, unittest.TestCase):
         self.implementation(sorted_items, 110.2)
         self.assertListEqual(sorted_items, [12.3, 45.6, 78.9, 110.2])
 
+    _NUMBERS = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+
+    _WORDS = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+
     @parameterized.expand(_build_insort_test_parameters(_NUMBERS)
                         + _build_insort_test_parameters(_WORDS))
     def test_new_item_put_in_order_in_several(self, olds, new, expected):
@@ -135,7 +137,22 @@ class TestInsortLeftAbstract(TestInsortAbstract):
         self.implementation(sorted_items, OrderIndistinct(6))
         self.assertListEqual(sorted_items, expected)
 
-    def test_nontrivial_weak_ordered_item_put_left_of_similars(self):
+    @parameterized.expand([
+        ((_SOUTH, _EAST, _WEST, _NORTH), _EAST,
+            [_SOUTH, _EAST, _EAST, _WEST, _NORTH]),
+        ((_SOUTH, _EAST, _WEST, _NORTH), _WEST,
+            [_SOUTH, _WEST, _EAST, _WEST, _NORTH]),
+        ((_SOUTH, _WEST, _EAST, _NORTH), _EAST,
+            [_SOUTH, _EAST, _WEST, _EAST, _NORTH]),
+        ((_SOUTH, _WEST, _EAST, _NORTH), _WEST,
+            [_SOUTH, _WEST, _WEST, _EAST, _NORTH]),
+    ])
+    def test_new_weak_item_put_in_order_leftward(self, olds, new, expected):
+        sorted_items = list(olds)
+        self.implementation(sorted_items, new)
+        self.assertListEqual(sorted_items, expected)
+
+    def test_weak_ordered_item_put_left_of_multiple_similars(self):
         sorted_items = [Patient('A', 1), Patient('Z', 2), Patient('B', 3),
                         Patient('Y', 3), Patient('C', 3), Patient('X', 4)]
 
@@ -165,7 +182,22 @@ class TestInsortRightAbstract(TestInsortAbstract):
         self.implementation(sorted_items, OrderIndistinct(6))
         self.assertListEqual(sorted_items, expected)
 
-    def test_nontrivial_weak_ordered_item_put_right_of_similars(self):
+    @parameterized.expand([
+        ((_SOUTH, _EAST, _WEST, _NORTH), _EAST,
+            [_SOUTH, _EAST, _WEST, _EAST, _NORTH]),
+        ((_SOUTH, _EAST, _WEST, _NORTH), _WEST,
+            [_SOUTH, _EAST, _WEST, _WEST, _NORTH]),
+        ((_SOUTH, _WEST, _EAST, _NORTH), _EAST,
+            [_SOUTH, _WEST, _EAST, _EAST, _NORTH]),
+        ((_SOUTH, _WEST, _EAST, _NORTH), _WEST,
+            [_SOUTH, _WEST, _EAST, _WEST, _NORTH]),
+    ])
+    def test_new_weak_item_put_in_order_rightward(self, olds, new, expected):
+        sorted_items = list(olds)
+        self.implementation(sorted_items, new)
+        self.assertListEqual(sorted_items, expected)
+
+    def test_weak_ordered_item_put_right_of_multiple_similars(self):
         sorted_items = [Patient('A', 1), Patient('Z', 2), Patient('B', 3),
                         Patient('Y', 3), Patient('C', 3), Patient('X', 4)]
 
