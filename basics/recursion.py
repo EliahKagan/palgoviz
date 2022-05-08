@@ -281,10 +281,10 @@ def binary_insertion_sort(values):
     """
     Iterative stable binary insertion sort, creating a new list.
 
-    The input is not modified. The output list begins empty and is thus sorted.
-    It stays sorted after each insertion. This algorithm is adaptive: it is
-    fastest on sorted and almost-sorted inputs. The insertion point is found by
-    binary search, which is what makes this *binary* insertion sort.
+    The input is not modified. The output list starts empty. It remains sorted
+    after each insertion. This algorithm is adaptive: the closer to sorted its
+    input already is, the less work it has to do. The insertion point is found
+    by binary search, which is what makes this *binary* insertion sort.
 
     Search and insertion may be performed using a standard library facility.
 
@@ -418,10 +418,10 @@ def insertion_sort(values):
     """
     Iterative stable insertion sort, creating a new list.
 
-    The input is not modified. The output list begins empty and is thus sorted.
-    It stays sorted after each insertion. This algorithm is adaptive: it is
-    fastest on sorted and almost-sorted inputs. The insertion point is found by
-    sequential search: use one of insort_left_linear or insort_right_linear.
+    The input is not modified. The output list starts empty. It remains sorted
+    after each insertion. This algorithm is adaptive: the closer to sorted its
+    input already is, the less work it has to do. The insertion point is found
+    by sequential search: use one of insort_left_linear or insort_right_linear.
 
     FIXME: State the best, average, and worst-case asymptotic time complexities
     in this docstring. (The best case is when the input is already sorted.)
