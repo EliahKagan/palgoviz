@@ -312,10 +312,7 @@ def binary_insertion_sort(values):
     >>> binary_insertion_sort([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    out = []
-    for value in values:
-        bisect.insort_right(out, value)
-    return out
+    # FIXME: Implement this.
 
 
 def binary_insertion_sort_recursive(values):
@@ -349,16 +346,7 @@ def binary_insertion_sort_recursive(values):
     >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    out = []
-
-    def sort_prefix(length):
-        if length == 0:
-            return
-        sort_prefix(length - 1)
-        bisect.insort_right(out, values[length - 1])
-
-    sort_prefix(len(values))
-    return out
+    # FIXME: Implement this.
 
 
 def insort_left_linear(sorted_items, new_item):
@@ -381,10 +369,7 @@ def insort_left_linear(sorted_items, new_item):
     >>> b
     [0.0, 0, False]
     """
-    not_too_low = (index for index, item in enumerate(sorted_items)
-                   if not item < new_item)
-    insert_index = next(not_too_low, len(sorted_items))
-    sorted_items.insert(insert_index, new_item)
+    # FIXME: Implement this.
 
 
 def insort_right_linear(sorted_items, new_item):
@@ -408,10 +393,7 @@ def insort_right_linear(sorted_items, new_item):
     >>> b
     [0, False, 0.0]
     """
-    not_too_high = (index for index in range(len(sorted_items), 0, -1)
-                    if not new_item < sorted_items[index - 1])
-    insert_index = next(not_too_high, 0)
-    sorted_items.insert(insert_index, new_item)
+    # FIXME: Implement this.
 
 
 def insertion_sort(values):
@@ -447,10 +429,7 @@ def insertion_sort(values):
     >>> insertion_sort([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    out = []
-    for value in values:
-        insort_right_linear(out, value)
-    return out
+    # FIXME: Implement this.
 
 
 def insertion_sort_recursive(values):
@@ -489,16 +468,7 @@ def insertion_sort_recursive(values):
     >>> insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    out = []
-
-    def sort_prefix(length):
-        if length == 0:
-            return
-        sort_prefix(length - 1)
-        insort_right_linear(out, values[length - 1])
-
-    sort_prefix(len(values))
-    return out
+    # FIXME: Implement this.
 
 
 def merge_two_slow(values1, values2):
