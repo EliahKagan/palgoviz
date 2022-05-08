@@ -102,7 +102,7 @@ class TestInsortAbstract(ABC, unittest.TestCase):
     _WORDS = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
 
     @parameterized.expand(_build_insort_test_parameters(_NUMBERS)
-                        + _build_insort_test_parameters(_WORDS))
+                          + _build_insort_test_parameters(_WORDS))
     def test_new_item_put_in_order_in_several(self, olds, new, expected):
         sorted_items = list(olds)
         self.implementation(sorted_items, new)
