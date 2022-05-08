@@ -2,13 +2,17 @@
 
 """Tests for the functions in recursion.py."""
 
+from abc import ABC, abstractmethod
+import bisect
 import unittest
 
-from parameterized import parameterized_class
+from parameterized import parameterized, parameterized_class
 
-from compare import OrderIndistinct, WeakDiamond
+from compare import OrderIndistinct, Patient, WeakDiamond
 
 from recursion import (
+    insort_left_linear,
+    insort_right_linear,
     merge_sort,
     merge_sort_bottom_up,
     merge_sort_bottom_up_unstable,
@@ -16,6 +20,199 @@ from recursion import (
     merge_two_alt,
     merge_two_slow,
 )
+
+
+def _build_insort_test_parameters(expected):
+    """
+    Build insort test cases: old items (as tuple), new item, expected result.
+
+    The old items are given as a tuple so that each run of a test that uses
+    them has to make a new list from it. Otherwise tests might contaminate each
+    other (and also, even if not, debugging would be hard).
+    """
+    return [(tuple(expected[:index] + expected[index + 1:]), item, expected)
+            for index, item in enumerate(expected)]
+
+
+_NUMBERS = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+"""Ten ints, for building insort test cases."""
+
+_WORDS = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+"""Eight words, for building insort test cases."""
+
+
+class TestInsortAbstract(ABC, unittest.TestCase):
+    """Shared tests for insort_left_linear and insert_right_linear."""
+
+    @property
+    @abstractmethod
+    def implementation(self):
+        """The search-and-insert function under test."""
+
+    def test_item_put_into_empty_list(self):
+        sorted_items = []
+        self.implementation(sorted_items, 42)
+        self.assertListEqual(sorted_items, [42])
+
+    def test_low_item_put_in_front_of_singleton_list(self):
+        sorted_items = [76]
+        self.implementation(sorted_items, 42)
+        self.assertListEqual(sorted_items, [42, 76])
+
+    def test_high_item_put_in_back_of_singleton_list(self):
+        sorted_items = [42]
+        self.implementation(sorted_items, 76)
+        self.assertListEqual(sorted_items, [42, 76])
+
+    def test_low_item_put_before_two(self):
+        sorted_items = ['B', 'D']
+        self.implementation(sorted_items, 'A')
+        self.assertListEqual(sorted_items, ['A', 'B', 'D'])
+
+    def test_medium_item_put_between_two(self):
+        sorted_items = ['B', 'D']
+        self.implementation(sorted_items, 'C')
+        self.assertListEqual(sorted_items, ['B', 'C', 'D'])
+
+    def test_high_item_put_after_two(self):
+        sorted_items = ['B', 'D']
+        self.implementation(sorted_items, 'E')
+        self.assertListEqual(sorted_items, ['B', 'D', 'E'])
+
+    def test_lowest_item_put_leftmost_in_three(self):
+        sorted_items = [12.3, 45.6, 78.9]
+        self.implementation(sorted_items, 0.1)
+        self.assertListEqual(sorted_items, [0.1, 12.3, 45.6, 78.9])
+
+    def test_medium_low_item_put_mid_left_in_three(self):
+        sorted_items = [12.3, 45.6, 78.9]
+        self.implementation(sorted_items, 31.8)
+        self.assertListEqual(sorted_items, [12.3, 31.8, 45.6, 78.9])
+
+    def test_medium_high_item_put_mid_right_in_three(self):
+        sorted_items = [12.3, 45.6, 78.9]
+        self.implementation(sorted_items, 62.7)
+        self.assertListEqual(sorted_items, [12.3, 45.6, 62.7, 78.9])
+
+    def test_highest_item_put_rightmost_in_three(self):
+        sorted_items = [12.3, 45.6, 78.9]
+        self.implementation(sorted_items, 110.2)
+        self.assertListEqual(sorted_items, [12.3, 45.6, 78.9, 110.2])
+
+    @parameterized.expand(_build_insort_test_parameters(_NUMBERS)
+                        + _build_insort_test_parameters(_WORDS))
+    def test_new_item_put_in_order_in_several(self, olds, new, expected):
+        sorted_items = list(olds)
+        self.implementation(sorted_items, new)
+        self.assertListEqual(sorted_items, expected)
+
+    @parameterized.expand([
+        (range(1, 101), 12, [*range(1, 13), *range(12, 101)]),
+        (range(1, 101), 15, [*range(1, 16), *range(15, 101)]),
+        (range(1, 101), 79, [*range(1, 80), *range(79, 101)]),
+        (range(1, 101), 82, [*range(1, 83), *range(82, 101)]),
+    ])
+    def test_duplicate_item_put_in_order_in_hundred(self, olds, new, expected):
+        sorted_items = list(olds)
+        self.implementation(sorted_items, new)
+        self.assertListEqual(sorted_items, expected)
+
+
+class TestInsortLeftAbstract(TestInsortAbstract):
+    """Tests for leftmost-point insort functions."""
+
+    def test_incomparable_put_first(self):
+        sorted_items = [
+            OrderIndistinct(1), OrderIndistinct(2), OrderIndistinct(3),
+            OrderIndistinct(4), OrderIndistinct(5),
+        ]
+
+        expected = [
+            OrderIndistinct(6), OrderIndistinct(1), OrderIndistinct(2),
+            OrderIndistinct(3), OrderIndistinct(4), OrderIndistinct(5),
+        ]
+
+        self.implementation(sorted_items, OrderIndistinct(6))
+        self.assertListEqual(sorted_items, expected)
+
+    def test_nontrivial_weak_ordered_item_put_left_of_similars(self):
+        sorted_items = [Patient('A', 1), Patient('Z', 2), Patient('B', 3),
+                        Patient('Y', 3), Patient('C', 3), Patient('X', 4)]
+
+        new_item = Patient('N', 3)
+
+        expected = sorted_items[:]
+        expected.insert(2, new_item)  # It should go at the LEFT of the range.
+
+        self.implementation(sorted_items, new_item)
+        self.assertListEqual(sorted_items, expected)
+
+
+class TestInsortRightAbstract(TestInsortAbstract):
+    """Tests for rightmost-point insort functions."""
+
+    def test_incomparable_put_last(self):
+        sorted_items = [
+            OrderIndistinct(1), OrderIndistinct(2), OrderIndistinct(3),
+            OrderIndistinct(4), OrderIndistinct(5),
+        ]
+
+        expected = [
+            OrderIndistinct(1), OrderIndistinct(2), OrderIndistinct(3),
+            OrderIndistinct(4), OrderIndistinct(5), OrderIndistinct(6),
+        ]
+
+        self.implementation(sorted_items, OrderIndistinct(6))
+        self.assertListEqual(sorted_items, expected)
+
+    def test_nontrivial_weak_ordered_item_put_right_of_similars(self):
+        sorted_items = [Patient('A', 1), Patient('Z', 2), Patient('B', 3),
+                        Patient('Y', 3), Patient('C', 3), Patient('X', 4)]
+
+        new_item = Patient('N', 3)
+
+        expected = sorted_items[:]
+        expected.insert(5, new_item)  # It should go at the RIGHT of the range.
+
+        self.implementation(sorted_items, new_item)
+        self.assertListEqual(sorted_items, expected)
+
+
+class TestInsortLeft(TestInsortLeftAbstract):
+    """Tests for bisect.insort_left. This is really to test our tests."""
+
+    @property
+    def implementation(self):
+        return bisect.insort_left
+
+
+class TestInsortRight(TestInsortRightAbstract):
+    """Tests for bisect.insort_right. This is really to test our tests."""
+
+    @property
+    def implementation(self):
+        return bisect.insort_right
+
+
+# TODO: Test which, and how many, and what kind, of comparisons are performed.
+class TestInsortLeftLinear(TestInsortLeftAbstract):
+    """Tests for the insort_left_linear function."""
+
+    @property
+    def implementation(self):
+        return insort_left_linear
+
+
+# TODO: Test which, and how many, and what kind, of comparisons are performed.
+class TestInsortRightLinear(TestInsortRightAbstract):
+    """Tests for the insort_right_linear function."""
+
+    @property
+    def implementation(self):
+        return insort_right_linear
+
+
+del TestInsortAbstract, TestInsortLeftAbstract, TestInsortRightAbstract
 
 
 @parameterized_class(('name', 'function'), [
