@@ -1799,7 +1799,7 @@ class DistinctDictsByKeys(Distinct):
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
     """
 
-    __slots__ = ('_iterator',)
+    __slots__ = ()
 
     def __init__(self, dicts, subject_keys):
         not_there = object()
