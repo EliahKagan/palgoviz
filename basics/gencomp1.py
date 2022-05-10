@@ -1958,9 +1958,9 @@ def distinct_eager(iterable, *, key=None):
 
     Continue to assume items are hashable. Don't call anything in this project
     that is specifically related to distinctness. Use a comprehension, but no
-    loops. Aside from the code to deal with when no key selector function is
-    passed, you may need to use four lines if you want the code to make sense.
-    The technique here is reliable but should never be used in production code.
+    loops. After the code to deal with when no key selector function is passed,
+    this fits easily in two lines, but more to make it self-documenting. The
+    technique here is reliable but should probably never be used in production.
 
     >>> distinct_eager([])
     []
@@ -1987,9 +1987,7 @@ def distinct_eager(iterable, *, key=None):
         key = lambda x: x
 
     pairs = [(key(value), value) for value in iterable]
-    correct_order = dict(pairs)
-    correct_values = dict(reversed(pairs))
-    return list((correct_order | correct_values).values())
+    return list((dict(pairs) | dict(reversed(pairs))).values())
 
 
 if __name__ == '__main__':
