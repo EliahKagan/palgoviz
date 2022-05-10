@@ -1939,12 +1939,14 @@ def distinct_eager(iterable, *, key=None):
     Make a list of first occurrences of values whose associated keys are equal.
 
     This is like distinct_eager_simple above, but a key selector may be passed.
-    Continue to assume items are hashable. Don't use anything but builtins.
+    Continue to assume items are hashable. Don't use anything but builtins,
+    except maybe to handle when no key selector is passed. Even then, this must
+    never use any other function or class specifically related to distinctness.
 
     This takes O(n) time, where n is the number of items in the iterable. It is
     the same task as distinct above, except that it is eager rather than lazy.
-    Aside from the code to deal with when key is not passed, this fits
-    comfortably in two lines. Use a comprehension but no loops.
+    Aside from the code to deal with when no key selector function is passed,
+    this fits comfortably in two lines. Use a comprehension but no loops.
 
     FIXME: Needs tests.
     """
