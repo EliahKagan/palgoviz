@@ -1922,39 +1922,74 @@ def distinct_eager_simple(iterable):
     all at once in a list, rather than each being computed and yielded only
     once needed.
 
-    Don't use anything but builtins. This is more complicated than
-    distinct_unstable, but simpler than distinct_simple. It fits easily in one
-    line, though you may prefer to use two. Don't use loops or comprehensions.
+    Don't call anything but builtins (and their methods). Don't use loops or
+    comprehensions. This fits easily in one line. It's slightly more
+    complicated than distinct_unstable, but much less so than distinct_simple.
+    The technique used here is probably fine to use in production code.
 
     Hint: Sets aren't ordered, but what is?
 
-    FIXME: Needs tests.
+    >>> distinct_eager_simple([])
+    []
+    >>> distinct_eager_simple({3})
+    [3]
+    >>> distinct_eager_simple(('foo', 'foo'))
+    ['foo']
+    >>> distinct_eager_simple(x**2 for x in range(-3, 6))
+    [9, 4, 1, 0, 16, 25]
+    >>> distinct_eager_simple([2, 1, 2, 4, 1, 7] * 100_000)
+    [2, 1, 4, 7]
     """
-    reversal = list(iterable)[::-1]
-    return list(reversed(dict.fromkeys(reversal)))
+    return list(dict.fromkeys(iterable))
 
 
 def distinct_eager(iterable, *, key=None):
     """
     Make a list of first occurrences of values whose associated keys are equal.
 
-    This is like distinct_eager_simple above, but a key selector may be passed.
-    Continue to assume items are hashable. Don't use anything but builtins,
-    except maybe to handle when no key selector is passed. Even then, this must
-    never use any other function or class specifically related to distinctness.
+    This is like distinct_eager_simple above, except that:
+
+    (1) This accepts a key selector.
+
+    (2) This is hackish and bad. Its purpose is to illuminate something tricky.
 
     This takes O(n) time, where n is the number of items in the iterable. It is
     the same task as distinct above, except that it is eager rather than lazy.
-    Aside from the code to deal with when no key selector function is passed,
-    this fits comfortably in two lines. Use a comprehension but no loops.
 
-    FIXME: Needs tests.
+    Continue to assume items are hashable. Don't call anything in this project
+    that is specifically related to distinctness. Use a comprehension, but no
+    loops. Aside from the code to deal with when no key selector function is
+    passed, you may need to use four lines if you want the code to make sense.
+    The technique here is reliable but should never be used in production code.
+
+    >>> distinct_eager([])
+    []
+    >>> distinct_eager({3})
+    [3]
+    >>> distinct_eager(('foo', 'foo'))
+    ['foo']
+    >>> distinct_eager(x**2 for x in range(-3, 6))
+    [9, 4, 1, 0, 16, 25]
+    >>> distinct_eager([2, 1, 2, 4, 1, 7] * 100_000)
+    [2, 1, 4, 7]
+
+    >>> distinct_eager(('foo', 'bar', 'foobar', 'baz', 'quux', 'wq'), key=len)
+    ['foo', 'foobar', 'quux', 'wq']
+    >>> distinct_eager(range(-3, 6), key=lambda x: x**2)
+    [-3, -2, -1, 0, 4, 5]
+    >>> distinct_eager([[1, 2, 3], [1, 3, 2], [1, 2, 3], [2, 1, 3]], key=tuple)
+    [[1, 2, 3], [1, 3, 2], [2, 1, 3]]
+    >>> middle = [[], []] * 100_000
+    >>> distinct_eager([3, *middle, 4], key=id)
+    [3, [], [], 4]
     """
     if key is None:
         key = lambda x: x
 
-    mapping = {key(element): element for element in list(iterable)[::-1]}
-    return list(reversed(mapping.values()))
+    pairs = [(key(value), value) for value in iterable]
+    correct_order = dict.fromkeys(k for k, _ in pairs)
+    correct_values = dict(reversed(pairs))
+    return list((correct_order | correct_values).values())
 
 
 if __name__ == '__main__':
