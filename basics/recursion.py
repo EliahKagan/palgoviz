@@ -393,7 +393,16 @@ def binary_insertion_sort_recursive_alt(values):
     >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    output = []
+
+    def helper(index):
+        if index == -1:
+            return
+        helper(index - 1)
+        bisect.insort(output, values[index])
+
+    helper(len(values) - 1)
+    return output
 
 
 def insort_left_linear(sorted_items, new_item):
