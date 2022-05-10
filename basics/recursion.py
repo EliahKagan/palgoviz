@@ -351,8 +351,6 @@ def binary_insertion_sort_recursive(values):
     >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    my_values = list(values)
-
     def sort(vals):
         if not vals:
             return []
@@ -361,7 +359,7 @@ def binary_insertion_sort_recursive(values):
         bisect.insort_right(output, element)
         return output
 
-    return sort(my_values)
+    return sort(list(values))
 
 
 def binary_insertion_sort_recursive_alt(values):
