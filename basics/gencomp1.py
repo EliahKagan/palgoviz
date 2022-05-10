@@ -277,9 +277,10 @@ class ZipTwo:
     I ordered a 4k monitor but I got a GIGANTIC BOBCAT instead!
     """
 
-    __slots__ = ('_iterator1', '_iterator2')
+    __slots__ = ('_done', '_iterator1', '_iterator2')
 
     def __init__(self, iterable1, iterable2):
+        self._done = False
         self._iterator1 = iter(iterable1)
         self._iterator2 = iter(iterable2)
 
@@ -287,7 +288,14 @@ class ZipTwo:
         return self
 
     def __next__(self):
-        return next(self._iterator1), next(self._iterator2)
+        if self._done:
+            raise StopIteration()
+
+        try:
+            return next(self._iterator1), next(self._iterator2)
+        except StopIteration:
+            self._done = True
+            raise
 
 
 def my_zip(*iterables):
@@ -442,20 +450,25 @@ class Zip:
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
 
-    __slots__ = ('_iterators',)
+    __slots__ = ('_done', '_iterators')
 
     def __init__(self, *iterables):
+        self._done = not iterables
         self._iterators = [iter(iterable) for iterable in iterables]
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if not self._iterators:
+        if self._done:
             raise StopIteration()
 
-        # Use a list comprehension so StopIteration will propagate out of it.
-        return tuple([next(iterator) for iterator in self._iterators])
+        try:
+            # Use a list comprehension so we can catch StopIteration from it.
+            return tuple([next(iterator) for iterator in self._iterators])
+        except StopIteration:
+            self._done = True
+            raise
 
 
 def print_zipped():
