@@ -355,9 +355,9 @@ def binary_insertion_sort_recursive(values):
 
     def helper(vals):
         output = []
-        if values:
+        if vals:
             element = vals.pop()
-            output = binary_insertion_sort_recursive(vals)
+            output = helper(vals)
             bisect.insort_right(output, element)
         return output
     return helper(my_values)
