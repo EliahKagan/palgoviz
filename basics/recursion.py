@@ -288,8 +288,10 @@ def binary_insertion_sort(values):
 
     Search and insertion may be performed using a standard library facility.
 
-    FIXME: State the best, average, and worst-case asymptotic time complexities
-    in this docstring. (The best case is when the input is already sorted.)
+    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    an append but search is still log(N), thus O(Nlog(N)). Average time
+    complexity over all possible inputs will be O(N^2) because on average we
+    will have to move half the elements O(cN) = O(N).
 
     >>> binary_insertion_sort([])
     []
@@ -312,7 +314,10 @@ def binary_insertion_sort(values):
     >>> binary_insertion_sort([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    output = []
+    for element in values:
+        bisect.insort(output, element)
+    return output
 
 
 def binary_insertion_sort_recursive(values):
