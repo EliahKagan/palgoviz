@@ -1987,7 +1987,7 @@ def distinct_eager(iterable, *, key=None):
         key = lambda x: x
 
     pairs = [(key(value), value) for value in iterable]
-    correct_order = dict.fromkeys(k for k, _ in pairs)
+    correct_order = dict(pairs)
     correct_values = dict(reversed(pairs))
     return list((correct_order | correct_values).values())
 
