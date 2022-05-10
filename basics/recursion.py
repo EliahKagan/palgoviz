@@ -395,13 +395,13 @@ def binary_insertion_sort_recursive_alt(values):
     """
     output = []
 
-    def helper(index):
-        if index == -1:
+    def sort_prefix(max_index):
+        if max_index == -1:
             return
-        helper(index - 1)
-        bisect.insort(output, values[index])
+        sort_prefix(max_index - 1)
+        bisect.insort(output, values[max_index])
 
-    helper(len(values) - 1)
+    sort_prefix(len(values) - 1)
     return output
 
 
