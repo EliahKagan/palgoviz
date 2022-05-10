@@ -353,14 +353,15 @@ def binary_insertion_sort_recursive(values):
     """
     my_values = list(values)
 
-    def helper(vals):
-        output = []
-        if vals:
-            element = vals.pop()
-            output = helper(vals)
-            bisect.insort_right(output, element)
+    def sort(vals):
+        if not vals:
+            return []
+        element = vals.pop()
+        output = sort(vals)
+        bisect.insort_right(output, element)
         return output
-    return helper(my_values)
+
+    return sort(my_values)
 
 
 def insort_left_linear(sorted_items, new_item):
