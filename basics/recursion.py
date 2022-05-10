@@ -364,6 +364,38 @@ def binary_insertion_sort_recursive(values):
     return sort(my_values)
 
 
+def binary_insertion_sort_recursive_alt(values):
+    """
+    Alternative recursive stable binary insertion sort, creating a new list.
+
+    See the description of binary_insertion_sort_recursive (above). This
+    implementation never modifies an object after creating it, other than the
+    output list it is building.
+
+    >>> binary_insertion_sort_recursive_alt([])
+    []
+    >>> binary_insertion_sort_recursive_alt(())
+    []
+    >>> binary_insertion_sort_recursive_alt((2,))
+    [2]
+    >>> binary_insertion_sort_recursive_alt([10, 20])
+    [10, 20]
+    >>> binary_insertion_sort_recursive_alt([20, 10])
+    [10, 20]
+    >>> binary_insertion_sort_recursive_alt([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> binary_insertion_sort_recursive_alt(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> binary_insertion_sort_recursive_alt(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    # FIXME: Implement this.
+
+
 def insort_left_linear(sorted_items, new_item):
     """
     Insert an item in a sorted list at the lowest index that keeps it sorted.
@@ -459,9 +491,6 @@ def insertion_sort_recursive(values):
     avoid incurring asymptotically worse performance from copying. Assume
     values is a sequence.
 
-    FIXME: State the best, average, and worst-case asymptotic time complexities
-    in this docstring. (The best case is when the input is already sorted.)
-
     >>> insertion_sort_recursive([])
     []
     >>> insertion_sort_recursive(())
@@ -481,6 +510,39 @@ def insertion_sort_recursive(values):
     >>> insertion_sort_recursive(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
     >>> insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    # FIXME: Implement this.
+
+
+def insertion_sort_recursive_alt(values):
+    """
+    Alternative recursive stable insertion sort, creating a new list.
+
+    See the description of insertion_sort_recursive (above). This
+    implementation never modifies an object after creating it, other than
+    through the call to insort_left_linear or insort_right_linear, which
+    modifies the output list being built.
+
+    >>> insertion_sort_recursive_alt([])
+    []
+    >>> insertion_sort_recursive_alt(())
+    []
+    >>> insertion_sort_recursive_alt((2,))
+    [2]
+    >>> insertion_sort_recursive_alt([10, 20])
+    [10, 20]
+    >>> insertion_sort_recursive_alt([20, 10])
+    [10, 20]
+    >>> insertion_sort_recursive_alt([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> insertion_sort_recursive_alt(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> insertion_sort_recursive_alt(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
     # FIXME: Implement this.
