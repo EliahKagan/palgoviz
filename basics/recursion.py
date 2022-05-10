@@ -351,7 +351,13 @@ def binary_insertion_sort_recursive(values):
     >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    output = []
+    if values:
+        my_values = list(values)
+        element = my_values.pop()
+        output = binary_insertion_sort_recursive(my_values)
+        bisect.insort_right(output, element)
+    return output
 
 
 def insort_left_linear(sorted_items, new_item):
