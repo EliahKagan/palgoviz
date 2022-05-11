@@ -423,7 +423,11 @@ def insort_left_linear(sorted_items, new_item):
     >>> b
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    for index, element, in enumerate(sorted_items):
+        if new_item <= element:
+            sorted_items.insert(index, new_item)
+            return
+    sorted_items.append(new_item)
 
 
 def insort_right_linear(sorted_items, new_item):
