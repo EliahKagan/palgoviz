@@ -316,7 +316,7 @@ def binary_insertion_sort(values):
     """
     output = []
     for element in values:
-        bisect.insort(output, element)
+        bisect.insort_right(output, element)
     return output
 
 
@@ -467,8 +467,10 @@ def insertion_sort(values):
     input already is, the less work it has to do. The insertion point is found
     by sequential search: use one of insort_left_linear or insort_right_linear.
 
-    FIXME: State the best, average, and worst-case asymptotic time complexities
-    in this docstring. (The best case is when the input is already sorted.)
+    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    an append thus O(1), thus O(N). Average time complexity over all possible
+    inputs will be O(N^2) because on average we will have to move half the
+    elements O(cN) = O(N).
 
     >>> insertion_sort([])
     []
