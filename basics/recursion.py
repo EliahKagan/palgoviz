@@ -423,9 +423,10 @@ def insort_left_linear(sorted_items, new_item):
     >>> b
     [0.0, 0, False]
     """
-    index = next((index for index, element in enumerate(sorted_items)
-                    if not (new_item > element)), len(sorted_items))
-    sorted_items.insert(index, new_item)
+    not_too_low = (index for index, element in enumerate(sorted_items)
+                   if not (new_item > element))
+    insertion_point = next(not_too_low, len(sorted_items))
+    sorted_items.insert(insertion_point, new_item)
 
 
 def insort_right_linear(sorted_items, new_item):
