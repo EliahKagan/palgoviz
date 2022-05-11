@@ -491,7 +491,10 @@ def insertion_sort(values):
     >>> insertion_sort([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    output = []
+    for element in values:
+        insort_right_linear(output, element)
+    return output
 
 
 def insertion_sort_recursive(values):
