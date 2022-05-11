@@ -450,9 +450,10 @@ def insort_right_linear(sorted_items, new_item):
     >>> b
     [0, False, 0.0]
     """
-    not_too_low = (index for index, element in enumerate(sorted_items)
-                   if new_item < element)
-    insertion_point = next(not_too_low, len(sorted_items))
+    r_indecies = range(len(sorted_items) - 1, -1, -1)
+    not_too_high = (index for index, element in zip(r_indecies, reversed(sorted_items))
+                    if not (new_item < element))
+    insertion_point = next(not_too_high, -1) + 1
     sorted_items.insert(insertion_point, new_item)
 
 
