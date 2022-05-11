@@ -532,7 +532,15 @@ def insertion_sort_recursive(values):
     >>> insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    def sort(vals):
+        if not vals:
+            return []
+        element = vals.pop()
+        output = sort(vals)
+        insort_right_linear(output, element)
+        return output
+
+    return sort(list(values))
 
 
 def insertion_sort_recursive_alt(values):
@@ -565,7 +573,16 @@ def insertion_sort_recursive_alt(values):
     >>> insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
-    # FIXME: Implement this.
+    output = []
+
+    def sort_prefix(length):
+        if length == 0:
+            return
+        sort_prefix(length - 1)
+        insort_right_linear(output, values[length - 1])
+
+    sort_prefix(len(values))
+    return output
 
 
 def merge_two_slow(values1, values2):
