@@ -424,7 +424,7 @@ def insort_left_linear(sorted_items, new_item):
     [0.0, 0, False]
     """
     for index, element, in enumerate(sorted_items):
-        if new_item <= element:
+        if not (new_item > element):
             sorted_items.insert(index, new_item)
             return
     sorted_items.append(new_item)
