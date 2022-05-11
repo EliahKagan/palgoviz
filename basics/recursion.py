@@ -450,8 +450,8 @@ def insort_right_linear(sorted_items, new_item):
     >>> b
     [0, False, 0.0]
     """
-    descending_indices = range(len(sorted_items) - 1, -1, -1)
-    not_too_high = (index + 1 for index, element
+    descending_indices = range(len(sorted_items), 0, -1)
+    not_too_high = (index_after for index_after, element
                     in zip(descending_indices, reversed(sorted_items))
                     if not (new_item < element))
     insertion_point = next(not_too_high, 0)
