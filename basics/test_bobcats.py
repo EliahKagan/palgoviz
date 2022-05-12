@@ -103,7 +103,12 @@ class TestBobcat(unittest.TestCase):
 
     @unittest.skip("We haven't decided if name mangling is justified here.")
     def test_private_attribute_avoids_derived_class_nonpublic_clash(self):
-        """This intends to test Bobcat uses __name instead of _name (1/2)."""
+        """
+        This intends to test that Bobcat uses __name instead of _name (1 of 2).
+
+        Even if leading double-underscore names weren't mangled, no clash would
+        be expected here, since the derived class attribute name is different.
+        """
         class NameRememberingBobcat(Bobcat):
             def __init__(self, own_name, name):
                 super().__init__(own_name)
@@ -117,10 +122,18 @@ class TestBobcat(unittest.TestCase):
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         self.assertEqual(bobcat.name, 'Ekaterina')
         self.assertEqual(bobcat.remembered_name, 'Phineas')
+        self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
+        self.assertEqual(bobcat._name, 'Phineas')
+        self.assertFalse(hasattr(bobcat, '_NameRememberingBobcat__name'))
 
     @unittest.skip("We haven't decided if name mangling is justified here.")
     def test_private_attribute_avoids_derived_class_mangled_clash(self):
-        """This intends to test Bobcat uses __name instead of _name (2/2)."""
+        """
+        This intends to test that Bobcat uses __name instead of _name (2 of 2).
+
+        The base class and derived class attributes are both written as exactly
+        __name, yet there is no clash, because they are mangled differently.
+        """
         class NameRememberingBobcat(Bobcat):
             def __init__(self, own_name, name):
                 super().__init__(own_name)
@@ -134,6 +147,9 @@ class TestBobcat(unittest.TestCase):
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         self.assertEqual(bobcat.name, 'Ekaterina')
         self.assertEqual(bobcat.remembered_name, 'Phineas')
+        self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
+        self.assertEqual(bobcat._NameRememberingBobcat__name, 'Phineas')
+        self.assertFalse(hasattr(bobcat, '_name'))
 
 
 class TestFierceBobcat(unittest.TestCase):
