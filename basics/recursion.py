@@ -823,6 +823,65 @@ def merge_sort_bottom_up(values, *, merge=merge_two):
     return queue[0]
 
 
+def partition_two(values, pivot):
+    """
+    Stable 2-way partition into values less than and not less than the pivot.
+
+    >>> partition_two([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
+    ([3, -17, 1, 2, -15, 1, -1, 0], [4, 8, 66, 9, 5, 8])
+    >>> partition_two([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
+    ([3, -17, 1, 4, 2, -15, 1, -1, 0], [8, 66, 9, 5, 8])
+    """
+    left = []
+    right = []
+    for value in values:
+        (left if value < pivot else right).append(value)
+    return left, right
+
+
+def order_index_left(values, new_value):
+    """
+    Find the leftmost insertion point for new_value in sorted(values).
+
+    The asymptotic time complexity is the best possible for this problem:
+    [FIXME: Note it here.]
+
+    See also order_index_left_alt below.
+
+    >>> order_index_left([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
+    8
+    >>> order_index_left([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
+    9
+    """
+    left, _ = partition_two(values, new_value)
+    return len(left)
+
+
+def order_index_left_alt(values, new_value):
+    """
+    Find the leftmost insertion point for new_value in sorted(values).
+
+    This is an alternative implementation of order_index_left. One of them uses
+    partition_two to do all but O(1) of its work. The other fits easily in one
+    line, calls only builtins, and uses O(1) auxiliary space. They have the
+    same asymptotic time complexity.
+
+    >>> order_index_left_alt([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
+    ...                      4)
+    8
+    >>> order_index_left_alt([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
+    ...                      5)
+    9
+    """
+    return sum(1 for value in values if value < new_value)
+
+
+def select_by_partitioning(values, k):
+    """
+    Find the value such that exactly k values are less than it.
+    """
+
+
 def make_deep_tuple(depth):
     """Make a tuple of the specified depth."""
     tup = ()
