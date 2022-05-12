@@ -102,16 +102,33 @@ class TestBobcat(unittest.TestCase):
         self.assertListEqual(list(d), [b1, b2, b4, b5, b6])
 
     @unittest.skip("We haven't decided if name mangling is justified here.")
-    def test_private_attribute_is_mangled_to_avoid_derived_class_clashes(self):
-        """This intends to test that __name is used rather than _name."""
+    def test_private_attribute_avoids_derived_class_nonpublic_clash(self):
+        """This intends to test Bobcat uses __name instead of _name (1/2)."""
         class NameRememberingBobcat(Bobcat):
             def __init__(self, own_name, name):
                 super().__init__(own_name)
-                self._name = name
+                self._name = name  # Same-named leading _ (single) attribute.
 
             @property
             def remembered_name(self):
                 return self._name
+
+        # TODO: Use subTest.
+        bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
+        self.assertEqual(bobcat.name, 'Ekaterina')
+        self.assertEqual(bobcat.remembered_name, 'Phineas')
+
+    @unittest.skip("We haven't decided if name mangling is justified here.")
+    def test_private_attribute_avoids_derived_class_mangled_clash(self):
+        """This intends to test Bobcat uses __name instead of _name (2/2)."""
+        class NameRememberingBobcat(Bobcat):
+            def __init__(self, own_name, name):
+                super().__init__(own_name)
+                self.__name = name  # Same-named leading __ (double) attribute.
+
+            @property
+            def remembered_name(self):
+                return self.__name
 
         # TODO: Use subTest.
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
