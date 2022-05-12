@@ -592,8 +592,11 @@ def insertion_sort_in_place(values):
     Stable in-place insertion sort. Permutes values. O(1) auxiliary space.
 
     This should have the same best, average, and worst-case time complexity as
-    insertion_sort. You can use any approach to iteration, even if it seems
-    un-Pythonic. Please do look at insertion_sort_in_place_alt before starting.
+    insertion_sort. Nether use nor rewrite any functionality from any function
+    in the bisect module, nor insort_left_linear or insort_right_linear. You
+    can use any approach to iteration here, even if it seems un-Pythonic.
+
+    Please read the description in insertion_sort_in_place_alt before starting.
 
     >>> def test(a): print(insertion_sort_in_place(a), a, sep='; ')
     >>> test([])
@@ -625,10 +628,12 @@ def insertion_sort_in_place_alt(values):
     Stable in-place insertion sort. Permutes values. O(1) auxiliary space.
 
     This is an alternate implementation of insertion_sort_in_place with all the
-    same asymptotic time and space complexities. Feel free to use any kind of
-    loop in any way here, too. One of the implementations mutates values only
-    by assignments of the form values[x] = y (but with any expressions for x
-    and y). The other mutates values only by swapping elements. Neither slices.
+    same asymptotic time and space complexities. That exercise's allowed and
+    disallowed techniques apply here, too.
+
+    One of the implementations mutates values only by assignments of the form
+    values[x] = y (with some expressions in place of x and y). The other
+    mutates values only by swapping its elements. Neither uses slicing.
 
     >>> def test(a): print(insertion_sort_in_place_alt(a), a, sep='; ')
     >>> test([])
