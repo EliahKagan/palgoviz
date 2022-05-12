@@ -277,6 +277,314 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
+def binary_insertion_sort(values):
+    """
+    Iterative stable binary insertion sort, creating a new list.
+
+    The input is not modified. The output list starts empty. It remains sorted
+    after each insertion. This algorithm is adaptive: the closer to sorted its
+    input already is, the less work it has to do. The insertion point is found
+    by binary search, which is what makes this *binary* insertion sort.
+
+    Search and insertion may be performed using a standard library facility.
+
+    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    an append but search is still log(N), thus O(Nlog(N)). Average time
+    complexity over all possible inputs will be O(N^2) because on average we
+    will have to move half the elements O(cN) = O(N).
+
+    >>> binary_insertion_sort([])
+    []
+    >>> binary_insertion_sort(())
+    []
+    >>> binary_insertion_sort((2,))
+    [2]
+    >>> binary_insertion_sort([10, 20])
+    [10, 20]
+    >>> binary_insertion_sort([20, 10])
+    [10, 20]
+    >>> binary_insertion_sort([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> binary_insertion_sort(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> binary_insertion_sort(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> binary_insertion_sort([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    output = []
+    for element in values:
+        bisect.insort_right(output, element)
+    return output
+
+
+def binary_insertion_sort_recursive(values):
+    """
+    Recursive stable binary insertion sort, creating a new list.
+
+    See the description of binary_insertion_sort above. (There is little reason
+    to implement this recursively in Python, except as an exercise, and for
+    conceptual clarity.) Ensure the best, average, and worst-case asymptotic
+    time complexities are the same as in binary_insertion_sort; avoid incurring
+    asymptotically worse performance from copying. Assume values is a sequence.
+
+    >>> binary_insertion_sort_recursive([])
+    []
+    >>> binary_insertion_sort_recursive(())
+    []
+    >>> binary_insertion_sort_recursive((2,))
+    [2]
+    >>> binary_insertion_sort_recursive([10, 20])
+    [10, 20]
+    >>> binary_insertion_sort_recursive([20, 10])
+    [10, 20]
+    >>> binary_insertion_sort_recursive([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> binary_insertion_sort_recursive(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> binary_insertion_sort_recursive(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    def sort(vals):
+        if not vals:
+            return []
+        element = vals.pop()
+        output = sort(vals)
+        bisect.insort_right(output, element)
+        return output
+
+    return sort(list(values))
+
+
+def binary_insertion_sort_recursive_alt(values):
+    """
+    Alternative recursive stable binary insertion sort, creating a new list.
+
+    See the description of binary_insertion_sort_recursive (above). This
+    implementation never modifies an object after creating it, other than the
+    output list it is building.
+
+    >>> binary_insertion_sort_recursive_alt([])
+    []
+    >>> binary_insertion_sort_recursive_alt(())
+    []
+    >>> binary_insertion_sort_recursive_alt((2,))
+    [2]
+    >>> binary_insertion_sort_recursive_alt([10, 20])
+    [10, 20]
+    >>> binary_insertion_sort_recursive_alt([20, 10])
+    [10, 20]
+    >>> binary_insertion_sort_recursive_alt([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> binary_insertion_sort_recursive_alt(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> binary_insertion_sort_recursive_alt(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    output = []
+
+    def sort_prefix(length):
+        if length == 0:
+            return
+        sort_prefix(length - 1)
+        bisect.insort(output, values[length - 1])
+
+    sort_prefix(len(values))
+    return output
+
+
+def insort_left_linear(sorted_items, new_item):
+    """
+    Insert an item in a sorted list at the lowest index that keeps it sorted.
+
+    Use sequential (linear) search, so at most i + 1 comparisons are performed
+    if the new item is inserted at index i. Otherwise this is like
+    bisect.insort_left, except no lo, hi, or key arguments are supported.
+
+    [Sub-exercise: Is 2-argument next (covered in semipredicate.ipynb) useful
+    here? If so, use it. If not, write a comment explaining why not.]
+
+    >>> a = [10, 20, 30, 40, 50]
+    >>> insort_left_linear(a, 25)
+    >>> a
+    [10, 20, 25, 30, 40, 50]
+    >>> b = [0, False]
+    >>> insort_left_linear(b, 0.0)
+    >>> b
+    [0.0, 0, False]
+    """
+    not_too_low = (index for index, element in enumerate(sorted_items)
+                   if not (new_item > element))
+    insertion_point = next(not_too_low, len(sorted_items))
+    sorted_items.insert(insertion_point, new_item)
+
+
+def insort_right_linear(sorted_items, new_item):
+    """
+    Insert an item in a sorted list at the highest index that keeps it sorted.
+
+    Use sequential (linear) search, so at most len(sorted_items) - i + 1
+    comparisons are performed if the new item is inserted at index i. Otherwise
+    this is like bisect.insort_right, except no lo, hi, or key arguments are
+    supported.
+
+    [Sub-exercise: Is 2-argument next (covered in semipredicate.ipynb) useful
+    here? If so, use it. If not, write a comment explaining why not.]
+
+    >>> a = [10, 20, 30, 40, 50]
+    >>> insort_right_linear(a, 25)
+    >>> a
+    [10, 20, 25, 30, 40, 50]
+    >>> b = [0, False]
+    >>> insort_right_linear(b, 0.0)
+    >>> b
+    [0, False, 0.0]
+    """
+    descending_indices = range(len(sorted_items), 0, -1)
+    not_too_high = (index_after for index_after, element
+                    in zip(descending_indices, reversed(sorted_items))
+                    if not (new_item < element))
+    insertion_point = next(not_too_high, 0)
+    sorted_items.insert(insertion_point, new_item)
+
+
+def insertion_sort(values):
+    """
+    Iterative stable insertion sort, creating a new list.
+
+    The input is not modified. The output list starts empty. It remains sorted
+    after each insertion. This algorithm is adaptive: the closer to sorted its
+    input already is, the less work it has to do. The insertion point is found
+    by sequential search: use one of insort_left_linear or insort_right_linear.
+
+    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    an append thus O(1), thus O(N). Average time complexity over all possible
+    inputs will be O(N^2) because on average we will have to move half the
+    elements O(cN) = O(N).
+
+    >>> insertion_sort([])
+    []
+    >>> insertion_sort(())
+    []
+    >>> insertion_sort((2,))
+    [2]
+    >>> insertion_sort([10, 20])
+    [10, 20]
+    >>> insertion_sort([20, 10])
+    [10, 20]
+    >>> insertion_sort([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> insertion_sort(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> insertion_sort(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> insertion_sort([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    output = []
+    for element in values:
+        insort_right_linear(output, element)
+    return output
+
+
+def insertion_sort_recursive(values):
+    """
+    Recursive stable insertion sort, creating a new list.
+
+    See the description of insertion_sort above. (There is little reason to
+    implement this recursively in Python, except as an exercise, and for
+    conceptual clarity.) This should use whichever of insort_left_linear or
+    insort_right_linear insertion_sort uses. Ensure the best, average, and
+    worst-case asymptotic time complexities are the same as in insertion_sort;
+    avoid incurring asymptotically worse performance from copying. Assume
+    values is a sequence.
+
+    >>> insertion_sort_recursive([])
+    []
+    >>> insertion_sort_recursive(())
+    []
+    >>> insertion_sort_recursive((2,))
+    [2]
+    >>> insertion_sort_recursive([10, 20])
+    [10, 20]
+    >>> insertion_sort_recursive([20, 10])
+    [10, 20]
+    >>> insertion_sort_recursive([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> insertion_sort_recursive(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> insertion_sort_recursive(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    def sort(vals):
+        if not vals:
+            return []
+        element = vals.pop()
+        output = sort(vals)
+        insort_right_linear(output, element)
+        return output
+
+    return sort(list(values))
+
+
+def insertion_sort_recursive_alt(values):
+    """
+    Alternative recursive stable insertion sort, creating a new list.
+
+    See the description of insertion_sort_recursive (above). This
+    implementation never modifies an object after creating it, other than
+    through the call to insort_left_linear or insort_right_linear, which
+    modifies the output list being built.
+
+    >>> insertion_sort_recursive_alt([])
+    []
+    >>> insertion_sort_recursive_alt(())
+    []
+    >>> insertion_sort_recursive_alt((2,))
+    [2]
+    >>> insertion_sort_recursive_alt([10, 20])
+    [10, 20]
+    >>> insertion_sort_recursive_alt([20, 10])
+    [10, 20]
+    >>> insertion_sort_recursive_alt([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> insertion_sort_recursive_alt(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> insertion_sort_recursive_alt(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    output = []
+
+    def sort_prefix(length):
+        if length == 0:
+            return
+        sort_prefix(length - 1)
+        insort_right_linear(output, values[length - 1])
+
+    sort_prefix(len(values))
+    return output
+
+
 def merge_two_slow(values1, values2):
     """
     Return a sorted list that that takes two sorted sequences as input.
@@ -386,12 +694,9 @@ def merge_two_alt(values1, values2):
     return resultlist
 
 
-# FIXME: Let merge_sort take a keyword-only "merge" argument specifying what
-# two-way merging function to use. If absent, use merge_two or merge_two_alt.
-# Test it with three two-way mergers defined here, and with none specified.
 def merge_sort(values, *, merge=merge_two):
     """
-    Sort using merge_two recursively.
+    Merge sort recursively using a two way merge function.
 
     >>> merge_sort([])
     []
@@ -411,7 +716,7 @@ def merge_sort(values, *, merge=merge_two):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> merge_sort(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> merge_sort([0.0, 0, False])  # Succeeds, because it's a stable sort.
+    >>> merge_sort([0.0, 0, False])  # It's a stable sort.
     [0.0, 0, False]
     """
     def helper(values):
@@ -425,13 +730,9 @@ def merge_sort(values, *, merge=merge_two):
     return helper(list(values))
 
 
-# FIXME: Let merge_sort_bottom_up_unstable take a keyword-only "merge" argument
-# specifying what two-way merging function to use. If absent, use merge_two or
-# merge_two_alt. Test it with three two-way mergers defined here, and with none
-# specified.
-def merge_sort_bottom_up_unstable(values):
+def merge_sort_bottom_up_unstable(values, *, merge=merge_two):
     """
-    Sort bottom-up, using merge_two, iteratively. Unstable.
+    Mergesort bottom-up, using a two way merge function, iteratively. Unstable.
 
     This implementation is an unstable sort. Both top-down and bottom-up
     mergesorts are typically stable, and stable implementations tend to be
@@ -470,15 +771,56 @@ def merge_sort_bottom_up_unstable(values):
     while len(queue) > 1:
         left = queue.popleft()
         right = queue.popleft()
-        queue.append(merge_two(left, right))
+        queue.append(merge(left, right))
 
     return queue[0]
 
 
-# FIXME: Implement merge_sort_bottom_up_stable, along the same lines as
-# merge_sort_bottom_up_unstable (above). What has to change to make it stable?
-# (Like the other merge sort implementations in this module, this should accept
-# an optional merger keyword-only argument taking a two-way merge function.)
+def merge_sort_bottom_up(values, *, merge=merge_two):
+    """
+    Sort bottom-up, using a two way merge function, iteratively. Stable.
+
+    >>> merge_sort_bottom_up([])
+    []
+    >>> merge_sort_bottom_up(())
+    []
+    >>> merge_sort_bottom_up((2,))
+    [2]
+    >>> merge_sort_bottom_up([10, 20])
+    [10, 20]
+    >>> merge_sort_bottom_up([20, 10])
+    [10, 20]
+    >>> merge_sort_bottom_up([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort_bottom_up(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort_bottom_up(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> merge_sort_bottom_up([7, 6, 5, 4, 3, 2, 1])
+    [1, 2, 3, 4, 5, 6, 7]
+    >>> merge_sort_bottom_up([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    if not values:
+        return []
+
+    queue = collections.deque([x] for x in values)
+    queue2 = collections.deque()
+
+    while len(queue) > 1:
+        queue, queue2 = queue2, queue
+
+        while len(queue2) > 1:
+            left = queue2.popleft()
+            right = queue2.popleft()
+            queue.append(merge(left, right))
+
+        if queue2:
+            queue.append(queue2.popleft())
+
+    return queue[0]
 
 
 def make_deep_tuple(depth):
