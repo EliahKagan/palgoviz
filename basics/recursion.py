@@ -8,6 +8,8 @@ See also object_graph.py.
 
 import bisect
 import collections
+import operator
+import queues
 
 import decorators
 
@@ -583,6 +585,262 @@ def insertion_sort_recursive_alt(values):
 
     sort_prefix(len(values))
     return output
+
+
+def insertion_sort_in_place(values):
+    """
+    Stable in-place insertion sort. Permutes values. O(1) auxiliary space.
+
+    This should have the same best, average, and worst-case time complexity as
+    insertion_sort. You can use any approach to iteration, even if it seems
+    un-Pythonic. Please do look at insertion_sort_in_place_alt before starting.
+
+    >>> def test(a): print(insertion_sort_in_place(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> test([0.0, 0, False])  # It's a stable sort.
+    None; [0.0, 0, False]
+    """
+    for right in range(1, len(values)):
+        elem = values[right]
+        left = right
+        while left > 0 and elem < values[left - 1]:
+            values[left] = values[left - 1]
+            left -= 1
+        values[left] = elem
+
+
+def insertion_sort_in_place_alt(values):
+    """
+    Stable in-place insertion sort. Permutes values. O(1) auxiliary space.
+
+    This is an alternate implementation of insertion_sort_in_place with all the
+    same asymptotic time and space complexities. Feel free to use any kind of
+    loop in any way here, too. One of the implementations mutates values only
+    by assignments of the form values[x] = y (but with any expressions for x
+    and y). The other mutates values only by swapping elements. Neither slices.
+
+    >>> def test(a): print(insertion_sort_in_place_alt(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> test([0.0, 0, False])  # It's a stable sort.
+    None; [0.0, 0, False]
+    """
+    for right in range(1, len(values)):
+        for left in range(right, 0, -1):
+            if not values[left] < values[left - 1]:
+                break
+            values[left], values[left - 1] = values[left - 1], values[left]
+
+
+def selection_sort(values):
+    """
+    Sort by repeatedly finding minimum or maximum values, creating a new list.
+
+    Most selection sort implementations, including this one, are unstable. That
+    lets them be significantly simpler and also faster by a constant factor.
+
+    [FIXME: Write best, average, and worst case asymptotic time complexities.]
+
+    >>> selection_sort([])
+    []
+    >>> selection_sort(())
+    []
+    >>> selection_sort((2,))
+    [2]
+    >>> selection_sort([10, 20])
+    [10, 20]
+    >>> selection_sort([20, 10])
+    [10, 20]
+    >>> selection_sort([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> selection_sort(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> selection_sort(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    """
+    dup = list(values)
+    out = []
+
+    while dup:
+        index, _ = min(enumerate(dup), key=operator.itemgetter(1))
+        dup[index], dup[-1] = dup[-1], dup[index]
+        out.append(dup.pop())
+
+    return out
+
+
+def selection_sort_stable(values):
+    """
+    Stable selection sort. Like selection_sort above, but stable.
+
+    [FIXME: Make sure you understand both of the main ways to implement this,
+    and also are aware of at least one data structure where selection sort is
+    naturally stable, and why that is. Replace this paragraph with a brief
+    description of whatever aspects of those issues you regard helpful for this
+    docstring. (If that is none of it, then just delete this paragraph.)]
+
+    >>> selection_sort_stable([])
+    []
+    >>> selection_sort_stable(())
+    []
+    >>> selection_sort_stable((2,))
+    [2]
+    >>> selection_sort_stable([10, 20])
+    [10, 20]
+    >>> selection_sort_stable([20, 10])
+    [10, 20]
+    >>> selection_sort_stable([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> selection_sort_stable(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> selection_sort_stable(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> selection_sort_stable([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    >>> selection_sort_stable([None])  # You don't need to special-case this.
+    [None]
+    """
+    blank = object()
+    dup = list(values)
+    out = []
+
+    for _ in range(len(dup)):
+        with_indices = ((i, x) for i, x in enumerate(dup) if x is not blank)
+        index, value = min(with_indices, key=operator.itemgetter(1))
+        dup[index] = blank
+        out.append(value)
+
+    return out
+
+
+def selection_sort_in_place(values):
+    """
+    Unstable in-place selection sort. Permutes values. O(1) auxiliary space.
+
+    >>> def test(a): print(selection_sort_in_place(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    """
+    for left in range(0, len(values) - 1):
+        best_right = min(range(left, len(values)), key=values.__getitem__)
+        values[left], values[best_right] = values[best_right], values[left]
+
+
+def select_k_left_unstable(values, k):
+    """
+    Find some kth order statistic (0-based indexing) in O(k * n) time.
+
+    This is an object that appears at index k in some sorted permutation of the
+    values. This could be the same object sorted(values)[k] but it need not be.
+    In the required time complexity, n == len(values).
+
+    Actually evaluating sorted(values)[k] would often be faster than this, but
+    too slow for small k (too slow when k grows slower than log n). The logic
+    here should be directly based on selection sort. Do not modify values.
+
+    It is possible to solve this (and select_k_right below) in O(k log n)
+    worst-case time with another technique, but this exercise isn't about that.
+
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> [select_k_left_unstable(a, i) for i in range(len(a))]
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> a
+    [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    """
+    dup = list(values)
+
+    def extract_min():
+        index, _ = min(enumerate(dup), key=operator.itemgetter(1))
+        dup[index], dup[-1] = dup[-1], dup[index]
+        return dup.pop()
+
+    for _ in range(k):
+        extract_min()
+
+    return extract_min()
+
+
+def select_k_right_unstable(values, k):
+    """
+    Find some kth order statistic (0-based indexing) in O(k * (n - k)) time.
+
+    See select_k_left above. Here, actually evaluating sorted(values(k)) would
+    be too slow when k is almost n (when n - k grows slower than log n).
+
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> [select_k_right_unstable(a, i) for i in range(len(a))]
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> a
+    [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    """
+    dup = list(values)
+
+    def extract_max():
+        index, _ = max(enumerate(dup), key=operator.itemgetter(1))
+        dup[index], dup[-1] = dup[-1], dup[index]
+        return dup.pop()
+
+    for _ in range(len(dup) - k - 1):
+        extract_max()
+
+    return extract_max()
+
+
+def select_k_right_unstable_alt(values, k):
+    """
+    Find some kth order statistic (0-based indexing) in O(k * (n - k)) time.
+
+    This alternate implementation of select_k_right_unstable makes good use of
+    a data structure already implemented in another module of this project.
+
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> [select_k_right_unstable_alt(a, i) for i in range(len(a))]
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    """
+    pq = queues.FastEnqueueMaxPriorityQueue()
+    for value in values:
+        pq.enqueue(value)
+
+    right_k = len(pq) - k - 1
+    for _ in range(right_k):
+        pq.dequeue()
+
+    return pq.dequeue()
 
 
 def merge_two_slow(values1, values2):
