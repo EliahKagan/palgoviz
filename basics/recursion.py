@@ -823,63 +823,184 @@ def merge_sort_bottom_up(values, *, merge=merge_two):
     return queue[0]
 
 
-def partition_two(values, pivot):
+def partition3(values, pivot):
     """
-    Stable 2-way partition into values less than and not less than the pivot.
+    Stable 3-way partition.
 
-    >>> partition_two([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
-    ([3, -17, 1, 2, -15, 1, -1, 0], [4, 8, 66, 9, 5, 8])
-    >>> partition_two([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
-    ([3, -17, 1, 4, 2, -15, 1, -1, 0], [8, 66, 9, 5, 8])
+    Returns lists of values less than, similar to, and greater than the pivot.
+
+    >>> partition3([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
+    ([3, -17, 1, 2, -15, 1, -1, 0], [4], [5, 8, 66, 9, 5, 8])
+    >>> partition3([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
+    ([3, -17, 1, 4, 2, -15, 1, -1, 0], [5, 5], [8, 66, 9, 8])
     """
-    left = []
-    right = []
+    lower = []
+    similar = []
+    higher = []
+
     for value in values:
-        (left if value < pivot else right).append(value)
-    return left, right
+        if value < pivot:
+            lower.append(value)
+        elif pivot < value:
+            higher.append(value)
+        else:
+            similar.append(value)
+
+    return lower, similar, higher
 
 
-def order_index_left(values, new_value):
+def similar_range(values, new_value):
     """
-    Find the leftmost insertion point for new_value in sorted(values).
+    Find the range of valid insertion points for new_value in sorted(values).
+
+    (When new_value is already present in values, this is the same as the range
+    of indices where new_value could appear in an arbitrary sorted permutation
+    of values, i.e., in a sorting of values without any stability guarantee.)
 
     The asymptotic time complexity is the best possible for this problem:
     [FIXME: Note it here.]
 
-    See also order_index_left_alt below.
+    See also similar_range_alt below.
 
-    >>> order_index_left([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
-    8
-    >>> order_index_left([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
-    9
+    >>> similar_range([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
+    range(8, 9)
+    >>> similar_range([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
+    range(9, 11)
     """
-    left, _ = partition_two(values, new_value)
-    return len(left)
+    lower, similar, _ = partition3(values, new_value)
+    return range(len(lower), len(lower) + len(similar))
 
 
-def order_index_left_alt(values, new_value):
+def similar_range_alt(values, new_value):
     """
-    Find the leftmost insertion point for new_value in sorted(values).
+    Find the range of valid insertion points for new_value in sorted(values).
 
-    This is an alternative implementation of order_index_left. One of them uses
-    partition_two to do all but O(1) of its work. The other fits easily in one
-    line, calls only builtins, and uses O(1) auxiliary space. They have the
-    same asymptotic time complexity.
+    This is an alternate implementation of similar_range. One uses partition3
+    for all but O(1) of its work (time). The other uses O(1) auxiliary space.
+    Both are single-pass algorithms, with the same asymptotic time complexity.
 
-    >>> order_index_left_alt([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
-    ...                      4)
-    8
-    >>> order_index_left_alt([3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
-    ...                      5)
-    9
+    >>> similar_range_alt([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
+    ...                   4)
+    range(8, 9)
+    >>> similar_range_alt([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
+    ...                   5)
+    range(9, 11)
     """
-    return sum(1 for value in values if value < new_value)
+    lower = similar = 0
+
+    for value in values:
+        if value < new_value:
+            lower += 1
+        elif not new_value < value:
+            similar += 1
+
+    return range(lower, lower + similar)
 
 
 def select_by_partitioning(values, k):
     """
-    Find the value such that exactly k values are less than it.
+    Find the stable kth order statistic (0-based indexing) or raise IndexError.
+
+    This is the item at nonnegative index k in a stable sort. The expression
+
+        select_by_partitioning(values, k) is sorted(values)[k]
+
+    evaluates to True when possible, and otherwise raises IndexError.
+
+    You can assume k is always an int. If k is negative, raise IndexError.
+
+    The technique used is partition-based, calling partition3. Average time
+    complexity is asymptotically optimal, but worst-case time complexity isn't.
+    [FIXME: Write the best, average, and worst-case time complexities here.]
+
+    TODO: Give this function the common name of the algorithm it implements.
+
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], -1)
+    Traceback (most recent call last):
+      ...
+    IndexError: order statistic out of range
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 0)
+    10
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 1)
+    20
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 2)
+    30
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 3)
+    40
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 4)
+    50
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 5)
+    60
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 6)
+    70
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 7)
+    80
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 8)
+    90
+    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 9)
+    Traceback (most recent call last):
+      ...
+    IndexError: order statistic out of range
+
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 0)
+    1.0
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 1)
+    True
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 2)
+    1
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 3)
+    2.0
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 4)
+    3
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 5)
+    3.0
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 6)
+    4.0
+    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 7)
+    4
     """
+    if not 0 <= k < len(values):
+        raise IndexError('order statistic out of range')
+
+    lower, similar, higher = partition3(values, values[k])
+
+    if k < len(lower):
+        return select_by_partitioning(lower, k)
+
+    if k < len(lower) + len(similar):
+        return similar[k - len(lower)]
+
+    return select_by_partitioning(higher, k - (len(lower) + len(similar)))
+
+
+def sort_by_partitioning_simple(values):
+    """
+    Stably sort values by a partition-based technique, creating a new list.
+
+    This does most of its work in calls to partition3. Average time complexity
+    is asymptotically optimal, but worst-case time complexity isn't.
+    [FIXME: Write the best, average, and worst-case time complexities here.]
+
+    The average time complexity is good, but it may be that some common inputs
+    give worst-case time. That's OK here. Subsequent exercises improve on this.
+
+    TODO: Give this function the common name of the algorithm it implements.
+
+    >>> sort_by_partitioning_simple([50, 90, 60, 40, 10, 80, 20, 30, 70])
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    >>> sort_by_partitioning_simple([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0])
+    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+    """
+    if len(values) < 2:
+        return values
+
+    lower, similar, higher = partition3(values, values[0])
+    sorted_lower = sort_by_partitioning_simple(lower)
+    sorted_higher = sort_by_partitioning_simple(higher)
+    return sorted_lower + similar + sorted_higher
+
+
+# FIXME: Make sort_by_partitioning and sort_by_partitioning_hardened exercises.
 
 
 def make_deep_tuple(depth):
