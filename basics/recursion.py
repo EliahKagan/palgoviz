@@ -1173,6 +1173,46 @@ def merge_many_bottom_up(sorted_lists, *, merge=merge_two):
     return current[0]
 
 
+def merge_sort_adaptive(values, *, merge=merge_two):
+    """
+    Highly adaptive implementation of stable recursive top-down mergesort.
+
+    Real-world input for sorting algorithms is often non-random. In particular,
+    it is common that input has much longer monotone runs than random data
+    would have. "Monotone" means "not changing direction."
+
+    Take advantage of this to design and implement an algorithm that has worst
+    and average case O(n log n) time, but best-case O(n) time, so that the best
+    case, though rare among all possible inputs, is fairly common in practice.
+    When input data seldom change direction, this finishes in near-linear time.
+
+    Hint: Professor Retro claims runs of equal (or similar) values can be
+    treated either as rising runs or as falling runs, and thus won't break
+    either kind of run if they appear with in it. Is the professor right? Of
+    increasing, decreasing, nonincreasing, and nondecreasing runs, which kinds
+    are most useful for merge_sort_adaptive to detect?
+
+    [FIXME: State the running time in terms of both n and the number of
+    direction changes in the input, or some related variable.]
+    """
+
+
+def merge_sort_adaptive_bottom_up(values, *, merge=merge_two):
+    """
+    Highly adaptive implementation of stable iterative bottom-up mergesort.
+
+    This is like merge_sort_adaptive, but that is top-down and recursive, while
+    this is bottom-up and uses no recursion. Their asymptotic time complexities
+    are the same, both in terms of n alone, and in terms of n and the number of
+    direction changes or some related variable.
+
+    FIXME: If the two implementations share substantial logic, factor that out
+    into a module-level nonpublic function. You might also find it helpful to
+    write tests for that function, to be confident these implementations work
+    the way you intend and are as fully adaptive as you intend.
+    """
+
+
 def partition3(values, pivot):
     """
     Stable 3-way partition.
