@@ -1089,6 +1089,90 @@ def merge_sort_bottom_up(values, *, merge=merge_two):
     return queue[0]
 
 
+# !!FIXME: When removing implementation bodies remove "*, merge=merge_two" too.
+def merge_many(sorted_lists, *, merge=merge_two):
+    """
+    Recursively stably merge any number of sorted lists into a new sorted list.
+
+    With n total elements across k lists, the worst-case time is O(n log k).
+
+    >>> merge_many([])
+    []
+    >>> merge_many(())
+    []
+    >>> merge_many([[3]])
+    [3]
+    >>> merge_many([x] for x in range(10, 0, -1))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    >>> ''.join(merge_many(collections.deque([
+    ...     ['b', 'b'], ['a', 'c', 'd'], ['b', 'f'], ['a', 'b', 'c', 'd', 'e'],
+    ...     [], ['c', 'f'], ['c', 'g'], ['f', 'h'], ['a', 'e'], ['b', 'h'], [],
+    ...     ['b'], ['c', 'x'], ['a', 'b', 'c'], ['w' ,'y'], ['w', 'z'], ['v'],
+    ... ])))  # Test with a deque, since it is a weird non-sliceable sequence.
+    'aaaabbbbbbbccccccddeefffghhvwwxyz'
+    >>> merge_many([[0.0, 1.0, 2.0, 3.0], [-1, 0, 1, 2, 3, 4], [False, True]])
+    [-1, 0.0, 0, False, 1.0, 1, True, 2.0, 2, 3.0, 3, 4]
+    """
+    def helper(branches):
+        match branches:
+            case []:
+                return []
+            case [seq]:
+                return list(seq)
+            case _:
+                half = len(branches) // 2
+                return merge(helper(branches[:half]), helper(branches[half:]))
+
+    return helper(list(sorted_lists))
+
+
+# !!FIXME: When removing implementation bodies remove "*, merge=merge_two" too.
+def merge_many_bottom_up(sorted_lists, *, merge=merge_two):
+    """
+    Iteratively stably merge any number of sorted lists into a new sorted list.
+
+    This is like merge_many, but that is top-down and recursive, while this is
+    bottom-up and uses no recursion. Asymptotic time complexities are the same.
+
+    >>> merge_many_bottom_up([])
+    []
+    >>> merge_many_bottom_up(())
+    []
+    >>> merge_many_bottom_up([[3]])
+    [3]
+    >>> merge_many_bottom_up([x] for x in range(10, 0, -1))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    >>> ''.join(merge_many_bottom_up(collections.deque([
+    ...     ['b', 'b'], ['a', 'c', 'd'], ['b', 'f'], ['a', 'b', 'c', 'd', 'e'],
+    ...     [], ['c', 'f'], ['c', 'g'], ['f', 'h'], ['a', 'e'], ['b', 'h'], [],
+    ...     ['b'], ['c', 'x'], ['a', 'b', 'c'], ['w' ,'y'], ['w', 'z'], ['v'],
+    ... ])))  # Test with a deque, since it is a weird non-sliceable sequence.
+    'aaaabbbbbbbccccccddeefffghhvwwxyz'
+    >>> merge_many_bottom_up([
+    ...     [0.0, 1.0, 2.0, 3.0], [-1, 0, 1, 2, 3, 4], [False, True]
+    ... ])
+    [-1, 0.0, 0, False, 1.0, 1, True, 2.0, 2, 3.0, 3, 4]
+    """
+    if not sorted_lists:
+        return []
+
+    current = collections.deque(sorted_lists)
+    previous = collections.deque()
+
+    while len(current) > 1:
+        current, previous = previous, current
+
+        while len(previous) > 1:
+            left = previous.popleft()
+            right = previous.popleft()
+            current.append(merge(left, right))
+
+        if previous:
+            current.append(previous.popleft())
+
+    return current[0]
+
+
 def partition3(values, pivot):
     """
     Stable 3-way partition.
