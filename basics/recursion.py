@@ -1250,6 +1250,8 @@ def _do_stable_quicksort(values, choose_pivot):
     return sorted_lower + similar + sorted_higher
 
 
+# TODO: Rename all three of the "sort by partitioning" functions--this one and
+#       the next two below it--after the algorithm they all implement.
 def sort_by_partitioning_simple(values):
     """
     Stably sort values by a partition-based technique, creating a new list.
@@ -1257,9 +1259,6 @@ def sort_by_partitioning_simple(values):
     This does most of its work in calls to partition3. Average time complexity
     is asymptotically optimal, but worst-case time complexity isn't.
     [FIXME: Write the best, average, and worst-case time complexities here.]
-
-    TODO: Name this function, and the next two below it, after the algorithm
-    they all implement.
 
     >>> sort_by_partitioning_simple([50, 90, 60, 40, 10, 80, 20, 30, 70])
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
@@ -1277,7 +1276,7 @@ def sort_by_partitioning_simple(values):
     >>> sort_by_partitioning_simple(r2) == list(r1)  # doctest: +SKIP
     True
     """
-    return _do_stable_quicksort(values, lambda seq: seq[len(seq) // 2])
+    return _do_stable_quicksort(list(values), lambda seq: seq[len(seq) // 2])
 
 
 def sort_by_partitioning(values):
@@ -1308,12 +1307,11 @@ def sort_by_partitioning(values):
     >>> sort_by_partitioning(r2) == list(r1)
     True
     """
-    return _do_stable_quicksort(values, random.choice)
+    return _do_stable_quicksort(list(values), random.choice)
 
 
-# FIXME: This is the third of three implementations. In addition to renaming
-# them for the algorithm they implement, extract their shared logic to a
-# module-level nonpublic function.
+# FIXME: This is the third of three similar implementations. Extract their
+#        shared logic to a module-level nonpublic function.
 def sort_by_partitioning_hardened(values):
     """
     Stably sort seriously untrusted values by a partition-based technique,
@@ -1332,7 +1330,7 @@ def sort_by_partitioning_hardened(values):
     to real-world use, especially considering that anyone who wants these
     benefits can just use mergesort instead, which is worst-case O(n log n).
 
-    [FIXME: Yet this algorithm is very often preferred to merge sort! Briefly
+    [FIXME: Yet this algorithm is very often preferred to mergesort! Briefly
     state, somewhere, what is different between (a) our three implementations
     of this algorithm, and (b) the way it's usually done in practice. Hint: The
     variations used in practice actually lack an often-desired feature these
@@ -1349,7 +1347,7 @@ def sort_by_partitioning_hardened(values):
     >>> sort_by_partitioning_hardened(r2) == list(r1)
     True
     """
-    return _do_stable_quicksort(values, secrets.choice)
+    return _do_stable_quicksort(list(values), secrets.choice)
 
 
 def stabilize(unstable_sort, *, materialize=False):
