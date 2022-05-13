@@ -1181,49 +1181,25 @@ def select_by_partitioning(values, k):
     complexity is asymptotically optimal, but worst-case time complexity isn't.
     [FIXME: Write the best, average, and worst-case time complexities here.]
 
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], -1)
+    >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
+    >>> [select_by_partitioning(a, i) for i in range(9)]
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    >>> select_by_partitioning(a, -1)
     Traceback (most recent call last):
       ...
     IndexError: order statistic out of range
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 0)
-    10
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 1)
-    20
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 2)
-    30
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 3)
-    40
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 4)
-    50
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 5)
-    60
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 6)
-    70
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 7)
-    80
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 8)
-    90
-    >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], 9)
+    >>> select_by_partitioning(a, 9)
     Traceback (most recent call last):
       ...
     IndexError: order statistic out of range
+    >>> a
+    [50, 90, 60, 40, 10, 80, 20, 30, 70]
 
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 0)
-    1.0
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 1)
-    True
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 2)
-    1
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 3)
-    2.0
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 4)
-    3
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 5)
-    3.0
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 6)
-    4.0
-    >>> select_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 7)
-    4
+    >>> b = [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
+    >>> [select_by_partitioning(b, i) for i in range(8)]
+    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+    >>> b
+    [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
     """
     if not 0 <= k < len(values):
         raise IndexError('order statistic out of range')
@@ -1245,50 +1221,25 @@ def select_by_partitioning_iterative(values, k):
 
     This is like select_by_partitioning but iterative instead of recursive.
 
-    >>> sbpi = select_by_partitioning_iterative
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], -1)
+    >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
+    >>> [select_by_partitioning_iterative(a, i) for i in range(9)]
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    >>> select_by_partitioning_iterative(a, -1)
     Traceback (most recent call last):
       ...
     IndexError: order statistic out of range
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 0)
-    10
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 1)
-    20
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 2)
-    30
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 3)
-    40
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 4)
-    50
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 5)
-    60
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 6)
-    70
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 7)
-    80
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 8)
-    90
-    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 9)
+    >>> select_by_partitioning_iterative(a, 9)
     Traceback (most recent call last):
       ...
     IndexError: order statistic out of range
+    >>> a
+    [50, 90, 60, 40, 10, 80, 20, 30, 70]
 
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 0)
-    1.0
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 1)
-    True
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 2)
-    1
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 3)
-    2.0
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 4)
-    3
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 5)
-    3.0
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 6)
-    4.0
-    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 7)
-    4
+    >>> b = [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
+    >>> [select_by_partitioning_iterative(b, i) for i in range(8)]
+    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+    >>> b
+    [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
     """
     if not 0 <= k < len(values):
         raise IndexError('order statistic out of range')
@@ -1324,8 +1275,9 @@ def sort_by_partitioning_simple(values):
     Stably sort values by a partition-based technique, creating a new list.
 
     This does most of its work in calls to partition3. Average time complexity
-    is asymptotically optimal, but worst-case time complexity isn't.
-    [FIXME: Write the best, average, and worst-case time complexities here.]
+    is asymptotically optimal. (What is the asymptotically optimal average-case
+    time complexity for a comparison sort?) But worst-case time complexity
+    isn't. [FIXME: State best, average, and worst-case time complexities here.]
 
     >>> sort_by_partitioning_simple([50, 90, 60, 40, 10, 80, 20, 30, 70])
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
