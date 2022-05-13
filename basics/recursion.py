@@ -1352,8 +1352,8 @@ def sort_by_partitioning(values):
     list.
 
     This is like sort_by_partitioning_simple, but naturally occurring
-    combinations of sorted and reverse-sorted runs in the input are not likely
-    ever to cause worst-case performance or RecursionError. Also, it should be
+    combinations of sorted and reverse-sorted runs in the input are unlikely to
+    cause worst-case performance or RecursionError. Also, it should be
     challenging (albeit potentially feasible) even for an expert attacker with
     full knowledge of this code and all its dependencies to craft input that
     causes degraded performance or excessive recursion depth. (Code that fails
