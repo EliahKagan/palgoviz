@@ -1434,13 +1434,13 @@ def stabilize(unstable_sort, *, materialize=False):
     >>> isort([1, 1.0, True, fractions.Fraction(1, 1)])
     [1, 1.0, True, Fraction(1, 1)]
     """
-    maybe_materialize = (list if materialize else lambda x: x)
+    maybe_materialize = (list if materialize else lambda arg: arg)
 
     @functools.wraps(unstable_sort)
     def stabilized_sort(values):
-        augmented_input = ((x, i) for i, x in enumerate(values))
+        augmented_input = ((item, index) for index, item in enumerate(values))
         augmented_output = unstable_sort(maybe_materialize(augmented_input))
-        return [x for x, _ in augmented_output]
+        return [item for item, _ in augmented_output]
 
     return stabilized_sort
 
