@@ -396,9 +396,12 @@ def drop(iterable, n):
     if n < 0:
         raise ValueError("can't skip negatively many items")
 
-    it = iter(iterable)
-    collections.deque(itertools.islice(it, n), maxlen=0)
-    return it
+    def generate():
+        it = iter(iterable)
+        collections.deque(itertools.islice(it, n), maxlen=0)
+        yield from it
+
+    return generate()
 
 
 def last(iterable):
