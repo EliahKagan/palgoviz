@@ -1228,7 +1228,7 @@ def select_by_partitioning(values, k):
     if not 0 <= k < len(values):
         raise IndexError('order statistic out of range')
 
-    lower, similar, higher = partition3(values, values[k])
+    lower, similar, higher = partition3(values, random.choice(values))
 
     if k < len(lower):
         return select_by_partitioning(lower, k)
@@ -1294,7 +1294,7 @@ def select_by_partitioning_iterative(values, k):
         raise IndexError('order statistic out of range')
 
     while True:
-        lower, similar, higher = partition3(values, values[k])
+        lower, similar, higher = partition3(values, random.choice(values))
 
         if len(lower) <= k < len(lower) + len(similar):
             return similar[k - len(lower)]
