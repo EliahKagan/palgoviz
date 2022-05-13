@@ -668,7 +668,7 @@ def selection_sort(values):
     Most selection sort implementations, including this one, are unstable. That
     lets them be significantly simpler and also faster by a constant factor.
 
-    [FIXME: Write best, average, and worst case asymptotic time complexities.]
+    [FIXME: State best, average, and worst case asymptotic time complexities.]
 
     >>> selection_sort([])
     []
@@ -1163,8 +1163,8 @@ def similar_range_alt(values, new_value):
     return range(lower, lower + similar)
 
 
-# TODO: Name the "select by partitioning" functions--this one and the one after
-#       it--after the algorithm they both implement.
+# TODO: Rename the "select by partitioning" functions--this one and the one
+#       after it--after the algorithm they both implement.
 def select_by_partitioning(values, k):
     """
     Recursively find the stable kth order statistic or raise IndexError.
@@ -1179,7 +1179,7 @@ def select_by_partitioning(values, k):
 
     The technique used is partition-based, calling partition3. Average time
     complexity is asymptotically optimal, but worst-case time complexity isn't.
-    [FIXME: Write the best, average, and worst-case time complexities here.]
+    [FIXME: State the best, average, and worst-case time complexities here.]
 
     >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
     >>> [select_by_partitioning(a, i) for i in range(9)]
@@ -1355,11 +1355,11 @@ def sort_by_partitioning_hardened(values):
     to real-world use, especially considering that anyone who wants these
     benefits can just use mergesort instead, which is worst-case O(n log n).
 
-    [FIXME: Yet this algorithm is very often preferred to mergesort! Briefly
-    state, somewhere, what is different between (a) our three implementations
-    of this algorithm, and (b) the way it's usually done in practice. Hint: The
-    variations used in practice actually lack an often-desired feature these
-    have: stability. What does lifting the stability requirement buy them?]
+    [FIXME: Yet "sort by partitioning" is often preferred to mergesort! Briefly
+    state, somewhere, the relevant difference between (a) our implementations
+    of this algorithm, and (b) the way it's usually done in production. Hint:
+    The variations used in production lack an often-desired feature ours have:
+    stability. What does lifting the stability requirement buy them?]
 
     >>> sort_by_partitioning_hardened([50, 90, 60, 40, 10, 80, 20, 30, 70])
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
