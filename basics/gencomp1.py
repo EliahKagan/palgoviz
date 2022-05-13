@@ -341,11 +341,7 @@ def take(iterable, n):
     if n < 0:
         raise ValueError("can't yield negatively many items")
 
-    def gen_slice():
-        for _, element in zip(range(n), iterable):
-            yield element
-
-    return gen_slice()
+    return (element for _, element in zip(range(n), iterable))
 
 
 def drop(iterable, n):
