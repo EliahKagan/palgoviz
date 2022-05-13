@@ -1504,21 +1504,22 @@ def stabilize(unstable_sort, *, materialize=False):
     Create a stable sort from an unstable sort. Assume total ordering.
 
     This higher-order function takes any sorting function, permitted to be
-    unstable, that accepts an iterable of comparable items. It returns a
-    sorting function based on the given function, using conceptually almost the
-    same algorithm, yet guaranteed to be stable. The output function may assume
-    total ordering, but it must not reorder different objects that compare
-    equal. The output function need not accept key= or reverse= arguments.
+    unstable, that accepts an iterable of comparable items and returns a sorted
+    list. It returns a sorting function based on the given function, using
+    conceptually almost the same algorithm, yet guaranteed to be stable. The
+    output function may assume total ordering, but it must not reorder
+    different objects that compare equal. It need not accept key= or reverse=
+    arguments.
 
     The input function is required to be correct. The output function will then
-    be correct for the same reason the input function is correct, whatever
-    reason that is. Asymptotic best, average, and worst-case time complexity
-    shall usually be preserved (if they are not, the input function is rather
-    strange). The output function may be slower than the input function by a
-    constant factor.
+    be both correct and stable, for the same reason the input function is
+    correct, whatever reason that is. This is to say both functions "work the
+    same." Asymptotic best, average, and worst-case time complexity shall
+    usually be preserved (if not, the input function is rather strange). The
+    output function may be slower than the input function by a constant factor.
 
     The output function's asymptotic space complexity is at most that of the
-    input function or O(n), whichever is greater. However, it does not perform
+    input function or O(n), whichever is greater. However, it avoids doing
     extra materialization unless materialize=True, in which case the input
     function is only required to accept lists.
 
