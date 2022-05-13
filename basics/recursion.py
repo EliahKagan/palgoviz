@@ -10,6 +10,8 @@ import bisect
 import collections
 import operator
 import queues
+import random
+import secrets
 
 import decorators
 
@@ -1176,7 +1178,7 @@ def select_by_partitioning(values, k):
     complexity is asymptotically optimal, but worst-case time complexity isn't.
     [FIXME: Write the best, average, and worst-case time complexities here.]
 
-    TODO: Give this function the common name of the algorithm it implements.
+    TODO: Name this function after the algorithm it implements.
 
     >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], -1)
     Traceback (most recent call last):
@@ -1236,6 +1238,17 @@ def select_by_partitioning(values, k):
     return select_by_partitioning(higher, k - (len(lower) + len(similar)))
 
 
+def _do_stable_quicksort(values, choose_pivot):
+    """Stable quicksort taking a function to choose a pivot from a sequence."""
+    if len(values) < 2:
+        return values
+
+    lower, similar, higher = partition3(values, choose_pivot(values))
+    sorted_lower = _do_stable_quicksort(lower, choose_pivot)
+    sorted_higher = _do_stable_quicksort(higher, choose_pivot)
+    return sorted_lower + similar + sorted_higher
+
+
 def sort_by_partitioning_simple(values):
     """
     Stably sort values by a partition-based technique, creating a new list.
@@ -1244,26 +1257,98 @@ def sort_by_partitioning_simple(values):
     is asymptotically optimal, but worst-case time complexity isn't.
     [FIXME: Write the best, average, and worst-case time complexities here.]
 
-    The average time complexity is good, but it may be that some common inputs
-    give worst-case time. That's OK here. Subsequent exercises improve on this.
-
-    TODO: Give this function the common name of the algorithm it implements.
+    TODO: Name this function, and the next two below it, after the algorithm
+    they all implement.
 
     >>> sort_by_partitioning_simple([50, 90, 60, 40, 10, 80, 20, 30, 70])
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
     >>> sort_by_partitioning_simple([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0])
     [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+
+    The average time complexity is good, but some common inputs may give
+    worst-case time and/or fail with RecursionError. Ensure this doesn't happen
+    for all-ascending or all-descending input. FIXME: Then enable these tests:
+
+    >>> r1 = range(100_000)
+    >>> sort_by_partitioning_simple(r1) == list(r1)  # doctest: +SKIP
+    True
+    >>> r2 = range(99_999, -1, -1)
+    >>> sort_by_partitioning_simple(r2) == list(r1)  # doctest: +SKIP
+    True
     """
-    if len(values) < 2:
-        return values
-
-    lower, similar, higher = partition3(values, values[0])
-    sorted_lower = sort_by_partitioning_simple(lower)
-    sorted_higher = sort_by_partitioning_simple(higher)
-    return sorted_lower + similar + sorted_higher
+    return _do_stable_quicksort(values, lambda seq: seq[len(seq) // 2])
 
 
-# FIXME: Make sort_by_partitioning and sort_by_partitioning_hardened exercises.
+def sort_by_partitioning(values):
+    """
+    Stably sort untrusted values by a partition-based technique, creating a new
+    list.
+
+    This is like sort_by_partitioning_simple, but naturally occurring
+    combinations of sorted and reverse-sorted runs in the input are not likely
+    ever to cause worst-case performance or RecursionError. Also, it should be
+    challenging (albeit potentially feasible) even for an expert attacker with
+    full knowledge of this code and all its dependencies to craft input that
+    causes degraded performance or excessive recursion depth. (Code that fails
+    to do this might still pass all the currently written tests.)
+
+    Feel free to use any standard library facilities other than those that have
+    to do with sorting. Make sure this is still fundamentally the same
+    algorithm as in sort_by_partitioning_simple.
+
+    >>> sort_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70])
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    >>> sort_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0])
+    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+    >>> r1 = range(100_000)
+    >>> sort_by_partitioning(r1) == list(r1)
+    True
+    >>> r2 = range(99_999, -1, -1)
+    >>> sort_by_partitioning(r2) == list(r1)
+    True
+    """
+    return _do_stable_quicksort(values, random.choice)
+
+
+# FIXME: This is the third of three implementations. In addition to renaming
+# them for the algorithm they implement, extract their shared logic to a
+# module-level nonpublic function.
+def sort_by_partitioning_hardened(values):
+    """
+    Stably sort seriously untrusted values by a partition-based technique,
+    creating a new list.
+
+    This is like sort_by_partitioning, but it should be infeasible even for a
+    team of expert attackers with full knowledge of the code and all its
+    dependencies and effectively unlimited time and money to craft input that
+    causes degraded performance or excessive recursion depth, except by
+    exploiting a vulnerability in the platform. (Their best shot might be a
+    vulnerability in the operating system or hardware.)
+
+    The hardening measures you take must leave best, average, and worst-case
+    asymptotic time complexity unchanged. However, they will introduce
+    substantial constant factors, so this implementation is likely ill-suited
+    to real-world use, especially considering that anyone who wants these
+    benefits can just use mergesort instead, which is worst-case O(n log n).
+
+    [FIXME: Yet this algorithm is very often preferred to merge sort! Briefly
+    state, somewhere, what is different between (a) our three implementations
+    of this algorithm, and (b) the way it's usually done in practice. Hint: The
+    variations used in practice actually lack an often-desired feature these
+    have: stability. What does lifting the stability requirement buy them?]
+
+    >>> sort_by_partitioning_hardened([50, 90, 60, 40, 10, 80, 20, 30, 70])
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    >>> sort_by_partitioning_hardened([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0])
+    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+    >>> r1 = range(100_000)
+    >>> sort_by_partitioning_hardened(r1) == list(r1)
+    True
+    >>> r2 = range(99_999, -1, -1)
+    >>> sort_by_partitioning_hardened(r2) == list(r1)
+    True
+    """
+    return _do_stable_quicksort(values, secrets.choice)
 
 
 def make_deep_tuple(depth):
