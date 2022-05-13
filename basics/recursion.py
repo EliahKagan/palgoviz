@@ -1163,23 +1163,23 @@ def similar_range_alt(values, new_value):
     return range(lower, lower + similar)
 
 
+# TODO: Name the "select by partitioning" functions--this one and the one after
+#       it--after the algorithm they both implement.
 def select_by_partitioning(values, k):
     """
-    Find the stable kth order statistic (0-based indexing) or raise IndexError.
+    Recursively find the stable kth order statistic or raise IndexError.
 
-    This is the item at nonnegative index k in a stable sort. The expression
+    This finds the item at nonnegative (0-based) index k in a stable sort. Thus
 
         select_by_partitioning(values, k) is sorted(values)[k]
 
     evaluates to True when possible, and otherwise raises IndexError.
 
-    You can assume k is always an int. If k is negative, raise IndexError.
+    You can assume isinstance(k, int). If k is negative, raise IndexError.
 
     The technique used is partition-based, calling partition3. Average time
     complexity is asymptotically optimal, but worst-case time complexity isn't.
     [FIXME: Write the best, average, and worst-case time complexities here.]
-
-    TODO: Name this function after the algorithm it implements.
 
     >>> select_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70], -1)
     Traceback (most recent call last):
@@ -1239,6 +1239,73 @@ def select_by_partitioning(values, k):
     return select_by_partitioning(higher, k - (len(lower) + len(similar)))
 
 
+def select_by_partitioning_iterative(values, k):
+    """
+    Nonrecursively find the stable kth order statistic or raise IndexError.
+
+    This is like select_by_partitioning but iterative instead of recursive.
+
+    >>> sbpi = select_by_partitioning_iterative
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], -1)
+    Traceback (most recent call last):
+      ...
+    IndexError: order statistic out of range
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 0)
+    10
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 1)
+    20
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 2)
+    30
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 3)
+    40
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 4)
+    50
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 5)
+    60
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 6)
+    70
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 7)
+    80
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 8)
+    90
+    >>> sbpi([50, 90, 60, 40, 10, 80, 20, 30, 70], 9)
+    Traceback (most recent call last):
+      ...
+    IndexError: order statistic out of range
+
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 0)
+    1.0
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 1)
+    True
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 2)
+    1
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 3)
+    2.0
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 4)
+    3
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 5)
+    3.0
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 6)
+    4.0
+    >>> sbpi([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], 7)
+    4
+    """
+    if not 0 <= k < len(values):
+        raise IndexError('order statistic out of range')
+
+    while True:
+        lower, similar, higher = partition3(values, values[k])
+
+        if len(lower) <= k < len(lower) + len(similar):
+            return similar[k - len(lower)]
+
+        if k < len(lower):
+            values = lower
+        else:
+            values = higher
+            k -= len(lower) + len(similar)
+
+
 def _do_stable_quicksort(values, choose_pivot):
     """Stable quicksort taking a function to choose a pivot from a sequence."""
     if len(values) < 2:
@@ -1295,6 +1362,12 @@ def sort_by_partitioning(values):
     Feel free to use any standard library facilities other than those that have
     to do with sorting. Make sure this is still fundamentally the same
     algorithm as in sort_by_partitioning_simple.
+
+    FIXME: After completing this, take another look at select_by_partitioning
+    and select_by_partitioning_iterative. Do they suffer the same weakness as
+    sort_by_partitioning_simple? If so, fix them analogously to the way you
+    fixed it here. If not, add a brief paragraph to select_by_partitioning's
+    docstring explaining why not.
 
     >>> sort_by_partitioning([50, 90, 60, 40, 10, 80, 20, 30, 70])
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
