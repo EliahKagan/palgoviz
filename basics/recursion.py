@@ -592,9 +592,9 @@ def insertion_sort_in_place(values):
     Stable in-place insertion sort. Permutes values. O(1) auxiliary space.
 
     This should have the same best, average, and worst-case time complexity as
-    insertion_sort. Nether use nor rewrite any functionality from any function
-    in the bisect module, nor insort_left_linear or insort_right_linear. You
-    can use any approach to iteration here, even if it seems un-Pythonic.
+    insertion_sort. Nether use nor rewrite any functionality from "insort"
+    functions in this or the bisect module. You can use any approach to
+    iteration here, even if it seems un-Pythonic.
 
     Please read the description in insertion_sort_in_place_alt before starting.
 
