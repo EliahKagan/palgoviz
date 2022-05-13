@@ -8,6 +8,7 @@ See also object_graph.py.
 
 import bisect
 import collections
+import functools
 import operator
 import queues
 import random
@@ -1349,6 +1350,76 @@ def sort_by_partitioning_hardened(values):
     True
     """
     return _do_stable_quicksort(values, secrets.choice)
+
+
+def stabilize(unstable_sort, *, materialize=False):
+    """
+    Create a stable sort from an unstable sort. Assume total ordering.
+
+    This higher-order function takes any sorting function, permitted to be
+    unstable, that accepts an iterable of comparable items. It returns a
+    sorting function based on the given function, using conceptually almost the
+    same algorithm, yet guaranteed to be stable. The output function may assume
+    total ordering, but it must not reorder different objects that compare
+    equal. The output function need not accept key= or reverse= arguments.
+
+    The input function is required to be correct. The output function will then
+    be correct for the same reason the input function is correct, whatever
+    reason that is. Asymptotic best, average, and worst-case time complexity
+    shall usually be preserved (if they are not, the input function is rather
+    strange). The output function may be slower than the input function by a
+    constant factor.
+
+    The output function's asymptotic space complexity is at most that of the
+    input function or O(n), whichever is greater. However, it does not perform
+    extra materialization unless materialize=True, in which case the input
+    function is only required to accept lists.
+
+    The output function should be given metadata so @stabilize is suitable to
+    use as a decorator. (Copy the metadata no matter how stabilize is called.)
+
+    >>> import fractions, random
+
+    >>> stabilized_selection_sort = stabilize(selection_sort)
+    >>> stabilized_selection_sort([7, 3, 4, 6, 13, 5, 12, 14, 9, 10, 11, 8])
+    [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    >>> stabilized_selection_sort([1, 1.0, True])
+    [1, 1.0, True]
+    >>> stabilized_selection_sort([1, 1.0, True, fractions.Fraction(1, 1)])
+    [1, 1.0, True, Fraction(1, 1)]
+
+    >>> @stabilize
+    ... def restabilized_sorted(values):
+    ...     dup = list(values)
+    ...     random.shuffle(dup)  # Throw stability straight out the window.
+    ...     dup.sort()
+    ...     return dup
+    >>> restabilized_sorted.__name__
+    'restabilized_sorted'
+    >>> restabilized_sorted([7, 3, 4, 6, 13, 5, 12, 14, 9, 10, 11, 8])
+    [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    >>> restabilized_sorted([1, 1.0, True])
+    [1, 1.0, True]
+    >>> restabilized_sorted([1, 1.0, True, fractions.Fraction(1, 1)])
+    [1, 1.0, True, Fraction(1, 1)]
+
+    >>> isort = stabilize(insertion_sort_recursive_alt, materialize=True)
+    >>> isort([7, 3, 4, 6, 13, 5, 12, 14, 9, 10, 11, 8])
+    [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    >>> isort([1, 1.0, True])
+    [1, 1.0, True]
+    >>> isort([1, 1.0, True, fractions.Fraction(1, 1)])
+    [1, 1.0, True, Fraction(1, 1)]
+    """
+    maybe_materialize = (list if materialize else lambda x: x)
+
+    @functools.wraps(unstable_sort)
+    def stabilized_sort(values):
+        augmented_input = ((x, i) for i, x in enumerate(values))
+        augmented_output = unstable_sort(maybe_materialize(augmented_input))
+        return [x for x, _ in augmented_output]
+
+    return stabilized_sort
 
 
 def make_deep_tuple(depth):
