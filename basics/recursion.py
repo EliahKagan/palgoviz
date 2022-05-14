@@ -1252,7 +1252,7 @@ def merge_sort_adaptive(values, *, merge=merge_two):
     data that seldom change direction, this will usually finish in near-linear
     time. Most real-world data will benefit some, even if not achieving O(n).
 
-    See recursion-hints.md for hints (if needed).
+    See recursion-hints.ipynb for hints (if needed).
 
     [FIXME: State the running time in terms of both n and the number of
     direction changes in the input, or some related variable.]
