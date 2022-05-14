@@ -1252,21 +1252,7 @@ def merge_sort_adaptive(values, *, merge=merge_two):
     data that seldom change direction, this will usually finish in near-linear
     time. Most real-world data will benefit some, even if not achieving O(n).
 
-    Hint 1: You run into Professor Run at the park where he runs backwards each
-    morning. He tells you that runs of equal (or similar) values can be treated
-    as rising runs or falling runs, so they won't break either kind of run if
-    they appear within it. Is the professor right? Of increasing, decreasing,
-    nonincreasing, and nondecreasing runs, which kinds should you detect?
-
-    Hint 2: Your algorithm may fail to sort some monotone inputs in O(n) time,
-    but those are fairly rare. To make up for it, your algorithm may succeed at
-    sorting some inputs with frequent direction changes in O(n) time. Whatever
-    runs you take advantage of, detecting all such runs will take O(n) time.
-
-    Hint 3: Concatenating two lists sometimes behaves as a two-way merge. When?
-    Such a merge is always stable. Why? Yet it's easy to accidentally design an
-    unstable sort based on this insight. Why is that? Also, concatenation and
-    two-way merge both take linear time. Yet this insight is still useful. How?
+    See recursion-hints.md for hints (if needed).
 
     [FIXME: State the running time in terms of both n and the number of
     direction changes in the input, or some related variable.]
