@@ -1174,7 +1174,31 @@ def merge_many_bottom_up(sorted_lists, *, merge=merge_two):
 
 
 def _monotone_runs(values):  # FIXME: Simplify this implementation.
-    """Split values as preserved nondecreasing and reversed decreasing runs."""
+    """
+    Split values into preserved nondecreasing and reversed decreasing runs.
+
+    This divides input values into non-interleaved rising (non-decreasing) and
+    falling (strictly decreasing) runs, reverses falling runs, and concatenates
+    reversed falling runs with adjacent rising runs when correct to do so.
+
+    >>> _monotone_runs([])
+    []
+    >>> _monotone_runs([42])
+    [[42]]
+    >>> _monotone_runs([13, 12, 9, 7, 3, 1, 5, 2, 4, 6, 8, 10, 11])
+    [[1, 3, 7, 9, 12, 13], [2, 5], [4, 6, 8, 10, 11]]
+    >>> _monotone_runs([3, 6, 2, 1, 3, 6, 0, 5, 5, 0, 1, 4, 2, 4])
+    [[3, 6], [1, 2, 3, 6], [0, 5, 5], [0, 1, 4], [2, 4]]
+    >>> _monotone_runs(['C', 'B', 'A', 'P', 'Q'])
+    [['A', 'B', 'C', 'P', 'Q']]
+    >>> _monotone_runs(['C', 'B', 'A', 'Q', 'P'])
+    [['A', 'B', 'C', 'Q'], ['P']]
+    >>> from fractions import Fraction as F
+    >>> _monotone_runs([F(0, 1), True, 1, False, F(1, 1), 0, 1.0, 0.0])
+    [[Fraction(0, 1), True, 1], [False, Fraction(1, 1)], [0, 1.0], [0.0]]
+    >>> _monotone_runs([2, F(0, 1), True, 1, False, F(1, 1), 0, 1.0, 0.0])
+    [[Fraction(0, 1), 2], [True, 1], [False, Fraction(1, 1)], [0, 1.0], [0.0]]
+    """
     runs = []  # Rising (really, nondescending) runs.
     falling = []  # A falling (strictly descending) run.
 
@@ -1218,19 +1242,31 @@ def merge_sort_adaptive(values, *, merge=merge_two):
     Highly adaptive implementation of stable recursive top-down mergesort.
 
     Real-world input for sorting algorithms is often non-random. In particular,
-    it is common that input has much longer monotone runs than random data
-    would have. "Monotone" means "not changing direction."
+    it is common that real data have much longer monotone runs than random
+    data. "Monotone" means "not changing direction." Data are sometimes almost
+    sorted or almost reverse-sorted, or have sorted and reverse-sorted pieces.
 
-    Take advantage of this to design and implement an algorithm that has worst
-    and average case O(n log n) time, but best-case O(n) time, so that the best
-    case, though rare among all possible inputs, is fairly common in practice.
-    When input data seldom change direction, this finishes in near-linear time.
+    Take advantage of this to design and implement an algorithm with worst and
+    average case O(n log n) time but best-case O(n) time, so the best case,
+    though rare among all possible inputs, is fairly common in practice. On
+    data that seldom change direction, this will usually finish in near-linear
+    time. Most real-world data will benefit some, even if not achieving O(n).
 
-    Hint: You run into Professor Run at the park where he runs backwards every
+    Hint 1: You run into Professor Run at the park where he runs backwards each
     morning. He tells you that runs of equal (or similar) values can be treated
     as rising runs or falling runs, so they won't break either kind of run if
     they appear within it. Is the professor right? Of increasing, decreasing,
     nonincreasing, and nondecreasing runs, which kinds should you detect?
+
+    Hint 2: Your algorithm may fail to sort some monotone inputs in O(n) time,
+    but those are fairly rare. To make up for it, your algorithm may succeed at
+    sorting some inputs with frequent direction changes in O(n) time. Whatever
+    runs you take advantage of, detecting all such runs will take O(n) time.
+
+    Hint 3: Concatenating two lists sometimes behaves as a two-way merge. When?
+    Such a merge is always stable. Why? Yet it's easy to accidentally design an
+    unstable sort based on this insight. Why is that? Also, concatenation and
+    two-way merge both take linear time. Yet this insight is still useful. How?
 
     [FIXME: State the running time in terms of both n and the number of
     direction changes in the input, or some related variable.]
@@ -1543,8 +1579,8 @@ def sort_by_partitioning(values):
     return _do_stable_quicksort(list(values), random.choice)
 
 
-# FIXME: This is the third of three similar implementations. Extract their
-#        shared logic to a module-level nonpublic function.
+# FIXME: This is the third of three similar implementations. Extract most or
+#        all of their shared logic to a module-level nonpublic function.
 def sort_by_partitioning_hardened(values):
     """
     Stably sort seriously untrusted values by a partition-based technique,
