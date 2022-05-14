@@ -1173,6 +1173,46 @@ def merge_many_bottom_up(sorted_lists, *, merge=merge_two):
     return current[0]
 
 
+def _monotone_runs(values):  # FIXME: Simplify this implementation.
+    """Split values as preserved nondecreasing and reversed decreasing runs."""
+    runs = []  # Rising (really, nondescending) runs.
+    falling = []  # A falling (strictly descending) run.
+
+    def process_falling():
+        nonlocal falling
+
+        if runs and not falling[-1] < runs[-1][-1]:
+            # Extend the previous rising run.
+            runs[-1].extend(reversed(falling))
+            falling.clear()
+        else:
+            # Add a new rising run.
+            falling.reverse()
+            runs.append(falling)
+            falling = []
+
+    for val in values:
+        if falling:
+            if val < falling[-1]:
+                # Continue the current falling run.
+                falling.append(val)
+                continue
+
+            process_falling()
+
+        if runs and not val < runs[-1][-1]:
+            # Continue the current rising run.
+            runs[-1].append(val)
+        else:
+            # Start a falling run.
+            falling.append(val)
+
+    if falling:
+        process_falling()
+
+    return runs
+
+
 def merge_sort_adaptive(values, *, merge=merge_two):
     """
     Highly adaptive implementation of stable recursive top-down mergesort.
@@ -1186,15 +1226,37 @@ def merge_sort_adaptive(values, *, merge=merge_two):
     case, though rare among all possible inputs, is fairly common in practice.
     When input data seldom change direction, this finishes in near-linear time.
 
-    Hint: Professor Retro claims runs of equal (or similar) values can be
-    treated either as rising runs or as falling runs, and thus won't break
-    either kind of run if they appear with in it. Is the professor right? Of
-    increasing, decreasing, nonincreasing, and nondecreasing runs, which kinds
-    are most useful for merge_sort_adaptive to detect?
+    Hint: You run into Professor Run at the park where he runs backwards every
+    morning. He tells you that runs of equal (or similar) values can be treated
+    as rising runs or falling runs, so they won't break either kind of run if
+    they appear within it. Is the professor right? Of increasing, decreasing,
+    nonincreasing, and nondecreasing runs, which kinds should you detect?
 
     [FIXME: State the running time in terms of both n and the number of
     direction changes in the input, or some related variable.]
+
+    >>> merge_sort_adaptive([])
+    []
+    >>> merge_sort_adaptive(())
+    []
+    >>> merge_sort_adaptive((2,))
+    [2]
+    >>> merge_sort_adaptive([10, 20])
+    [10, 20]
+    >>> merge_sort_adaptive([20, 10])
+    [10, 20]
+    >>> merge_sort_adaptive([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort_adaptive(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort_adaptive(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> merge_sort_adaptive([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
     """
+    return merge_many(_monotone_runs(values), merge=merge)
 
 
 def merge_sort_adaptive_bottom_up(values, *, merge=merge_two):
@@ -1210,7 +1272,29 @@ def merge_sort_adaptive_bottom_up(values, *, merge=merge_two):
     into a module-level nonpublic function. You might also find it helpful to
     write tests for that function, to be confident these implementations work
     the way you intend and are as fully adaptive as you intend.
+
+    >>> merge_sort_adaptive_bottom_up([])
+    []
+    >>> merge_sort_adaptive_bottom_up(())
+    []
+    >>> merge_sort_adaptive_bottom_up((2,))
+    [2]
+    >>> merge_sort_adaptive_bottom_up([10, 20])
+    [10, 20]
+    >>> merge_sort_adaptive_bottom_up([20, 10])
+    [10, 20]
+    >>> merge_sort_adaptive_bottom_up([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> merge_sort_adaptive_bottom_up(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> merge_sort_adaptive_bottom_up(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> merge_sort_adaptive_bottom_up([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
     """
+    return merge_many_bottom_up(_monotone_runs(values), merge=merge)
 
 
 def partition3(values, pivot):

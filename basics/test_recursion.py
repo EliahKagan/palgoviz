@@ -14,6 +14,8 @@ from recursion import (
     insort_left_linear,
     insort_right_linear,
     merge_sort,
+    merge_sort_adaptive,
+    merge_sort_adaptive_bottom_up,
     merge_sort_bottom_up,
     merge_sort_bottom_up_unstable,
     merge_two,
@@ -334,6 +336,10 @@ _SORT_PARAMS = [
         staticmethod(merge_sort_bottom_up_unstable)),
     (merge_sort_bottom_up.__name__,
         staticmethod(merge_sort_bottom_up)),
+    (merge_sort_adaptive.__name__,
+        staticmethod(merge_sort_adaptive)),
+    (merge_sort_adaptive_bottom_up.__name__,
+        staticmethod(merge_sort_adaptive_bottom_up)),
 ]
 
 _MERGE_PARAMS = [
@@ -394,6 +400,10 @@ _STABLE_SORT_PARAMS = [
         staticmethod(merge_sort)),
     (merge_sort_bottom_up.__name__,
         staticmethod(merge_sort_bottom_up)),
+    (merge_sort_adaptive.__name__,
+        staticmethod(merge_sort_adaptive)),
+    (merge_sort_adaptive_bottom_up.__name__,
+        staticmethod(merge_sort_adaptive_bottom_up)),
 ]
 
 _STABLE_COMBINED_PARAMS = [(f'{sort_name}_{merge_name}', sort, kwargs)
