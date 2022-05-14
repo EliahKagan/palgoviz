@@ -329,19 +329,6 @@ class TestTwoWayMergers(unittest.TestCase):
         self.assertListEqual(result, expected)
 
 
-_SORT_PARAMS = [
-    (merge_sort.__name__,
-        staticmethod(merge_sort)),
-    (merge_sort_bottom_up_unstable.__name__,
-        staticmethod(merge_sort_bottom_up_unstable)),
-    (merge_sort_bottom_up.__name__,
-        staticmethod(merge_sort_bottom_up)),
-    (merge_sort_adaptive.__name__,
-        staticmethod(merge_sort_adaptive)),
-    (merge_sort_adaptive_bottom_up.__name__,
-        staticmethod(merge_sort_adaptive_bottom_up)),
-]
-
 _MERGE_PARAMS = [
     ('no_args', dict()),
     (merge_two_slow.__name__, dict(merge=merge_two_slow)),
@@ -349,12 +336,30 @@ _MERGE_PARAMS = [
     (merge_two_alt.__name__, dict(merge=merge_two_alt)),
 ]
 
-_COMBINED_PARAMS = [(f'{sort_name}_{merge_name}', sort, kwargs)
-                    for sort_name, sort in _SORT_PARAMS
-                    for merge_name, kwargs in _MERGE_PARAMS]
+_ALL_MERGESORTS = [
+    merge_sort,
+    merge_sort_bottom_up_unstable,
+    merge_sort_bottom_up,
+    merge_sort_adaptive,
+    merge_sort_adaptive_bottom_up,
+]
+
+_STABLE_MERGESORTS = [
+    merge_sort,
+    merge_sort_bottom_up,
+    merge_sort_adaptive,
+    merge_sort_adaptive_bottom_up,
+]
 
 
-@parameterized_class(('label', 'sort', 'kwargs'), _COMBINED_PARAMS)
+def _mergesort_params(sorts):
+    """Make (label, sort, kwargs) @parameterized_class params for mergesort."""
+    return [(f'{sort.__name__}_{merge_name}', staticmethod(sort), kwargs)
+            for sort in sorts for merge_name, kwargs in _MERGE_PARAMS]
+
+
+@parameterized_class(('label', 'sort', 'kwargs'),
+                     _mergesort_params(_ALL_MERGESORTS))
 class TestMergeSort(unittest.TestCase):
     """Tests for the merge sort functions."""
 
@@ -395,23 +400,8 @@ class TestMergeSort(unittest.TestCase):
         self.assertListEqual(result, expected)
 
 
-_STABLE_SORT_PARAMS = [
-    (merge_sort.__name__,
-        staticmethod(merge_sort)),
-    (merge_sort_bottom_up.__name__,
-        staticmethod(merge_sort_bottom_up)),
-    (merge_sort_adaptive.__name__,
-        staticmethod(merge_sort_adaptive)),
-    (merge_sort_adaptive_bottom_up.__name__,
-        staticmethod(merge_sort_adaptive_bottom_up)),
-]
-
-_STABLE_COMBINED_PARAMS = [(f'{sort_name}_{merge_name}', sort, kwargs)
-                           for sort_name, sort in _STABLE_SORT_PARAMS
-                           for merge_name, kwargs in _MERGE_PARAMS]
-
-
-@parameterized_class(('label', 'sort', 'kwargs'), _STABLE_COMBINED_PARAMS)
+@parameterized_class(('label', 'sort', 'kwargs'),
+                     _mergesort_params(_STABLE_MERGESORTS))
 class TestMergeSortStability(unittest.TestCase):
     """Tests that the merge sort functions intended to be stable are stable."""
 
