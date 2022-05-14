@@ -341,11 +341,7 @@ def take(iterable, n):
     if n < 0:
         raise ValueError("can't yield negatively many items")
 
-    def slice():
-        for _, element in zip(range(n), iterable):
-            yield element
-
-    return slice()
+    return (element for _, element in zip(range(n), iterable))
 
 
 def drop(iterable, n):
@@ -400,12 +396,12 @@ def drop(iterable, n):
     if n < 0:
         raise ValueError("can't skip negatively many items")
 
-    def helper():
+    def generate():
         it = iter(iterable)
         collections.deque(itertools.islice(it, n), maxlen=0)
         yield from it
 
-    return helper()
+    return generate()
 
 
 def last(iterable):
