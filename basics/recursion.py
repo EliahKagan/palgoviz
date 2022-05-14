@@ -1325,6 +1325,9 @@ def partition3(values, pivot):
 
     Returns lists of values less than, similar to, and greater than the pivot.
 
+    The asymptotic time complexity is the best possible for this problem.
+    [FIXME: Note it here.]
+
     >>> partition3([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
     ([3, -17, 1, 2, -15, 1, -1, 0], [4], [5, 8, 66, 9, 5, 8])
     >>> partition3([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
@@ -1393,8 +1396,8 @@ def similar_range_alt(values, new_value):
     return range(lower, lower + similar)
 
 
-# TODO: Rename the "select by partitioning" functions--this one and the one
-#       after it--after the algorithm they both implement.
+# TODO: Rename the stable "select by partitioning" functions--this one and the
+#       one after it--after the algorithm they both implement.
 def select_by_partitioning(values, k):
     """
     Recursively find the stable kth order statistic or raise IndexError.
@@ -1603,6 +1606,37 @@ def sort_by_partitioning_hardened(values):
     True
     """
     return _do_stable_quicksort(list(values), secrets.choice)
+
+
+def partition3_in_place(values, pivot):
+    """
+    Rearrange values to be 3-way partitioned with respect to pivot. Unstable.
+
+    This is like partition3, but it mutates its input instead of returning a
+    solution, and it is unstable. Its auxiliary space complexity is O(1), so it
+    is an in-place algorithm in the strongest sense.
+
+    The asymptotic time complexity is the best possible for this problem.
+    [FIXME: Note it here. Does being in-place worsen the time complexity?]
+
+    [TODO: This solves a famous computer science problem. State which one here.
+    Make a class for that problem's objects. Add unit tests partitioning them.]
+    """
+
+
+
+# TODO: Rename the in-place unstable "select by partitioning" functions--this
+#       one and the one after it--after the algorithm they both implement.
+def select_by_partitioning_in_place(values, k):
+    """
+    Rearrange values to be partitioned with respect to the new values[k].
+
+    This recursive implementation is like select_by_partitioning, but it
+    mutates its input instead of returning a solution. It is unstable. It uses
+    partition_3_in_place. This is in-place in the sense of average auxiliary
+    space being asymptotically less then len(values). [FIXME: State the best,
+    average, and worst-case time and auxiliary space complexities.]
+    """
 
 
 def stabilize(unstable_sort, *, materialize=False):
