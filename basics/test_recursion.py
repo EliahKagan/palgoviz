@@ -11,6 +11,12 @@ from parameterized import parameterized, parameterized_class
 from compare import OrderIndistinct, Patient, WeakDiamond
 
 from recursion import (
+    binary_insertion_sort,
+    binary_insertion_sort_recursive,
+    binary_insertion_sort_recursive_alt,
+    insertion_sort,
+    insertion_sort_recursive,
+    insertion_sort_recursive_alt,
     insort_left_linear,
     insort_right_linear,
     merge_sort,
@@ -21,6 +27,11 @@ from recursion import (
     merge_two,
     merge_two_alt,
     merge_two_slow,
+    selection_sort,
+    selection_sort_stable,
+    sort_by_partitioning,
+    sort_by_partitioning_hardened,
+    sort_by_partitioning_simple,
 )
 
 _NORTH = WeakDiamond.NORTH
@@ -336,6 +347,29 @@ _MERGE_PARAMS = [
     (merge_two_alt.__name__, dict(merge=merge_two_alt)),
 ]
 
+_ALL_BASIC_SORTS = [
+    binary_insertion_sort,
+    binary_insertion_sort_recursive,
+    binary_insertion_sort_recursive_alt,
+    insertion_sort,
+    insertion_sort_recursive,
+    insertion_sort_recursive_alt,
+    selection_sort,
+    selection_sort_stable,
+]
+
+_STABLE_BASIC_SORTS = [
+    binary_insertion_sort,
+    binary_insertion_sort_recursive,
+    binary_insertion_sort_recursive_alt,
+    insertion_sort,
+    insertion_sort_recursive,
+    insertion_sort_recursive_alt,
+    selection_sort_stable,
+]
+
+# TODO: Adapt the tests so they can test the in-place sorts, too.
+
 _ALL_MERGESORTS = [
     merge_sort,
     merge_sort_bottom_up_unstable,
@@ -351,17 +385,52 @@ _STABLE_MERGESORTS = [
     merge_sort_adaptive_bottom_up,
 ]
 
+_SORTS_BY_PARTITIONING = [  # TODO: Rename with these sorts' common name.
+    sort_by_partitioning_simple,
+    sort_by_partitioning,
+    sort_by_partitioning_hardened,
+]
 
-def _mergesort_params(sorts):
-    """Make (label, sort, kwargs) @parameterized_class params for mergesort."""
+
+def _make_simple_sort_params(sorts):
+    """
+    Make (label, sort, kwargs) @parameteried_class params with empty kwargs.
+
+    This is for testing the sorts that don't use dependency injection.
+    """
+    return [(f'{sort.__name__}', staticmethod(sort), {}) for sort in sorts]
+
+
+def _make_mergesort_params(sorts):
+    """
+    Make (label, sort, kwargs) @parameterized_class params for mergesort.
+
+    This passes custom, often nonempty, kwargs to specify the 2-way merger.
+    """
     return [(f'{sort.__name__}_{merge_name}', staticmethod(sort), kwargs)
             for sort in sorts for merge_name, kwargs in _MERGE_PARAMS]
 
 
-@parameterized_class(('label', 'sort', 'kwargs'),
-                     _mergesort_params(_ALL_MERGESORTS))
-class TestMergeSort(unittest.TestCase):
-    """Tests for the merge sort functions."""
+_COMBINED_PARAMS_ALL_SORTS = [
+    *_make_simple_sort_params(_ALL_BASIC_SORTS),
+    *_make_mergesort_params(_ALL_MERGESORTS),
+    *_make_simple_sort_params(_SORTS_BY_PARTITIONING),
+]
+
+_COMBINED_PARAMS_STABLE_SORTS = [
+    *_make_simple_sort_params(_STABLE_BASIC_SORTS),
+    *_make_mergesort_params(_STABLE_MERGESORTS),
+    *_make_simple_sort_params(_SORTS_BY_PARTITIONING),
+]
+
+
+@parameterized_class(('label', 'sort', 'kwargs'), _COMBINED_PARAMS_ALL_SORTS)
+class TestSort(unittest.TestCase):
+    """
+    Tests for most of the sort functions in recursion.py.
+
+    These do not include tests of stability. For those, see TestSortStability.
+    """
 
     def test_empty_list_sorts(self):
         result = self.sort([], **self.kwargs)
@@ -401,9 +470,9 @@ class TestMergeSort(unittest.TestCase):
 
 
 @parameterized_class(('label', 'sort', 'kwargs'),
-                     _mergesort_params(_STABLE_MERGESORTS))
-class TestMergeSortStability(unittest.TestCase):
-    """Tests that the merge sort functions intended to be stable are stable."""
+                     _COMBINED_PARAMS_STABLE_SORTS)
+class TestSortStability(unittest.TestCase):
+    """Stability tests for most of the stable sort functions in recursion.py."""
 
     def test_sort_is_stable(self):
         vals = [0.0, 0, False]
