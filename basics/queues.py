@@ -19,6 +19,7 @@ import operator
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
+
     __slots__ = ()
 
     @abstractmethod
