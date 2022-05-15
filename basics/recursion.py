@@ -1610,25 +1610,50 @@ def sort_by_partitioning_hardened(values):
 
 # FIXME: Fix the bug that keeps len(values) from being returned when it should.
 def _hoare_partition(values, low, high, predicate):
-    """Hoare partition, taking a predicate. 2-way, in-place, unstable."""
-    high -= 1
+    """
+    Hoare partition values[low:high] by a predicate. 2-way, in-place, unstable.
 
+    Values that satisfy the predicate are moved before those that don't. The
+    index to the first non-satisfying value is returned. If all values in
+    values[low:high] satisfy the predicate, high is returned.
+
+    This is like std::partition in C++.
+
+    >>> def test(values, low, high, predicate):
+    ...     p = _hoare_partition(values, low, high, predicate)
+    ...     return p, sorted(values[low:p]), sorted(values[p:high])
+
+    >>> test([], 0, 0, lambda: True)
+    (0, [], [])
+    >>> test([], 0, 0, lambda: False)
+    (0, [], [])
+    >>> test(['a'], 0, 1, str.islower)
+    (1, ['a'], [])
+    >>> test(['a'], 0, 1, str.isupper)
+    (0, [], ['a'])
+    >>> test(list('AbRaCaDABrA'), 0, 11, str.islower)
+    (4, ['a', 'a', 'b', 'r'], ['A', 'A', 'A', 'B', 'C', 'D', 'R'])
+    >>> test(list('AbRaCaDABrA'), 0, 11, str.isupper)
+    (7, ['A', 'A', 'A', 'B', 'C', 'D', 'R'], ['a', 'a', 'b', 'r'])
+    >>> test(list(range(99, -1, -1)), 55, 65, lambda x: x % 2 == 0)
+    (60, [36, 38, 40, 42, 44], [35, 37, 39, 41, 43])
+    """
     while low < high:
         if predicate(values[low]):
             low += 1
-        elif predicate(values[high]):
-            values[low], values[high] = values[high], values[low]
+        elif predicate(values[high - 1]):
+            values[low], values[high - 1] = values[high - 1], values[low]
             low += 1
             high -= 1
         else:
             high -= 1
 
-    return low
+    return high
 
 
 def partition3_in_place(values, low, high, pivot):
     """
-    Rearrange values[low:high] to be 3-way partitioned with respect to pivot.
+    Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
     This is like partition3, but it mutates its input instead of returning a
     new list, and it is unstable. It returns (left, right), such that
@@ -1674,6 +1699,8 @@ def select_by_partitioning_in_place(values, k):
     partition_3_in_place. This is in-place in the sense of average auxiliary
     space being asymptotically less then len(values). [FIXME: State the best,
     average, and worst-case time and auxiliary space complexities.]
+
+    This is like std::nth_element in C++.
 
     >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
     >>> [select_by_partitioning_in_place(a[:], i) for i in range(9)]
