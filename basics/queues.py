@@ -23,23 +23,23 @@ class Queue(ABC):
 
     @abstractmethod
     def __bool__(self):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def enqueue(self, item):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def dequeue(self):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def peek(self):
-        ...
+        raise NotImplementedError
 
 
 class FifoQueue(Queue):
