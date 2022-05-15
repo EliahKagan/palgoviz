@@ -1608,35 +1608,92 @@ def sort_by_partitioning_hardened(values):
     return _do_stable_quicksort(list(values), secrets.choice)
 
 
-def partition3_in_place(values, pivot):
+# FIXME: Fix the bug that keeps len(values) from being returned when it should.
+def _hoare_partition(values, low, high, predicate):
+    """Hoare partition, taking a predicate. 2-way, in-place, unstable."""
+    high -= 1
+
+    while low < high:
+        if predicate(values[low]):
+            low += 1
+        elif predicate(values[high]):
+            values[low], values[high] = values[high], values[low]
+            low += 1
+            high -= 1
+        else:
+            high -= 1
+
+    return low
+
+
+def partition3_in_place(values, low, high, pivot):
     """
-    Rearrange values to be 3-way partitioned with respect to pivot. Unstable.
+    Rearrange values[low:high] to be 3-way partitioned with respect to pivot.
 
     This is like partition3, but it mutates its input instead of returning a
-    solution, and it is unstable. Its auxiliary space complexity is O(1), so it
-    is an in-place algorithm in the strongest sense.
+    new list, and it is unstable. It returns (left, right), such that
+    values[left:right] are the items neither less nor greater than the pivot.
+    Auxiliary space complexity is O(1); this really is an in-place algorithm.
 
     The asymptotic time complexity is the best possible for this problem.
     [FIXME: Note it here. Does being in-place worsen the time complexity?]
 
     [TODO: This solves a famous computer science problem. State which one here.
     Make a class for that problem's objects. Add unit tests partitioning them.]
-    """
 
+    FIXME: Needs tests.
+    """
+    left = _hoare_partition(values, low, high, lambda lhs: lhs < pivot)
+    right = _hoare_partition(values, left, high, lambda lhs: not lhs > pivot)
+    return left, right
+
+
+def _do_quickselect(values, low, high, k):
+    """Recursively find a kth order statistic, looking in values[low:high]."""
+    if not low <= k < high:
+        raise IndexError('order statistic out of range')
+
+    pivot = values[random.randrange(low, high)]
+    left, right = partition3_in_place(values, low, high, pivot)
+
+    if k < left:
+        return _do_quickselect(values, low, left, k)
+    if k < right:
+        return values[k]
+    return _do_quickselect(values, right, high, k)
 
 
 # TODO: Rename the in-place unstable "select by partitioning" functions--this
 #       one and the one after it--after the algorithm they both implement.
 def select_by_partitioning_in_place(values, k):
     """
-    Rearrange values to be partitioned with respect to the new values[k].
+    Rearrange values to be partitioned by the new values[k]. Return that value.
 
     This recursive implementation is like select_by_partitioning, but it
     mutates its input instead of returning a solution. It is unstable. It uses
     partition_3_in_place. This is in-place in the sense of average auxiliary
     space being asymptotically less then len(values). [FIXME: State the best,
     average, and worst-case time and auxiliary space complexities.]
+
+    >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
+    >>> [select_by_partitioning_in_place(a[:], i) for i in range(9)]
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    >>> select_by_partitioning_in_place(a, -1)
+    Traceback (most recent call last):
+      ...
+    IndexError: order statistic out of range
+    >>> select_by_partitioning_in_place(a, 9)
+    Traceback (most recent call last):
+      ...
+    IndexError: order statistic out of range
+
+    >>> b = [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
+    >>> [select_by_partitioning_in_place(b[:], i) for i in range(8)]
+    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
+
+    FIXME: Needs tests that check how the input is rearranged.
     """
+    return _do_quickselect(values, 0, len(values), k)
 
 
 def stabilize(unstable_sort, *, materialize=False):
