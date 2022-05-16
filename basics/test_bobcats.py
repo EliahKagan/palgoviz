@@ -329,6 +329,15 @@ class TestFierceBobcat(unittest.TestCase):
         with self.assertRaises(AttributeError):
             bobcat.name = 'Catbert'
 
+    def test_fierceness_attribute_has_fierceness(self):
+        bobcat = FierceBobcat('Mean Bob', 9500)
+        self.assertEqual(bobcat.fierceness, 9500)
+
+    def test_fierceness_attribute_is_read_only(self):
+        bobcat = FierceBobcat('Mean Bob', 9500)
+        with self.assertRaises(AttributeError):
+            bobcat.fierceness = 9499
+
     def test_new_attributes_cannot_be_created(self):
         bobcat = FierceBobcat('Mean Bob', 9500)
         with self.assertRaises(AttributeError):
