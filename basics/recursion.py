@@ -1608,7 +1608,6 @@ def sort_by_partitioning_hardened(values):
     return _do_stable_quicksort(list(values), secrets.choice)
 
 
-# FIXME: Fix the bug that keeps len(values) from being returned when it should.
 def _hoare_partition(values, low, high, predicate):
     """
     Hoare partition values[low:high] by a predicate. 2-way, in-place, unstable.
@@ -1713,6 +1712,8 @@ def select_by_partitioning_in_place(values, k):
     Traceback (most recent call last):
       ...
     IndexError: order statistic out of range
+
+    FIXME: The following test wrongly tests for stability:
 
     >>> b = [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
     >>> [select_by_partitioning_in_place(b[:], i) for i in range(8)]
