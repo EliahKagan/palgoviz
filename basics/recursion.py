@@ -587,9 +587,16 @@ def insertion_sort_recursive_alt(values):
 
 def merge_two_slow(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input.
+    Return a sorted list of items from two sorted sequences, in quadratic time.
 
-    If values1 is empty, this is equivalent to a binary insertion sort.
+    Separate items that appear in the same list always appear in the output in
+    that order. In addition, this is a stable merge: when it would not keep the
+    output from being sorted, items in values1 appear in the output before
+    those in values2 (i.e., ties are broken in favor of items in values1).
+
+    If values1 is empty, this is equivalent to a binary insertion sort, which
+    is to say that the input sequences' sortedness is not being taken advantage
+    of here. This algorithm takes quadratic time in the worst and average case.
 
     >>> merge_two_slow([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -617,7 +624,15 @@ def merge_two_slow(values1, values2):
 
 def merge_two(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input.
+    Return a sorted list of items from two sorted sequences, in linear time.
+
+    Separate items that appear in the same list always appear in the output in
+    that order. In addition, this is a stable merge: when it would not keep the
+    output from being sorted, items in values1 appear in the output before
+    those in values2 (i.e., ties are broken in favor of items in values1).
+
+    This takes full advantage of values1 and values2 already separately being
+    sorted. It always takes O(len(values1) + len(values2)) time, i.e., linear.
 
     >>> merge_two([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
@@ -654,7 +669,15 @@ def merge_two(values1, values2):
 
 def merge_two_alt(values1, values2):
     """
-    Return a sorted list that that takes two sorted sequences as input.
+    Return a sorted list of items from two sorted sequences, in linear time.
+
+    Separate items that appear in the same list always appear in the output in
+    that order. In addition, this is a stable merge: when it would not keep the
+    output from being sorted, items in values1 appear in the output before
+    those in values2 (i.e., ties are broken in favor of items in values1).
+
+    This is another way to implement the algorithm in merge_two. So it also
+    takes linear time in all cases.
 
     >>> merge_two_alt([1, 3, 5], [2, 4, 6])
     [1, 2, 3, 4, 5, 6]
