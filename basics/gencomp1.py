@@ -549,12 +549,7 @@ def take(iterable, n):
     [9, 16, 25]
     """
     _validate_take_n_arg(n)
-
-    def generate_slice():
-        for _, element in zip(range(n), iterable):
-            yield element
-
-    return generate_slice()
+    return (element for _, element in zip(range(n), iterable))
 
 
 class Take:
@@ -679,12 +674,12 @@ def drop(iterable, n):
     """
     _validate_drop_n_arg(n)
 
-    def helper():
+    def generate():
         it = iter(iterable)
         collections.deque(itertools.islice(it, n), maxlen=0)
         yield from it
 
-    return helper()
+    return generate()
 
 
 class Drop:
