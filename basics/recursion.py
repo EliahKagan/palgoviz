@@ -959,8 +959,8 @@ def merge_two_slow(values1, values2):
     Return a sorted list of items from two sorted sequences, in quadratic time.
 
     Separate items that appear in the same list always appear in the output in
-    that order. In addition, this is a stable merge: when it would not keep the
-    output from being sorted, items in values1 appear in the output before
+    that order. In addition, this is a stable merge: whenever it won't prevent
+    the output from being sorted, items in values1 appear in the output before
     those in values2 (i.e., ties are broken in favor of items in values1).
 
     If values1 is empty, this is equivalent to a binary insertion sort, which
@@ -996,8 +996,8 @@ def merge_two(values1, values2):
     Return a sorted list of items from two sorted sequences, in linear time.
 
     Separate items that appear in the same list always appear in the output in
-    that order. In addition, this is a stable merge: when it would not keep the
-    output from being sorted, items in values1 appear in the output before
+    that order. In addition, this is a stable merge: whenever it won't prevent
+    the output from being sorted, items in values1 appear in the output before
     those in values2 (i.e., ties are broken in favor of items in values1).
 
     This takes full advantage of values1 and values2 already separately being
@@ -1041,8 +1041,8 @@ def merge_two_alt(values1, values2):
     Return a sorted list of items from two sorted sequences, in linear time.
 
     Separate items that appear in the same list always appear in the output in
-    that order. In addition, this is a stable merge: when it would not keep the
-    output from being sorted, items in values1 appear in the output before
+    that order. In addition, this is a stable merge: whenever it won't prevent
+    the output from being sorted, items in values1 appear in the output before
     those in values2 (i.e., ties are broken in favor of items in values1).
 
     This is another way to implement the algorithm in merge_two. So it also
