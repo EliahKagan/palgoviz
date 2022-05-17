@@ -908,92 +908,31 @@ def greatest_k(values, k):
     return dup[len(dup) - k:]  # Because dup[:k] needs k=0 to be special-cased.
 
 
-###############################################################################
-# TODO: Consider removing code below this, down to the matching marker.
-
-def select_k_left_unstable(values, k):
+def select_k(values, k):
     """
-    Find some kth order statistic (0-based indexing) in O(k * n) time.
+    Find a kth order statistic (0-based indexing) in O(n * min(k, n - k)) time.
 
-    This is an object that appears at index k in some sorted permutation of the
-    values. This could be the same object sorted(values)[k] but it need not be.
-    In the required time complexity, n == len(values).
+    This need not be stable: it returns an object appearing at index k in some
+    sorted permutation of values, but not necessarily sorted(values). Using
+    sorted(values)[k] would often be faster than this, but k can be close
+    enough to 0, or close enough to n, to make the O(n log n) sort is too slow.
 
-    Actually evaluating sorted(values)[k] would often be faster than this, but
-    too slow for small k (too slow when k grows slower than log n). The logic
-    here should be directly based on selection sort. Do not modify values.
-
-    It is possible to solve this (and select_k_right below) faster with another
-    technique, but this exercise isn't about that.
+    This can be solved faster, but this exercise isn't about that. Relatedly,
+    call other functions in this module instead of duplicating functionality.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-    >>> [select_k_left_unstable(a, i) for i in range(len(a))]
+    >>> [select_k(a, i) for i in range(len(a))]
     [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
     >>> a
     [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     """
-    dup = list(values)
+    left_distance = k + 1
+    right_distance = len(values) - k
 
-    def extract_min():
-        index, _ = min(enumerate(dup), key=operator.itemgetter(1))
-        dup[index], dup[-1] = dup[-1], dup[index]
-        return dup.pop()
+    if right_distance < left_distance:
+        return greatest_k(values, right_distance)[0]
 
-    for _ in range(k):
-        extract_min()
-
-    return extract_min()
-
-
-def select_k_right_unstable(values, k):
-    """
-    Find some kth order statistic (0-based indexing) in O(k * (n - k)) time.
-
-    See select_k_left above. Here, actually evaluating sorted(values(k)) would
-    be too slow when k is almost n (when n - k grows slower than log n).
-
-    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-    >>> [select_k_right_unstable(a, i) for i in range(len(a))]
-    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
-    >>> a
-    [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-    """
-    dup = list(values)
-
-    def extract_max():
-        index, _ = max(enumerate(dup), key=operator.itemgetter(1))
-        dup[index], dup[-1] = dup[-1], dup[index]
-        return dup.pop()
-
-    for _ in range(len(dup) - k - 1):
-        extract_max()
-
-    return extract_max()
-
-
-def select_k_right_unstable_alt(values, k):
-    """
-    Find some kth order statistic (0-based indexing) in O(k * (n - k)) time.
-
-    This alternate implementation of select_k_right_unstable makes good use of
-    a data structure already implemented in another module of this project.
-
-    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-    >>> [select_k_right_unstable_alt(a, i) for i in range(len(a))]
-    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
-    """
-    pq = queues.FastEnqueueMaxPriorityQueue()
-    for value in values:
-        pq.enqueue(value)
-
-    right_k = len(pq) - k - 1
-    for _ in range(right_k):
-        pq.dequeue()
-
-    return pq.dequeue()
-
-# Consider removing code above this, up to the matching marker.
-###############################################################################
+    return least_k(values, left_distance)[-1]
 
 
 def my_shuffle(values):
