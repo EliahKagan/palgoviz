@@ -1622,8 +1622,8 @@ def _do_stable_quicksort(values, choose_pivot):
     return sorted_lower + similar + sorted_higher
 
 
-# TODO: Rename all three of the "sort by partitioning" functions--this one and
-#       the next two below it--after the algorithm they all implement.
+# TODO: Rename all three of these "sort by partitioning" functions--this one
+#       and the next two below it--after the algorithm they all implement.
 def sort_by_partitioning_simple(values):
     """
     Stably sort values by a partition-based technique, creating a new list.
@@ -1641,7 +1641,8 @@ def sort_by_partitioning_simple(values):
 
     The average time complexity is good, but some common inputs may give
     worst-case time and/or fail with RecursionError. Ensure this doesn't happen
-    for all-ascending or all-descending input. FIXME: Then enable these tests:
+    for input that is all or almost all monotone in the same direction.
+    FIXME: Then enable these tests:
 
     >>> r1 = range(100_000)
     >>> sort_by_partitioning_simple(r1) == list(r1)  # doctest: +SKIP
@@ -1825,6 +1826,11 @@ def select_by_partitioning_in_place(values, k):
     auxiliary space being asymptotically less then len(values). [FIXME: State
     the best, average, and worst-case time and auxiliary space complexities.]
 
+    Like select_by_partitioning and sort_by_partitioning, this resists
+    degrading to worst-case behavior for naturally data, and it would be
+    challenging (albeit potentially feasible) for an expert attacker to craft
+    such input.
+
     This is like std::nth_element in C++.
 
     >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
@@ -1877,8 +1883,8 @@ def select_by_partitioning_in_place_iterative(values, k):
     This is like select_by_partitioning_in_place, but no recursion is used.
 
     [FIXME: State the best, average, and worst-case time and auxiliary space
-    complexities, and explain why they are or are not all the same as those of
-    the recursive select_by_partitioning_in_place.]
+    complexities, and explain why they are, or are not, all the same as those
+    of the recursive select_by_partitioning_in_place.]
 
     >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
     >>> [select_by_partitioning_in_place_iterative(a[:], i) for i in range(9)]
@@ -1903,6 +1909,63 @@ def select_by_partitioning_in_place_iterative(values, k):
     k=7, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK', 'OK', 'OK'], right=[]
     """
     return _do_quickselect_iterative(values, 0, len(values), k)
+
+
+def _do_quicksort_in_place(values, low, high, choose_pivot_index):
+    """
+    In-place quicksort taking a function to choose a pivot index from a range.
+    """
+    if high - low < 2:
+        return
+
+    pivot = values[choose_pivot_index(low, high)]
+    left, right = partition_three_in_place(values, low, high, pivot)
+    _do_quicksort_in_place(values, low, left, choose_pivot_index)
+    _do_quicksort_in_place(values, right, high, choose_pivot_index)
+
+
+# TODO: Rename all three of the "sort by partitioning in place" functions--this
+# one and the next two below it--after the algorithm they all implement.
+def sort_by_partitioning_in_place_simple(values):
+    """
+    Sort values in place by a partition-based technique. Unstable.
+
+    This does most of its work in calls to partition_three_in_place. Average
+    time complexity as asymptotically optimal for a comparison sort. But worst
+    case time complexity isn't. This is in-place in the sense of average
+    auxiliary space being asymptotically less then len(values). [FIXME: State
+    the best, average, and worst-case time and auxiliary space complexities.]
+
+    As in sort_by_partitioning_simple, some common inputs may give worst-case
+    time and/or fail with RecursionError, but rarely rising, or rarely falling,
+    does not trigger this.
+
+    >>> def test(a):
+    ...     print(sort_by_partitioning_in_place_simple(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+
+    >>> b = list(range(100_000))
+    >>> sort_by_partitioning_in_place_simple(b)
+    >>> b == list(range(100_000))
+    True
+    >>> c = list(range(99_999, -1, -1))
+    >>> sort_by_partitioning_in_place_simple(c)
+    >>> c == list(range(100_000))
+    True
+    """
+    _do_quicksort_in_place(values, 0, len(values),
+                           lambda low, high: (low + high) // 2)
 
 
 def stabilize(unstable_sort, *, materialize=False):
