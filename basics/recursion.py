@@ -1460,7 +1460,7 @@ def merge_sort_adaptive_bottom_up(values, *, merge=merge_two):
 
 def _merge_mut_simple(values, low, mid, high, aux):
     """
-    Merge values[low:mid] and values[mid:high] in-place in values.
+    Merge values[low:mid] and values[mid:high] in values.
 
     This implementation is not adaptive.
     """
@@ -1492,7 +1492,7 @@ def _merge_mut_simple(values, low, mid, high, aux):
 
 def _merge_mut(values, low, mid, high, aux):
     """
-    Merge values[low:mid] and values[mid:high] in-place in values.
+    Merge values[low:mid] and values[mid:high] in values.
 
     This implementation is adaptive, though not aggressively so.
     """
@@ -1525,7 +1525,7 @@ def _merge_mut(values, low, mid, high, aux):
 
 def _do_merge_sort_mut(values, low, high, aux, merge):
     """
-    Mergesort values[low:high] in-place in values with the given 2-way merger.
+    Top-down mergesort values[low:high] in values with the given 2-way merger.
     """
     if high - low < 2:
         return
@@ -1538,14 +1538,16 @@ def _do_merge_sort_mut(values, low, high, aux, merge):
 
 def merge_sort_mut_simple(values):
     """
-    Recursively mergesort values by rearranging it. Stable. Not adaptive.
+    Recursively stably mergesort values top-down, rearranging it. Nonadaptive.
 
     This uses a helper function whose parameters include low, mid, and high,
     that merges values[low:mid] and values[mid:high] into values[low:high]. It
     may or may not have other parameters. It need not be the only helper used.
 
-    Doing it this way opens the door for some straightforward adaptivity
-    optimizations, but this function is not adaptive. See merge_sort_mut below.
+    That opens the door for some straightforward adaptivity optimizations, but
+    this function is not adaptive. See merge_sort_mut below.
+
+    [FIXME: State the best, average, and worst-case time complexity.]
 
     O(n) auxiliary space is permitted. However, all but O(log n) auxiliary
     space used as a result of a call to merge_sort_mut_simple must be in the
@@ -1578,19 +1580,24 @@ def merge_sort_mut_simple(values):
 
 def merge_sort_mut(values):
     """
-    Recursively mergesort values by rearranging it. Stable. Somewhat adaptive.
+    Recursively stably mergesort values top-down, rearranging it. Adaptive.
 
     This uses a helper function whose parameters include low, mid, and high,
     that merges values[low:mid] and values[mid:high] into values[low:high]. It
     may or may not have other parameters. It need not be the only helper used.
 
-    This opens the door for two straightforward forms of adaptivity. Ensure:
+    That opens the door for two straightforward forms of adaptivity. Ensure:
 
     (1) A merge that doesn't change the order of elements takes O(1) time.
 
     (2) When merging mid - low == m elements with high - mid == n elements, if
         the order of the rightmost k < n elements is unchanged, the merge takes
         O(m + n - k) time. [If k == n, optimization (1) is performed instead.]
+
+    Taken together, this is still far less aggressively adaptive than the mixed
+    run-detecting implementation in merge_sort_adaptive, but it can still help.
+
+    [FIXME: State the best, average, and worst-case time complexity.]
 
     O(n) auxiliary space is permitted, but all but O(log n) of it must use the
     same list object. See merge_sort_mut_simple for more on this requirement.
@@ -1612,6 +1619,99 @@ def merge_sort_mut(values):
     None; [0.0, 0, False]
     """
     _do_merge_sort_mut(values, 0, len(values), [], _merge_mut)
+
+
+def _do_merge_sort_mut_bottom_up(values, merge):
+    """
+    Bottom-up mergesort values, rearranging it, with the given 2-way merger.
+    """
+    aux = []
+
+    delta = 1
+    while delta < len(values):
+        for low in range(0, len(values) - delta, delta * 2):
+            mid = low + delta
+            high = min(mid + delta, len(values))
+            merge(values, low, mid, high, aux)
+        delta *= 2
+
+
+def merge_sort_mut_bottom_up_simple(values):
+    """
+    Iteratively stably mergesort values bottom-up, rearranging it. Nonadaptive.
+
+    This uses a helper function whose parameters include low, mid, and high,
+    that merges values[low:mid] and values[mid:high] into values[low:high]. It
+    may or may not have other parameters. It need not be the only helper used.
+
+    That opens the door for some straightforward adaptivity optimizations, but
+    this function is not adaptive. See merge_sort_mut_bottom_up below.
+
+    [FIXME: State the best, average, and worst-case time complexity.]
+
+    O(n) auxiliary space is permitted, but all but O(1) of it must use the same
+    list object. See merge_sort_mut_simple for more on this requirement. Note
+    that O(log n) was allowed outside the list there. Only O(1) is needed
+    outside it here, because [FIXME: state the reason].
+
+    >>> def test(a): print(merge_sort_mut_bottom_up_simple(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> test([0.0, 0, False])  # It's a stable sort.
+    None; [0.0, 0, False]
+    """
+    _do_merge_sort_mut_bottom_up(values, _merge_mut_simple)
+
+
+def merge_sort_mut_bottom_up(values):
+    """
+    Iteratively stably mergesort values bottom-up, rearranging it. Adaptive.
+
+    This uses a helper function whose parameters include low, mid, and high,
+    that merges values[low:mid] and values[mid:high] into values[low:high]. It
+    may or may not have other parameters. It need not be the only helper used.
+
+    This is somewhat adaptive. As in merge_sort_mut, ensure:
+
+    (1) A merge that doesn't change the order of elements takes O(1) time.
+
+    (2) When merging mid - low == m elements with high - mid == n elements, if
+        the order of the rightmost k < n elements is unchanged, the merge takes
+        O(m + n - k) time. [If k == n, optimization (1) is performed instead.]
+
+    [FIXME: State the best, average, and worst-case time complexity.]
+
+    O(n) auxiliary space is permitted, but all but O(1) of it must use the same
+    list object. See merge_sort_mut_simple and merge_sort_mut_bottom_up_simple.
+
+    >>> def test(a): print(merge_sort_mut_bottom_up(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> test([0.0, 0, False])  # It's a stable sort.
+    None; [0.0, 0, False]
+    >>> merge_sort_mut_bottom_up(range(1000))  # Works without special casing.
+    """
+    _do_merge_sort_mut_bottom_up(values, _merge_mut)
 
 
 def partition_three(values, pivot):

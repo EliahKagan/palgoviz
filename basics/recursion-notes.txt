@@ -15,6 +15,8 @@ merge_sort_adaptive
 merge_sort_adaptive_bottom_up
 merge_sort_mut_simple
 merge_sort_mut
+merge_sort_mut_bottom_up_simple
+merge_sort_mut_bottom_up
 partition_three
 similar_range
 similar_range_alt
