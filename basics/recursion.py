@@ -799,8 +799,8 @@ def select_k_left_unstable(values, k):
     too slow for small k (too slow when k grows slower than log n). The logic
     here should be directly based on selection sort. Do not modify values.
 
-    It is possible to solve this (and select_k_right below) in O(k log n)
-    worst-case time with another technique, but this exercise isn't about that.
+    It is possible to solve this (and select_k_right below) faster with another
+    technique, but this exercise isn't about that.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     >>> [select_k_left_unstable(a, i) for i in range(len(a))]
