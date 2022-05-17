@@ -1440,7 +1440,7 @@ def merge_sort_adaptive_bottom_up(values, *, merge=merge_two):
     return merge_many_bottom_up(_monotone_runs(values), merge=merge)
 
 
-def partition3(values, pivot):
+def partition_three(values, pivot):
     """
     Stable 3-way partition.
 
@@ -1449,9 +1449,9 @@ def partition3(values, pivot):
     The asymptotic time complexity is the best possible for this problem.
     [FIXME: Note it here.]
 
-    >>> partition3([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
+    >>> partition_three([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
     ([3, -17, 1, 2, -15, 1, -1, 0], [4], [5, 8, 66, 9, 5, 8])
-    >>> partition3([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
+    >>> partition_three([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
     ([3, -17, 1, 4, 2, -15, 1, -1, 0], [5, 5], [8, 66, 9, 8])
     """
     lower = []
@@ -1487,7 +1487,7 @@ def similar_range(values, new_value):
     >>> similar_range([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
     range(9, 11)
     """
-    lower, similar, _ = partition3(values, new_value)
+    lower, similar, _ = partition_three(values, new_value)
     return range(len(lower), len(lower) + len(similar))
 
 
@@ -1495,9 +1495,9 @@ def similar_range_alt(values, new_value):
     """
     Find the range of valid insertion points for new_value in sorted(values).
 
-    This is an alternate implementation of similar_range. One uses partition3
-    for all but O(1) of its work (time). The other uses O(1) auxiliary space.
-    Both are single-pass algorithms, with the same asymptotic time complexity.
+    This is an alternate implementation of similar_range. One uses
+    partition_three for all but O(1) of its work. The other uses O(1) auxiliary
+    space. Both are single-pass. They have the same asymptotic time complexity.
 
     >>> similar_range_alt([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
     ...                   4)
@@ -1531,9 +1531,9 @@ def select_by_partitioning(values, k):
 
     You can assume isinstance(k, int). If k is negative, raise IndexError.
 
-    The technique used is partition-based, calling partition3. Average time
-    complexity is asymptotically optimal, but worst-case time complexity isn't.
-    [FIXME: State the best, average, and worst-case time complexities here.]
+    The technique used is partition-based, calling partition_three. Average
+    time complexity is asymptotically optimal, but worst-case time complexity
+    isn't. [FIXME: State best, average, and worst-case time complexities here.]
 
     >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
     >>> [select_by_partitioning(a, i) for i in range(9)]
@@ -1558,7 +1558,7 @@ def select_by_partitioning(values, k):
     if not 0 <= k < len(values):
         raise IndexError('order statistic out of range')
 
-    lower, similar, higher = partition3(values, random.choice(values))
+    lower, similar, higher = partition_three(values, random.choice(values))
 
     if k < len(lower):
         return select_by_partitioning(lower, k)
@@ -1599,7 +1599,7 @@ def select_by_partitioning_iterative(values, k):
         raise IndexError('order statistic out of range')
 
     while True:
-        lower, similar, higher = partition3(values, random.choice(values))
+        lower, similar, higher = partition_three(values, random.choice(values))
 
         if len(lower) <= k < len(lower) + len(similar):
             return similar[k - len(lower)]
@@ -1616,7 +1616,7 @@ def _do_stable_quicksort(values, choose_pivot):
     if len(values) < 2:
         return values
 
-    lower, similar, higher = partition3(values, choose_pivot(values))
+    lower, similar, higher = partition_three(values, choose_pivot(values))
     sorted_lower = _do_stable_quicksort(lower, choose_pivot)
     sorted_higher = _do_stable_quicksort(higher, choose_pivot)
     return sorted_lower + similar + sorted_higher
@@ -1628,10 +1628,11 @@ def sort_by_partitioning_simple(values):
     """
     Stably sort values by a partition-based technique, creating a new list.
 
-    This does most of its work in calls to partition3. Average time complexity
-    is asymptotically optimal. (What is the asymptotically optimal average-case
-    time complexity for a comparison sort?) But worst-case time complexity
-    isn't. [FIXME: State best, average, and worst-case time complexities here.]
+    This does most of its work in calls to partition_three. Average time
+    complexity is asymptotically optimal. (What is the asymptotically optimal
+    average-case time complexity for a comparison sort?) But worst-case time
+    complexity isn't.
+    [FIXME: State best, average, and worst-case time complexities here.]
 
     >>> sort_by_partitioning_simple([50, 90, 60, 40, 10, 80, 20, 30, 70])
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
@@ -1729,9 +1730,9 @@ def sort_by_partitioning_hardened(values):
     return _do_stable_quicksort(list(values), secrets.choice)
 
 
-def _hoare_partition(values, low, high, predicate):
+def partition_two_in_place(values, low, high, predicate):
     """
-    Hoare partition values[low:high] by a predicate. 2-way, in-place, unstable.
+    Partition values[low:high] in-place 2-ways, by a predicate. Unstable.
 
     Values that satisfy the predicate are moved before those that don't. The
     index to the first non-satisfying value is returned. If all values in
@@ -1740,7 +1741,7 @@ def _hoare_partition(values, low, high, predicate):
     This is like std::partition in C++.
 
     >>> def test(values, low, high, predicate):
-    ...     p = _hoare_partition(values, low, high, predicate)
+    ...     p = partition_two_in_place(values, low, high, predicate)
     ...     return p, sorted(values[low:p]), sorted(values[p:high])
 
     >>> test([], 0, 0, lambda: True)
@@ -1758,6 +1759,7 @@ def _hoare_partition(values, low, high, predicate):
     >>> test(list(range(99, -1, -1)), 55, 65, lambda x: x % 2 == 0)
     (60, [36, 38, 40, 42, 44], [35, 37, 39, 41, 43])
     """
+    # Hoare partition algorithm.
     while low < high:
         if predicate(values[low]):
             low += 1
@@ -1771,12 +1773,12 @@ def _hoare_partition(values, low, high, predicate):
     return high
 
 
-def partition3_in_place(values, low, high, pivot):
+def partition_three_in_place(values, low, high, pivot):
     """
     Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
-    This is like partition3, but it mutates its input instead of returning a
-    new list, and it is unstable. It returns (left, right), such that
+    This is like partition_three, but it mutates its input instead of returning
+    a new list, and it is unstable. It returns (left, right), such that
     values[left:right] are the items neither less nor greater than the pivot.
     Auxiliary space complexity is O(1); this really is an in-place algorithm.
 
@@ -1788,8 +1790,11 @@ def partition3_in_place(values, low, high, pivot):
 
     FIXME: Needs tests.
     """
-    left = _hoare_partition(values, low, high, lambda lhs: lhs < pivot)
-    right = _hoare_partition(values, left, high, lambda lhs: not lhs > pivot)
+    left = partition_two_in_place(values, low, high, lambda lhs: lhs < pivot)
+
+    right = partition_two_in_place(values, left, high,
+                                   lambda lhs: not lhs > pivot)
+
     return left, right
 
 
@@ -1799,7 +1804,7 @@ def _do_quickselect(values, low, high, k):
         raise IndexError('order statistic out of range')
 
     pivot = values[random.randrange(low, high)]
-    left, right = partition3_in_place(values, low, high, pivot)
+    left, right = partition_three_in_place(values, low, high, pivot)
 
     if k < left:
         return _do_quickselect(values, low, left, k)
@@ -1816,9 +1821,9 @@ def select_by_partitioning_in_place(values, k):
 
     This recursive implementation is like select_by_partitioning, but it
     mutates its input instead of returning a solution. It is unstable. It uses
-    partition_3_in_place. This is in-place in the sense of average auxiliary
-    space being asymptotically less then len(values). [FIXME: State the best,
-    average, and worst-case time and auxiliary space complexities.]
+    partition_three_in_place. This is in-place in the sense of average
+    auxiliary space being asymptotically less then len(values). [FIXME: State
+    the best, average, and worst-case time and auxiliary space complexities.]
 
     This is like std::nth_element in C++.
 
@@ -1854,7 +1859,7 @@ def _do_quickselect_iterative(values, low, high, k):
 
     while True:
         pivot = values[random.randrange(low, high)]
-        left, right = partition3_in_place(values, low, high, pivot)
+        left, right = partition_three_in_place(values, low, high, pivot)
 
         if left <= k < right:
             return values[k]
