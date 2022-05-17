@@ -1659,13 +1659,13 @@ def sort_by_partitioning(values):
     Stably sort untrusted values by a partition-based technique, creating a new
     list.
 
-    This is like sort_by_partitioning_simple, but naturally occurring
-    combinations of sorted and reverse-sorted runs in the input are unlikely to
-    cause worst-case performance or RecursionError. Also, it should be
-    challenging (albeit potentially feasible) even for an expert attacker with
-    full knowledge of this code and all its dependencies to craft input that
-    causes degraded performance or excessive recursion depth. (Code that fails
-    to do this might still pass all the currently written tests.)
+    This is like sort_by_partitioning_simple, but naturally occurring patterns
+    in the input, including combinations of sorted and reverse-sorted runs, are
+    unlikely to cause worst-case performance or RecursionError. Also, it should
+    be challenging (albeit potentially feasible) even for an expert attacker
+    with full knowledge of this code and all its dependencies to craft input
+    that causes degraded performance or excessive recursion depth. (Code that
+    fails to do this might still pass all the currently written tests.)
 
     Feel free to use any standard library facilities other than those that have
     to do with sorting. Make sure this is still fundamentally the same
@@ -1681,10 +1681,10 @@ def sort_by_partitioning(values):
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
     >>> sort_by_partitioning([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0])
     [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
-    >>> r1 = range(100_000)
+    >>> r1 = range(50_000)
     >>> sort_by_partitioning(r1) == list(r1)
     True
-    >>> r2 = range(99_999, -1, -1)
+    >>> r2 = range(49_999, -1, -1)
     >>> sort_by_partitioning(r2) == list(r1)
     True
     """
@@ -1701,9 +1701,9 @@ def sort_by_partitioning_hardened(values):
     This is like sort_by_partitioning, but it should be infeasible even for a
     team of expert attackers with full knowledge of the code and all its
     dependencies and effectively unlimited time and money to craft input that
-    causes degraded performance or excessive recursion depth, except by
-    exploiting a vulnerability in the platform. (Their best shot might be a
-    vulnerability in the operating system or hardware.)
+    causes degraded performance or excessive recursion depth--even though such
+    input is guaranteed possible--except by exploiting a vulnerability in the
+    platform. (Their best shot might be a vulnerability in the OS or hardware.)
 
     The hardening measures you take must leave best, average, and worst-case
     asymptotic time complexity unchanged. However, they will introduce
@@ -1721,10 +1721,10 @@ def sort_by_partitioning_hardened(values):
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
     >>> sort_by_partitioning_hardened([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0])
     [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
-    >>> r1 = range(100_000)
+    >>> r1 = range(50_000)
     >>> sort_by_partitioning_hardened(r1) == list(r1)
     True
-    >>> r2 = range(99_999, -1, -1)
+    >>> r2 = range(49_999, -1, -1)
     >>> sort_by_partitioning_hardened(r2) == list(r1)
     True
     """
@@ -1925,7 +1925,10 @@ def _do_quicksort_in_place(values, low, high, choose_pivot_index):
 
 
 # TODO: Rename all three of the "sort by partitioning in place" functions--this
-# one and the next two below it--after the algorithm they all implement.
+#       one and the next two below it--after the algorithm they all implement.
+# FIXME: As with the non-in-place "sort by partitioning" functions above, there
+#        are 3 of these. Put most or all of these 3 functions' shared logic to
+#        a module-level nonpublic function (specific to the in-place versions).
 def sort_by_partitioning_in_place_simple(values):
     """
     Sort values in place by a partition-based technique. Unstable.
@@ -1966,6 +1969,88 @@ def sort_by_partitioning_in_place_simple(values):
     """
     _do_quicksort_in_place(values, 0, len(values),
                            lambda low, high: (low + high) // 2)
+
+
+def sort_by_partitioning_in_place(values):
+    """
+    Sort untrusted values in place by a partition-based technique. Unstable.
+
+    This is like sort_by_partitioning_in_place_simple, but naturally occurring
+    combinations of sorted and reverse, including combinations of sorted and
+    reverse-sorted runs, are unlikely to cause worst-case performance or
+    RecursionError. Also, it should be challenging (albeit potentially
+    feasible) even for an expert attacker with full knowledge of this code and
+    all its dependencies to craft input that causes degraded performance or
+    excessive recursion depth.
+
+    This has the same relation to sort_by_partitioning_in_place_simple that
+    sort_by_partitioning has to sort_by_partitioning_simple.
+
+    >>> def test(a): print(sort_by_partitioning_in_place(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+
+    >>> b = list(range(50_000))
+    >>> sort_by_partitioning_in_place(b)
+    >>> b == list(range(50_000))
+    True
+    >>> c = list(range(49_999, -1, -1))
+    >>> sort_by_partitioning_in_place(c)
+    >>> c == list(range(50_000))
+    True
+    """
+    _do_quicksort_in_place(values, 0, len(values), random.randrange)
+
+
+def sort_by_partitioning_in_place_hardened(values):
+    """
+    Sort seriously untrusted values in place by a partition-based technique.
+
+    This is like sort_by_partitioning_in_place, but it should be as secure as
+    possible against highly sophisticated deliberate crafting of input, so that
+    nobody can deliberately cause it to degrade to worst-case performance,
+    while still being "the same algorithm" as sort_by_partitioning_in_place.
+
+    See sort_by_partitioning_hardened for a fuller description. This has the
+    same relation to sort_by_partitioning_in_place that sort_by_partitioning
+    has to sort_by_partitioning_hardened.
+
+    >>> def test(a):
+    ...     print(sort_by_partitioning_in_place_hardened(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+
+    >>> b = list(range(50_000))
+    >>> sort_by_partitioning_in_place_hardened(b)
+    >>> b == list(range(50_000))
+    True
+    >>> c = list(range(49_999, -1, -1))
+    >>> sort_by_partitioning_in_place_hardened(c)
+    >>> c == list(range(50_000))
+    True
+    """
+    _do_quicksort_in_place(values, 0, len(values),
+                           lambda low, high: secrets.choice(range(low, high)))
 
 
 def stabilize(unstable_sort, *, materialize=False):
