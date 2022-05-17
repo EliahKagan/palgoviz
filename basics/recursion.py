@@ -917,8 +917,9 @@ def select_k(values, k):
     sorted(values)[k] would often be faster than this, but k can be close
     enough to 0, or close enough to n, to make the O(n log n) sort is too slow.
 
-    This can be solved faster, but this exercise isn't about that. Relatedly,
-    call other functions in this module instead of duplicating functionality.
+    This can be solved faster than O(n * min(k, n - k)), but this exercise
+    isn't about that. Relatedly, call other functions in this module instead of
+    duplicating their functionality.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     >>> [select_k(a, i) for i in range(len(a))]
