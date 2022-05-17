@@ -2185,6 +2185,56 @@ def select_by_partitioning_in_place_iterative(values, k):
     return _do_quickselect_iterative(values, 0, len(values), k)
 
 
+def median_by_sorting(values):
+    """
+    Given a sequence of numbers, find the median by sorting the values.
+
+    This calls only builtins. It runs in best case O(n), average and worst case
+    O(n log n) time. Do not modify the original input.
+
+    >>> median_by_sorting([2, 11, 14, 10, 9, 3, 8, 5, 12, 0, 6, 13, 4, 7, 1])
+    7
+    >>> median_by_sorting([13, 0.2, 8, 5, 8.9, 6, 1, 11, 2, 3, 7, 12.4, 10, 3])
+    6.5
+    >>> median_by_sorting((4, 1.3, 8, 7, 9, 2, 0.5))
+    4
+    """
+    dup = sorted(values)
+    mid = len(dup) // 2
+    return (dup[mid - 1] + dup[mid]) / 2 if len(dup) % 2 == 0 else dup[mid]
+
+
+def median(values):
+    """
+    Given a sequence, find the median by [FIXME: briefly state how this works].
+
+    Sorting is not used. Other than builtins, this may only call one of:
+
+      - select_by_partitioning
+      - select_by_partitioning_iterative
+      - select_by_partitioning_in_place
+      - select_by_partitioning_in_place_iterative
+
+    Which one it uses does not differ across calls. It is not recursive, except
+    indirectly if the selection function it calls is recursive. A single call
+    to this function results in at most one call to the selection function. It
+    runs in [FIXME: state the best, average, and worst case time complexity],
+    so this algorithm is often a reasonable choice for finding medians. Do not
+    modify the original input.
+
+    >>> median([2, 11, 14, 10, 9, 3, 8, 5, 12, 0, 6, 13, 4, 7, 1])
+    7
+    >>> median([13, 0.2, 8, 5, 8.9, 6, 1, 11, 2, 3, 7, 12.4, 10, 3])
+    6.5
+    >>> median((4, 1.3, 8, 7, 9, 2, 0.5))
+    4
+    """
+    dup = list(values)
+    mid = len(dup) // 2
+    val = select_by_partitioning_in_place_iterative(dup, mid)
+    return (max(dup[:mid]) + val) / 2 if len(dup) % 2 == 0 else val
+
+
 def _do_quicksort_in_place(values, low, high, choose_pivot_index):
     """In-place recursive quicksort taking a pivot-index choosing function."""
     if high - low < 2:

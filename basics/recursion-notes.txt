@@ -29,6 +29,8 @@ partition_two_in_place
 partition_three_in_place
 select_by_partitioning_in_place
 select_by_partitioning_in_place_iterative
+median_by_sorting
+median
 sort_by_partitioning_in_place_simple
 sort_by_partitioning_in_place
 sort_by_partitioning_in_place_hardened
