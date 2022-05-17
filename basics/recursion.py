@@ -1912,9 +1912,7 @@ def select_by_partitioning_in_place_iterative(values, k):
 
 
 def _do_quicksort_in_place(values, low, high, choose_pivot_index):
-    """
-    In-place quicksort taking a function to choose a pivot index from a range.
-    """
+    """In-place recursive quicksort taking a pivot-index choosing function."""
     if high - low < 2:
         return
 
@@ -2051,6 +2049,62 @@ def sort_by_partitioning_in_place_hardened(values):
     """
     _do_quicksort_in_place(values, 0, len(values),
                            lambda low, high: secrets.choice(range(low, high)))
+
+
+def sort_by_partitioning_in_place_iterative(values):
+    """
+    Iteratively sort values in place by a partition-based technique. Unstable.
+
+    This is like sort_by_partitioning_in_place (and the input is "untrusted" to
+    the same extent as there, but not more), but no recursion is used.
+
+    [FIXME: State the best, average, and worst-case time and auxiliary space
+    complexities, and explain why they are, or are not, all the same as those
+    of the recursive sort_by_partitioning_in_place.]
+
+    [FIXME: The in-place version of this algorithm, implemented iteratively
+    here, is easier to make iterative than (a) the non-in-place version of this
+    algorithm, or (b) any version of top-down mergesort. (Unlike bottom-up
+    mergesort, but like this algorithm, top-down mergesort is usually done
+    recursively.) State what's special here, contrasting to both (a) and (b).]
+
+    >>> def test(a):
+    ...     print(sort_by_partitioning_in_place_iterative(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+
+    >>> b = list(range(50_000))
+    >>> sort_by_partitioning_in_place_iterative(b)
+    >>> b == list(range(50_000))
+    True
+    >>> c = list(range(49_999, -1, -1))
+    >>> sort_by_partitioning_in_place_iterative(c)
+    >>> c == list(range(50_000))
+    True
+    """
+    if len(values) < 2:
+        return
+
+    stack = [(0, len(values))]
+
+    while stack:
+        low, high = stack.pop()
+        pivot = values[random.randrange(low, high)]
+        left, right = partition_three_in_place(values, low, high, pivot)
+        if high - right > 1:
+            stack.append((right, high))
+        if left - low > 1:
+            stack.append((low, left))
 
 
 def stabilize(unstable_sort, *, materialize=False):
