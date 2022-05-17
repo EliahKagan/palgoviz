@@ -1723,22 +1723,24 @@ def select_by_partitioning_in_place(values, k):
     >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
     >>> [select_by_partitioning_in_place(a[:], i) for i in range(9)]
     [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    >>> select_by_partitioning_in_place(a, -1)
-    Traceback (most recent call last):
-      ...
-    IndexError: order statistic out of range
-    >>> select_by_partitioning_in_place(a, 9)
-    Traceback (most recent call last):
-      ...
-    IndexError: order statistic out of range
 
-    FIXME: The following test wrongly tests for stability:
+    >>> def test(values, k):
+    ...     x = select_by_partitioning_in_place(values, k)
+    ...     result = 'OK' if x is values[k] else f'{x!r} is not {values[k]!r}'
+    ...     left = [(x if x < y else 'OK') for y in values[:k]]
+    ...     right = [(z if z < x else 'OK') for z in values[k + 1:]]
+    ...     print(f'{k=}, {result=!s}, {left=}, {right=}')
 
-    >>> b = [4.0, 1.0, 3, 2.0, True, 4, 1, 3.0]
-    >>> [select_by_partitioning_in_place(b[:], i) for i in range(8)]
-    [1.0, True, 1, 2.0, 3, 3.0, 4.0, 4]
-
-    FIXME: Needs tests that check how the input is rearranged.
+    >>> for k in range(8):
+    ...     test([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], k)
+    k=0, result=OK, left=[], right=['OK', 'OK', 'OK', 'OK', 'OK', 'OK', 'OK']
+    k=1, result=OK, left=['OK'], right=['OK', 'OK', 'OK', 'OK', 'OK', 'OK']
+    k=2, result=OK, left=['OK', 'OK'], right=['OK', 'OK', 'OK', 'OK', 'OK']
+    k=3, result=OK, left=['OK', 'OK', 'OK'], right=['OK', 'OK', 'OK', 'OK']
+    k=4, result=OK, left=['OK', 'OK', 'OK', 'OK'], right=['OK', 'OK', 'OK']
+    k=5, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK'], right=['OK', 'OK']
+    k=6, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK', 'OK'], right=['OK']
+    k=7, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK', 'OK', 'OK'], right=[]
     """
     return _do_quickselect(values, 0, len(values), k)
 
