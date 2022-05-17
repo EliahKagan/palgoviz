@@ -10,11 +10,11 @@ import bisect
 import collections
 import functools
 import operator
-import queues
 import random
 import secrets
 
 import decorators
+import queues
 
 
 def countdown(n):
@@ -846,6 +846,66 @@ def selection_sort_alt(values):
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
     """
     return _priority_queue_sort(values, queues.FastEnqueueMaxPriorityQueue)
+
+
+def least_k(values, k):
+    """
+    Return a new sorted list of the k smallest elements of values. Unstable.
+
+    The algorithm used here takes O(n * k) time, even though an O(n + k log n)
+    algorithm exists. But evaluating sorted(values)[:k], where the sorted call
+    takes O(n log n) time, is sometimes too slow even for O(n * k). This
+    function is accordingly most reasonable to use when k is very small.
+
+    This need not be stable: it returns a length-k prefix of some sorted
+    permutation of values, but not necessarily of sorted(values). If x is in
+    the returned list k elements of values, and y is an unreturned element, all
+    that need be guarantted is that y is not less than x.
+
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> b = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> [least_k(a, k) == b[:k] for k in range(len(a) + 1)]
+    [True, True, True, True, True, True, True, True, True, True, True]
+    >>> a
+    [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    """
+    dup = list(values)
+
+    for left in range(0, k):
+        best_right = min(range(left, len(dup)), key=dup.__getitem__)
+        dup[left], dup[best_right] = dup[best_right], dup[left]
+
+    return dup[:k]
+
+
+def greatest_k(values, k):
+    """
+    Return a new sorted list of the k largest elements of values. Unstable.
+
+    The algorithm used here takes O(n * k) time, even though an O(n + k log n)
+    algorithm exists. But evaluating sorted(values)[-k:] (for k > 0), where the
+    sorted call takes O(n log n) time, is sometimes too slow even for O(n * k).
+    This function is accordingly most reasonable to use when k is very small.
+
+    This need not be stable: it returns a length-k suffix of some sorted
+    permutation of values, but not necessarily of sorted(values). If x is in
+    the returned list k elements of values, and y is an unreturned element, all
+    that need be guarantted is that y is not greater than x.
+
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> b = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> [greatest_k(a, k) == b[len(a) - k:] for k in range(11)]
+    [True, True, True, True, True, True, True, True, True, True, True]
+    >>> a
+    [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    """
+    dup = list(values)
+
+    for right in range(len(values) - 1, len(values) - 1 - k, -1):
+        best_left = max(range(right + 1), key=dup.__getitem__)
+        dup[right], dup[best_left] = dup[best_left], dup[right]
+
+    return dup[len(dup) - k:]  # Because dup[:k] needs k=0 to be special-cased.
 
 
 ###############################################################################
