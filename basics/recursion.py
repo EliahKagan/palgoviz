@@ -661,6 +661,52 @@ def insertion_sort_in_place_alt(values):
             values[left], values[left - 1] = values[left - 1], values[left]
 
 
+def _priority_queue_sort(values, max_pq_factory):
+    """Make a low-to-high sorted copy of values, using a max priority queue."""
+    pq = max_pq_factory()
+    for val in values:
+        pq.enqueue(val)
+
+    out = [pq.dequeue() for _ in range(len(pq))]
+    out.reverse()
+    return out
+
+
+# FIXME: Change "alt" in this function name to a more descriptive short suffix.
+def insertion_sort_alt(values):
+    """
+    Stable (sequential or binary) insertion sort, creating a new list.
+
+    This alternate implementation of binary_insertion_sort or insertion_sort
+    makes good use of a data structure already implemented in another module of
+    this project. This has the same best, average, and worst-case time
+    complexities as insertion_sort, but all but O(n) work will be done inside
+    the methods of that data structure.
+
+    >>> insertion_sort_alt([])
+    []
+    >>> insertion_sort_alt(())
+    []
+    >>> insertion_sort_alt((2,))
+    [2]
+    >>> insertion_sort_alt([10, 20])
+    [10, 20]
+    >>> insertion_sort_alt([20, 10])
+    [10, 20]
+    >>> insertion_sort_alt([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> insertion_sort_alt(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> insertion_sort_alt(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> insertion_sort_alt([0.0, 0, False])  # It's a stable sort.
+    [0.0, 0, False]
+    """
+    return _priority_queue_sort(values, queues.FastDequeueMaxPriorityQueue)
+
+
 def selection_sort(values):
     """
     Sort by repeatedly finding minimum or maximum values, creating a new list.
@@ -769,23 +815,41 @@ def selection_sort_in_place(values):
         values[left], values[best_right] = values[best_right], values[left]
 
 
-def my_shuffle(values):
+# FIXME: Change "alt" in this function name to a more descriptive short suffix.
+# FIXME: Extract any major shared logic to a module-level nonpublic function.
+def selection_sort_alt(values):
     """
-    Randomly shuffle a sequence, in place, in linear time. Like random.shuffle.
+    Sort by repeatedly finding minimum or maximum values, creating a new list.
 
-    Feel free to use random-number generation functions that return integers
-    from an interval. Do not use any other standard library facilities related
-    to randomness. All permutations of the objects should be equally likely,
-    but this need not be so unpredictable as to be safe for cryptographic use.
-    That is, like random.shuffle, this function must not be used for tasks like
-    generating encryption keys, passwords, or password-database salts.
+    This alternate implementation of selection_sort makes good use of a data
+    structure already implemented in another module of this project. This has
+    the same best, average, and worst-case time complexities as selection_sort,
+    but all but O(n) work will be done inside methods of that data structure.)
 
-    See test_shuffle in permutations.ipynb to manually test this function.
+    >>> selection_sort_alt([])
+    []
+    >>> selection_sort_alt(())
+    []
+    >>> selection_sort_alt((2,))
+    [2]
+    >>> selection_sort_alt([10, 20])
+    [10, 20]
+    >>> selection_sort_alt([20, 10])
+    [10, 20]
+    >>> selection_sort_alt([3, 3])
+    [3, 3]
+    >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
+    >>> selection_sort_alt(a)
+    [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
+    >>> selection_sort_alt(b)
+    ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
     """
-    for left in range(len(values) - 1):
-        right = random.randrange(left, len(values))
-        values[left], values[right] = values[right], values[left]
+    return _priority_queue_sort(values, queues.FastEnqueueMaxPriorityQueue)
 
+
+###############################################################################
+# TODO: Consider removing code below this, down to the matching marker.
 
 def select_k_left_unstable(values, k):
     """
@@ -867,6 +931,27 @@ def select_k_right_unstable_alt(values, k):
         pq.dequeue()
 
     return pq.dequeue()
+
+# Consider removing code above this, up to the matching marker.
+###############################################################################
+
+
+def my_shuffle(values):
+    """
+    Randomly shuffle a sequence, in place, in linear time. Like random.shuffle.
+
+    Feel free to use random-number generation functions that return integers
+    from an interval. Do not use any other standard library facilities related
+    to randomness. All permutations of the objects should be equally likely,
+    but this need not be so unpredictable as to be safe for cryptographic use.
+    That is, like random.shuffle, this function must not be used for tasks like
+    generating encryption keys, passwords, or password-database salts.
+
+    See test_shuffle in permutations.ipynb to manually test this function.
+    """
+    for left in range(len(values) - 1):
+        right = random.randrange(left, len(values))
+        values[left], values[right] = values[right], values[left]
 
 
 def merge_two_slow(values1, values2):
