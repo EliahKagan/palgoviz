@@ -1644,10 +1644,10 @@ def sort_by_partitioning_simple(values):
     for input that is all or almost all monotone in the same direction.
     FIXME: Then enable these tests:
 
-    >>> r1 = range(100_000)
+    >>> r1 = range(50_000)
     >>> sort_by_partitioning_simple(r1) == list(r1)  # doctest: +SKIP
     True
-    >>> r2 = range(99_999, -1, -1)
+    >>> r2 = range(49_999, -1, -1)
     >>> sort_by_partitioning_simple(r2) == list(r1)  # doctest: +SKIP
     True
     """
@@ -1955,13 +1955,13 @@ def sort_by_partitioning_in_place_simple(values):
     >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
     None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
 
-    >>> b = list(range(100_000))
+    >>> b = list(range(50_000))
     >>> sort_by_partitioning_in_place_simple(b)
-    >>> b == list(range(100_000))
+    >>> b == list(range(50_000))
     True
-    >>> c = list(range(99_999, -1, -1))
+    >>> c = list(range(49_999, -1, -1))
     >>> sort_by_partitioning_in_place_simple(c)
-    >>> c == list(range(100_000))
+    >>> c == list(range(50_000))
     True
     """
     _do_quicksort_in_place(values, 0, len(values),
