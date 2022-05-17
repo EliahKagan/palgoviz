@@ -13,6 +13,8 @@ merge_many
 merge_many_bottom_up
 merge_sort_adaptive
 merge_sort_adaptive_bottom_up
+merge_sort_mut_simple
+merge_sort_mut
 partition_three
 similar_range
 similar_range_alt

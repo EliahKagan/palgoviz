@@ -4,6 +4,11 @@
 Some recursion examples (and a few related iterative implementations).
 
 See also object_graph.py.
+
+NOTE: Where not otherwise specified, in functions that process a single
+sequence or other iterable (e.g., values), and that are documented with a time
+or space complexity containing the variable "n", use it to mean the number of
+items in the input (so if the argument is values, then n == len(values)).
 """
 
 import bisect
@@ -1439,6 +1444,174 @@ def merge_sort_adaptive_bottom_up(values, *, merge=merge_two):
     [0.0, 0, False]
     """
     return merge_many_bottom_up(_monotone_runs(values), merge=merge)
+
+
+# FIXME: In the four mutating mergesorts below, extract logic to non-public
+# module-level functions when doing so reduces duplication of logic, improves
+# clarity, or achieves useful modularity. In this case, it is possible that you
+# will choose to keep some of the logic duplicated, for conceptual clarity or
+# readability. But most duplication should be avoided. If you choose to keep
+# some code duplicated here, you should consider duplicating it across separate
+# top-level helpers so as to still achieve modularity. Note that your initial
+# implementations of the four mutating mergesorts may or may not follow any of
+# this advice, but if not, then you should refactor them once they are working.
+# Each of the four public mergesorts will likely end up with a one-line body.
+
+
+def _merge_mut_simple(values, low, mid, high, aux):
+    """
+    Merge values[low:mid] and values[mid:high] in-place in values.
+
+    This implementation is not adaptive.
+    """
+    assert not aux, 'The auxiliary storage list must start empty.'
+
+    left = low
+    right = mid
+
+    while left < mid and right < high:
+        if values[right] < values[left]:
+            aux.append(values[right])
+            right += 1
+        else:
+            aux.append(values[left])
+            left += 1
+
+    # This un-Pythonic copying ensures all but O(1) auxiliary space is in aux.
+    # That's an artificial exercise requirement. Usually don't do it this way.
+    while left < mid:
+        aux.append(values[left])
+        left += 1
+    while right < high:
+        aux.append(values[right])
+        right += 1
+
+    values[low:high] = aux
+    aux.clear()
+
+
+def _merge_mut(values, low, mid, high, aux):
+    """
+    Merge values[low:mid] and values[mid:high] in-place in values.
+
+    This implementation is adaptive, though not aggressively so.
+    """
+    if not values[mid] < values[mid - 1]:
+        return  # Already merged by trivial concatenation.
+
+    assert not aux, 'The auxiliary storage list must start empty.'
+
+    left = low
+    right = mid
+
+    while left < mid and right < high:
+        if values[right] < values[left]:
+            aux.append(values[right])
+            right += 1
+        else:
+            aux.append(values[left])
+            left += 1
+
+    # This un-Pythonic copying ensures all but O(1) auxiliary space is in aux.
+    # That's an artificial exercise requirement. Usually don't do it this way.
+    while left < mid:
+        aux.append(values[left])
+        left += 1
+
+    assert len(aux) == right - low, 'Miscount of copied elements in merge.'
+    values[low:right] = aux
+    aux.clear()
+
+
+def _do_merge_sort_mut(values, low, high, aux, merge):
+    """
+    Mergesort values[low:high] in-place in values with the given 2-way merger.
+    """
+    if high - low < 2:
+        return
+
+    mid = (low + high) // 2
+    _do_merge_sort_mut(values, low, mid, aux, merge)
+    _do_merge_sort_mut(values, mid, high, aux, merge)
+    merge(values, low, mid, high, aux)
+
+
+def merge_sort_mut_simple(values):
+    """
+    Recursively mergesort values by rearranging it. Stable. Not adaptive.
+
+    This uses a helper function whose parameters include low, mid, and high,
+    that merges values[low:mid] and values[mid:high] into values[low:high]. It
+    may or may not have other parameters. It need not be the only helper used.
+
+    Doing it this way opens the door for some straightforward adaptivity
+    optimizations, but this function is not adaptive. See merge_sort_mut below.
+
+    O(n) auxiliary space is permitted. However, all but O(log n) auxiliary
+    space used as a result of a call to merge_sort_mut_simple must be in the
+    same list object, including space used in separate calls to the helper.
+    (Such a list need not be pre-sized. Its length may fluctuate as you like.)
+
+    That restriction may make this function faster or slower than otherwise,
+    depending on the Python and standard library implementations. The reason
+    this exercise insists on doing it that way is that it is closer to how you
+    would usually implement mergesort in some other important languages like C.
+
+    >>> def test(a): print(merge_sort_mut_simple(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> test([0.0, 0, False])  # It's a stable sort.
+    None; [0.0, 0, False]
+    """
+    _do_merge_sort_mut(values, 0, len(values), [], _merge_mut_simple)
+
+
+def merge_sort_mut(values):
+    """
+    Recursively mergesort values by rearranging it. Stable. Somewhat adaptive.
+
+    This uses a helper function whose parameters include low, mid, and high,
+    that merges values[low:mid] and values[mid:high] into values[low:high]. It
+    may or may not have other parameters. It need not be the only helper used.
+
+    This opens the door for two straightforward forms of adaptivity. Ensure:
+
+    (1) A merge that doesn't change the order of elements takes O(1) time.
+
+    (2) When merging mid - low == m elements with high - mid == n elements, if
+        the order of the rightmost k < n elements is unchanged, the merge takes
+        O(m + n - k) time. [If k == n, optimization (1) is performed instead.]
+
+    O(n) auxiliary space is permitted, but all but O(log n) of it must use the
+    same list object. See merge_sort_mut_simple for more on this requirement.
+
+    >>> def test(a): print(merge_sort_mut(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+    >>> test([0.0, 0, False])  # It's a stable sort.
+    None; [0.0, 0, False]
+    """
+    _do_merge_sort_mut(values, 0, len(values), [], _merge_mut)
 
 
 def partition_three(values, pivot):
