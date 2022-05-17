@@ -769,6 +769,24 @@ def selection_sort_in_place(values):
         values[left], values[best_right] = values[best_right], values[left]
 
 
+def my_shuffle(values):
+    """
+    Randomly shuffle a sequence, in place, in linear time. Like random.shuffle.
+
+    Feel free to use random-number generation functions that return integers
+    from an interval. Do not use any other standard library facilities related
+    to randomness. All permutations of the objects should be equally likely,
+    but this need not be so unpredictable as to be safe for cryptographic use.
+    That is, like random.shuffle, this function must not be used for tasks like
+    generating encryption keys, passwords, or password-database salts.
+
+    See test_shuffle in permutations.ipynb to manually test this function.
+    """
+    for left in range(len(values) - 1):
+        right = random.randrange(left, len(values))
+        values[left], values[right] = values[right], values[left]
+
+
 def select_k_left_unstable(values, k):
     """
     Find some kth order statistic (0-based indexing) in O(k * n) time.
