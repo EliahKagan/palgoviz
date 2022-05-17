@@ -1745,6 +1745,59 @@ def select_by_partitioning_in_place(values, k):
     return _do_quickselect(values, 0, len(values), k)
 
 
+def _do_quickselect_iterative(values, low, high, k):
+    """Iteratively find a kth order statistic, looking for values[low:high]."""
+    if not low <= k < high:
+        raise IndexError('order statistic out of range')
+
+    while True:
+        pivot = values[random.randrange(low, high)]
+        left, right = partition3_in_place(values, low, high, pivot)
+
+        if left <= k < right:
+            return values[k]
+
+        if k < left:
+            high = left
+        else:
+            low = right
+
+
+def select_by_partitioning_in_place_iterative(values, k):
+    """
+    Rearrange values to be partitioned by the new values[k]. Return that value.
+
+    This is like select_by_partitioning_in_place, but no recursion is used.
+
+    [FIXME: State the best, average, and worst-case time and auxiliary space
+    complexities, and explain why they are or are not all the same as those of
+    the recursive select_by_partitioning_in_place.]
+
+    >>> a = [50, 90, 60, 40, 10, 80, 20, 30, 70]
+    >>> [select_by_partitioning_in_place_iterative(a[:], i) for i in range(9)]
+    [10, 20, 30, 40, 50, 60, 70, 80, 90]
+
+    >>> def test(values, k):
+    ...     x = select_by_partitioning_in_place_iterative(values, k)
+    ...     result = 'OK' if x is values[k] else f'{x!r} is not {values[k]!r}'
+    ...     left = [(x if x < y else 'OK') for y in values[:k]]
+    ...     right = [(z if z < x else 'OK') for z in values[k + 1:]]
+    ...     print(f'{k=}, {result=!s}, {left=}, {right=}')
+
+    >>> for k in range(8):
+    ...     test([4.0, 1.0, 3, 2.0, True, 4, 1, 3.0], k)
+    k=0, result=OK, left=[], right=['OK', 'OK', 'OK', 'OK', 'OK', 'OK', 'OK']
+    k=1, result=OK, left=['OK'], right=['OK', 'OK', 'OK', 'OK', 'OK', 'OK']
+    k=2, result=OK, left=['OK', 'OK'], right=['OK', 'OK', 'OK', 'OK', 'OK']
+    k=3, result=OK, left=['OK', 'OK', 'OK'], right=['OK', 'OK', 'OK', 'OK']
+    k=4, result=OK, left=['OK', 'OK', 'OK', 'OK'], right=['OK', 'OK', 'OK']
+    k=5, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK'], right=['OK', 'OK']
+    k=6, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK', 'OK'], right=['OK']
+    k=7, result=OK, left=['OK', 'OK', 'OK', 'OK', 'OK', 'OK', 'OK'], right=[]
+    """
+    return _do_quickselect_iterative(values, 0, len(values), k)
+
+
 def stabilize(unstable_sort, *, materialize=False):
     """
     Create a stable sort from an unstable sort. Assume total ordering.
