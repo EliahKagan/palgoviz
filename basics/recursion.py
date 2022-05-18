@@ -1216,7 +1216,7 @@ def merge_sort_bottom_up(values, *, merge=merge_two):
     return queue[0]
 
 
-# !!FIXME: When removing implementation bodies remove "*, merge=merge_two" too.
+# !!FIXME: When removing implementation bodies, erase "*, merge=merge_two" too.
 def merge_many(sorted_lists, *, merge=merge_two):
     """
     Recursively stably merge any number of sorted lists into a new sorted list.
@@ -1253,7 +1253,7 @@ def merge_many(sorted_lists, *, merge=merge_two):
     return helper(list(sorted_lists))
 
 
-# !!FIXME: When removing implementation bodies remove "*, merge=merge_two" too.
+# !!FIXME: When removing implementation bodies, erase "*, merge=merge_two" too.
 def merge_many_bottom_up(sorted_lists, *, merge=merge_two):
     """
     Iteratively stably merge any number of sorted lists into a new sorted list.
@@ -2035,6 +2035,9 @@ def partition_two_in_place(values, low, high, predicate):
     (60, [36, 38, 40, 42, 44], [35, 37, 39, 41, 43])
     """
     # Hoare partition algorithm.
+    # values[original_low:low] are the known satisfying elements.
+    # values[low:high] are the not yet examined elements.
+    # values[high:original_high] are the known non-satisfying elements.
     while low < high:
         if predicate(values[low]):
             low += 1
@@ -2048,7 +2051,26 @@ def partition_two_in_place(values, low, high, predicate):
     return high
 
 
-def partition_three_in_place(values, low, high, pivot):
+def partition_three_in_place_rough(values, low, high, pivot):
+    """
+    Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
+
+    See the description in partition_three_in_place below. These solve the same
+    problem with the same asymptotic time complexity, both in O(1) auxiliary
+    space. This should be a first working approach, while that is intended as a
+    different, more polished algorithm that may be faster by a constant factor.
+    The algorithm here may be clunky. Maybe it even feels a little bit cheaty.
+    """
+    left = partition_two_in_place(values, low, high, lambda lhs: lhs < pivot)
+
+    right = partition_two_in_place(values, left, high,
+                                   lambda lhs: not lhs > pivot)
+
+    return left, right
+
+
+# !!FIXME: When removing implementation bodies, drop the "_good" suffix here.
+def partition_three_in_place_good(values, low, high, pivot):
     """
     Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
@@ -2063,14 +2085,32 @@ def partition_three_in_place(values, low, high, pivot):
     [TODO: This solves a famous computer science problem. State which one here.
     Make a class for that problem's objects. Add unit tests partitioning them.]
 
+    That's all true of partition_three_in_place_simple, too. This is a more
+    polished, different algorithm, which may be faster by a constant factor.
+
     FIXME: Needs tests.
     """
-    left = partition_two_in_place(values, low, high, lambda lhs: lhs < pivot)
+    # values[original_low:low] are the known lesser elements.
+    # values[low:current] are the known similar elements.
+    # values[current:high] are the not yet examined elements.
+    # values[high:original_high] are the known greater elements.
+    current = low
+    while current != high:
+        if values[current] < pivot:
+            values[low], values[current] = values[current], values[low]
+            low += 1
+            current += 1
+        elif pivot < values[current]:
+            high -= 1
+            values[current], values[high] = values[high], values[current]
+        else:
+            current += 1
 
-    right = partition_two_in_place(values, left, high,
-                                   lambda lhs: not lhs > pivot)
+    return low, high
 
-    return left, right
+
+# !!FIXME: If this is here when removing implementation bodies, remove it too.
+partition_three_in_place = partition_three_in_place_good
 
 
 def _do_quickselect(values, low, high, k):

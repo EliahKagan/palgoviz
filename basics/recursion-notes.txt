@@ -26,6 +26,7 @@ sort_by_partitioning_simple
 sort_by_partitioning
 sort_by_partitioning_hardened
 partition_two_in_place
+partition_three_in_place_rough
 partition_three_in_place
 select_by_partitioning_in_place
 select_by_partitioning_in_place_iterative
