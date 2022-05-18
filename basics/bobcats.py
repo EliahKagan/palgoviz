@@ -14,6 +14,35 @@ class Bobcat:
     name. Subclasses are not required to preserve this invariant.
     """
 
+    __slots__ = ('_name',)
+
+    def __init__(self, name):
+        if not isinstance(name, str):
+            raise TypeError('Names must be strings.')
+
+        if not name:
+            raise ValueError('Names must be non-empty.')
+
+        self._name = name
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.name!r})'
+
+    def __str__(self):
+        return self.name + ' the bobcat'
+
+    def __eq__(self, other):
+        if not isinstance(other, Bobcat):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    @property
+    def name(self):
+        return self._name
+
 
 class FierceBobcat:
     """
