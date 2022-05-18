@@ -2297,13 +2297,12 @@ def sort_by_partitioning_in_place(values):
     """
     Sort untrusted values in place by a partition-based technique. Unstable.
 
-    This is like sort_by_partitioning_in_place_simple, but naturally occurring
-    combinations of sorted and reverse, including combinations of sorted and
-    reverse-sorted runs, are unlikely to cause worst-case performance or
-    RecursionError. Also, it should be challenging (albeit potentially
-    feasible) even for an expert attacker with full knowledge of this code and
-    all its dependencies to craft input that causes degraded performance or
-    excessive recursion depth.
+    This is like sort_by_partitioning_simple, but naturally occurring patterns
+    in the input, including combinations of sorted and reverse-sorted runs, are
+    unlikely to cause worst-case performance or RecursionError. Also, it should
+    be challenging (albeit potentially feasible) even for an expert attacker
+    with full knowledge of this code and all its dependencies to craft input
+    that causes degraded performance or excessive recursion depth.
 
     This has the same relation to sort_by_partitioning_in_place_simple that
     sort_by_partitioning has to sort_by_partitioning_simple.
@@ -2429,6 +2428,66 @@ def sort_by_partitioning_in_place_iterative(values):
             stack.append((right, high))
         if left - low > 1:
             stack.append((low, left))
+
+
+def _do_safe_quicksort_in_place(values, low, high):
+    """In-place stack-safe quicksort, recursing on just the short side."""
+    while high - low > 1:
+        pivot = values[random.randrange(low, high)]
+        left, right = partition_three_in_place(values, low, high, pivot)
+
+        if high - right < left - low:
+            _do_safe_quicksort_in_place(values, right, high)
+            high = left
+        else:
+            _do_safe_quicksort_in_place(values, low, left)
+            low = right
+
+
+def sort_by_partitioning_in_place_safe(values):
+    """
+    Sort in place by a partition-based technique in O(log n) auxiliary space.
+
+    This is an unstable sort closely based on sort_by_partitioning_in_place and
+    with the same best, average, and worst-case time complexity. (Its input is
+    "untrusted" to the same extent as there, but not more.) But this improved
+    version has O(log n) worst-case auxiliary space complexity. So it's "safe"
+    in the sense that even worst-case input doesn't cause excessive call depth.
+    Like recursive mergesort, it's not prone to raising RecursionError.
+
+    Furthermore, this never instantiates and uses its own list or other data
+    structure: no new collections are created and, at all times, every variable
+    either refers to the original input sequence or to an object that takes
+    O(1) space. (This also applies to any helper functions.) The input sequence
+    is not resized and no object originally absent from it is ever put in it.
+
+    This doesn't rely on introspection or other dynamic Python features. It
+    easily translates to C code (which doesn't use malloc or anything related).
+
+    >>> def test(a): print(sort_by_partitioning_in_place_safe(a), a, sep='; ')
+    >>> test([])
+    None; []
+    >>> test([10, 20])
+    None; [10, 20]
+    >>> test([20, 10])
+    None; [10, 20]
+    >>> test([3, 3])
+    None; [3, 3]
+    >>> test([5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129])
+    None; [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+    >>> test(['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs'])
+    None; ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+
+    >>> b = list(range(50_000))
+    >>> sort_by_partitioning_in_place_safe(b)
+    >>> b == list(range(50_000))
+    True
+    >>> c = list(range(49_999, -1, -1))
+    >>> sort_by_partitioning_in_place_safe(c)
+    >>> c == list(range(50_000))
+    True
+    """
+    _do_safe_quicksort_in_place(values, 0, len(values))
 
 
 def stabilize(unstable_sort, *, materialize=False):

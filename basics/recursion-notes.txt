@@ -35,4 +35,5 @@ sort_by_partitioning_in_place_simple
 sort_by_partitioning_in_place
 sort_by_partitioning_in_place_hardened
 sort_by_partitioning_in_place_iterative
+sort_by_partitioning_in_place_safe
 stabilize
