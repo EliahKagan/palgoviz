@@ -5,7 +5,7 @@ This code modeled regular and extra-fierce bobcats, until most of it was lost
 in a bobcat attack. Fortunately, unit tests in test_bobcats.py were not harmed.
 """
 
-from numbers import Number, Complex, Real
+from numbers import Real
 
 class Bobcat:
     """
