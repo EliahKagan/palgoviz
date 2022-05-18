@@ -19,27 +19,28 @@ import operator
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
+
     __slots__ = ()
 
     @abstractmethod
     def __bool__(self):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def enqueue(self, item):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def dequeue(self):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def peek(self):
-        ...
+        raise NotImplementedError
 
 
 class FifoQueue(Queue):
