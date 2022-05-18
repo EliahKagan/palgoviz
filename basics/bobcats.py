@@ -76,11 +76,8 @@ class FierceBobcat(Bobcat):
         if not name:
             raise ValueError('Names must be non-empty.')
 
-        if not isinstance(fierceness, Number):
-            raise TypeError('Fierceness must be a number.')
-
         if not isinstance(fierceness, Real):
-            raise TypeError('Fierceness must be real.')
+            raise TypeError('Fierceness must be a real number.')
 
         if not fierceness > self.FIERCENESS_CUTOFF:
             raise ValueError(f'Fiercess must be over {self.FIERCENESS_CUTOFF}')
@@ -90,27 +87,18 @@ class FierceBobcat(Bobcat):
 
     def __repr__(self):
         """Represent this FierceBobcat as Python code with parameter names."""
-        return f'{type(self).__name__}(name={self.name!r}, fierceness={self.fierceness!r})'
-
-    # No need to override __str__ method
+        return (f'{type(self).__name__}(name={self.name!r},'
+                f' fierceness={self.fierceness!r})')
 
     def __eq__(self, other):
-        # FIXME: may not need this
-        if type(other) is Bobcat:
-            return False
-
+        """Check if this and other represent the same fierce bobcat."""
         if not isinstance(other, FierceBobcat):
-            return NotImplemented
+            return False if isinstance(other, Bobcat) else NotImplemented
 
         return self.name == other.name and self.fierceness == other.fierceness
 
     def __hash__(self):
         return hash((self.name, self.fierceness))
-
-    @property
-    def name(self):
-        """The name bobcat naming robots gave to this bobcat."""
-        return self._name
 
     @property
     def fierceness(self):
