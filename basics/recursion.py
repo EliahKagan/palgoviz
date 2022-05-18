@@ -2060,6 +2060,18 @@ def partition_three_in_place_rough(values, low, high, pivot):
     space. This should be a first working approach while that should be a more
     polished, different algorithm that may be faster by a constant factor. The
     algorithm here may seem clunky. Maybe it even feels a little bit cheaty.
+
+    >>> def test(values, low, high, pivot):
+    ...     p, q = partition_three_in_place_rough(values, low, high, pivot)
+    ...     return sorted(values[low:p]), values[p:q], sorted(values[q:high])
+    >>> test([], 0, 0, 'hi')
+    ([], [], [])
+    >>> test(['hj'], 0, 1, 'hi')
+    ([], [], ['hj'])
+    >>> test([7, 7, 1, 5, 6, 3, 6, 4, 2, 5, 9, 4, 8, 5, 3], 0, 15, 5)
+    ([1, 2, 3, 3, 4, 4], [5, 5, 5], [6, 6, 7, 7, 8, 9])
+    >>> test(['c', 'a', 'c', 'b', 'e', 'd'], 1, 4, 'c')
+    (['a', 'b'], ['c'], [])
     """
     left = partition_two_in_place(values, low, high, lambda lhs: lhs < pivot)
 
@@ -2087,7 +2099,17 @@ def partition_three_in_place(values, low, high, pivot):
     That's all true of partition_three_in_place_simple, too. This is a more
     polished, different algorithm, which may be faster by a constant factor.
 
-    FIXME: Needs tests.
+    >>> def test(values, low, high, pivot):
+    ...     p, q = partition_three_in_place(values, low, high, pivot)
+    ...     return sorted(values[low:p]), values[p:q], sorted(values[q:high])
+    >>> test([], 0, 0, 'hi')
+    ([], [], [])
+    >>> test(['hj'], 0, 1, 'hi')
+    ([], [], ['hj'])
+    >>> test([7, 7, 1, 5, 6, 3, 6, 4, 2, 5, 9, 4, 8, 5, 3], 0, 15, 5)
+    ([1, 2, 3, 3, 4, 4], [5, 5, 5], [6, 6, 7, 7, 8, 9])
+    >>> test(['c', 'a', 'c', 'b', 'e', 'd'], 1, 4, 'c')
+    (['a', 'b'], ['c'], [])
     """
     # values[original_low:low] are the known lesser elements.
     # values[low:current] are the known similar elements.
