@@ -17,6 +17,7 @@ class Bobcat:
     __slots__ = ('_name',)
 
     def __init__(self, name):
+        """Create a Bobcat with a specified name."""
         if not isinstance(name, str):
             raise TypeError('Names must be strings.')
 
@@ -26,12 +27,15 @@ class Bobcat:
         self._name = name
 
     def __repr__(self):
+        """Represent this Bobcat as Python code."""
         return f'{type(self).__name__}({self.name!r})'
 
     def __str__(self):
+        """How this bobcat is announced at campaign fundraisers."""
         return self.name + ' the bobcat'
 
     def __eq__(self, other):
+        """Check if two Bobcats have the same name."""
         if not isinstance(other, Bobcat):
             return NotImplemented
         return self.name == other.name
@@ -41,6 +45,7 @@ class Bobcat:
 
     @property
     def name(self):
+        """The name bobcat naming robots gave to this bobcat."""
         return self._name
 
 
