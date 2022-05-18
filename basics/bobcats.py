@@ -90,7 +90,7 @@ class FierceBobcat(Bobcat):
         if not isinstance(other, FierceBobcat):
             return False if isinstance(other, Bobcat) else NotImplemented
 
-        return self.name == other.name and self.fierceness == other.fierceness
+        return super().__eq__(other) and self.fierceness == other.fierceness
 
     def __hash__(self):
         return hash((self.name, self.fierceness))
