@@ -2057,9 +2057,9 @@ def partition_three_in_place_rough(values, low, high, pivot):
 
     See the description in partition_three_in_place below. These solve the same
     problem with the same asymptotic time complexity, both in O(1) auxiliary
-    space. This should be a first working approach, while that is intended as a
-    different, more polished algorithm that may be faster by a constant factor.
-    The algorithm here may be clunky. Maybe it even feels a little bit cheaty.
+    space. This should be a first working approach while that should be a more
+    polished, different algorithm that may be faster by a constant factor. The
+    algorithm here may seem clunky. Maybe it even feels a little bit cheaty.
     """
     left = partition_two_in_place(values, low, high, lambda lhs: lhs < pivot)
 
@@ -2069,8 +2069,7 @@ def partition_three_in_place_rough(values, low, high, pivot):
     return left, right
 
 
-# !!FIXME: When removing implementation bodies, drop the "_good" suffix here.
-def partition_three_in_place_good(values, low, high, pivot):
+def partition_three_in_place(values, low, high, pivot):
     """
     Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
@@ -2107,10 +2106,6 @@ def partition_three_in_place_good(values, low, high, pivot):
             current += 1
 
     return low, high
-
-
-# !!FIXME: If this is here when removing implementation bodies, remove it too.
-partition_three_in_place = partition_three_in_place_good
 
 
 def _do_quickselect(values, low, high, k):
