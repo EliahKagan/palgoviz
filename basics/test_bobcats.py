@@ -104,7 +104,7 @@ class TestBobcat(unittest.TestCase):
         d = dict.fromkeys([b1, b2, b3, b4, b5, b6, b7, b8])
         self.assertListEqual(list(d), [b1, b2, b4, b5, b6])
 
-    @unittest.skip("We haven't decided if name mangling is justified here.")
+    @unittest.skip("Name mangling is not justified here.")
     def test_private_attribute_avoids_derived_class_nonpublic_clash(self):
         """
         This intends to test that Bobcat uses __name instead of _name (1 of 2).
@@ -121,7 +121,6 @@ class TestBobcat(unittest.TestCase):
             def remembered_name(self):
                 return self._name
 
-        # TODO: Use subTest.
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         with self.subTest('bobcat name'):
             self.assertEqual(bobcat.name, 'Ekaterina')
@@ -134,7 +133,7 @@ class TestBobcat(unittest.TestCase):
         with self.subTest('derived class does not mangle name'):
             self.assertFalse(hasattr(bobcat, '_NameRememberingBobcat__name'))
 
-    @unittest.skip("We haven't decided if name mangling is justified here.")
+    @unittest.skip("Name mangling is not justified here.")
     def test_private_attribute_avoids_derived_class_mangled_clash(self):
         """
         This intends to test that Bobcat uses __name instead of _name (2 of 2).
@@ -151,7 +150,6 @@ class TestBobcat(unittest.TestCase):
             def remembered_name(self):
                 return self.__name
 
-        # TODO: Use subTest.
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         with self.subTest('bobcat name'):
             self.assertEqual(bobcat.name, 'Ekaterina')
