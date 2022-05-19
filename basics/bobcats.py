@@ -7,12 +7,22 @@ in a bobcat attack. Fortunately, unit tests in test_bobcats.py were not harmed.
 
 from numbers import Real
 
+
 class Bobcat:
     """
     A named bobcat.
 
     Direct instances of this class represent bobcats distinguishable solely by
     name. Subclasses are not required to preserve this invariant.
+
+    >>> dog = Bobcat('Dog')
+    >>> print(dog)
+    Dog the bobcat
+    >>> dog.name
+    'Dog'
+    >>> cat = Bobcat('Cat')
+    >>> dog == cat
+    False
     """
 
     __slots__ = ('_name',)
@@ -62,6 +72,21 @@ class FierceBobcat(Bobcat):
     in the same family, where everyone has a different name.)
 
     Instances of this class represent such fierce bobcats.
+
+    >>> sleepy = FierceBobcat('Sleepy', 10000)
+    >>> print(sleepy)
+    Sleepy the bobcat
+    >>> sleepy.fierceness
+    10000
+    >>> spot = FierceBobcat('Spot', 10000)
+    >>> spot == sleepy
+    False
+    >>> alsosleepy = FierceBobcat('Sleepy', 9500)
+    >>> alsosleepy == sleepy
+    False
+    >>> sleepynf = Bobcat('Sleepy')
+    >>> sleepynf == sleepy
+    False
     """
 
     __slots__ = ('_fierceness', )
