@@ -101,7 +101,7 @@ class TestBobcat(unittest.TestCase):
         d = dict.fromkeys([b1, b2, b3, b4, b5, b6, b7, b8])
         self.assertListEqual(list(d), [b1, b2, b4, b5, b6])
 
-    #@unittest.skip("We haven't decided if name mangling is justified here.")
+    @unittest.skip("We haven't decided if name mangling is justified here.")
     def test_private_attribute_avoids_derived_class_nonpublic_clash(self):
         """
         This intends to test that Bobcat uses __name instead of _name (1 of 2).
@@ -126,7 +126,7 @@ class TestBobcat(unittest.TestCase):
         self.assertEqual(bobcat._name, 'Phineas')
         self.assertFalse(hasattr(bobcat, '_NameRememberingBobcat__name'))
 
-    #@unittest.skip("We haven't decided if name mangling is justified here.")
+    @unittest.skip("We haven't decided if name mangling is justified here.")
     def test_private_attribute_avoids_derived_class_mangled_clash(self):
         """
         This intends to test that Bobcat uses __name instead of _name (2 of 2).
