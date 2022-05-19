@@ -38,3 +38,62 @@ sort_by_partitioning_in_place_hardened
 sort_by_partitioning_in_place_iterative
 sort_by_partitioning_in_place_safe
 stabilize
+
+
+Those 40 exercises can be grouped as follows.
+
+
+Group 1:
+
+insertion_sort_in_place
+insertion_sort_in_place_alt
+insertion_sort_alt
+selection_sort
+selection_sort_stable
+selection_sort_in_place
+selection_sort_alt
+least_k
+greatest_k
+select_k
+my_shuffle
+stabilize
+
+
+Group 2:
+
+merge_many
+merge_many_bottom_up
+merge_sort_adaptive
+merge_sort_adaptive_bottom_up
+merge_sort_mut_simple
+merge_sort_mut
+merge_sort_mut_bottom_up_simple
+merge_sort_mut_bottom_up
+
+
+Group 3:
+
+partition_three
+similar_range
+similar_range_alt
+select_by_partitioning
+select_by_partitioning_iterative
+sort_by_partitioning_simple
+sort_by_partitioning
+sort_by_partitioning_hardened
+
+
+Group 4:
+
+partition_two_in_place
+partition_three_in_place_rough
+partition_three_in_place
+select_by_partitioning_in_place
+select_by_partitioning_in_place_iterative
+median_by_sorting
+median
+sort_by_partitioning_in_place_simple
+sort_by_partitioning_in_place
+sort_by_partitioning_in_place_hardened
+sort_by_partitioning_in_place_iterative
+sort_by_partitioning_in_place_safe
