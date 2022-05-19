@@ -123,11 +123,16 @@ class TestBobcat(unittest.TestCase):
 
         # TODO: Use subTest.
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
-        self.assertEqual(bobcat.name, 'Ekaterina')
-        self.assertEqual(bobcat.remembered_name, 'Phineas')
-        self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
-        self.assertEqual(bobcat._name, 'Phineas')
-        self.assertFalse(hasattr(bobcat, '_NameRememberingBobcat__name'))
+        with self.subTest('bobcat name'):
+            self.assertEqual(bobcat.name, 'Ekaterina')
+        with self.subTest('bobcat remebered name'):
+            self.assertEqual(bobcat.remembered_name, 'Phineas')
+        with self.subTest('name mangled'):
+            self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
+        with self.subTest('_name is remembered name'):
+            self.assertEqual(bobcat._name, 'Phineas')
+        with self.subTest('has derived class has mangled name'):
+            self.assertFalse(hasattr(bobcat, '_NameRememberingBobcat__name'))
 
     @unittest.skip("We haven't decided if name mangling is justified here.")
     def test_private_attribute_avoids_derived_class_mangled_clash(self):
