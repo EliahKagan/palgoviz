@@ -67,6 +67,7 @@ class FierceBobcat(Bobcat):
     __slots__ = ('_fierceness', )
 
     FIERCENESS_CUTOFF = 9000
+    """Bobcat names are not guaranteed unique above this fierceness."""
 
     def __init__(self, name, fierceness):
         """Create a FierceBobcat with a specified name and fierceness."""
