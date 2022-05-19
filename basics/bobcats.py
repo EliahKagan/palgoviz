@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 The scourge of immutable bobcats.
 
@@ -20,8 +22,7 @@ class Bobcat:
     Dog the bobcat
     >>> dog.name
     'Dog'
-    >>> cat = Bobcat('Cat')
-    >>> dog == cat
+    >>> dog == Bobcat('Cat')
     False
     """
 
@@ -76,16 +77,15 @@ class FierceBobcat(Bobcat):
     >>> sleepy = FierceBobcat('Sleepy', 10000)
     >>> print(sleepy)
     Sleepy the bobcat
+    >>> sleepy
+    FierceBobcat(name='Sleepy', fierceness=10000)
     >>> sleepy.fierceness
     10000
-    >>> spot = FierceBobcat('Spot', 10000)
-    >>> spot == sleepy
+    >>> sleepy == FierceBobcat('Spot', 10000)
     False
-    >>> alsosleepy = FierceBobcat('Sleepy', 9500)
-    >>> alsosleepy == sleepy
+    >>> sleepy == FierceBobcat('Sleepy', 9500)
     False
-    >>> sleepynf = Bobcat('Sleepy')
-    >>> sleepynf == sleepy
+    >>> sleepy == Bobcat('Sleepy')
     False
     """
 
@@ -125,3 +125,8 @@ class FierceBobcat(Bobcat):
     def fierceness(self):
         """The fierceness of this fierce bobcat."""
         return self._fierceness
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
