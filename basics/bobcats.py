@@ -15,7 +15,7 @@ class Bobcat:
     name. Subclasses are not required to preserve this invariant.
     """
 
-    __slots__ = ('_name',)
+    __slots__ = ('__name',)
 
     def __init__(self, name):
         """Create a Bobcat with a specified name."""
@@ -25,7 +25,7 @@ class Bobcat:
         if not name:
             raise ValueError('Names must be non-empty.')
 
-        self._name = name
+        self.__name = name
 
     def __repr__(self):
         """Represent this Bobcat as Python code."""
@@ -47,7 +47,7 @@ class Bobcat:
     @property
     def name(self):
         """The name bobcat naming robots gave to this bobcat."""
-        return self._name
+        return self.__name
 
 
 class FierceBobcat(Bobcat):
