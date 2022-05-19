@@ -6,6 +6,8 @@ from decimal import Decimal
 from fractions import Fraction
 import unittest
 
+from parameterized import parameterized
+
 from bobcats import Bobcat, FierceBobcat
 
 
@@ -63,11 +65,12 @@ class TestBobcat(unittest.TestCase):
         self.assertNotEqual(first, second)
 
     def test_bobcats_are_not_equal_to_non_bobcats(self):
-        # TODO: Use subTest.
         bobcat = Bobcat('Countess von Willdebrandt')
         non_bobcat = 'Countess von Willdebrandt'
-        self.assertNotEqual(bobcat, non_bobcat)
-        self.assertNotEqual(non_bobcat, bobcat)
+        with self.subTest(order='bobcat first'):
+            self.assertNotEqual(bobcat, non_bobcat)
+        with self.subTest(order='non-bobcat first'):
+            self.assertNotEqual(non_bobcat, bobcat)
 
     def test_same_named_bobcats_hash_the_same(self):
         first = Bobcat('Countess von Willdebrandt')
@@ -202,11 +205,12 @@ class TestFierceBobcat(unittest.TestCase):
             FierceBobcat('Mean Bob', 9000)
 
     def test_the_only_problem_with_bools_is_they_are_not_fierce_enough(self):
-        # TODO: Use subTest or other parameterization.
-        with self.assertRaises(ValueError):
-            FierceBobcat('Mean Bob', False)
-        with self.assertRaises(ValueError):
-            FierceBobcat('Mean Bob', True)
+        with self.subTest(value=False):
+            with self.assertRaises(ValueError):
+                FierceBobcat('Mean Bob', False)
+        with self.subTest(value=True):
+            with self.assertRaises(ValueError):
+                FierceBobcat('Mean Bob', True)
 
     def test_fierce_bobcats_are_bobcats(self):
         bobcat = FierceBobcat('Mean Bob', 9001)
@@ -261,19 +265,20 @@ class TestFierceBobcat(unittest.TestCase):
         second = FierceBobcat('Mean Bob', 9500)
         self.assertEqual(first, second)
 
-    def test_bobcats_differing_only_by_type_of_fierceness_are_equal(self):
+    @parameterized.expand([
+        ('int_float', int, float),
+        ('int_frac', int, Fraction),
+        ('float_int', float, int ),
+        ('float_frac', float, Fraction),
+        ('frac_int', Fraction, int),
+        ('frac_float', Fraction, float),
+    ])
+    def test_bobcats_differing_only_by_type_of_fierceness_are_equal(
+            self, _name, lhs_type, rhs_type):
         """The same name and fierceness *value* are sufficient for equality."""
-        int_bob = FierceBobcat('Mean Bob', 9500)
-        float_bob = FierceBobcat('Mean Bob', 9500.0)
-        fraction_bob = FierceBobcat('Mean Bob', Fraction(9500, 1))
-
-        # TODO: Use subTest or other parameterization.
-        self.assertEqual(int_bob, float_bob)
-        self.assertEqual(int_bob, fraction_bob)
-        self.assertEqual(float_bob, int_bob)
-        self.assertEqual(float_bob, fraction_bob)
-        self.assertEqual(fraction_bob, int_bob)
-        self.assertEqual(fraction_bob, float_bob)
+        lhs = FierceBobcat('Mean Bob', lhs_type(9500))
+        rhs = FierceBobcat('Mean Bob', rhs_type(9500))
+        self.assertEqual(lhs, rhs)
 
     def test_bobcats_differing_in_both_name_and_fierceness_are_not_equal(self):
         first = FierceBobcat('Mean Bob', 9500)
@@ -291,34 +296,35 @@ class TestFierceBobcat(unittest.TestCase):
         self.assertNotEqual(first, second)
 
     def test_fierce_bobcats_are_not_equal_to_regular_bobcats(self):
-        # TODO: Use subTest.
         regular = Bobcat('Countess von Willdebrandt')
         fierce = FierceBobcat('Countess von Willdebrandt', 17_346_802)
-        self.assertNotEqual(fierce, regular)
-        self.assertNotEqual(regular, fierce)
+        with self.subTest(order="fierce first"):
+            self.assertNotEqual(fierce, regular)
+        with self.subTest(order="regular first"):
+            self.assertNotEqual(regular, fierce)
 
     def test_fierce_bobcats_are_not_equal_to_non_bobcats(self):
-        # TODO: Use subTest.
         bobcat = FierceBobcat('Mean Bob', 9500)
         non_bobcat = ('Mean Bob', 9500)
-        self.assertNotEqual(bobcat, non_bobcat)
-        self.assertNotEqual(non_bobcat, bobcat)
+        with self.subTest(order="bobcat first"):
+            self.assertNotEqual(bobcat, non_bobcat)
+        with self.subTest(order="non-bobcat first"):
+            self.assertNotEqual(non_bobcat, bobcat)
 
     def test_bobcats_of_same_name_and_fierceness_hash_the_same(self):
         first = FierceBobcat('Mean Bob', 9500)
         second = FierceBobcat('Mean Bob', 9500)
         self.assertEqual(hash(first), hash(second))
 
-    def test_bobcats_differing_only_by_type_of_fierceness_hash_the_same(self):
-        int_bob = FierceBobcat('Mean Bob', 9500)
-        float_bob = FierceBobcat('Mean Bob', 9500.0)
-        fraction_bob = FierceBobcat('Mean Bob', Fraction(9500, 1))
-
-        int_bob_hash = hash(int_bob)
-
-        # TODO: Use subTest or other parameterization.
-        self.assertEqual(hash(float_bob), int_bob_hash)
-        self.assertEqual(hash(fraction_bob), int_bob_hash)
+    @parameterized.expand([
+        ('float_int', float, int),
+        ('frac_int', Fraction, int),
+    ])
+    def test_bobcats_differing_only_by_type_of_fierceness_hash_the_same(
+            self, _name, lhs_type, rhs_type):
+        lhs = FierceBobcat('Mean Bob', lhs_type(9500))
+        rhs = FierceBobcat('Mean Bob', rhs_type(9500))
+        self.assertEqual(hash(lhs), hash(rhs))
 
     def test_name_attribute_has_name(self):
         bobcat = FierceBobcat('Mean Bob', 9500)
