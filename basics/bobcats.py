@@ -75,8 +75,7 @@ class FierceBobcat(Bobcat):
         if not isinstance(fierceness, Real):
             raise TypeError('Fierceness must be a real number.')
 
-        # FIXME: Use idiomatic comparison for reals, which are totally ordered.
-        if not fierceness > self.FIERCENESS_CUTOFF:
+        if fierceness <= self.FIERCENESS_CUTOFF:
             raise ValueError(f'Fiercess must be over {self.FIERCENESS_CUTOFF}')
 
         self._fierceness = fierceness
