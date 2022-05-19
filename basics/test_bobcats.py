@@ -127,11 +127,11 @@ class TestBobcat(unittest.TestCase):
             self.assertEqual(bobcat.name, 'Ekaterina')
         with self.subTest('bobcat remebered name'):
             self.assertEqual(bobcat.remembered_name, 'Phineas')
-        with self.subTest('name mangled'):
+        with self.subTest('name mangles'):
             self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
         with self.subTest('_name is remembered name'):
             self.assertEqual(bobcat._name, 'Phineas')
-        with self.subTest('has derived class has mangled name'):
+        with self.subTest('derived class does not mangle name'):
             self.assertFalse(hasattr(bobcat, '_NameRememberingBobcat__name'))
 
     @unittest.skip("We haven't decided if name mangling is justified here.")
@@ -153,11 +153,16 @@ class TestBobcat(unittest.TestCase):
 
         # TODO: Use subTest.
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
-        self.assertEqual(bobcat.name, 'Ekaterina')
-        self.assertEqual(bobcat.remembered_name, 'Phineas')
-        self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
-        self.assertEqual(bobcat._NameRememberingBobcat__name, 'Phineas')
-        self.assertFalse(hasattr(bobcat, '_name'))
+        with self.subTest('bobcat name'):
+            self.assertEqual(bobcat.name, 'Ekaterina')
+        with self.subTest('bobcat remembered name'):
+            self.assertEqual(bobcat.remembered_name, 'Phineas')
+        with self.subTest('base class name mangles'):
+            self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
+        with self.subTest('derived class name mangles'):
+            self.assertEqual(bobcat._NameRememberingBobcat__name, 'Phineas')
+        with self.subTest('does not have _name'):
+            self.assertFalse(hasattr(bobcat, '_name'))
 
 
 class TestFierceBobcat(unittest.TestCase):
