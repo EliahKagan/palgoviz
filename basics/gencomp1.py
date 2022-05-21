@@ -9,8 +9,6 @@ See also gencomp2.py and fibonacci.py.
 import collections
 import itertools
 
-from traitlets import observe
-
 
 def my_enumerate(iterable, start=0):
     """
