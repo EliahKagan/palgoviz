@@ -9,6 +9,8 @@ See also gencomp2.py and fibonacci.py.
 import collections
 import itertools
 
+from traitlets import observe
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -891,7 +893,16 @@ def distinct(iterable, *, key=None):
     >>> list(distinct([3, *middle, 4], key=id))
     [3, [], [], 4]
     """
-    # FIXME: Implement this.
+    if key is None:
+        key = lambda x: x
+
+    observed = set()
+
+    for element in iterable:
+        result = key(element)
+        if result not in observed:
+            observed.add(result)
+            yield element
 
 
 def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
