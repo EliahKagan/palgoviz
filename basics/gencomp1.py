@@ -624,7 +624,9 @@ def my_filter(predicate, iterable):
     >>> list(my_filter(None, ['hello', 'glorious', 'world']))
     ['hello', 'glorious', 'world']
     """
-    # FIXME: Implement this. Have it return a generator expression.
+    if predicate is None:
+        return (element for element in iterable if element)
+    return (element for element in iterable if predicate(element))
 
 
 def my_filter_alt(predicate, iterable):
