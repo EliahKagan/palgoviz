@@ -1171,13 +1171,12 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     [{'a': 1}, {'b': 1}]
     """
     my_keys = list(subject_keys)
+    o = object()
 
     def keyfunction(d):
         values = []
-        o = object()
         for key in my_keys:
-            if d.get(key, o) is not o:
-                values.append((key, d.get(key)))
+            values.append(d.get(key, o))
         return tuple(values)
 
     return distinct(dicts, key=keyfunction)
