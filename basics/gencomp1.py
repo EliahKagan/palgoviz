@@ -811,13 +811,13 @@ def invert_alt(dictionary):
     key will be assigned because the first and intermediate values will be
     overwritten.
 
-    >>> invert({'a': 1, 'b': 1, 'c': 1})
+    >>> invert_alt({'a': 1, 'b': 1, 'c': 1})
     {1: 'c'}
     """
-    d = {}
+    inverse = {}
     for key, value in dictionary.items():
-        d[value] = key
-    return d
+        inverse[value] = key
+    return inverse
 
 
 def distinct_simple(iterable):
