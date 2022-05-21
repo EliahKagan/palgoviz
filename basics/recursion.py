@@ -9,6 +9,7 @@ See also object_graph.py.
 import bisect
 import collections
 import functools
+import math
 import operator
 
 import decorators
@@ -48,7 +49,7 @@ def semifactorial(n):
 
     Semifactorials, like factorials, are products of positive integers, but
     they skip every other term. For odd (resp. even) n, the semifactorial,
-    written n!! is the product of all positive odd (resp. even) integers less
+    written n!!, is the product of all positive odd (resp. even) integers less
     than or equal to n. That is:
 
         n!! = n * (n - 2) * (n - 4) * (n - 6) * ...
@@ -103,11 +104,26 @@ def semifactorial_iterative(n):
 
 def semifactorial_good(n):
     """
-    Compute the semifactorial ("double factorial") of n via functools.reduce.
+    Compute the semifactorial ("double factorial") of n via math.prod.
 
-    This implementation uses no recursion and no explicit iteration.
+    This implementation uses no recursion and no loops or comprehensions. (It
+    fits easily on one line.)
 
     >>> [semifactorial_good(n) for n in range(15)]
+    [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
+    """
+    return math.prod(range(n, 1, -2))
+
+
+def semifactorial_reduce(n):
+    """
+    Compute the semifactorial ("double factorial") of n via functools.reduce.
+
+    This implementation uses no recursion and no loops or comprehensions. (It
+    fits easily on one line.) This was the best way do do it prior to Python
+    3.8 when math.prod was added.
+
+    >>> [semifactorial_reduce(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
     return functools.reduce(operator.mul, range(n, 1, -2), 1)
