@@ -1174,10 +1174,7 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     o = object()
 
     def keyfunction(d):
-        values = []
-        for key in my_keys:
-            values.append(d.get(key, o))
-        return tuple(values)
+        return tuple(d.get(key, o) for key in my_keys)
 
     return distinct(dicts, key=keyfunction)
 
