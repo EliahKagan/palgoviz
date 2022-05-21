@@ -678,7 +678,7 @@ def length_of(iterable):
     >>> length_of(set(object() for _ in range(100_000)))
     100000
     """
-    # FIXME: Implement this in one short line (less than 40 characters).
+    return sum(1 for _ in iterable)
 
 
 def length_of_opt(iterable):
