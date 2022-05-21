@@ -652,7 +652,14 @@ def my_filter_alt(predicate, iterable):
     >>> list(my_filter_alt(None, ['hello', 'glorious', 'world']))
     ['hello', 'glorious', 'world']
     """
-    # FIXME: Implement this as a generator function.
+    if predicate is None:
+        for element in iterable:
+            if element:
+                yield element
+    else:
+        for element in iterable:
+            if predicate(element):
+                yield element
 
 
 def length_of(iterable):
