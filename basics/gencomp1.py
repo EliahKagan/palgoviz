@@ -737,10 +737,6 @@ def how_many(predicate, iterable):
 def invert(dictionary):
     """
     Given an injective (that is, one-to-one) dictionary, return its inverse.
-    If a noninjective dictionary is passed, the last value associated with the
-    key will be assigned because the first and intermediate values will be
-    overwritten.
-    (ie invert{'a': 1, 'b': 1, 'c': 1} will return {1: 'c'})
 
     When a dictionary never maps unequal keys to equal values, it is possible
     to produce an inverse of it: a dictionary that maps the values back to the
@@ -767,9 +763,15 @@ def invert(dictionary):
     False
     >>> invert(invert(d)) == d
     True
+
+    If a noninjective dictionary is passed, the last value associated with the
+    key will be assigned because the first and intermediate values will be
+    overwritten.
+
+    >>> invert({'a': 1, 'b': 1, 'c': 1})
+    {1: 'c'}
     """
     return {value: key for key, value in dictionary.items()}
-    # FIXME: Edit the docstring. Say what this does with noninjective dicts.
 
 
 def invert_alt(dictionary):
@@ -782,8 +784,8 @@ def invert_alt(dictionary):
 
     This also needs the dictionary's values (not just its keys) to be hashable.
 
-    This alternative implementation behaves the same as invert (above) but uses
-    a comprehension.
+    This alternative implementation behaves the same as invert (above) but does
+    not use a comprehension.
 
     >>> invert_alt({})
     {}
