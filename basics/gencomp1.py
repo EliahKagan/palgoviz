@@ -1166,8 +1166,21 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     ...     print({k: decipher[weird] for k, weird in d.items()})
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+
+    >>> list(distinct_dicts_by_keys([{'a': 1}, {'b': 1}], ('a', 'b')))
+    [{'a': 1}, {'b': 1}]
     """
-    # FIXME: Implement this.
+    my_keys = list(subject_keys)
+
+    def keyfunction(d):
+        values = []
+        o = object()
+        for key in my_keys:
+            if d.get(key, o) is not o:
+                values.append((key, d.get(key)))
+        return tuple(values)
+
+    return distinct(dicts, key=keyfunction)
 
 
 if __name__ == '__main__':
