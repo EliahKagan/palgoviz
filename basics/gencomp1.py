@@ -101,7 +101,10 @@ def my_any(iterable):
     >>> my_any(x > 100 for x in range(100))
     False
     """
-    # FIXME: Implement this.
+    for element in iterable:
+        if element:
+            return True
+    return False
 
 
 def my_all(iterable):
@@ -123,7 +126,10 @@ def my_all(iterable):
     >>> my_all([1, 1, 1, 6, 7])
     True
     """
-    # FIXME: Implement this.
+    for element in iterable:
+        if not element:
+            return False
+    return True
 
 
 def zip_two(first, second):
