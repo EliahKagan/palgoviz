@@ -72,8 +72,8 @@ def semifactorial_tail(n):
     >>> [semifactorial_tail(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
-    def semifac(acc, term):
-        return acc if term < 2 else semifac(acc * term, term - 2)
+    def semifac(acc, k):
+        return acc if k < 2 else semifac(acc * k, k - 2)
 
     return semifac(1, n)
 
