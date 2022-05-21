@@ -37,7 +37,7 @@ def my_enumerate(iterable, start=0):
     >>> list(my_enumerate(['ham', 'spam', 'eggs'], 10))
     [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
     """
-    # FIXME: Implement this.
+    return zip(itertools.count(start), iterable)
 
 
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
