@@ -50,6 +50,77 @@ def countdown(n):
     countdown(n-1)
 
 
+def semifactorial(n):
+    """
+    Compute the semifactorial ("double factorial") of n, by simple recursion.
+
+    Semifactorials, like factorials, are products of positive integers, but
+    they skip every other term. For odd (resp. even) n, the semifactorial,
+    written n!! is the product of all positive odd (resp. even) integers less
+    than or equal to n. That is:
+
+        n!! = n * (n - 2) * (n - 4) * (n - 6) * ...
+
+    where the last term is 2 or 1. (Like 0!, 0!! is the empty product.)
+
+    This is a simple recursive implementation. This, and the implementations
+    below it, may all assume n is a nonnegative int.
+
+    >>> [semifactorial(n) for n in range(15)]
+    [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
+    """
+    return 1 if n < 2 else n * semifactorial(n - 2)
+
+
+def semifactorial_tail(n):
+    """
+    Compute the semifactorial ("double factorial") of n, by tail recursion.
+
+    See tail_calls.ipynb.
+
+    Note that Python does not have proper tail calls, and CPython does not
+    eliminate or optimize tail calls in even the simplest tail-recursive
+    functions.
+
+    >>> [semifactorial_tail(n) for n in range(15)]
+    [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
+    """
+    def semifac(acc, k):
+        return acc if k < 2 else semifac(acc * k, k - 2)
+
+    return semifac(1, n)
+
+
+def semifactorial_iterative(n):
+    """
+    Compute the semifactorial ("double factorial") of n by explicit iteration.
+
+    This implementation uses the iterative accumulator pattern. This could be
+    done with either a for loop or a while loop. To clarify the conceptual
+    connection to semifactorial_tail, a while loop is used.
+
+    >>> [semifactorial_iterative(n) for n in range(15)]
+    [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
+    """
+    acc = 1
+    while n > 1:
+        acc *= n
+        n -= 2
+    return acc
+
+
+def semifactorial_good(n):
+    """
+    Compute the semifactorial ("double factorial") of n via functools.reduce.
+
+    This implementation uses no recursion and no explicit iteration.
+
+    >>> [semifactorial_good(n) for n in range(15)]
+    [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
+    """
+    return functools.reduce(operator.mul, range(n, 1, -2), 1)
+
+
 def add_all_iterative(values):
     """
     Add all the numbers. Like sum(values).
