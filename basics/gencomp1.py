@@ -806,9 +806,18 @@ def invert_alt(dictionary):
     False
     >>> invert_alt(invert_alt(d)) == d
     True
+
+    If a noninjective dictionary is passed, the last value associated with the
+    key will be assigned because the first and intermediate values will be
+    overwritten.
+
+    >>> invert({'a': 1, 'b': 1, 'c': 1})
+    {1: 'c'}
     """
-    # FIXME: Implement this, without using a comprehension.
-    # FIXME: Edit the docstring. Say what this does with noninjective dicts.
+    d = {}
+    for key, value in dictionary.items():
+        d[value] = key
+    return d
 
 
 def distinct_simple(iterable):
