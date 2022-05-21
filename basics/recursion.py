@@ -47,8 +47,9 @@ def semifactorial(n):
     Compute the semifactorial ("double factorial") of n, by simple recursion.
 
     Semifactorials, like factorials, are products of positive integers, but
-    they skip every other term. For odd (resp. even) n, n!! is the product of
-    all positive odd (resp. even) integers less than or equal to n. That is:
+    they skip every other term. For odd (resp. even) n, the semifactorial,
+    written n!! is the product of all positive odd (resp. even) integers less
+    than or equal to n. That is:
 
         n!! = n * (n - 2) * (n - 4) * (n - 6) * ...
 
@@ -68,6 +69,10 @@ def semifactorial_tail(n):
     Compute the semifactorial ("double factorial") of n, by tail recursion.
 
     See tail_calls.ipynb.
+
+    Note that Python does not have proper tail calls, and CPython does not
+    eliminate or optimize tail calls in even the simplest tail-recursive
+    functions.
 
     >>> [semifactorial_tail(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
