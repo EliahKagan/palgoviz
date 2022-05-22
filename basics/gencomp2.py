@@ -688,11 +688,13 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
+    def make_affine(w, b):
+        return lambda x: w*x + b
+
     my_biases = set(biases)
     my_weights = set(weights)
-    def affine_factory(weight, bias):
-        return lambda x: weight*x + bias
-    return {affine_factory(w, b) for b in my_biases for w in my_weights}
+
+    return {make_affine(w, b) for b in my_biases for w in my_weights}
 
 
 if __name__ == '__main__':
