@@ -420,7 +420,7 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    # FIXME: Implement this.
+    return [[x * y for y in range(width + 1)] for x in range(height + 1)]
 
 
 def compose_dicts_simple(back, front):
