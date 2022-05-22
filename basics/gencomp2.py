@@ -390,7 +390,7 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    # FIXME: Implement this.
+    return {(key, value) for (key, values) in rows.items() for value in values}
 
 
 def make_mul_table(height, width):
