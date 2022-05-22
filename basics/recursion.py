@@ -1843,9 +1843,10 @@ def similar_range(values, new_value):
 
     See also similar_range_alt below.
 
-    >>> similar_range([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
+    >>> a = [5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0]
+    >>> similar_range(a, 4)
     range(8, 9)
-    >>> similar_range([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
+    >>> similar_range(a, 5)
     range(9, 11)
     """
     lower, similar, _ = partition_three(values, new_value)
@@ -1860,11 +1861,10 @@ def similar_range_alt(values, new_value):
     partition_three for all but O(1) of its work. The other uses O(1) auxiliary
     space. Both are single-pass. They have the same asymptotic time complexity.
 
-    >>> similar_range_alt([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
-    ...                   4)
+    >>> a = [5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0]
+    >>> similar_range_alt(a, 4)
     range(8, 9)
-    >>> similar_range_alt([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0],
-    ...                   5)
+    >>> similar_range_alt(a, 5)
     range(9, 11)
     """
     lower = similar = 0
