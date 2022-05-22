@@ -73,6 +73,7 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
+    # FIXME: fix this
     it = itertools.count()
     max = next(it)
     j = range(max, -1)
