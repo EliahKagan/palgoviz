@@ -1823,6 +1823,8 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     ...     print({k: decipher[weird] for k, weird in d.items()})
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> list(distinct_dicts_by_keys([{'a': 1}, {'b': 1}], ('a', 'b')))
+    [{'a': 1}, {'b': 1}]
     """
     not_there = object()
     my_keys = tuple(subject_keys)
@@ -1845,6 +1847,14 @@ class DistinctDictsByKeys(Distinct):
     do not call distinct. However, feel free to use (and call) classes defined
     above. Just as distinct_dict_by_keys uses distinct, this class should
     probably make use of Distinct, greatly simplifying the solution.
+
+    NOTE: It's part of the exercise that this must be a class. But really, it
+    shouldn't be one, and having it be one is a bad design. The requirements
+    don't contain anything a class does better than a function. If what you
+    have already is the Distinct class, you can use that in a function, the
+    exact same way the distinct_dict_by_keys function uses the distinct
+    function. So the technique used here is easy to overuse. But it is
+    occasionally useful. [FIXME: Give an example of when it would be useful.]
 
     >>> ds1 = [{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5},
     ...        {'e': 6, 'd': 4, 'c': 7, 'b': 2, 'a': 8},
@@ -1889,6 +1899,8 @@ class DistinctDictsByKeys(Distinct):
     ...     print({k: decipher[weird] for k, weird in d.items()})
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> list(DistinctDictsByKeys([{'a': 1}, {'b': 1}], ('a', 'b')))
+    [{'a': 1}, {'b': 1}]
     """
 
     __slots__ = ()
