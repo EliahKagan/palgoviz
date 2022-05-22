@@ -146,10 +146,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    my_a = list(a)
-    my_b = list(b)
-    my_c = list(c)
-    return {x + y + z for (x, y, z) in itertools.product(my_a, my_b, my_c)}
+    return {x + y + z for (x, y, z) in itertools.product(a, b, c)}
 
 
 def three_sum_indices_1(a, b, c, target):
@@ -336,7 +333,7 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    # FIXME: Implement this. Keep in mind the "min" in the running time.
+
 
 
 def flatten2(iterable):
