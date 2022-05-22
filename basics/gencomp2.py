@@ -73,7 +73,10 @@ def ascending_countdowns():
     >>> sum(islice(ascending_countdowns(), 1_000_000))
     471108945
     """
-    # FIXME: Implement this.
+    it = itertools.count()
+    max = next(it)
+    j = range(max, -1)
+    return (x for x in j)
 
 
 def ascending_countdowns_alt():
@@ -89,7 +92,10 @@ def ascending_countdowns_alt():
     >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
-    # FIXME: Implement this.
+    it = itertools.count()
+    while (1):
+        for x in range(next(it), -1, -1):
+            yield x
 
 
 def three_sums(a, b, c):
