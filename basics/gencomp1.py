@@ -1969,6 +1969,10 @@ def distinct_eager(iterable, *, key=None):
     this fits easily in two lines, but more to make it self-documenting. The
     technique here is reliable but should probably never be used in production.
 
+    FIXME: Does this illuminate something that should be added to the invert
+    and invert_alt docstrings about how those functions behave on non-injective
+    dictionaries?
+
     >>> distinct_eager([])
     []
     >>> distinct_eager({3})
