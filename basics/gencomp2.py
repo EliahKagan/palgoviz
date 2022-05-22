@@ -333,7 +333,10 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
+    small = u if len(u) <= len(v) else v
+    big = v if small is u else u
 
+    return sum(small_value * big.get(key, 0) for key, small_value in small.items())
 
 
 def flatten2(iterable):
