@@ -76,7 +76,7 @@ def ascending_countdowns():
     return (y for x in itertools.count() for y in range(x, -1, -1))
 
 
-def ascending_countdowns_alt():  # FIXME: Shorten this with "yield from".
+def ascending_countdowns_alt():
     """
     Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
 
@@ -90,8 +90,7 @@ def ascending_countdowns_alt():  # FIXME: Shorten this with "yield from".
     471108945
     """
     for x in itertools.count():
-        for y in range(x, -1, -1):
-            yield y
+        yield from range(x, -1, -1)
 
 
 def three_sums(a, b, c):
