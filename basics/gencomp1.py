@@ -12,7 +12,7 @@ import itertools
 
 def my_enumerate(iterable, start=0):
     """
-    Pair up items in an iterable with indices. Like the built-in enumerate.
+    Pair up items with indices. Like the built-in enumerate.
 
     >>> men = my_enumerate(range(3,10000))
     >>> next(men)
@@ -37,17 +37,47 @@ def my_enumerate(iterable, start=0):
     >>> list(my_enumerate(['ham', 'spam', 'eggs'], 10))
     [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
     """
-    for x in iterable:
-        yield (start, x)
+    return zip(itertools.count(start), iterable)
+
+
+def my_enumerate_alt(iterable, start=0):
+    """
+    Pair up items with indices, without using zip, enumerate, or itertools.
+
+    >>> men = my_enumerate_alt(range(3,10000))
+    >>> next(men)
+    (0, 3)
+    >>> next(men)
+    (1, 4)
+    >>> next(men)
+    (2, 5)
+    >>> next(men)
+    (3, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs']))
+    [(0, 'ham'), (1, 'spam'), (2, 'eggs')]
+    >>> men = my_enumerate_alt(range(3,10000), 3)
+    >>> next(men)
+    (3, 3)
+    >>> next(men)
+    (4, 4)
+    >>> next(men)
+    (5, 5)
+    >>> next(men)
+    (6, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs'], 10))
+    [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
+    """
+    for item in iterable:
+        yield start, item
         start += 1
 
 
 class Enumerate:
     """
-    Iterator that pairs items in an iterable with indices.
+    Iterator that pairs items with indices.
 
     This is like the built-in enumerate, including that it is implemented as a
-    class rather than as a function.
+    class rather than as a function. Do not use zip, enumerate, or itertools.
 
     >>> men = Enumerate(range(3,10000))
     >>> next(men)
@@ -150,9 +180,7 @@ def my_any(iterable):
     >>> my_any(x > 100 for x in range(100))
     False
     """
-    for element in iterable:
-        if element: return True
-    return False
+    return next((True for element in iterable if element), False)
 
 
 def my_all(iterable):
@@ -174,9 +202,7 @@ def my_all(iterable):
     >>> my_all([1, 1, 1, 6, 7])
     True
     """
-    for element in iterable:
-        if not element: return False
-    return True
+    return next((False for element in iterable if not element), True)
 
 
 def zip_two(first, second):
@@ -464,7 +490,12 @@ class Zip:
             raise StopIteration()
 
         try:
-            # Use a list comprehension so we can catch StopIteration from it.
+            # Use a list comprehension, so that StopIteration can be propagated
+            # out of it and be caught in this function. From a generator
+            # expression, StopIteration converts to RuntimeError (which should
+            # not be caught). In map, StopIteration is confused with the map
+            # itself being exhausted. [This is a more detailed description of
+            # the same situation as in the yield statement in my_zip, above.]
             return tuple([next(iterator) for iterator in self._iterators])
         except StopIteration:
             self._done = True
@@ -490,10 +521,9 @@ def print_zipped():
 
 
 def _validate_take_n_arg(n):
-    """Raise an appropriate exception unless n is a nonnegative int."""
+    """Raise an appropriate if take should not accept n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
-
     if n < 0:
         raise ValueError("can't yield negatively many items")
 
@@ -618,10 +648,9 @@ class Take:
 
 
 def _validate_drop_n_arg(n):
-    """Raise an appropriate exception unless n is a nonnegative int."""
+    """Raise an appropriate exception if drop should not accept n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
-
     if n < 0:
         raise ValueError("can't skip negatively many items")
 
@@ -726,21 +755,22 @@ class Drop:
     ['q', 'r']
     """
 
-    __slots__ = ('_n', '_iterator')
+    __slots__ = ('_started', '_drop_count', '_iterator')
 
     def __init__(self, iterable, n):
         _validate_drop_n_arg(n)
-        self._n = n
+        self._started = False
+        self._drop_count = n
         self._iterator = iter(iterable)
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self._n is not None:
-            collections.deque(itertools.islice(self._iterator, self._n),
-                              maxlen=0)
-            self._n = None
+        if not self._started:
+            self._started = True
+            prefix = itertools.islice(self._iterator, self._drop_count)
+            collections.deque(prefix, maxlen=0)
 
         return next(self._iterator)
 
@@ -869,10 +899,9 @@ def pick(iterable, index):
 
 
 def _validate_windowed_n_arg(n):
-    """Raise an appropriate exception unless n is a nonnegative int."""
+    """Raise an appropriate exception if windowed should not accept n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
-
     if n < 0:
         raise ValueError("window width (n) cannot be negative")
 
@@ -945,25 +974,25 @@ class Windowed:
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
 
-    __slots__ = ('_iterator', '_queue', '_started')
+    __slots__ = ('_started', '_queue', '_iterator')
 
     def __init__(self, iterable, n):
         _validate_windowed_n_arg(n)
-        self._iterator = iter(iterable)
-        self._queue = collections.deque(maxlen=n)
         self._started = False
+        self._queue = collections.deque(maxlen=n)
+        self._iterator = iter(iterable)
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if not self._started:
-            self._started = True
-            for _ in range(self._queue.maxlen):
-                self._queue.append(next(self._iterator))
+        if self._started:
+            self._queue.append(next(self._iterator))
             return tuple(self._queue)
 
-        self._queue.append(next(self._iterator))
+        while len(self._queue) < self._queue.maxlen:
+            self._queue.append(next(self._iterator))
+        self._started = True
         return tuple(self._queue)
 
 
@@ -987,8 +1016,7 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    for element in iterable:
-        yield func(element)
+    return (func(element) for element in iterable)
 
 
 def map_one_alt(func, iterable):
@@ -1009,7 +1037,8 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    return (func(element) for element in iterable)
+    for element in iterable:
+        yield func(element)
 
 
 class MapOne:
@@ -1067,11 +1096,9 @@ def my_filter(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        for element in iterable:
-            if element: yield element
-    else:
-        for element in iterable:
-            if predicate(element): yield element
+        predicate = lambda x: x
+
+    return (element for element in iterable if predicate(element))
 
 
 def my_filter_alt(predicate, iterable):
@@ -1098,9 +1125,11 @@ def my_filter_alt(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        return (element for element in iterable if element)
+        predicate = lambda x: x
 
-    return (element for element in iterable if predicate(element))
+    for element in iterable:
+        if predicate(element):
+            yield element
 
 
 class Filter:
@@ -1134,10 +1163,12 @@ class Filter:
     def __iter__(self):
         return self
 
-    def __next__(self):  # TODO: Maybe implement this using a for loop instead.
-        while not self._predicate(value := next(self._iterator)):
-            pass
-        return value
+    def __next__(self):
+        for item in self._iterator:
+            if self._predicate(item):
+                return item
+
+        raise StopIteration()
 
 
 def length_of(iterable):
@@ -1210,7 +1241,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    return length_of(my_filter(predicate, iterable))
+    return sum(1 for _ in filter(predicate, iterable))
 
 
 def invert(dictionary):
@@ -1222,8 +1253,6 @@ def invert(dictionary):
     keys.
 
     This also needs the dictionary's values (not just its keys) to be hashable.
-
-    TODO: Document the behavior of invert when given a noninjective dictionary.
 
     >>> invert({})
     {}
@@ -1244,11 +1273,15 @@ def invert(dictionary):
     False
     >>> invert(invert(d)) == d
     True
+
+    If a noninjective dictionary is passed, the last value associated with the
+    key will be assigned because the first and intermediate values will be
+    overwritten.
+
+    >>> invert({'a': 1, 'b': 1, 'c': 1})
+    {1: 'c'}
     """
-    inverse = {}
-    for key in dictionary:
-        inverse[dictionary[key]] = key
-    return inverse
+    return {value: key for key, value in dictionary.items()}
 
 
 def invert_alt(dictionary):
@@ -1261,11 +1294,8 @@ def invert_alt(dictionary):
 
     This also needs the dictionary's values (not just its keys) to be hashable.
 
-    This alternative implementation behaves the same as invert (above) but uses
-    a comprehension.
-
-    TODO: Document the behavior of invert_alt when given a noninjective
-    dictionary.
+    This alternative implementation behaves the same as invert (above) but does
+    not use a comprehension.
 
     >>> invert_alt({})
     {}
@@ -1286,8 +1316,18 @@ def invert_alt(dictionary):
     False
     >>> invert_alt(invert_alt(d)) == d
     True
+
+    If a noninjective dictionary is passed, the last value associated with the
+    key will be assigned because the first and intermediate values will be
+    overwritten.
+
+    >>> invert_alt({'a': 1, 'b': 1, 'c': 1})
+    {1: 'c'}
     """
-    return {value: key for key, value in dictionary.items()}
+    inverse = {}
+    for key, value in dictionary.items():
+        inverse[value] = key
+    return inverse
 
 
 def distinct_unstable(iterable):
@@ -1436,7 +1476,7 @@ class DistinctSimple:
     [1, 4, 7]
     """
 
-    __slots__ = ('_history',  '_iterator')
+    __slots__ = ('_history', '_iterator')
 
     def __init__(self, iterable):
         self._history = set()
@@ -1445,11 +1485,13 @@ class DistinctSimple:
     def __iter__(self):
         return self
 
-    def __next__(self):  # TODO: Maybe implement this with a for loop instead.
-        while (item := next(self._iterator)) in self._history:
-            pass
-        self._history.add(item)
-        return item
+    def __next__(self):
+        for item in self._iterator:
+            if item not in self._history:
+                self._history.add(item)
+                return item
+
+        raise StopIteration()
 
 
 def distinct(iterable, *, key=None):
@@ -1501,11 +1543,12 @@ def distinct(iterable, *, key=None):
     if key is None:
         key = lambda x: x
 
-    elements = set()
+    observed = set()
+
     for element in iterable:
-        image = key(element)
-        if image not in elements:
-            elements.add(image)
+        result = key(element)
+        if result not in observed:
+            observed.add(result)
             yield element
 
 
@@ -1555,11 +1598,14 @@ class Distinct:
     def __iter__(self):
         return self
 
-    def __next__(self):  # TODO: Maybe implement this with a for loop instead.
-        while self._key(item := next(self._iterator)) in self._history:
-            pass
-        self._history.add(self._key(item))
-        return item
+    def __next__(self):
+        for item in self._iterator:
+            mapped_key = self._key(item)
+            if mapped_key not in self._history:
+                self._history.add(mapped_key)
+                return item
+
+        raise StopIteration()
 
 
 def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
@@ -1826,9 +1872,13 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     >>> list(distinct_dicts_by_keys([{'a': 1}, {'b': 1}], ('a', 'b')))
     [{'a': 1}, {'b': 1}]
     """
-    not_there = object()
-    my_keys = tuple(subject_keys)
-    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
+    my_keys = list(subject_keys)
+    o = object()
+
+    def keyfunction(d):
+        return tuple(d.get(key, o) for key in my_keys)
+
+    return distinct(dicts, key=keyfunction)
 
 
 class DistinctDictsByKeys(Distinct):

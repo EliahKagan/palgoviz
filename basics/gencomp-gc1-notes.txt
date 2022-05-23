@@ -1,5 +1,6 @@
 fibonacci.Fib
 functions.CallableIterator
+gencomp1.my_enumerate_alt
 gencomp1.Enumerate
 gencomp1.ZipTwo
 gencomp1.Zip

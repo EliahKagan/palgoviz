@@ -66,8 +66,8 @@ def product_two(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
+    my_a = list(a)
+    my_b = list(b)
     return ((x, y) for x in my_a for y in my_b)
 
 
@@ -89,8 +89,8 @@ def product_two_alt(a, b):
     >>> list(it)
     [(0, 9), (1, 8), (1, 9)]
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
+    my_a = list(a)
+    my_b = list(b)
     for x in my_a:
         for y in my_b:
             yield (x, y)
@@ -311,7 +311,7 @@ def ascending_countdowns():
     return (y for x in itertools.count() for y in range(x, -1, -1))
 
 
-def ascending_countdowns_alt():
+def ascending_countdowns_alt():  # FIXME: Shorten this with "yield from".
     """
     Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
 
@@ -325,7 +325,8 @@ def ascending_countdowns_alt():
     471108945
     """
     for x in itertools.count():
-        yield from range(x, -1, -1)
+        for y in range(x, -1, -1):
+            yield y
 
 
 class AscendingCountdowns:
@@ -382,9 +383,9 @@ def three_sums(a, b, c):
     >>> three_sums(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    my_a = tuple(a)
-    my_b = tuple(b)
-    my_c = tuple(c)
+    my_a = list(a)
+    my_b = list(b)
+    my_c = list(c)
     return {x + y + z for x in my_a for y in my_b for z in my_c}
 
 
@@ -410,7 +411,7 @@ def three_sums_alt(a, b, c):
     >>> three_sums_alt(range(10), range(10), range(10)) == set(range(28))
     True
     """
-    return set(map(sum, itertools.product(a, b, c)))
+    return {x + y + z for x, y, z in itertools.product(a, b, c)}
 
 
 def three_sum_indices_1(a, b, c, target):
@@ -597,11 +598,10 @@ def dot_product(u, v):
     >>> dot_product(v, w) == dot_product(w, v) == 0
     True
     """
-    if len(u) > len(v):  # u should be smaller
-        u, v = v, u
+    small, big = (u, v) if len(u) <= len(v) else (v, u)
 
-    return sum(u_value * v.get(u_key, 0)
-               for u_key, u_value in u.items())
+    return sum(small_value * big.get(key, 0)
+               for key, small_value in small.items())
 
 
 def flatten2(iterable):
@@ -655,9 +655,7 @@ def ungroup(rows):
     ...                   (4, 8), (4, 9), (9, 2), (9, 5)}
     True
     """
-    return {(source, destination)
-            for source, destinations in rows.items()
-            for destination in destinations}
+    return {(key, value) for key, values in rows.items() for value in values}
 
 
 def make_mul_table(height, width):
@@ -687,7 +685,7 @@ def make_mul_table(height, width):
     ... ]
     True
     """
-    return [[i * j for j in range(width + 1)] for i in range(height + 1)]
+    return [[x * y for y in range(width + 1)] for x in range(height + 1)]
 
 
 def compose_dicts_simple(back, front):
@@ -1207,10 +1205,6 @@ def is_hermitian_alt(matrix):
                for i in indices for j in indices)
 
 
-def _make_affine(w, b):
-    return lambda x: w*x + b
-
-
 def affines(weights, biases):
     """
     Make a set of all 1-dimensional real-valued affine functions that use a
@@ -1241,9 +1235,13 @@ def affines(weights, biases):
     >>> affines(u, range(0)) == affines((m for m in ()), v) == set()
     True
     """
-    unique_weights = set(weights)
-    unique_biases = set(biases)
-    return {_make_affine(w, b) for w in unique_weights for b in unique_biases}
+    def make_affine(w, b):
+        return lambda x: w*x + b
+
+    my_biases = set(biases)
+    my_weights = set(weights)
+
+    return {make_affine(w, b) for b in my_biases for w in my_weights}
 
 
 def mean(iterable):
