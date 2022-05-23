@@ -12,7 +12,7 @@ import itertools
 
 def my_enumerate(iterable, start=0):
     """
-    Pair up items in an iterable with indices. Like the built-in enumerate.
+    Pair up items with indices. Like the built-in enumerate.
 
     >>> men = my_enumerate(range(3,10000))
     >>> next(men)
@@ -40,12 +40,44 @@ def my_enumerate(iterable, start=0):
     return zip(itertools.count(start), iterable)
 
 
+def my_enumerate_alt(iterable, start=0):
+    """
+    Pair up items with indices, without using zip, enumerate, or itertools.
+
+    >>> men = my_enumerate_alt(range(3,10000))
+    >>> next(men)
+    (0, 3)
+    >>> next(men)
+    (1, 4)
+    >>> next(men)
+    (2, 5)
+    >>> next(men)
+    (3, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs']))
+    [(0, 'ham'), (1, 'spam'), (2, 'eggs')]
+    >>> men = my_enumerate_alt(range(3,10000), 3)
+    >>> next(men)
+    (3, 3)
+    >>> next(men)
+    (4, 4)
+    >>> next(men)
+    (5, 5)
+    >>> next(men)
+    (6, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs'], 10))
+    [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
+    """
+    for item in iterable:
+        yield start, item
+        start += 1
+
+
 class Enumerate:
     """
-    Iterator that pairs items in an iterable with indices.
+    Iterator that pairs items with indices.
 
     This is like the built-in enumerate, including that it is implemented as a
-    class rather than as a function.
+    class rather than as a function. Do not use zip, enumerate, or itertools.
 
     >>> men = Enumerate(range(3,10000))
     >>> next(men)
