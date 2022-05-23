@@ -62,7 +62,7 @@ def semifactorial(n):
     >>> [semifactorial(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
-    return 1 if n < 2 else n * semifactorial(n - 2)
+    # FIXME: Implement this.
 
 
 def semifactorial_tail(n):
@@ -78,10 +78,7 @@ def semifactorial_tail(n):
     >>> [semifactorial_tail(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
-    def semifac(acc, k):
-        return acc if k < 2 else semifac(acc * k, k - 2)
-
-    return semifac(1, n)
+    # FIXME: Implement this.
 
 
 def semifactorial_iterative(n):
@@ -95,11 +92,7 @@ def semifactorial_iterative(n):
     >>> [semifactorial_iterative(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
-    acc = 1
-    while n > 1:
-        acc *= n
-        n -= 2
-    return acc
+    # FIXME: Implement this.
 
 
 def semifactorial_good(n):
@@ -112,7 +105,7 @@ def semifactorial_good(n):
     >>> [semifactorial_good(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
-    return math.prod(range(n, 1, -2))
+    # FIXME: Implement this.
 
 
 def semifactorial_reduce(n):
@@ -126,7 +119,7 @@ def semifactorial_reduce(n):
     >>> [semifactorial_reduce(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
-    return functools.reduce(operator.mul, range(n, 1, -2), 1)
+    # FIXME: Implement this.
 
 
 def add_all_iterative(values):
