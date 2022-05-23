@@ -692,6 +692,104 @@ def affines(weights, biases):
     return {make_affine(w, b) for b in my_biases for w in my_weights}
 
 
+class Affine:
+    """
+    An extensional notion of a 1-dimensional affine function.
+
+    Instances are "extensional" in the sense that they are equal if and only if
+    they return the same value for every value of their argument. This happens
+    just when their weights and biases are respectively equal. Functions in
+    mathematics are nearly always defined to have extensional equality, while
+    functions in programming languages, if they can be compared for equality at
+    all, are usually defined to be equal only when they have exactly the same
+    code and any associated data, all stored in exactly the same places. (In
+    Python, this can be stated more simply: functions are equal when they are
+    the same object.) Functions in most programming languages are thus
+    intensional rather than extensional.
+
+    In contrast to functions in Python, sets are extensional, in math and in
+    Python. Sets are equal if and only if agree on results of all "in" queries.
+
+    >>> Affine(-1.5, 6.2)
+    Affine(weight=-1.5, bias=6.2)
+    >>> _.weight, _.bias
+    (-1.5, 6.2)
+    >>> Affine(3, -8.2) == Affine(weight=3.0, bias=-8.2)
+    True
+    >>> Affine(1.1, 2.2)(10)
+    13.2
+    """
+
+    __slots__ = ('_weight', '_bias')
+
+    def __init__(self, weight, bias):
+        """Create a callable affine with the given weight and bias."""
+        self._weight = weight
+        self._bias = bias
+
+    def __repr__(self):
+        """Represent this Affine object as Python code."""
+        return (f'{type(self).__name__}'
+                f'(weight={self.weight!r}, bias={self.bias!r})')
+
+    def __eq__(self, other):
+        """Check if this has the same weight and bias as another Affine."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.weight == other.weight and self.bias == other.bias
+
+    def __hash__(self):
+        return hash((self.weight, self.bias))
+
+    def __call__(self, x):
+        """Apply this affine: scale x by the weight and offset by the bias."""
+        return self.weight * x + self.bias
+
+    @property
+    def weight(self):
+        """The weight, or slope, by which arguments are dilated."""
+        return self._weight
+
+    @property
+    def bias(self):
+        """The bias, or y-intercept, by which dilated arguments are shifted."""
+        return self._bias
+
+
+def affines_alt(weights, biases):
+    """
+    Make a set of all 1-dimensional real-valued Affine objects that use a
+    weight from weights and a bias from biases.
+
+    These objects represent affine functions in mathematics but are class
+    instances, not Python functions. This implementation takes advantage of the
+    behavior of Affine instances under equality comparison.
+
+    This implementation consists of a single statement, which fits easily in
+    one line, or (depending on choice of variable names) very easily in two.
+
+    >>> u = [2.3, 1.0, 2.3, -6.5, 5.4]
+    >>> v = [1.9, 3.6, -5.1, 1.9]
+    >>> s = affines_alt(u, v)
+    >>> isinstance(s, set) and all(isinstance(f, Affine) for f in s)
+    True
+    >>> sorted(f(10) for f in s)
+    [-70.1, -63.1, -61.4, 4.9, 11.9, 13.6, 17.9, 24.9, 26.6, 48.9, 55.9, 57.6]
+    >>> sorted(round(f(5), 1) for f in s)
+    [-37.6, -30.6, -28.9, -0.1, 6.4, 6.9, 8.6, 13.4, 15.1, 21.9, 28.9, 30.6]
+    >>> t = affines_alt(iter(v), (b for b in u))
+    >>> isinstance(t, set)
+    True
+    >>> sorted(f(5) for f in t)
+    [-32.0, -24.5, -23.2, -20.1, 3.0, 10.5, 11.5, 11.8, 14.9, 19.0, 20.3, 23.4]
+    >>> sorted(round(f(2), 1) for f in t)
+    [-16.7, -9.2, -7.9, -4.8, -2.7, 0.7, 4.8, 6.1, 8.2, 9.2, 9.5, 12.6]
+    >>> affines_alt(u, range(0)) == affines_alt((m for m in ()), v) == set()
+    True
+    """
+    return {Affine(w, b) for w, b in itertools.product(weights, biases)}
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
