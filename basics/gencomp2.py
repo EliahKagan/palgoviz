@@ -311,7 +311,7 @@ def ascending_countdowns():
     return (y for x in itertools.count() for y in range(x, -1, -1))
 
 
-def ascending_countdowns_alt():  # FIXME: Shorten this with "yield from".
+def ascending_countdowns_alt():
     """
     Yield integers counting down to 0 from 0, then from 1, them from 2, etc.
 
@@ -325,8 +325,7 @@ def ascending_countdowns_alt():  # FIXME: Shorten this with "yield from".
     471108945
     """
     for x in itertools.count():
-        for y in range(x, -1, -1):
-            yield y
+        yield from range(x, -1, -1)
 
 
 class AscendingCountdowns:
@@ -1273,36 +1272,36 @@ class Affine:
     __slots__ = ('_weight', '_bias')
 
     def __init__(self, weight, bias):
-        """Create a callable affine with the given weight and bias."""
+        """Create an affine transformation with a specified weight and bias."""
         self._weight = weight
         self._bias = bias
 
+    def __call__(self, x):
+        """Transform x according to weight and bias."""
+        return self.weight*x + self.bias
+
     def __repr__(self):
-        """Represent this Affine object as Python code."""
-        return (f'{type(self).__name__}'
+        """Represent this Affine as Python code."""
+        return (type(self).__name__ +
                 f'(weight={self.weight!r}, bias={self.bias!r})')
 
     def __eq__(self, other):
-        """Check if this has the same weight and bias as another Affine."""
-        if not isinstance(other, type(self)):
+        """Two Affines are equal if their weights and biases are equal."""
+        if not isinstance(other, Affine):
             return NotImplemented
         return self.weight == other.weight and self.bias == other.bias
 
     def __hash__(self):
         return hash((self.weight, self.bias))
 
-    def __call__(self, x):
-        """Apply this affine: scale x by the weight and offset by the bias."""
-        return self.weight * x + self.bias
-
     @property
     def weight(self):
-        """The weight, or slope, by which arguments are dilated."""
+        """Weight or slope by which arguments are dilated."""
         return self._weight
 
     @property
     def bias(self):
-        """The bias, or y-intercept, by which dilated arguments are shifted."""
+        """Bias or y-intercept by which arguments are offset."""
         return self._bias
 
 
