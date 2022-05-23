@@ -205,7 +205,7 @@ def my_all(iterable):
     return next((False for element in iterable if not element), True)
 
 
-def zip_two(first, second):
+def zip_two(first, second):  # TODO: Try shortening via contextlib.suppress.
     """
     Zip two iterables.
 
@@ -324,7 +324,7 @@ class ZipTwo:
             raise
 
 
-def my_zip(*iterables):
+def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
     """
     Zip any number of iterables.
 
