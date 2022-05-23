@@ -776,9 +776,7 @@ def affines_alt(weights, biases):
     >>> affines_alt(u, range(0)) == affines_alt((m for m in ()), v) == set()
     True
     """
-    my_weights = list(weights)
-    my_biases = list(biases)
-    return {Affine(w, b) for w in my_weights for b in my_biases}
+    return {Affine(w, b) for w, b in itertools.product(weights, biases)}
 
 
 if __name__ == '__main__':
