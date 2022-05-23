@@ -718,7 +718,25 @@ class Affine:
     >>> Affine(1.1, 2.2)(10)
     13.2
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('weight', 'bias')
+
+    def __init__(self, weight, bias):
+        self.weight = weight
+        self.bias = bias
+
+    def __call__(self, x):
+        return self.weight*x + self.bias
+
+    def __repr__(self):
+        return f'{type(self).__name__}(weight={self.weight!r}, bias={self.bias!r})'
+
+    def __eq__(self, other):
+        if not isinstance(other, Affine):
+            return NotImplemented
+        return self.weight == other.weight and self.bias == other.bias
+
+    # FIXME: if mutation isn't needed make it imutable
 
 
 def affines_alt(weights, biases):
