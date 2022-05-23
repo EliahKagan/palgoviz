@@ -722,16 +722,21 @@ class Affine:
     __slots__ = ('_weight', '_bias')
 
     def __init__(self, weight, bias):
+        """Create an affine transformation with a specified weight and bias."""
         self._weight = weight
         self._bias = bias
 
     def __call__(self, x):
+        """Transform x according to weight and bias."""
         return self.weight*x + self.bias
 
     def __repr__(self):
-        return f'{type(self).__name__}(weight={self.weight!r}, bias={self.bias!r})'
+        """Represent this Affine as Python code."""
+        return (type(self).__name__ +
+                f'(weight={self.weight!r}, bias={self.bias!r})')
 
     def __eq__(self, other):
+        """Two Affines are equal if their weights and biases are equal."""
         if not isinstance(other, Affine):
             return NotImplemented
         return self.weight == other.weight and self.bias == other.bias
@@ -741,10 +746,12 @@ class Affine:
 
     @property
     def weight(self):
+        """Weight or slope by which arguments are dilated."""
         return self._weight
 
     @property
     def bias(self):
+        """Bias or y-intercept by which arguments are offset."""
         return self._bias
 
 
