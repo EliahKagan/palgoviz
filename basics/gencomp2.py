@@ -719,41 +719,7 @@ class Affine:
     >>> Affine(1.1, 2.2)(10)
     13.2
     """
-
-    __slots__ = ('_weight', '_bias')
-
-    def __init__(self, weight, bias):
-        """Create a callable affine with the given weight and bias."""
-        self._weight = weight
-        self._bias = bias
-
-    def __repr__(self):
-        """Represent this Affine object as Python code."""
-        return (f'{type(self).__name__}'
-                f'(weight={self.weight!r}, bias={self.bias!r})')
-
-    def __eq__(self, other):
-        """Check if this has the same weight and bias as another Affine."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.weight == other.weight and self.bias == other.bias
-
-    def __hash__(self):
-        return hash((self.weight, self.bias))
-
-    def __call__(self, x):
-        """Apply this affine: scale x by the weight and offset by the bias."""
-        return self.weight * x + self.bias
-
-    @property
-    def weight(self):
-        """The weight, or slope, by which arguments are dilated."""
-        return self._weight
-
-    @property
-    def bias(self):
-        """The bias, or y-intercept, by which dilated arguments are shifted."""
-        return self._bias
+    # FIXME: Implement this.
 
 
 def affines_alt(weights, biases):
@@ -784,7 +750,7 @@ def affines_alt(weights, biases):
     >>> affines_alt(u, range(0)) == affines_alt((m for m in ()), v) == set()
     True
     """
-    return {Affine(w, b) for w, b in itertools.product(weights, biases)}
+    # FIXME: Implement this in 1 line (or 2, depending on your variable names).
 
 
 if __name__ == '__main__':
