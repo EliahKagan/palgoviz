@@ -719,11 +719,11 @@ class Affine:
     13.2
     """
 
-    __slots__ = ('weight', 'bias')
+    __slots__ = ('_weight', '_bias')
 
     def __init__(self, weight, bias):
-        self.weight = weight
-        self.bias = bias
+        self._weight = weight
+        self._bias = bias
 
     def __call__(self, x):
         return self.weight*x + self.bias
@@ -736,7 +736,16 @@ class Affine:
             return NotImplemented
         return self.weight == other.weight and self.bias == other.bias
 
-    # FIXME: if mutation isn't needed make it imutable
+    def __hash__(self):
+        return hash((self.weight, self.bias))
+
+    @property
+    def weight(self):
+        return self._weight
+
+    @property
+    def bias(self):
+        return self._bias
 
 
 def affines_alt(weights, biases):
@@ -767,7 +776,9 @@ def affines_alt(weights, biases):
     >>> affines_alt(u, range(0)) == affines_alt((m for m in ()), v) == set()
     True
     """
-    # FIXME: Implement this in 1 line (or 2, depending on your variable names).
+    my_weights = list(weights)
+    my_biases = list(biases)
+    return {Affine(w, b) for w in my_weights for b in my_biases}
 
 
 if __name__ == '__main__':
