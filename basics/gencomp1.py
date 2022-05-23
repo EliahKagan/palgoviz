@@ -2048,7 +2048,9 @@ def distinct_eager(iterable, *, key=None):
         key = lambda x: x
 
     pairs = [(key(value), value) for value in iterable]
-    return list((dict(pairs) | dict(reversed(pairs))).values())
+    mapping = dict(pairs)  # Populate keys in order.
+    mapping.update(reversed(pairs))  # Set values in reverse order.
+    return list(mapping.values())
 
 
 if __name__ == '__main__':
