@@ -37,9 +37,7 @@ def my_enumerate(iterable, start=0):
     >>> list(my_enumerate(['ham', 'spam', 'eggs'], 10))
     [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
     """
-    for x in iterable:
-        yield (start, x)
-        start += 1
+    return zip(itertools.count(start), iterable)
 
 
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
@@ -103,9 +101,7 @@ def my_any(iterable):
     >>> my_any(x > 100 for x in range(100))
     False
     """
-    for element in iterable:
-        if element: return True
-    return False
+    return next((True for element in iterable if element), False)
 
 
 def my_all(iterable):
@@ -127,12 +123,10 @@ def my_all(iterable):
     >>> my_all([1, 1, 1, 6, 7])
     True
     """
-    for element in iterable:
-        if not element: return False
-    return True
+    return next((False for element in iterable if not element), True)
 
 
-def zip_two(first, second):
+def zip_two(first, second):  # TODO: Try shortening via contextlib.suppress.
     """
     Zip two iterables.
 
@@ -185,7 +179,7 @@ def zip_two(first, second):
             return
 
 
-def my_zip(*iterables):
+def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
     """
     Zip any number of iterables.
 
@@ -584,8 +578,7 @@ def map_one(func, iterable):
     >>> list(map_one(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    for element in iterable:
-        yield func(element)
+    return (func(element) for element in iterable)
 
 
 def map_one_alt(func, iterable):
@@ -606,7 +599,8 @@ def map_one_alt(func, iterable):
     >>> list(map_one_alt(lambda x: x + 1, (x**2 for x in range(1, 6))))
     [2, 5, 10, 17, 26]
     """
-    return (func(element) for element in iterable)
+    for element in iterable:
+        yield func(element)
 
 
 def my_filter(predicate, iterable):
@@ -631,11 +625,9 @@ def my_filter(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        for element in iterable:
-            if element: yield element
-    else:
-        for element in iterable:
-            if predicate(element): yield element
+        predicate = lambda x: x
+
+    return (element for element in iterable if predicate(element))
 
 
 def my_filter_alt(predicate, iterable):
@@ -662,9 +654,11 @@ def my_filter_alt(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        return (element for element in iterable if element)
+        predicate = lambda x: x
 
-    return (element for element in iterable if predicate(element))
+    for element in iterable:
+        if predicate(element):
+            yield element
 
 
 def length_of(iterable):
@@ -737,7 +731,7 @@ def how_many(predicate, iterable):
     >>> how_many(lambda x: x == o, (object() for _ in range(100_000)))
     0
     """
-    return length_of(my_filter(predicate, iterable))
+    return sum(1 for _ in filter(predicate, iterable))
 
 
 def invert(dictionary):
@@ -749,8 +743,6 @@ def invert(dictionary):
     keys.
 
     This also needs the dictionary's values (not just its keys) to be hashable.
-
-    TODO: Document the behavior of invert when given a noninjective dictionary.
 
     >>> invert({})
     {}
@@ -771,11 +763,15 @@ def invert(dictionary):
     False
     >>> invert(invert(d)) == d
     True
+
+    If a noninjective dictionary is passed, the last value associated with the
+    key will be assigned because the first and intermediate values will be
+    overwritten.
+
+    >>> invert({'a': 1, 'b': 1, 'c': 1})
+    {1: 'c'}
     """
-    inverse = {}
-    for key in dictionary:
-        inverse[dictionary[key]] = key
-    return inverse
+    return {value: key for key, value in dictionary.items()}
 
 
 def invert_alt(dictionary):
@@ -788,11 +784,8 @@ def invert_alt(dictionary):
 
     This also needs the dictionary's values (not just its keys) to be hashable.
 
-    This alternative implementation behaves the same as invert (above) but uses
-    a comprehension.
-
-    TODO: Document the behavior of invert_alt when given a noninjective
-    dictionary.
+    This alternative implementation behaves the same as invert (above) but does
+    not use a comprehension.
 
     >>> invert_alt({})
     {}
@@ -813,8 +806,18 @@ def invert_alt(dictionary):
     False
     >>> invert_alt(invert_alt(d)) == d
     True
+
+    If a noninjective dictionary is passed, the last value associated with the
+    key will be assigned because the first and intermediate values will be
+    overwritten.
+
+    >>> invert_alt({'a': 1, 'b': 1, 'c': 1})
+    {1: 'c'}
     """
-    return {value: key for key, value in dictionary.items()}
+    inverse = {}
+    for key, value in dictionary.items():
+        inverse[value] = key
+    return inverse
 
 
 def distinct_simple(iterable):
@@ -891,11 +894,12 @@ def distinct(iterable, *, key=None):
     if key is None:
         key = lambda x: x
 
-    elements = set()
+    observed = set()
+
     for element in iterable:
-        image = key(element)
-        if image not in elements:
-            elements.add(image)
+        result = key(element)
+        if result not in observed:
+            observed.add(result)
             yield element
 
 
@@ -1160,10 +1164,16 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     ...     print({k: decipher[weird] for k, weird in d.items()})
     {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
     {'a': 1, 'b': 2, 'c': 3, 'e': 5}
+    >>> list(distinct_dicts_by_keys([{'a': 1}, {'b': 1}], ('a', 'b')))
+    [{'a': 1}, {'b': 1}]
     """
-    not_there = object()
-    my_keys = tuple(subject_keys)
-    return distinct(dicts, key=lambda d: tuple(d.get(k, not_there) for k in my_keys))
+    my_keys = list(subject_keys)
+    o = object()
+
+    def keyfunction(d):
+        return tuple(d.get(key, o) for key in my_keys)
+
+    return distinct(dicts, key=keyfunction)
 
 
 if __name__ == '__main__':
