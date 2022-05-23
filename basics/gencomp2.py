@@ -708,7 +708,7 @@ class Affine:
     intensional rather than extensional.
 
     In contrast to functions in Python, sets are extensional, in math and in
-    Python. Sets are equal if and only if agree on results of all "in" queries.
+    Python. Sets are equal if and only if they agree on all "in" queries.
 
     >>> Affine(-1.5, 6.2)
     Affine(weight=-1.5, bias=6.2)
@@ -764,9 +764,6 @@ def affines_alt(weights, biases):
     These objects represent affine functions in mathematics but are class
     instances, not Python functions. This implementation takes advantage of the
     behavior of Affine instances under equality comparison.
-
-    This implementation consists of a single statement, which fits easily in
-    one line, or (depending on choice of variable names) very easily in two.
 
     >>> u = [2.3, 1.0, 2.3, -6.5, 5.4]
     >>> v = [1.9, 3.6, -5.1, 1.9]
