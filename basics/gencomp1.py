@@ -1388,15 +1388,15 @@ def distinct_unstable_lt(iterable):
     >>> print(sorted(d))
     [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
     """
-    ret = []
+    out = []
+
     pre = object()
-
     for cur in sorted(iterable):
-        if cur != pre:
-            ret.append(cur)
+        if pre != cur:
             pre = cur
+            out.append(cur)
 
-    return ret
+    return out
 
 
 def distinct_unstable_lt_alt(iterable):
@@ -1424,7 +1424,7 @@ def distinct_unstable_lt_alt(iterable):
     [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
     """
     pre = object()
-    return [(pre := cur) for cur in sorted(iterable) if (cur != pre)]
+    return [(pre := cur) for cur in sorted(iterable) if pre != cur]
 
 
 def distinct_simple(iterable):

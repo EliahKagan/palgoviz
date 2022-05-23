@@ -186,9 +186,9 @@ def prefix_product(sequences, stop):
         yield ()
         return
 
-    for prefix_tuple in prefix_product(sequences, stop - 1):
-        for last_element in sequences[stop - 1]:
-            yield (*prefix_tuple, last_element)
+    for prefix_items in prefix_product(sequences, stop - 1):
+        for last_item in sequences[stop - 1]:
+            yield (*prefix_items, last_item)
 
 
 def suffix_product(sequences, start):
@@ -207,9 +207,9 @@ def suffix_product(sequences, start):
         yield ()
         return
 
-    for first_element in sequences[start]:
-        for suffix_tuple in suffix_product(sequences, start + 1):
-            yield (first_element, *suffix_tuple)
+    for first_item in sequences[start]:
+        for suffix_items in suffix_product(sequences, start + 1):
+            yield (first_item, *suffix_items)
 
 
 def my_product(*iterables):
@@ -950,10 +950,10 @@ def matrix_multiply(a, b):
     n_, p = matrix_dimensions(b)
     if n != n_:
         raise ValueError(
-            f"can't multiple {n}-column matrix by {n_}-row matrix")
+            f"can't multiply {n}-column matrix by {n_}-row matrix")
 
-    return [[sum(a[i][j] * b[j][k]) for j in range(n)]
-            for i in range(m) for k in range(p)]
+    return [[sum(a[i][k] * b[k][j] for k in range(n)) for j in range(p)]
+            for i in range(m)]
 
 
 def identity_matrix(n):
@@ -995,8 +995,8 @@ def identity_matrix(n):
 
 
 def _kronecker_delta(i, j):
-    """Kronecker delta. 1 if i == j. 0 otherwise."""
-    return 1 if i == j else 0
+    """Kronecker delta. Compute the (i, j) entry of an identity matrix."""
+    return int(i == j)
 
 
 def _identity_matrix_row(n, i):
@@ -1198,11 +1198,9 @@ def is_hermitian_alt(matrix):
     """
     # NOTE: I can't use itertools.combinations_with_replacement or
     #       itertools.product, as they would use O(len(matrix)) space.
-
-    indices = range(len(matrix))
-
-    return all(matrix[i][j].conjugate() == matrix[j][i]
-               for i in indices for j in indices)
+    return all(matrix[i][j] == matrix[j][i].conjugate()
+               for i in range(len(matrix))
+               for j in range(i + 1))
 
 
 def affines(weights, biases):
@@ -1302,16 +1300,9 @@ def floats_in_range(start, stop, step):
     if step == 0:
         raise ValueError('step must not be zero')
 
-    comparer = operator.gt if step < 0 else operator.lt
-
-    def generate():
-        multiplier = 0
-
-        while comparer((value := start + step * multiplier), stop):
-            yield value
-            multiplier += 1
-
-    return generate()
+    compare = (operator.gt if step < 0 else operator.lt)
+    values = (start + step * i for i in itertools.count())
+    return itertools.takewhile(lambda value: compare(value, stop), values)
 
 
 def integrate(f, a, b, n):
@@ -1395,16 +1386,14 @@ def my_dropwhile(predicate, iterable):
     >>> list(my_dropwhile(lambda _: False, ()))
     []
     """
-    iterator = iter(iterable)
+    it = iter(iterable)
 
-    for value in iterator:
-        if not predicate(value):
+    for item in it:
+        if not predicate(item):
+            yield item
             break
-    else:
-        return
 
-    yield value
-    yield from iterator
+    yield from it
 
 
 def my_dropwhile_alt(predicate, iterable):
@@ -1444,7 +1433,7 @@ def outdegrees(rows):
 
     FIXME: Needs tests.
     """
-    return Counter({vertex: len(row) for vertex, row in rows.items()})
+    return Counter({src: len(row) for src, row in rows.items()})
 
 
 def indegrees(rows):
@@ -1467,6 +1456,7 @@ def indegrees(rows):
 
 
 def _chain_from_iterable(iterables):
+    """Iterate an iterable of iterables and chains those iterables."""
     return (element for iterable in iterables for element in iterable)
 
 
@@ -1509,7 +1499,7 @@ def decrypt(key, ciphertext):
 
     FIXME: Needs tests.
     """
-    return encrypt(((_ALPHA_LEN - r) for r in key), ciphertext)
+    return encrypt((_ALPHA_LEN - r for r in key), ciphertext)
 
 
 if __name__ == '__main__':
