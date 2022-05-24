@@ -1810,6 +1810,25 @@ def partition_three(values, pivot):
     The asymptotic time complexity is the best possible for this problem.
     [FIXME: Note it here.]
 
+    NOTE: Another kind of 3-way partitioning is strictly more powerful than
+    this, and more commonly used: dual-pivot partitioning. It uses two pivot
+    values, so each element orders before both pivots, between them, or after
+    both. Take "⪯" to mean "not greater than" (for weak ordering). With pivots
+    p1 ⪯ p2, each x may be grouped by whether x ⪯ p1, p1 < x ⪯ p2, or p2 < x;
+    or by whether x < p1, p1 ⪯ x < p2, or p2 ⪯ x; or some other breakdown.
+    Grouping by whether x < p1, p1 ⪯ x ⪯ p2, or p2 < x is uncommon but has the
+    advantage that it can be used to do single-pivot 3-way partitioning by
+    [FIXME: briefly state the simple way this can be achieved].
+
+    This function, and partition_three_in_place (below), do single-pivot 3-way
+    partitioning. Accompanying exercises develop partition-based selection and
+    sorting algorithms that use them. Those selection and sorting algorithms
+    can be modified to use, and benefit from, dual-pivot 3-way partitioning,
+    which is usually preferable. Although single-pivot 3-way partitioning is
+    sometimes useful in practice, these exercises use it for simplicity, much
+    as they omit key= and reverse= support. But future exercises may involve
+    those and other refinements (perhaps in a new module, sorting.py).
+
     >>> partition_three([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
     ([3, -17, 1, 2, -15, 1, -1, 0], [4], [5, 8, 66, 9, 5, 8])
     >>> partition_three([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
@@ -2121,7 +2140,7 @@ def partition_two_in_place(values, low, high, predicate):
     >>> test(list(range(99, -1, -1)), 55, 65, lambda x: x % 2 == 0)
     (60, [36, 38, 40, 42, 44], [35, 37, 39, 41, 43])
     """
-    # Hoare partition algorithm.
+    # This is a variant of the Hoare partition algorithm.
     # values[original_low:low] are the known satisfying elements.
     # values[low:high] are the not yet examined elements.
     # values[high:original_high] are the known non-satisfying elements.
@@ -2142,11 +2161,17 @@ def partition_three_in_place_rough(values, low, high, pivot):
     """
     Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
-    See the description in partition_three_in_place below. These solve the same
-    problem with the same asymptotic time complexity, both in O(1) auxiliary
-    space. This should be a first working approach while that should be a more
-    polished, different algorithm that may be faster by a constant factor. The
-    algorithm here may seem clunky. Maybe it even feels a little bit cheaty.
+    This is like partition_three, but it mutates its input instead of returning
+    a new list, and it is unstable. It returns (left, right), such that
+    values[left:right] are the items neither less nor greater than the pivot.
+    Auxiliary space complexity is O(1); this really is an in-place algorithm.
+    See the note in partition_three on single vs dual pivot 3-way partitioning.
+
+    The asymptotic time complexity is the best possible for this problem.
+    [FIXME: Note it here. Does being in-place worsen the time complexity?]
+    But this is a first working approach, which may be slower by a constant
+    factor than the algorithm in partition_three_in_place below. The algorithm
+    here may seem clunky. Maybe it even feels a little bit cheaty.
 
     >>> def test(values, low, high, pivot):
     ...     p, q = partition_three_in_place_rough(values, low, high, pivot)
@@ -2176,15 +2201,11 @@ def partition_three_in_place(values, low, high, pivot):
     a new list, and it is unstable. It returns (left, right), such that
     values[left:right] are the items neither less nor greater than the pivot.
     Auxiliary space complexity is O(1); this really is an in-place algorithm.
+    See the note in partition_three on single vs dual pivot 3-way partitioning.
 
-    The asymptotic time complexity is the best possible for this problem.
-    [FIXME: Note it here. Does being in-place worsen the time complexity?]
-
-    [TODO: This solves a famous computer science problem. State which one here.
-    Make a class for that problem's objects. Add unit tests partitioning them.]
-
-    That's all true of partition_three_in_place_simple, too. This is a more
-    polished, different algorithm, which may be faster by a constant factor.
+    The asymptotic time complexity is [FIXME: note it here, too].
+    But compared to partition_three_in_place_rough, this is a more polished,
+    different algorithm, which may be faster by a constant factor.
 
     >>> def test(values, low, high, pivot):
     ...     p, q = partition_three_in_place(values, low, high, pivot)
