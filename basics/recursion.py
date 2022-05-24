@@ -56,8 +56,8 @@ def semifactorial(n):
 
     where the last term is 2 or 1. (Like 0!, 0!! is the empty product.)
 
-    This is a simple recursive implementation. This, and the implementations
-    below it, may all assume n is a nonnegative int.
+    This is a simple recursive implementation. This and the other semifactorial
+    implementations below it may all assume n is a nonnegative int.
 
     >>> [semifactorial(n) for n in range(15)]
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
