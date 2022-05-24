@@ -5,10 +5,10 @@ Some recursion examples (and a few related iterative implementations).
 
 See also object_graph.py.
 
-NOTE: Where not otherwise specified, in functions that process a single
-sequence or other iterable (e.g., values), and that are documented with a time
-or space complexity containing the variable "n", use it to mean the number of
-items in the input (so if the argument is values, then n == len(values)).
+NOTE: Where not otherwise specified, functions that process a single sequence
+or other iterable (e.g., values), and that are documented with a time or space
+complexity containing the variable n, use it to mean the number of items in the
+input (so if the argument is values, then n == len(values)).
 """
 
 import bisect
