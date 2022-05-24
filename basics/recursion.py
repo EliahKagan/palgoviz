@@ -952,7 +952,7 @@ def least_k(values, k):
     This need not be stable: it returns a length-k prefix of some sorted
     permutation of values, but not necessarily of sorted(values). If x is in
     the returned list k elements of values, and y is an unreturned element, all
-    that need be guarantted is that y is not less than x.
+    that need be guaranteed is that y is not less than x.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     >>> b = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
@@ -982,7 +982,7 @@ def greatest_k(values, k):
     This need not be stable: it returns a length-k suffix of some sorted
     permutation of values, but not necessarily of sorted(values). If x is in
     the returned list k elements of values, and y is an unreturned element, all
-    that need be guarantted is that y is not greater than x.
+    that need be guaranteed is that y is not greater than x.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     >>> b = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
@@ -1813,10 +1813,10 @@ def partition_three(values, pivot):
     NOTE: Another kind of 3-way partitioning is strictly more powerful than
     this, and more commonly used: dual-pivot partitioning. It uses two pivot
     values, so each element orders before both pivots, between them, or after
-    both. Take "⪯" to mean "not greater than" (for weak ordering). With pivots
-    p1 ⪯ p2, each x may be grouped by whether x ⪯ p1, p1 < x ⪯ p2, or p2 < x;
-    or by whether x < p1, p1 ⪯ x < p2, or p2 ⪯ x; or some other breakdown.
-    Grouping by whether x < p1, p1 ⪯ x ⪯ p2, or p2 < x is uncommon but has the
+    both. Take "≾" to mean "not greater than" (for weak ordering). With pivots
+    p1 ≾ p2, each x may be grouped by whether x ≾ p1, p1 < x ≾ p2, or p2 < x;
+    or by whether x < p1, p1 ≾ x < p2, or p2 ≾ x; or some other breakdown.
+    Grouping by whether x < p1, p1 ≾ x ≾ p2, or p2 < x is uncommon but has the
     advantage that it can be used to do single-pivot 3-way partitioning by
     [FIXME: briefly state the simple way this can be achieved].
 
