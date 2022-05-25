@@ -979,15 +979,7 @@ def nest_iterative(seed, degree, height):
      (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
      (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')))
     """
-    if degree < 0:
-        raise ValueError('degree cannot be negative')
-    if height < 0:
-        raise ValueError('height cannot be negative')
-
-    for _ in range(height):
-        seed = (seed,) * degree
-
-    return seed
+    # FIXME: Implement this.
 
 
 def observe_edge(parent, child):
