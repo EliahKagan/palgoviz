@@ -934,7 +934,7 @@ def make_deep_tuple(depth):
 
 def nest(seed, degree, height):
     """
-    Create a nested tuple from a seed, branching degree, and height.
+    Create a nested tuple from a seed, branching degree, and height. Recursive.
 
     The seed will be a leaf or subtree.
 
@@ -957,6 +957,37 @@ def nest(seed, degree, height):
     if height < 0:
         raise ValueError('height cannot be negative')
     return seed if height == 0 else nest((seed,) * degree, degree, height - 1)
+
+
+def nest_iterative(seed, degree, height):
+    """
+    Create a nested tuple from a seed, branching degree, and height. Iterative.
+
+    The seed will be a leaf or subtree.
+
+    >>> nest_iterative('hi', 2, 0)
+    'hi'
+    >>> nest_iterative('hi', 2, 1)
+    ('hi', 'hi')
+    >>> nest_iterative('hi', 2, 2)
+    (('hi', 'hi'), ('hi', 'hi'))
+    >>> nest_iterative('hi', 2, 3)
+    ((('hi', 'hi'), ('hi', 'hi')), (('hi', 'hi'), ('hi', 'hi')))
+    >>> from pprint import pprint
+    >>> pprint(nest_iterative('hi', 3, 3))
+    ((('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
+     (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')),
+     (('hi', 'hi', 'hi'), ('hi', 'hi', 'hi'), ('hi', 'hi', 'hi')))
+    """
+    if degree < 0:
+        raise ValueError('degree cannot be negative')
+    if height < 0:
+        raise ValueError('height cannot be negative')
+
+    for _ in range(height):
+        seed = (seed,) * degree
+
+    return seed
 
 
 def observe_edge(parent, child):
