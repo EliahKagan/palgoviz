@@ -400,7 +400,12 @@ def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
 
     while True:
         try:
-            # Use a list comprehension so we can catch StopIteration from it.
+            # StopIteration cannot propogate out from a generator object,
+            # therefore, we use a list comprehension. If it could, the tuple
+            # constructor would incorrectly interpret the StopIteration as
+            # indicating we have exhausted the generator object, whereas what
+            # it would indicate is that one of the iterators in the generator
+            # expression is exhausted.
             yield tuple([next(it) for it in iterators])
         except StopIteration:
             return
@@ -494,7 +499,7 @@ class Zip:
             # out of it and be caught in this function. From a generator
             # expression, StopIteration converts to RuntimeError (which should
             # not be caught). In map, StopIteration is confused with the map
-            # itself being exhausted. [This is a more detailed description of
+            # itself being exhausted. [This is an alternative description of
             # the same situation as in the yield statement in my_zip, above.]
             return tuple([next(iterator) for iterator in self._iterators])
         except StopIteration:
