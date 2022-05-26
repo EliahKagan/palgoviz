@@ -1815,7 +1815,7 @@ def partition_three(values, pivot):
     values, so each element orders before both pivots, between them, or after
     both. Take "≾" to mean "not greater than" (for weak ordering). With pivots
     p1 ≾ p2, each x may be grouped by whether x ≾ p1, p1 < x ≾ p2, or p2 < x;
-    or by whether x < p1, p1 ≾ x < p2, or p2 ≾ x; or some other breakdown.
+    or by whether x < p1, p1 ≾ x < p2, or p2 ≾ x; or by some other breakdown.
     Grouping by whether x < p1, p1 ≾ x ≾ p2, or p2 < x is uncommon but has the
     advantage that it can be used to do single-pivot 3-way partitioning by
     [FIXME: briefly state the simple way this can be achieved].
@@ -1897,8 +1897,7 @@ def similar_range_alt(values, new_value):
     return range(lower, lower + similar)
 
 
-# TODO: Rename the stable "select by partitioning" functions--this one and the
-#       one after it--after the algorithm they both implement.
+# TODO: Rename this after the "select by partitioning" algorithm it implements.
 def select_by_partitioning(values, k):
     """
     Recursively find the stable kth order statistic or raise IndexError.
@@ -1949,6 +1948,7 @@ def select_by_partitioning(values, k):
     return select_by_partitioning(higher, k - (len(lower) + len(similar)))
 
 
+# TODO: Rename this after the "select by partitioning" algorithm it implements.
 def select_by_partitioning_iterative(values, k):
     """
     Nonrecursively find the stable kth order statistic or raise IndexError.
@@ -2001,9 +2001,7 @@ def _do_stable_quicksort(values, choose_pivot):
     sorted_higher = _do_stable_quicksort(higher, choose_pivot)
     return sorted_lower + similar + sorted_higher
 
-
-# TODO: Rename all three of these "sort by partitioning" functions--this one
-#       and the next two below it--after the algorithm they all implement.
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
 def sort_by_partitioning_simple(values):
     """
     Stably sort values by a partition-based technique, creating a new list.
@@ -2034,6 +2032,7 @@ def sort_by_partitioning_simple(values):
     return _do_stable_quicksort(list(values), lambda seq: seq[len(seq) // 2])
 
 
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
 def sort_by_partitioning(values):
     """
     Stably sort untrusted values by a partition-based technique, creating a new
@@ -2073,6 +2072,9 @@ def sort_by_partitioning(values):
 
 # FIXME: This is the third of three similar implementations. Extract most or
 #        all of their shared logic to a module-level nonpublic function.
+#
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
+#
 def sort_by_partitioning_hardened(values):
     """
     Stably sort seriously untrusted values by a partition-based technique,
@@ -2253,8 +2255,7 @@ def _do_quickselect(values, low, high, k):
     return _do_quickselect(values, right, high, k)
 
 
-# TODO: Rename the in-place unstable "select by partitioning" functions--this
-#       one and the one after it--after the algorithm they both implement.
+# TODO: Rename this after the "select by partitioning" algorithm it implements.
 def select_by_partitioning_in_place(values, k):
     """
     Rearrange values to be partitioned by the new values[k]. Return that value.
@@ -2315,6 +2316,7 @@ def _do_quickselect_iterative(values, low, high, k):
             low = right
 
 
+# TODO: Rename this after the "select by partitioning" algorithm it implements.
 def select_by_partitioning_in_place_iterative(values, k):
     """
     Rearrange values to be partitioned by the new values[k]. Return that value.
@@ -2411,11 +2413,12 @@ def _do_quicksort_in_place(values, low, high, choose_pivot_index):
     _do_quicksort_in_place(values, right, high, choose_pivot_index)
 
 
-# TODO: Rename all three of the "sort by partitioning in place" functions--this
-#       one and the next two below it--after the algorithm they all implement.
 # FIXME: As with the non-in-place "sort by partitioning" functions above, there
 #        are 3 of these. Put most or all of these 3 functions' shared logic to
 #        a module-level nonpublic function (specific to the in-place versions).
+#
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
+#
 def sort_by_partitioning_in_place_simple(values):
     """
     Sort values in place by a partition-based technique. Unstable.
@@ -2458,6 +2461,7 @@ def sort_by_partitioning_in_place_simple(values):
                            lambda low, high: (low + high) // 2)
 
 
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
 def sort_by_partitioning_in_place(values):
     """
     Sort untrusted values in place by a partition-based technique. Unstable.
@@ -2498,6 +2502,7 @@ def sort_by_partitioning_in_place(values):
     _do_quicksort_in_place(values, 0, len(values), random.randrange)
 
 
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
 def sort_by_partitioning_in_place_hardened(values):
     """
     Sort seriously untrusted values in place by a partition-based technique.
@@ -2539,6 +2544,12 @@ def sort_by_partitioning_in_place_hardened(values):
                            lambda low, high: secrets.choice(range(low, high)))
 
 
+# NOTE: This iterative implementation will not be able to share most of its
+#       logic with the 3 recursive implementations that precede it, other than
+#       how they, and it, all call partition_three_in_place for partitioning.
+#
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
+#
 def sort_by_partitioning_in_place_iterative(values):
     """
     Iteratively sort values in place by a partition-based technique. Unstable.
@@ -2609,6 +2620,7 @@ def _do_safe_quicksort_in_place(values, low, high):
             low = right
 
 
+# TODO: Rename this after the "sort by partitioning" algorithm it implements.
 def sort_by_partitioning_in_place_safe(values):
     """
     Sort in place by a partition-based technique in O(log n) auxiliary space.
