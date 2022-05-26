@@ -499,7 +499,7 @@ class Zip:
             # out of it and be caught in this function. From a generator
             # expression, StopIteration converts to RuntimeError (which should
             # not be caught). In map, StopIteration is confused with the map
-            # itself being exhausted. [This is a more detailed description of
+            # itself being exhausted. [This is an alternative description of
             # the same situation as in the yield statement in my_zip, above.]
             return tuple([next(iterator) for iterator in self._iterators])
         except StopIteration:
