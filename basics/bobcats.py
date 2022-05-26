@@ -108,8 +108,8 @@ class FierceBobcat(Bobcat):
 
     def __repr__(self):
         """Represent this FierceBobcat as Python code with parameter names."""
-        return (f'{type(self).__name__}(name={self.name!r},'
-                f' fierceness={self.fierceness!r})')
+        return (type(self).__name__ +
+                f'(name={self.name!r}, fierceness={self.fierceness!r})')
 
     def __eq__(self, other):
         """Check if this and other represent the same fierce bobcat."""
