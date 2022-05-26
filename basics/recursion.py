@@ -2651,7 +2651,12 @@ def _do_safe_quicksort_in_place(values, low, high):
             low = right
 
 
+# NOTE: This likewise will not be able to share most of its logic with any
+#       other "sort by partitioning" implementations. But if you use a helper
+#       function, it may still be clearer for it to be a module-level function.
+#
 # TODO: Rename this after the "sort by partitioning" algorithm it implements.
+#
 def sort_by_partitioning_in_place_safe(values):
     """
     Sort in place by a partition-based technique in O(log n) auxiliary space.
