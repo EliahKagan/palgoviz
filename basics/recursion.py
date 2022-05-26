@@ -1387,7 +1387,7 @@ def merge_many_bottom_up(sorted_lists, *, merge=merge_two):
     return current[0]
 
 
-def _monotone_runs(values):  # FIXME: Simplify this implementation.
+def _monotone_runs(values):  # !!FIXME: Simplify this implementation.
     """
     Split values into preserved nondecreasing and reversed decreasing runs.
 
@@ -1801,11 +1801,22 @@ def merge_sort_mut_bottom_up(values):
     _do_merge_sort_mut_bottom_up(values, _merge_mut)
 
 
+# !!FIXME: When removing implementation bodies, remove this too.
+Parts = collections.namedtuple('Parts', ('lt', 'eq', 'gt'))
+
+Parts.__doc__ = """
+Result of calling partition_three.
+
+Items less than, equal (or similar) to, and greater than some pivot.
+"""
+
+
 def partition_three(values, pivot):
     """
     Stable 3-way partition.
 
-    Returns lists of values less than, similar to, and greater than the pivot.
+    Returns lists of values less than, similar to, and greater than the pivot,
+    as a named tuple (where x is similar to y when neither x < y nor y < x).
 
     The asymptotic time complexity is the best possible for this problem.
     [FIXME: Note it here.]
@@ -1830,9 +1841,11 @@ def partition_three(values, pivot):
     those and other refinements (perhaps in a new module, sorting.py).
 
     >>> partition_three([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 4)
-    ([3, -17, 1, 2, -15, 1, -1, 0], [4], [5, 8, 66, 9, 5, 8])
+    Parts(lt=[3, -17, 1, 2, -15, 1, -1, 0], eq=[4], gt=[5, 8, 66, 9, 5, 8])
     >>> partition_three([5, 3, -17, 1, 4, 8, 66, 2, 9, 5, -15, 1, -1, 8, 0], 5)
-    ([3, -17, 1, 4, 2, -15, 1, -1, 0], [5, 5], [8, 66, 9, 8])
+    Parts(lt=[3, -17, 1, 4, 2, -15, 1, -1, 0], eq=[5, 5], gt=[8, 66, 9, 8])
+    >>> isinstance(_, tuple)
+    True
     """
     lower = []
     similar = []
@@ -1846,7 +1859,7 @@ def partition_three(values, pivot):
         else:
             similar.append(value)
 
-    return lower, similar, higher
+    return Parts(lower, similar, higher)
 
 
 def similar_range(values, new_value):
@@ -2159,21 +2172,28 @@ def partition_two_in_place(values, low, high, predicate):
     return high
 
 
+# !!FIXME: When removing implementation bodies, remove this too.
+PartIndices = collections.namedtuple('PartIndices', ('left', 'right'))
+
+PartIndices.__doc__ = """Indices returned by 3-way in-place partitioning."""
+
+
 def partition_three_in_place_rough(values, low, high, pivot):
     """
     Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
     This is like partition_three, but it mutates its input instead of returning
-    a new list, and it is unstable. It returns (left, right), such that
-    values[left:right] are the items neither less nor greater than the pivot.
-    Auxiliary space complexity is O(1); this really is an in-place algorithm.
-    See the note in partition_three on single vs dual pivot 3-way partitioning.
+    a new list, and it is unstable. It returns a named tuple of left and right,
+    such that values[left:right] are the items neither less nor greater than
+    the pivot. Auxiliary space complexity is O(1); this really is an in-place
+    algorithm. See the note in partition_three on single vs. dual pivot 3-way
+    partitioning.
 
     The asymptotic time complexity is the best possible for this problem.
-    [FIXME: Note it here. Does being in-place worsen the time complexity?]
-    But this is a first working approach, which may be slower by a constant
-    factor than the algorithm in partition_three_in_place below. The algorithm
-    here may seem clunky. Maybe it even feels a little bit cheaty.
+    [FIXME: Note it here. Does being in-place worsen the time complexity?] But
+    this is a first working approach, which may be slower by a constant factor
+    than the algorithm in partition_three_in_place below. The algorithm here
+    may seem clunky. Maybe it even feels a little bit cheaty.
 
     >>> def test(values, low, high, pivot):
     ...     p, q = partition_three_in_place_rough(values, low, high, pivot)
@@ -2186,13 +2206,18 @@ def partition_three_in_place_rough(values, low, high, pivot):
     ([1, 2, 3, 3, 4, 4], [5, 5, 5], [6, 6, 7, 7, 8, 9])
     >>> test(['c', 'a', 'c', 'b', 'e', 'd'], 1, 4, 'c')
     (['a', 'b'], ['c'], [])
+    >>> values = list(range(100, 0, -1)) * 10
+    >>> partition_three_in_place_rough(values, 0, 1000, 42)
+    PartIndices(left=410, right=420)
+    >>> isinstance(_, tuple)
+    True
     """
     left = partition_two_in_place(values, low, high, lambda lhs: lhs < pivot)
 
     right = partition_two_in_place(values, left, high,
                                    lambda lhs: not lhs > pivot)
 
-    return left, right
+    return PartIndices(left, right)
 
 
 def partition_three_in_place(values, low, high, pivot):
@@ -2200,14 +2225,15 @@ def partition_three_in_place(values, low, high, pivot):
     Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
 
     This is like partition_three, but it mutates its input instead of returning
-    a new list, and it is unstable. It returns (left, right), such that
-    values[left:right] are the items neither less nor greater than the pivot.
-    Auxiliary space complexity is O(1); this really is an in-place algorithm.
-    See the note in partition_three on single vs dual pivot 3-way partitioning.
+    a new list, and it is unstable. It returns a named tuple of left and right,
+    such that values[left:right] are the items neither less nor greater than
+    the pivot. Auxiliary space complexity is O(1); this really is an in-place
+    algorithm. See the note in partition_three on single vs. dual pivot 3-way
+    partitioning.
 
-    The asymptotic time complexity is [FIXME: note it here, too].
-    But compared to partition_three_in_place_rough, this is a more polished,
-    different algorithm, which may be faster by a constant factor.
+    The asymptotic time complexity is [FIXME: note it here, too]. But compared
+    to partition_three_in_place_rough, this is a more polished, different
+    algorithm, which may be faster by a constant factor.
 
     >>> def test(values, low, high, pivot):
     ...     p, q = partition_three_in_place(values, low, high, pivot)
@@ -2220,6 +2246,11 @@ def partition_three_in_place(values, low, high, pivot):
     ([1, 2, 3, 3, 4, 4], [5, 5, 5], [6, 6, 7, 7, 8, 9])
     >>> test(['c', 'a', 'c', 'b', 'e', 'd'], 1, 4, 'c')
     (['a', 'b'], ['c'], [])
+    >>> values = list(range(100, 0, -1)) * 10
+    >>> partition_three_in_place(values, 0, 1000, 42)
+    PartIndices(left=410, right=420)
+    >>> isinstance(_, tuple)
+    True
     """
     # values[original_low:low] are the known lesser elements.
     # values[low:current] are the known similar elements.
@@ -2237,7 +2268,7 @@ def partition_three_in_place(values, low, high, pivot):
         else:
             current += 1
 
-    return low, high
+    return PartIndices(low, high)
 
 
 def _do_quickselect(values, low, high, k):
