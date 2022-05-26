@@ -951,8 +951,8 @@ def least_k(values, k):
 
     This need not be stable: it returns a length-k prefix of some sorted
     permutation of values, but not necessarily of sorted(values). If x is in
-    the returned list k elements of values, and y is an unreturned element, all
-    that need be guaranteed is that y is not less than x.
+    the returned list of k elements of values, and y is an unreturned element,
+    all you must guarantee is that y is not less than x.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     >>> b = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
@@ -981,8 +981,8 @@ def greatest_k(values, k):
 
     This need not be stable: it returns a length-k suffix of some sorted
     permutation of values, but not necessarily of sorted(values). If x is in
-    the returned list k elements of values, and y is an unreturned element, all
-    that need be guaranteed is that y is not greater than x.
+    the returned list of k elements of values, and y is an unreturned element,
+    all you must guarantee is that y is not greater than x.
 
     >>> a = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
     >>> b = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
