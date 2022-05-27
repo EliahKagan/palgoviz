@@ -178,7 +178,7 @@ def zip_two(first, second):
             yield (next(f), next(s))
 
 
-def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
+def my_zip(*iterables):
     """
     Zip any number of iterables.
 
@@ -252,8 +252,8 @@ def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
 
     iterators = [iter(arg) for arg in iterables]
 
-    while True:
-        try:
+    with contextlib.suppress(StopIteration):
+        while True:
             # StopIteration cannot propogate out from a generator object,
             # therefore, we use a list comprehension. If it could, the tuple
             # constructor would incorrectly interpret the StopIteration as
@@ -261,8 +261,6 @@ def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
             # it would indicate is that one of the iterators in the generator
             # expression is exhausted.
             yield tuple([next(it) for it in iterators])
-        except StopIteration:
-            return
 
 
 def print_zipped():
