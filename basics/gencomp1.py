@@ -172,11 +172,11 @@ def zip_two(first, second):  # TODO: Try shortening via contextlib.suppress.
     """
     f = iter(first)
     s = iter(second)
-    while True:
-        try:
+    try:
+        while True:
             yield (next(f), next(s))
-        except StopIteration:
-            return
+    except StopIteration:
+        pass
 
 
 def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
