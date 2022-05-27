@@ -7,6 +7,7 @@ See also gencomp2.py and fibonacci.py.
 """
 
 import collections
+import contextlib
 import itertools
 
 
@@ -126,7 +127,7 @@ def my_all(iterable):
     return next((False for element in iterable if not element), True)
 
 
-def zip_two(first, second):  # TODO: Try shortening via contextlib.suppress.
+def zip_two(first, second):
     """
     Zip two iterables.
 
@@ -172,11 +173,9 @@ def zip_two(first, second):  # TODO: Try shortening via contextlib.suppress.
     """
     f = iter(first)
     s = iter(second)
-    try:
+    with contextlib.suppress(StopIteration):
         while True:
             yield (next(f), next(s))
-    except StopIteration:
-        pass
 
 
 def my_zip(*iterables):  # TODO: Try shortening via contextlib.suppress.
