@@ -9,7 +9,6 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
-import collections
 from collections.abc import Iterable
 import itertools
 
@@ -24,7 +23,7 @@ def empty():
     >>> list(it)
     []
     """
-    yield from ()
+    # FIXME: Implement this.
 
 
 def product_two(a, b):
@@ -96,8 +95,7 @@ def product_two_flexible(a, b):
     >>> list(islice(product_two_flexible(count(), (ch for ch in 'abc')), 7))
     [(0, 'a'), (0, 'b'), (0, 'c'), (1, 'a'), (1, 'b'), (1, 'c'), (2, 'a')]
     """
-    my_b = list(b)
-    return ((x, y) for x in a for y in my_b)
+    # FIXME: Implement this. (Do not write any loops.)
 
 
 def pairs(iterable):
@@ -127,12 +125,7 @@ def pairs(iterable):
     >>> list(pairs('AAA'))
     [('A', 'A'), ('A', 'A'), ('A', 'A')]
     """
-    elements = collections.deque(iterable)
-
-    while elements:
-        x = elements.popleft()
-        for y in elements:
-            yield x, y
+    # FIXME: Implement this.
 
 
 def ascending_countdowns():
@@ -887,20 +880,7 @@ def my_cycle(iterable):
     10
     True
     """
-    history = []
-
-    for item in iterable:
-        yield item
-        history.append(item)
-
-    if history:
-        while True:
-            yield from history
-
-
-def _chain_from_iterable(iterables):
-    """Iterate an iterable of iterables and chain those iterables."""
-    return (element for iterable in iterables for element in iterable)
+    # FIXME: Implement this.
 
 
 def my_chain(*iterables):
@@ -936,10 +916,7 @@ def my_chain(*iterables):
     >>> list(itertools.islice(it3, 25))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9, 8]
     """
-    return _chain_from_iterable(iterables)
-
-
-my_chain.from_iterable = _chain_from_iterable
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':
