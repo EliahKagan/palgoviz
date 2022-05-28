@@ -9,7 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
-from collections import Counter
+import collections
 from collections.abc import Iterable, Sequence
 import itertools
 import operator
@@ -1527,7 +1527,7 @@ def outdegrees(rows):
 
     FIXME: Needs tests.
     """
-    return Counter({src: len(row) for src, row in rows.items()})
+    return collections.Counter({src: len(row) for src, row in rows.items()})
 
 
 def indegrees(rows):
@@ -1546,7 +1546,7 @@ def indegrees(rows):
 
     FIXME: Needs tests.
     """
-    return Counter(itertools.chain.from_iterable(rows.values()))
+    return collections.Counter(itertools.chain.from_iterable(rows.values()))
 
 
 def _chain_from_iterable(iterables):
