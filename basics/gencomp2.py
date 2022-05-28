@@ -296,6 +296,41 @@ def my_product_slow(*iterables):
     return suffix_product(sequences, 0)
 
 
+def pairs(iterable):
+    """
+    Yield pairs (x, y) where x and y appear in iterable, with x preceding y.
+
+    Pairs are yielded primarily in the order in which x appears, secondarily in
+    the order in which y appears. If the input has duplicates, they appear in
+    the output. Space usage should decline as the algorithm proceeds. Where r
+    is how many pairs remain to yield, the space complexity must be O(sqrt(r)).
+
+    This is like itertools.combinations(iterable, 2), except for the restricted
+    space. (Make sure you understand why.) Don't use anything from itertools.
+
+    >>> list(pairs(iter('')))
+    []
+    >>> next(pairs('A'))  # Likewise empty, fewer than 2 elements.
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(pairs(iter('AB')))
+    [('A', 'B')]
+    >>> list(pairs('ABC'))
+    [('A', 'B'), ('A', 'C'), ('B', 'C')]
+    >>> list(pairs(iter('ABCD')))
+    [('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'C'), ('B', 'D'), ('C', 'D')]
+    >>> list(pairs('AAA'))
+    [('A', 'A'), ('A', 'A'), ('A', 'A')]
+    """
+    elements = collections.deque(iterable)
+
+    while elements:
+        x = elements.popleft()
+        for y in elements:
+            yield x, y
+
+
 def ascending_countdowns():
     """
     Yield integers counting down to 0 from 0, then from 1, then from 2, etc.
@@ -1549,16 +1584,81 @@ def indegrees(rows):
     return collections.Counter(itertools.chain.from_iterable(rows.values()))
 
 
+def my_cycle(iterable):
+    """
+    Repeat an iterable indefinitely. Like itertools.cycle.
+
+    Don't use anything from itertools.
+
+    >>> list(itertools.islice(my_cycle([2, 4, 6]), 25))
+    [2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2]
+    >>> list(itertools.islice(my_cycle(x * 2 for x in [1, 2, 3]), 25))
+    [2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2]
+    >>> list(my_cycle(()))
+    []
+    >>> list(my_cycle(x for x in ()))
+    []
+    >>> list(itertools.islice(my_cycle(itertools.count(1)), 21))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+
+    >>> in_it = itertools.zip_longest(itertools.count(), 'ABCDEF')
+    >>> out_it = my_cycle(x for pair in in_it for x in pair if x is not None)
+    >>> list(itertools.islice(out_it, 19))
+    [0, 'A', 1, 'B', 2, 'C', 3, 'D', 4, 'E', 5, 'F', 6, 7, 8, 9, 10, 11, 12]
+
+    >>> it = my_cycle(print(i) for i in range(10, 20))
+    >>> next(it) is None
+    10
+    True
+    """
+    history = []
+
+    for item in iterable:
+        yield item
+        history.append(item)
+
+    if history:
+        while True:
+            yield from history
+
+
 def _chain_from_iterable(iterables):
-    """Iterate an iterable of iterables and chains those iterables."""
+    """Iterate an iterable of iterables and chain those iterables."""
     return (element for iterable in iterables for element in iterable)
 
 
 def my_chain(*iterables):
     """
-    Chain iterables as itertools.chain does.
+    Chain iterables, as itertools.chain does.
 
-    FIXME: Needs tests.
+    Don't use anything from itertools (and don't write any classes).
+
+    >>> list(my_chain())
+    []
+    >>> list(my_chain([1, 2, 3], [5, 6], [8, 9, 10], [12, 13]))
+    [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
+    >>> list(my_chain(iter([1, 2, 3]), [5, 6], iter([8, 9, 10]), [12, 13]))
+    [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
+    >>> list(itertools.islice(my_chain(iter('ABC'), itertools.count()), 20))
+    ['A', 'B', 'C', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    >>> list(my_chain(*(range(i) for i in range(7))))
+    [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5]
+
+    >>> list(my_chain.from_iterable([[10, 20, 30], [11, 22, 33]]))
+    [10, 20, 30, 11, 22, 33]
+    >>> it1 = iter([iter([10, 20, 30]), iter([11, 22, 33])])
+    >>> list(my_chain.from_iterable(it1))
+    [10, 20, 30, 11, 22, 33]
+    >>> from gencomp1 import windowed
+    >>> list(my_chain.from_iterable(windowed(range(10), 3)))
+    [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
+
+    >>> it2 = my_chain.from_iterable(range(i) for i in itertools.count())
+    >>> list(itertools.islice(it2, 25))
+    [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3]
+    >>> it3 = my_chain.from_iterable(windowed(range(1_000_000_000_000_000), 3))
+    >>> list(itertools.islice(it3, 25))
+    [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9, 8]
     """
     return _chain_from_iterable(iterables)
 
