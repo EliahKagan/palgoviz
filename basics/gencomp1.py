@@ -1662,7 +1662,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
 
-    This implemetaton is the shortest. It uses distinct_dicts_by_keys (below).
+    This implementation is the shortest. It uses distinct_dicts_by_keys (below).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
