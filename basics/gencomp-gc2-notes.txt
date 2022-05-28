@@ -3,7 +3,6 @@ distinct_unstable_lt (gencomp1)
 distinct_unstable_lt_alt (gencomp1)
 distinct_eager_simple (gencomp1)
 distinct_eager (gencomp1)
-product_two_flexible
 prefix_product
 suffix_product
 my_product
@@ -23,6 +22,5 @@ my_dropwhile
 my_dropwhile_alt
 outdegrees [needs tests]
 indegrees [needs tests]
-my_chain
 encrypt
 decrypt
