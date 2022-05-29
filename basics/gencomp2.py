@@ -23,7 +23,7 @@ def empty():
     >>> list(it)
     []
     """
-    return (x for x in range(0))
+    return (x for x in ())
 
 
 def product_two(a, b):
