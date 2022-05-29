@@ -70,7 +70,7 @@ def my_enumerate_alt(iterable, start=0):
     """
     count = start
     for element in iterable:
-        yield (count, element)
+        yield count, element
         count += 1
 
 
