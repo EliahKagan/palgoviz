@@ -881,7 +881,15 @@ def my_cycle(iterable):
     10
     True
     """
-    # FIXME: Implement this.
+    # FIXME: This doesn't work
+    while True:
+        it = iter(iterable)
+        try:
+            yield next(it)
+        except StopIteration:
+            return
+
+        yield from it
 
 
 def my_chain(*iterables):
