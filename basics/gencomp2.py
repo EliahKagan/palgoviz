@@ -95,7 +95,8 @@ def product_two_flexible(a, b):
     >>> list(islice(product_two_flexible(count(), (ch for ch in 'abc')), 7))
     [(0, 'a'), (0, 'b'), (0, 'c'), (1, 'a'), (1, 'b'), (1, 'c'), (2, 'a')]
     """
-    # FIXME: Implement this. (Do not write any loops.)
+    my_b = list(b)
+    return ((x, y) for x in a for y in my_b)
 
 
 def pairs(iterable):
