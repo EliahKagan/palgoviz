@@ -68,9 +68,10 @@ def my_enumerate_alt(iterable, start=0):
     >>> list(my_enumerate_alt(['ham', 'spam', 'eggs'], 10))
     [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
     """
+    count = start
     for element in iterable:
-        yield start, element
-        start += 1
+        yield count, element
+        count += 1
 
 
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
