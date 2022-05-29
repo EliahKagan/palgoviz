@@ -23,7 +23,8 @@ def empty():
     >>> list(it)
     []
     """
-    return (x for x in ())
+    return
+    yield
 
 
 def product_two(a, b):
