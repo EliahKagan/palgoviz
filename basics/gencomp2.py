@@ -1836,10 +1836,14 @@ def anagrams(a, b):
 
     >>> list(anagrams((), ()))
     [0]
+    >>> list(anagrams('abba', 'abab'))
+    [0, 1, 2, 4]
     >>> list(anagrams('foobarzab', 'foobarbaz'))
     [0, 1, 2, 3, 4, 5, 6, 9]
     >>> list(anagrams(iter('a gentleman'), iter('elegant mane')))
     [0, 8, 9, 10, 11]
+    >>> list(anagrams(iter('aardvark'), iter('ardvaark')))
+    [0, 1, 5, 6, 7, 8]
     >>> list(anagrams(itertools.count(), iter([2, 1, 0, 3, 5, 4, 7])))
     [0, 3, 4, 6]
     >>> list(anagrams(iter([2, 1, 0, 3, 5, 4, 7]), itertools.count()))
@@ -1876,10 +1880,14 @@ class Anagrams:
 
     >>> list(Anagrams((), ()))
     [0]
+    >>> list(Anagrams('abba', 'abab'))
+    [0, 1, 2, 4]
     >>> list(Anagrams('foobarzab', 'foobarbaz'))
     [0, 1, 2, 3, 4, 5, 6, 9]
     >>> list(Anagrams(iter('a gentleman'), iter('elegant mane')))
     [0, 8, 9, 10, 11]
+    >>> list(Anagrams(iter('aardvark'), iter('ardvaark')))
+    [0, 1, 5, 6, 7, 8]
     >>> list(Anagrams(itertools.count(), iter([2, 1, 0, 3, 5, 4, 7])))
     [0, 3, 4, 6]
     >>> list(Anagrams(iter([2, 1, 0, 3, 5, 4, 7]), itertools.count()))
@@ -1943,10 +1951,14 @@ class AnagramsAlt:
 
     >>> list(AnagramsAlt((), ()))
     [0]
+    >>> list(AnagramsAlt('abba', 'abab'))
+    [0, 1, 2, 4]
     >>> list(AnagramsAlt('foobarzab', 'foobarbaz'))
     [0, 1, 2, 3, 4, 5, 6, 9]
     >>> list(AnagramsAlt(iter('a gentleman'), iter('elegant mane')))
     [0, 8, 9, 10, 11]
+    >>> list(AnagramsAlt(iter('aardvark'), iter('ardvaark')))
+    [0, 1, 5, 6, 7, 8]
     >>> list(AnagramsAlt(itertools.count(), iter([2, 1, 0, 3, 5, 4, 7])))
     [0, 3, 4, 6]
     >>> list(AnagramsAlt(iter([2, 1, 0, 3, 5, 4, 7]), itertools.count()))
