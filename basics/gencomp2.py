@@ -1827,15 +1827,7 @@ def anagrams(a, b):
     yielded in ascending order. The time from iterator creation to yielding n
     is O(n), with a worst-case space complexity of O(n), but space usage will
     often be lower. When the longest prefixes seen so far of a and b are nearly
-    anagrams, space usage is small. Quantitatively, take d(s, t) to be the edit
-    distance between s and t. Then if h elements of a and k elements of b have
-    been seen, current space usage is O(1 + d(a[:h], b[:k])), where slicing is
-    merely illustrative, since a and b need not support it. (Thus, after each
-    yield, very little space is used.) Space may often be even less than that.
-
-    Data structures often do not immediately free space that was used by an
-    element that was just removed. For the purpose of this exercise's space
-    requirements, you may consider such space to be immediately unused.
+    anagrams, space usage is small, and as of each yield, O(1) data are stored.
 
     This can be done with or without a helper class. If you write a helper
     class, it should be simple, and its instances must not be iterators. (Using
