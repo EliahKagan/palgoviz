@@ -1642,6 +1642,45 @@ def my_takewhile(predicate, iterable):
         yield element
 
 
+class TakeWhile:
+    """
+    Iterator to an iterable until some element does not satisfy predicate.
+
+    Like itertools.takewhile. This is the class version of my_takewhile.
+
+    >>> next(TakeWhile(lambda _: True, []))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(TakeWhile(lambda x: x < 10, range(1, 1_000_000_000_000_000)))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    >>> list(TakeWhile(lambda x: x, iter([3, {12}, [], 4, 'abc'])))
+    [3, {12}]
+    >>> words = ['foo', 'bar', 'baz', 'quux', 'ham', 'egg', 'spam', 'foobar']
+    >>> list(TakeWhile(lambda a: len(a) == 3, map(str.upper, words)))
+    ['FOO', 'BAR', 'BAZ']
+    """
+
+    __slots__ = ('_predicate', '_iterator', '_done')
+
+    def __init__(self, predicate, iterable):
+        self._predicate = predicate
+        self._iterator = iter(iterable)
+        self._done = False
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._done:
+            element = next(self._iterator)
+            if self._predicate(element):
+                return element
+            self._done = True
+
+        raise StopIteration()
+
+
 def my_dropwhile(predicate, iterable):
     """
     Yield elements of iterable starting at the first not to satisfy predicate.
@@ -1690,6 +1729,44 @@ def my_dropwhile_alt(predicate, iterable):
     """
     yielding = False
     return (x for x in iterable if yielding or (yielding := not predicate(x)))
+
+
+class DropWhile:
+    """
+    Iterator skipping leading elements that satisfy a predicate.
+
+    Like itertools.dropwhile. This is the class version of my_dropwhile.
+
+    >>> next(DropWhile(lambda x: x % 17 != 0, iter(range(40, 100))))
+    51
+    >>> list(DropWhile(str.islower, ['foo', 'bar', 'baZ', 'quux']))
+    ['baZ', 'quux']
+    >>> list(DropWhile(str.islower, ['ham', 'spam', 'eggs']))
+    []
+    >>> list(DropWhile(lambda _: False, ()))
+    []
+    """
+
+    __slots__ = ('_predicate', '_iterator', '_yielding')
+
+    def __init__(self, predicate, iterable):
+        self._predicate = predicate
+        self._iterator = iter(iterable)
+        self._yielding = False
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._yielding:
+            return next(self._iterator)
+
+        for element in self._iterator:
+            if not self._predicate(element):
+                self._yielding = True
+                return element
+
+        raise StopIteration()
 
 
 def outdegrees(rows):

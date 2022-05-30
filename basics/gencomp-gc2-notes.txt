@@ -19,8 +19,10 @@ floats_in_range
 FloatsInRange
 integrate
 my_takewhile
+TakeWhile
 my_dropwhile
 my_dropwhile_alt
+DropWhile
 outdegrees [needs tests]
 indegrees [needs tests]
 encrypt
