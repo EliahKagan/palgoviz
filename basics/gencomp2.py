@@ -298,7 +298,7 @@ def my_product(*iterables):
     >>> sum(map(sum, islice(my_product(*([(0, 1)] * 900)), 10_000)))
     64608
     """
-    sequences = [list(iterable) for iterable in iterables]
+    sequences = tuple(tuple(iterable) for iterable in iterables)
     return prefix_product(sequences, len(sequences))
 
 
@@ -335,8 +335,68 @@ def my_product_slow(*iterables):
     >>> sum(map(sum, islice(my_product_slow(*([(0, 1)] * 90)), 10_000)))
     64608
     """
-    sequences = [list(iterable) for iterable in iterables]
+    sequences = tuple(tuple(iterable) for iterable in iterables)
     return suffix_product(sequences, 0)
+
+
+def my_product_alt(*iterables):
+    """
+    Cartesian product. Like itertools.product, but with no repeat parameter.
+
+    This implementation doesn't use prefix_product or suffix_product. It is
+    usually faster than both my_product and my_product_slow, especially for
+    large len(iterables). It doesn't copy smaller tuples to build large ones.
+    [See (3) in the my_product docstring.] Instead, it maintains a stack of
+    items from each of the iterables. Each time len(iterables) items have been
+    pushed to the stack, it makes and yields a tuple, then backtracks.
+
+    Suppose len(iterables) == h + k for positive h and k. Then the Cartesian
+    product has a stretch of tuples whose first h entries are guaranteed all to
+    be the same. That is the case regardless of what algorithm is used. This
+    algorithm keeps those h elements on its stack that whole time. That way, it
+    avoids doing any work corresponding to most of the copying in my_product.
+
+    This maintains a single list, used as a stack, but may also use recursion.
+
+    >>> from pprint import pprint
+    >>> pprint(list(my_product_alt('ab', 'cde', 'fg', 'hi')),
+    ...        compact=True)
+    [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+     ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+     ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+     ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+     ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+     ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+     ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+     ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
+    >>> pprint(list(my_product_alt(iter('ab'), 'cde', iter('fg'), 'hi')),
+    ...        compact=True)
+    [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
+     ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
+     ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
+     ('a', 'e', 'f', 'i'), ('a', 'e', 'g', 'h'), ('a', 'e', 'g', 'i'),
+     ('b', 'c', 'f', 'h'), ('b', 'c', 'f', 'i'), ('b', 'c', 'g', 'h'),
+     ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
+     ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
+     ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
+    >>> from itertools import islice
+    >>> sum(map(sum, islice(my_product_alt(*([(0, 1)] * 900)), 10_000)))
+    64608
+    """
+    sequences = tuple(tuple(iterable) for iterable in iterables)
+    stack = []
+
+    def traverse():
+        if len(stack) == len(sequences):
+            yield tuple(stack)
+            return
+
+        for element in sequences[len(stack)]:
+            stack.append(element)
+            yield from traverse()
+            stack.pop()
+
+    return traverse()
 
 
 def pairs(iterable):

@@ -7,6 +7,7 @@ prefix_product
 suffix_product
 my_product
 my_product_slow
+my_product_alt
 matrix_dimensions
 matrix_multiply [needs tests]
 identity_matrix

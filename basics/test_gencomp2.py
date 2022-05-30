@@ -20,6 +20,7 @@ import gencomp2
     gencomp2.ProductTwoFlexible,
     gencomp2.my_product,
     gencomp2.my_product_slow,
+    gencomp2.my_product_alt,
 ])
 class TestProductTwo:
     """
@@ -116,10 +117,11 @@ class TestProductTwoFlexible:
     itertools.product,  # Included to help test that the tests are correct.
     gencomp2.my_product,
     gencomp2.my_product_slow,
+    gencomp2.my_product_alt,
 ])
 class TestMyProductSlow:
     """
-    Tests specific to, and shared by, my_product and my_product_slow.
+    Tests shared just by my_product, my_product_slow, and my_product_alt.
 
     See TestProductTwo above for tests they share with other Cartesian product
     functions. See TestMyProduct below for a test specific to my_product only
@@ -173,17 +175,22 @@ class TestMyProductSlow:
         assert flattened_prefix_sum == 64_608
 
 
+@pytest.mark.parametrize('implementation', [
+    itertools.product,  # Included to help test that the tests are correct.
+    gencomp2.my_product,
+    gencomp2.my_product_alt,
+])
 class TestMyProduct:
-    """A test specific to my_product."""
+    """A test specific to my_product and my_product_alt."""
 
     __slots__ = ()
 
-    def test_long_product_of_pairs_seems_efficient(self):
+    def test_long_product_of_pairs_seems_efficient(self, implementation):
         """
         The first 10,000 of a 2**900-element Cartesian product sum correctly.
         """
         arguments = [(0, 1)] * 90
-        result = gencomp2.my_product(*arguments)
+        result = implementation(*arguments)
         assert isinstance(result, Iterator)
 
         prefix = itertools.islice(result, 10_000)
