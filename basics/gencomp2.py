@@ -278,21 +278,16 @@ class Pairs:
         return self
 
     def __next__(self):
-        try:
-            y = next(self._y_it)
-        except StopIteration:
-            self._advance_x()
-            y = next(self._y_it)
+        for y in self._y_it:
+            return self._x, y
 
-        return self._x, y
-
-    def _advance_x(self):
         try:
             self._x = self._pool.popleft()
         except IndexError:
             raise StopIteration() from None
 
         self._y_it = iter(self._pool)
+        return self._x, next(self._y_it)
 
 
 def ascending_countdowns():
