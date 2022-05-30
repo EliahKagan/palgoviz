@@ -96,7 +96,33 @@ def product_two_alt(a, b):
             yield (x, y)
 
 
-class ProductTwo:
+class _ProductTwoFlexible:
+    """Implementation detail for ProductTwoFlexible and ProductTwo."""
+
+    __slots__ = ('_a_elem', '_b', '_a_it', '_b_it')
+
+    def __init__(self, a, b):
+        self._a_elem = None
+        self._a_it = iter(a)
+        self._b = list(b)
+        self._b_it = Empty()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return self._advance()
+        except StopIteration:
+            self._a_elem = next(self._a_it)
+            self._b_it = iter(self._b)
+            return self._advance()
+
+    def _advance(self):
+        return self._a_elem, next(self._b_it)
+
+
+class ProductTwo(_ProductTwoFlexible):
     """
     Like itertools.product, but must be called with exactly two iterables.
 
@@ -117,27 +143,10 @@ class ProductTwo:
     [(0, 9), (1, 8), (1, 9)]
     """
 
-    __slots__ = ('_a_elem', '_b', '_a_it', '_b_it')
+    __slots__ = ()
 
     def __init__(self, a, b):
-        self._a_elem = None
-        self._a_it = iter(list(a))
-        self._b = list(b)
-        self._b_it = Empty()
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        try:
-            return self._advance()
-        except StopIteration:
-            self._a_elem = next(self._a_it)
-            self._b_it = iter(self._b)
-            return self._advance()
-
-    def _advance(self):
-        return self._a_elem, next(self._b_it)
+        super().__init__(list(a), b)
 
 
 def product_two_flexible(a, b):
@@ -164,6 +173,38 @@ def product_two_flexible(a, b):
     """
     my_b = list(b)
     return ((x, y) for x in a for y in my_b)
+
+
+class ProductTwoFlexible(_ProductTwoFlexible):
+    """
+    Like ProductTwo, but the first iterable is permitted to be infinite.
+
+    This is the class version of product_two_flexible.
+
+    >>> list(ProductTwoFlexible('hi', 'bye'))
+    [('h', 'b'), ('h', 'y'), ('h', 'e'), ('i', 'b'), ('i', 'y'), ('i', 'e')]
+    >>> list(ProductTwoFlexible(range(0), range(2)))
+    []
+    >>> list(ProductTwoFlexible(range(2), range(0)))
+    []
+    >>> it = ProductTwoFlexible((x - 1 for x in (1, 2)),
+    ...                         (x + 5 for x in (3, 4)))
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> next(it)
+    (0, 8)
+    >>> list(it)
+    [(0, 9), (1, 8), (1, 9)]
+    >>> from itertools import count, islice
+    >>> list(islice(ProductTwoFlexible(count(), 'abc'), 7))
+    [(0, 'a'), (0, 'b'), (0, 'c'), (1, 'a'), (1, 'b'), (1, 'c'), (2, 'a')]
+    >>> list(islice(ProductTwoFlexible(count(), (ch for ch in 'abc')), 7))
+    [(0, 'a'), (0, 'b'), (0, 'c'), (1, 'a'), (1, 'b'), (1, 'c'), (2, 'a')]
+
+    FIXME: Eliminate code duplication across ProductTwo and ProductTwoFlexible.
+    """
+
+    __slots__ = ()
 
 
 def prefix_product(sequences, stop):
@@ -330,6 +371,55 @@ def pairs(iterable):
         x = elements.popleft()
         for y in elements:
             yield x, y
+
+
+class Pairs:
+    """
+    Iterator to pairs (x, y) where x and y appear in iterable, x preceding y.
+
+    This is the class version of pairs (above). The same requirements and
+    restrictions apply.
+
+    >>> list(Pairs(iter('')))
+    []
+    >>> it = Pairs('A')
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> next(it)  # Likewise empty, fewer than 2 elements.
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(Pairs(iter('AB')))
+    [('A', 'B')]
+    >>> list(Pairs('ABC'))
+    [('A', 'B'), ('A', 'C'), ('B', 'C')]
+    >>> list(Pairs(iter('ABCD')))
+    [('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'C'), ('B', 'D'), ('C', 'D')]
+    >>> list(Pairs('AAA'))
+    [('A', 'A'), ('A', 'A'), ('A', 'A')]
+    """
+
+    __slots__ = ('_pool', '_x', '_y_it')
+
+    def __init__(self, iterable):
+        self._pool = collections.deque(iterable)
+        self._x = None
+        self._y_it = Empty()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        for y in self._y_it:
+            return self._x, y
+
+        try:
+            self._x = self._pool.popleft()
+        except IndexError:
+            raise StopIteration() from None
+
+        self._y_it = iter(self._pool)
+        return self._x, next(self._y_it)
 
 
 def ascending_countdowns():
@@ -1623,6 +1713,63 @@ def my_cycle(iterable):
             yield from history
 
 
+class Cycle:
+    """
+    Iterator repeating an iterable indefinitely. Like itertools.cycle.
+
+    This is the class version of my_cycle. Don't use anything from itertools.
+
+    >>> list(itertools.islice(Cycle([2, 4, 6]), 25))
+    [2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2]
+    >>> list(itertools.islice(Cycle(x * 2 for x in [1, 2, 3]), 25))
+    [2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2, 4, 6, 2]
+    >>> list(Cycle(()))
+    []
+    >>> list(Cycle(x for x in ()))
+    []
+    >>> list(itertools.islice(Cycle(itertools.count(1)), 21))
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+
+    >>> in_it = itertools.zip_longest(itertools.count(), 'ABCDEF')
+    >>> out_it = Cycle(x for pair in in_it for x in pair if x is not None)
+    >>> list(itertools.islice(out_it, 19))
+    [0, 'A', 1, 'B', 2, 'C', 3, 'D', 4, 'E', 5, 'F', 6, 7, 8, 9, 10, 11, 12]
+
+    >>> it = Cycle(print(i) for i in range(10, 20))
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> next(it) is None
+    10
+    True
+    """
+
+    __slots__ = ('_history', '_consumed', '_iterator')
+
+    def __init__(self, iterable):
+        self._history = []
+        self._consumed = False
+        self._iterator = iter(iterable)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._consumed:
+            try:
+                item = next(self._iterator)
+            except StopIteration:
+                self._consumed = True
+            else:
+                self._history.append(item)
+                return item
+
+        try:
+            return next(self._iterator)
+        except StopIteration:
+            self._iterator = iter(self._history)
+            return next(self._iterator)
+
+
 def _chain_from_iterable(iterables):
     """Iterate an iterable of iterables and chain those iterables."""
     return (element for iterable in iterables for element in iterable)
@@ -1636,20 +1783,22 @@ def my_chain(*iterables):
 
     >>> list(my_chain())
     []
-    >>> list(my_chain([1, 2, 3], [5, 6], [8, 9, 10], [12, 13]))
+    >>> list(my_chain([1, 2, 3], [], [5, 6], [8, 9, 10], [12, 13]))
     [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
-    >>> list(my_chain(iter([1, 2, 3]), [5, 6], iter([8, 9, 10]), [12, 13]))
+    >>> list(my_chain(iter([1, 2, 3]), [], [5, 6], iter([8, 9, 10]), [12, 13]))
     [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
     >>> list(itertools.islice(my_chain(iter('ABC'), itertools.count()), 20))
     ['A', 'B', 'C', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     >>> list(my_chain(*(range(i) for i in range(7))))
     [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5]
 
-    >>> list(my_chain.from_iterable([[10, 20, 30], [11, 22, 33]]))
+    >>> rows = [[], [10, 20, 30], [], [], [], [11, 22, 33], [], []]
+    >>> list(my_chain.from_iterable(rows))
     [10, 20, 30, 11, 22, 33]
-    >>> it1 = iter([iter([10, 20, 30]), iter([11, 22, 33])])
-    >>> list(my_chain.from_iterable(it1))
+    >>> list(my_chain.from_iterable(iter(row) for row in rows))
     [10, 20, 30, 11, 22, 33]
+    >>> list(my_chain.from_iterable(() for _ in range(1000)))
+    []
     >>> from gencomp1 import windowed
     >>> list(my_chain.from_iterable(windowed(range(10), 3)))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
@@ -1665,6 +1814,75 @@ def my_chain(*iterables):
 
 
 my_chain.from_iterable = _chain_from_iterable
+
+
+class Chain:
+    """
+    Iterator that chain iterables, as itertools.chain does.
+
+    This is the class version of my_chain. Don't use anything from itertools.
+
+    >>> list(Chain())
+    []
+    >>> list(Chain([1, 2, 3], [], [5, 6], [8, 9, 10], [12, 13]))
+    [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
+    >>> list(Chain(iter([1, 2, 3]), [], [5, 6], iter([8, 9, 10]), [12, 13]))
+    [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
+    >>> list(itertools.islice(Chain(iter('ABC'), itertools.count()), 20))
+    ['A', 'B', 'C', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    >>> list(Chain(*(range(i) for i in range(7))))
+    [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5]
+
+    >>> rows = [[], [10, 20, 30], [], [], [], [11, 22, 33], [], []]
+    >>> list(Chain.from_iterable(rows))
+    [10, 20, 30, 11, 22, 33]
+    >>> list(Chain.from_iterable(iter(row) for row in rows))
+    [10, 20, 30, 11, 22, 33]
+    >>> list(Chain.from_iterable(() for _ in range(1000)))
+    []
+    >>> from gencomp1 import windowed
+    >>> list(Chain.from_iterable(windowed(range(10), 3)))
+    [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
+
+    >>> it2 = Chain.from_iterable(range(i) for i in itertools.count())
+    >>> list(itertools.islice(it2, 25))
+    [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3]
+    >>> it3 = Chain.from_iterable(windowed(range(1_000_000_000_000_000), 3))
+    >>> iter(it3) is it3  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> list(itertools.islice(it3, 25))
+    [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9, 8]
+    """
+
+    __slots__ = ('_outer', '_inner')
+
+    @classmethod
+    def from_iterable(cls, iterables):
+        """Create a Chain object from an iterable of iterables."""
+        chain = super().__new__(cls)
+        chain._initialize(iterables)
+        return chain
+
+    def __init__(self, *iterables):
+        self._initialize(iterables)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        for elem in self._inner:
+            return elem
+
+        for row in self._outer:
+            self._inner = iter(row)
+            for elem in self._inner:
+                return elem
+
+        raise StopIteration()
+
+    def _initialize(self, iterables):
+        self._outer = iter(iterables)
+        self._inner = Empty()
 
 
 _ALPHA_LEN = 26
