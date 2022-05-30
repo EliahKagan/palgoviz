@@ -1494,6 +1494,8 @@ def floats_in_range(start, stop, step):
     values are yielded as long as they are on the same side of the stop value
     as the start value, even if the difference is a small fraction.
 
+    This implementation is as a function. Don't write any classes.
+
     >>> floats_in_range(78.52, 90.85, 0.0)
     Traceback (most recent call last):
       ...
@@ -1523,6 +1525,59 @@ def floats_in_range(start, stop, step):
     compare = (operator.gt if step < 0 else operator.lt)
     values = (start + step * i for i in itertools.count())
     return itertools.takewhile(lambda value: compare(value, stop), values)
+
+
+class FloatsInRange:
+    """
+    Iterator to a range of floating point values.
+
+    This is like floats_in_range (above), but it is implemented as a class.
+    Don't use anything from itertools.
+
+    >>> FloatsInRange(78.52, 90.85, 0.0)
+    Traceback (most recent call last):
+      ...
+    ValueError: step must not be zero
+    >>> [round(x, 3) for x in FloatsInRange(78.52, 90.85, 1.27)]
+    [78.52, 79.79, 81.06, 82.33, 83.6, 84.87, 86.14, 87.41, 88.68, 89.95]
+    >>> next(FloatsInRange(78.52, 90.85, -1.27))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> [round(x, 3) for x in FloatsInRange(90.85, 78.52, -1.27)]
+    [90.85, 89.58, 88.31, 87.04, 85.77, 84.5, 83.23, 81.96, 80.69, 79.42]
+    >>> list(FloatsInRange(90.85, 78.52, 1.27))
+    []
+    >>> list(FloatsInRange(10.6, 10.6, 0.0000001))
+    []
+    >>> list(FloatsInRange(10.6, 10.6, -0.0000001))
+    []
+    >>> list(FloatsInRange(0, 100_000, 1)) == list(range(100_000))
+    True
+    >>> list(FloatsInRange(1e16, 1e16 + 3, 1))
+    [1e+16, 1e+16, 1.0000000000000002e+16]
+    """
+
+    __slots__ = ('_compare', '_start', '_stop', '_step', '_multiplier')
+
+    def __init__(self, start, stop, step):
+        if step == 0:
+            raise ValueError('step must not be zero')
+        self._compare = (operator.gt if step < 0 else operator.lt)
+        self._start = start
+        self._stop = stop
+        self._step = step
+        self._multiplier = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        value = self._start + self._step * self._multiplier
+        if not self._compare(value, self._stop):
+            raise StopIteration()
+        self._multiplier += 1
+        return value
 
 
 def integrate(f, a, b, n):

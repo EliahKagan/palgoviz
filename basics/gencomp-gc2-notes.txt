@@ -16,6 +16,7 @@ is_hermitian
 is_hermitian_alt
 mean
 floats_in_range
+FloatsInRange
 integrate
 my_takewhile
 my_dropwhile
