@@ -13,6 +13,9 @@ gencomp1.Distinct
 gencomp1.DistinctDictsByKeys
 gencomp2.Empty
 gencomp2.ProductTwo
+gencomp2.ProductTwoFlexible
+gencomp2.Pairs
 gencomp2.AscendingCountdowns
+gencomp2.Cycle
 recursion.Flatten
 recursion.FlattenLevelOrder
