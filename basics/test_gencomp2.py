@@ -15,7 +15,9 @@ import gencomp2
     itertools.product,  # Included to help test that the tests are correct.
     gencomp2.product_two,
     gencomp2.product_two_alt,
+    gencomp2.ProductTwo,
     gencomp2.product_two_flexible,
+    gencomp2.ProductTwoFlexible,
     gencomp2.my_product,
     gencomp2.my_product_slow,
 ])
@@ -25,8 +27,8 @@ class TestProductTwo:
 
     These tests test only the Cartesian product of two iterables (binary
     Cartesian products), even when the code under test is not restricted to
-    that. For that reason, these are all the tests for product_two and
-    product_two_alt, but the others have further tests below.
+    that. For that reason, these are all the tests for product_two,
+    product_two_alt, and ProductTwo, but the others have further tests below.
     """
 
     __slots__ = ()
@@ -60,19 +62,23 @@ class TestProductTwo:
         assert list(result) == [(0, 8), (0, 9), (1, 8), (1, 9)]
 
 
+@pytest.mark.parametrize('implementation', [
+    gencomp2.product_two_flexible,
+    gencomp2.ProductTwoFlexible,
+])
 class TestProductTwoFlexible:
-    """Tests specific to product_two_flexible."""
+    """Tests specific to product_two_flexible and ProductTwoFlexible."""
 
     __slots__ = ()
 
-    def test_product_of_infinite_iterator_and_sequence(self):
+    def test_product_of_infinite_iterator_and_sequence(self, implementation):
         """
         A Cartesian product with an infinite first argument generates values.
 
         This tests the "flexible" logic where the first argument is not
         materialized.
         """
-        result = gencomp2.product_two_flexible(itertools.count(), 'abc')
+        result = implementation(itertools.count(), 'abc')
         assert isinstance(result, Iterator)
         prefix = itertools.islice(result, 7)
         assert list(prefix) == [
@@ -81,7 +87,7 @@ class TestProductTwoFlexible:
             (2, 'a')
         ]
 
-    def test_product_of_infinite_and_finite_iterators(self):
+    def test_product_of_infinite_and_finite_iterators(self, implementation):
         """
         A Cartesian product with an infinite first argument reuses other
         arguments.
@@ -89,8 +95,7 @@ class TestProductTwoFlexible:
         This tests that, in the "flexible" logic where the first argument is
         not materialized, other arguments are still materialized.
         """
-        result = gencomp2.product_two_flexible(itertools.count(),
-                                               (ch for ch in 'abc'))
+        result = implementation(itertools.count(), (ch for ch in 'abc'))
         assert isinstance(result, Iterator)
         prefix = itertools.islice(result, 7)
         assert list(prefix) == [
@@ -211,6 +216,7 @@ def test_prefix_product(sequences, stop, expected):
 @pytest.mark.parametrize('implementation', [
     gencomp2.ascending_countdowns,
     gencomp2.ascending_countdowns_alt,
+    gencomp2.AscendingCountdowns,
 ])
 class TestAscendingCountdowns:
     """Tests for ascending_countdowns and ascending_countdowns_alt."""
