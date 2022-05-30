@@ -143,13 +143,14 @@ def product_two_flexible(a, b):
     """
     Like product_two above, but a is permitted to be an infinite iterable.
 
-    >>> list(product_two('hi', 'bye'))
+    >>> list(product_two_flexible('hi', 'bye'))
     [('h', 'b'), ('h', 'y'), ('h', 'e'), ('i', 'b'), ('i', 'y'), ('i', 'e')]
-    >>> list(product_two(range(0), range(2)))
+    >>> list(product_two_flexible(range(0), range(2)))
     []
-    >>> list(product_two(range(2), range(0)))
+    >>> list(product_two_flexible(range(2), range(0)))
     []
-    >>> it = product_two((x - 1 for x in (1, 2)), (x + 5 for x in (3, 4)))
+    >>> it = product_two_flexible((x - 1 for x in (1, 2)),
+    ...                           (x + 5 for x in (3, 4)))
     >>> next(it)
     (0, 8)
     >>> list(it)
