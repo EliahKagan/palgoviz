@@ -11,7 +11,6 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 
 import collections
 from collections.abc import Iterable
-import enum
 import itertools
 
 
@@ -1094,19 +1093,6 @@ def my_cycle(iterable):
             yield from history
 
 
-class _CycleState(enum.Enum):
-    """States for Cycle iterators. Implementation detail of Cycle."""
-
-    CONSUME = enum.auto()
-    """Advancing the input iterator and yield its items."""
-
-    REPEAT = enum.auto()
-    """Yielding one or more saved item, arbitrarily many times."""
-
-    EMPTY = enum.auto()
-    """The input iterator had zero items, so there is nothing to yield."""
-
-
 class Cycle:
     """
     Iterator repeating an iterable indefinitely. Like itertools.cycle.
@@ -1130,47 +1116,38 @@ class Cycle:
     [0, 'A', 1, 'B', 2, 'C', 3, 'D', 4, 'E', 5, 'F', 6, 7, 8, 9, 10, 11, 12]
 
     >>> it = Cycle(print(i) for i in range(10, 20))
+    >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
+    True
     >>> next(it) is None
     10
     True
     """
 
-    __slots__ = ('_state', '_history', '_iterator')
+    __slots__ = ('_history', '_consumed', '_iterator')
 
     def __init__(self, iterable):
-        self._state = _CycleState.CONSUME
         self._history = []
+        self._consumed = False
         self._iterator = iter(iterable)
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        match self._state:
-            case _CycleState.CONSUME:
-                try:
-                    item = next(self._iterator)
-                except StopIteration:
-                    if self._history:
-                        self._iterator = iter(self._history)
-                        self._state = _CycleState.REPEAT
-                    else:
-                        self._state = _CycleState.EMPTY
-                    return self.__next__()
-
+        if not self._consumed:
+            try:
+                item = next(self._iterator)
+            except StopIteration:
+                self._consumed = True
+            else:
                 self._history.append(item)
                 return item
 
-            case _CycleState.REPEAT:
-                try:
-                    return next(self._iterator)
-                except StopIteration:
-                    self._iterator = iter(self._history)
-                    return next(self._iterator)
-
-            case _CycleState.EMPTY:
-                raise StopIteration from None
-
+        try:
+            return next(self._iterator)
+        except StopIteration:
+            self._iterator = iter(self._history)
+            return next(self._iterator)
 
 
 def _chain_from_iterable(iterables):
