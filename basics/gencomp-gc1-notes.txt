@@ -6,6 +6,8 @@ gencomp1.Zip
 gencomp1.Take
 gencomp1.Drop
 gencomp1.Windowed
+gencomp1.my_pairwise
+gencomp1.Pairwise
 gencomp1.MapOne
 gencomp1.Filter
 gencomp1.DistinctSimple

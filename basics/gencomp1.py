@@ -928,8 +928,7 @@ def windowed(iterable, n):
     []
     >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
     []
-    >>> from itertools import islice
-    >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
+    >>> list(itertools.islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
     _validate_windowed_n_arg(n)
@@ -971,8 +970,7 @@ class Windowed:
     []
     >>> list(Windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
     []
-    >>> from itertools import islice
-    >>> list(islice(Windowed(range(1_000_000_000_000), 3), 4))
+    >>> list(itertools.islice(Windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
 
@@ -996,6 +994,86 @@ class Windowed:
             self._queue.append(next(self._iterator))
         self._started = True
         return tuple(self._queue)
+
+
+def my_pairwise(iterable):
+    """
+    Yield all pairs of consecutive items from iterable, allowing overlap.
+
+    This is like itertools.pairwise(iterable), or windowed(iterable, 2). Don't
+    use either of those or collections.deque. You can use anything else though.
+
+    TODO: Implement this any way you like at first, but you should also get it
+    working without any loops, comprehensions, try blocks, with statements,
+    helper functions (or classes), or calls to anything else in this project.
+
+    >>> list(my_pairwise(range(10)))
+    [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+    >>> [list(my_pairwise(range(n))) for n in range(5)]
+    [[], [], [(0, 1)], [(0, 1), (1, 2)], [(0, 1), (1, 2), (2, 3)]]
+    >>> list(my_pairwise(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk'])))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(itertools.islice(my_pairwise(itertools.count()), 9))
+    [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+    >>> it = my_pairwise(print(i) for i in range(10))
+    >>> next(it)
+    0
+    1
+    (None, None)
+    >>> next(it)
+    2
+    (None, None)
+    """
+    left, right = itertools.tee(iterable)
+    next(right, None)
+    yield from zip(left, right)
+
+
+class Pairwise:
+    """
+    Iterator to all pairs of consecutive items from iterable, allowing overlap.
+
+    This is like my_pairwise, but implemented as a class. Don't use anything
+    from this project or the itertools or collections modules. Don't use any
+    builtins other than iter and next.
+
+    >>> list(Pairwise(range(10)))
+    [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+    >>> [list(Pairwise(range(n))) for n in range(5)]
+    [[], [], [(0, 1)], [(0, 1), (1, 2)], [(0, 1), (1, 2), (2, 3)]]
+    >>> list(Pairwise(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk'])))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(itertools.islice(Pairwise(itertools.count()), 9))
+    [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)]
+    >>> it = Pairwise(print(i) for i in range(10))
+    >>> next(it)
+    0
+    1
+    (None, None)
+    >>> next(it)
+    2
+    (None, None)
+    """
+
+    __slots__ = ('_iterator', '_started', '_pre')
+
+    def __init__(self, iterable):
+        self._iterator = iter(iterable)
+        self._started = False
+        self._pre = None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._started:
+            self._pre = next(self._iterator)
+            self._started = True
+
+        cur = next(self._iterator)
+        pair = (self._pre, cur)
+        self._pre = cur
+        return pair
 
 
 def map_one(func, iterable):
