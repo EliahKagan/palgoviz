@@ -2232,7 +2232,13 @@ def encrypt(key, cleartext):
     number of positions indicated by the kth element of key, except that if you
     run out of elements of key, reuse the key starting from the beginning.
 
-    FIXME: Needs tests.
+    >>> key = [7, 18, 20, 13, 12, 17, 2, 7, 12, 25, 18, 7, 23, 20, 12, 18, 16]
+    >>> encrypt(key, 'attackatdawn')
+    'hlnnobcapzou'
+    >>> encrypt(key, 'oneifbylandandtwoifbysea')
+    'vfyvrsasmmvhkxfoepxvlevc'
+    >>> encrypt(iter(range(26)), 'ataplacecalledvlamertinghejustsouthofypres')
+    'aucspfilkjvwqqjaqdwkndjdfdjvuwwtaapxpjbesh'
     """
     return ''.join(chr(ord('a') + (ord(ch) - ord('a') + r) % _ALPHA_LEN)
                    for r, ch in zip(itertools.cycle(key), cleartext))
@@ -2242,7 +2248,13 @@ def decrypt(key, ciphertext):
     """
     Decrypt a message encrypted (as by encrypt) with a polyalphabetic cipher.
 
-    FIXME: Needs tests.
+    >>> key = [7, 18, 20, 13, 12, 17, 2, 7, 12, 25, 18, 7, 23, 20, 12, 18, 16]
+    >>> decrypt(key, 'hlnnobcapzou')
+    'attackatdawn'
+    >>> decrypt(key, 'vfyvrsasmmvhkxfoepxvlevc')
+    'oneifbylandandtwoifbysea'
+    >>> decrypt(iter(range(26)), 'aucspfilkjvwqqjaqdwkndjdfdjvuwwtaapxpjbesh')
+    'ataplacecalledvlamertinghejustsouthofypres'
     """
     return encrypt((_ALPHA_LEN - r for r in key), ciphertext)
 
