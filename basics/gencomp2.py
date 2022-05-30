@@ -1172,6 +1172,8 @@ def my_chain(*iterables):
     [10, 20, 30, 11, 22, 33]
     >>> list(my_chain.from_iterable(iter(row) for row in rows))
     [10, 20, 30, 11, 22, 33]
+    >>> list(my_chain.from_iterable(() for _ in range(1000)))
+    []
     >>> from gencomp1 import windowed
     >>> list(my_chain.from_iterable(windowed(range(10), 3)))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
@@ -1182,8 +1184,6 @@ def my_chain(*iterables):
     >>> it3 = my_chain.from_iterable(windowed(range(1_000_000_000_000_000), 3))
     >>> list(itertools.islice(it3, 25))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9, 8]
-    >>> list(my_chain.from_iterable(() for _ in range(1000)))
-    []
     """
     return _chain_from_iterable(iterables)
 
@@ -1199,20 +1199,22 @@ class Chain:
 
     >>> list(Chain())
     []
-    >>> list(Chain([1, 2, 3], [5, 6], [8, 9, 10], [12, 13]))
+    >>> list(Chain([1, 2, 3], [], [5, 6], [8, 9, 10], [12, 13]))
     [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
-    >>> list(Chain(iter([1, 2, 3]), [5, 6], iter([8, 9, 10]), [12, 13]))
+    >>> list(Chain(iter([1, 2, 3]), [], [5, 6], iter([8, 9, 10]), [12, 13]))
     [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
     >>> list(itertools.islice(Chain(iter('ABC'), itertools.count()), 20))
     ['A', 'B', 'C', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     >>> list(Chain(*(range(i) for i in range(7))))
     [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5]
 
-    >>> list(Chain.from_iterable([[10, 20, 30], [11, 22, 33]]))
+    >>> rows = [[], [10, 20, 30], [], [], [], [11, 22, 33], [], []]
+    >>> list(Chain.from_iterable(rows))
     [10, 20, 30, 11, 22, 33]
-    >>> it1 = iter([iter([10, 20, 30]), iter([11, 22, 33])])
-    >>> list(Chain.from_iterable(it1))
+    >>> list(Chain.from_iterable(iter(row) for row in rows))
     [10, 20, 30, 11, 22, 33]
+    >>> list(Chain.from_iterable(() for _ in range(1000)))
+    []
     >>> from gencomp1 import windowed
     >>> list(Chain.from_iterable(windowed(range(10), 3)))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]

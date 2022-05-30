@@ -17,5 +17,6 @@ gencomp2.ProductTwoFlexible
 gencomp2.Pairs
 gencomp2.AscendingCountdowns
 gencomp2.Cycle
+gencomp2.Chain
 recursion.Flatten
 recursion.FlattenLevelOrder
