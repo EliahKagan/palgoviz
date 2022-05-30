@@ -1255,7 +1255,6 @@ class Chain:
 
         raise StopIteration()
 
-
     def _initialize(self, iterables):
         self._outer = iter(iterables)
         self._inner = Empty()
