@@ -290,7 +290,7 @@ class Pairs:
         try:
             self._x = self._pool.popleft()
         except IndexError:
-            raise StopIteration from None
+            raise StopIteration() from None
 
         self._y_it = iter(self._pool)
 
@@ -1192,6 +1192,74 @@ def my_chain(*iterables):
 
 
 my_chain.from_iterable = _chain_from_iterable
+
+
+class Chain:
+    """
+    Iterator that chain iterables, as itertools.chain does.
+
+    This is the class version of my_chain. Don't use anything from itertools.
+
+    >>> list(Chain())
+    []
+    >>> list(Chain([1, 2, 3], [5, 6], [8, 9, 10], [12, 13]))
+    [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
+    >>> list(Chain(iter([1, 2, 3]), [5, 6], iter([8, 9, 10]), [12, 13]))
+    [1, 2, 3, 5, 6, 8, 9, 10, 12, 13]
+    >>> list(itertools.islice(Chain(iter('ABC'), itertools.count()), 20))
+    ['A', 'B', 'C', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    >>> list(Chain(*(range(i) for i in range(7))))
+    [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5]
+
+    >>> list(Chain.from_iterable([[10, 20, 30], [11, 22, 33]]))
+    [10, 20, 30, 11, 22, 33]
+    >>> it1 = iter([iter([10, 20, 30]), iter([11, 22, 33])])
+    >>> list(Chain.from_iterable(it1))
+    [10, 20, 30, 11, 22, 33]
+    >>> from gencomp1 import windowed
+    >>> list(Chain.from_iterable(windowed(range(10), 3)))
+    [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
+
+    >>> it2 = Chain.from_iterable(range(i) for i in itertools.count())
+    >>> list(itertools.islice(it2, 25))
+    [0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3]
+    >>> it3 = Chain.from_iterable(windowed(range(1_000_000_000_000_000), 3))
+    >>> iter(it3) is it3  # Make sure we have the usual __iter__ for iterators.
+    True
+    >>> list(itertools.islice(it3, 25))
+    [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9, 8]
+    """
+
+    __slots__ = ('_outer', '_inner')
+
+    @classmethod
+    def from_iterable(cls, iterables):
+        """Create a Chain object from an iterable of iterables."""
+        chain = super().__new__(cls)
+        chain._initialize(iterables)
+        return chain
+
+    def __init__(self, *iterables):
+        self._initialize(iterables)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        for elem in self._inner:
+            return elem
+
+        for row in self._outer:
+            self._inner = iter(row)
+            for elem in self._inner:
+                return elem
+
+        raise StopIteration()
+
+
+    def _initialize(self, iterables):
+        self._outer = iter(iterables)
+        self._inner = Empty()
 
 
 if __name__ == '__main__':
