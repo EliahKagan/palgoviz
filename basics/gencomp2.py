@@ -11,6 +11,7 @@ comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 
 import collections
 from collections.abc import Iterable, Sequence
+import enum
 import itertools
 import operator
 
@@ -1805,6 +1806,205 @@ def indegrees(rows):
     FIXME: Needs tests.
     """
     return collections.Counter(itertools.chain.from_iterable(rows.values()))
+
+
+class _CompactCounter(collections.Counter):
+    """A Counter that removes keys when their values are set to zero/falsy."""
+
+    def __setitem__(self, key, value):
+        """Set key to value, unless value is falsy. Then remove the key."""
+        if value:
+            super().__setitem__(key, value)
+        else:
+            del self[key]
+
+
+def anagrams(a, b):
+    """
+    For each pair of prefixes of a and b that are anagrams, yield their length.
+
+    a and b are arbitrary iterables whose elements are hashable. Lengths are
+    yielded in ascending order. The time from iterator creation to yielding n
+    is O(n), with a worst-case space complexity of O(n), but space usage will
+    often be lower. When the longest prefixes seen so far of a and b are nearly
+    anagrams, space usage is small. Quantitatively, take d(s, t) to be the edit
+    distance between s and t. Then if h elements of a and k elements of b have
+    been seen, current space usage is O(1 + d(a[:h], b[:k])), where slicing is
+    merely illustrative, since a and b need not support it. (Thus, after each
+    yield, very little space is used.) Space may often be even less than that.
+
+    Data structures often do not immediately free space that was used by an
+    element that was just removed. For the purpose of this exercise's space
+    requirements, you may consider such space to be immediately unused.
+
+    This can be done with or without a helper class. If you write a helper
+    class, it should be simple, and its instances must not be iterators. (Using
+    a helper can simplify your code and be reused in Anagrams and AnagramsAlt.
+    But you shouldn't try to implement your whole algorithm in such a class.)
+
+    >>> list(anagrams((), ()))
+    [0]
+    >>> list(anagrams('foobarzab', 'foobarbaz'))
+    [0, 1, 2, 3, 4, 5, 6, 9]
+    >>> list(anagrams(iter('a gentleman'), iter('elegant mane')))
+    [0, 8, 9, 10, 11]
+    >>> list(anagrams(itertools.count(), iter([2, 1, 0, 3, 5, 4, 7])))
+    [0, 3, 4, 6]
+    >>> list(anagrams(iter([2, 1, 0, 3, 5, 4, 7]), itertools.count()))
+    [0, 3, 4, 6]
+
+    >>> def tri():  # Arrange numbers in a triangle. Emit each row backwards.
+    ...     return itertools.chain.from_iterable(
+    ...         range(i * (i + 3) // 2, (i - 1) * (i + 2) // 2, -1)
+    ...         for i in itertools.count())
+    >>> list(itertools.islice(anagrams(itertools.count(), tri()), 18))
+    [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153]
+    >>> list(itertools.islice(anagrams(tri(), itertools.count()), 18))
+    [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153]
+    """
+    freqs = _CompactCounter()
+
+    yield 0
+
+    for n, (x, y) in enumerate(zip(a, b), 1):
+        freqs[x] += 1
+        freqs[y] -= 1
+        if not freqs:
+            yield n
+
+
+class Anagrams:
+    """
+    Iterator to the lengths of each pair of prefixes that are anagrams.
+
+    This is a class version of anagrams (above). Don't use generators in any
+    way, but otherwise you should reproduce the logic of anagrams as closely
+    and idiomatically as possible. If you used any builtins in anagrams, you
+    will most likely to be able to make good use of them here, too.
+
+    >>> list(Anagrams((), ()))
+    [0]
+    >>> list(Anagrams('foobarzab', 'foobarbaz'))
+    [0, 1, 2, 3, 4, 5, 6, 9]
+    >>> list(Anagrams(iter('a gentleman'), iter('elegant mane')))
+    [0, 8, 9, 10, 11]
+    >>> list(Anagrams(itertools.count(), iter([2, 1, 0, 3, 5, 4, 7])))
+    [0, 3, 4, 6]
+    >>> list(Anagrams(iter([2, 1, 0, 3, 5, 4, 7]), itertools.count()))
+    [0, 3, 4, 6]
+
+    >>> def tri():  # Arrange numbers in a triangle. Emit each row backwards.
+    ...     return itertools.chain.from_iterable(
+    ...         range(i * (i + 3) // 2, (i - 1) * (i + 2) // 2, -1)
+    ...         for i in itertools.count())
+    >>> list(itertools.islice(Anagrams(itertools.count(), tri()), 18))
+    [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153]
+    >>> list(itertools.islice(Anagrams(tri(), itertools.count()), 18))
+    [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153]
+    """
+
+    __slots__ = ('_started', '_freqs', '_iterator')
+
+    def __init__(self, a, b):
+        self._started = False
+        self._freqs = _CompactCounter()
+        self._iterator = enumerate(zip(a, b), 1)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._started:
+            self._started = True
+            return 0
+
+        for n, (x, y) in self._iterator:
+            self._freqs[x] += 1
+            self._freqs[y] -= 1
+            if not self._freqs:
+                return n
+
+        raise StopIteration()
+
+
+@enum.unique
+class _AnagramsAltState(enum.Enum):
+    """What mode an AnagramsAlt iterator is in. (Implementation detail.)"""
+    CREATED = enum.auto()
+    STARTED = enum.auto()
+    FINISHED = enum.auto()
+
+
+class AnagramsAlt:
+    """
+    Iterator to the lengths of each pair of prefixes that are anagrams.
+
+    This is an alternate class version of anagrams. Don't use generators,
+    anything from itertools, or any builtins other than iter and next. This may
+    use a helper enum to keep track of which of a small handful of states/modes
+    it is in. Separately from that, it may use a helper class to do some of its
+    work, if that class is also used by anagrams and Anagrams (above) in an
+    analogous way, and so long as that class uses nothing from itertools and no
+    builtins other than super. (If that is not already the case, you may be
+    doing too much in it anyway.) That helper class, as well as this class, may
+    use anything from collections.
+
+    >>> list(AnagramsAlt((), ()))
+    [0]
+    >>> list(AnagramsAlt('foobarzab', 'foobarbaz'))
+    [0, 1, 2, 3, 4, 5, 6, 9]
+    >>> list(AnagramsAlt(iter('a gentleman'), iter('elegant mane')))
+    [0, 8, 9, 10, 11]
+    >>> list(AnagramsAlt(itertools.count(), iter([2, 1, 0, 3, 5, 4, 7])))
+    [0, 3, 4, 6]
+    >>> list(AnagramsAlt(iter([2, 1, 0, 3, 5, 4, 7]), itertools.count()))
+    [0, 3, 4, 6]
+
+    >>> def tri():  # Arrange numbers in a triangle. Emit each row backwards.
+    ...     return itertools.chain.from_iterable(
+    ...         range(i * (i + 3) // 2, (i - 1) * (i + 2) // 2, -1)
+    ...         for i in itertools.count())
+    >>> list(itertools.islice(AnagramsAlt(itertools.count(), tri()), 18))
+    [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153]
+    >>> list(itertools.islice(AnagramsAlt(tri(), itertools.count()), 18))
+    [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153]
+    """
+
+    __slots__ = ('_state', '_freqs', '_n', '_a_it', '_b_it')
+
+    def __init__(self, a, b):
+        self._state = _AnagramsAltState.CREATED
+        self._n = 0
+        self._freqs = _CompactCounter()
+        self._a_it = iter(a)
+        self._b_it = iter(b)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        match self._state:
+            case _AnagramsAltState.CREATED:
+                self._state = _AnagramsAltState.STARTED
+                return 0
+
+            case _AnagramsAltState.STARTED:
+                while True:
+                    try:
+                        a_elem = next(self._a_it)
+                        b_elem = next(self._b_it)
+                    except StopIteration:
+                        self._state = _AnagramsAltState.FINISHED
+                        raise
+
+                    self._n += 1
+                    self._freqs[a_elem] += 1
+                    self._freqs[b_elem] -= 1
+                    if not self._freqs:
+                        return self._n
+
+            case _AnagramsAltState.FINISHED:
+                raise StopIteration()
 
 
 def my_cycle(iterable):

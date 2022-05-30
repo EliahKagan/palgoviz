@@ -25,5 +25,8 @@ my_dropwhile_alt
 DropWhile
 outdegrees [needs tests]
 indegrees [needs tests]
+anagrams
+Anagrams
+AnagramsAlt
 encrypt
 decrypt
