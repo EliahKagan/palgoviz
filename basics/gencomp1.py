@@ -1410,103 +1410,6 @@ def invert_alt(dictionary):
     return inverse
 
 
-def distinct_unstable(iterable):
-    """
-    Given an iterable of hashable items, return a list of distinct items.
-
-    This takes O(n) time, where n is the number of items in iterable.
-
-    Each value must appear exactly once in the output, but they may appear in
-    any order. Don't call or replicate logic from distinct or distinct_simple
-    (below). This problem is much more straightforward to solve in Python.
-
-    >>> distinct_unstable(())
-    []
-    >>> distinct_unstable(('hello',))
-    ['hello']
-    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
-    >>> b = distinct_unstable(a)
-    >>> isinstance(b, list)
-    True
-    >>> print(sorted(b))
-    [1, 2, 3, 4, 6, 7, 8, 9]
-    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
-    >>> d = distinct_unstable(map(str.lower, c))
-    >>> isinstance(d, list)
-    True
-    >>> print(sorted(d))
-    ['bar', 'baz', 'foo', 'quux']
-    """
-    return list(set(iterable))
-
-
-def distinct_unstable_lt(iterable):
-    """
-    Given an iterable of comparable items, return a list of distinct items.
-
-    This takes O(n log n) time, where n is the number of items in iterable.
-
-    Each value must appear exactly once in the output, but they may appear in
-    any order. Items in the input need not be hashable, but they are totally
-    ordered, which is to say exactly one of x < y, x == y, and x > y holds.
-    But this is NOT to say that x precedes y in iterable whenever x < y.
-
-    >>> distinct_unstable_lt(())
-    []
-    >>> distinct_unstable_lt(('hello',))
-    ['hello']
-    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
-    >>> b = distinct_unstable_lt(a)
-    >>> isinstance(b, list)
-    True
-    >>> print(sorted(b))
-    [1, 2, 3, 4, 6, 7, 8, 9]
-    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
-    >>> d = distinct_unstable_lt(list(s.lower()) for s in c)
-    >>> isinstance(d, list)
-    True
-    >>> print(sorted(d))
-    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
-    """
-    out = []
-
-    pre = object()
-    for cur in sorted(iterable):
-        if pre != cur:
-            pre = cur
-            out.append(cur)
-
-    return out
-
-
-def distinct_unstable_lt_alt(iterable):
-    """
-    Given an iterable of comparable items, return a list of distinct items.
-
-    This behaves the same as distinct_unordered_lt (above). One implementation
-    does not use any comprehensions, while the other does not use any loops.
-
-    >>> distinct_unstable_lt_alt(())
-    []
-    >>> distinct_unstable_lt_alt(('hello',))
-    ['hello']
-    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
-    >>> b = distinct_unstable_lt_alt(a)
-    >>> isinstance(b, list)
-    True
-    >>> print(sorted(b))
-    [1, 2, 3, 4, 6, 7, 8, 9]
-    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
-    >>> d = distinct_unstable_lt_alt(list(s.lower()) for s in c)
-    >>> isinstance(d, list)
-    True
-    >>> print(sorted(d))
-    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
-    """
-    pre = object()
-    return [(pre := cur) for cur in sorted(iterable) if pre != cur]
-
-
 def distinct_simple(iterable):
     """
     Yield only first occurrences of equal items.
@@ -2045,26 +1948,148 @@ class DistinctDictsByKeys(Distinct):
         super().__init__(dicts, key=key)
 
 
+def distinct_eager_unstable_simple(iterable):
+    """
+    Given an iterable of hashable items, return a list of distinct items.
+
+    This takes O(n) time, where n is the number of items in iterable.
+
+    Each value must appear exactly once in the output, but they may appear in
+    any order. Don't call or replicate logic from distinct or distinct_simple.
+    This problem is much more straightforward (to solve in Python).
+
+    >>> distinct_eager_unstable_simple(())
+    []
+    >>> distinct_eager_unstable_simple(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_eager_unstable_simple(a)
+    >>> isinstance(b, list)
+    True
+    >>> print(sorted(b))
+    [1, 2, 3, 4, 6, 7, 8, 9]
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_eager_unstable_simple(map(str.lower, c))
+    >>> isinstance(d, list)
+    True
+    >>> print(sorted(d))
+    ['bar', 'baz', 'foo', 'quux']
+    """
+    return list(set(iterable))
+
+
+def distinct_eager_unstable(iterable, *, key=None):
+    """
+    Given items with hashable keys, return a list of one item per distinct key.
+
+    This is like distinct_eager_unstable_simple, but it accepts an optional key
+    selector function. If not passed, each value is its own key and this
+    behaves like distinct_eager_unstable_simple, but assume its implementation
+    may change in the future to call this (so don't call it). This takes O(n)
+    time, where n is the number of items in iterable. Assume keys are hashable.
+
+    The relationship between distinct_eager_unstable_simple and this function
+    is analogous to the relationship between distinct_simple and distinct.
+    Don't call distinct or distinct_simple. This is simpler than those: besides
+    handling when no key selector function is passed, this fits in one line.
+
+    [FIXME: Briefly explain here why this solution is not stable.]
+
+    FIXME: Needs tests.
+    """
+    if key is None:
+        key = lambda x: x
+
+    return list({key(value): value for value in iterable}.values())
+
+
+def distinct_eager_unstable_lt_simple(iterable):
+    """
+    Given an iterable of comparable items, return a list of distinct items.
+
+    This takes O(n log n) time, where n is the number of items in iterable.
+
+    Each value must appear exactly once in the output, but they may appear in
+    any order. Items in the input need not be hashable, but they are totally
+    ordered, which is to say exactly one of x < y, x == y, and x > y holds.
+    But this is NOT to say that x precedes y in iterable whenever x < y.
+
+    >>> distinct_eager_unstable_lt_simple(())
+    []
+    >>> distinct_eager_unstable_lt_simple(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_eager_unstable_lt_simple(a)
+    >>> isinstance(b, list)
+    True
+    >>> print(sorted(b))
+    [1, 2, 3, 4, 6, 7, 8, 9]
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_eager_unstable_lt_simple(list(s.lower()) for s in c)
+    >>> isinstance(d, list)
+    True
+    >>> print(sorted(d))
+    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
+    """
+    out = []
+
+    pre = object()
+    for cur in sorted(iterable):
+        if pre != cur:
+            pre = cur
+            out.append(cur)
+
+    return out
+
+
+def distinct_eager_unstable_lt_simple_alt(iterable):
+    """
+    Given an iterable of comparable items, return a list of distinct items.
+
+    This behaves the same as distinct_eager_unstable_lt_simple (above). One
+    implementation uses no comprehensions, while the other uses no loops.
+
+    >>> distinct_unstable_lt_simple_alt(())
+    []
+    >>> distinct_unstable_lt_simple_alt(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_unstable_lt_simple_alt(a)
+    >>> isinstance(b, list)
+    True
+    >>> print(sorted(b))
+    [1, 2, 3, 4, 6, 7, 8, 9]
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_unstable_lt_simple_alt(list(s.lower()) for s in c)
+    >>> isinstance(d, list)
+    True
+    >>> print(sorted(d))
+    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
+    """
+    pre = object()
+    return [(pre := cur) for cur in sorted(iterable) if pre != cur]
+
+
+# FIXME: Add distinct_eager_unstable_lt and distinct_eager_unstable_lt_alt.
+
+
 def distinct_eager_simple(iterable):
     """
     Make a list of first occurrences of equal items. Assume items are hashable.
 
     This takes O(n) time, where n is the number of items in iterable. It is the
-    same task as in distinct_unstable above, but now it is stable: values are
-    output in the same order they appeared in the input, and when equal values
-    appear in the input, the first one (and no others) appears in the output.
+    same task as in distinct_eager_unstable_simple above, but now it is stable:
+    values are output in the same order they appeared in the input, and when
+    equal values appear in the input, the first (and no others) is output.
 
-    Another way to look at this is that it is the same task as distinct_simple
-    above, except that it is eager rather than lazy: the values are returned
-    all at once in a list, rather than each being computed and yielded only
-    once needed.
+    To get at it another way: this is the same task as distinct_simple above,
+    except it is eager rather than lazy: the values are returned all at once in
+    a list, rather than each being computed and yielded only once needed.
 
     Don't call anything but builtins (and their methods). Don't use loops or
     comprehensions. This fits easily in one line. It's slightly more
-    complicated than distinct_unstable, but much less so than distinct_simple.
-    The technique used here is probably fine to use in production code.
-
-    Hint: Sets aren't ordered, but what is?
+    complicated than distinct_eager_unstable_simple, but much less than
+    distinct_simple. The technique used here could go in production code.
 
     >>> distinct_eager_simple([])
     []

@@ -1,33 +1,34 @@
-distinct_unstable (gencomp1)
-distinct_unstable_lt (gencomp1)
-distinct_unstable_lt_alt (gencomp1)
-distinct_eager_simple (gencomp1)
-distinct_eager (gencomp1)
-prefix_product
-suffix_product
-my_product
-my_product_slow
-my_product_alt
-matrix_dimensions
-matrix_multiply [needs tests]
-identity_matrix
-identity_matrix_alt
-submap
-is_hermitian
-is_hermitian_alt
-mean
-floats_in_range
-FloatsInRange
-integrate
-my_takewhile
-TakeWhile
-my_dropwhile
-my_dropwhile_alt
-DropWhile
-outdegrees
-indegrees
-anagrams
-Anagrams
-AnagramsAlt
-encrypt
-decrypt
+gencomp1.distinct_eager_unstable_simple
+gencomp1.distinct_eager_unstable
+gencomp1.distinct_eager_unstable_lt_simple
+gencomp1.distinct_eager_unstable_lt_simple_alt
+gencomp1.distinct_eager_simple
+gencomp1.distinct_eager
+gencomp2.prefix_product
+gencomp2.suffix_product
+gencomp2.my_product
+gencomp2.my_product_slow
+gencomp2.my_product_alt
+gencomp2.matrix_dimensions
+gencomp2.matrix_multiply [needs tests]
+gencomp2.identity_matrix
+gencomp2.identity_matrix_alt
+gencomp2.submap
+gencomp2.is_hermitian
+gencomp2.is_hermitian_alt
+gencomp2.mean
+gencomp2.floats_in_range
+gencomp2.FloatsInRange
+gencomp2.integrate
+gencomp2.my_takewhile
+gencomp2.TakeWhile
+gencomp2.my_dropwhile
+gencomp2.my_dropwhile_alt
+gencomp2.DropWhile
+gencomp2.outdegrees
+gencomp2.indegrees
+gencomp2.anagrams
+gencomp2.Anagrams
+gencomp2.AnagramsAlt
+gencomp2.encrypt
+gencomp2.decrypt
