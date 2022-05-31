@@ -831,7 +831,8 @@ def ungroup(rows):
     (destinations). That is, when a graph has an edge from u to v, its
     adjacency list's row for u contains v.
 
-    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
+    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'],
+    ...         'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
     ...                   ('b', 'a'), ('b', 'd'), ('c', 'a'), ('c', 'd')}
     True
@@ -1837,14 +1838,21 @@ def outdegrees(rows):
     rows is a directed graph's adjacency list, supplied as a dictionary (see
     ungroup, above). The outdegree (or out-degree) of a vertex is how many
     forward neighbors it has, i.e., the number of edges coming out of the
-    vertex.
+    vertex. Vertices of outdegree zero may either be shown as such or omitted.
 
     Your algorithm should have the best possible worst-case asymptotic time
-    complexity. [Please write the running time, for n nodes and m edges, here.]
+    complexity. [FIXME: Write the running time, for n nodes and m edges, here.]
 
     Note: This can, and probably should, be done with a single line of code.
 
-    FIXME: Needs tests.
+    >>> def test(adj):
+    ...     result = outdegrees(adj)
+    ...     return type(result)(sorted(result.elements()))  # Normalize.
+    >>> test({'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []})
+    Counter({'a': 3, 'b': 2, 'c': 2})
+    >>> test({1: [2, 3], 2: [4, 5], 3: [6, 7], 4: [8, 9], 5: [], 6: [], 7: [],
+    ...       8: [], 9: [2, 5]})
+    Counter({1: 2, 2: 2, 3: 2, 4: 2, 9: 2})
     """
     return collections.Counter({src: len(row) for src, row in rows.items()})
 
@@ -1857,13 +1865,21 @@ def indegrees(rows):
     described above). The indegree (or in-degree) of a vertex is how many
     backward (i.e., reverse) neighbors it has; i.e., how many vertices have it
     as a forward neighbor; i.e., the number of edges coming into the vertex.
+    Vertices of indegree zero may either be shown as such or omitted.
 
     Your algorithm should have the best possible worst-case asymptotic time
-    complexity. [Please write the running time, for n nodes and m edges, here.]
+    complexity. [FIXME: Write the running time, for n nodes and m edges, here.]
 
     Note: This can, and probably should, be done with a single line of code.
 
-    FIXME: Needs tests.
+    >>> def test(adj):
+    ...     result = indegrees(adj)
+    ...     return type(result)(sorted(result.elements()))  # Normalize.
+    >>> test({'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []})
+    Counter({'d': 3, 'a': 2, 'b': 1, 'c': 1})
+    >>> test({1: [2, 3], 2: [4, 5], 3: [6, 7], 4: [8, 9], 5: [], 6: [], 7: [],
+    ...       8: [], 9: [2, 5]})
+    Counter({2: 2, 5: 2, 3: 1, 4: 1, 6: 1, 7: 1, 8: 1, 9: 1})
     """
     return collections.Counter(itertools.chain.from_iterable(rows.values()))
 

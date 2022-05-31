@@ -24,8 +24,8 @@ TakeWhile
 my_dropwhile
 my_dropwhile_alt
 DropWhile
-outdegrees [needs tests]
-indegrees [needs tests]
+outdegrees
+indegrees
 anagrams
 Anagrams
 AnagramsAlt
