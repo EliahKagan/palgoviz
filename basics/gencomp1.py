@@ -2048,18 +2048,18 @@ def distinct_eager_unstable_lt_simple_alt(iterable):
     This behaves the same as distinct_eager_unstable_lt_simple (above). One
     implementation uses no comprehensions, while the other uses no loops.
 
-    >>> distinct_unstable_lt_simple_alt(())
+    >>> distinct_eager_unstable_lt_simple_alt(())
     []
-    >>> distinct_unstable_lt_simple_alt(('hello',))
+    >>> distinct_eager_unstable_lt_simple_alt(('hello',))
     ['hello']
     >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
-    >>> b = distinct_unstable_lt_simple_alt(a)
+    >>> b = distinct_eager_unstable_lt_simple_alt(a)
     >>> isinstance(b, list)
     True
     >>> print(sorted(b))
     [1, 2, 3, 4, 6, 7, 8, 9]
     >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
-    >>> d = distinct_unstable_lt_simple_alt(list(s.lower()) for s in c)
+    >>> d = distinct_eager_unstable_lt_simple_alt(list(s.lower()) for s in c)
     >>> isinstance(d, list)
     True
     >>> print(sorted(d))
@@ -2198,6 +2198,41 @@ def distinct_eager(iterable, *, key=None):
     mapping = dict(pairs)  # Populate keys in order.
     mapping.update(reversed(pairs))  # Set values in reverse order.
     return list(mapping.values())
+
+
+def distinct_eager_good(iterable, *, key=None):
+    """
+    Make a list of first occurrences of values whose associated keys are equal.
+
+    This is like distinct_eager above, but high quality and suitable for
+    production use. There are no restrictions on how this is implemented. In
+    particular, feel free to call other code in this or other modules of the
+    project.
+
+    >>> distinct_eager_good([])
+    []
+    >>> distinct_eager_good({3})
+    [3]
+    >>> distinct_eager_good(('foo', 'foo'))
+    ['foo']
+    >>> distinct_eager_good(x**2 for x in range(-3, 6))
+    [9, 4, 1, 0, 16, 25]
+    >>> distinct_eager_good([2, 1, 2, 4, 1, 7] * 100_000)
+    [2, 1, 4, 7]
+
+    >>> distinct_eager_good(('foo', 'bar', 'foobar', 'baz', 'quux', 'wq'),
+    ...                     key=len)
+    ['foo', 'foobar', 'quux', 'wq']
+    >>> distinct_eager_good(range(-3, 6), key=lambda x: x**2)
+    [-3, -2, -1, 0, 4, 5]
+    >>> distinct_eager_good([[1, 2, 3], [1, 3, 2], [1, 2, 3], [2, 1, 3]],
+    ...                     key=tuple)
+    [[1, 2, 3], [1, 3, 2], [2, 1, 3]]
+    >>> middle = [[], []] * 100_000
+    >>> distinct_eager_good([3, *middle, 4], key=id)
+    [3, [], [], 4]
+    """
+    return list(distinct(iterable, key=key))
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@ gencomp1.distinct_eager_unstable_lt  [needs tests]
 gencomp1.distinct_eager_unstable_lt_alt  [needs tests]
 gencomp1.distinct_eager_simple
 gencomp1.distinct_eager
+gencomp1.distinct_eager_good
 gencomp2.prefix_product
 gencomp2.suffix_product
 gencomp2.my_product
