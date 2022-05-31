@@ -1990,8 +1990,7 @@ def distinct_eager_unstable(iterable, *, key=None):
 
     The relationship between distinct_eager_unstable_simple and this function
     is analogous to the relationship between distinct_simple and distinct.
-    Don't call distinct or distinct_simple. This is simpler than those: besides
-    handling when no key selector function is passed, this fits in one line.
+    Don't call distinct or distinct_simple. This is simpler and needs no loops.
 
     [FIXME: Briefly explain here why this solution is not stable.]
 
@@ -2070,7 +2069,50 @@ def distinct_eager_unstable_lt_simple_alt(iterable):
     return [(pre := cur) for cur in sorted(iterable) if pre != cur]
 
 
-# FIXME: Add distinct_eager_unstable_lt and distinct_eager_unstable_lt_alt.
+def distinct_eager_unstable_lt(iterable, *, key=None):
+    """
+    Given items with comparable keys, return a list of items distinct by key.
+
+    This is like distinct_eager_unstable_lt_simple{,_alt}, but it accepts an
+    optional key selector function. If not passed, each value is its own key
+    and this behaves like those functions, but assume their implementations may
+    change in the future to call this (so don't call them). Keys are comparable
+    and totally ordered. But values need not already be sorted by key; see the
+    explanation in distinct_eager_unstable_lt_simple. When multiple values have
+    equal keys, include any one of those values in the output, but no others.
+    This takes O(n log n) time, where n is the number of items in iterable.
+
+    The relationship between distinct_eager_unstable_lt_simple{,_alt} and
+    distinct_eager_unstable_lt{,_alt} is analogous to the relationship between
+    distinct_simple and distinct, and likewise analogous to the relationship
+    between distinct_eager_unstable_simple and distinct_eager_unstable.
+
+    FIXME: Needs tests.
+    """
+    out = []
+
+    pre = object()
+    for cur in sorted(iterable, key=key):
+        if key(pre) != key(cur):
+            pre = cur
+            out.append(cur)
+
+    return out
+
+
+def distinct_eager_unstable_lt_alt(iterable, *, key=None):
+    """
+    Given items with comparable keys, return a list of items distinct by key.
+
+    This behaves the same as distinct_eager_unstable_lt (above). One
+    implementation uses no comprehensions, while the other uses no loops.
+
+    FIXME: Needs tests.
+    """
+    pre = object()
+
+    return [(pre := cur) for cur in sorted(iterable, key=key)
+            if key(pre) != key(cur)]
 
 
 def distinct_eager_simple(iterable):

@@ -1,7 +1,9 @@
 gencomp1.distinct_eager_unstable_simple
-gencomp1.distinct_eager_unstable
+gencomp1.distinct_eager_unstable  [needs tests]
 gencomp1.distinct_eager_unstable_lt_simple
 gencomp1.distinct_eager_unstable_lt_simple_alt
+gencomp1.distinct_eager_unstable_lt  [needs tests]
+gencomp1.distinct_eager_unstable_lt_alt  [needs tests]
 gencomp1.distinct_eager_simple
 gencomp1.distinct_eager
 gencomp2.prefix_product
@@ -10,7 +12,7 @@ gencomp2.my_product
 gencomp2.my_product_slow
 gencomp2.my_product_alt
 gencomp2.matrix_dimensions
-gencomp2.matrix_multiply [needs tests]
+gencomp2.matrix_multiply  [needs tests]
 gencomp2.identity_matrix
 gencomp2.identity_matrix_alt
 gencomp2.submap
