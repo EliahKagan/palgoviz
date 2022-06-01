@@ -344,7 +344,7 @@ def my_product_alt(*iterables):
     Cartesian product. Like itertools.product, but with no repeat parameter.
 
     This implementation doesn't use prefix_product or suffix_product. It is
-    usually faster than both my_product and my_product_slow, especially for
+    usually faster than either my_product or my_product_slow, especially for
     large len(iterables). It doesn't copy smaller tuples to build large ones.
     [See (3) in the my_product docstring.] Instead, it maintains a stack of
     items from each of the iterables. Each time len(iterables) items have been
