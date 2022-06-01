@@ -1964,16 +1964,12 @@ def distinct_eager_unstable_simple(iterable):
     ['hello']
     >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
     >>> b = distinct_eager_unstable_simple(a)
-    >>> isinstance(b, list)
+    >>> isinstance(b, list) and sorted(b) == [1, 2, 3, 4, 6, 7, 8, 9]
     True
-    >>> print(sorted(b))
-    [1, 2, 3, 4, 6, 7, 8, 9]
     >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
     >>> d = distinct_eager_unstable_simple(map(str.lower, c))
-    >>> isinstance(d, list)
+    >>> isinstance(d, list) and sorted(d) == ['bar', 'baz', 'foo', 'quux']
     True
-    >>> print(sorted(d))
-    ['bar', 'baz', 'foo', 'quux']
     """
     return list(set(iterable))
 
@@ -1994,7 +1990,25 @@ def distinct_eager_unstable(iterable, *, key=None):
 
     [FIXME: Briefly explain here why this solution is not stable.]
 
-    FIXME: Needs tests.
+    >>> distinct_eager_unstable(())
+    []
+    >>> distinct_eager_unstable(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_eager_unstable(a)
+    >>> isinstance(b, list) and sorted(b) == [1, 2, 3, 4, 6, 7, 8, 9]
+    True
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_eager_unstable(map(str.lower, c))
+    >>> isinstance(d, list) and sorted(d) == ['bar', 'baz', 'foo', 'quux']
+    True
+
+    >>> e = distinct_eager_unstable(['pq', '', 'st', 'r'], key=len)
+    >>> isinstance(e, list) and sorted(e) in (['', 'pq', 'r'], ['', 'r', 'st'])
+    True
+    >>> f = distinct_eager_unstable(range(100, 900), key=lambda n: n % 10)
+    >>> isinstance(f, list) and sorted(n % 10 for n in f) == list(range(10))
+    True
     """
     if key is None:
         key = lambda x: x
@@ -2019,15 +2033,13 @@ def distinct_eager_unstable_lt_simple(iterable):
     ['hello']
     >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
     >>> b = distinct_eager_unstable_lt_simple(a)
-    >>> isinstance(b, list)
+    >>> isinstance(b, list) and sorted(b) == [1, 2, 3, 4, 6, 7, 8, 9]
     True
-    >>> print(sorted(b))
-    [1, 2, 3, 4, 6, 7, 8, 9]
     >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
     >>> d = distinct_eager_unstable_lt_simple(list(s.lower()) for s in c)
     >>> isinstance(d, list)
     True
-    >>> print(sorted(d))
+    >>> sorted(d)
     [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
     """
     out = []
@@ -2054,15 +2066,13 @@ def distinct_eager_unstable_lt_simple_alt(iterable):
     ['hello']
     >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
     >>> b = distinct_eager_unstable_lt_simple_alt(a)
-    >>> isinstance(b, list)
+    >>> isinstance(b, list) and sorted(b) == [1, 2, 3, 4, 6, 7, 8, 9]
     True
-    >>> print(sorted(b))
-    [1, 2, 3, 4, 6, 7, 8, 9]
     >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
     >>> d = distinct_eager_unstable_lt_simple_alt(list(s.lower()) for s in c)
     >>> isinstance(d, list)
     True
-    >>> print(sorted(d))
+    >>> sorted(d)
     [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
     """
     pre = object()
@@ -2083,36 +2093,54 @@ def distinct_eager_unstable_lt(iterable, *, key=None):
     This takes O(n log n) time, where n is the number of items in iterable.
 
     The relationship between distinct_eager_unstable_lt_simple{,_alt} and
-    distinct_eager_unstable_lt{,_alt} is analogous to the relationship between
+    distinct_eager_unstable_lt is analogous to the relationship between
     distinct_simple and distinct, and likewise analogous to the relationship
     between distinct_eager_unstable_simple and distinct_eager_unstable.
 
-    FIXME: Needs tests.
+    >>> distinct_eager_unstable_lt(())
+    []
+    >>> distinct_eager_unstable_lt(('hello',))
+    ['hello']
+    >>> a = [4, 1, 8, 3, 2, 7, 4, 4, 9, 4, 1, 3, 9, 1, 6, 8, 7, 9, 9, 1, 4]
+    >>> b = distinct_eager_unstable_lt(a)
+    >>> isinstance(b, list) and sorted(b) == [1, 2, 3, 4, 6, 7, 8, 9]
+    True
+    >>> c = ['Foo', 'bAr', 'baz', 'Foo', 'BAZ', 'QUUX', 'quux', 'foO', 'BaR']
+    >>> d = distinct_eager_unstable_lt(list(s.lower()) for s in c)
+    >>> isinstance(d, list)
+    True
+    >>> sorted(d)
+    [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
+
+    >>> e = ['pq', 'rs', ('p', 'q'), ('r', 's')]
+    >>> f = distinct_eager_unstable_lt(e, key=list)
+    >>> isinstance(f, list) and len(f) == 2
+    True
+    >>> set(f) in ({'pq', 'rs'}, {'pq', ('r', 's')},
+    ...            {('p', 'q'), 'rs'}, {('p', 'q'), ('r', 's')})
+    True
+    >>> g = ['rpq', 'qpr', 'pq', 'pqr', 'qp', 'rpq', 'qrp', 'prq']
+    >>> h = distinct_eager_unstable_lt(g, key=sorted)
+    >>> isinstance(h, list) and sorted(h) in (
+    ...     ['pq', 'pqr'], ['pq', 'prq'], ['pq', 'qpr'],
+    ...     ['pq', 'qrp'], ['pq', 'rpq'], ['pq', 'rqp'],
+    ...     ['pqr', 'qp'], ['prq', 'qp'], ['qp', 'qpr'],
+    ...     ['qp', 'qrp'], ['qp', 'rpq'], ['qp', 'rqp'])
+    True
     """
+    if key is None:
+        key = lambda x: x
+
     out = []
 
-    pre = object()
+    pre_key = object()
     for cur in sorted(iterable, key=key):
-        if key(pre) != key(cur):
-            pre = cur
+        cur_key = key(cur)
+        if pre_key != cur_key:
+            pre_key = cur_key
             out.append(cur)
 
     return out
-
-
-def distinct_eager_unstable_lt_alt(iterable, *, key=None):
-    """
-    Given items with comparable keys, return a list of items distinct by key.
-
-    This behaves the same as distinct_eager_unstable_lt (above). One
-    implementation uses no comprehensions, while the other uses no loops.
-
-    FIXME: Needs tests.
-    """
-    pre = object()
-
-    return [(pre := cur) for cur in sorted(iterable, key=key)
-            if key(pre) != key(cur)]
 
 
 def distinct_eager_simple(iterable):

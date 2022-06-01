@@ -1,9 +1,8 @@
 gencomp1.distinct_eager_unstable_simple
-gencomp1.distinct_eager_unstable  [needs tests]
+gencomp1.distinct_eager_unstable
 gencomp1.distinct_eager_unstable_lt_simple
 gencomp1.distinct_eager_unstable_lt_simple_alt
-gencomp1.distinct_eager_unstable_lt  [needs tests]
-gencomp1.distinct_eager_unstable_lt_alt  [needs tests]
+gencomp1.distinct_eager_unstable_lt
 gencomp1.distinct_eager_simple
 gencomp1.distinct_eager
 gencomp1.distinct_eager_good
