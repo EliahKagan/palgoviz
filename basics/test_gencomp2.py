@@ -12,6 +12,28 @@ import gencomp2
 
 
 @pytest.mark.parametrize('implementation', [
+    gencomp2.empty,
+    gencomp2.Empty,
+])
+class TestEmpty:
+    """Tests for the empty function and the Empty class."""
+
+    __slots__ = ()
+
+    def test_is_empty(self, implementation):
+        result = implementation()
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_is_iterator(self, implementation):
+        assert isinstance(implementation(), Iterator)
+
+    def test_iter_gives_same_object(self, implementation):
+        result = implementation()
+        assert iter(result) is result
+
+
+@pytest.mark.parametrize('implementation', [
     itertools.product,  # Included to help test that the tests are correct.
     gencomp2.product_two,
     gencomp2.product_two_alt,
@@ -24,7 +46,7 @@ import gencomp2
 ])
 class TestProductTwo:
     """
-    Shared tests for all Cartesian product functions in gencomp2.
+    Shared tests for all Cartesian product functions and classes in gencomp2.
 
     These tests test only the Cartesian product of two iterables (binary
     Cartesian products), even when the code under test is not restricted to
