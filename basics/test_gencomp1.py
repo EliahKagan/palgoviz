@@ -9,16 +9,20 @@ import sys
 import pytest
 
 import gencomp1
+from testing import CommonIteratorTests
 
 
 @pytest.mark.parametrize('implementation', [
-    enumerate,
+    enumerate,  # Included to help test that the tests are correct.
     gencomp1.my_enumerate,
 ])
-class TestMyEnumerate:
+class TestMyEnumerate(CommonIteratorTests):
     """Tests for the my_enumerate function."""
 
     __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation(['ham', 'spam', 'eggs'])
 
     def test_enumerate_without_start_uses_zero_small(self, implementation):
         """All items are correct, paired with default 0-based indices."""
@@ -45,15 +49,6 @@ class TestMyEnumerate:
         result = implementation(iterable, 3)
         prefix = list(itertools.islice(result, 6))
         assert prefix == [(3, 3), (4, 5), (5, 7), (6, 9), (7, 11), (8, 13)]
-
-    @pytest.mark.parametrize('_label, args', [
-        ('implicit start', [[10, 20, 30]]),
-        ('explicit start', [[10, 20, 30], 5]),
-    ])
-    def test_iter_returns_same_object(self, implementation, _label, args):
-        """Calling iter on the result gives it back."""
-        result = implementation(*args)
-        assert iter(result) is result
 
 
 @pytest.mark.parametrize('implementation', [
@@ -104,7 +99,7 @@ class TestPrintEnumerated:
 
 
 @pytest.mark.parametrize('implementation', [
-    any,
+    any,  # Included to help test that the tests are correct.
     gencomp1.my_any,
 ])
 class TestMyAny:
@@ -155,7 +150,7 @@ class TestMyAny:
 
 
 @pytest.mark.parametrize('implementation', [
-    all,
+    all,  # Included to help test that the tests are correct.
     gencomp1.my_all,
 ])
 class TestMyAll:
@@ -208,14 +203,17 @@ class TestMyAll:
 
 
 @pytest.mark.parametrize('implementation', [
-    zip,
+    zip,  # Included to help test that the tests are correct.
     gencomp1.zip_two,
     gencomp1.my_zip,
 ])
-class TestZipTwo:
+class TestZipTwo(CommonIteratorTests):
     """Shared tests for the zip_two and my_zip functions."""
 
     __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation([10, 20, 30], ['foo', 'bar', 'baz'])
 
     def test_empty_iterables_zip_empty(self, implementation):
         """Zipping empty iterables yields no elements."""
@@ -260,18 +258,9 @@ class TestZipTwo:
         it = implementation(itertools.count(1), [10, 20, 30])
         assert list(it) == [(1, 10), (2, 20), (3, 30)]
 
-    @pytest.mark.parametrize('arg1, arg2', [
-        ([], []),
-        ([10, 20], [30, 40]),
-    ])
-    def test_iter_returns_same_object(self, implementation, arg1, arg2):
-        """Calling iter on the returned iterator returns the same iterator."""
-        it = implementation(arg1, arg2)
-        assert iter(it) is it
-
 
 @pytest.mark.parametrize('implementation', [
-    zip,
+    zip,  # Included to help test that the tests are correct.
     gencomp1.my_zip,
 ])
 class TestMyZip:
@@ -291,21 +280,6 @@ class TestMyZip:
         it = implementation(single_arg)
         with pytest.raises(StopIteration):
             next(it)
-
-    @pytest.mark.parametrize('args', [
-        (),
-        ([10, 20], [30, 40], [50, 60]),
-    ])
-    def test_iter_returns_same_object(self, implementation, args):
-        """
-        Calling iter on the returned iterator returns the same iterator.
-
-        This is like TestZipTwo.test_iter_returns_same_object, but tests that
-        this holds with iterators created to zip numbers of iterables other
-        than two.
-        """
-        it = implementation(*args)
-        assert iter(it) is it
 
 
 class TestPrintZipped:
