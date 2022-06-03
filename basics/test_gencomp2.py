@@ -4,6 +4,7 @@
 
 from collections.abc import Iterator
 import itertools
+import math
 import sys
 
 import pytest
@@ -11,11 +12,33 @@ import pytest
 import gencomp2
 
 
+class _CommonIteratorTests:
+    """Mixin for shared tests of iterators."""
+
+    __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation()
+
+    def test_is_iterator(self, implementation):
+        result = self.instantiate(implementation)
+        assert isinstance(result, Iterator)
+
+    def test_iter_gives_same_object(self, implementation):
+        result = self.instantiate(implementation)
+        assert iter(result) is result
+
+    def test_new_attributes_cannot_be_created(self, implementation):
+        result = self.instantiate(implementation)
+        with pytest.raises(AttributeError):
+            result.blah = 42
+
+
 @pytest.mark.parametrize('implementation', [
     gencomp2.empty,
     gencomp2.Empty,
 ])
-class TestEmpty:
+class TestEmpty(_CommonIteratorTests):
     """Tests for the empty function and the Empty class."""
 
     __slots__ = ()
@@ -24,13 +47,6 @@ class TestEmpty:
         result = implementation()
         with pytest.raises(StopIteration):
             next(result)
-
-    def test_is_iterator(self, implementation):
-        assert isinstance(implementation(), Iterator)
-
-    def test_iter_gives_same_object(self, implementation):
-        result = implementation()
-        assert iter(result) is result
 
 
 @pytest.mark.parametrize('implementation', [
@@ -44,7 +60,7 @@ class TestEmpty:
     gencomp2.my_product_slow,
     gencomp2.my_product_alt,
 ])
-class TestProductTwo:
+class TestProductTwo(_CommonIteratorTests):
     """
     Shared tests for all Cartesian product functions and classes in gencomp2.
 
@@ -56,10 +72,12 @@ class TestProductTwo:
 
     __slots__ = ()
 
+    def instantiate(self, implementation):
+        return implementation([1, 2], [3, 4, 5])
+
     def test_product_of_strings(self, implementation):
         """The Cartesian product of small nonempty strings is computed."""
         result = implementation('hi', 'bye')
-        assert isinstance(result, Iterator)
         assert list(result) == [
             ('h', 'b'), ('h', 'y'), ('h', 'e'),
             ('i', 'b'), ('i', 'y'), ('i', 'e'),
@@ -81,7 +99,6 @@ class TestProductTwo:
         """The Cartesian product of small nonempty generators is computed."""
         result = implementation((x - 1 for x in (1, 2)),
                                 (x + 5 for x in (3, 4)))
-        assert isinstance(result, Iterator)
         assert list(result) == [(0, 8), (0, 9), (1, 8), (1, 9)]
 
 
@@ -102,7 +119,6 @@ class TestProductTwoFlexible:
         materialized.
         """
         result = implementation(itertools.count(), 'abc')
-        assert isinstance(result, Iterator)
         prefix = itertools.islice(result, 7)
         assert list(prefix) == [
             (0, 'a'), (0, 'b'), (0, 'c'),
@@ -119,7 +135,6 @@ class TestProductTwoFlexible:
         not materialized, other arguments are still materialized.
         """
         result = implementation(itertools.count(), (ch for ch in 'abc'))
-        assert isinstance(result, Iterator)
         prefix = itertools.islice(result, 7)
         assert list(prefix) == [
             (0, 'a'), (0, 'b'), (0, 'c'),
@@ -155,7 +170,6 @@ class TestMyProductSlow:
     def test_product_of_sequences(self, implementation):
         """A Cartesian product of several short sequences is computed."""
         result = implementation('ab', 'cde', 'fg', 'hi')
-        assert isinstance(result, Iterator)
         assert list(result) == [
             ('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
             ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
@@ -172,7 +186,6 @@ class TestMyProductSlow:
         A Cartesian product of a mix of sequences and iterators is computed.
         """
         result = implementation(iter('ab'), 'cde', iter('fg'), 'hi')
-        assert isinstance(result, Iterator)
         assert list(result) == [
             ('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
             ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
@@ -190,8 +203,6 @@ class TestMyProductSlow:
         """
         arguments = [(0, 1)] * 90
         result = implementation(*arguments)
-        assert isinstance(result, Iterator)
-
         prefix = itertools.islice(result, 10_000)
         flattened_prefix_sum = sum(map(sum, prefix))
         assert flattened_prefix_sum == 64_608
@@ -213,8 +224,6 @@ class TestMyProduct:
         """
         arguments = [(0, 1)] * 90
         result = implementation(*arguments)
-        assert isinstance(result, Iterator)
-
         prefix = itertools.islice(result, 10_000)
         flattened_prefix_sum = sum(map(sum, prefix))
         assert flattened_prefix_sum == 64_608
@@ -229,7 +238,6 @@ class TestMyProduct:
 ])
 def test_prefix_product(sequences, stop, expected):
     result = gencomp2.prefix_product(sequences, stop)
-    assert isinstance(result, Iterator)
     assert list(result) == expected
 
 
@@ -247,7 +255,7 @@ def test_prefix_product(sequences, stop, expected):
     gencomp2.ascending_countdowns_alt,
     gencomp2.AscendingCountdowns,
 ])
-class TestAscendingCountdowns:
+class TestAscendingCountdowns(_CommonIteratorTests):
     """Tests for ascending_countdowns and ascending_countdowns_alt."""
 
     __slots__ = ()
@@ -255,7 +263,6 @@ class TestAscendingCountdowns:
     def test_first_25_correct(self, implementation):
         """The first 25 elements have the correct values."""
         result = implementation()
-        assert isinstance(result, Iterator)
         assert list(itertools.islice(result, 25)) == [
             0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6,
             5, 4, 3
@@ -264,7 +271,6 @@ class TestAscendingCountdowns:
     def test_first_million_have_correct_sum(self, implementation):
         """The first million elements have the same sum as correct values."""
         result = implementation()
-        assert isinstance(result, Iterator)
         assert sum(itertools.islice(result, 1_000_000)) == 471_108_945
 
 
@@ -304,15 +310,17 @@ class TestThreeSums:
     gencomp2.three_sum_indices_3,
     gencomp2.three_sum_indices_4,
 ])
-class TestThreeSumIndices:
+class TestThreeSumIndices(_CommonIteratorTests):
     """Tests for the four three_sum_indices functions."""
 
     __slots__ = ()
 
+    def instantiate(self, implementation):
+        return implementation([1, 2, 3], [10, 9], [7, 9, 8], 20)
+
     def test_finds_indices_in_small_nontrivial_example(self, implementation):
         """A small example with small tuples and target is solved correctly."""
         result = implementation([1, 2, 3], [10, 9], [7, 9, 8], 20)
-        assert isinstance(result, Iterator)
         assert list(result) == [(0, 0, 1), (1, 0, 2), (2, 0, 0), (2, 1, 2)]
 
     def test_all_equal_values_have_no_eligible_sums(self, implementation):
@@ -321,20 +329,23 @@ class TestThreeSumIndices:
         with pytest.raises(StopIteration):
             next(result)
 
-    def test_when_all_combinations_work_all_are_found(self, implementation):
+    def test_when_all_combinations_work_all_are_found(self, subtests,
+                                                      implementation):
         """When input is "stacked" so all sums win, they are all reported."""
+        expected_length = 6000
+        expected = list(itertools.product(range(10), range(20), range(30)))
+
         a = itertools.repeat(1, 10)
         b = itertools.repeat(2, 20)
         c = itertools.repeat(3, 30)
 
-        result = implementation(a, b, c, 6)
-        assert isinstance(result, Iterator)
+        result = list(implementation(a, b, c, 6))
 
-        listed = list(result)
-        assert len(listed) == 6000, 'The length is correct.'
+        with subtests.test('Check the length'):
+            assert len(result) == expected_length
 
-        expected = list(itertools.product(range(10), range(20), range(30)))
-        assert listed == expected, 'Values are correct and correctly ordered.'
+        with subtests.test('Check the values (and their ordering)'):
+            assert result == expected
 
 
 @pytest.mark.parametrize('implementation', [
@@ -403,44 +414,52 @@ class TestDotProduct:
         assert implementation(w, v) == 0
 
 
-class TestFlatten2:
+# TODO: If there will be no other implementation, maybe remove parametrization.
+@pytest.mark.parametrize('implementation', [
+    gencomp2.flatten2,
+])
+class TestFlatten2(_CommonIteratorTests):
     """Tests for the flatten2 function."""
 
     __slots__ = ()
 
-    def test_mixed_depths_flatten_by_exactly_two(self):
+    def instantiate(self, implementation):
+        iterable = [0, [1, 2], (3, 4, [5, 6, [7]], 8), [9], 10, [{(11,)}]]
+        return implementation(iterable)
+
+    def test_mixed_depths_flatten_by_exactly_two(self, implementation):
         """An nested sequence of assorted depths flattens properly."""
         iterable = [0, [1, 2], (3, 4, [5, 6, [7]], 8), [9], 10, [{(11,)}]]
-        result = gencomp2.flatten2(iterable)
-        assert isinstance(result, Iterator)
+        result = implementation(iterable)
         assert list(result) == [5, 6, [7], (11,)]
 
-    def test_too_shallow_collection_flattens_empty(self):
+    def test_too_shallow_collection_flattens_empty(self, implementation):
         """When there are no sub-sub-elements, nothing is yielded."""
         iterable = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
-        result = gencomp2.flatten2(iterable)
+        result = implementation(iterable)
         with pytest.raises(StopIteration):
             next(result)
 
-    def test_same_depth_str(self):
+    def test_same_depth_str(self, implementation):
         """Flattening a simple nested list of strings gives the characters."""
         iterable = [['foo', 'bar', 'baz'], ['ham', 'spam', 'eggs']]
-        result = gencomp2.flatten2(iterable)
-        assert isinstance(result, Iterator)
+        result = implementation(iterable)
         assert list(result) == list('foobarbazhamspameggs')
 
-    def test_repeated_sequence_in_input_gives_repeated_output(self):
+    def test_repeated_sequence_in_input_gives_repeated_output(self,
+                                                              implementation):
         """If the same sequence is encountered twice, it's processed twice."""
         iterable = ['hi', [range(5)] * 3, 'bye']
-        result = gencomp2.flatten2(iterable)
-        assert isinstance(result, Iterator)
+        result = implementation(iterable)
         assert list(result) == [
             'h', 'i',
             0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4,
             'b', 'y', 'e',
         ]
 
-    def test_repeated_iterator_in_input_does_not_repeat_in_output(self):
+    def test_repeated_iterator_in_input_does_not_repeat_in_output(
+            self,
+            implementation):
         """
         If the same iterator is encountered twice, the first time exhausts it.
 
@@ -448,15 +467,13 @@ class TestFlatten2:
         handle the situation. It is also the intended behavior.
         """
         iterable = ['hi', [iter(range(5))] * 3, 'bye']
-        result = gencomp2.flatten2(iterable)
-        assert isinstance(result, Iterator)
+        result = implementation(iterable)
         assert list(result) == ['h', 'i', 0, 1, 2, 3, 4, 'b', 'y', 'e']
 
-    def test_strings_are_never_too_shallow(self):
+    def test_strings_are_never_too_shallow(self, implementation):
         """Since str is an iterable of str, excess flattening is idempotent."""
         iterable = 'turtles'  # It's turtles all the way down.
-        result = gencomp2.flatten2(iterable)
-        assert isinstance(result, Iterator)
+        result = implementation(iterable)
         assert list(result) == ['t', 'u', 'r', 't', 'l', 'e', 's']
 
 
@@ -920,6 +937,9 @@ class TestMatrixSquareNested:
         assert result == [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
 
 
+# FIXME: Put tests for gencomp2.identity_matrix_alt's helper functions here.
+
+# !!FIXME: When removing implementation bodies in gencomp2.py, remove this too.
 class TestIdentityMatrixAltHelpers:
     """Tests for the _kronecker_delta and _identity_matrix_row functions."""
 
@@ -1182,12 +1202,20 @@ def fixture_all_are_iterators():
     return lambda rows: all(isinstance(row, Iterator) for row in rows)
 
 
-class TestSubmap:
+# TODO: If there will be no other implementation, maybe remove parametrization.
+@pytest.mark.parametrize('implementation', [
+    gencomp2.submap,
+])
+class TestSubmap(_CommonIteratorTests):
     """Tests for the submap function."""
 
     __slots__ = ()
 
-    @pytest.mark.parametrize('rows', [
+    def instantiate(self, implementation):
+        in_rows = [iter(range(10)), (x - 1 for x in (1, 4, 7)), [2, 3]]
+        return implementation(math.sqrt, in_rows)
+
+    @pytest.mark.parametrize('in_rows', [
         [],
         (),
         set(),
@@ -1197,65 +1225,80 @@ class TestSubmap:
         iter(set()),
         iter(range(0)),
     ])
-    def test_empty_iterable_submaps_empty(self, rows):
+    def test_empty_iterable_submaps_empty(self, implementation, in_rows):
         """Sub-mapping an empty iterable gives an empty iterator."""
-        result = gencomp2.submap(len, rows)
+        result = implementation(len, in_rows)
         with pytest.raises(StopIteration):
             next(result)
 
-    def test_iterable_of_heterogeneous_iterables(self, all_are_iterators):
+    def test_iterable_of_heterogeneous_iterables(self,
+                                                 subtests,
+                                                 all_are_iterators,
+                                                 implementation):
         """Sub-mapping an iterable of different iterables maps each of them."""
-        rows = reversed([iter(range(10)), (x - 1 for x in (1, 4, 7)), [2, 3]])
-        result = gencomp2.submap(lambda x: x**2, rows)
-        assert isinstance(result, Iterator)
+        in_rows_reverse = [iter(range(10)), (x - 1 for x in (1, 4, 7)), [2, 3]]
+        in_rows = reversed(in_rows_reverse)
+        expected = [[4, 9], [0, 9, 36], [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]]
 
+        result = implementation(lambda x: x**2, in_rows)
         out_rows = list(result)
-        assert all_are_iterators(out_rows)
 
-        assert [list(out_row) for out_row in out_rows] == [
-            [4, 9],
-            [0, 9, 36],
-            [0, 1, 4, 9, 16, 25, 36, 49, 64, 81],
-        ]
+        with subtests.test('Output rows are iterators'):
+            assert all_are_iterators(out_rows)
 
-    def test_iterable_of_strings(self, all_are_iterators):
+        with subtests.test('Output rows have correct values in correct order'):
+            assert [list(out_row) for out_row in out_rows] == expected
+
+    def test_iterable_of_strings(self, subtests, all_are_iterators,
+                                 implementation):
         """Sub-mapping an iterable of strings maps each string's characters."""
-        rows = ['Ifvsjtujdbmmz', 'Qsphsbnnfe', 'BMhpsjuinjd', 'Dpnqvufs']
-        result = gencomp2.submap(lambda c: chr(ord(c) - 1), rows)
-        assert isinstance(result, Iterator)
+        in_rows = ['Ifvsjtujdbmmz', 'Qsphsbnnfe', 'BMhpsjuinjd', 'Dpnqvufs']
+        expected = ['Heuristically', 'Programmed', 'ALgorithmic', 'Computer']
 
+        result = implementation(lambda c: chr(ord(c) - 1), in_rows)
         out_rows = list(result)
-        assert all_are_iterators(out_rows)
 
-        assert [''.join(out_row) for out_row in out_rows] == [
-            'Heuristically', 'Programmed', 'ALgorithmic', 'Computer'
-        ]
+        with subtests.test('Output rows are iterators'):
+            assert all_are_iterators(out_rows)
 
-    def test_iterable_of_iterable_of_sequence(self):
+        with subtests.test('Output rows have correct values in correct order'):
+            assert [''.join(out_row) for out_row in out_rows] == expected
+
+    def test_iterable_of_iterable_of_sequence(self, subtests, implementation):
         """Sub-mapping a nested nested iterable maps the nested iterable."""
-        rows = (([] for _ in range(1)) for _ in range(1))
-        result = gencomp2.submap(len, rows)
+        in_rows = (([] for _ in range(1)) for _ in range(1))
+
+        result = implementation(len, in_rows)
         out_row = next(result)
         out_row_elem = next(out_row)
 
-        assert out_row_elem == 0
+        with subtests.test('First element of first output row is zero'):
+            assert out_row_elem == 0
 
-        with pytest.raises(StopIteration):
-            next(out_row)
+        with subtests.test('First output row has no second element'):
+            with pytest.raises(StopIteration):
+                next(out_row)
 
-        with pytest.raises(StopIteration):
-            next(result)
+        with subtests.test('There is no second output row'):
+            with pytest.raises(StopIteration):
+                next(result)
 
-    def test_duplicate_iterators_are_consumed(self, all_are_iterators):
+    def test_duplicate_iterators_are_consumed(self,
+                                              subtests,
+                                              all_are_iterators,
+                                              implementation):
         """Sub-mapping an iterable of iterators performs no materialization."""
-        rows = [iter(range(1, 4))] * 2
-        result = gencomp2.submap(lambda x: x, rows)
-        assert isinstance(result, Iterator)
+        in_rows = [iter(range(1, 4))] * 2
+        expected = [[1, 2, 3], []]
 
+        result = implementation(lambda x: x, in_rows)
         out_rows = list(result)
-        assert all_are_iterators(out_rows)
 
-        assert [list(out_row) for out_row in out_rows] == [[1, 2, 3], []]
+        with subtests.test('Output rows are iterators'):
+            assert all_are_iterators(out_rows)
+
+        with subtests.test('Output rows have correct values in correct order'):
+            assert [list(out_row) for out_row in out_rows] == expected
 
 
 if __name__ == '__main__':
