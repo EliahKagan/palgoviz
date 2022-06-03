@@ -41,6 +41,38 @@ def my_enumerate(iterable, start=0):
     return zip(itertools.count(start), iterable)
 
 
+def my_enumerate_alt(iterable, start=0):
+    """
+    Pair up items with indices, without using zip, enumerate, or itertools.
+
+    >>> men = my_enumerate_alt(range(3,10000))
+    >>> next(men)
+    (0, 3)
+    >>> next(men)
+    (1, 4)
+    >>> next(men)
+    (2, 5)
+    >>> next(men)
+    (3, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs']))
+    [(0, 'ham'), (1, 'spam'), (2, 'eggs')]
+    >>> men = my_enumerate_alt(range(3,10000), 3)
+    >>> next(men)
+    (3, 3)
+    >>> next(men)
+    (4, 4)
+    >>> next(men)
+    (5, 5)
+    >>> next(men)
+    (6, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs'], 10))
+    [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
+    """
+    for item in iterable:
+        yield start, item
+        start += 1
+
+
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
     """
     Show the effect of my_enumerate on a sequence of 5, ..., 9 (inclusive).
@@ -1054,7 +1086,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
 
-    This implemetaton is the shortest. It uses distinct_dicts_by_keys (below).
+    This implementation is the shortest. It uses distinct_dicts_by_keys (below).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
