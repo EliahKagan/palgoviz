@@ -15,9 +15,10 @@ from testing import CommonIteratorTests
 @pytest.mark.parametrize('implementation', [
     enumerate,  # Included to help test that the tests are correct.
     gencomp1.my_enumerate,
+    gencomp1.my_enumerate_alt,
 ])
 class TestMyEnumerate(CommonIteratorTests):
-    """Tests for the my_enumerate function."""
+    """Tests for the my_enumerate and my_enumerate_alt functions."""
 
     __slots__ = ()
 
