@@ -317,17 +317,20 @@ class TestTake(CommonIteratorTests):
         return implementation(range(3), 2)
 
     def test_taking_none_from_empty_is_empty(self, implementation):
+        """Taking no items when there are no items yields no items."""
         it = implementation(range(0), 0)
         with pytest.raises(StopIteration):
             next(it)
 
     @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
     def test_taking_some_from_empty_is_empty(self, implementation, n):
+        """Taking some items when there are no items yields no items."""
         it = implementation(range(0), n)
         with pytest.raises(StopIteration):
             next(it)
 
     def test_taking_none_from_nonempty_is_empty(self, implementation):
+        """Taking no items when there are some items yields no items."""
         it = implementation(range(3), 0)
         with pytest.raises(StopIteration):
             next(it)
@@ -339,11 +342,13 @@ class TestTake(CommonIteratorTests):
     ])
     def test_taking_some_from_nonempty_gives_prefix(self, implementation,
                                                     n, expected):
+        """Taking some items when there are some items yields some items."""
         it = implementation(range(3), n)
         assert list(it) == expected
 
     @pytest.mark.parametrize('n', [4, 10, 100, 1_000_000])
     def test_taking_extra_from_nonempty_gives_all(self, implementation, n):
+        """Taking too many items yields the existing items (without error)."""
         it = implementation(range(3), n)
         assert list(it) == [0, 1, 2]
 
@@ -357,11 +362,45 @@ class TestTake(CommonIteratorTests):
     ])
     def test_taking_from_infinite_gives_prefix(self, implementation,
                                                n, expected):
+        """Taking some items from infinitely many items yields some items."""
         iterable = (x**2 for x in itertools.count(2))
         it = implementation(iterable, n)
         assert list(it) == expected
 
-    # FIXME: Implement the rest of these tests (see doctests).
+    def test_float_n_fails_fast(self, implementation):
+        """Passing a float as the number of items raises TypeError."""
+        with pytest.raises(TypeError, match=r"\An must be an int\Z"):
+            implementation(range(5), 1.0)
+
+    def test_negative_n_fails_fast(self, implementation):
+        """Passing a negative int as the number of items raises ValueError."""
+        expected_message = r"\Acan't yield negatively many items\Z"
+        with pytest.raises(ValueError, match=expected_message):
+            implementation(range(5), -1)
+
+    def test_negative_float_fails_fast_as_float(self, implementation):
+        """Passing a negative float as hte number of items raises TypeError."""
+        with pytest.raises(TypeError, match=r"\An must be an int\Z"):
+            implementation(range(5), -1.0)
+
+    @pytest.mark.parametrize('n, expected', [
+        (False, []),
+        (True, ['p']),
+    ])
+    def test_bool_n_is_supported(self, implementation, n, expected):
+        """n is allowed to be a bool, since bool is a subclass of int."""
+        it = implementation('pqr', n)
+        assert list(it) == expected
+
+    def test_input_is_not_overconsumed(self, implementation):
+        """No more than n elements of the input are consumed."""
+        it = (x**2 for x in range(1, 6))
+
+        # Take 2 items from the iterator. Stop with an error if that failed.
+        if list(implementation(it, 2)) != [1, 4]:
+            raise Exception("Can't test overconsumption (first call failed)")
+
+        assert list(it) == [9, 16, 25], "Make sure we didn't consume too much."
 
 
 if __name__ == '__main__':

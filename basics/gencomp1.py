@@ -440,10 +440,7 @@ def drop_good(iterable, n):
     there are no restrictions on what or how it uses things from itertools.
 
     FIXME: If drop_good and drop (below) have similar validation logic, extract
-    it to a module-level nonpublic function called by both. Also, if that code
-    is, or could be, entirely identical to validation code for take_good/take,
-    then neither take_good/take nor drop_good/drop are producing clear enough
-    exception messages.
+    it to a module-level nonpublic function called by both.
 
     >>> list(drop_good(range(5), 0))
     [0, 1, 2, 3, 4]
