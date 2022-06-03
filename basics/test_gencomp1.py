@@ -304,5 +304,65 @@ class TestPrintZipped:
         assert capsys.readouterr().out == expected
 
 
+@pytest.mark.parametrize('implementation', [
+    gencomp1.take_good,
+    gencomp1.take,
+])
+class TestTake(CommonIteratorTests):
+    """Tests for the take_good and take functions."""
+
+    __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation(range(3), 2)
+
+    def test_taking_none_from_empty_is_empty(self, implementation):
+        it = implementation(range(0), 0)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
+    def test_taking_some_from_empty_is_empty(self, implementation, n):
+        it = implementation(range(0), n)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    def test_taking_none_from_nonempty_is_empty(self, implementation):
+        it = implementation(range(3), 0)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    @pytest.mark.parametrize('n, expected', [
+        (1, [0]),
+        (2, [0, 1]),
+        (3, [0, 1, 2]),
+    ])
+    def test_taking_some_from_nonempty_gives_prefix(self, implementation,
+                                                    n, expected):
+        it = implementation(range(3), n)
+        assert list(it) == expected
+
+    @pytest.mark.parametrize('n', [4, 10, 100, 1_000_000])
+    def test_taking_extra_from_nonempty_gives_all(self, implementation, n):
+        it = implementation(range(3), n)
+        assert list(it) == [0, 1, 2]
+
+    @pytest.mark.parametrize('n, expected', [
+        (0, []),
+        (1, [4]),
+        (2, [4, 9]),
+        (3, [4, 9, 16]),
+        (4, [4, 9, 16, 25]),
+        (5, [4, 9, 16, 25, 36]),
+    ])
+    def test_taking_from_infinite_gives_prefix(self, implementation,
+                                               n, expected):
+        iterable = (x**2 for x in itertools.count(2))
+        it = implementation(iterable, n)
+        assert list(it) == expected
+
+    # FIXME: Implement the rest of these tests (see doctests).
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__]))

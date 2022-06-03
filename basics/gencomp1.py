@@ -313,15 +313,72 @@ def print_zipped():
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
 
 
+def _validate_take_n_arg(n):
+    """Raise an appropriate exception if take/take_good should reject n."""
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
+
+
+def take_good(iterable, n):
+    """
+    Yield the first n elements of iterable, or all if there are fewer than n.
+
+    This implementation uses something in itertools to do almost all its work.
+
+    FIXME: If take_good and take (below) have similar validation logic, extract
+    it to a module-level nonpublic function called by both.
+
+    >>> next(take_good(range(3), 0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(take_good(range(3), 1))
+    [0]
+    >>> list(take_good(range(3), 2))
+    [0, 1]
+    >>> list(take_good(range(3), 3))
+    [0, 1, 2]
+    >>> list(take_good(range(3), 4))
+    [0, 1, 2]
+    >>> list(take_good(range(3), 1_000_000))
+    [0, 1, 2]
+    >>> import itertools
+    >>> it = take_good((x**2 for x in itertools.count(2)), 2)
+    >>> next(it)
+    4
+    >>> next(it)
+    9
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> take_good(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> take_good(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many items
+    >>> list(take_good('pqr', True))  # OK, since bool is a subclass of int.
+    ['p']
+    >>> it = (x**2 for x in range(1, 6))
+    >>> list(take_good(it, 2))
+    [1, 4]
+    >>> list(it)  # Make sure we didn't consume too much.
+    [9, 16, 25]
+    """
+    _validate_take_n_arg(n)
+    return itertools.islice(iterable, n)
+
+
 def take(iterable, n):
     """
     Yield the first n elements of iterable, or all if there are fewer than n.
 
-    This behaves like itertools.islice when given no stop or step arguments:
-
-        itertools.islice(iterable, n)
-
-    Please don't call islice in this implementation.
+    Unlike take_good, this implementation does not use anything from itertools.
 
     >>> next(take(range(3), 0))
     Traceback (most recent call last):
@@ -363,25 +420,77 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
+    _validate_take_n_arg(n)
+    return (element for _, element in zip(range(n), iterable))
+
+
+def _validate_drop_n_arg(n):
+    """Raise an appropriate exception if drop/drop_good should reject n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
-
     if n < 0:
-        raise ValueError("can't yield negatively many items")
+        raise ValueError("can't skip negatively many items")
 
-    return (element for _, element in zip(range(n), iterable))
+
+def drop_good(iterable, n):
+    """
+    Skip the first n elements of iterable (or all if fewer). Yield the rest.
+
+    This implementation uses something in itertools to do most of its work, and
+    there are no restrictions on what or how it uses things from itertools.
+
+    FIXME: If drop_good and drop (below) have similar validation logic, extract
+    it to a module-level nonpublic function called by both. Also, if that code
+    is, or could be, entirely identical to validation code for take_good/take,
+    then neither take_good/take nor drop_good/drop are producing clear enough
+    exception messages.
+
+    >>> list(drop_good(range(5), 0))
+    [0, 1, 2, 3, 4]
+    >>> list(drop_good(range(5), 1))
+    [1, 2, 3, 4]
+    >>> list(drop_good(range(5), 2))
+    [2, 3, 4]
+    >>> list(drop_good(range(5), 4))
+    [4]
+    >>> list(drop_good(range(5), 5))
+    []
+    >>> list(drop_good(range(5), 6))
+    []
+    >>> list(drop_good(range(5), 1_000_000))
+    []
+    >>> import itertools
+    >>> it = take(drop_good(itertools.count(1), 1000), 2)
+    >>> next(it)
+    1001
+    >>> next(it)
+    1002
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> drop_good(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> drop_good(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't skip negatively many items
+    >>> list(drop_good('pqr', True))  # OK, since bool is a subclass of int.
+    ['q', 'r']
+    """
+    _validate_drop_n_arg(n)
+    return itertools.islice(iterable, n, None)
 
 
 def drop(iterable, n):
     """
-    Skip the first n elements of iterable (or all if there are fewer).
-    Yield the rest.
+    Skip the first n elements of iterable (or all if fewer). Yield the rest.
 
-    This behaves like itertools.islice with a start of n and a stop of None:
-
-        itertools.islice(iterable, n, None)
-
-    Please don't call islice in this implementation with more than 2 arguments.
+    Unlike drop_good, this implementation may only use up to one function/class
+    from itertools, and if that class is islice, it may not call it with more
+    than two arguments.
 
     >>> list(drop(range(5), 0))
     [0, 1, 2, 3, 4]
@@ -418,11 +527,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-
-    if n < 0:
-        raise ValueError("can't skip negatively many items")
+    _validate_drop_n_arg(n)
 
     def generate():
         it = iter(iterable)
