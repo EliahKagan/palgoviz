@@ -3,6 +3,8 @@ Types that compare in special ways.
 
 The main use for this module (at least currently) is to help in building tests
 for code that sorts or searches, or otherwise makes use of order comparisons.
+
+See testing.py for more general (or miscellaneous) testing support.
 """
 
 import enum
