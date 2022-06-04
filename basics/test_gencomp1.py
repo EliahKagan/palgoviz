@@ -588,7 +588,92 @@ def test_empty_tail_consumes_all_input(_label, iterator_factory):
         next(iterator)
 
 
-# FIXME: Write the TestTailOpt class here.
+class _IterCountingList(list):
+    """A list that counts how many times __iter__ is called on it."""
+
+    __slots__ = ('iter_calls',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.iter_calls = 0
+
+    def __repr__(self):
+        return f'{type(self).__name__}({super().__repr__()})'
+
+    def __iter__(self):
+        self.iter_calls += 1
+        return super().__iter__()
+
+
+class TestTailOpt:
+    """Tests specific to the tail_opt function."""
+
+    __slots__ = ()
+
+    @pytest.mark.parametrize('n', [6, 5, 4])
+    def test_total_suffixes_of_sequence_work_without_iter(self, subtests, n):
+        """Improper suffixes (whole sequence) are found without __iter__."""
+        sequence = _IterCountingList([10, 20, 30, 40])
+        result = gencomp1.tail_opt(sequence, n)
+        with subtests.test('Result should be correct'):
+            assert result == (10, 20, 30, 40)
+        with subtests.test('__iter__ should not be called'):
+            assert sequence.iter_calls == 0
+
+    @pytest.mark.parametrize('n, expected', [
+        (3, (20, 30, 40)),
+        (2, (30, 40)),
+        (1, (40,)),
+        (0, ()),
+    ])
+    def test_partial_suffixes_of_sequence_work_without_iter(self, subtests,
+                                                            n, expected):
+        """Trailing pieces of sequences are found without __iter__."""
+        sequence = _IterCountingList([10, 20, 30, 40])
+        result = gencomp1.tail_opt(sequence, n)
+        with subtests.test('Result should be correct'):
+            assert result == expected
+        with subtests.test('__iter__ should not be called'):
+            assert sequence.iter_calls == 0
+
+    def test_iter_called_once_on_nonsequence(self, subtests):
+        """Finding a suffix of a non-sequence iterable calls __iter__ once."""
+        sequence = _IterCountingList([10, 20, 30, 40])
+        indirect_iterator = itertools.chain(sequence)
+
+        if sequence.iter_calls != 0:
+            raise Exception("itertools.chain shouldn't call __iter__ eagerly")
+
+        result = gencomp1.tail_opt(indirect_iterator, 3)
+
+        with subtests.test('Result should be correct'):
+            assert result == (20, 30, 40)
+
+        with subtests.test('__iter__ should be called once'):
+            assert sequence.iter_calls == 1
+
+    def test_small_suffix_of_huge_sequence_is_computed_quickly(self):
+        """
+        A suffix is found, where it would never manage to finish via __iter__.
+
+        This effectively tests if slicing is used.
+        """
+        result = gencomp1.tail_opt(range(1_000_000_000_000), 5)
+
+        assert result == (999999999995, 999999999996, 999999999997,
+                          999999999998, 999999999999)
+
+    def test_falls_back_to_iter_with_len_but_not_indexing(self):
+        """If the input supports len but indexing/slicing, __iter__ is used."""
+        iterable = dict.fromkeys(range(1000))
+        result = gencomp1.tail_opt(iterable, 3)
+        assert result == (997, 998, 999)
+
+    def test_falls_back_to_iter_with_indexing_but_not_slicing(self):
+        """If the input supports indexing but not slicing, __iter__ is used."""
+        iterable = {'a', 'b', 'c', 'd', 'e'}
+        result = gencomp1.tail_opt(iterable, 128)
+        assert sorted(result) == ['a', 'b', 'c', 'd', 'e']
 
 
 if __name__ == '__main__':
