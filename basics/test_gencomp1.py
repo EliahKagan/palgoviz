@@ -494,5 +494,37 @@ class TestDrop(CommonIteratorTests):
         assert list(it) == expected
 
 
+class TestLast:
+    """Tests for the last function."""
+
+    __slots__ = ()
+
+    def test_empty_iterable_has_no_last_item(self):
+        """On a generator yielding no items, IndexError is raised."""
+        expected_message = "\Acan't get last item from empty iterable\Z"
+        with pytest.raises(IndexError, match=expected_message):
+            gencomp1.last(x for x in ())
+
+    def test_last_of_singleton_iterator_is_the_item(self):
+        """On a generator yielding exactly one item, that item is returned."""
+        result = gencomp1.last(x for x in (10,))
+        assert result == 10
+
+    def test_last_of_sequence_is_item_at_end(self):
+        """On a sequence of several items, the item at index -1 is returned."""
+        result = gencomp1.last(['foo', 'bar', 'baz', 'quux', 'foobar'])
+        assert result == 'foobar'
+
+    def test_last_of_iterator_is_final_item(self):
+        """On an iterator to a fairly big range, the final item is returned."""
+        it = iter(range(100_000))
+        assert gencomp1.last(it) == 99_999
+
+    def test_last_of_nonempty_string_is_ending_character(self):
+        """A nonempty string's length-1 substring at the end is returned."""
+        text = 'I code in all the scary animals in my house including Python'
+        assert gencomp1.last(text) == 'n'
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__]))
