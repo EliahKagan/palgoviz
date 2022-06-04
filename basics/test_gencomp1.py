@@ -378,8 +378,8 @@ class TestTake(CommonIteratorTests):
         with pytest.raises(ValueError, match=expected_message):
             implementation(range(5), -1)
 
-    def test_negative_float_fails_fast_as_float(self, implementation):
-        """Passing a negative float as hte number of items raises TypeError."""
+    def test_negative_float_n_fails_fast_as_float(self, implementation):
+        """Passing a negative float as the number of items raises TypeError."""
         with pytest.raises(TypeError, match=r"\An must be an int\Z"):
             implementation(range(5), -1.0)
 
@@ -401,6 +401,97 @@ class TestTake(CommonIteratorTests):
             raise Exception("Can't test overconsumption (first call failed)")
 
         assert list(it) == [9, 16, 25], "Make sure we didn't consume too much."
+
+
+@pytest.mark.parametrize('implementation', [
+    gencomp1.drop_good,
+    gencomp1.drop,
+])
+class TestDrop(CommonIteratorTests):
+    """Tests for the drop_good and drop functions."""
+
+    __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation(range(5), 2)
+
+    def test_dropping_none_from_empty_is_empty(self, implementation):
+        """Dropping no items when there are no items yields no items."""
+        it = implementation(range(0), 0)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
+    def test_dropping_some_from_empty_is_empty(self, implementation, n):
+        """
+        Dropping some items when there are none yields none (without error).
+        """
+        it = implementation(range(0), n)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    def test_dropping_none_from_nonempty_gives_all(self, implementation):
+        """Dropping no items when there are some items yields all the items."""
+        it = implementation(range(5), 0)
+        assert list(it) == [0, 1, 2, 3, 4]
+
+    @pytest.mark.parametrize('n, expected', [
+        (1, [1, 2, 3, 4]),
+        (2, [2, 3, 4]),
+        (3, [3, 4]),
+        (4, [4]),
+    ])
+    def test_dropping_some_from_nonempty_gives_suffix(self, implementation,
+                                                      n, expected):
+        """Dropping some items when there are some items yields the rest."""
+        it = implementation(range(5), n)
+        assert list(it) == expected
+
+    def test_dropping_all_from_nonempty_is_empty(self, implementation):
+        """Dropping all items when there are some items yields no items."""
+        it = implementation(range(5), 5)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    @pytest.mark.parametrize('n', [6, 7, 15, 100, 1_000_000])
+    def test_dropping_extra_from_nonempty_is_empty(self, implementation, n):
+        """Dropping more than all items yields no items (without error)."""
+        it = implementation(range(5), n)
+        with pytest.raises(StopIteration):
+            next(it)
+
+    def test_dropping_some_from_infinite_gives_rest(self, implementation):
+        """
+        Dropping some items when there are infinitely many yields the rest.
+        """
+        it = implementation(itertools.count(1), 1000)
+        prefix_of_suffix = itertools.islice(it, 6)
+        assert list(prefix_of_suffix) == [1001, 1002, 1003, 1004, 1005, 1006]
+
+    def test_float_n_fails_fast(self, implementation):
+        """Passing a float as the number of items raises TypeError."""
+        with pytest.raises(TypeError, match=r"\An must be an int\Z"):
+            implementation(range(5), 1.0)
+
+    def test_negative_n_fails_fast(self, implementation):
+        """Passing a negative int as the number of items raises ValueError."""
+        expected_message = r"\Acan't skip negatively many items\Z"
+        with pytest.raises(ValueError, match=expected_message):
+            implementation(range(5), -1)
+
+    def test_negative_float_n_fails_fast_as_float(self, implementation):
+        """Passing a negative float as the number of items raises TypeError."""
+        with pytest.raises(TypeError, match=r"\An must be an int\Z"):
+            implementation(range(5), -1.0)
+
+    @pytest.mark.parametrize('n, expected', [
+        (False, ['p', 'q', 'r']),
+        (True, ['q', 'r']),
+    ])
+    def test_bool_n_is_supported(self, implementation, n, expected):
+        """n is allowed to be a bool, since bool is a subclass of int."""
+        it = implementation('pqr', n)
+        assert list(it) == expected
 
 
 if __name__ == '__main__':
