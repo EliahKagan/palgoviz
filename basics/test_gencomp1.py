@@ -501,7 +501,7 @@ class TestLast:
 
     def test_empty_iterable_has_no_last_item(self):
         """On a generator yielding no items, IndexError is raised."""
-        expected_message = "\Acan't get last item from empty iterable\Z"
+        expected_message = r"\Acan't get last item from empty iterable\Z"
         with pytest.raises(IndexError, match=expected_message):
             gencomp1.last(x for x in ())
 
@@ -674,6 +674,37 @@ class TestTailOpt:
         iterable = {'a', 'b', 'c', 'd', 'e'}
         result = gencomp1.tail_opt(iterable, 128)
         assert sorted(result) == ['a', 'b', 'c', 'd', 'e']
+
+
+class TestPick:
+    """Tests for the pick function."""
+
+    __slots__ = ()
+
+    @pytest.mark.parametrize('items', [
+        (),
+        (10,),
+        (10, 20),
+        (10, 20, 30),
+    ])
+    def test_index_after_end_is_error(self, subtests, items):
+        """Passing a too-large int as index value raises IndexError."""
+        expected_message = r'\Aindex out of range\Z'
+        for index in range(len(items), len(items) + 3):
+            with subtests.test(index=index):
+                generator = (x for x in items)
+                with pytest.raises(IndexError, match=expected_message):
+                    gencomp1.pick(generator, index)
+
+    @pytest.mark.parametrize('index', [-1, -2, -10, -100])
+    def test_negative_index_is_error(self, index):
+        """Passing a negative int as index value raises IndexError."""
+        expected_message = r'\Anegative indices are not supported\Z'
+        generator = (x for x in (10,))
+        with pytest.raises(IndexError, match=expected_message):
+            gencomp1.pick(generator, index)
+
+    # FIXME: Write the rest of these gencomp1.pick tests (see doctests).
 
 
 if __name__ == '__main__':
