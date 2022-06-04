@@ -526,5 +526,70 @@ class TestLast:
         assert gencomp1.last(text) == 'n'
 
 
+@pytest.mark.parametrize('implementation', [
+    gencomp1.tail,
+    gencomp1.tail_opt,
+])
+class TestTail:
+    """Shared tests for the tail and tail_opt functions."""
+
+    __slots__ = ()
+
+    def test_empty_suffix_of_empty_is_empty(self, implementation):
+        """No items taken from the end of no items are no items."""
+        assert implementation([], 0) == ()
+
+    @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
+    def test_all_suffixes_of_empty_are_empty(self, implementation, n):
+        """Trying to take some items from the end of no items gets no items."""
+        assert implementation([], n) == ()
+
+    def test_empty_suffix_of_nonempty_is_empty(self, implementation):
+        """No items taken from the end of some items are no items."""
+        iterable = (x**2 for x in range(100))
+        assert implementation(iterable, 0) == ()
+
+    @pytest.mark.parametrize('n, expected', [
+        (1, (9801,)),
+        (2, (9604, 9801)),
+        (3, (9409, 9604, 9801)),
+        (4, (9216, 9409, 9604, 9801)),
+        (5, (9025, 9216, 9409, 9604, 9801)),
+    ])
+    def test_short_suffix_of_long_is_full_short(self, implementation,
+                                                n, expected):
+        """Taking a few items from end of many items gets those few items."""
+        iterable = (x**2 for x in range(100))
+        assert implementation(iterable, n) == expected
+
+
+@pytest.mark.parametrize('_label, iterator_factory', [
+    ('generator, length 100', lambda: (x**2 for x in range(100))),
+    ('range iterator, length 1000', lambda: iter(range(1000))),
+])
+def test_empty_tail_consumes_all_input(_label, iterator_factory):
+    """
+    The tail function always iterates through its input completely.
+
+    Even though, with n=0, this is not needed to give the correct result, it is
+    still done for consistency. This test checks that empty (n=0) case.
+
+    This does not apply to tail_opt, which doesn't otherwise enjoy consistency
+    in whether or not or how much it consumes its input, anyway. The tail_opt
+    function or may or may not iterate through input when n=0.
+    """
+    iterator = iterator_factory()
+    result = gencomp1.tail(iterator, 0)
+
+    if result != ():
+        raise Exception("Can't test if input was consumed, as tail failed")
+
+    with pytest.raises(StopIteration):
+        next(iterator)
+
+
+# FIXME: Write the TestTailOpt class here.
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__]))
