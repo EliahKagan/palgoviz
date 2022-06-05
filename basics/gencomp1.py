@@ -390,7 +390,6 @@ def take_good(iterable, n):
     [0, 1, 2]
     >>> list(take_good(range(3), 1_000_000))
     [0, 1, 2]
-    >>> import itertools
     >>> it = take_good((x**2 for x in itertools.count(2)), 2)
     >>> next(it)
     4
@@ -501,7 +500,6 @@ def drop_good(iterable, n):
     []
     >>> list(drop_good(range(5), 1_000_000))
     []
-    >>> import itertools
     >>> it = take(drop_good(itertools.count(1), 1000), 2)
     >>> next(it)
     1001
