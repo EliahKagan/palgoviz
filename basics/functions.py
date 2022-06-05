@@ -123,7 +123,6 @@ def as_func(iterable):
     10
     >>> f()
     20
-    >>> import itertools
     >>> g = as_func(x**2 for x in itertools.count(2))
     >>> f()
     30
@@ -182,11 +181,10 @@ def as_iterator(func):
     Given a parameterless function, return an iterator that repeatedly calls
     it.
 
-    >>> from itertools import islice
-    >>> it = islice(as_iterator(make_counter_alt()), 2000)
+    >>> it = itertools.islice(as_iterator(make_counter_alt()), 2000)
     >>> list(it) == list(range(2000))
     True
-    >>> list(islice(as_iterator(make_next_fibonacci_alt()), 11))
+    >>> list(itertools.islice(as_iterator(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
     return iter(func, object())
@@ -200,11 +198,10 @@ def as_iterator_alt(func):
     This is an alternative implementation of as_iterator. One implementation
     uses the iter builtin; the other does not.
 
-    >>> from itertools import islice
-    >>> it = islice(as_iterator_alt(make_counter_alt()), 2000)
+    >>> it = itertools.islice(as_iterator_alt(make_counter_alt()), 2000)
     >>> list(it) == list(range(2000))
     True
-    >>> list(islice(as_iterator_alt(make_next_fibonacci_alt()), 11))
+    >>> list(itertools.islice(as_iterator_alt(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
     while True:
