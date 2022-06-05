@@ -2,3 +2,4 @@ gencomp1.my_any_alt
 gencomp1.my_all_alt
 gencomp1.take_good
 gencomp1.drop_good
+gencomp1.windowed_alt

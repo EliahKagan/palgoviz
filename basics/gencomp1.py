@@ -10,6 +10,8 @@ import collections
 import contextlib
 import itertools
 
+import more_itertools
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -732,6 +734,36 @@ def windowed(iterable, n):
     for element in it:
         queue.append(element)
         yield tuple(queue)
+
+
+def windowed_alt(iterable, n):
+    """
+    Yield all width-n contiguous subsequences of iterable, in order, as tuples.
+
+    This alternative implementation is much shorter than windowed (above),
+    because this uses something from the more-itertools library.
+
+    >>> scap = str.capitalize  # To keep the following lines under 80 columns.
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+    return more_itertools.sliding_window(iterable, n)
 
 
 def map_one(func, iterable):

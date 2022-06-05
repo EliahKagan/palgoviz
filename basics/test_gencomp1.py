@@ -743,5 +743,85 @@ class TestPick:
         assert gencomp1.pick(iterator, index) == expected
 
 
+@pytest.mark.parametrize('implementation', [
+    gencomp1.windowed,
+    gencomp1.windowed_alt,
+])
+class TestWindowed(CommonIteratorTests):
+    """Tests for the windowed and windowed_alt functions."""
+
+    __slots__ = ()
+
+    def instantiate(self, implementation):
+        input_it = map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk'])
+        return implementation(input_it, 3)
+
+    def test_empty_input_has_one_empty_window(self, implementation):
+        """With no items, there is one window containing no items."""
+        result = implementation((), 0)
+        assert list(result) == [()]
+
+    @pytest.mark.parametrize('n', [1, 2, 10, 100])
+    def test_empty_input_has_no_nonempty_windows(self, implementation, n):
+        """With no items, there are no windows containing any items."""
+        result = implementation((), n)
+        with pytest.raises(StopIteration):
+            next(result)
+
+    @pytest.mark.parametrize('n, expected', [
+        (0, [(), (), (), (), (), ()]),
+        (1, [('ab',), ('cd',), ('efg',), ('hi',), ('jk',)]),
+        (2, [('ab', 'cd'), ('cd', 'efg'), ('efg', 'hi'), ('hi', 'jk')]),
+        (3, [('ab', 'cd', 'efg'), ('cd', 'efg', 'hi'), ('efg', 'hi', 'jk')]),
+        (4, [('ab', 'cd', 'efg', 'hi'), ('cd', 'efg', 'hi', 'jk')]),
+        (5, [('ab', 'cd', 'efg', 'hi', 'jk')]),
+        (6, []),
+        (7, []),
+        (100, []),
+        (1_000_000, []),
+    ])
+    def test_small_nontrivial_sequence_has_all_windows(self, implementation,
+                                                       n, expected):
+        """All windows of any size are found in a small nontrivial sequence."""
+        sequence = ['ab', 'cd', 'efg', 'hi', 'jk']
+        result = implementation(sequence, n)
+        assert list(result) == expected
+
+    @pytest.mark.parametrize('n, expected', [
+        (0, [(), (), (), (), (), ()]),
+        (1, [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]),
+        (2, [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]),
+        (3, [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]),
+        (4, [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]),
+        (5, [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]),
+        (6, []),
+        (7, []),
+        (100, []),
+        (1_000_000, []),
+    ])
+    def test_small_nontrivial_iterator_has_all_windows(self, implementation,
+                                                       n, expected):
+        """All windows of any size are found in a small nontrivial iterator."""
+        iterator = map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk'])
+        result = implementation(iterator, n)
+        assert list(result) == expected
+
+    def test_huge_sequence_windows_are_yielded_lazily(self, implementation):
+        """On a very big input sequence, the first few windows can be got."""
+        sequence = range(1_000_000_000_000)
+        expected = [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6)]
+        result = implementation(sequence, 3)
+        prefix = itertools.islice(result, 5)
+        assert list(prefix) == expected
+
+    def test_huge_iterator_windows_are_yielded_lazily(self, implementation):
+        """On a very big input iterator, the first few windows can be got."""
+        iterator = iter(range(1_000_000_000_000))
+        expected = [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6)]
+        result = implementation(iterator, 3)
+        prefix = itertools.islice(result, 5)
+        assert list(prefix) == expected
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__]))
