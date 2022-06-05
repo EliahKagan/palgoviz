@@ -4,3 +4,8 @@ gencomp2.product_two_flexible
 gencomp2.pairs
 gencomp2.my_cycle
 gencomp2.my_chain
+
+gencomp1.my_any_alt
+gencomp1.my_all_alt
+gencomp1.take_good
+gencomp1.drop_good

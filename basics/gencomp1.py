@@ -137,6 +137,26 @@ def my_any(iterable):
     return next((True for element in iterable if element), False)
 
 
+def my_any_alt(iterable):
+    """
+    Test if any element of an iterable is truthy, using no comprehensions.
+
+    >>> my_any_alt([])
+    False
+    >>> my_any_alt([17, 4, 9, 0, 3, 5, 0])
+    True
+    >>> my_any_alt(x % 17 == 0 for x in range(100))
+    True
+    >>> my_any_alt(x > 100 for x in range(100))
+    False
+    """
+    for element in iterable:
+        if element:
+            return True
+
+    return False
+
+
 def my_all(iterable):
     """
     Tell if all elements of an iterable are truthy.
@@ -157,6 +177,32 @@ def my_all(iterable):
     True
     """
     return next((False for element in iterable if not element), True)
+
+
+def my_all_alt(iterable):
+    """
+    Test if all elements of an iterable are truthy, using no comprehensions.
+
+    >>> my_all_alt([])
+    True
+    >>> my_all_alt([17, 4, 9, 0, 3, 5, 0])
+    False
+    >>> my_all_alt(x % 17 == 0 for x in range(100))
+    False
+    >>> my_all_alt(x > 100 for x in range(100))
+    False
+    >>> my_all_alt(x % 17 == 0 for x in range(0, 100, 17))
+    True
+    >>> my_all_alt([1])
+    True
+    >>> my_all_alt([1, 1, 1, 6, 7])
+    True
+    """
+    for element in iterable:
+        if not element:
+            return False
+
+    return True
 
 
 def zip_two(first, second):

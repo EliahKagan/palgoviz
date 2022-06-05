@@ -102,6 +102,7 @@ class TestPrintEnumerated:
 @pytest.mark.parametrize('implementation', [
     any,  # Included to help test that the tests are correct.
     gencomp1.my_any,
+    gencomp1.my_any_alt,
 ])
 class TestMyAny:
     """Tests for the my_any function."""
@@ -153,6 +154,7 @@ class TestMyAny:
 @pytest.mark.parametrize('implementation', [
     all,  # Included to help test that the tests are correct.
     gencomp1.my_all,
+    gencomp1.my_all_alt,
 ])
 class TestMyAll:
     """Tests for the my_all function."""
