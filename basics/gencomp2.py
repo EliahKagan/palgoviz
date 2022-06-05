@@ -489,10 +489,9 @@ def ascending_countdowns():
 
     This implementation returns a generator expression.
 
-    >>> from itertools import islice
-    >>> list(islice(ascending_countdowns(), 25))
+    >>> list(itertools.islice(ascending_countdowns(), 25))
     [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
-    >>> sum(islice(ascending_countdowns(), 1_000_000))
+    >>> sum(itertools.islice(ascending_countdowns(), 1_000_000))
     471108945
     """
     return (y for x in itertools.count() for y in range(x, -1, -1))
@@ -505,10 +504,9 @@ def ascending_countdowns_alt():
     This is like ascending_countdowns above, but implemented as a generator
     function.
 
-    >>> from itertools import islice
-    >>> list(islice(ascending_countdowns_alt(), 25))
+    >>> list(itertools.islice(ascending_countdowns_alt(), 25))
     [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
-    >>> sum(islice(ascending_countdowns_alt(), 1_000_000))
+    >>> sum(itertools.islice(ascending_countdowns_alt(), 1_000_000))
     471108945
     """
     for x in itertools.count():
@@ -522,13 +520,12 @@ class AscendingCountdowns:
     This is like ascending_countdowns and ascending_countdowns_alt, but
     implemented as a class.
 
-    >>> from itertools import islice
     >>> it = AscendingCountdowns()
     >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
     True
-    >>> list(islice(it, 25))
+    >>> list(itertools.islice(it, 25))
     [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
-    >>> sum(islice(AscendingCountdowns(), 1_000_000))
+    >>> sum(itertools.islice(AscendingCountdowns(), 1_000_000))
     471108945
     """
 
