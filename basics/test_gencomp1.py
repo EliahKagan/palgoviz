@@ -704,7 +704,41 @@ class TestPick:
         with pytest.raises(IndexError, match=expected_message):
             gencomp1.pick(generator, index)
 
-    # FIXME: Write the rest of these gencomp1.pick tests (see doctests).
+    @pytest.mark.parametrize('items', [
+        (10,),
+        (10, 20),
+        (10, 20, 30),
+    ])
+    def test_index_zero_is_first_item(self, items):
+        """Passing an index of zero gets the first item."""
+        generator = (x for x in items)
+        assert gencomp1.pick(generator, 0) == 10
+
+    @pytest.mark.parametrize('index, expected', [
+        (1, 3),
+        (2, 5),
+        (15, 31),
+        (100, 201),
+        (1017, 2035),
+        (4422, 8845),
+    ])
+    def test_indexing_into_sequence_gets_value(self, index, expected):
+        """Accessing the k index of a sequence seq agrees with seq[k]."""
+        sequence = range(1, 10_000, 2)
+        assert gencomp1.pick(sequence, index) == expected
+
+    @pytest.mark.parametrize('index, expected', [
+        (1, 3),
+        (2, 5),
+        (15, 31),
+        (100, 201),
+        (1017, 2035),
+        (4422, 8845),
+    ])
+    def test_indexing_into_iterator_gets_value(self, index, expected):
+        """Accessing the k index of an iterator skips k items and gets next."""
+        iterator = iter(range(1, 10_000, 2))
+        assert gencomp1.pick(iterator, index) == expected
 
 
 if __name__ == '__main__':
