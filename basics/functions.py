@@ -204,9 +204,8 @@ class CallableIterator:
     >>> list(it) == list(range(2000))
     True
 
-    >>> from itertools import islice
     >>> it = CallableIterator(make_next_fibonacci_alt(), 89)
-    >>> list(islice(it, 10))
+    >>> list(itertools.islice(it, 10))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
     >>> next(it)
     55

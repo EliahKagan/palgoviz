@@ -327,13 +327,12 @@ class AscendingCountdowns:
     This is like ascending_countdowns and ascending_countdowns_alt, but
     implemented as a class.
 
-    >>> from itertools import islice
     >>> it = AscendingCountdowns()
     >>> iter(it) is it  # Make sure we have the usual __iter__ for iterators.
     True
-    >>> list(islice(it, 25))
+    >>> list(itertools.islice(it, 25))
     [0, 1, 0, 2, 1, 0, 3, 2, 1, 0, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3]
-    >>> sum(islice(AscendingCountdowns(), 1_000_000))
+    >>> sum(itertools.islice(AscendingCountdowns(), 1_000_000))
     471108945
     """
 
