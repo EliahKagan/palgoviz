@@ -273,9 +273,8 @@ def my_product(*iterables):
     (3) itertools.product has another speed advantage due to using a different
         algorithm that performs less copying to build up the tuples it yields.
 
-    >>> from pprint import pprint
-    >>> pprint(list(my_product('ab', 'cde', 'fg', 'hi')),
-    ...        compact=True)
+    >>> from pprint import pprint as pp
+    >>> pp(list(my_product('ab', 'cde', 'fg', 'hi')), compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
      ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
@@ -284,8 +283,7 @@ def my_product(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> pprint(list(my_product(iter('ab'), 'cde', iter('fg'), 'hi')),
-    ...        compact=True)
+    >>> pp(list(my_product(iter('ab'), 'cde', iter('fg'), 'hi')), compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
      ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
@@ -294,8 +292,7 @@ def my_product(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> from itertools import islice
-    >>> sum(map(sum, islice(my_product(*([(0, 1)] * 900)), 10_000)))
+    >>> sum(map(sum, itertools.islice(my_product(*([(0, 1)] * 900)), 10_000)))
     64608
     """
     sequences = tuple(tuple(iterable) for iterable in iterables)
@@ -310,9 +307,8 @@ def my_product_slow(*iterables):
     not used by my_product. So this is (usually) slower. Like my_product, this
     calls only prefix_product or suffix_product (not both), and maybe builtins.
 
-    >>> from pprint import pprint
-    >>> pprint(list(my_product_slow('ab', 'cde', 'fg', 'hi')),
-    ...        compact=True)
+    >>> from pprint import pprint as pp
+    >>> pp(list(my_product_slow('ab', 'cde', 'fg', 'hi')), compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
      ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
@@ -321,8 +317,8 @@ def my_product_slow(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> pprint(list(my_product_slow(iter('ab'), 'cde', iter('fg'), 'hi')),
-    ...        compact=True)
+    >>> it2 = my_product_slow(iter('ab'), 'cde', iter('fg'), 'hi')
+    >>> pp(list(it2), compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
      ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
@@ -331,8 +327,8 @@ def my_product_slow(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> from itertools import islice
-    >>> sum(map(sum, islice(my_product_slow(*([(0, 1)] * 90)), 10_000)))
+    >>> it3 = my_product_slow(*([(0, 1)] * 90))
+    >>> sum(map(sum, itertools.islice(it3, 10_000)))
     64608
     """
     sequences = tuple(tuple(iterable) for iterable in iterables)
@@ -358,9 +354,8 @@ def my_product_alt(*iterables):
 
     This maintains a single list, used as a stack, but may also use recursion.
 
-    >>> from pprint import pprint
-    >>> pprint(list(my_product_alt('ab', 'cde', 'fg', 'hi')),
-    ...        compact=True)
+    >>> from pprint import pprint as pp
+    >>> pp(list(my_product_alt('ab', 'cde', 'fg', 'hi')), compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
      ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
@@ -369,8 +364,8 @@ def my_product_alt(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> pprint(list(my_product_alt(iter('ab'), 'cde', iter('fg'), 'hi')),
-    ...        compact=True)
+    >>> it2 = my_product_alt(iter('ab'), 'cde', iter('fg'), 'hi')
+    >>> pp(list(it2), compact=True)
     [('a', 'c', 'f', 'h'), ('a', 'c', 'f', 'i'), ('a', 'c', 'g', 'h'),
      ('a', 'c', 'g', 'i'), ('a', 'd', 'f', 'h'), ('a', 'd', 'f', 'i'),
      ('a', 'd', 'g', 'h'), ('a', 'd', 'g', 'i'), ('a', 'e', 'f', 'h'),
@@ -379,8 +374,8 @@ def my_product_alt(*iterables):
      ('b', 'c', 'g', 'i'), ('b', 'd', 'f', 'h'), ('b', 'd', 'f', 'i'),
      ('b', 'd', 'g', 'h'), ('b', 'd', 'g', 'i'), ('b', 'e', 'f', 'h'),
      ('b', 'e', 'f', 'i'), ('b', 'e', 'g', 'h'), ('b', 'e', 'g', 'i')]
-    >>> from itertools import islice
-    >>> sum(map(sum, islice(my_product_alt(*([(0, 1)] * 900)), 10_000)))
+    >>> it3 = my_product_alt(*([(0, 1)] * 900))
+    >>> sum(map(sum, itertools.islice(it3, 10_000)))
     64608
     """
     sequences = tuple(tuple(iterable) for iterable in iterables)
