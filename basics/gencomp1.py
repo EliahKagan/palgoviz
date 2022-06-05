@@ -335,7 +335,6 @@ def take(iterable, n):
     [0, 1, 2]
     >>> list(take(range(3), 1_000_000))
     [0, 1, 2]
-    >>> import itertools
     >>> it = take((x**2 for x in itertools.count(2)), 2)
     >>> next(it)
     4
@@ -395,7 +394,6 @@ def drop(iterable, n):
     []
     >>> list(drop(range(5), 1_000_000))
     []
-    >>> import itertools
     >>> it = take(drop(itertools.count(1), 1000), 2)
     >>> next(it)
     1001
@@ -501,8 +499,7 @@ def tail_opt(iterable, n):
     True
     >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
     ((20, 30, 40), (30, 40), (40,), ())
-    >>> from itertools import chain
-    >>> it = chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> it = itertools.chain(a)  # "Chain" a by itself, but don't call iter yet.
     >>> tail_opt(it, 3)
     Iterating.
     (20, 30, 40)
@@ -573,8 +570,7 @@ def windowed(iterable, n):
     []
     >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
     []
-    >>> from itertools import islice
-    >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
+    >>> list(itertools.islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
     it = iter(iterable)
