@@ -823,5 +823,83 @@ class TestWindowed(CommonIteratorTests):
         assert list(prefix) == expected
 
 
+@pytest.mark.parametrize('implementation', [
+    gencomp1.map_one,
+    gencomp1.map_one_alt,
+])
+class TestMapOne(CommonIteratorTests):
+    """Tests for the map_one and map_one_alt functions."""
+
+    __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation(str.capitalize, ['foo', 'bar', 'baz', 'quux'])
+
+    def test_empty_sequence_maps_empty(self, implementation):
+        """Mapping a sequence of no items gives no items."""
+        result = implementation(lambda x: x**2, range(0))
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_empty_iterator_maps_empty(self, implementation):
+        """Mapping a generator of no items gives no items."""
+        result = implementation(lambda x: x + 1, (x**2 for x in range(0)))
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_sequence_maps_via_python_function_1(self, implementation):
+        """Mapping a range via a Python function (lambda) works."""
+        result = implementation(lambda x: x**2, range(1, 11))
+        assert list(result) == [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+
+    def test_iterator_maps_via_python_function_1(self, implementation):
+        """Mapping a range iterator via a Python function (lambda) works."""
+        result = implementation(lambda x: x**2, iter(range(1, 11)))
+        assert list(result) == [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+
+    def test_sequence_maps_via_python_function_2(self, implementation):
+        """Mapping a list via a Python function (lambda) works."""
+        result = implementation(lambda x: x + 1, [x**2 for x in range(1, 6)])
+        assert list(result) == [2, 5, 10, 17, 26]
+
+    def test_iterator_maps_via_python_function_2(self, implementation):
+        """Mapping a generator via a Python function (lambda) works."""
+        result = implementation(lambda x: x + 1, (x**2 for x in range(1, 6)))
+        assert list(result) == [2, 5, 10, 17, 26]
+
+    def test_sequence_maps_via_builtin_function(self, implementation):
+        """Mapping a list via a top-level builtin function works."""
+        result = implementation(len, ['foobar', (10, 20), range(1000)])
+        assert list(result) == [6, 2, 1000]
+
+    def test_iterator_maps_via_builtin_function(self, implementation):
+        """Mapping a list iterator vai a top-level builtin function works."""
+        result = implementation(len, iter(['foobar', (10, 20), range(1000)]))
+        assert list(result) == [6, 2, 1000]
+
+    def test_sequence_maps_via_builtin_method(self, implementation):
+        """Mapping a list via a method on a builtin type works."""
+        result = implementation(str.capitalize, ['foo', 'bar', 'baz', 'quux'])
+        assert list(result) == ['Foo', 'Bar', 'Baz', 'Quux']
+
+    def test_iterator_maps_via_builtin_method(self, implementation):
+        """Mapping a list iterator via a method on a builtin type works."""
+        iterator = iter(['foo', 'bar', 'baz', 'quux'])
+        result = implementation(str.capitalize, iterator)
+        assert list(result) == ['Foo', 'Bar', 'Baz', 'Quux']
+
+    def test_infinite_iterator_maps_lazily(self, implementation):
+        """We can get a prefix from mapping an infinite iterator."""
+        expected = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2]
+        result = implementation(int.bit_count, itertools.count())
+        prefix = itertools.islice(result, 18)
+        assert list(prefix) == expected
+
+    def test_func_must_be_callable_not_none(self, implementation):
+        """None isn't treated as an identity function (unlike filter)."""
+        with pytest.raises(TypeError):
+            list(implementation(None, [0]))
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__]))
