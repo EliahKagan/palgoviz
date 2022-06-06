@@ -4,6 +4,7 @@
 
 from fractions import Fraction
 import itertools
+import operator
 import sys
 
 import pytest
@@ -889,7 +890,7 @@ class TestMapOne(CommonIteratorTests):
         assert list(result) == ['Foo', 'Bar', 'Baz', 'Quux']
 
     def test_infinite_iterator_maps_lazily(self, implementation):
-        """We can get a prefix from mapping an infinite iterator."""
+        """We can get a prefix, mapping an infinite iterator."""
         expected = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2]
         result = implementation(int.bit_count, itertools.count())
         prefix = itertools.islice(result, 18)
@@ -899,6 +900,81 @@ class TestMapOne(CommonIteratorTests):
         """None isn't treated as an identity function (unlike filter)."""
         with pytest.raises(TypeError):
             list(implementation(None, [0]))
+
+
+@pytest.mark.parametrize('implementation', [
+    gencomp1.my_filter,
+    gencomp1.my_filter_alt,
+])
+class TestMyFilter(CommonIteratorTests):
+    """Tests for the my_filter and my_filter_alt functions."""
+
+    __slots__ = ()
+
+    def instantiate(self, implementation):
+        return implementation(operator.not_, [0, 1, 2, 0, 2, 0, 0, 1])
+
+    def test_none_satisfying_is_empty_from_sequence(self, implementation):
+        """When no items satisfy the predicate, the result is empty."""
+        numbers = (0, 1, 2)
+        result = implementation(lambda n: n < 0, numbers)
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_none_satisfying_is_empty_from_iterator(self, implementation):
+        """When no items satisfy the predicate, the result is empty."""
+        numbers = iter((0, 1, 2))
+        result = implementation(lambda n: n < 0, numbers)
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_some_satisfying_gives_those_from_sequence(self, implementation):
+        """When only some satisfy the predicate, those are the result."""
+        words = ['ham', 'spam', 'foo', 'eggs']
+        result = implementation(lambda x: len(x) == 3, words)
+        assert list(result) == ['ham', 'foo']
+
+    def test_some_satisfying_gives_those_from_iterator(self, implementation):
+        """When only some satisfy the predicate, those are the result."""
+        words = iter(['ham', 'spam', 'foo', 'eggs'])
+        result = implementation(lambda x: len(x) == 3, words)
+        assert list(result) == ['ham', 'foo']
+
+    def test_none_predicate_filters_truthy_from_sequence(self, implementation):
+        """A predicate of None checks the items themselves."""
+        mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+        suffixes = [seq[1:] for seq in mixed]
+        result = implementation(None, suffixes)
+        assert list(result) == ['y', (2, 3)]
+
+    def test_none_predicate_filters_truthy_from_iterator(self, implementation):
+        """A predicate of None checks the items themselves."""
+        mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+        suffixes = (seq[1:] for seq in mixed)
+        result = implementation(None, suffixes)
+        assert list(result) == ['y', (2, 3)]
+
+    def test_none_predicate_filters_truthy_even_if_all_from_sequence(
+            self,
+            implementation):
+        """A predicate of None lets everything through if none are falsy."""
+        words = ['hello', 'glorious', 'world']
+        result = implementation(None, words)
+        assert list(result) == ['hello', 'glorious', 'world']
+
+    def test_none_predicate_filters_truthy_even_if_all_from_iterator(
+            self,
+            implementation):
+        """A predicate of None lets everything through if none are falsy."""
+        words = iter(['hello', 'glorious', 'world'])
+        result = implementation(None, words)
+        assert list(result) == ['hello', 'glorious', 'world']
+
+    def test_infinite_iterator_filters_lazily(self, implementation):
+        """We can get a prefix, filtering a some-truthy infinite iterator."""
+        result = implementation(lambda k: k % 2, itertools.count())
+        prefix = itertools.islice(result, 13)
+        assert list(prefix) == [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
 
 
 if __name__ == '__main__':
