@@ -883,7 +883,7 @@ def length_of(iterable):
     0
     >>> length_of(x for x in ['ham', 'spam', 'foo', 'eggs', ''] if len(x) == 3)
     2
-    >>> length_of(set(object() for _ in range(100_000)))
+    >>> length_of({object() for _ in range(100_000)})
     100000
     """
     return sum(1 for _ in iterable)
@@ -905,7 +905,7 @@ def length_of_opt(iterable):
     0
     >>> length_of_opt(x for x in ['ham', 'sp', 'foo', 'eg', ''] if len(x) == 3)
     2
-    >>> length_of_opt(set(object() for _ in range(100_000)))
+    >>> length_of_opt({object() for _ in range(100_000)})
     100000
     >>> length_of_opt(range(2_000_000_000))
     2000000000

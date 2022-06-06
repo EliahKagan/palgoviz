@@ -13,6 +13,47 @@ import gencomp1
 from testing import CommonIteratorTests
 
 
+class _IterCountingMixin:
+    """
+    A mixin for making classes that count calls to their __iter__ method.
+
+    List this immediately before an iterable base class, when inheriting.
+    """
+
+    iter_calls = 0
+
+    def __repr__(self):
+        return f'{type(self).__name__}({super().__repr__()})'
+
+    def __iter__(self):
+        self.iter_calls += 1
+        return super().__iter__()
+
+
+class _IterCountingList(_IterCountingMixin, list):
+    """
+    A list that counts how many times __iter__ is called on it.
+
+    This is used in the TestTailOpt and TestLengthOfOpt test classes (below).
+    """
+
+
+class _IterCountingSet(_IterCountingMixin, set):
+    """
+    A set that counts how many times __iter__ is called on it.
+
+    This is used in the TestLengthOfOpt test class (below).
+    """
+
+
+class _IterCountingDict(_IterCountingMixin, dict):
+    """
+    A dict that counts how many times __iter__ is called on it.
+
+    This is used in the TestLengthOfOpt test class (below).
+    """
+
+
 @pytest.mark.parametrize('implementation', [
     enumerate,  # Included to help test that the tests are correct.
     gencomp1.my_enumerate,
@@ -538,19 +579,33 @@ class TestTail:
 
     __slots__ = ()
 
-    def test_empty_suffix_of_empty_is_empty(self, implementation):
+    def test_empty_suffix_of_empty_sequence_is_empty(self, implementation):
         """No items taken from the end of no items are no items."""
         assert implementation([], 0) == ()
 
+    def test_empty_suffix_of_empty_iterator_is_empty(self, implementation):
+        """No items taken from the end of no items are no items."""
+        assert implementation(iter([]), 0) == ()
+
     @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
-    def test_all_suffixes_of_empty_are_empty(self, implementation, n):
+    def test_all_suffixes_of_empty_sequence_are_empty(self, implementation, n):
         """Trying to take some items from the end of no items gets no items."""
         assert implementation([], n) == ()
 
-    def test_empty_suffix_of_nonempty_is_empty(self, implementation):
+    @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
+    def test_all_suffixes_of_empty_iterator_are_empty(self, implementation, n):
+        """Trying to take some items from the end of no items gets no items."""
+        assert implementation(iter([]), n) == ()
+
+    def test_empty_suffix_of_nonempty_sequence_is_empty(self, implementation):
         """No items taken from the end of some items are no items."""
-        iterable = (x**2 for x in range(100))
-        assert implementation(iterable, 0) == ()
+        sequence = [x**2 for x in range(100)]
+        assert implementation(sequence, 0) == ()
+
+    def test_empty_suffix_of_nonempty_iterator_is_empty(self, implementation):
+        """No items taken from the end of some items are no items."""
+        iterator = (x**2 for x in range(100))
+        assert implementation(iterator, 0) == ()
 
     @pytest.mark.parametrize('n, expected', [
         (1, (9801,)),
@@ -559,11 +614,24 @@ class TestTail:
         (4, (9216, 9409, 9604, 9801)),
         (5, (9025, 9216, 9409, 9604, 9801)),
     ])
-    def test_short_suffix_of_long_is_full_short(self, implementation,
-                                                n, expected):
+    def test_short_suffix_of_long_sequence_is_full_short(self, implementation,
+                                                         n, expected):
         """Taking a few items from end of many items gets those few items."""
-        iterable = (x**2 for x in range(100))
-        assert implementation(iterable, n) == expected
+        sequence = [x**2 for x in range(100)]
+        assert implementation(sequence, n) == expected
+
+    @pytest.mark.parametrize('n, expected', [
+        (1, (9801,)),
+        (2, (9604, 9801)),
+        (3, (9409, 9604, 9801)),
+        (4, (9216, 9409, 9604, 9801)),
+        (5, (9025, 9216, 9409, 9604, 9801)),
+    ])
+    def test_short_suffix_of_long_iterator_is_full_short(self, implementation,
+                                                         n, expected):
+        """Taking a few items from end of many items gets those few items."""
+        iterator = (x**2 for x in range(100))
+        assert implementation(iterator, n) == expected
 
 
 @pytest.mark.parametrize('_label, iterator_factory', [
@@ -589,23 +657,6 @@ def test_empty_tail_consumes_all_input(_label, iterator_factory):
 
     with pytest.raises(StopIteration):
         next(iterator)
-
-
-class _IterCountingList(list):
-    """A list that counts how many times __iter__ is called on it."""
-
-    __slots__ = ('iter_calls',)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.iter_calls = 0
-
-    def __repr__(self):
-        return f'{type(self).__name__}({super().__repr__()})'
-
-    def __iter__(self):
-        self.iter_calls += 1
-        return super().__iter__()
 
 
 class TestTailOpt:
@@ -975,6 +1026,184 @@ class TestMyFilter(CommonIteratorTests):
         result = implementation(lambda k: k % 2, itertools.count())
         prefix = itertools.islice(result, 13)
         assert list(prefix) == [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+
+
+@pytest.mark.parametrize('implementation', [
+    gencomp1.length_of,
+    gencomp1.length_of_opt,
+])
+class TestLengthOf:
+    """Tests for the length_of and length_of_opt functions."""
+
+    __slots__ = ()
+
+    def test_empty_sequence_has_length_zero(self, implementation):
+        """The length of a zero-element tuple is zero."""
+        assert implementation(()) == 0
+
+    def test_empty_iterator_has_length_zero(self, implementation):
+        """The length of a zero-element generator is zero."""
+        assert implementation(x for x in ()) == 0
+
+    def test_short_sequence_has_its_length(self, implementation):
+        """
+        The length of a list of two items is 2.
+
+        The strangely complicated way this input is produced is for contrast to
+        test_short_generator_has_its_length (below), where I think a generator
+        expression with an "if" clause is helpfully illustrative.
+        """
+        strings = ['ham', 'spam', 'foo', 'eggs', '']
+        sequence = [s for s in strings if len(s) == 3]
+        assert implementation(sequence) == 2
+
+    def test_short_iterator_has_its_length(self, implementation):
+        """The length of a generator of two items is 2."""
+        strings = ['ham', 'spam', 'foo', 'eggs', '']
+        iterator = (s for s in strings if len(s) == 3)
+        assert implementation(iterator) == 2
+
+    def test_moderately_long_sequence_has_its_length(self, implementation):
+        """The length of a 1000-element range is 1000."""
+        assert implementation(range(1000)) == 1000
+
+    def test_moderately_long_iterator_has_its_length(self, implementation):
+        """The length of a 1000-element generator is 1000."""
+        assert implementation(x + 27 for x in range(1000)) == 1000
+
+    def test_pretty_big_set_has_its_length(self, implementation):
+        """The length of a 100,000-element set is 100,000."""
+        objects = {object() for _ in range(100_000)}
+        assert implementation(objects) == 100_000
+
+    def test_pretty_long_iterator_has_its_length(self, implementation):
+        """The length of a 100,000-element generator is 100,000."""
+        iterator = (object() for _ in range(100_000))
+        assert implementation(iterator) == 100_000
+
+
+class TestLengthOfOpt:
+    """Tests specific to the length_of_opt function."""
+
+    __slots__ = ()
+
+    def test_empty_sequence_works_without_iter(self, subtests):
+        """
+        __iter__ is not called on an empty sequence.
+
+        Even though it involves some undesirable repetition, I think it's
+        beneficial to name this separately from the "nonempty" version, so it
+        is easier to see which of the empty and nonempty cases are failing in a
+        buggy implementation.
+        """
+        sequence = _IterCountingList()
+        result = gencomp1.length_of_opt(sequence)
+        with subtests.test('Result should be correct'):
+            assert result == 0
+        with subtests.test('__iter__ should not be called'):
+            assert sequence.iter_calls == 0
+
+    @pytest.mark.parametrize('items, length', [
+        ([0], 1),
+        ([10, 20], 2),
+        (['foo', 'bar', 'baz'], 3),
+        (range(1000), 1000),
+    ])
+    def test_nonempty_sequence_works_without_iter(self, subtests,
+                                                  items, length):
+        """__iter__ is not called on a nonempty sequence."""
+        sequence = _IterCountingList(items)
+        result = gencomp1.length_of_opt(sequence)
+        with subtests.test('Result should be correct'):
+            assert result == length
+        with subtests.test('__iter__ should not be called'):
+            assert sequence.iter_calls == 0
+
+    @pytest.mark.parametrize('sequence_type', [
+        _IterCountingSet,
+        _IterCountingDict,
+    ])
+    def test_empty_sized_nonsequence_works_without_iter(self, subtests,
+                                                        sequence_type):
+        """
+        __iter__ is not called on an empty non-sequence supporting len.
+
+        See test_empty_sequence_works_without_iter on why this is separate.
+        """
+        sized = sequence_type()
+        result = gencomp1.length_of_opt(sized)
+        with subtests.test('Result should be correct'):
+            assert result == 0
+        with subtests.test('__iter__ should not be called'):
+            assert sized.iter_calls == 0
+
+    @pytest.mark.parametrize('sequence_type, constructor_arg, length', [
+        (_IterCountingSet, {10}, 1),
+        (_IterCountingSet, {10, 20}, 2),
+        (_IterCountingSet, {10, 20, 30}, 3),
+        (_IterCountingSet, set(range(1000)), 1000),
+        (_IterCountingDict, {'a': 1}, 1),
+        (_IterCountingDict, {'a': 1, 'b': 2}, 2),
+        (_IterCountingDict, {'a': 1, 'b': 2, 'c': 3}, 3),
+        (_IterCountingDict, {range(n): n for n in range(1000)}, 1000),
+    ])
+    def test_nonempty_sized_nonsequence_works_without_iter(self, subtests,
+                                                           sequence_type,
+                                                           constructor_arg,
+                                                           length):
+        """__iter__ is not called on a nonempty non-sequence supporting len."""
+        sized = sequence_type(constructor_arg)
+        result = gencomp1.length_of_opt(sized)
+        with subtests.test('Result should be correct'):
+            assert result == length
+        with subtests.test('__iter__ should not be called'):
+            assert sized.iter_calls == 0
+
+    def test_long_sequence_length_is_found(self):
+        """
+        A length is found, where it would be very slow if done via __iter__.
+
+        This fairly effectively tests if the len builtin is used.
+        """
+        result = gencomp1.length_of_opt(range(2_000_000_000))
+        assert result == 2_000_000_000
+
+    def test_many_long_sequence_lengths_are_found(self):
+        """
+        Lengths are found, where it would not all finish if done via __iter__.
+
+        This effectively tests if the len builtin is used. The reason it is
+        done by repeatedly checking lengths, rather than getting a length of
+        something extremely large, is that len is not permitted to return a
+        value that doesn't fit in a machine word, so a sufficiently great
+        length (even on a range object, where it takes O(1) space) would fail
+        with TypeError.
+        """
+        results = (gencomp1.length_of_opt(range(2_000_000_000))
+                   for _ in range(100_000))
+
+        assert set(results) == {2_000_000_000}
+
+    def test_iter_called_once_if_len_is_not_supported(self, subtests):
+        """
+        Finding the length of a non-sized iterable calls __iter__ once.
+
+        The details of this test method may be compared to
+        TestTailOpt.test_iter_called_once_on_nonsequence.
+        """
+        sequence = _IterCountingList([10, 20, 30, 40])
+        indirect_iterator = itertools.chain(sequence)
+
+        if sequence.iter_calls != 0:
+            raise Exception("itertools.chain shouldn't call __iter__ eagerly")
+
+        result = gencomp1.length_of_opt(indirect_iterator)
+
+        with subtests.test('Result should be correct'):
+            assert result == 4
+
+        with subtests.test('__iter__ should be called once'):
+            assert sequence.iter_calls == 1
 
 
 if __name__ == '__main__':
