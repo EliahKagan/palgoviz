@@ -220,46 +220,46 @@ class TestZipTwo(CommonIteratorTests):
 
     def test_empty_iterables_zip_empty(self, implementation):
         """Zipping empty iterables yields no elements."""
-        it = implementation([], [])
+        result = implementation([], [])
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     def test_nonempty_empty_zips_empty(self, implementation):
         """Zipping a nonempty iterable with an empty one yields no elements."""
-        it = implementation([10], [])
+        result = implementation([10], [])
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     def test_empty_nonempty_zips_empty(self, implementation):
         """Zipping an empty iterable with a nonempty one yields no elements."""
-        it = implementation([], [10])
+        result = implementation([], [10])
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     def test_shorter_longer_zips_shorter(self, implementation):
         """Zipping a shorter iterable with a longer one works correctly."""
-        it = implementation([10], [20, 30])
-        assert list(it) == [(10, 20)]
+        result = implementation([10], [20, 30])
+        assert list(result) == [(10, 20)]
 
     def test_longer_shorter_zips_shorter(self, implementation):
         """Zipping a longer iterable with a shorter one works correctly."""
-        it = implementation([10, 20], [30])
-        assert list(it) == [(10, 30)]
+        result = implementation([10, 20], [30])
+        assert list(result) == [(10, 30)]
 
     def test_equal_lengths_zip_all(self, implementation):
         """Zipping iterables with equally many of elements works correctly."""
-        it = implementation([10, 20, 30], ['foo', 'bar', 'baz'])
-        assert list(it) == [(10, 'foo'), (20, 'bar'), (30, 'baz')]
+        result = implementation([10, 20, 30], ['foo', 'bar', 'baz'])
+        assert list(result) == [(10, 'foo'), (20, 'bar'), (30, 'baz')]
 
     def test_finite_infinite_zips_finite(self, implementation):
         """Zipping a finite iterable with an infinite one works correctly."""
-        it = implementation([10, 20, 30], itertools.count(1))
-        assert list(it) == [(10, 1), (20, 2), (30, 3)]
+        result = implementation([10, 20, 30], itertools.count(1))
+        assert list(result) == [(10, 1), (20, 2), (30, 3)]
 
     def test_infinite_finite_zips_finite(self, implementation):
         """Zipping an infinite iterable with a finite one works correctly."""
-        it = implementation(itertools.count(1), [10, 20, 30])
-        assert list(it) == [(1, 10), (2, 20), (3, 30)]
+        result = implementation(itertools.count(1), [10, 20, 30])
+        assert list(result) == [(1, 10), (2, 20), (3, 30)]
 
 
 @pytest.mark.parametrize('implementation', [
@@ -273,16 +273,16 @@ class TestMyZip:
 
     def test_zero_args_zip_empty(self, implementation):
         """Passing zero iterables to be zipped yields no elements."""
-        it = implementation()
+        result = implementation()
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     @pytest.mark.parametrize('single_arg', [[], ()])
     def test_single_empty_arg_zips_empty(self, implementation, single_arg):
         """Zipping a single empty iterable yields no elements."""
-        it = implementation(single_arg)
+        result = implementation(single_arg)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
 
 class TestPrintZipped:
@@ -320,22 +320,22 @@ class TestTake(CommonIteratorTests):
 
     def test_taking_none_from_empty_is_empty(self, implementation):
         """Taking no items when there are no items yields no items."""
-        it = implementation(range(0), 0)
+        result = implementation(range(0), 0)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
     def test_taking_some_from_empty_is_empty(self, implementation, n):
         """Taking some items when there are no items yields no items."""
-        it = implementation(range(0), n)
+        result = implementation(range(0), n)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     def test_taking_none_from_nonempty_is_empty(self, implementation):
         """Taking no items when there are some items yields no items."""
-        it = implementation(range(3), 0)
+        result = implementation(range(3), 0)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     @pytest.mark.parametrize('n, expected', [
         (1, [0]),
@@ -345,14 +345,14 @@ class TestTake(CommonIteratorTests):
     def test_taking_some_from_nonempty_gives_prefix(self, implementation,
                                                     n, expected):
         """Taking some items when there are some items yields some items."""
-        it = implementation(range(3), n)
-        assert list(it) == expected
+        result = implementation(range(3), n)
+        assert list(result) == expected
 
     @pytest.mark.parametrize('n', [4, 10, 100, 1_000_000])
     def test_taking_extra_from_nonempty_gives_all(self, implementation, n):
         """Taking too many items yields the existing items (without error)."""
-        it = implementation(range(3), n)
-        assert list(it) == [0, 1, 2]
+        result = implementation(range(3), n)
+        assert list(result) == [0, 1, 2]
 
     @pytest.mark.parametrize('n, expected', [
         (0, []),
@@ -366,8 +366,8 @@ class TestTake(CommonIteratorTests):
                                                n, expected):
         """Taking some items from infinitely many items yields some items."""
         iterable = (x**2 for x in itertools.count(2))
-        it = implementation(iterable, n)
-        assert list(it) == expected
+        result = implementation(iterable, n)
+        assert list(result) == expected
 
     def test_float_n_fails_fast(self, implementation):
         """Passing a float as the number of items raises TypeError."""
@@ -391,8 +391,8 @@ class TestTake(CommonIteratorTests):
     ])
     def test_bool_n_is_supported(self, implementation, n, expected):
         """n is allowed to be a bool, since bool is a subclass of int."""
-        it = implementation('pqr', n)
-        assert list(it) == expected
+        result = implementation('pqr', n)
+        assert list(result) == expected
 
     def test_input_is_not_overconsumed(self, implementation):
         """No more than n elements of the input are consumed."""
@@ -419,23 +419,23 @@ class TestDrop(CommonIteratorTests):
 
     def test_dropping_none_from_empty_is_empty(self, implementation):
         """Dropping no items when there are no items yields no items."""
-        it = implementation(range(0), 0)
+        result = implementation(range(0), 0)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     @pytest.mark.parametrize('n', [1, 2, 10, 100, 1_000_000])
     def test_dropping_some_from_empty_is_empty(self, implementation, n):
         """
         Dropping some items when there are none yields none (without error).
         """
-        it = implementation(range(0), n)
+        result = implementation(range(0), n)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     def test_dropping_none_from_nonempty_gives_all(self, implementation):
         """Dropping no items when there are some items yields all the items."""
-        it = implementation(range(5), 0)
-        assert list(it) == [0, 1, 2, 3, 4]
+        result = implementation(range(5), 0)
+        assert list(result) == [0, 1, 2, 3, 4]
 
     @pytest.mark.parametrize('n, expected', [
         (1, [1, 2, 3, 4]),
@@ -446,28 +446,28 @@ class TestDrop(CommonIteratorTests):
     def test_dropping_some_from_nonempty_gives_suffix(self, implementation,
                                                       n, expected):
         """Dropping some items when there are some items yields the rest."""
-        it = implementation(range(5), n)
-        assert list(it) == expected
+        result = implementation(range(5), n)
+        assert list(result) == expected
 
     def test_dropping_all_from_nonempty_is_empty(self, implementation):
         """Dropping all items when there are some items yields no items."""
-        it = implementation(range(5), 5)
+        result = implementation(range(5), 5)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     @pytest.mark.parametrize('n', [6, 7, 15, 100, 1_000_000])
     def test_dropping_extra_from_nonempty_is_empty(self, implementation, n):
         """Dropping more than all items yields no items (without error)."""
-        it = implementation(range(5), n)
+        result = implementation(range(5), n)
         with pytest.raises(StopIteration):
-            next(it)
+            next(result)
 
     def test_dropping_some_from_infinite_gives_rest(self, implementation):
         """
         Dropping some items when there are infinitely many yields the rest.
         """
-        it = implementation(itertools.count(1), 1000)
-        prefix_of_suffix = itertools.islice(it, 6)
+        result = implementation(itertools.count(1), 1000)
+        prefix_of_suffix = itertools.islice(result, 6)
         assert list(prefix_of_suffix) == [1001, 1002, 1003, 1004, 1005, 1006]
 
     def test_float_n_fails_fast(self, implementation):
@@ -492,8 +492,8 @@ class TestDrop(CommonIteratorTests):
     ])
     def test_bool_n_is_supported(self, implementation, n, expected):
         """n is allowed to be a bool, since bool is a subclass of int."""
-        it = implementation('pqr', n)
-        assert list(it) == expected
+        result = implementation('pqr', n)
+        assert list(result) == expected
 
 
 class TestLast:
