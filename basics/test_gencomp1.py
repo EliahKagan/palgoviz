@@ -876,6 +876,7 @@ class TestWindowed(CommonIteratorTests):
 
 
 @pytest.mark.parametrize('implementation', [
+    map,  # Included to help test that the tests are correct.
     gencomp1.map_one,
     gencomp1.map_one_alt,
 ])
@@ -954,6 +955,7 @@ class TestMapOne(CommonIteratorTests):
 
 
 @pytest.mark.parametrize('implementation', [
+    filter,  # Included to help test that the tests are correct.
     gencomp1.my_filter,
     gencomp1.my_filter_alt,
 ])
@@ -1004,6 +1006,24 @@ class TestMyFilter(CommonIteratorTests):
         suffixes = (seq[1:] for seq in mixed)
         result = implementation(None, suffixes)
         assert list(result) == ['y', (2, 3)]
+
+    def test_none_predicate_filters_truthy_even_if_none_from_sequence(
+            self,
+            implementation):
+        """A predicate of None gets nothing through if all are falsy."""
+        empties = [[], (), {}, set()]
+        result = implementation(None, empties)
+        with pytest.raises(StopIteration):
+            next(result)
+
+    def test_none_predicate_filters_truthy_even_if_none_from_iterator(
+            self,
+            implementation):
+        """A predicate of None gets nothing through if all are falsy."""
+        empties = iter([[], (), {}, set()])
+        result = implementation(None, empties)
+        with pytest.raises(StopIteration):
+            next(result)
 
     def test_none_predicate_filters_truthy_even_if_all_from_sequence(
             self,
@@ -1204,6 +1224,126 @@ class TestLengthOfOpt:
 
         with subtests.test('__iter__ should be called once'):
             assert sequence.iter_calls == 1
+
+
+class TestHowMany:
+    """
+    Tests for the how_many function.
+
+    Methods in this class may be compared to methods in TestMyFilter.
+    """
+
+    __slots__ = ()
+
+    def test_none_satisfying_is_zero_from_sequence(self):
+        """When no items satisfy the predicate, the count is zero."""
+        sequence = (0, 1, 2)
+        result = gencomp1.how_many(lambda n: n < 0, sequence)
+        assert result == 0
+
+    def test_none_satisfying_is_zero_from_iterator(self):
+        """When no items satisfy the predicate, the count is zero."""
+        iterator = iter((0, 1, 2))
+        result = gencomp1.how_many(lambda n: n < 0, iterator)
+        assert result == 0
+
+    def test_none_satisfying_is_zero_from_big_set(self):
+        """When no items from a big set satisfy, the count is zero."""
+        obj = object()
+        items = {object() for _ in range(100_000)}
+        result = gencomp1.how_many(lambda item: item == obj, items)
+        assert result == 0
+
+    def test_none_satisfying_is_zero_from_long_iterator(self):
+        """When no items from a long generator satisfy, the count is zero."""
+        obj = object()
+        iterator = (object() for _ in range(100_000))
+        result = gencomp1.how_many(lambda item: item == obj, iterator)
+        assert result == 0
+
+    def test_some_but_not_last_satisfying_counts_them_from_sequence(self):
+        """When some but not the last satisfy, those that do are counted."""
+        sequence = range(1, 12)
+        result = gencomp1.how_many(lambda n: n % 3 == 0, sequence)
+        assert result == 3
+
+    def test_some_but_not_last_satisfying_counts_them_from_iterator(self):
+        """When some but not the last satisfy, those that do are counted."""
+        iterator = iter(range(1, 12))
+        result = gencomp1.how_many(lambda n: n % 3 == 0, iterator)
+        assert result == 3
+
+    def test_some_including_last_satisfying_counts_them_from_sequence_1(self):
+        """When some including the last satisfy, those that do are counted."""
+        sequence = range(1, 13)
+        result = gencomp1.how_many(lambda n: n % 3 == 0, sequence)
+        assert result == 4
+
+    def test_some_including_last_satisfying_counts_them_from_iterator_1(self):
+        """When some including the last satisfy, those that do are counted."""
+        iterator = iter(range(1, 13))
+        result = gencomp1.how_many(lambda n: n % 3 == 0, iterator)
+        assert result == 4
+
+    def test_some_including_last_satisfying_counts_them_from_sequence_2(self):
+        """When some from a list satisfy, those that do are counted."""
+        sequence = [t * 2 for t in ['a', 'bc', 'de', 'f', 'ghi', 'jk']]
+        result = gencomp1.how_many(lambda s: len(s) == 4, sequence)
+        assert result == 3
+
+    def test_some_including_last_satisfying_counts_them_from_iterator_2(self):
+        """When some from a generator satisfy, those that do are counted."""
+        iterator = (t * 2 for t in ['a', 'bc', 'de', 'f', 'ghi', 'jk'])
+        result = gencomp1.how_many(lambda s: len(s) == 4, iterator)
+        assert result == 3
+
+    def test_none_predicate_counts_truthy_from_sequence(self):
+        """A predicate of None checks items themselves, counts truthy ones."""
+        sequence = [(), [], '', 'a', {}, set(), [0], None]
+        result = gencomp1.how_many(None, sequence)
+        assert result == 2
+
+    def test_none_predicate_counts_truthy_from_iterator(self):
+        """A predicate of None checks items themselves, counts truthy ones."""
+        iterator = iter([(), [], '', 'a', {}, set(), [0], None])
+        result = gencomp1.how_many(None, iterator)
+        assert result == 2
+
+    def test_none_predicate_counts_truthy_from_big_sequence(self):
+        """A predicate of None counts truthy items, even in a long sequence."""
+        sequence = [0, 1] * 50_000
+        result = gencomp1.how_many(None, sequence)
+        assert result == 50_000
+
+    def test_none_predicate_counts_truthy_from_big_iterator(self):
+        """A predicate of None counts truthy items, even in a long iterator."""
+        iterator = iter([0, 1] * 50_000)
+        result = gencomp1.how_many(None, iterator)
+        assert result == 50_000
+
+    def test_none_predicate_counts_truthy_even_if_none_from_sequence(self):
+        """A predicate of None counts zero if all items are falsy."""
+        sequence = [[], (), {}, set()]
+        result = gencomp1.how_many(None, sequence)
+        assert result == 0
+
+    def test_none_predicate_counts_truthy_even_if_none_from_iterator(self):
+        """A predicate of None counts zero if all items are falsy."""
+        iterator = iter([[], (), {}, set()])
+        result = gencomp1.how_many(None, iterator)
+        assert result == 0
+
+    def test_none_predicate_counts_truthy_even_if_all_from_sequence(self):
+        """A predicate of None counts all items if none are falsy."""
+        sequence = ['hello', 'glorious', 'world']
+        result = gencomp1.how_many(None, sequence)
+        assert result == 3
+
+    def test_none_predicate_counts_truthy_even_if_all_from_iterator(self):
+        """A predicate of None counts all items if none are falsy."""
+        iterator = iter(['hello', 'glorious', 'world'])
+        result = gencomp1.how_many(None, iterator)
+        assert result == 3
 
 
 if __name__ == '__main__':
