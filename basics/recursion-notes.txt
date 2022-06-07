@@ -38,9 +38,10 @@ sort_by_partitioning_in_place_hardened
 sort_by_partitioning_in_place_iterative
 sort_by_partitioning_in_place_safe
 stabilize
+sort_with_keys_in_place
 
 
-Those 40 exercises can be grouped as follows.
+Those 41 exercises can be grouped as follows.
 
 
 Group 1:
@@ -97,3 +98,9 @@ sort_by_partitioning_in_place
 sort_by_partitioning_in_place_hardened
 sort_by_partitioning_in_place_iterative
 sort_by_partitioning_in_place_safe
+
+
+Group 5 (mostly not written yet):
+
+[TODO: various counting-inversions exercises]
+sort_with_keys_in_place

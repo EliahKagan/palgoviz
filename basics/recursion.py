@@ -2108,7 +2108,7 @@ def sort_by_partitioning_hardened(values):
 
     [FIXME: Yet "sort by partitioning" is often preferred to mergesort! Briefly
     state, somewhere, the relevant difference between (a) our implementations
-    of this algorithm, and (b) the way it's usually done in production. Hint:
+    of this algorithm and (b) the way it's usually done in production. Hint:
     The variations used in production lack an often-desired feature ours have:
     stability. What does lifting the stability requirement buy them?]
 
@@ -2772,6 +2772,36 @@ def stabilize(unstable_sort, *, materialize=False):
         return [item for item, _ in augmented_output]
 
     return stabilized_sort
+
+
+def sort_with_keys_in_place(keys, *other, alias=False):
+    """
+    Sort keys and rearrange zero or more other sequences accordingly, in place.
+
+    The input is a sequence, keys, whose elements are to be compared, and zero
+    or more sequences in other, each of the same length as keys, whose elements
+    are never compared. The keys are rearranged by sorting, and also serve as
+    keys for each of the other sequences, which must be rearranged the same
+    way: if values is in other and the object at keys[i] ends up at keys[j],
+    then the object at values[i] ends up at values[j]. Objects in the other
+    sequences are never examined in any way (their references are read and
+    written but not dereferenced).
+
+    If and only if the alias keyword argument is true, the sequences may alias,
+    meaning that any sequence, including keys itself, may appear any number of
+    times in other. But if values1 and values2 are different sequence objects,
+    you may still assume that assigning elements of values1 does not affect
+    values2. (It is the caller's responsibility to ensure this.)
+
+    With n == len(keys) and k == len(other), this takes:
+
+      - Average-case O(n k log n) time.
+      - Worst-case O(k + log n) auxiliary space, if alias is True.
+      - Worst-case O(log n) auxiliary space, if alias is False.
+
+    FIXME: Needs tests.
+    """
+    # FIXME: Needs implementation.
 
 
 def make_deep_tuple(depth):
