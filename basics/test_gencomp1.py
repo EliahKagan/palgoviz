@@ -5,6 +5,7 @@
 from fractions import Fraction
 import itertools
 import operator
+import random
 import string
 import sys
 
@@ -1347,6 +1348,22 @@ class TestHowMany:
         assert result == 3
 
 
+@pytest.fixture(name='scrambled_dicts', params=[  # Parametrized by PRNG seed.
+    260429228478576778,
+    9502498993413641577,
+    11272998565121818203,
+])
+def fixture_scrambled_dicts(request):
+    """Make a shuffled 40,000-item injective dict and its inverse."""
+    rand = random.Random(request.param)
+    elements = range(-20_000, 20_000)
+    keys = list(elements)
+    rand.shuffle(keys)
+    values = list(elements)
+    rand.shuffle(values)
+    return dict(zip(keys, values)), dict(zip(values, keys))
+
+
 @pytest.mark.parametrize('implementation', [
     gencomp1.invert,
     gencomp1.invert_alt,
@@ -1367,7 +1384,7 @@ class TestInvert:
         assert implementation(preimage) == expected
 
     def test_small_injective_inverse_keeps_order(self, implementation):
-        """A small injective (k, v) dict inverts with (v, k) in same order."""
+        """A small injective (k, v) dict inverts to same-order (v, k)s."""
         preimage = {'a': 10, 'b': 20, 'cd': 30, 'efg': 40}
         expected = [(10, 'a'), (20, 'b'), (30, 'cd'), (40, 'efg')]
         result = implementation(preimage)
@@ -1387,28 +1404,57 @@ class TestInvert:
 
     def test_big_injective_inverse_flips_keys_values(self, implementation):
         """A big injective (k, v) dict inverts to the (v, k) dict."""
-        preimage = {k: k**2 for k in range(40_000)}
-        expected = {k**2: k for k in range(40_000)}
+        preimage = {n: n**2 for n in range(40_000)}
+        expected = {n**2: n for n in range(40_000)}
         assert implementation(preimage) == expected
 
     def test_big_injective_inverse_keeps_order(self, implementation):
-        """A big injective (k, v) dict inverts with (v, k) in the same order."""
-        preimage = {k: k**2 for k in range(40_000)}
-        expected = [(k**2, k) for k in range(40_000)]
+        """A big injective (k, v) dict inverts to same-order (v, k)s."""
+        preimage = {n: n**2 for n in range(40_000)}
+        expected = [(n**2, n) for n in range(40_000)]
         result = implementation(preimage)
         assert list(result.items()) == expected
 
     def test_big_injective_inverse_is_involution(self, implementation):
         """A big injective dict is equal to its inverse's inverse."""
-        preimage = {k: k**2 for k in range(40_000)}
+        preimage = {n: n**2 for n in range(40_000)}
         assert implementation(implementation(preimage)) == preimage
 
     def test_big_injective_inverse_inverse_keeps_order(self, implementation):
         """A big injective dict's inverse's inverse's has the same order."""
-        preimage = {k: k**2 for k in range(40_000)}
-        expected = [(k, k**2) for k in range(40_000)]
+        preimage = {n: n**2 for n in range(40_000)}
+        expected = [(n, n**2) for n in range(40_000)]
         result = implementation(implementation(preimage))
         assert list(result.items()) == expected
+
+    def test_random_injective_inverse_flips_keys_values(self, scrambled_dicts,
+                                                        implementation):
+        """A big random injective (k, v) dict inverts to the (v, k) dict."""
+        preimage, expected = scrambled_dicts
+        assert implementation(preimage) == expected
+
+    def test_random_injective_inverse_keeps_order(self, scrambled_dicts,
+                                                  implementation):
+        """A big random injective (k, v) dict inverts to same-order (v, k)s."""
+        preimage, expected_inverse = scrambled_dicts
+        result = implementation(preimage)
+        assert list(result.items()) == list(expected_inverse.items())
+
+    def test_random_injective_inverse_is_involution(self, scrambled_dicts,
+                                                    implementation):
+        """A big random injective dict is equal to its inverse's inverse."""
+        preimage, _ = scrambled_dicts
+        assert implementation(implementation(preimage)) == preimage
+
+    def test_random_injective_inverse_inverse_keeps_order(self,
+                                                          scrambled_dicts,
+                                                          implementation):
+        """
+        A big random injective dict's inverse's inverse has the same order.
+        """
+        preimage, _ = scrambled_dicts
+        result = implementation(implementation(preimage))
+        assert list(result.items()) == list(preimage.items())
 
     def test_small_identity_inverts_equal(self, implementation):
         """A small dict taking elements to themselves inverts to itself."""
@@ -1424,15 +1470,17 @@ class TestInvert:
 
     def test_big_identity_inverts_equal(self, implementation):
         """A big dict taking elements to themselves inverts to itself."""
-        preimage = {k: k for k in range(40_000)}
+        preimage = {n: n for n in range(40_000)}
         assert implementation(preimage) == preimage
 
     def test_big_identity_inverse_keeps_order(self, implementation):
         """A big dict taking elements to themselves inverts in same order."""
-        preimage = {k: k for k in range(40_000)}
-        expected = [(k, k) for k in range(40_000)]
+        preimage = {n: n for n in range(40_000)}
+        expected = [(n, n) for n in range(40_000)]
         result = implementation(preimage)
         assert list(result.items()) == expected
+
+    # FIXME: Add non-injective dict tests of overwriting and ordering behavior.
 
 
 if __name__ == '__main__':
