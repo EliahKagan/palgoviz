@@ -1366,24 +1366,48 @@ class TestInvert:
         expected = {10: 'a', 20: 'b', 30: 'cd', 40: 'efg'}
         assert implementation(preimage) == expected
 
-    def test_small_injective_inverse_maintains_order(self, implementation):
+    def test_small_injective_inverse_keeps_order(self, implementation):
         """A small injective (k, v) dict inverts with (v, k) in same order."""
         preimage = {'a': 10, 'b': 20, 'cd': 30, 'efg': 40}
         expected = [(10, 'a'), (20, 'b'), (30, 'cd'), (40, 'efg')]
         result = implementation(preimage)
         assert list(result.items()) == expected
 
+    def test_small_injective_inverse_is_involution(self, implementation):
+        """A small injective dict is equal to its inverse's inverse."""
+        preimage = {'a': 10, 'b': 20, 'cd': 30, 'efg': 40}
+        assert implementation(implementation(preimage)) == preimage
+
+    def test_small_injective_inverse_inverse_keeps_order(self, implementation):
+        """A small injective dict's inverse's inverse's has the same order."""
+        preimage = {'a': 10, 'b': 20, 'cd': 30, 'efg': 40}
+        expected = [('a', 10), ('b', 20), ('cd', 30), ('efg', 40)]
+        result = implementation(implementation(preimage))
+        assert list(result.items()) == expected
+
     def test_big_injective_inverse_flips_keys_values(self, implementation):
         """A big injective (k, v) dict inverts to the (v, k) dict."""
-        preimage = {k: k**2 for k in range(100_000)}
-        expected = {k**2: k for k in range(100_000)}
+        preimage = {k: k**2 for k in range(40_000)}
+        expected = {k**2: k for k in range(40_000)}
         assert implementation(preimage) == expected
 
-    def test_big_injective_inverse_maintains_order(self, implementation):
+    def test_big_injective_inverse_keeps_order(self, implementation):
         """A big injective (k, v) dict inverts with (v, k) in the same order."""
-        preimage = {k: k**2 for k in range(100_000)}
-        expected = [(k**2, k) for k in range(100_000)]
+        preimage = {k: k**2 for k in range(40_000)}
+        expected = [(k**2, k) for k in range(40_000)]
         result = implementation(preimage)
+        assert list(result.items()) == expected
+
+    def test_big_injective_inverse_is_involution(self, implementation):
+        """A big injective dict is equal to its inverse's inverse."""
+        preimage = {k: k**2 for k in range(40_000)}
+        assert implementation(implementation(preimage)) == preimage
+
+    def test_big_injective_inverse_inverse_keeps_order(self, implementation):
+        """A big injective dict's inverse's inverse's has the same order."""
+        preimage = {k: k**2 for k in range(40_000)}
+        expected = [(k, k**2) for k in range(40_000)]
+        result = implementation(implementation(preimage))
         assert list(result.items()) == expected
 
     def test_small_identity_inverts_equal(self, implementation):
@@ -1391,7 +1415,7 @@ class TestInvert:
         preimage = {ch: ch for ch in string.ascii_lowercase}
         assert implementation(preimage) == preimage
 
-    def test_small_identity_inverse_maintains_order(self, implementation):
+    def test_small_identity_inverse_keeps_order(self, implementation):
         """A small dict taking elements to themselves inverts in same order."""
         preimage = {ch: ch for ch in string.ascii_lowercase}
         expected = [(ch, ch) for ch in string.ascii_lowercase]
@@ -1400,13 +1424,13 @@ class TestInvert:
 
     def test_big_identity_inverts_equal(self, implementation):
         """A big dict taking elements to themselves inverts to itself."""
-        preimage = {k: k for k in range(100_000)}
+        preimage = {k: k for k in range(40_000)}
         assert implementation(preimage) == preimage
 
-    def test_big_identity_inverse_maintains_order(self, implementation):
+    def test_big_identity_inverse_keeps_order(self, implementation):
         """A big dict taking elements to themselves inverts in same order."""
-        preimage = {k: k for k in range(100_000)}
-        expected = [(k, k) for k in range(100_000)]
+        preimage = {k: k for k in range(40_000)}
+        expected = [(k, k) for k in range(40_000)]
         result = implementation(preimage)
         assert list(result.items()) == expected
 
