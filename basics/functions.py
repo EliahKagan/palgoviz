@@ -325,6 +325,49 @@ def count_tree_nodes_instrumented(root):
         count_tree_nodes = non_decorated
 
 
+def _get_dict_attributes(obj):
+    """Get an object's instance dictionary or, if absent, an empty mapping."""
+    try:
+        return obj.__dict__
+    except AttributeError:
+        return {}
+
+
+def report_attributes(func):
+    """
+    Given a function (not other callables), report its non-metadata attributes.
+
+    It is the caller's responsibility to ensure func is a function. Although
+    bound methods are sometimes regarded to be functions, they are not allowed
+    here. (Classes and callable instances are only ever informally regarded as
+    functions, and are likewise not allowed.)
+
+    >>> report_attributes(lambda x: x**2)
+    No non-metadata attributes.
+    >>> def square(x): return x**2
+    >>> square.foo = 42
+    >>> square.bar = 'seventy-six'
+    >>> report_attributes(square)
+    square.foo = 42
+    square.bar = 'seventy-six'
+    >>> report_attributes(len)
+    No non-metadata attributes.
+    >>> def greet(value):
+    ...     print(greet.fmt.format(value))
+    >>> greet.fmt = 'Hello, {}!'
+    >>> report_attributes(greet)
+    greet.fmt = 'Hello, {}!'
+    """
+    attributes = _get_dict_attributes(func)
+
+    if not attributes:
+        print('No non-metadata attributes.')
+        return
+
+    for key, value in attributes.items():
+        print(f'{func.__name__}.{key} = {value!r}')
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
