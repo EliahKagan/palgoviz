@@ -13,6 +13,7 @@ input (so if the argument is values, then n == len(values)).
 
 import bisect
 import collections
+import contextlib
 import functools
 import math
 import operator
@@ -2180,7 +2181,7 @@ PartIndices.__doc__ = """Indices returned by 3-way in-place partitioning."""
 
 def partition_three_in_place_rough(values, low, high, pivot):
     """
-    Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
+    Rearrange values[low:high] in place to be 3-way partitioned by a pivot.
 
     This is like partition_three, but it mutates its input instead of returning
     a new list, and it is unstable. It returns a named tuple of left and right,
@@ -2222,7 +2223,7 @@ def partition_three_in_place_rough(values, low, high, pivot):
 
 def partition_three_in_place(values, low, high, pivot):
     """
-    Recursively rearrange values[low:high] to be 3-way partitioned by a pivot.
+    Rearrange values[low:high] in place to be 3-way partitioned by a pivot.
 
     This is like partition_three, but it mutates its input instead of returning
     a new list, and it is unstable. It returns a named tuple of left and right,
@@ -2774,7 +2775,66 @@ def stabilize(unstable_sort, *, materialize=False):
     return stabilized_sort
 
 
-def sort_with_keys_in_place(keys, *other, alias=False):
+def _dealias_other(keys, other):
+    """Return other without the keys object or any repeated objects."""
+    by_id = {id(other_seq): other_seq for other_seq in other}
+    with contextlib.suppress(KeyError):
+        del by_id[id(keys)]
+    return tuple(by_id.values())
+
+
+def _augmented_swap(keys, other, i, j):
+    """Swap the i and j indexed elements in keys and in each other sequence."""
+    keys[i], keys[j] = keys[j], keys[i]
+    for other_seq in other:
+        other_seq[i], other_seq[j] = other_seq[j], other_seq[i]
+
+
+def _augmented_partition_three_in_place(keys, other, low, high, pivot):
+    """
+    Rearrange a[low:high], a=keys and each a in other, to be 3-way partitioned.
+
+    This is like partition_three_in_place, but it is augmented, for use in
+    augmented_sort_in_place (below). Objects in keys are compared to the pivot.
+    No comparisons are done on objects in sequences in other. Those sequences
+    are permuted in the same way that keys is permuted. This takes O(n k) time.
+    """
+    # keys[original_low:low] are the known lesser elements.
+    # keys[low:current] are the known similar elements.
+    # keys[current:high] are the not yet examined elements.
+    # keys[high:original_high] are the known greater elements.
+    current = low
+    while current != high:
+        if keys[current] < pivot:
+            _augmented_swap(keys, other, low, current)
+            low += 1
+            current += 1
+        elif pivot < keys[current]:
+            high -= 1
+            _augmented_swap(keys, other, current, high)
+        else:
+            current += 1
+
+    return PartIndices(low, high)
+
+
+def _do_augmented_safe_quicksort_in_place(keys, other, low, high):
+    """Augmented stack-safe quicksort, recursing on just hte short side."""
+    while high - low > 1:
+        pivot = keys[random.randrange(low, high)]
+
+        left, right = _augmented_partition_three_in_place(
+            keys, other, low, high, pivot)
+
+        if high - right < left - low:
+            _do_augmented_safe_quicksort_in_place(keys, other, right, high)
+            high = left
+        else:
+            _do_augmented_safe_quicksort_in_place(keys, other, low, left)
+            low = right
+
+
+def augmented_sort_in_place(keys, *other, alias=False):
     """
     Sort keys and rearrange zero or more other sequences accordingly, in place.
 
@@ -2791,7 +2851,7 @@ def sort_with_keys_in_place(keys, *other, alias=False):
     meaning that any sequence, including keys itself, may appear any number of
     times in other. But if values1 and values2 are different sequence objects,
     you may still assume that assigning elements of values1 does not affect
-    values2. (It is the caller's responsibility to ensure this.)
+    values2. (This is typically the case, and the caller must ensure it.)
 
     With n == len(keys) and k == len(other), this takes:
 
@@ -2801,7 +2861,8 @@ def sort_with_keys_in_place(keys, *other, alias=False):
 
     FIXME: Needs tests.
     """
-    # FIXME: Needs implementation.
+    good_other = _dealias_other(keys, other) if alias else other
+    _do_augmented_safe_quicksort_in_place(keys, good_other, 0, len(keys))
 
 
 def make_deep_tuple(depth):
