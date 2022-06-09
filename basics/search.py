@@ -210,3 +210,57 @@ def two_sum_nohash(numbers, total):
     indices = sorted(range(len(numbers)), key=numbers.__getitem__)
     left, right = _two_sum_sorted_keyed(indices, total, numbers.__getitem__)
     return indices[left], indices[right]
+
+
+def has_subset_sum_slow(numbers, total):
+    """
+    Check if any zero or more values in numbers sum to total.
+
+    This is the subset sum decision problem. The name is misleading, as really
+    the input represents a multiset (a.k.a. bag). The problem is to determine
+    if any submultiset sums to the target total. So if a value appears k times
+    in numbers, it may appear up to k times in a sum. All values are integers.
+
+    This is a decision problem, so just return True or False. Algorithms that
+    solve this can be adapted to solve the more useful problem of building and
+    returning some "subset" that sums to the target, when there is one. Future
+    exercises may cover that, together with more techniques for both versions.
+
+    Although the input represents a multiset (so order doesn't matter), it is
+    usually supplied as a sequence, and numbers is guaranteed to be a sequence
+    here. You can, and probably should, rely on that in your solution.
+
+    This implementation is recursive. It takes exponential time. It should
+    sacrifice speed for simplicity, except that I do recommend avoiding
+    unnecessary copying, in which case it will take O(2**len(numbers)) time.
+    """
+
+
+def has_subset_sum(numbers, total):
+    """
+    Efficiently check if any zero or more values in numbers sum to total.
+
+    This is the subset sum decision problem described in has_subset_sum_slow.
+    This implementation is also recursive, resembling the implementation there,
+    but much more efficient. This works with substantial problem sizes.
+
+    Time complexity is [FIXME: give or describe the asymptotic running time].
+    """
+
+
+def has_subset_sum_alt(numbers, total):
+    """
+    Efficiently check if any zero or more values in numbers sum to total.
+
+    This alternative implementation of has_subset_sum uses the same algorithm
+    (and thus has the same asymptotic time complexity), but implements it using
+    a substantially different technique. One implementation makes use of a
+    previously created facility in another module of this project, or a similar
+    facility in the standard library. The other does not use any such facility.
+
+    FIXME: Unlike the standard library facility, the one in this project is
+    cumbersome to use for problems like subset sum, due to a limitation that
+    wasn't relevant in prior uses. Rename the existing version descriptively.
+    Write a new version, appropriately generalized, that overcomes that
+    limitation. (Give it the name your original implementation previously had.)
+    """
