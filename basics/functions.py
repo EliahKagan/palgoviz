@@ -450,7 +450,7 @@ def as_closeable_iterator_limited(func, end_sentinel):
 
 def as_closeable_iterator(func):
     """
-    Given a parameterless function, return an iterator that repeatedly calls
+    Given a parameterless callable, return an iterator that repeatedly calls
     it, exposing close() if present.
 
     This has the same relationship to as_iterator (and as_iterator_alt) that

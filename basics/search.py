@@ -5,6 +5,7 @@ See also recursion.py.
 """
 
 import bisect
+import functools
 import operator
 
 
@@ -234,6 +235,15 @@ def has_subset_sum_slow(numbers, total):
     sacrifice speed for simplicity, except that I do recommend avoiding
     unnecessary copying, in which case it will take O(2**len(numbers)) time.
     """
+    def solve(start, subtotal):
+        if subtotal == 0:
+            return True
+        if start == len(numbers):
+            return False
+        return (solve(start + 1, subtotal - numbers[start]) or
+                solve(start + 1, subtotal))
+
+    return solve(0, total)
 
 
 def has_subset_sum(numbers, total):
@@ -242,19 +252,37 @@ def has_subset_sum(numbers, total):
 
     This is the subset sum decision problem described in has_subset_sum_slow.
     This implementation is also recursive, resembling the implementation there,
-    but much more efficient. This works with substantial problem sizes.
+    but much more efficient. This is fast enough for substantial problem sizes.
 
-    Time complexity is [FIXME: give or describe the asymptotic running time].
+    [FIXME: Say something about this algorithm's asymptotic time complexity.]
     """
+    memo = {}
+
+    def solve(start, subtotal):
+        if subtotal == 0:
+            return True
+        if start == len(numbers):
+            return False
+
+        try:
+            return memo[start, subtotal]
+        except KeyError:
+            result = memo[start, subtotal] = (
+                solve(start + 1, subtotal - numbers[start]) or
+                solve(start + 1, subtotal)
+            )
+            return result
+
+    return solve(0, total)
 
 
 def has_subset_sum_alt(numbers, total):
     """
     Efficiently check if any zero or more values in numbers sum to total.
 
-    This alternative implementation of has_subset_sum uses the same algorithm
-    (and thus has the same asymptotic time complexity), but implements it using
-    a substantially different technique. One implementation makes use of a
+    This alternative implementation of has_subset_sum uses the same recursive
+    algorithm (so it has the same asymptotic time complexity), but implements
+    it using a substantially different technique. One implementation uses a
     previously created facility in another module of this project, or a similar
     facility in the standard library. The other does not use any such facility.
 
@@ -264,3 +292,13 @@ def has_subset_sum_alt(numbers, total):
     Write a new version, appropriately generalized, that overcomes that
     limitation. (Give it the name your original implementation previously had.)
     """
+    @functools.cache
+    def solve(start, subtotal):
+        if subtotal == 0:
+            return True
+        if start == len(numbers):
+            return False
+        return (solve(start + 1, subtotal - numbers[start]) or
+                solve(start + 1, subtotal))
+
+    return solve(0, total)
