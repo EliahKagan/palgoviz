@@ -141,6 +141,40 @@ def as_func(iterable):
     return lambda: next(it)
 
 
+def as_func_limited(iterable, end_sentinel):
+    """
+    Return a function to step through an iterable or return a sentinel if done.
+
+    Given an iterable, this returns a function that steps through it on each
+    call, like as_func (above). But if the iterable has been exhausted, no
+    exception is raised. Instead, end_sentinel is returned.
+
+    FIXME: Needs tests.
+    """
+    it = iter(iterable)
+    return lambda: next(it, end_sentinel)
+
+
+def as_func_limited_alt(iterable, end_sentinel):
+    """
+    Return a function to step through an iterable or return a sentinel if done.
+
+    This is an alternative implementation of as_func_limited. One
+    implementation contains explicit try-except logic; the other does not.
+
+    FIXME: Needs tests.
+    """
+    it = iter(iterable)
+
+    def get_next():
+        try:
+            return next(it)
+        except StopIteration:
+            return end_sentinel
+
+    return get_next
+
+
 def as_iterator_limited(func, end_sentinel):
     """
     Given a parameterless function, return an iterator that calls it until
@@ -340,7 +374,7 @@ def report_attributes(func):
     It is the caller's responsibility to ensure func is a function. Although
     bound methods are sometimes regarded to be functions, they are not allowed
     here. (Classes and callable instances are only ever informally regarded as
-    functions, and are likewise not allowed.)
+    functions, and are likewise not allowed.) You don't have to check for this.
 
     >>> report_attributes(lambda x: x**2)
     No non-metadata attributes.
@@ -352,8 +386,7 @@ def report_attributes(func):
     square.bar = 'seventy-six'
     >>> report_attributes(len)
     No non-metadata attributes.
-    >>> def greet(value):
-    ...     print(greet.fmt.format(value))
+    >>> def greet(value): print(greet.fmt.format(value))
     >>> greet.fmt = 'Hello, {}!'
     >>> report_attributes(greet)
     greet.fmt = 'Hello, {}!'
@@ -366,6 +399,87 @@ def report_attributes(func):
 
     for key, value in attributes.items():
         print(f'{func.__name__}.{key} = {value!r}')
+
+
+def as_closeable_func(iterable):
+    """
+    Return a function to step through an iterable, exposing close() if present.
+
+    Given an iterable, this returns a function that steps through it on each
+    call. If and only if the iterable's iterator is a generator or otherwise
+    has a close method, the returned function also has a close "method." (It
+    won't be a true method, since it won't be a member of the function's type,
+    but it can be called like a method. Likewise, if close can be called on the
+    input iterator, but it is not technically a method, still do support it.)
+
+    This is like as_func (above), but with support for closing.
+
+    FIXME: Needs tests.
+    """
+
+
+def as_closeable_func_limited(iterable, end_sentinel):
+    """
+    Return a function to step through an iterable or return a sentinel if done,
+    exposing close() if present.
+
+    Given an iterable, this returns a function that steps through it on each
+    call, returning end_sentinel instead if the iterable has been exhausted,
+    like as_func_limited and as_func_limited_alt.
+
+    But if (and only if) the iterable's iterator supports closing, the returned
+    function also has a close "method," just as in as_closeable_func.
+
+    FIXME: Needs tests.
+    """
+
+
+def as_closeable_iterator_limited(func, end_sentinel):
+    """
+    Given a parameterless callable, return a generator that calls it until
+    end_sentinel is reached, exposing close() if present.
+
+    This is like as_iterator_limited and as_iterator_limited_alt. But the
+    iterator it returns must be a generator object, and if func has a close
+    method (or otherwise supports having close on it, like a method), then when
+    the returned generator object is closed, this causes func to be closed.
+
+    FIXME: Needs tests.
+    """
+
+
+def as_closeable_iterator(func):
+    """
+    Given a parameterless function, return an iterator that repeatedly calls
+    it, exposing close() if present.
+
+    This has the same relationship to as_iterator (and as_iterator_alt) that
+    as_closeable_iterator_limited has to as_iterator_limited (and
+    as_iterator_limited_alt). That is to say that this does the same thing as
+    as_closeable_iterator_limited, except no sentinel value is recognized.
+
+    FIXME: Needs tests.
+    """
+
+
+def func_filter(predicate, func, end_sentinel):
+    """
+    Like the filter builtin, but with functions instead of iterators.
+
+    The func argument represents a series of items, returning the next item on
+    each call. None of these items is equal to end_sentinel; func returns that
+    value if called when exhausted. Return a function that likewise represents
+    a series of items, consisting of those in func's series that satisfy the
+    predicate. The returned function will delegate to func as needed. It will
+    also return end_sentinel when exhausted.
+
+    If the predicate argument is None instead of a unary function, the returned
+    function represents the series of items in func's series that are truthy.
+
+    This implementation does not involve iterators in any way.
+
+    FIXME: Needs tests.
+    """
 
 
 if __name__ == '__main__':

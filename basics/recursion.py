@@ -152,6 +152,25 @@ def linear_search_iterative(values, x):
     return None
 
 
+def linear_search_iterative_alt(values, x):
+    """
+    Return an index to some occurrence of x in values, if any, or return None.
+
+    This is an alternative implementation of linear_search_iterative (above).
+    One implementation uses no comprehensions; the other uses no loops.
+
+    >>> linear_search_iterative_alt([], 9)
+    >>> linear_search_iterative_alt([2, 3], 2)
+    0
+    >>> linear_search_iterative_alt((4, 5, 6), 5)
+    1
+    >>> linear_search_iterative_alt([3, 1, 2, 8, 6, 5, 7], 8)
+    3
+    """
+    matches = (index for index, value in enumerate(values) if value == x)
+    return next(matches, None)
+
+
 def linear_search(values, x):
     """
     Return an index to some occurrence of x in values, if any.

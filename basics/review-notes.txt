@@ -1,0 +1,18 @@
+recursion.linear_search_iterative_alt
+functions.as_func_limited
+functions.as_func_limited_alt
+functions.report_attributes
+functions.as_closeable_func
+functions.as_closeable_func_limited
+functions.as_closeable_iterator_limited
+functions.as_closeable_iterator
+functions.func_filter
+search.bsearch
+search.bsearch_alt
+search.two_sum_slow
+search.two_sum_fast
+search.two_sum_sorted
+search.two_sum_nohash
+search.subset_sum_decide_slow  [forthcoming]
+search.subset_sum_decide  [forthcoming]
+search.subset_sum_decide_alt  [forthcoming]
