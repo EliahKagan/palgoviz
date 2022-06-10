@@ -390,6 +390,161 @@ def count_coin_change_alt(coins, total):
     return count(0, total)
 
 
+class _Pos:
+    """Coordinates to a board square in Tread."""
+
+    __slots__ = ('_i', '_j')
+
+    def __init__(self, i, j):
+        """Create a new player position with the specified coordinates."""
+        self._i = i
+        self._j = j
+
+    def __repr__(self):
+        """Representation for debugging, runnable as Python code."""
+        return f'{type(self).__name__}({self.i!r}, {self.j!r})'
+
+    def __str__(self):
+        """Compact representation (not runnable as Python code)."""
+        return f'{self.i},{self.j}'
+
+    def __eq__(self, other):
+        """Positions with equal corresponding coordinates are equal."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.i == other.i and self.j == other.j
+
+    def __hash__(self):
+        return hash((self.i, self.j))
+
+    @property
+    def i(self):
+        """The i-coordinate (row index) of the position."""
+        return self._i
+
+    @property
+    def j(self):
+        """The j-coordinate (column index) of this position."""
+        return self._j
+
+    @property
+    def neighbors(self):
+        """Neighboring positions (but some might be off the board)."""
+        yield _Pos(self.i, self.j - 1)
+        yield _Pos(self.i, self.j + 1)
+        yield _Pos(self.i - 1, self.j)
+        yield _Pos(self.i + 1, self.j)
+
+
+class _Player:
+    """A player in Tread."""
+
+    __slots__ = ('vis', 'pre', 'cur', 'gaffes')
+
+    def __init__(self, start_i, start_j):
+        """Create a new player with the specified starting coordinates."""
+        self.vis = set()
+        self.old_pos = _Pos(-1, -1)
+        self.pos = _Pos(start_i, start_j)
+        self.gaffes = 0
+
+    def __repr__(self):
+        """Representation for debugging. (Not runnable as Python code.)"""
+        return (f'<{type(self).__name__}: vis={self.vis} '
+                f'old_pos={self.old_pos} pos={self.pos} gaffes={self.gaffes}>')
+
+    def is_blocking(self, pos):
+        """Tell if a position is the current or the previous position."""
+        return pos in (self.pos, self.old_pos)
+
+
+class _Board:
+    """Board geometry for a game of Tread."""
+
+    __slots__ = ('_m', '_n', '_void')
+
+    def __init__(self, m, n, vi, vj):
+        """Create an m-by-n board whose void is at (vi, vj)."""
+        self._m = m
+        self._n = n
+        self._void = _Pos(vi, vj)
+
+    def __repr__(self):
+        """Representation for debugging, runnable as Python code."""
+        return (f'{type(self).__name__}({self._m!r}, {self._n!r},'
+                f' {self._void.i!r}, {self._void.j!r})')
+
+    def __contains__(self, pos):
+        """Tell if a position is on the board (in bounds and not the void)."""
+        return (0 <= pos._i < self._m and 0 <= pos._j < self._n
+                and pos != self._void)
+
+
+_MAX_GAFFES = 2
+"""The maximum number of gaffes allowed to each player in a game of Tread."""
+
+
+def _active_player_is_winner(board, active, inactive):
+    """Tell if the active Tread player has a winning strategy in mid-game."""
+    if active.pos not in board or inactive.is_blocking(active.pos):
+        return False
+
+    if active.pos not in active.vis:
+        active.vis.add(active.pos)
+        gaffe = False
+    elif active.gaffes == _MAX_GAFFES:
+        return False
+    else:
+        active.gaffes += 1
+        gaffe = True
+
+    old_old_pos = inactive.old_pos
+    inactive.old_pos = inactive.pos
+
+    try:
+        for pos in inactive.pos.neighbors:
+            inactive.pos = pos
+            if _active_player_is_winner(board, inactive, active):
+                return False
+    finally:
+        inactive.pos = inactive.old_pos
+        inactive.old_pos = old_old_pos
+
+        if gaffe:
+            active.gaffes -= 1
+        else:
+            active.vis.remove(active.pos)
+
+    return True
+
+
+def find_tread_winner(m, n, vi, vj, ai, aj, bi, bj):
+    """
+    Determine which player, A or B, has a winning strategy in a game of Tread.
+
+    A player has a winning strategy if, provided they play perfectly, they are
+    guaranteed to win, no matter how their opponent plays.
+
+    A game of Tread is played on an m-by-n board with a void at (vi, vj) where
+    no one can go. A starts at (ai, aj), B at (bi, bj). Players alternate
+    turns. A goes first. The player whose turn it is (the "active player") must
+    move up, down, left, or right on the board, but can't move to the void,
+    their opponent's location, or their opponent's most recent previous
+    location. Also, to move onto any square one has ever previously occupied is
+    a gaffe; each player is allowed at most two gaffes. If a player has no
+    legal move, their opponent wins. The void and players' start squares are
+    guaranteed to be three different squares within the m-by-n rectangle.
+
+    Use the simplest correct algorithm you can that passes all tests reasonably
+    fast. Return 'A' if A has a winning strategy, or 'B' if B has a winning
+    strategy. Some player is guaranteed to have one, because [FIXME: Say why.]
+    """
+    board = _Board(m, n, vi, vj)
+    a = _Player(ai, aj)
+    b = _Player(bi, bj)
+    return 'A' if _active_player_is_winner(board, a, b) else 'B'
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
