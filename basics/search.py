@@ -390,7 +390,7 @@ def count_coin_change_alt(coins, total):
     return count(0, total)
 
 
-class _Pos:
+class _Pos:  # TODO: May be better as a named tuple (namedtuple and inherit).
     """Coordinates to a board square in Tread."""
 
     __slots__ = ('_i', '_j')
@@ -436,10 +436,10 @@ class _Pos:
         yield _Pos(self.i + 1, self.j)
 
 
-class _Player:
+class _Player:  # TODO: May be better as a data class (via dataclass or attrs).
     """A player in Tread."""
 
-    __slots__ = ('vis', 'pre', 'cur', 'gaffes')
+    __slots__ = ('vis', 'old_pos', 'pos', 'gaffes')
 
     def __init__(self, start_i, start_j):
         """Create a new player with the specified starting coordinates."""
@@ -476,7 +476,7 @@ class _Board:
 
     def __contains__(self, pos):
         """Tell if a position is on the board (in bounds and not the void)."""
-        return (0 <= pos._i < self._m and 0 <= pos._j < self._n
+        return (0 <= pos.i < self._m and 0 <= pos.j < self._n
                 and pos != self._void)
 
 
@@ -484,38 +484,41 @@ _MAX_GAFFES = 2
 """The maximum number of gaffes allowed to each player in a game of Tread."""
 
 
-def _active_player_is_winner(board, active, inactive):
+def _active_player_has_winning_strategy(board, active, inactive):
     """Tell if the active Tread player has a winning strategy in mid-game."""
-    if active.pos not in board or inactive.is_blocking(active.pos):
-        return False
+    # If Inactive's move was illegal, Active calls it out and immediately wins.
+    if (inactive.pos not in board or active.is_blocking(active.pos) or
+            (inactive.pos in inactive.vis and inactive.gaffes == _MAX_GAFFES)):
+        return True
 
-    if active.pos not in active.vis:
-        active.vis.add(active.pos)
-        gaffe = False
-    elif active.gaffes == _MAX_GAFFES:
-        return False
+    # Active ensures that Inactive's current and future gaffes are detected.
+    gaffe = inactive.pos in inactive.vis
+    if gaffe:
+        inactive.gaffes += 1
     else:
-        active.gaffes += 1
-        gaffe = True
+        inactive.vis.add(inactive.pos)
 
-    old_old_pos = inactive.old_pos
-    inactive.old_pos = inactive.pos
+    # Record Active's current and old position so we can backtrack the game.
+    old_old_pos = active.old_pos
+    active.old_pos = active.pos
 
     try:
-        for pos in inactive.pos.neighbors:
-            inactive.pos = pos
-            if _active_player_is_winner(board, inactive, active):
-                return False
+        for pos in active.old_pos.neighbors:
+            active.pos = pos
+            if not _active_player_has_winning_strategy(board, inactive, active):
+                return True  # Active can deny Inactive a winning strategy.
+
+        return False  # Active has no way to deny Inactive a winning strategy.
     finally:
-        inactive.pos = inactive.old_pos
-        inactive.old_pos = old_old_pos
+        # Restore Active's current and old position, to backtrack the game.
+        active.pos = active.old_pos
+        active.old_pos = old_old_pos
 
+        # Restore Inactive's gaffe bookkeeping too. (Active is honorable.)
         if gaffe:
-            active.gaffes -= 1
+            inactive.gaffes -= 1
         else:
-            active.vis.remove(active.pos)
-
-    return True
+            inactive.vis.remove(inactive.pos)
 
 
 def find_tread_winner(m, n, vi, vj, ai, aj, bi, bj):
@@ -527,22 +530,25 @@ def find_tread_winner(m, n, vi, vj, ai, aj, bi, bj):
 
     A game of Tread is played on an m-by-n board with a void at (vi, vj) where
     no one can go. A starts at (ai, aj), B at (bi, bj). Players alternate
-    turns. A goes first. The player whose turn it is (the "active player") must
-    move up, down, left, or right on the board, but can't move to the void,
-    their opponent's location, or their opponent's most recent previous
-    location. Also, to move onto any square one has ever previously occupied is
-    a gaffe; each player is allowed at most two gaffes. If a player has no
-    legal move, their opponent wins. The void and players' start squares are
-    guaranteed to be three different squares within the m-by-n rectangle.
+    turns. A goes first. The player whose turn it is must move up, down, left,
+    or right on the board, but can't move to the void, their opponent's
+    location, or their opponent's most recent previous location. Also, to move
+    onto any square one has ever previously occupied is a gaffe; each player is
+    allowed at most two gaffes. If a player has no legal move, their opponent
+    wins. The void and players' start squares are guaranteed to be three
+    different squares within the m-by-n rectangle.
 
     Use the simplest correct algorithm you can that passes all tests reasonably
     fast. Return 'A' if A has a winning strategy, or 'B' if B has a winning
     strategy. Some player is guaranteed to have one, because [FIXME: Say why.]
+
+    >>> find_tread_winner(1, 3, 0, 0, 0, 1, 0, 2)
+    'A'
     """
     board = _Board(m, n, vi, vj)
     a = _Player(ai, aj)
     b = _Player(bi, bj)
-    return 'A' if _active_player_is_winner(board, a, b) else 'B'
+    return 'A' if _active_player_has_winning_strategy(board, a, b) else 'B'
 
 
 if __name__ == '__main__':
