@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Searching.
 
@@ -235,15 +237,15 @@ def has_subset_sum_slow(numbers, total):
     sacrifice speed for simplicity, except that I do recommend avoiding
     unnecessary copying, in which case it will take O(2**len(numbers)) time.
     """
-    def solve(start, subtotal):
+    def check(start, subtotal):
         if subtotal == 0:
             return True
         if start == len(numbers):
             return False
-        return (solve(start + 1, subtotal - numbers[start]) or
-                solve(start + 1, subtotal))
+        return (check(start + 1, subtotal - numbers[start]) or
+                check(start + 1, subtotal))
 
-    return solve(0, total)
+    return check(0, total)
 
 
 def has_subset_sum(numbers, total):
@@ -258,7 +260,7 @@ def has_subset_sum(numbers, total):
     """
     memo = {}
 
-    def solve(start, subtotal):
+    def check(start, subtotal):
         if subtotal == 0:
             return True
         if start == len(numbers):
@@ -268,12 +270,12 @@ def has_subset_sum(numbers, total):
             return memo[start, subtotal]
         except KeyError:
             result = memo[start, subtotal] = (
-                solve(start + 1, subtotal - numbers[start]) or
-                solve(start + 1, subtotal)
+                check(start + 1, subtotal - numbers[start]) or
+                check(start + 1, subtotal)
             )
             return result
 
-    return solve(0, total)
+    return check(0, total)
 
 
 def has_subset_sum_alt(numbers, total):
@@ -293,12 +295,101 @@ def has_subset_sum_alt(numbers, total):
     limitation. (Give it the name your original implementation previously had.)
     """
     @functools.cache
-    def solve(start, subtotal):
+    def check(start, subtotal):
         if subtotal == 0:
             return True
         if start == len(numbers):
             return False
-        return (solve(start + 1, subtotal - numbers[start]) or
-                solve(start + 1, subtotal))
+        return (check(start + 1, subtotal - numbers[start]) or
+                check(start + 1, subtotal))
 
-    return solve(0, total)
+    return check(0, total)
+
+
+def count_coin_change_slow(coins, total):
+    """
+    Count how many ways to make change for a total with the coins.
+
+    coins is a sequence of positive integer coin denominations, and total is a
+    a positive integer amount for which change is to be made. All coins are
+    available in unlimited quantities. A way to make change is a multiset of
+    coins, so ways differing only in the order of the coins are the same way.
+    So [5, 2, 2] and [2, 5, 2] are the same way to make change for 10, but they
+    differ from [6, 1, 3].
+
+    If the same value appears more than once in coins, they are distinct coin
+    types happening to have the same value. So in a currency with a 1¢ piece, a
+    2¢ piece portraying the king, and a 2¢ piece portraying the queen:
+
+    >>> count_coin_change_slow([1, 2, 2], 5)
+    6
+
+    This implementation is recursive. It takes exponential time, sacrificing
+    speed for simplicity other than avoiding unnecessary copying. It may
+    resemble the solution to has_subset_sum_slow in other ways, too.
+    """
+    def count(start, subtotal):
+        if subtotal == 0:
+            return 1
+        if start == len(coins):
+            return 0
+        return sum(count(start + 1, next_subtotal)
+                   for next_subtotal in range(subtotal, -1, -coins[start]))
+
+    return count(0, total)
+
+
+def count_coin_change(coins, total):
+    """
+    Efficiently count how many ways to make change for a total with the coins.
+
+    This is the coin change problem described in count_coin_change_slow. This
+    implementation is also recursive, resembling the implementation there, but
+    much more efficient. This function relates to count_coin_change_slow in the
+    same way that has_subset_sum relates to has_subset_sum_slow.
+    """
+    memo = {}
+
+    def count(start, subtotal):
+        if subtotal == 0:
+            return 1
+        if start == len(coins):
+            return 0
+
+        try:
+            return memo[start, subtotal]
+        except KeyError:
+            result = memo[start, subtotal] = sum(
+                count(start + 1, next_subtotal)
+                for next_subtotal in range(subtotal, -1, -coins[start])
+            )
+            return result
+
+    return count(0, total)
+
+
+def count_coin_change_alt(coins, total):
+    """
+    Efficiently count how many ways to make change for a total with the coins.
+
+    This alternative implementation of count_coin_change uses the same
+    recursive algorithm (so it has the same asymptotic time complexity), but
+    implements it using a substantially different technique. This function
+    relates to count_coin_change in the same way that has_subset_sum_alt
+    relates to has_subset_sum.
+    """
+    @functools.cache
+    def count(start, subtotal):
+        if subtotal == 0:
+            return 1
+        if start == len(coins):
+            return 0
+        return sum(count(start + 1, next_subtotal)
+                   for next_subtotal in range(subtotal, -1, -coins[start]))
+
+    return count(0, total)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
