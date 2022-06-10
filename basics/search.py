@@ -390,6 +390,33 @@ def count_coin_change_alt(coins, total):
     return count(0, total)
 
 
+def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
+    """
+    Check if the tourist can escape the Scary Forest.
+
+    The Scary Forest is a rectangular grid represented as a sequence of strings
+    (rows) in which each square (character) is a tree ('*'), an empty spot of
+    trail ('.'), or a flower whose species is abbreviated by a letter. The
+    tourist starts at coordinates (start_i, start_j) and must get to their
+    rocket ship at (finish_i, finish_j) by moving north, south, east, or west.
+    The tourist loses a unit of stamina on each move and will sleep forever
+    when it runs out. But reaching the rocket ship with zero stamina is okay,
+    because being in a rocket ship is exciting enough to wake anybody up.
+
+    If the tourist walks into a tree, the three swallows up the tourist, who
+    will then live the rest of their life inside the tree. Also, the forest is
+    suspended in an infinite abyss, so to walk out of it is to fall for all
+    eternity. The other matter is that, while the tourist may step on a flower,
+    this makes all flowers of that species angry, and it is a productive anger:
+    they all immediately grow into trees once the tourist takes another step.
+
+    Start and finish locations are guaranteed to be empty spots of trail ('.').
+    Indexing is 0-based and uses matrix conventions: the i-coordinate increases
+    to the east and the j-coordinate increases to the south. Tourists find that
+    to be the scariest thing of all, so they named it the Scary Forest.
+    """
+
+
 class _Pos:  # TODO: May be better as a named tuple (namedtuple and inherit).
     """Coordinates to a board square in Tread."""
 
