@@ -529,13 +529,16 @@ def as_closeable_iterator(func):
     as_closeable_iterator_limited, except no sentinel value is recognized.
 
     >>> a = [10, 20, 30, 40]
+    >>> b = []
     >>> def f(): return a.pop()
-    >>> f.close = lambda: print('Done.')
+    >>> f.close = lambda: b.append('END')
     >>> it = as_closeable_iterator(f)
-    >>> list(it)  # FIXME: Shouldn't "Done." be printed?
+    >>> list(it)
     Traceback (most recent call last):
       ...
     IndexError: pop from empty list
+    >>> b
+    ['END']
     """
     return as_closeable_iterator_limited(func, object())
 
