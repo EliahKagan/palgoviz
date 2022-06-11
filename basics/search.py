@@ -477,7 +477,8 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
     return check(start_i, start_j, stamina)
 
 
-class _Pos:  # TODO: May be better as a named tuple (namedtuple and inherit).
+# TODO: Refactor this as a named tuple (namedtuple and inherit) after testing.
+class _Pos:
     """Coordinates to a board square in Tread."""
 
     __slots__ = ('_i', '_j')
@@ -523,7 +524,8 @@ class _Pos:  # TODO: May be better as a named tuple (namedtuple and inherit).
         yield _Pos(self.i + 1, self.j)
 
 
-class _Player:  # TODO: May be better as a data class (via dataclass or attrs).
+# TODO: Refactor this as a dataclass (via dataclass or attrs) after testing.
+class _Player:
     """A player in Tread."""
 
     __slots__ = ('vis', 'old_pos', 'pos', 'gaffes')
