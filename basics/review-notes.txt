@@ -19,4 +19,5 @@ search.has_subset_sum_alt
 search.count_coin_change_slow
 search.count_coin_change
 search.count_coin_change_alt
+search.can_escape_forest  [maybe defer]
 search.find_tread_winner  [maybe defer]
