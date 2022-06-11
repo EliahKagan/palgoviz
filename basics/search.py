@@ -398,10 +398,10 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
     (rows) in which each square (character) is a tree ('*'), an empty spot of
     trail ('.'), or a flower whose species is abbreviated by a letter. The
     tourist starts at coordinates (start_i, start_j) and must get to their
-    rocket ship at (finish_i, finish_j) by moving north, south, east, or west.
-    The tourist loses a unit of stamina on each move and will sleep forever
-    when it runs out. But reaching the rocket ship with zero stamina is okay,
-    because being in a rocket ship is exciting enough to wake anybody up.
+    rocket ship at (finish_i, finish_j) by moves going north, south, east, or
+    west. The tourist loses a unit of stamina per move, and will sleep forever
+    when it runs out, except that reaching the rocket ship with zero stamina is
+    okay, because being in a rocket ship is exciting enough to wake anybody up.
 
     If the tourist walks into a tree, the three swallows up the tourist, who
     will then live the rest of their life inside the tree. Also, the forest is
@@ -413,8 +413,68 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
     Start and finish locations are guaranteed to be empty spots of trail ('.').
     Indexing is 0-based and uses matrix conventions: the i-coordinate increases
     to the east and the j-coordinate increases to the south. Tourists find that
-    to be the scariest thing of all, so they named it the Scary Forest.
+    to be the scariest thing of all; that's why they named it the Scary Forest.
+
+    >>> a = ('*A.B',
+    ...      '..*.',
+    ...      '*B.A')
+    >>> can_escape_forest(a, 5, start_i=1, start_j=0, finish_i=1, finish_j=3)
+    True
+    >>> can_escape_forest(a, 4, start_i=1, start_j=0, finish_i=1, finish_j=3)
+    False
+    >>> can_escape_forest(a, 4, start_i=1, start_j=1, finish_i=1, finish_j=3)
+    True
+    >>> b = ('*A.A',
+    ...      '..*.',
+    ...      '*B.B')
+    >>> can_escape_forest(b, 5, start_i=1, start_j=0, finish_i=1, finish_j=3)
+    False
+    >>> can_escape_forest(b, 10, start_i=1, start_j=0, finish_i=1, finish_j=3)
+    False
+    >>> c = ('.........*..A..',
+    ...      'QQPP*BBAA*.*...',
+    ...      'ABAB*PQRQ*.*.*B',
+    ...      '....*........R.',
+    ...      '****..***.****C',
+    ...      '...*C*....D.P.D',
+    ...      '**.....*C.....D')
+    >>> can_escape_forest(c, 19, start_i=3, start_j=1, finish_i=3, finish_j=14)
+    True
+    >>> can_escape_forest(c, 18, start_i=3, start_j=1, finish_i=3, finish_j=14)
+    False
     """
+    grid = [list(row) for row in forest]
+    angry_flowers = set()
+
+    def on_board(i, j):
+        return 0 <= i < len(grid) and 0 <= j < len(grid[i])
+
+    def blocked(i, j):
+        return grid[i][j] == '*' or grid[i][j] in angry_flowers
+
+    def check(i, j, remaining_stamina):
+        if i == finish_i and j == finish_j:
+            return True
+
+        if not on_board(i, j) or blocked(i, j) or remaining_stamina == 0:
+            return False
+
+        if grid[i][j] == '.':
+            grid[i][j] = '*'
+        else:
+            angry_flowers.add(grid[i][j])
+
+        neighbors = ((i, j - 1), (i, j + 1), (i - 1, j), (i + 1, j))
+        result = any(check(h, k, remaining_stamina - 1) for h, k in neighbors)
+
+        if grid[i][j] == '*':
+            grid[i][j] = '.'
+        else:
+            angry_flowers.remove(grid[i][j])
+
+        return result
+
+    return check(start_i, start_j, stamina)
 
 
 class _Pos:  # TODO: May be better as a named tuple (namedtuple and inherit).
