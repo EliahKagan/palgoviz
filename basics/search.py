@@ -412,7 +412,7 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
 
     Start and finish locations are guaranteed to be empty spots of trail ('.').
     Indexing is 0-based and uses matrix conventions: the i-coordinate increases
-    to the east and the j-coordinate increases to the south. Tourists find that
+    to the south and the j-coordinate increases to the east. Tourists find that
     to be the scariest thing of all; that's why they named it the Scary Forest.
 
     >>> a = ('*A.B',
