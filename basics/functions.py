@@ -14,6 +14,7 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
+import contextlib
 import itertools
 from decorators import peek_return
 
@@ -149,7 +150,15 @@ def as_func_limited(iterable, end_sentinel):
     call, like as_func (above). But if the iterable has been exhausted, no
     exception is raised. Instead, end_sentinel is returned.
 
-    FIXME: Needs tests.
+    >>> f = as_func_limited([10, 20], 'END')
+    >>> f()
+    10
+    >>> f()
+    20
+    >>> f()
+    'END'
+    >>> f()
+    'END'
     """
     it = iter(iterable)
     return lambda: next(it, end_sentinel)
@@ -162,7 +171,15 @@ def as_func_limited_alt(iterable, end_sentinel):
     This is an alternative implementation of as_func_limited. One
     implementation contains explicit try-except logic; the other does not.
 
-    FIXME: Needs tests.
+    >>> f = as_func_limited_alt([10, 20], 'END')
+    >>> f()
+    10
+    >>> f()
+    20
+    >>> f()
+    'END'
+    >>> f()
+    'END'
     """
     it = iter(iterable)
 
@@ -416,6 +433,15 @@ def as_closeable_func(iterable):
 
     FIXME: Needs tests.
     """
+    it = iter(iterable)
+
+    def get_next():
+        return next(it)
+
+    with contextlib.suppress(AttributeError):
+        get_next.close = it.close
+
+    return get_next
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
@@ -432,6 +458,15 @@ def as_closeable_func_limited(iterable, end_sentinel):
 
     FIXME: Needs tests.
     """
+    it = iter(iterable)
+
+    def get_next():
+        return next(it, end_sentinel)
+
+    with contextlib.suppress(AttributeError):
+        get_next.close = it.close
+
+    return get_next
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
@@ -441,11 +476,46 @@ def as_closeable_iterator_limited(func, end_sentinel):
 
     This is like as_iterator_limited and as_iterator_limited_alt. But the
     iterator it returns must be a generator object, and if func has a close
-    method (or otherwise supports having close on it, like a method), then when
+    method (or otherwise supports calling close on it like a method), then when
     the returned generator object is closed, this causes func to be closed.
 
-    FIXME: Needs tests.
+    >>> a = [10, 20, 30, 40]
+    >>> def f(): return a.pop()
+    >>> f.close = lambda: print('Done.')
+    >>> it1 = as_closeable_iterator_limited(f, 20)
+    >>> list(it1)
+    Done.
+    [40, 30]
+    >>> a
+    [10]
+    >>> it1.close()  # No output, the generator is already closed.
+    >>> a = [10, 20, 30, 40]
+    >>> it2 = as_closeable_iterator_limited(f, 20)
+    >>> next(it2)
+    40
+    >>> it2.close()
+    Done.
+    >>> it3 = as_closeable_iterator_limited(f, 20)
+    >>> it3.close()
+    Done.
     """
+    def generate():
+        try:
+            yield
+
+            while (result := func()) != end_sentinel:
+                yield result
+        finally:
+            try:
+                close = func.close
+            except AttributeError:
+                pass
+            else:
+                close()
+
+    it = generate()
+    next(it)  # Enter the try block, so closing will run the finally block.
+    return it
 
 
 def as_closeable_iterator(func):
@@ -458,8 +528,16 @@ def as_closeable_iterator(func):
     as_iterator_limited_alt). That is to say that this does the same thing as
     as_closeable_iterator_limited, except no sentinel value is recognized.
 
-    FIXME: Needs tests.
+    >>> a = [10, 20, 30, 40]
+    >>> def f(): return a.pop()
+    >>> f.close = lambda: print('Done.')
+    >>> it = as_closeable_iterator(f)
+    >>> list(it)  # FIXME: Shouldn't "Done." be printed?
+    Traceback (most recent call last):
+      ...
+    IndexError: pop from empty list
     """
+    return as_closeable_iterator_limited(func, object())
 
 
 def func_filter(predicate, func, end_sentinel):
@@ -478,8 +556,38 @@ def func_filter(predicate, func, end_sentinel):
 
     This implementation does not involve iterators in any way.
 
-    FIXME: Needs tests.
+    >>> a = [11, 22, 33, 44, 55, 66]
+    >>> f = func_filter(lambda n: n % 2 == 0, a.pop, 33)
+    >>> f()
+    66
+    >>> f()
+    44
+    >>> f()
+    33
+    >>> f()
+    33
+    >>> a
+    [11, 22]
     """
+    if predicate is None:
+        predicate = lambda x: x
+
+    done = False
+
+    def get_next_satisfier():
+        nonlocal done
+
+        if done:
+            return end_sentinel
+
+        while (result := func()) != end_sentinel:
+            if predicate(result):
+                return result
+
+        done = True
+        return end_sentinel
+
+    return get_next_satisfier
 
 
 if __name__ == '__main__':
