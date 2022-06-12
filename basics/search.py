@@ -242,7 +242,9 @@ def first_satisfying_restricted(predicate, low, high, *,
       ...
     OverflowError: Python int too large to convert to C ssize_t
     """
-    return high if high < low else low + bisector(range(low, high), 1, key=predicate)
+    if high < low:
+        return high
+    return low + bisector(range(low, high), 1, key=predicate)
 
 
 def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
