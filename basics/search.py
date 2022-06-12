@@ -586,9 +586,9 @@ def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
     slower. Reproduce at most very little logic from can_escape_forest (or its
     helpers). You can use anything from this project or the standard library.
 
-    It's tempting to say this is a factor of [FIXME: give it in big-O] slower
-    than can_escape_forest. But that's often not so, since [FIXME: explain why
-    not, say something about what affects it, and give an example of a software
+    It's tempting to say this is only a factor of [FIXME: give it in big-O]
+    slower than can_escape_forest. But it's often worse than that, because
+    [FIXME: Explain. Say what can affect it. Give an example of a software
     engineering problem where this technique really does enjoy that guarantee].
     """
     def is_sufficient(stamina):
