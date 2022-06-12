@@ -8,6 +8,7 @@ See also recursion.py.
 
 import bisect
 import functools
+import math
 import operator
 
 
@@ -564,6 +565,14 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
     return check(start_i, start_j, stamina)
 
 
+def _overestimate_escape_stamina(forest):
+    """Compute an upper bound on the minimum stamina to escape a forest."""
+    # The tourist can step on each empty spot and on a flower of each species.
+    empty_trail_area = sum(row.count('.') for row in forest)
+    species_count = len({ch for row in forest for ch in row if ch.isalpha()})
+    return empty_trail_area + species_count
+
+
 def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
     """
     Find the minimum stamina with which the tourist can escape the forest.
@@ -575,14 +584,20 @@ def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
     inputs, it would even be the fastest way. But it would sometimes take too
     long. Use a different technique that is sometimes faster, even if sometimes
     slower. Reproduce at most very little logic from can_escape_forest (or its
-    helpers, if any). You can call any combination of functions in this module.
+    helpers). You can use anything from this project or the standard library.
 
-    It's tempting to say this is a factor of [FIXME: in big-O, what?] faster
+    It's tempting to say this is a factor of [FIXME: give it in big-O] slower
     than can_escape_forest. But that's often not so, since [FIXME: explain why
     not, say something about what affects it, and give an example of a software
-    engineering problem where this technique does enjoy such a guarantee].
+    engineering problem where this technique really does enjoy that guarantee].
     """
-    # FIXME: Needs implementation.
+    def is_sufficient(stamina):
+        return can_escape_forest(forest, stamina,
+                                 start_i, start_j, finish_i, finish_j)
+
+    upper_bound = _overestimate_escape_stamina(forest) + 1
+    needed_stamina = first_satisfying(is_sufficient, 0, upper_bound)
+    return math.inf if needed_stamina == upper_bound else needed_stamina
 
 
 # TODO: Refactor this as a named tuple (namedtuple and inherit) after testing.
