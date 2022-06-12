@@ -9,6 +9,11 @@ functions.as_closeable_iterator
 functions.func_filter
 search.bsearch
 search.bsearch_alt
+search.first_satisfying
+search.first_satisfying_iterative
+search.first_satisfying_good
+search.my_bisect_left
+serach.my_bisect_right
 search.two_sum_slow
 search.two_sum_fast
 search.two_sum_sorted
@@ -19,5 +24,6 @@ search.has_subset_sum_alt
 search.count_coin_change_slow
 search.count_coin_change
 search.count_coin_change_alt
-search.can_escape_forest  [maybe defer]
-search.find_tread_winner  [maybe defer]
+search.can_escape_forest
+search.min_forest_escape_stamina
+search.find_tread_winner

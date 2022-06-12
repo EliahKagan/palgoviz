@@ -175,6 +175,36 @@ def first_satisfying_good(predicate, low, high):
     # FIXME: Needs implementation.
 
 
+def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
+    """
+    Find the leftmost insertion point for a new key x in a sorted sequence.
+
+    This is like bisect.bisect_left, except reverse-sorted input is supported
+    (when reverse=True). Since it can be useful to pass lo and hi as keyword
+    arguments, their names are retained for compatibility (instead of following
+    the conventions elsewhere in this project and calling them low and high).
+
+    Like bisect.bisect_left, the key function is applied to elements of values
+    but not to x, and if key is not passed, every element is its own key.
+    Assume values is sorted as if by values.sort(key=key, reverse=reverse).
+
+    This uses no library functions but builtins. But it does use at least one
+    function in this module, making it much shorter and simpler than otherwise.
+    """
+    # FIXME: Needs implementation.
+
+
+def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
+    """
+    Find the rightmost insertion point for a new key x in a sorted sequence.
+
+    This is analogous to my_bisect_left, but for bisect.bisect_right. It has
+    the same preconditions including how values comes sorted, and the same
+    requirements on what functions it uses.
+    """
+    # FIXME: Needs implementation.
+
+
 def two_sum_slow(numbers, total):
     """
     Find indices of two numbers that sum to total. Minimize auxiliary space.
@@ -532,6 +562,27 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
         return result
 
     return check(start_i, start_j, stamina)
+
+
+def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
+    """
+    Find the minimum stamina with which the tourist can escape the forest.
+
+    Parameters mean the same as in can_escape_forest. If no amount of stamina
+    is enough, return math.inf. One approach could be to call can_escape_forest
+    with ascending stamina: 0, then 1, then 2, and so on (though you would have
+    to figure out when to give up). That would find the right answer. On some
+    inputs, it would even be the fastest way. But it would sometimes take too
+    long. Use a different technique that is sometimes faster, even if sometimes
+    slower. Reproduce at most very little logic from can_escape_forest (or its
+    helpers, if any). You can call any combination of functions in this module.
+
+    It's tempting to say this is a factor of [FIXME: in big-O, what?] faster
+    than can_escape_forest. But that's often not so, since [FIXME: explain why
+    not, say something about what affects it, and give an example of a software
+    engineering problem where this technique does enjoy such a guarantee].
+    """
+    # FIXME: Needs implementation.
 
 
 # TODO: Refactor this as a named tuple (namedtuple and inherit) after testing.
