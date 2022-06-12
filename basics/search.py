@@ -52,6 +52,8 @@ def bsearch(values, x, key=None, reverse=False):
     If an approach would require considerably more code, you should still
     consider it feasible... *if* you are convinced that it really can be done.]
 
+    >>> bsearch(range(99, -1, -1), 17, reverse=True)
+    82
     >>> bsearch(range(100), 289, key=lambda x: x**2)
     17
     >>> bsearch(range(99, -1, -1), 289, key=lambda x: x**2, reverse=True)
@@ -128,6 +130,8 @@ def bsearch_alt(values, x, key=None, reverse=False):
     (but not the one, if any, whose approach bsearch uses above), unless that's
     not possible, as detailed in the text you added to the bsearch docstring.
 
+    >>> bsearch_alt(range(99, -1, -1), 17, reverse=True)
+    82
     >>> bsearch_alt(range(100), 289, key=lambda x: x**2)
     17
     >>> bsearch_alt(range(99, -1, -1), 289, key=lambda x: x**2, reverse=True)
