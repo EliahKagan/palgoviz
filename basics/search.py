@@ -223,11 +223,11 @@ def first_satisfying_good(predicate, low, high):
     """
     # FIXME: There are 2 bugs: a minor bug about what's returned if high < low,
     # and a major bug in the design of the exercise, since this is not actually
-    # a good way to implement this if generality is needed, because the bisect
-    # module functions call len, which limits the size of the search space to
-    # what could actually be represented in memory, even though ranges can be
-    # bigger (the just can't have their len taken, if they are).
-    return low + bisect.bisect_left(range(low, high), 1, key=predicate)
+    # a good way to implement this if generality is needed. When passed an
+    # explicit hi argument, the bisect module functions don't call len, but
+    # their lo and hi arguments, if passed, also must fit into native words; we
+    # still get "OverflowError: Python int too large to convert to C ssize_t".
+    return low + bisect.bisect_left(range(low, high), 1, lo=0, hi=high - low, key=predicate)
 
 
 def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
