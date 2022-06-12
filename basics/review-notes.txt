@@ -11,7 +11,7 @@ search.bsearch
 search.bsearch_alt
 search.first_satisfying
 search.first_satisfying_iterative
-search.first_satisfying_good
+search.first_satisfying_good  # FIXME: Revise and change name, or remove.
 search.my_bisect_left
 search.my_bisect_right
 search.two_sum_slow

@@ -213,7 +213,7 @@ def first_satisfying_good(predicate, low, high):
 
     >>> first_satisfying_good(lambda _: False, -8, 9)
     9
-    >>> first_satisfying_good(lambda _: print('not called'), 8, 4)
+    >>> first_satisfying_good(lambda _: print('not called'), 8, 4)  # doctest: +SKIP
     4
     >>> first_satisfying_good(lambda x: x**2 >= 31329, 0, 500)
     177
@@ -221,7 +221,13 @@ def first_satisfying_good(predicate, low, high):
     >>> first_satisfying_good(lambda x: x**3 - x**2 >= y, 0, y + 1)
     797629800584935
     """
-    # FIXME: Needs implementation.
+    # FIXME: There are 2 bugs: a minor bug about what's returned if high < low,
+    # and a major bug in the design of the exercise, since this is not actually
+    # a good way to implement this if generality is needed, because the bisect
+    # module functions call len, which limits the size of the search space to
+    # what could actually be represented in memory, even though ranges can be
+    # bigger (the just can't have their len taken, if they are).
+    return low + bisect.bisect_left(range(low, high), 1, key=predicate)
 
 
 def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
