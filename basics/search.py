@@ -4,6 +4,12 @@
 Searching.
 
 See also recursion.py.
+
+It is often said, including in the Python documentation and in this module's
+docstrings, that a sequence must be sorted for binary search to work correctly.
+But the actual precondition is much weaker: [TODO: After doing the relevant
+exercises in this module, replace this bracketed text with a statement of the
+weaker precondition and a list of all functions it applies to in this module.]
 """
 
 import bisect
@@ -123,7 +129,7 @@ def bsearch_alt(values, x, key=None, reverse=False):
 #       can be worked in any order. Please read all their descriptions first.
 
 
-def first_satisfying(predicate, low, high):
+def first_satisfying(predicate, low, high):  # !!FIXME: Proofread requirements.
     """
     Find the first int satisfying a predicate that partitions the search space.
 
@@ -142,8 +148,23 @@ def first_satisfying(predicate, low, high):
     auxiliary space complexities. Explain why it is that no asymptotically
     faster algorithm for this problem is possible, even in the absence of any
     restrictions on what techniques are used to implement it.]
+
+    >>> first_satisfying(lambda _: False, -8, 9)
+    9
+    >>> first_satisfying(lambda _: print('not called'), 8, 4)
+    4
+    >>> first_satisfying(lambda x: x**2 >= 31329, 0, 500)
+    177
+    >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
+    >>> first_satisfying(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    797629800584935
     """
-    # FIXME: Needs implementation.
+    if low >= high:
+        return high
+    mid = (low + high) // 2
+    if predicate(mid):
+        return first_satisfying(predicate, low, mid)
+    return first_satisfying(predicate, mid + 1, high)
 
 
 def first_satisfying_iterative(predicate, low, high):
@@ -157,8 +178,25 @@ def first_satisfying_iterative(predicate, low, high):
 
     This has the same asymptotic time complexity as first_satisfying. Its
     auxiliary space complexity is [FIXME: state it asymptotically here].
+
+    >>> first_satisfying_iterative(lambda _: False, -8, 9)
+    9
+    >>> first_satisfying_iterative(lambda _: print('not called'), 8, 4)
+    4
+    >>> first_satisfying_iterative(lambda x: x**2 >= 31329, 0, 500)
+    177
+    >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
+    >>> first_satisfying_iterative(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    797629800584935
     """
-    # FIXME: Needs implementation.
+    while low < high:
+        mid = (low + high) // 2
+        if predicate(mid):
+            high = mid
+        else:
+            low = mid + 1
+
+    return high
 
 
 def first_satisfying_good(predicate, low, high):
@@ -172,6 +210,16 @@ def first_satisfying_good(predicate, low, high):
 
     This has the same asymptotic time complexity they do. Its auxiliary space
     complexity is [FIXME: state it asymptotically here].
+
+    >>> first_satisfying_good(lambda _: False, -8, 9)
+    9
+    >>> first_satisfying_good(lambda _: print('not called'), 8, 4)
+    4
+    >>> first_satisfying_good(lambda x: x**2 >= 31329, 0, 500)
+    177
+    >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
+    >>> first_satisfying_good(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    797629800584935
     """
     # FIXME: Needs implementation.
 
@@ -204,6 +252,9 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     requirements on what functions it uses.
     """
     # FIXME: Needs implementation.
+
+
+# NOTE: Having done all the above exercises, do the module docstring TODO.
 
 
 def two_sum_slow(numbers, total):
