@@ -118,6 +118,23 @@ def bsearch_alt(values, x, key=None, reverse=False):
     return index
 
 
+def first_satisfying(predicate, low, high):
+    """
+    Find the first satisfying integer in a range partitioned by a predicate.
+
+    The caller must ensure that there is some int k where low <= k < high and:
+
+      - For every int i where low <= i < k, predicate(i) is falsy.
+      - For every int j where k <= j < high, predicate(j) is truthy.
+
+    That is, within the given bounds, if an argument is high enough to satisfy
+    the predicate, increasing it continues to satisfy the predicate. This finds
+    the lowest value high enough to satisfy the predicate (which is what k is).
+
+    This implementation is recursive.
+    """
+
+
 def two_sum_slow(numbers, total):
     """
     Find indices of two numbers that sum to total. Minimize auxiliary space.
