@@ -275,6 +275,34 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     # FIXME: Needs implementation.
 
 
+def my_bisect_left_alt(values, x, lo=0, hi=None, *, key=None, reverse=False):
+    """
+    Find the leftmost insertion point for a new key x in a sorted sequence.
+
+    This alternative implementation of my_bisect_left is self-contained. It
+    doesn't use anything else in this module, elsewhere in the project, or any
+    libraries including the standard library, except that builtins may be used.
+    It doesn't reproduce much (if any) code from other functions, except for
+    its similarity to my_bisect_right_alt (below). It may use a helper, but if
+    it does, the helper must not in effect reimplement first_satisfying.
+    """
+    # FIXME: Needs implementation.
+
+
+def my_bisect_right_alt(values, x, lo=0, hi=None, *, key=None, reverse=False):
+    """
+    Find the rightmost insertion point for a new key x in a sorted sequence.
+
+    This alternative implementation of my_bisect_right is self-contained. It
+    doesn't use anything else in this module, elsewhere in the project, or any
+    libraries including the standard library, except that builtins may be used.
+    It doesn't reproduce much (if any) code from other functions, except for
+    its similarity to my_bisect_left_alt (above). It may use a helper, but if
+    it does, the helper must not in effect reimplement first_satisfying.
+    """
+    # FIXME: Needs implementation.
+
+
 # NOTE: Having done all the above exercises, do the module docstring TODO.
 
 
