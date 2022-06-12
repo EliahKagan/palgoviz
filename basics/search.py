@@ -118,9 +118,13 @@ def bsearch_alt(values, x, key=None, reverse=False):
     return index
 
 
+# NOTE: first_satisfying, first_satisfying_iterative, and first_satisfying_good
+#       can be worked in any order. Please read all their descriptions first.
+
+
 def first_satisfying(predicate, low, high):
     """
-    Find the first satisfying integer in a range partitioned by a predicate.
+    Find the first int satisfying a predicate that partitions the search space.
 
     The caller must ensure that there is some int k where low <= k < high and:
 
@@ -131,8 +135,44 @@ def first_satisfying(predicate, low, high):
     the predicate, increasing it continues to satisfy the predicate. This finds
     the lowest value high enough to satisfy the predicate (which is what k is).
 
-    This implementation is recursive.
+    This implementation is recursive. It uses no library facilities besides
+    builtins. Its time complexity is asymptotically optimal. [FIXME: Assume
+    each call to predicate takes O(1) time. State the asymptotic time and
+    auxiliary space complexities. Explain why it is that no asymptotically
+    faster algorithm for this problem is possible, even in the absence of any
+    restrictions on what techniques are used to implement it.]
     """
+    # FIXME: Needs implementation.
+
+
+def first_satisfying_iterative(predicate, low, high):
+    """
+    Find the first int satisfying a predicate that partitions the search space.
+
+    This is like first_satisfying but iterative instead of recursive, also
+    making no use of library facilities besides builtins. The algorithm is the
+    same as, or very similar to, that algorithm. The code is even as close as
+    it reasonably can be be to the code there, while still using no recursion.
+
+    This has the same asymptotic time complexity as first_satisfying. Its
+    auxiliary space complexity is [FIXME: state it asymptotically here].
+    """
+    # FIXME: Needs implementation.
+
+
+def first_satisfying_good(predicate, low, high):
+    """
+    Find the first int satisfying a predicate that partitions the search space.
+
+    This is like first_satisfying and first_satisfying_iterative, but with no
+    restrictions on how it is implemented, except that it should make maximal
+    use of standard library facilities to keep its own code simple and short.
+    The actual code here will thus not resemble that of those two functions.
+
+    This has the same asymptotic time complexity they do. Its auxiliary space
+    complexity is [FIXME: state it asymptotically here].
+    """
+    # FIXME: Needs implementation.
 
 
 def two_sum_slow(numbers, total):
