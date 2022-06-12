@@ -14,6 +14,10 @@ search.first_satisfying
 search.first_satisfying_restricted
 search.my_bisect_left
 search.my_bisect_right
+search.my_bisect_left_recursive
+search.my_bisect_left_iterative
+search.my_bisect_right_recursive
+search.my_bisect_right_iterative
 search.two_sum_slow
 search.two_sum_fast
 search.two_sum_sorted

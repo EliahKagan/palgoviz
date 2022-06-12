@@ -275,33 +275,88 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     # FIXME: Needs implementation.
 
 
-def my_bisect_left_alt(values, x, lo=0, hi=None, *, key=None, reverse=False):
+def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
+                             key=None, reverse=False):
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
 
-    This alternative implementation of my_bisect_left is self-contained. It
-    doesn't use anything else in this module, elsewhere in the project, or any
-    libraries including the standard library, except that builtins may be used.
-    It doesn't reproduce much (if any) code from other functions, except for
-    its similarity to my_bisect_right_alt (below). It may use a helper, but if
-    it does, the helper must not in effect reimplement first_satisfying.
+    This recursive implementation of my_bisect_left is self-contained, neither
+    using any outside functionality (except builtins) nor reproducing any of
+    the first_satisfying functions' behavior. That is, this should be a classic
+    binary search implementation, but to find the left insertion point rather
+    than a matching element (and supporting key and reverse).
+
+    [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
+    replace this with a doctest that shows injecting my_bisect_left_recursive
+    as the dependency avoids OverflowError. Otherwise, just remove this.]
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
     """
     # FIXME: Needs implementation.
 
 
-def my_bisect_right_alt(values, x, lo=0, hi=None, *, key=None, reverse=False):
+def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
+                             key=None, reverse=False):
+    """
+    Find the leftmost insertion point for a new key x in a sorted sequence.
+
+    This nonrecursive implementation of my_bisect_left is self-contained, just
+    as in my_bisect_left_recursive, but iterative instead of recursive.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
+    replace this with a doctest that shows injecting my_bisect_left_iterative
+    as the dependency avoids OverflowError. Otherwise, just remove this.]
+    """
+    # FIXME: Needs implementation.
+
+
+def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
+                              key=None, reverse=False):
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
 
-    This alternative implementation of my_bisect_right is self-contained. It
-    doesn't use anything else in this module, elsewhere in the project, or any
-    libraries including the standard library, except that builtins may be used.
-    It doesn't reproduce much (if any) code from other functions, except for
-    its similarity to my_bisect_left_alt (above). It may use a helper, but if
-    it does, the helper must not in effect reimplement first_satisfying.
+    This recursive implementation of my_bisect_right is self-contained. This is
+    like my_bisect_left_recursive, but finding the right insertion point.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
+    first_satisfying_restricted, replace this with a doctest that shows
+    injecting my_bisect_right_recursive as the dependency avoids OverflowError.
+    Otherwise, just remove this.]
     """
     # FIXME: Needs implementation.
 
+
+def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
+                              key=None, reverse=False):
+    """
+    Find the rightmost insertion point for a new key x in a sorted sequence.
+
+    This nonrecursive implementation of my_bisect_right is self-contained, just
+    as in my_bisect_right_recursive, but iterative instead of recursive. So
+    this is like my_bisect_left_iterative, but finding a right insertion point.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
+    first_satisfying_restricted, replace this with a doctest that shows
+    injecting my_bisect_right_iterative as the dependency avoids OverflowError.
+    Otherwise, just remove this.]
+    """
+    # FIXME: Needs implementation.
+
+
+# FIXME: (A) If the function first_satisfying_restricted used from the bisect
+# module was neither bisect.bisect_left nor bisect.bisect_right/bisect.bisect,
+# then reimplement that function here (without the ssize_t restriction). You
+# can call other functions in this module, but not any of the first_satisfying
+# functions, nor anything that directly or indirectly calls them. Write a few
+# tests (of any kind) of your new function, at least one of which must show
+# that injecting it as first_satisfying_restricted's bisector dependency avoids
+# OverflowError. (B) But if it was one of those, just remove this comment.
 
 # NOTE: Having done all the above exercises, do the module docstring TODO.
 
