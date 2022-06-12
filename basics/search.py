@@ -125,15 +125,11 @@ def bsearch_alt(values, x, key=None, reverse=False):
     return index
 
 
-# NOTE: first_satisfying, first_satisfying_iterative, and first_satisfying_good
-#       can be worked in any order. Please read all their descriptions first.
-
-
-def first_satisfying(predicate, low, high):  # !!FIXME: Proofread requirements.
+def first_satisfying_recursive(predicate, low, high):
     """
     Find the first int satisfying a predicate that partitions the search space.
 
-    The caller must ensure that there is some int k where low <= k < high and:
+    The caller must ensure that there is some int k where low <= k <= high and:
 
       - For every int i where low <= i < k, predicate(i) is falsy.
       - For every int j where k <= j < high, predicate(j) is truthy.
@@ -142,51 +138,57 @@ def first_satisfying(predicate, low, high):  # !!FIXME: Proofread requirements.
     the predicate, increasing it continues to satisfy the predicate. This finds
     the lowest value high enough to satisfy the predicate (which is what k is).
 
-    This implementation is recursive. It uses no library facilities besides
-    builtins. Its time complexity is asymptotically optimal. [FIXME: Assume
-    each call to predicate takes O(1) time. State the asymptotic time and
-    auxiliary space complexities. Explain why it is that no asymptotically
-    faster algorithm for this problem is possible, even in the absence of any
-    restrictions on what techniques are used to implement it.]
+    It follows that (a) if the predicate is never satisfied, high is returned,
+    and (b) the caller must ensure low <= high. (Make sure you understand why.)
+    But as an additional requirement, support high < low by returning high.
 
-    >>> first_satisfying(lambda _: False, -8, 9)
+    This implementation is recursive. It may use builtins, but no other library
+    facilities. Its time complexity is asymptotically optimal. [FIXME: State
+    the asymptotic time and auxiliary space complexities, if predicate calls
+    take O(1) time and space. Explain why no asymptotically faster algorithm
+    for this problem is possible, no matter what techniques are used.]
+
+    >>> first_satisfying_recursive(lambda _: False, -8, 9)
     9
-    >>> first_satisfying(lambda _: print('not called'), 8, 4)
+    >>> first_satisfying_recursive(lambda _: print("Shouldn't print!"), 3, 3)
+    3
+    >>> first_satisfying_recursive(lambda _: print("Shouldn't print!"), 8, 4)
     4
-    >>> first_satisfying(lambda x: x**2 >= 31329, 0, 500)
+    >>> first_satisfying_recursive(lambda x: x**2 >= 31329, 0, 500)
     177
     >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
-    >>> first_satisfying(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    >>> first_satisfying_recursive(lambda x: x**3 - x**2 >= y, 0, y + 1)
     797629800584935
     """
     if low >= high:
         return high
     mid = (low + high) // 2
     if predicate(mid):
-        return first_satisfying(predicate, low, mid)
-    return first_satisfying(predicate, mid + 1, high)
+        return first_satisfying_recursive(predicate, low, mid)
+    return first_satisfying_recursive(predicate, mid + 1, high)
 
 
-def first_satisfying_iterative(predicate, low, high):
+def first_satisfying(predicate, low, high):
     """
     Find the first int satisfying a predicate that partitions the search space.
 
-    This is like first_satisfying but iterative instead of recursive, also
-    making no use of library facilities besides builtins. The algorithm is the
-    same as, or very similar to, that algorithm. The code is even as close as
-    it reasonably can be be to the code there, while still using no recursion.
+    This is like first_satisfying_recursive but iterative instead of recursive.
+    It also may use builtins but no other library facilities. The algorithm is
+    the same as, or very similar to, that algorithm.
 
     This has the same asymptotic time complexity as first_satisfying. Its
     auxiliary space complexity is [FIXME: state it asymptotically here].
 
-    >>> first_satisfying_iterative(lambda _: False, -8, 9)
+    >>> first_satisfying(lambda _: False, -8, 9)
     9
-    >>> first_satisfying_iterative(lambda _: print('not called'), 8, 4)
+    >>> first_satisfying(lambda _: print("Shouldn't print!"), 3, 3)
+    3
+    >>> first_satisfying(lambda _: print("Shouldn't print!"), 8, 4)
     4
-    >>> first_satisfying_iterative(lambda x: x**2 >= 31329, 0, 500)
+    >>> first_satisfying(lambda x: x**2 >= 31329, 0, 500)
     177
     >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
-    >>> first_satisfying_iterative(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    >>> first_satisfying(lambda x: x**3 - x**2 >= y, 0, y + 1)
     797629800584935
     """
     while low < high:
@@ -199,35 +201,48 @@ def first_satisfying_iterative(predicate, low, high):
     return high
 
 
-def first_satisfying_good(predicate, low, high):
+# !!FIXME: When removing implementation bodies, remove "=bisect.bisect_left".
+def first_satisfying_restricted(predicate, low, high, *,
+                                bisector=bisect.bisect_left):
     """
-    Find the first int satisfying a predicate that partitions the search space.
+    Use the bisect module to find the first int satisfying a predicate that
+    partitions the search space.
 
-    This is like first_satisfying and first_satisfying_iterative, but with no
-    restrictions on how it is implemented, except that it should make maximal
-    use of standard library facilities to keep its own code simple and short.
-    The actual code here will thus not resemble that of those two functions.
+    This is like first_satisfying_recursive and first_satisfying, but worse:
+    the search space must be small enough for its size to be expressed in a
+    native word (specifically, the ssize_t type). Unlike previous versions,
+    this is permitted to use more than builtins, and must do so: all but O(1)
+    of its work must happen behind a call to something in the bisect module.
 
-    This has the same asymptotic time complexity they do. Its auxiliary space
-    complexity is [FIXME: state it asymptotically here].
+    Whatever function in the bisect module you use, accept it by dependency
+    injection via the keyword-only bisector argument. That way, if you later
+    write an unrestricted version of that function, you'll be able to test that
+    the test case that raises OverflowError instead succeeds when it is passed.
+    (If you decide the name "bisector" is ambiguous or misleading, rename it.)
 
-    >>> first_satisfying_good(lambda _: False, -8, 9)
+    This has the same asymptotic time complexity as first_satisfying_recursive
+    and first_satisfying. Its auxiliary space complexity is [FIXME: state it].
+
+    [FIXME: Say what operation triggers the OverflowError. It depends how you
+    implement this. There are two possibilities, yet there isn't really a
+    reasonable way to avoid the error (or than using your own "bisector"). You
+    may need to use a REPL to investigate ways that OverflowError is produced.]
+
+    >>> first_satisfying_restricted(lambda _: False, -8, 9)
     9
-    >>> first_satisfying_good(lambda _: print('not called'), 8, 4)  # doctest: +SKIP
+    >>> first_satisfying_restricted(lambda _: print("Shouldn't print!"), 3, 3)
+    3
+    >>> first_satisfying_restricted(lambda _: print("Shouldn't print!"), 8, 4)
     4
-    >>> first_satisfying_good(lambda x: x**2 >= 31329, 0, 500)
+    >>> first_satisfying_restricted(lambda x: x**2 >= 31329, 0, 500)
     177
     >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
-    >>> first_satisfying_good(lambda x: x**3 - x**2 >= y, 0, y + 1)
-    797629800584935
+    >>> first_satisfying_restricted(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    Traceback (most recent call last):
+      ...
+    OverflowError: Python int too large to convert to C ssize_t
     """
-    # FIXME: There are 2 bugs: a minor bug about what's returned if high < low,
-    # and a major bug in the design of the exercise, since this is not actually
-    # a good way to implement this if generality is needed. When passed an
-    # explicit hi argument, the bisect module functions don't call len, but
-    # their lo and hi arguments, if passed, also must fit into native words; we
-    # still get "OverflowError: Python int too large to convert to C ssize_t".
-    return low + bisect.bisect_left(range(low, high), 1, lo=0, hi=high - low, key=predicate)
+    return high if high < low else bisector(range(low, high), 1, key=predicate)
 
 
 def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
