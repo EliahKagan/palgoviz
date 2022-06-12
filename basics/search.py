@@ -322,7 +322,7 @@ def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
     than a matching element (and supporting key and reverse).
 
     [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
-    replace this with a doctest that shows injecting my_bisect_left_recursive
+    replace this with a doctest showing that injecting my_bisect_left_recursive
     as the dependency avoids OverflowError. Otherwise, just remove this.]
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
@@ -341,7 +341,7 @@ def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
     [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
-    replace this with a doctest that shows injecting my_bisect_left_iterative
+    replace this with a doctest showing that injecting my_bisect_left_iterative
     as the dependency avoids OverflowError. Otherwise, just remove this.]
     """
     # FIXME: Needs implementation.
@@ -358,7 +358,7 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
     [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
-    first_satisfying_restricted, replace this with a doctest that shows
+    first_satisfying_restricted, replace this with a doctest showing that
     injecting my_bisect_right_recursive as the dependency avoids OverflowError.
     Otherwise, just remove this.]
     """
@@ -377,7 +377,7 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
     [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
-    first_satisfying_restricted, replace this with a doctest that shows
+    first_satisfying_restricted, replace this with a doctest showing that
     injecting my_bisect_right_iterative as the dependency avoids OverflowError.
     Otherwise, just remove this.]
     """
