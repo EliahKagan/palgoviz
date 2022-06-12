@@ -735,9 +735,13 @@ def find_tread_winner(m, n, vi, vj, ai, aj, bi, bj):
     wins. The void and players' start squares are guaranteed to be three
     different squares within the m-by-n rectangle.
 
-    Use the simplest correct algorithm you can that passes all tests reasonably
-    fast. Return 'A' if A has a winning strategy, or 'B' if B has a winning
-    strategy. Some player is guaranteed to have one, because [FIXME: Say why.]
+    Return 'A' if A has a winning strategy, or 'B' if B has a winning strategy.
+    Some player is guaranteed to have one, because [FIXME: Say why.]
+
+    Use the simplest correct algorithm you can think of that passes all tests
+    reasonably fast. But the code itself may be short or long and may use any
+    combination of language features. It should be correct and easy to read.
+    You might want to make and use helper functions/classes.
 
     >>> find_tread_winner(1, 3, 0, 0, 0, 1, 0, 2)
     'A'
