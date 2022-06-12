@@ -32,10 +32,11 @@ def bsearch(values, x, key=None, reverse=False):
     it may be of any sequence type (it need not be a list). If key is None or
     not passed, y is its own key: look for a y where neither x nor y is lesser.
 
-    Time complexity is O(log n). Auxiliary space complexity is O(1). This
-    implementation may be similar to one of your binary search implementations
-    in recursion.py, but this supports an optional key selector, allows
-    reverse-sorted input, and raises ValueError if the search finds no result.
+    Time complexity is the usual [FIXME: give it, in big-O]. Auxiliary space
+    complexity is O(1). This implementation may be similar to one of your
+    binary search implementations in recursion.py, but this supports an
+    optional key selector, allows reverse-sorted input, and raises ValueError
+    if the search finds no result.
 
     NOTE: I highly recommend NOT LOOKING at the binary search implementations
     in recursion.py (and not even their names and descriptions) while working
@@ -50,6 +51,20 @@ def bsearch(values, x, key=None, reverse=False):
     advantages or disadvantages they would have, compared to what you did use.
     If an approach would require considerably more code, you should still
     consider it feasible... *if* you are convinced that it really can be done.]
+
+    >>> bsearch(range(100), 289, key=lambda x: x**2)
+    17
+    >>> bsearch(range(99, -1, -1), 289, key=lambda x: x**2, reverse=True)
+    82
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> bsearch(words, 4, key=len, reverse=True)
+    1
+    >>> bsearch(words, 3, key=len, reverse=True) in (2, 3, 4)
+    True
+    >>> bsearch(words, 5, key=len, reverse=True)
+    Traceback (most recent call last):
+      ...
+    ValueError: no item found with key similar to 5
     """
     if key is None:
         key = _identity_function
@@ -112,6 +127,20 @@ def bsearch_alt(values, x, key=None, reverse=False):
     should use the same approach as in one of the functions in recursion.py
     (but not the one, if any, whose approach bsearch uses above), unless that's
     not possible, as detailed in the text you added to the bsearch docstring.
+
+    >>> bsearch_alt(range(100), 289, key=lambda x: x**2)
+    17
+    >>> bsearch_alt(range(99, -1, -1), 289, key=lambda x: x**2, reverse=True)
+    82
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> bsearch_alt(words, 4, key=len, reverse=True)
+    1
+    >>> bsearch_alt(words, 3, key=len, reverse=True) in (2, 3, 4)
+    True
+    >>> bsearch_alt(words, 5, key=len, reverse=True)
+    Traceback (most recent call last):
+      ...
+    ValueError: no item found with key similar to 5
     """
     if key is None:
         key = _identity_function
