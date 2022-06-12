@@ -168,8 +168,8 @@ def first_satisfying_recursive(predicate, low, high):
     the lowest value high enough to satisfy the predicate (which is what k is).
 
     It follows that (a) if the predicate is never satisfied, high is returned,
-    and (b) the caller must ensure low <= high. (Make sure you understand why.)
-    But as an additional requirement, support high < low by returning high.
+    and (b) the caller ensures low <= high. (Make sure you understand why.) But
+    as an additional feature, allow high < low. Return high when that happens.
 
     This implementation is recursive. It may use builtins, but no other library
     facilities. Its time complexity is asymptotically optimal. [FIXME: State
