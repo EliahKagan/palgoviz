@@ -252,10 +252,10 @@ def first_satisfying_restricted(predicate, low, high, *,
     This has the same asymptotic time complexity as first_satisfying_recursive
     and first_satisfying. Its auxiliary space complexity is [FIXME: state it].
 
-    [FIXME: Say what operation triggers the OverflowError. It depends how you
-    implement this. There are two possibilities, yet there isn't really a
-    reasonable way to avoid the error (or than using your own "bisector"). You
-    may need to use a REPL to investigate ways that OverflowError is produced.]
+    [FIXME: State what operation triggers the OverflowError. It depends on how
+    you implement this. There are two possibilities, yet there isn't really a
+    reasonable way to avoid the error (besides using your own "bisector"). You
+    may need to use a REPL to investigate ways OverflowError is produced.]
 
     >>> first_satisfying_restricted(lambda _: False, -8, 9)
     9
