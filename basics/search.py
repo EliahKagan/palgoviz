@@ -1158,8 +1158,8 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
 
     holes is a (possibly empty) set of positive ints; other parameters are
     positive ints, except n may be zero. ax != ay and bx != by. Alice and Bob
-    enjoy long games, so n may be large. But ax, xy, ak, bx, by, and bk can be
-    assumed small. af, bf, and len(holes) may each be small or large.
+    enjoy long games, so n can be pretty big. But ax, xy, ak, bx, by, and bk
+    can be assumed small. af, bf, and len(holes) may each be small or large.
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
     """
