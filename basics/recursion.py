@@ -296,6 +296,54 @@ def binary_search_good(values, x):
     return index if (index < len(values)) and (values[index] == x) else None
 
 
+def binary_search_left(values, x):
+    """
+    Return the leftmost insertion point for x in values, which is sorted.
+
+    This is a limited version of bisect.bisect_left: the elements of values may
+    be assumed to support all six rich comparison operators with total ordering
+    semantics, and lo, hi, and key arguments are not accepted.
+
+    >>> a = (20, 20, 20, 40, 40, 60, 70, 70, 70, 100)
+    >>> {x: binary_search_left(a, x) for x in range(10, 101, 10)}
+    {10: 0, 20: 0, 30: 3, 40: 3, 50: 5, 60: 5, 70: 6, 80: 9, 90: 9, 100: 9}
+
+    >>> class S(str):
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({super().__repr__()})'
+    >>> b = []
+    >>> for x in 'ham', 'foo', 'bar', 'baz', 'quux', S('ham'), 'spam', 'eggs':
+    ...     b.insert(binary_search_left(b, x), x)
+    >>> b
+    ['bar', 'baz', 'eggs', 'foo', S('ham'), 'ham', 'quux', 'spam']
+    """
+    # FIXME: Needs implementation.
+
+
+def binary_search_right(values, x):
+    """
+    Return the rightmost insertion point for x in values, which is sorted.
+
+    This is a limited version of bisect.bisect_right: the elements of values
+    may be assumed to support all six rich comparison operators with total
+    ordering semantics, and lo, hi, and key arguments are not accepted.
+
+    >>> a = (20, 20, 20, 40, 40, 60, 70, 70, 70, 100)
+    >>> {x: binary_search_right(a, x) for x in range(10, 101, 10)}
+    {10: 0, 20: 3, 30: 3, 40: 5, 50: 5, 60: 6, 70: 9, 80: 9, 90: 9, 100: 10}
+
+    >>> class S(str):
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({super().__repr__()})'
+    >>> b = []
+    >>> for x in 'ham', 'foo', 'bar', 'baz', 'quux', S('ham'), 'spam', 'eggs':
+    ...     b.insert(binary_search_right(b, x), x)
+    >>> b
+    ['bar', 'baz', 'eggs', 'foo', 'ham', S('ham'), 'quux', 'spam']
+    """
+    # FIXME: Needs implementation.
+
+
 def binary_insertion_sort(values):
     """
     Iterative stable binary insertion sort, creating a new list.

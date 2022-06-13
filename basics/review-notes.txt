@@ -7,6 +7,8 @@ functions.as_closeable_func_limited
 functions.as_closeable_iterator_limited
 functions.as_closeable_iterator
 functions.func_filter
+recursion.binary_search_left  # FIXME: Move this to the search module.
+recursion.binary_search_right  # FIXME: Move this to the search module.
 search.bsearch
 search.bsearch_alt
 search.first_satisfying_recursive
