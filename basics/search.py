@@ -1152,14 +1152,16 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     an x can always be played, and each player may play a y up to three times
     in a row and also anytime the other player has just played their y.)
 
-    Neither player may decrease the counter below zero or to any value in
-    holes. Alice may not decrease it to any multiple of af ("Alice's factor"),
-    and Bob may not decrease it to any multiple of bf ("Bob's factor").
+    Neither player may decrease the counter below zero or to a hole (any value
+    in holes). Alice may not decrease it to a positive multiple of af (Alice's
+    factor). Bob may not decrease it to a positive multiple bf (Bob's factor).
 
-    All parameters but holes, which is a possibly empty set, are integers. None
-    are negative, and all but n must be positive. ax != ay and bx != by. Alice
-    and Bob enjoy long games, so n may be large. But ax, xy, ak, bx, by, and bk
-    can be assumed small. af, bf, and len(holes) may each be small or large.
+    holes is a (possibly empty) set of positive ints; other parameters are
+    positive ints, except n may be zero. ax != ay and bx != by. Alice and Bob
+    enjoy long games, so n may be large. But ax, xy, ak, bx, by, and bk can be
+    assumed small. af, bf, and len(holes) may each be small or large.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
     """
     # FIXME: Needs implementation.
 
