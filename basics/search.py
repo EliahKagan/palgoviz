@@ -280,6 +280,7 @@ def first_satisfying_restricted(predicate, low, high, *,
     return low + bisector(range(low, high), 1, key=predicate)
 
 
+# !!FIXME: Is "making it much shorter and simpler" really a correct claim here?
 def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
@@ -295,10 +296,37 @@ def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
 
     This uses no library functions but builtins. But it does use at least one
     function in this module, making it much shorter and simpler than otherwise.
+
+    >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
+    >>> my_bisect_left(mixed, 3, lo=2, hi=12, key=abs)
+    4
+    >>> my_bisect_left(mixed, 50, lo=2, hi=12, key=abs)
+    12
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> my_bisect_left(words, 4, key=len, reverse=True)
+    1
+    >>> my_bisect_left(words, 3, key=len, reverse=True)
+    2
+    >>> my_bisect_left(words, 5, key=len, reverse=True)
+    1
     """
-    # FIXME: Needs implementation.
+    if hi is None:
+        hi = len(values)
+    if key is None:
+        key = _identity_function
+
+    strict_compare = operator.gt if reverse else operator.lt
+
+    def non_strict_compare(lhs, rhs):
+        return not strict_compare(rhs, lhs)  # rhs doesn't have to come first.
+
+    def predicate(index):
+        return non_strict_compare(x, key(values[index]))
+
+    return first_satisfying(predicate, lo, hi)
 
 
+# !!FIXME: Is "making it much shorter and simpler" really a correct claim here?
 def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
@@ -306,8 +334,31 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     This is analogous to my_bisect_left, but for bisect.bisect_right. It has
     the same preconditions including how values comes sorted, and the same
     requirements on what functions it uses.
+
+    >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
+    >>> my_bisect_right(mixed, 3, lo=2, hi=12, key=abs)
+    7
+    >>> my_bisect_right(mixed, 50, lo=2, hi=12, key=abs)
+    12
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> my_bisect_right(words, 4, key=len, reverse=True)
+    2
+    >>> my_bisect_right(words, 3, key=len, reverse=True)
+    5
+    >>> my_bisect_right(words, 5, key=len, reverse=True)
+    1
     """
-    # FIXME: Needs implementation.
+    if hi is None:
+        hi = len(values)
+    if key is None:
+        key = _identity_function
+
+    strict_compare = operator.gt if reverse else operator.lt
+
+    def predicate(index):
+        return strict_compare(x, key(values[index]))
+
+    return first_satisfying(predicate, lo, hi)
 
 
 def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
