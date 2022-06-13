@@ -314,14 +314,13 @@ def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
         hi = len(values)
     if key is None:
         key = _identity_function
-
     strict_compare = operator.gt if reverse else operator.lt
 
     def non_strict_compare(lhs, rhs):
         return not strict_compare(rhs, lhs)  # rhs doesn't have to come first.
 
     def predicate(index):
-        return non_strict_compare(x, key(values[index]))
+        return non_strict_compare(x, key(values[index]))  # x ≾ y
 
     return first_satisfying(predicate, lo, hi)
 
@@ -352,15 +351,25 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
         hi = len(values)
     if key is None:
         key = _identity_function
-
     strict_compare = operator.gt if reverse else operator.lt
 
     def predicate(index):
-        return strict_compare(x, key(values[index]))
+        return strict_compare(x, key(values[index]))  # x < y
 
     return first_satisfying(predicate, lo, hi)
 
 
+def _do_bisect_left(values, x, low, high, key, compare):
+    """Recursive helper function for my_bisect_left_recursive."""
+    if high <= low:
+        return high
+    mid = (low + high) // 2
+    if compare(key(values[mid]), x):  # y < x
+        return _do_bisect_left(values, x, mid + 1, high, key, compare)
+    return _do_bisect_left(values, x, low, mid, key, compare)
+
+
+# !!FIXME: Reword so "outside functionality" doesn't seem to refer to helpers.
 def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
                              key=None, reverse=False):
     """
@@ -377,10 +386,29 @@ def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
     as the dependency avoids OverflowError. Otherwise, just remove this.]
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
+    >>> my_bisect_left_recursive(mixed, 3, lo=2, hi=12, key=abs)
+    4
+    >>> my_bisect_left_recursive(mixed, 50, lo=2, hi=12, key=abs)
+    12
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> my_bisect_left_recursive(words, 4, key=len, reverse=True)
+    1
+    >>> my_bisect_left_recursive(words, 3, key=len, reverse=True)
+    2
+    >>> my_bisect_left_recursive(words, 5, key=len, reverse=True)
+    1
     """
-    # FIXME: Needs implementation.
+    if hi is None:
+        hi = len(values)
+    if key is None:
+        key = _identity_function
+    compare = operator.gt if reverse else operator.lt
+    return _do_bisect_left(values, x, lo, hi, key, compare)
 
 
+# !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
                              key=None, reverse=False):
     """
@@ -394,10 +422,37 @@ def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
     [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
     replace this with a doctest showing that injecting my_bisect_left_iterative
     as the dependency avoids OverflowError. Otherwise, just remove this.]
+
+    >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
+    >>> my_bisect_left_iterative(mixed, 3, lo=2, hi=12, key=abs)
+    4
+    >>> my_bisect_left_iterative(mixed, 50, lo=2, hi=12, key=abs)
+    12
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> my_bisect_left_iterative(words, 4, key=len, reverse=True)
+    1
+    >>> my_bisect_left_iterative(words, 3, key=len, reverse=True)
+    2
+    >>> my_bisect_left_iterative(words, 5, key=len, reverse=True)
+    1
     """
-    # FIXME: Needs implementation.
+    if hi is None:
+        hi = len(values)
+    if key is None:
+        key = _identity_function
+    compare = operator.gt if reverse else operator.lt
+
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if compare(key(values[mid]), x):  # y < x
+            lo = mid + 1
+        else:
+            hi = mid
+
+    return hi
 
 
+# !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
                               key=None, reverse=False):
     """
@@ -416,6 +471,7 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
     # FIXME: Needs implementation.
 
 
+# !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
                               key=None, reverse=False):
     """
