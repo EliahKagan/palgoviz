@@ -258,8 +258,9 @@ def first_satisfying_restricted(predicate, low, high, *,
 
     [FIXME: State what operation triggers the OverflowError. It depends on how
     you implement this. There are two possibilities, yet there isn't really a
-    reasonable way to avoid the error (besides using your own "bisector"). You
-    may need to use a REPL to investigate ways OverflowError is produced.]
+    reasonable way to avoid the error (besides using your own "bisector"). Once
+    you have the behavior you think you want, remove the "ELLIPSIS" doctest
+    option and replace "..." in "OverflowError: ..." with an expected message.]
 
     >>> first_satisfying_restricted(lambda _: False, -8, 9)
     9
@@ -270,14 +271,15 @@ def first_satisfying_restricted(predicate, low, high, *,
     >>> first_satisfying_restricted(lambda x: x**2 >= 31329, 0, 500)
     177
     >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
-    >>> first_satisfying_restricted(lambda x: x**3 - x**2 >= y, 0, y + 1)
+    >>> first_satisfying_restricted(lambda x: x**3 - x**2 >= y, 0, y + 1)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    OverflowError: Python int too large to convert to C ssize_t
+    OverflowError: ...
     """
     if high < low:
         return high
-    return low + bisector(range(low, high), 1, key=predicate)
+    delta = high - low
+    return low + bisector(range(low, high), 1, lo=0, hi=delta, key=predicate)
 
 
 # !!FIXME: Is "making it much shorter and simpler" really a correct claim here?
@@ -381,10 +383,6 @@ def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
     binary search implementation, but to find the left insertion point rather
     than a matching element (and supporting key and reverse).
 
-    [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
-    replace this with a doctest showing that injecting my_bisect_left_recursive
-    as the dependency avoids OverflowError. Otherwise, just remove this.]
-
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
@@ -399,6 +397,17 @@ def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
     2
     >>> my_bisect_left_recursive(words, 5, key=len, reverse=True)
     1
+
+    [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
+    replace this with a doctest showing that injecting my_bisect_left_recursive
+    as the dependency avoids OverflowError. Otherwise, just remove this.]
+
+    !!FIXME: When removing implementation bodies, remove this doctest:
+
+    >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
+    >>> first_satisfying_restricted(lambda x: x**3 - x**2 >= y, 0, y + 1,
+    ...                             bisector=my_bisect_left_recursive)
+    797629800584935
     """
     if hi is None:
         hi = len(values)
@@ -419,10 +428,6 @@ def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
-    replace this with a doctest showing that injecting my_bisect_left_iterative
-    as the dependency avoids OverflowError. Otherwise, just remove this.]
-
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_left_iterative(mixed, 3, lo=2, hi=12, key=abs)
     4
@@ -435,6 +440,17 @@ def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
     2
     >>> my_bisect_left_iterative(words, 5, key=len, reverse=True)
     1
+
+    [FIXME: If you used bisect.bisect_left in first_satisfying_restricted,
+    replace this with a doctest showing that injecting my_bisect_left_iterative
+    as the dependency avoids OverflowError. Otherwise, just remove this.]
+
+    !!FIXME: When removing implementation bodies, remove this doctest:
+
+    >>> y = 507462686636302216327655657023048145390646150  # y = x**3 - x**2
+    >>> first_satisfying_restricted(lambda x: x**3 - x**2 >= y, 0, y + 1,
+    ...                             bisector=my_bisect_left_iterative)
+    797629800584935
     """
     if hi is None:
         hi = len(values)
@@ -473,11 +489,6 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
-    first_satisfying_restricted, replace this with a doctest showing that
-    injecting my_bisect_right_recursive as the dependency avoids OverflowError.
-    Otherwise, just remove this.]
-
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_right_recursive(mixed, 3, lo=2, hi=12, key=abs)
     7
@@ -490,6 +501,11 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
     5
     >>> my_bisect_right_recursive(words, 5, key=len, reverse=True)
     1
+
+    [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
+    first_satisfying_restricted, replace this with a doctest showing that
+    injecting my_bisect_right_recursive as the dependency avoids OverflowError.
+    Otherwise, just remove this.]
     """
     if hi is None:
         hi = len(values)
@@ -511,11 +527,6 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
-    first_satisfying_restricted, replace this with a doctest showing that
-    injecting my_bisect_right_iterative as the dependency avoids OverflowError.
-    Otherwise, just remove this.]
-
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_right_iterative(mixed, 3, lo=2, hi=12, key=abs)
     7
@@ -528,6 +539,11 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
     5
     >>> my_bisect_right_iterative(words, 5, key=len, reverse=True)
     1
+
+    [FIXME: If you used bisect.bisect_right (also called bisect.bisect) in
+    first_satisfying_restricted, replace this with a doctest showing that
+    injecting my_bisect_right_iterative as the dependency avoids OverflowError.
+    Otherwise, just remove this.]
     """
     if hi is None:
         hi = len(values)
