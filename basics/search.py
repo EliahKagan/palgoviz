@@ -452,6 +452,16 @@ def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
     return hi
 
 
+def _do_bisect_right(values, x, low, high, key, compare):
+    """Recursive helper function for my_bisect_right_recursive."""
+    if high <= low:
+        return high
+    mid = (low + high) // 2
+    if not compare(x, key(values[mid])):  # y ≾ x
+        return _do_bisect_right(values, x, mid + 1, high, key, compare)
+    return _do_bisect_right(values, x, low, mid, key, compare)
+
+
 # !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
                               key=None, reverse=False):
@@ -467,8 +477,26 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
     first_satisfying_restricted, replace this with a doctest showing that
     injecting my_bisect_right_recursive as the dependency avoids OverflowError.
     Otherwise, just remove this.]
+
+    >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
+    >>> my_bisect_right_recursive(mixed, 3, lo=2, hi=12, key=abs)
+    7
+    >>> my_bisect_right_recursive(mixed, 50, lo=2, hi=12, key=abs)
+    12
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> my_bisect_right_recursive(words, 4, key=len, reverse=True)
+    2
+    >>> my_bisect_right_recursive(words, 3, key=len, reverse=True)
+    5
+    >>> my_bisect_right_recursive(words, 5, key=len, reverse=True)
+    1
     """
-    # FIXME: Needs implementation.
+    if hi is None:
+        hi = len(values)
+    if key is None:
+        key = _identity_function
+    compare = operator.gt if reverse else operator.lt
+    return _do_bisect_right(values, x, lo, hi, key, compare)
 
 
 # !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
@@ -487,8 +515,34 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
     first_satisfying_restricted, replace this with a doctest showing that
     injecting my_bisect_right_iterative as the dependency avoids OverflowError.
     Otherwise, just remove this.]
+
+    >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
+    >>> my_bisect_right_iterative(mixed, 3, lo=2, hi=12, key=abs)
+    7
+    >>> my_bisect_right_iterative(mixed, 50, lo=2, hi=12, key=abs)
+    12
+    >>> words = ['foobar', 'quux', 'baz', 'bar', 'foo']
+    >>> my_bisect_right_iterative(words, 4, key=len, reverse=True)
+    2
+    >>> my_bisect_right_iterative(words, 3, key=len, reverse=True)
+    5
+    >>> my_bisect_right_iterative(words, 5, key=len, reverse=True)
+    1
     """
-    # FIXME: Needs implementation.
+    if hi is None:
+        hi = len(values)
+    if key is None:
+        key = _identity_function
+    compare = operator.gt if reverse else operator.lt
+
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if not compare(x, key(values[mid])):  # y ≾ x
+            lo = mid + 1
+        else:
+            hi = mid
+
+    return hi
 
 
 # FIXME: (A) If the function first_satisfying_restricted used from the bisect
