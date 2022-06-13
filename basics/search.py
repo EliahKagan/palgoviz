@@ -457,9 +457,9 @@ def _do_bisect_right(values, x, low, high, key, compare):
     if high <= low:
         return high
     mid = (low + high) // 2
-    if not compare(x, key(values[mid])):  # y ≾ x
-        return _do_bisect_right(values, x, mid + 1, high, key, compare)
-    return _do_bisect_right(values, x, low, mid, key, compare)
+    if compare(x, key(values[mid])):  # x < y
+        return _do_bisect_right(values, x, low, mid, key, compare)
+    return _do_bisect_right(values, x, mid + 1, high, key, compare)
 
 
 # !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
@@ -537,10 +537,10 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
 
     while lo < hi:
         mid = (lo + hi) // 2
-        if not compare(x, key(values[mid])):  # y ≾ x
-            lo = mid + 1
-        else:
+        if compare(x, key(values[mid])):  # x < y
             hi = mid
+        else:
+            lo = mid + 1
 
     return hi
 
