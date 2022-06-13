@@ -1863,6 +1863,7 @@ def partition_three(values, pivot):
     return Parts(lower, similar, higher)
 
 
+# !!FIXME: Reword. The range of insertion points includes the right endpoint.
 def similar_range(values, new_value):
     """
     Find the range of valid insertion points for new_value in sorted(values).
@@ -1886,6 +1887,7 @@ def similar_range(values, new_value):
     return range(len(lower), len(lower) + len(similar))
 
 
+# !!FIXME: Reword. The range of insertion points includes the right endpoint.
 def similar_range_alt(values, new_value):
     """
     Find the range of valid insertion points for new_value in sorted(values).
