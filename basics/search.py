@@ -282,7 +282,6 @@ def first_satisfying_restricted(predicate, low, high, *,
     return low + bisector(range(low, high), 1, lo=0, hi=delta, key=predicate)
 
 
-# !!FIXME: Is "making it much shorter and simpler" really a correct claim here?
 def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
@@ -299,6 +298,8 @@ def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
     This doesn't use the bisect module. It does use some function defined above
     this point in this module, which doesn't use the bisect module either, not
     even indirectly. All but O(1) work happens behind a call to that function.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_left(mixed, 3, lo=2, hi=12, key=abs)
@@ -337,6 +338,8 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     not use the bisect module but must do all but O(1) of its work behind some
     above-defined function (that doesn't either). Do not use my_bisect_left.
 
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_right(mixed, 3, lo=2, hi=12, key=abs)
     7
@@ -362,6 +365,174 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     return first_satisfying(predicate, lo, hi)
 
 
+def my_bisect_left_recursive_simple(values, x):
+    """
+    Find the leftmost insertion point for x in sorted values (total ordering).
+
+    This is a recursive limited version of bisect.bisect_left: the elements of
+    values may be assumed to support all six rich comparison operators with
+    total ordering semantics, and lo, hi, and key arguments are not accepted.
+
+    This variation of classic recursive binary search finds the furthest left
+    insertion point rather than a matching element. Its code is self-contained
+    except for builtins and its own helpers (if any). Don't reimplement the
+    function that my_bisect_left and my_bisect_right use to do their work.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    my_bisect_left_recursive (below) is like this but more complicated.
+
+    >>> a = (20, 20, 20, 40, 40, 60, 70, 70, 70, 100)
+    >>> {x: my_bisect_left_recursive_simple(a, x) for x in range(10, 101, 10)}
+    {10: 0, 20: 0, 30: 3, 40: 3, 50: 5, 60: 5, 70: 6, 80: 9, 90: 9, 100: 9}
+
+    >>> class S(str):
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({super().__repr__()})'
+    >>> b = []
+    >>> for x in 'ham', 'foo', 'bar', 'baz', 'quux', S('ham'), 'spam', 'eggs':
+    ...     b.insert(my_bisect_left_recursive_simple(b, x), x)
+    >>> b
+    ['bar', 'baz', 'eggs', 'foo', S('ham'), 'ham', 'quux', 'spam']
+    """
+    def search(low, high):
+        if low >= high:
+            return high
+        mid = (low + high) // 2
+        if values[mid] < x:
+            return search(mid + 1, high)
+        return search(low, mid)
+
+    return search(0, len(values))
+
+
+def my_bisect_left_iterative_simple(values, x):
+    """
+    Find the leftmost insertion point for x in sorted values (total ordering).
+
+    This is a nonrecursive limited version of bisect.bisect_left: the elements
+    of values may be assumed to support all six rich comparison operators with
+    total ordering semantics, and lo, hi, and key arguments are not accepted.
+
+    This variation of classic iterative binary search finds the furthest left
+    insertion point rather than a matching element. Its code is self-contained
+    except for builtins and its own helpers (if any). Don't reimplement the
+    function that my_bisect_left and my_bisect_right use to do their work.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    my_bisect_left_iterative (below) is like this but more complicated.
+
+    >>> a = (20, 20, 20, 40, 40, 60, 70, 70, 70, 100)
+    >>> {x: my_bisect_left_iterative_simple(a, x) for x in range(10, 101, 10)}
+    {10: 0, 20: 0, 30: 3, 40: 3, 50: 5, 60: 5, 70: 6, 80: 9, 90: 9, 100: 9}
+
+    >>> class S(str):
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({super().__repr__()})'
+    >>> b = []
+    >>> for x in 'ham', 'foo', 'bar', 'baz', 'quux', S('ham'), 'spam', 'eggs':
+    ...     b.insert(my_bisect_left_iterative_simple(b, x), x)
+    >>> b
+    ['bar', 'baz', 'eggs', 'foo', S('ham'), 'ham', 'quux', 'spam']
+    """
+    low = 0
+    high = len(values)
+
+    while low < high:
+        mid = (low + high) // 2
+        if values[mid] < x:
+            low = mid + 1
+        else:
+            high = mid
+
+    return high
+
+
+def my_bisect_right_recursive_simple(values, x):
+    """
+    Find the rightmost insertion point for x in sorted values (total ordering).
+
+    This is a recursive limited version of bisect.bisect_right: the elements
+    of values may be assumed to support all six rich comparison operators with
+    total ordering semantics, and lo, hi, and key arguments are not accepted.
+
+    This variation of classic recursive binary search finds the furthest right
+    insertion point rather than a matching element. Its code is self-contained
+    except for builtins and its own helpers (if any). Don't reimplement the
+    function that my_bisect_left and my_bisect_right use to do their work.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    my_bisect_right_recursive (below) is like this but more complicated.
+
+    >>> a = (20, 20, 20, 40, 40, 60, 70, 70, 70, 100)
+    >>> {x: my_bisect_right_recursive_simple(a, x) for x in range(10, 101, 10)}
+    {10: 0, 20: 3, 30: 3, 40: 5, 50: 5, 60: 6, 70: 9, 80: 9, 90: 9, 100: 10}
+
+    >>> class S(str):
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({super().__repr__()})'
+    >>> b = []
+    >>> for x in 'ham', 'foo', 'bar', 'baz', 'quux', S('ham'), 'spam', 'eggs':
+    ...     b.insert(my_bisect_right_recursive_simple(b, x), x)
+    >>> b
+    ['bar', 'baz', 'eggs', 'foo', 'ham', S('ham'), 'quux', 'spam']
+    """
+    def search(low, high):
+        if low >= high:
+            return high
+        mid = (low + high) // 2
+        if values[mid] <= x:
+            return search(mid + 1, high)
+        return search(low, mid)
+
+    return search(0, len(values))
+
+
+def my_bisect_right_iterative_simple(values, x):
+    """
+    Find the rightmost insertion point for x in sorted values (total ordering).
+
+    This is a nonrecursive limited version of bisect.bisect_right: the elements
+    of values may be assumed to support all six rich comparison operators with
+    total ordering semantics, and lo, hi, and key arguments are not accepted.
+
+    This variation of classic iterative binary search finds the furthest right
+    insertion point rather than a matching element. Its code is self-contained
+    except for builtins and its own helpers (if any). Don't reimplement the
+    function that my_bisect_left and my_bisect_right use to do their work.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    my_bisect_right_iterative (below) is like this but more complicated.
+
+    >>> a = (20, 20, 20, 40, 40, 60, 70, 70, 70, 100)
+    >>> {x: my_bisect_right_iterative_simple(a, x) for x in range(10, 101, 10)}
+    {10: 0, 20: 3, 30: 3, 40: 5, 50: 5, 60: 6, 70: 9, 80: 9, 90: 9, 100: 10}
+
+    >>> class S(str):
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({super().__repr__()})'
+    >>> b = []
+    >>> for x in 'ham', 'foo', 'bar', 'baz', 'quux', S('ham'), 'spam', 'eggs':
+    ...     b.insert(my_bisect_right_iterative_simple(b, x), x)
+    >>> b
+    ['bar', 'baz', 'eggs', 'foo', 'ham', S('ham'), 'quux', 'spam']
+    """
+    low = 0
+    high = len(values)
+
+    while low < high:
+        mid = (low + high) // 2
+        if values[mid] <= x:
+            low = mid + 1
+        else:
+            high = mid
+
+    return high
+
+
 def _do_bisect_left(values, x, low, high, key, compare):
     """Recursive helper function for my_bisect_left_recursive."""
     if high <= low:
@@ -377,10 +548,10 @@ def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
 
-    This recursive implementation of my_bisect_left does not use anything from
-    the bisect module, nor anything else in this module, except that its
-    helpers (if any) are allowed to be top-level functions. Don't reimplement
-    the function that my_bisect_left and my_bisect_right use to do their work.
+    This recursive alternative implementation of my_bisect_left does not use
+    anything from the bisect module, nor anything else in this module, except
+    that its helpers (if any) may be top-level functions. Don't reimplement the
+    function that my_bisect_left and my_bisect_right use to do their work.
 
     This should be a classic recursive binary search implementation, but to
     find the furthest left insertion point rather than a matching element, and
@@ -426,7 +597,7 @@ def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
 
-    This nonrecursive implementation of my_bisect_left is like
+    This nonrecursive alternative implementation of my_bisect_left is like
     my_bisect_left_recursive, but iterative instead of recursive.
 
     This should be a classic iterative binary search implementation, but to
@@ -491,7 +662,7 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
 
-    This recursive implementation of my_bisect_right is like
+    This recursive alternative implementation of my_bisect_right is like
     my_bisect_left_recursive, but it is a right rather than a left bisection.
 
     This should be a classic recursive binary search implementation, but to
@@ -532,7 +703,7 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
 
-    This nonrecursive implementation of my_bisect_right is like
+    This nonrecursive alternative implementation of my_bisect_right is like
     my_bisect_right_recursive, but iterative instead of recursive. So it's like
     my_bisect_left_iterative, but it is a right rather than a left bisection.
 
