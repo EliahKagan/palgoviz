@@ -1410,8 +1410,8 @@ def count_n_queens(n):
         return 1
 
     ranks = [False] * n
-    pos_diag = [False] * n * 2
-    neg_diag = [False] * n * 2
+    pos_diag = [False] * (n * 2)
+    neg_diag = [False] * (n * 2)
 
     def count(qi):
         if qi == n:
