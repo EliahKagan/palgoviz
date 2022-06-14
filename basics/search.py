@@ -1356,9 +1356,9 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     always subtract ax and bx, respectively. Alice can subtract ay if she
     hasn't done so on all her last ak turns or if Bob has just subtracted by.
     Likewise, Bob can subtract by if he hasn't done so on all his last bk turns
-    or if Alice has just subtracted ay. (That is, an x can always be played,
-    and each player may play a y up to three times in a row and also anytime
-    the other player has just played their y.)
+    or if Alice has just subtracted ay. (That is, an x can always be played, a
+    player may play a y up to k times in succession and also anytime the other
+    player has just played a y, and players each have their own x, y, and k.)
 
     Neither player may decrease the counter below zero or to a hole (any value
     in holes). Alice may not decrease it to a positive multiple of af (Alice's
