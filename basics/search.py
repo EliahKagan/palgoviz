@@ -1395,7 +1395,7 @@ def count_n_queens(n):
         acc = 0
 
         for qj in range(n):
-            if (ranks[qj] or pos_diag[qi + qj] or neg_diag[n + qi - qj]):
+            if ranks[qj] or pos_diag[qi + qj] or neg_diag[n + qi - qj]:
                 continue
 
             ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = True
