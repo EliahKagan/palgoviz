@@ -1376,7 +1376,6 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     # FIXME: Needs implementation.
 
 
-# !!TODO: This should probably be deferred to a later problem set.
 def count_n_queens(n):
     """
     Count the ways n queens can peacefully coexist on an n-by-n chessboard.
