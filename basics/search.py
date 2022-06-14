@@ -773,7 +773,7 @@ def two_sum_slow(numbers, total):
     FIXME: Needs tests.
     """
     # Although un-Pythonic, this code avoids obscuring how the algorithm works.
-    for left in range(len(numbers)):
+    for left in range(len(numbers) - 1):
         for right in range(left + 1, len(numbers)):
             if numbers[left] + numbers[right] == total:
                 return left, right
