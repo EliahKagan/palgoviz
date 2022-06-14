@@ -1421,7 +1421,8 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     """
     a = _UCPlayer(ax, ay, ak, af)
     b = _UCPlayer(bx, by, bk, bf)
-    return _a_wins_uc(holes, memo={}, a=a, b=b, n=n, ay_run=0, by_run=0)
+    a_wins = _a_wins_uc(holes, memo={}, a=a, b=b, n=n, ay_run=0, by_run=0)
+    return 'A' if a_wins else 'B'
 
 
 def count_n_queens(n):
