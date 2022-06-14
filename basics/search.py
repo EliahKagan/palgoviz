@@ -1388,18 +1388,24 @@ def count_n_queens(n):
     neg_diag = [False] * n * 2
     queens = [None] * n
 
-    def count(pi, pj):
-        if (ranks[pj] or pos_diag[pi + pj] or neg_diag[n + pi - pj]):
-            return 0
-        if pi + 1 == n:
+    def count(qi):
+        if qi == n:
             return 1
-        ranks[pj] = pos_diag[pi + pj] = neg_diag[n + pi - pj] = True
-        queens[pi] = pj
-        result = sum(count(pi + 1, qj) for qj in range(n))
-        ranks[pj] = pos_diag[pi + pj] = neg_diag[n + pi - pj] = False
-        return result
 
-    return 1 if n == 0 else sum(count(0, pj) for pj in range(n))
+        acc = 0
+
+        for qj in range(n):
+            if (ranks[qj] or pos_diag[qi + qj] or neg_diag[n + qi - qj]):
+                continue
+
+            ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = True
+            queens[qi] = qj
+            acc += count(qi + 1)
+            ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = False
+
+        return acc
+
+    return count(0)
 
 
 if __name__ == '__main__':
