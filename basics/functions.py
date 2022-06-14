@@ -431,7 +431,24 @@ def as_closeable_func(iterable):
 
     This is like as_func (above), but with support for closing.
 
-    FIXME: Needs tests.
+    >>> f = as_closeable_func(itertools.count(1))
+    >>> [f() for _ in range(5)]
+    [1, 2, 3, 4, 5]
+    >>> hasattr(f, 'close')
+    False
+    >>> g = as_closeable_func(i for i in itertools.count(1))
+    >>> [g() for _ in range(5)]
+    [1, 2, 3, 4, 5]
+    >>> g.close()
+    >>> g()
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> h = as_closeable_func([10, 20, 30, 40, 50])
+    >>> hasattr(h, 'close')
+    False
+    >>> list(as_iterator(h))
+    [10, 20, 30, 40, 50]
     """
     it = iter(iterable)
 
@@ -456,7 +473,16 @@ def as_closeable_func_limited(iterable, end_sentinel):
     But if (and only if) the iterable's iterator supports closing, the returned
     function also has a close "method," just as in as_closeable_func.
 
-    FIXME: Needs tests.
+    >>> f = as_closeable_func_limited(range(6), 11)
+    >>> [f() for _ in range(9)]
+    [0, 1, 2, 3, 4, 5, 11, 11, 11]
+    >>> hasattr(f, 'close')
+    False
+    >>> g = as_closeable_func_limited((i for i in range(6)), 11)
+    >>> a = [g() for _ in range(3)]
+    >>> g.close()
+    >>> a + [g() for _ in range(6)]
+    [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
     it = iter(iterable)
 
@@ -539,6 +565,17 @@ def as_closeable_iterator(func):
     IndexError: pop from empty list
     >>> b
     ['END']
+
+    >>> def g():
+    ...     try:
+    ...         yield from (10, 20)
+    ...     finally:
+    ...         print('Done.')
+    >>> it2 = as_closeable_iterator(as_closeable_func(g()))
+    >>> next(it2)
+    10
+    >>> it2.close()
+    Done.
     """
     return as_closeable_iterator_limited(func, object())
 
