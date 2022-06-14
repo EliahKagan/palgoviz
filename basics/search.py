@@ -1383,6 +1383,9 @@ def count_n_queens(n):
     >>> [count_n_queens(n) for n in range(13)]
     [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200]
     """
+    if n == 0:
+        return 1
+
     ranks = [False] * n
     pos_diag = [False] * n * 2
     neg_diag = [False] * n * 2
@@ -1412,7 +1415,8 @@ def count_n_queens(n):
         ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = False
         return result
 
-    return 1 if n == 0 else sum(start_count(qj) for qj in range(n))
+    total = 2 * sum(start_count(qj) for qj in range(n // 2))
+    return total if n % 2 == 0 else total + start_count(n // 2)
 
 
 if __name__ == '__main__':
