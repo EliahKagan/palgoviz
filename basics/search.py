@@ -1351,7 +1351,7 @@ class _UCPlayer:
     _UnfairCountdownPlayer instances use reference equality comparisons.
     """
 
-    __slots__ = ('x', 'y', 'a', 'f')
+    __slots__ = ('x', 'y', 'k', 'f')
 
     def __init__(self, x, y, k, f):
         """Create the unchanging parameters for one player."""
@@ -1376,11 +1376,11 @@ def _a_wins_uc(holes, memo, a, b, n, ay_run, by_run):
                 and new_n not in holes)
 
     win = memo[a, b, n, ay_run, by_run] = (
-        # Can A play x for a guaranteed win?
+        # Can "A" play x to win?
         (can_go(n - a.x) and
             not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.x),
                            ay_run=by_run, by_run=0)) or
-        # Can A play y for a guaranteed win?
+        # Can "A" play y to win?
         (can_go(n - a.y) and (ay_run < a.k or by_run > 0) and
             not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.y),
                            ay_run=by_run, by_run=min(ay_run + 1, a.k)))
@@ -1402,9 +1402,9 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     always subtract ax and bx, respectively. Alice can subtract ay if she
     hasn't done so on all her last ak turns or if Bob has just subtracted by.
     Likewise, Bob can subtract by if he hasn't done so on all his last bk turns
-    or if Alice has just subtracted ay. (That is, an x can always be played, a
+    or if Alice has just subtracted ay. (That is, an x can always be played; a
     player may play a y up to k times in succession and also anytime the other
-    player has just played a y, and players each have their own x, y, and k.)
+    player has just played a y; and players each have their own x, y, and k.)
 
     Neither player may decrease the counter below zero or to a hole (any value
     in holes). Alice may not decrease it to a positive multiple of af (Alice's
@@ -1417,7 +1417,17 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Needs tests. Make sure some tests exercise recursion depths > 900.
+    FIXME: Verify tests. Make sure some tests exercise recursion depths > 900.
+
+    >>> find_unfair_countdown_winner(10, set(), 2, 3, 3, 17, 3, 2, 3, 31)
+    'B'
+    >>> find_unfair_countdown_winner(10, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
+    'A'
+    >>> holes = {940, 941, 942, 944, 945, 946, 949, 950, 951, 952}
+    >>> find_unfair_countdown_winner(985, holes, 2, 3, 3, 17, 3, 2, 3, 31)
+    'A'
+    >>> find_unfair_countdown_winner(985, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
+    'B'
     """
     a = _UCPlayer(ax, ay, ak, af)
     b = _UCPlayer(bx, by, bk, bf)
