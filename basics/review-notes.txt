@@ -1,4 +1,6 @@
 recursion.linear_search_iterative_alt
+recursion.binary_search_alt
+recursion.binary_search_iterative_alt
 functions.as_func_limited
 functions.as_func_limited_alt
 functions.report_attributes
