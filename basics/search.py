@@ -250,7 +250,7 @@ def first_satisfying_restricted(predicate, low, high, *,
     Whatever function in the bisect module you use, accept it by dependency
     injection via the keyword-only bisector argument. That way, if you later
     write an unrestricted version of that function, you'll be able to test that
-    the test case that raises OverflowError instead succeeds when it is passed.
+    the test case raising OverflowError below succeeds if it is passed instead.
     (If you decide the name "bisector" is ambiguous or misleading, rename it.)
 
     This has the same asymptotic time complexity as first_satisfying_recursive
@@ -292,12 +292,13 @@ def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
     arguments, their names are retained for compatibility (instead of following
     the conventions elsewhere in this project and calling them low and high).
 
-    Like bisect.bisect_left, the key function is applied to elements of values
+    As in bisect.bisect_left, the key function is applied to elements of values
     but not to x, and if key is not passed, every element is its own key.
     Assume values is sorted as if by values.sort(key=key, reverse=reverse).
 
-    This uses no library functions but builtins. But it does use at least one
-    function in this module, making it much shorter and simpler than otherwise.
+    This doesn't use the bisect module. It does use some function defined above
+    this point in this module, which doesn't use the bisect module either, not
+    even indirectly. All but O(1) work happens behind a call to that function.
 
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_left(mixed, 3, lo=2, hi=12, key=abs)
@@ -327,14 +328,14 @@ def my_bisect_left(values, x, lo=0, hi=None, *, key=None, reverse=False):
     return first_satisfying(predicate, lo, hi)
 
 
-# !!FIXME: Is "making it much shorter and simpler" really a correct claim here?
 def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
 
     This is analogous to my_bisect_left, but for bisect.bisect_right. It has
-    the same preconditions including how values comes sorted, and the same
-    requirements on what functions it uses.
+    the same preconditions including how values comes sorted, and likewise must
+    not use the bisect module but must do all but O(1) of its work behind some
+    above-defined function (that doesn't either). Do not use my_bisect_left.
 
     >>> mixed = [None, None, 2, 2, -3, 3, -3, 8, -19, 19, -44, -45, None, None]
     >>> my_bisect_right(mixed, 3, lo=2, hi=12, key=abs)
@@ -371,17 +372,20 @@ def _do_bisect_left(values, x, low, high, key, compare):
     return _do_bisect_left(values, x, low, mid, key, compare)
 
 
-# !!FIXME: Reword so "outside functionality" doesn't seem to refer to helpers.
 def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
                              key=None, reverse=False):
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
 
-    This recursive implementation of my_bisect_left is self-contained, neither
-    using any outside functionality (except builtins) nor reproducing any of
-    the first_satisfying functions' behavior. That is, this should be a classic
-    binary search implementation, but to find the left insertion point rather
-    than a matching element (and supporting key and reverse).
+    This recursive implementation of my_bisect_left does not use anything from
+    the bisect module, nor anything else in this module, except that its
+    helpers (if any) are allowed to be top-level functions. Don't reimplement
+    the function that my_bisect_left and my_bisect_right use to do their work.
+
+    This should be a classic recursive binary search implementation, but to
+    find the furthest left insertion point rather than a matching element, and
+    supporting key and reverse. So this code differs from my_bisect_left, even
+    though both implement bisect.bisect_left (and both add "reverse" support).
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
@@ -417,14 +421,18 @@ def my_bisect_left_recursive(values, x, lo=0, hi=None, *,
     return _do_bisect_left(values, x, lo, hi, key, compare)
 
 
-# !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_left_iterative(values, x, lo=0, hi=None, *,
                              key=None, reverse=False):
     """
     Find the leftmost insertion point for a new key x in a sorted sequence.
 
-    This nonrecursive implementation of my_bisect_left is self-contained, just
-    as in my_bisect_left_recursive, but iterative instead of recursive.
+    This nonrecursive implementation of my_bisect_left is like
+    my_bisect_left_recursive, but iterative instead of recursive.
+
+    This should be a classic iterative binary search implementation, but to
+    find the furthest left insertion point rather than a matching element, and
+    supporting key and reverse. So this code differs from my_bisect_left, even
+    though both implement bisect.bisect_left (and both add "reverse" support).
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
@@ -478,14 +486,18 @@ def _do_bisect_right(values, x, low, high, key, compare):
     return _do_bisect_right(values, x, mid + 1, high, key, compare)
 
 
-# !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
                               key=None, reverse=False):
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
 
-    This recursive implementation of my_bisect_right is self-contained. This is
-    like my_bisect_left_recursive, but finding the right insertion point.
+    This recursive implementation of my_bisect_right is like
+    my_bisect_left_recursive, but it is a right rather than a left bisection.
+
+    This should be a classic recursive binary search implementation, but to
+    find the furthest right insertion point rather than a matching element, and
+    supporting key and reverse. So this code differs from my_bisect_right, even
+    though both implement bisect.bisect_right (and both add "reverse" support).
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
@@ -515,15 +527,19 @@ def my_bisect_right_recursive(values, x, lo=0, hi=None, *,
     return _do_bisect_right(values, x, lo, hi, key, compare)
 
 
-# !!FIXME: Reword so "self-contained" doesn't seem to prohibit helpers.
 def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
                               key=None, reverse=False):
     """
     Find the rightmost insertion point for a new key x in a sorted sequence.
 
-    This nonrecursive implementation of my_bisect_right is self-contained, just
-    as in my_bisect_right_recursive, but iterative instead of recursive. So
-    this is like my_bisect_left_iterative, but finding a right insertion point.
+    This nonrecursive implementation of my_bisect_right is like
+    my_bisect_right_recursive, but iterative instead of recursive. So it's like
+    my_bisect_left_iterative, but it is a right rather than a left bisection.
+
+    This should be a classic iterative binary search implementation, but to
+    find the furthest right insertion point rather than a matching element, and
+    supporting key and reverse. So this code differs from my_bisect_right, even
+    though both implement bisect.bisect_right (and both add "reverse" support).
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
@@ -769,12 +785,12 @@ def count_coin_change_slow(coins, total):
     a positive integer amount for which change is to be made. All coins are
     available in unlimited quantities. A way to make change is a multiset of
     coins, so ways differing only in the order of the coins are the same way.
-    So [5, 2, 2] and [2, 5, 2] are the same way to make change for 10, but they
-    differ from [6, 1, 3].
+    So (5, 2, 2) and (2, 5, 2) are the same way to make change for 10, but they
+    differ from (6, 1, 3).
 
-    If the same value appears more than once in coins, they are distinct coin
-    types happening to have the same value. So in a currency with a 1¢ piece, a
-    2¢ piece portraying the king, and a 2¢ piece portraying the queen:
+    But if the same value appears more than once in coins, they are distinct
+    coin types happening to have the same value. So in a currency with a 1¢
+    piece, a 2¢ piece portraying the king, and a 2¢ piece portraying the queen:
 
     >>> count_coin_change_slow([1, 2, 2], 5)
     6
