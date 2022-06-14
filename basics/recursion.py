@@ -317,7 +317,17 @@ def binary_search_left(values, x):
     >>> b
     ['bar', 'baz', 'eggs', 'foo', S('ham'), 'ham', 'quux', 'spam']
     """
-    # FIXME: Needs implementation.
+    low = 0
+    high = len(values)
+
+    while low < high:
+        mid = (low + high) // 2
+        if values[mid] < x:
+            low = mid + 1
+        else:
+            high = mid
+
+    return high
 
 
 def binary_search_right(values, x):
@@ -341,7 +351,17 @@ def binary_search_right(values, x):
     >>> b
     ['bar', 'baz', 'eggs', 'foo', 'ham', S('ham'), 'quux', 'spam']
     """
-    # FIXME: Needs implementation.
+    low = 0
+    high = len(values)
+
+    while low < high:
+        mid = (low + high) // 2
+        if values[mid] <= x:
+            low = mid + 1
+        else:
+            high = mid
+
+    return high
 
 
 def binary_insertion_sort(values):
