@@ -1321,7 +1321,6 @@ def find_prance_winner(m, n, vi, vj, ai, aj, bi, bj):
     return 'A' if _active_player_has_winning_strategy(board, a, b) else 'B'
 
 
-# !!FIXME: Fix consecutive y description. (What about early game?)
 def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     """
     Predict whether Alice or Bob will win their game of Unfair Countdown.
@@ -1330,14 +1329,14 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     designed and are perfect at. A player wins when their opponent loses, which
     happens when their opponent has no legal move. Alice takes the first turn.
 
-    A counter has an initial value of n, which may be large. When Alice moves,
-    she subtracts ax or ay from it; when Bob moves, he subtracts bx or by from
-    it. Alice and Bob can always subtract ax and bx, respectively. Alice can
-    subtract ay if she subtracted ax sometime in her last ak turns or if Bob
-    has just subtracted by. Likewise, Bob can subtract by if he subtracted bx
-    sometime in his last bk turns or if Alice has just subtracted ay. (That is,
-    an x can always be played, and each player may play a y up to three times
-    in a row and also anytime the other player has just played their y.)
+    A counter has an initial value of n. When Alice moves, she decreases it by
+    ax or ay; when Bob moves, he decreases it by bx or by. Alice and Bob can
+    always subtract ax and bx, respectively. Alice can subtract ay if she
+    hasn't done so on all her last ak turns or if Bob has just subtracted by.
+    Likewise, Bob can subtract by if he hasn't done so on all his last bk turns
+    or if Alice has just subtracted ay. (That is, an x can always be played,
+    and each player may play a y up to three times in a row and also anytime
+    the other player has just played their y.)
 
     Neither player may decrease the counter below zero or to a hole (any value
     in holes). Alice may not decrease it to a positive multiple of af (Alice's
