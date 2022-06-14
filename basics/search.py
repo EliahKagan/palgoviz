@@ -1377,8 +1377,8 @@ def count_n_queens(n):
 
     Hint: Any time complexity is acceptable so long as the tests pass in a
     reasonable time, but some very frequent operations that are practical to
-    make fast are checking if a rank, file, or diagonal is occupied. Such
-    checks should take O(1) time and might be fastest if done without hashing.
+    make fast are checking if a rank, file, or diagonal is occupied. Each such
+    check should take O(1) time and might be fastest if done without hashing.
 
     >>> [count_n_queens(n) for n in range(13)]
     [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200]
