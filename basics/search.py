@@ -1383,7 +1383,7 @@ def _a_wins_uc(holes, memo, a, b, n, ay_run, by_run):
         # Can A play y for a guaranteed win?
         (can_go(n - a.y) and (ay_run < a.k or by_run > 0) and
             not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.y),
-                           ay_run=by_run, by_run=(ay_run + 1)))
+                           ay_run=by_run, by_run=min(ay_run + 1, a.k)))
     )
 
     return win
