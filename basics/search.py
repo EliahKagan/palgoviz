@@ -969,7 +969,7 @@ def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
 
 # TODO: Refactor this as a named tuple (namedtuple and inherit) after testing.
 class _Pos:
-    """Coordinates to a board square in Tread."""
+    """Coordinates to a board square in Prance."""
 
     __slots__ = ('_i', '_j')
 
@@ -1016,7 +1016,7 @@ class _Pos:
 
 # TODO: Refactor this as a dataclass (via dataclass or attrs) after testing.
 class _Player:
-    """A player in Tread."""
+    """A player in Prance."""
 
     __slots__ = ('vis', 'old_pos', 'pos', 'gaffes')
 
@@ -1038,7 +1038,7 @@ class _Player:
 
 
 class _Board:
-    """Board geometry for a game of Tread."""
+    """Board geometry for a game of Prance."""
 
     __slots__ = ('_m', '_n', '_void')
 
@@ -1060,11 +1060,11 @@ class _Board:
 
 
 _MAX_GAFFES = 2
-"""The maximum number of gaffes allowed to each player in a game of Tread."""
+"""The maximum number of gaffes allowed to each player in a game of Prance."""
 
 
 def _active_player_has_winning_strategy(board, active, inactive):
-    """Tell if the active Tread player has a winning strategy in mid-game."""
+    """Tell if the active Prance player has a winning strategy in mid-game."""
     # If Inactive's move was illegal, Active calls it out and immediately wins.
     if (inactive.pos not in board or active.is_blocking(active.pos) or
             (inactive.pos in inactive.vis and inactive.gaffes == _MAX_GAFFES)):
@@ -1100,14 +1100,14 @@ def _active_player_has_winning_strategy(board, active, inactive):
             inactive.vis.remove(inactive.pos)
 
 
-def find_tread_winner(m, n, vi, vj, ai, aj, bi, bj):
+def find_prance_winner(m, n, vi, vj, ai, aj, bi, bj):
     """
-    Determine which player, A or B, has a winning strategy in a game of Tread.
+    Determine which player, A or B, has a winning strategy in a game of Prance.
 
     A player has a winning strategy if, provided they play perfectly, they are
     guaranteed to win, no matter how their opponent plays.
 
-    A game of Tread is played on an m-by-n board with a void at (vi, vj) where
+    A game of Prance is played on an m-by-n board with a void at (vi, vj) where
     no one can go. A starts at (ai, aj), B at (bi, bj). Players alternate
     turns. A goes first. The player whose turn it is must move up, down, left,
     or right on the board, but can't move to the void, their opponent's
@@ -1125,7 +1125,7 @@ def find_tread_winner(m, n, vi, vj, ai, aj, bi, bj):
     combination of language features. It should be correct and easy to read.
     You might want to make and use helper functions/classes.
 
-    >>> find_tread_winner(1, 3, 0, 0, 0, 1, 0, 2)
+    >>> find_prance_winner(1, 3, 0, 0, 0, 1, 0, 2)
     'A'
     """
     board = _Board(m, n, vi, vj)

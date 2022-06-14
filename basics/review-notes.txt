@@ -32,5 +32,5 @@ search.count_coin_change
 search.count_coin_change_alt
 search.can_escape_forest
 search.min_forest_escape_stamina
-search.find_tread_winner
+search.find_prance_winner
 search.find_unfair_countdown_winner
