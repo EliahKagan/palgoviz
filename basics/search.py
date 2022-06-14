@@ -1405,7 +1405,14 @@ def count_n_queens(n):
 
         return acc
 
-    return count(0)
+    def start_count(qj):
+        ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = True
+        queens[0] = qj
+        result = count(1)
+        ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = False
+        return result
+
+    return 1 if n == 0 else sum(start_count(qj) for qj in range(n))
 
 
 if __name__ == '__main__':
