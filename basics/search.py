@@ -1389,7 +1389,6 @@ def count_n_queens(n):
     ranks = [False] * n
     pos_diag = [False] * n * 2
     neg_diag = [False] * n * 2
-    queens = [None] * n
 
     def count(qi):
         if qi == n:
@@ -1402,7 +1401,6 @@ def count_n_queens(n):
                 continue
 
             ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = True
-            queens[qi] = qj
             acc += count(qi + 1)
             ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = False
 
@@ -1410,7 +1408,6 @@ def count_n_queens(n):
 
     def start_count(qj):
         ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = True
-        queens[0] = qj
         result = count(1)
         ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = False
         return result
