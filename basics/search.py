@@ -13,6 +13,7 @@ weaker precondition and a list of all functions it applies to in this module.]
 """
 
 import bisect
+import contextlib
 import functools
 import math
 import operator
@@ -1221,8 +1222,8 @@ class _Pos:
         yield _Pos(self.i + 1, self.j)
 
 
-# TODO: Refactor this as a dataclass (via dataclass or attrs) after testing.
-class _Player:
+# TODO: Refactor this as a data class (via dataclass or attrs) after testing.
+class _PrancePlayer:
     """A player in Prance."""
 
     __slots__ = ('vis', 'old_pos', 'pos', 'gaffes')
@@ -1244,7 +1245,7 @@ class _Player:
         return pos in (self.pos, self.old_pos)
 
 
-class _Board:
+class _PranceBoard:
     """Board geometry for a game of Prance."""
 
     __slots__ = ('_m', '_n', '_void')
@@ -1270,7 +1271,7 @@ _MAX_GAFFES = 2
 """The maximum number of gaffes allowed to each player in a game of Prance."""
 
 
-def _active_player_has_winning_strategy(board, active, inactive):
+def _active_player_wins_prance(board, active, inactive):
     """Tell if the active Prance player has a winning strategy in mid-game."""
     # If Inactive's move was illegal, Active calls it out and immediately wins.
     if (inactive.pos not in board or active.is_blocking(active.pos) or
@@ -1291,7 +1292,7 @@ def _active_player_has_winning_strategy(board, active, inactive):
     try:
         for pos in active.old_pos.neighbors:
             active.pos = pos
-            if not _active_player_has_winning_strategy(board, inactive, active):
+            if not _active_player_wins_prance(board, inactive, active):
                 return True  # Active can deny Inactive a winning strategy.
 
         return False  # Active has no way to deny Inactive a winning strategy.
@@ -1337,10 +1338,55 @@ def find_prance_winner(m, n, vi, vj, ai, aj, bi, bj):
 
     FIXME: Needs more tests.
     """
-    board = _Board(m, n, vi, vj)
-    a = _Player(ai, aj)
-    b = _Player(bi, bj)
-    return 'A' if _active_player_has_winning_strategy(board, a, b) else 'B'
+    board = _PranceBoard(m, n, vi, vj)
+    a = _PrancePlayer(ai, aj)
+    b = _PrancePlayer(bi, bj)
+    return 'A' if _active_player_wins_prance(board, a, b) else 'B'
+
+
+class _UCPlayer:
+    """
+    Unchanging parameters for a player in Unfair Countdown.
+
+    _UnfairCountdownPlayer instances use reference equality comparisons.
+    """
+
+    __slots__ = ('x', 'y', 'a', 'f')
+
+    def __init__(self, x, y, k, f):
+        """Create the unchanging parameters for one player."""
+        self.x = x
+        self.y = y
+        self.k = k
+        self.f = f
+
+    def __repr__(self):
+        """Representation for debugging. Runnable as Python code."""
+        return (type(self).__name__
+                + f'(x={self.x!r}, y={self.y!r}, k={self.k!r}, f={self.f!r})')
+
+
+def _a_wins_uc(holes, memo, a, b, n, ay_run, by_run):
+    """Tell if Alice has a winning strategy in mid-game of Unfair Countdown."""
+    with contextlib.suppress(KeyError):
+        return memo[a, b, n, ay_run, by_run]
+
+    def can_go(new_n):
+        return (new_n >= 0 and (new_n % a.f != 0 or new_n == 0)
+                and new_n not in holes)
+
+    if can_go(n - a.x) and not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.x),
+                                          ay_run=by_run, by_run=0):
+        win = True
+    elif (can_go(n - a.y) and (ay_run < a.k or by_run > 0) and
+            not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.y),
+                           ay_run=by_run, by_run=(ay_run + 1))):
+        win = True
+    else:
+        win = False
+
+    memo[a, b, n, ay_run, by_run] = win
+    return win
 
 
 def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
@@ -1373,7 +1419,9 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
 
     FIXME: Needs tests. Make sure some tests exercise recursion depths > 900.
     """
-    # FIXME: Needs implementation.
+    a = _UCPlayer(ax, ay, ak, af)
+    b = _UCPlayer(bx, by, bk, bf)
+    return _a_wins_uc(holes, memo={}, a=a, b=b, n=n, ay_run=0, by_run=0)
 
 
 def count_n_queens(n):
