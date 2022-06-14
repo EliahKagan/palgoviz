@@ -36,3 +36,4 @@ search.can_escape_forest
 search.min_forest_escape_stamina
 search.find_prance_winner
 search.find_unfair_countdown_winner
+search.count_n_queens  [maybe defer]

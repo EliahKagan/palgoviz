@@ -1353,6 +1353,61 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     # FIXME: Needs implementation.
 
 
+# !!TODO: Decide whether to defer this to a later problem set.
+def count_n_queens(n):
+    """
+    Count the ways n queens can peacefully coexist on an n-by-n chessboard.
+
+    A real chessboard always has n=8, but here n may also be other nonnegative
+    integers. This returns the number of distinct ways to arrange n queens on
+    such a board where no queen can attack another: no two queens are in the
+    same rank, the same file, or the same diagonal. Space complexity is O(n).
+
+    Symmetries count separately. For example:
+
+    >>> count_n_queens(4)
+    2
+
+    This returns 2, not 1, even though the two ways are mirror images:
+
+        .Q..    ..Q.
+        ...Q    Q...
+        Q...    ...Q
+        ..Q.    .Q..
+
+    Hint: Any time complexity is acceptable so long as the tests pass in a
+    reasonable time, but some very frequent operations that are practical to
+    make fast are checking if a rank, file, or diagonal is occupied. Such
+    checks should take O(1) time and might be fastest if done without hashing.
+
+    >>> [count_n_queens(n) for n in range(13)]
+    [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200]
+    """
+    # FIXME: As I edited the description to reflect, this approach is too slow.
+    def can_attack(pi, pj, qi, qj):
+        return pi == qi or pj == qj or pi - pj == qi - qj or pi + pj == qi + qj
+
+    stack = []
+
+    def count():
+        qi = len(stack)
+        if qi == n:
+            return 1
+
+        acc = 0
+
+        for qj in range(n):
+            if any(can_attack(pi, pj, qi, qj) for pi, pj in enumerate(stack)):
+                continue
+            stack.append(qj)
+            acc += count()
+            del stack[-1]
+
+        return acc
+
+    return count()
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
