@@ -1383,29 +1383,29 @@ def count_n_queens(n):
     >>> [count_n_queens(n) for n in range(13)]
     [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200]
     """
-    # FIXME: As I edited the description to reflect, this approach is too slow.
-    def can_attack(pi, pj, qi, qj):
-        return pi == qi or pj == qj or pi - pj == qi - qj or pi + pj == qi + qj
+    ranks = [False] * n
+    pos_diag = [False] * n * 2
+    neg_diag = [False] * n * 2
+    queens = [None] * n
 
-    stack = []
-
-    def count():
-        qi = len(stack)
+    def count(qi):
         if qi == n:
             return 1
 
         acc = 0
 
         for qj in range(n):
-            if any(can_attack(pi, pj, qi, qj) for pi, pj in enumerate(stack)):
+            if (ranks[qj] or pos_diag[qi + qj] or neg_diag[n + qi - qj]):
                 continue
-            stack.append(qj)
-            acc += count()
-            del stack[-1]
+
+            ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = True
+            queens[qi] = qj
+            acc += count(qi + 1)
+            ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = False
 
         return acc
 
-    return count()
+    return count(0)
 
 
 if __name__ == '__main__':
