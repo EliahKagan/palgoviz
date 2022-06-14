@@ -769,6 +769,8 @@ def two_sum_slow(numbers, total):
     any of them. If there are no solutions, raise ValueError.
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    FIXME: Needs tests.
     """
     # Although un-Pythonic, this code avoids obscuring how the algorithm works.
     for left in range(len(numbers)):
@@ -835,6 +837,8 @@ def two_sum_sorted(numbers, total):
     less space even in unlimited time, then say so and explain why. Otherwise,
     say why that cannot be done, and explain why you believe the tradeoff you
     picked between time and space is a reasonable choice.]
+
+    FIXME: Needs tests.
     """
     return _two_sum_sorted_keyed(numbers, total, lambda num: num)
 
@@ -851,6 +855,8 @@ def two_sum_nohash(numbers, total):
     return any of them. If there are no solutions, raise ValueError.
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    FIXME: Needs tests.
     """
     indices = sorted(range(len(numbers)), key=numbers.__getitem__)
     left, right = _two_sum_sorted_keyed(indices, total, numbers.__getitem__)
@@ -878,6 +884,8 @@ def has_subset_sum_slow(numbers, total):
     This implementation is recursive. It takes exponential time. It should
     sacrifice speed for simplicity, except that I do recommend avoiding
     unnecessary copying, in which case it will take O(2**len(numbers)) time.
+
+    FIXME: Needs tests.
     """
     def check(start, subtotal):
         if subtotal == 0:
@@ -899,6 +907,8 @@ def has_subset_sum(numbers, total):
     but much more efficient. This is fast enough for substantial problem sizes.
 
     [FIXME: Say something about this algorithm's asymptotic time complexity.]
+
+    FIXME: Needs tests.
     """
     memo = {}
 
@@ -935,6 +945,8 @@ def has_subset_sum_alt(numbers, total):
     wasn't relevant in prior uses. Rename the existing version descriptively.
     Write a new version, appropriately generalized, that overcomes that
     limitation. (Give it the name your original implementation previously had.)
+
+    FIXME: Needs tests.
     """
     @functools.cache
     def check(start, subtotal):
@@ -969,6 +981,8 @@ def count_coin_change_slow(coins, total):
     This implementation is recursive. It takes exponential time, sacrificing
     speed for simplicity other than avoiding unnecessary copying. It may
     resemble the solution to has_subset_sum_slow in other ways, too.
+
+    FIXME: Needs more tests.
     """
     def count(start, subtotal):
         if subtotal == 0:
@@ -989,6 +1003,8 @@ def count_coin_change(coins, total):
     implementation is also recursive, resembling the implementation there, but
     much more efficient. This function relates to count_coin_change_slow in the
     same way that has_subset_sum relates to has_subset_sum_slow.
+
+    FIXME: Needs tests.
     """
     memo = {}
 
@@ -1019,6 +1035,8 @@ def count_coin_change_alt(coins, total):
     implements it using a substantially different technique. This function
     relates to count_coin_change in the same way that has_subset_sum_alt
     relates to has_subset_sum.
+
+    FIXME: Needs tests.
     """
     @functools.cache
     def count(start, subtotal):
@@ -1144,6 +1162,8 @@ def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
     slower than can_escape_forest. But it's often worse than that, because
     [FIXME: Explain. Say what can affect it. Give an example of a software
     engineering problem where this technique really does enjoy that guarantee].
+
+    FIXME: Needs tests.
     """
     def is_sufficient(stamina):
         return can_escape_forest(forest, stamina,
@@ -1314,6 +1334,8 @@ def find_prance_winner(m, n, vi, vj, ai, aj, bi, bj):
 
     >>> find_prance_winner(1, 3, 0, 0, 0, 1, 0, 2)
     'A'
+
+    FIXME: Needs more tests.
     """
     board = _Board(m, n, vi, vj)
     a = _Player(ai, aj)
@@ -1348,6 +1370,8 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     can be assumed small. af, bf, and len(holes) may each be small or large.
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    FIXME: Needs tests. Make sure some tests exercise recursion depths > 900.
     """
     # FIXME: Needs implementation.
 
