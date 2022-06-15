@@ -1467,18 +1467,18 @@ def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     designed and are perfect at. A player wins when the opposing player has no
     legal move. Return 'A' if Alice will win, or 'B' if Bob will win.
 
-    A counter starts at i. Neither player may decrease it below 0 or to a hole.
-    Alice may not decrease it to a positive multiple of af (Alice's factor).
-    Bob may not decrease it to a positive multiple bf (Bob's factor). Alice
-    takes the first turn. When Alice moves, she decreases the counter by ax or
-    ay. When Bob moves, he decreases it by bx or by. Alice can always subtract
-    ax, but she can't subtract ay on more than ak consecutive turns, unless Bob
+    A counter starts at i and can't be decreased below 0 or to a hole. Alice
+    can't decrease it to a positive multiple of af (Alice's factor). Bob can't
+    decrease it to a positive multiple bf (Bob's factor). Alice takes the first
+    turn. When Alice moves, she decreases the counter by ax or ay. When Bob
+    moves, he decreases it by bx or by. Alice can always subtract ax, but she
+    can't subtract ay on more than ak consecutive turns, except when Bob has
     just subtracted by. Bob can always subtract bx, but he can't subtract by on
-    more than bk consecutive turns, unless Alice just subtracted ay.
+    more than bk consecutive turns, except when Alice has just subtracted ay.
 
     In example 1 below, Bob wins, because Alice can't decrease the counter to
-    positive even numbers, but with ax=1, ay=2, and ak=3, she can't skip over
-    evens more than 3 times in a row unless Bob blunders by overusing his by:
+    positive even numbers, and with ax=1, ay=2, and ak=3, she can't skip over
+    evens more than 3 times in a row unless Bob blunders by overplaying his y:
 
     >>> find_imd_winner(20, set(), 1, 2, 3, 2, 4, 2, 2, 7)  # Example 1
     'B'
