@@ -1177,7 +1177,7 @@ def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
 
 # TODO: Refactor this as a named tuple (namedtuple and inherit) after testing.
 class _Pos:
-    """Coordinates to a board square in Prance."""
+    """Coordinates to a board square in a game of A Void."""
 
     __slots__ = ('_i', '_j')
 
@@ -1223,8 +1223,8 @@ class _Pos:
 
 
 # TODO: Refactor this as a data class (via dataclass or attrs) after testing.
-class _PrancePlayer:
-    """A player in Prance."""
+class _AVPlayer:
+    """A player in a game of A Void."""
 
     __slots__ = ('vis', 'old_pos', 'pos', 'gaffes')
 
@@ -1245,8 +1245,8 @@ class _PrancePlayer:
         return pos in (self.pos, self.old_pos)
 
 
-class _PranceBoard:
-    """Board geometry for a game of Prance."""
+class _AVBoard:
+    """Board geometry for a game of A Void."""
 
     __slots__ = ('_m', '_n', '_void')
 
@@ -1268,11 +1268,11 @@ class _PranceBoard:
 
 
 _MAX_GAFFES = 2
-"""The maximum number of gaffes allowed to each player in a game of Prance."""
+"""The maximum number of gaffes allowed to each player in a game of A Void."""
 
 
-def _active_player_wins_prance(board, active, inactive):
-    """Tell if the active Prance player has a winning strategy in mid-game."""
+def _active_player_wins_av(board, active, inactive):
+    """Tell if the active A Void player has a winning strategy in mid-game."""
     # If Inactive's move was illegal, Active calls it out and immediately wins.
     if (inactive.pos not in board or active.is_blocking(active.pos) or
             (inactive.pos in inactive.vis and inactive.gaffes == _MAX_GAFFES)):
@@ -1292,7 +1292,7 @@ def _active_player_wins_prance(board, active, inactive):
     try:
         for pos in active.old_pos.neighbors:
             active.pos = pos
-            if not _active_player_wins_prance(board, inactive, active):
+            if not _active_player_wins_av(board, inactive, active):
                 return True  # Active can deny Inactive a winning strategy.
 
         return False  # Active has no way to deny Inactive a winning strategy.
@@ -1308,22 +1308,22 @@ def _active_player_wins_prance(board, active, inactive):
             inactive.vis.remove(inactive.pos)
 
 
-def find_prance_winner(m, n, vi, vj, ai, aj, bi, bj):
+def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     """
-    Determine which player, A or B, has a winning strategy in a game of Prance.
+    Determine which player, A or B, has a winning strategy in a game of A Void.
 
     A player has a winning strategy if, provided they play perfectly, they are
     guaranteed to win, no matter how their opponent plays.
 
-    A game of Prance is played on an m-by-n board with a void at (vi, vj) where
-    no one can go. A starts at (ai, aj), B at (bi, bj). Players alternate
-    turns. A goes first. The player whose turn it is must move up, down, left,
-    or right on the board, but can't move to the void, their opponent's
-    location, or their opponent's most recent previous location. Also, to move
-    onto any square one has ever previously occupied is a gaffe; each player is
-    allowed at most two gaffes. If a player has no legal move, their opponent
-    wins. The void and players' start squares are guaranteed to be three
-    different squares within the m-by-n rectangle.
+    A Void is played on an m-by-n board with a void at (vi, vj) where no one
+    can go. A starts at (ai, aj), B at (bi, bj). Players alternate turns. A
+    goes first. The player whose turn it is must move up, down, left, or right
+    on the board, but can't move to the void, their opponent's location, or
+    their opponent's most recent previous location. Also, to move onto any
+    square one has ever previously occupied is a gaffe; each player is allowed
+    at most two gaffes. If a player has no legal move, their opponent wins. The
+    void and players' start squares are guaranteed to be three different
+    squares within the m-by-n rectangle.
 
     Return 'A' if A has a winning strategy, or 'B' if B has a winning strategy.
     Some player is guaranteed to have one, because [FIXME: Say why.]
@@ -1333,22 +1333,22 @@ def find_prance_winner(m, n, vi, vj, ai, aj, bi, bj):
     combination of language features. It should be correct and easy to read.
     You might want to make and use helper functions/classes.
 
-    >>> find_prance_winner(1, 3, 0, 0, 0, 1, 0, 2)
-    'A'
-
     FIXME: Needs more tests.
+
+    >>> find_av_winner(1, 3, 0, 0, 0, 1, 0, 2)
+    'A'
     """
-    board = _PranceBoard(m, n, vi, vj)
-    a = _PrancePlayer(ai, aj)
-    b = _PrancePlayer(bi, bj)
-    return 'A' if _active_player_wins_prance(board, a, b) else 'B'
+    board = _AVBoard(m, n, vi, vj)
+    a = _AVPlayer(ai, aj)
+    b = _AVPlayer(bi, bj)
+    return 'A' if _active_player_wins_av(board, a, b) else 'B'
 
 
-class _UCPlayer:
+class _IMDPlayer:
     """
     Unchanging parameters for a player in Unfair Countdown.
 
-    _UnfairCountdownPlayer instances use reference equality comparisons.
+    _IMDPlayer instances use reference equality comparisons.
     """
 
     __slots__ = ('x', 'y', 'k', 'f')
@@ -1366,45 +1366,45 @@ class _UCPlayer:
                 + f'(x={self.x!r}, y={self.y!r}, k={self.k!r}, f={self.f!r})')
 
 
-def _a_wins_uc(holes, memo, a, b, n, ay_run, by_run):
-    """Tell if Alice has a winning strategy in mid-game of Unfair Countdown."""
+def _a_wins_imd(holes, memo, a, b, i, ay_run, by_run):
+    """Tell if Alice has a winning strategy in mid-game of I Must Decline."""
     with contextlib.suppress(KeyError):
-        return memo[a, b, n, ay_run, by_run]
+        return memo[a, b, i, ay_run, by_run]
 
-    def can_go(new_n):
-        return (new_n >= 0 and (new_n % a.f != 0 or new_n == 0)
-                and new_n not in holes)
+    def can_go(new_i):
+        return (new_i >= 0 and (new_i % a.f != 0 or new_i == 0)
+                and new_i not in holes)
 
-    win = memo[a, b, n, ay_run, by_run] = (
+    win = memo[a, b, i, ay_run, by_run] = (
         # Can "A" play x to win?
-        (can_go(n - a.x) and
-            not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.x),
-                           ay_run=by_run, by_run=0)) or
+        (can_go(i - a.x) and
+            not _a_wins_imd(holes, memo, a=b, b=a, i=(i - a.x),
+                            ay_run=by_run, by_run=0)) or
         # Can "A" play y to win?
-        (can_go(n - a.y) and (ay_run < a.k or by_run > 0) and
-            not _a_wins_uc(holes, memo, a=b, b=a, n=(n - a.y),
-                           ay_run=by_run, by_run=min(ay_run + 1, a.k)))
+        (can_go(i - a.y) and (ay_run < a.k or by_run > 0) and
+            not _a_wins_imd(holes, memo, a=b, b=a, i=(i - a.y),
+                            ay_run=by_run, by_run=min(ay_run + 1, a.k)))
     )
 
     return win
 
 
-def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
+def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     """
-    Predict whether Alice or Bob will win their game of Unfair Countdown.
+    Predict whether Alice or Bob will win their game of I Must Decline.
 
-    Alice ("A") and Bob ("B") play a game of Unfair Countdown, which they
-    designed and are perfect at. A player wins when their opponent loses, which
-    happens when their opponent has no legal move. Alice takes the first turn.
+    Alice ("A") and Bob ("B") play a game of Must Decline, which they designed
+    and are perfect at. A player wins when the opposing player has no legal
+    move. Alice takes the first turn.
 
-    A counter has an initial value of n. When Alice moves, she decreases it by
-    ax or ay; when Bob moves, he decreases it by bx or by. Alice and Bob can
-    always subtract ax and bx, respectively. Alice can subtract ay if she
-    hasn't done so on all her last ak turns or if Bob has just subtracted by.
-    Likewise, Bob can subtract by if he hasn't done so on all his last bk turns
-    or if Alice has just subtracted ay. (That is, an x can always be played; a
-    player may play a y up to k times in succession and also anytime the other
-    player has just played a y; and players each have their own x, y, and k.)
+    A counter has an initial value of i. When Alice moves, she decreases the
+    counter by ax or ay; when Bob moves, he decreases it by bx or by. Alice and
+    Bob can always subtract ax and bx, respectively. Alice can subtract ay if
+    she hasn't done so on all her last ak turns, or if Bob has just subtracted
+    by. Likewise, Bob can subtract by if he hasn't done so on all his last bk
+    turns, or if Alice has just subtracted ay. (That is, an x can always be
+    played; a player may play a y up to k times in succession and also anytime
+    the other player just played a y; and x, y, and k are per-player values.)
 
     Neither player may decrease the counter below zero or to a hole (any value
     in holes). Alice may not decrease it to a positive multiple of af (Alice's
@@ -1415,34 +1415,37 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     enjoy long games, so n can be pretty big. But ax, xy, ak, bx, by, and bk
     can be assumed small. af, bf, and len(holes) may each be small or large.
 
+    Return 'A' if Alice will win, or 'B' if Bob will win.
+
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Verify tests. Ensure some always exercise recursion depths of ~900.
+    FIXME: Verify tests. Move some to other files. Ensure test coverage of
+    game instances where any recursive implementation has call depth 800-985.
 
-    >>> find_unfair_countdown_winner(10, set(), 2, 3, 3, 17, 3, 2, 3, 31)
+    >>> find_imd_winner(10, set(), 2, 3, 3, 17, 3, 2, 3, 31)
     'B'
-    >>> find_unfair_countdown_winner(10, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
+    >>> find_imd_winner(10, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
     'A'
     >>> holes = {940, 941, 942, 944, 945, 946, 949, 950, 951, 952}
-    >>> find_unfair_countdown_winner(985, holes, 2, 3, 3, 17, 3, 2, 3, 31)
+    >>> find_imd_winner(985, holes, 2, 3, 3, 17, 3, 2, 3, 31)
     'A'
-    >>> find_unfair_countdown_winner(985, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
+    >>> find_imd_winner(985, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
     'B'
-    >>> find_unfair_countdown_winner(979, set(), 2, 1, 3, 114, 2, 1, 3, 114)
+    >>> find_imd_winner(979, set(), 2, 1, 3, 114, 2, 1, 3, 114)
     'A'
-    >>> find_unfair_countdown_winner(14783, set(), 15, 17, 4, 2279, 16, 18, 4, 2279)
+    >>> find_imd_winner(14783, set(), 15, 17, 4, 2279, 16, 18, 4, 2279)
     'B'
-    >>> find_unfair_countdown_winner(14784, set(), 15, 17, 4, 2279, 16, 18, 4, 2279)
+    >>> find_imd_winner(14784, set(), 15, 17, 4, 2279, 16, 18, 4, 2279)
     'A'
     """
-    a = _UCPlayer(ax, ay, ak, af)
-    b = _UCPlayer(bx, by, bk, bf)
+    a = _IMDPlayer(ax, ay, ak, af)
+    b = _IMDPlayer(bx, by, bk, bf)
     memo = {}
-    a_wins = _a_wins_uc(holes, memo, a=a, b=b, n=n, ay_run=0, by_run=0)
+    a_wins = _a_wins_imd(holes, memo, a=a, b=b, i=i, ay_run=0, by_run=0)
     return 'A' if a_wins else 'B'
 
 
-def count_n_queens(n):
+def count_n_queens_solutions(n):
     """
     Count the ways n queens can peacefully coexist on an n-by-n chessboard.
 
@@ -1453,7 +1456,7 @@ def count_n_queens(n):
 
     Symmetries count separately. For example:
 
-    >>> count_n_queens(4)
+    >>> count_n_queens_solutions(4)
     2
 
     This returns 2, not 1, even though the two ways are mirror images:
@@ -1468,7 +1471,7 @@ def count_n_queens(n):
     make fast are checking if a rank, file, or diagonal is occupied. Each such
     check should take O(1) time and might be fastest if done without hashing.
 
-    >>> [count_n_queens(n) for n in range(13)]
+    >>> [count_n_queens_solutions(n) for n in range(13)]
     [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200]
     """
     if n == 0:
