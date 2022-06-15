@@ -1392,11 +1392,11 @@ def _a_wins_imd(holes, memo, a, b, i, ay_run, by_run):
                 and new_i not in holes)
 
     win = memo[a, b, i, ay_run, by_run] = (
-        # Can "A" play x to win?
+        # Can "A" play a.x to win?
         (can_go(i - a.x) and
             not _a_wins_imd(holes, memo, a=b, b=a, i=(i - a.x),
                             ay_run=by_run, by_run=0)) or
-        # Can "A" play y to win?
+        # Can "A" play a.y to win?
         (can_go(i - a.y) and (ay_run < a.k or by_run > 0) and
             not _a_wins_imd(holes, memo, a=b, b=a, i=(i - a.y),
                             ay_run=by_run, by_run=min(ay_run + 1, a.k)))
@@ -1418,7 +1418,7 @@ def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     it by bx or by. Alice can always subtract ax, but she can't subtract ay on
     more than ak consecutive turns, unless Bob has just subtracted by. Bob can
     always subtract bx, but he can't subtract by on more than bk consecutive
-    turns, unless Alice has just subtracted ay.
+    turns, unless Alice has just subtracted ay. (See the examples below.)
 
     Neither player may decrease the counter below zero or to a hole (any value
     in holes). Alice may not decrease it to a positive multiple of af (Alice's
@@ -1428,6 +1428,20 @@ def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     positive ints, except n may be zero. ax != ay and bx != by. Alice and Bob
     enjoy long games, so n can be pretty big. But ax, xy, ak, bx, by, and bk
     can be assumed small. af, bf, and len(holes) may each be small or large.
+
+    In this first example, Bob wins, because Alice can't decrease the counter
+    to positive even numbers, but with ax=1, ay=2, and ak=3, she can't skip
+    over evens more than 3 times in a row unless Bob blunders:
+
+    >>> find_imd_winner(20, set(), 1, 2, 3, 2, 4, 2, 2, 7)
+    'B'
+
+    In this second example, Alice still can't decrease the counter to positive
+    even numbers, but ax=2 and ay=1, so she can easily skip them. She wins even
+    though Bob is more powerful than before (bk=8 instead of bk=2):
+
+    >>> find_imd_winner(20, set(), 2, 1, 1, 2, 4, 2, 8, 7)
+    'A'
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
