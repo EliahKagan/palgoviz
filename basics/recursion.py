@@ -14,7 +14,7 @@ import decorators
 
 def countdown(n):
     """
-    Count down from n, printing the positive numbers, one per line.
+    Recursively count down from n, printing the positive numbers, one per line.
 
     >>> countdown(10)
     10
@@ -42,7 +42,7 @@ def countdown(n):
 
 def add_all_iterative(values):
     """
-    Add all the numbers. Like sum(values).
+    Add all the numbers iteratively. Like sum(values).
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
 
@@ -114,9 +114,9 @@ def add_all(values):
 
 def linear_search_good(values, x):
     """
-    Return an index to some occurrence of x in values, if any.
+    Find an index to some occurrence of x in values, if any, in a Pythonic way.
 
-    If there is no such occurrence, None is returned.
+    If there are no occurrences of x in values, None is returned.
 
     >>> linear_search_good([], 9)
     >>> linear_search_good([2, 3], 2)
@@ -134,9 +134,9 @@ def linear_search_good(values, x):
 
 def linear_search_iterative(values, x):
     """
-    Return an index to some occurrence of x in values, if any.
+    Iteratively find an index to some occurrence of x in values, if any.
 
-    If there is no such occurrence, None is returned.
+    If there are no occurrences of x in values, None is returned.
 
     >>> linear_search_iterative([], 9)
     >>> linear_search_iterative([2, 3], 2)
@@ -152,11 +152,32 @@ def linear_search_iterative(values, x):
     return None
 
 
+def linear_search_iterative_alt(values, x):
+    """
+    Iteratively find an index to some occurrence of x in values, if any.
+
+    If there are no occurrences of x in values, None is returned.
+
+    This is an alternative implementation of linear_search_iterative (above).
+    One implementation uses no comprehensions; the other uses no loops.
+
+    >>> linear_search_iterative_alt([], 9)
+    >>> linear_search_iterative_alt([2, 3], 2)
+    0
+    >>> linear_search_iterative_alt((4, 5, 6), 5)
+    1
+    >>> linear_search_iterative_alt([3, 1, 2, 8, 6, 5, 7], 8)
+    3
+    """
+    matches = (index for index, value in enumerate(values) if value == x)
+    return next(matches, None)
+
+
 def linear_search(values, x):
     """
-    Return an index to some occurrence of x in values, if any.
+    Recursively find an index to some occurrence of x in values, if any.
 
-    If there is no such occurrence, None is returned.
+    If there are no occurrences of x in values, None is returned.
 
     >>> linear_search([], 9)
     >>> linear_search([2, 3], 2)
@@ -178,9 +199,9 @@ def linear_search(values, x):
 
 def binary_search(values, x):
     """
-    Return an index to some occurrence of x in values, which is sorted.
+    Recursively find an index to an occurrence of x in values, which is sorted.
 
-    If there is no such occurrence, None is returned.
+    If there are no occurrences of x in values, None is returned.
 
     >>> binary_search([], 9)
     >>> binary_search([2, 3], 2)
@@ -214,9 +235,9 @@ def binary_search(values, x):
 
 def binary_search_iterative(values, x):
     """
-    Return an index to some occurrence of x in values, which is sorted.
+    Iteratively find an index to an occurrence of x in values, which is sorted.
 
-    If there is no such occurrence, None is returned.
+    If there are no occurrences of x in values, None is returned.
 
     >>> binary_search_iterative([], 9)
     >>> binary_search_iterative([2, 3], 2)
@@ -250,11 +271,95 @@ def binary_search_iterative(values, x):
     return None
 
 
+def binary_search_alt(values, x):
+    """
+    Recursively find an index to an occurrence of x in values, which is sorted.
+
+    If there are no occurrences of x in values, None is returned.
+
+    This alternative implementation of binary_search uses high as an exclusive,
+    rather than inclusive, endpoint. This is an implementation detail and does
+    not affect externally observable behavior.
+
+    >>> binary_search_alt([], 9)
+    >>> binary_search_alt([2, 3], 2)
+    0
+    >>> binary_search_alt((4, 5, 6), 5)
+    1
+    >>> binary_search_alt((4, 5, 6), 7)
+    >>> binary_search_alt([1, 2, 3, 5, 6, 7, 8], 3)
+    2
+    >>> binary_search_alt([10], 10)
+    0
+    >>> binary_search_alt([10, 20], 10)
+    0
+    >>> binary_search_alt([10, 20], 20)
+    1
+    >>> binary_search_alt([10, 20], 15)
+    >>>
+    """
+    def search(low, high):
+        if high <= low:
+            return None
+        mid = (low + high) // 2
+        if values[mid] < x:
+            return search(mid + 1, high)
+        if values[mid] > x:
+            return search(low, mid)
+        return mid
+
+    return search(0, len(values))
+
+
+def binary_search_iterative_alt(values, x):
+    """
+    Iteratively find an index to an occurrence of x in values, which is sorted.
+
+    If there are no occurrences of x in values, None is returned.
+
+    This alternative implementation of binary_search_iterative uses high as an
+    exclusive, rather than inclusive, endpoint. This is an implementation
+    detail and does not affect externally observable behavior.
+
+    >>> binary_search_iterative([], 9)
+    >>> binary_search_iterative([2, 3], 2)
+    0
+    >>> binary_search_iterative((4, 5, 6), 5)
+    1
+    >>> binary_search_iterative((4, 5, 6), 7)
+    >>> binary_search_iterative([1, 2, 3, 5, 6, 7, 8], 3)
+    2
+    >>> binary_search_iterative([10], 10)
+    0
+    >>> binary_search_iterative([10, 20], 10)
+    0
+    >>> binary_search_iterative([10, 20], 20)
+    1
+    >>> binary_search_iterative([10, 20], 15)
+    >>>
+    """
+    low = 0
+    high = len(values)
+
+    while low < high:
+        mid = (low + high) // 2
+        if values[mid] < x:
+            low = mid + 1
+        elif values[mid] > x:
+            high = mid
+        else:
+            return mid
+
+    return None
+
+
 def binary_search_good(values, x):
     """
-    Return an index to some occurrence of x in values, which is sorted.
+    Find an index to an occurrence of x in values, which is sorted.
 
     If there is no such occurrence, None is returned.
+
+    This implementation uses a function in the bisect module.
 
     >>> binary_search_good([], 9)
     >>> binary_search_good([2, 3], 2)
