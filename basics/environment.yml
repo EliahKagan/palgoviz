@@ -5,7 +5,6 @@ channels:
 
 dependencies:
   - python=3.10
-  - more-itertools
 
   # For Jupyter
   - ipython>=8.1

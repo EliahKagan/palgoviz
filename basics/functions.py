@@ -14,7 +14,6 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
-import contextlib
 import itertools
 from decorators import peek_return
 
@@ -160,8 +159,7 @@ def as_func_limited(iterable, end_sentinel):
     >>> f()
     'END'
     """
-    it = iter(iterable)
-    return lambda: next(it, end_sentinel)
+    # FIXME: Implement this.
 
 
 def as_func_limited_alt(iterable, end_sentinel):
@@ -181,15 +179,7 @@ def as_func_limited_alt(iterable, end_sentinel):
     >>> f()
     'END'
     """
-    it = iter(iterable)
-
-    def get_next():
-        try:
-            return next(it)
-        except StopIteration:
-            return end_sentinel
-
-    return get_next
+    # FIXME: Implement this.
 
 
 def as_iterator_limited(func, end_sentinel):
@@ -376,14 +366,6 @@ def count_tree_nodes_instrumented(root):
         count_tree_nodes = non_decorated
 
 
-def _get_dict_attributes(obj):
-    """Get an object's instance dictionary or, if absent, an empty mapping."""
-    try:
-        return obj.__dict__
-    except AttributeError:
-        return {}
-
-
 def report_attributes(func):
     """
     Given a function (not other callables), report its non-metadata attributes.
@@ -408,14 +390,7 @@ def report_attributes(func):
     >>> report_attributes(greet)
     greet.fmt = 'Hello, {}!'
     """
-    attributes = _get_dict_attributes(func)
-
-    if not attributes:
-        print('No non-metadata attributes.')
-        return
-
-    for key, value in attributes.items():
-        print(f'{func.__name__}.{key} = {value!r}')
+    # FIXME: Implement this.
 
 
 def as_closeable_func(iterable):
@@ -450,15 +425,7 @@ def as_closeable_func(iterable):
     >>> list(as_iterator(h))
     [10, 20, 30, 40, 50]
     """
-    it = iter(iterable)
-
-    def get_next():
-        return next(it)
-
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
-
-    return get_next
+    # FIXME: Implement this.
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
@@ -484,15 +451,7 @@ def as_closeable_func_limited(iterable, end_sentinel):
     >>> a + [g() for _ in range(6)]
     [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
-    it = iter(iterable)
-
-    def get_next():
-        return next(it, end_sentinel)
-
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
-
-    return get_next
+    # FIXME: Implement this.
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
@@ -525,23 +484,7 @@ def as_closeable_iterator_limited(func, end_sentinel):
     >>> it3.close()
     Done.
     """
-    def generate():
-        try:
-            yield
-
-            while (result := func()) != end_sentinel:
-                yield result
-        finally:
-            try:
-                close = func.close
-            except AttributeError:
-                pass
-            else:
-                close()
-
-    it = generate()
-    next(it)  # Enter the try block, so closing will run the finally block.
-    return it
+    # FIXME: Implement this.
 
 
 def as_closeable_iterator(func):
@@ -577,7 +520,7 @@ def as_closeable_iterator(func):
     >>> it2.close()
     Done.
     """
-    return as_closeable_iterator_limited(func, object())
+    # FIXME: Implement this.
 
 
 def func_filter(predicate, func, end_sentinel):
@@ -609,25 +552,7 @@ def func_filter(predicate, func, end_sentinel):
     >>> a
     [11, 22]
     """
-    if predicate is None:
-        predicate = lambda x: x
-
-    done = False
-
-    def get_next_satisfier():
-        nonlocal done
-
-        if done:
-            return end_sentinel
-
-        while (result := func()) != end_sentinel:
-            if predicate(result):
-                return result
-
-        done = True
-        return end_sentinel
-
-    return get_next_satisfier
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':

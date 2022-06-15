@@ -169,8 +169,7 @@ def linear_search_iterative_alt(values, x):
     >>> linear_search_iterative_alt([3, 1, 2, 8, 6, 5, 7], 8)
     3
     """
-    matches = (index for index, value in enumerate(values) if value == x)
-    return next(matches, None)
+    # FIXME: Implement this.
 
 
 def linear_search(values, x):
@@ -298,17 +297,7 @@ def binary_search_alt(values, x):
     >>> binary_search_alt([10, 20], 15)
     >>>
     """
-    def search(low, high):
-        if high <= low:
-            return None
-        mid = (low + high) // 2
-        if values[mid] < x:
-            return search(mid + 1, high)
-        if values[mid] > x:
-            return search(low, mid)
-        return mid
-
-    return search(0, len(values))
+    # FIXME: Implement this.
 
 
 def binary_search_iterative_alt(values, x):
@@ -338,19 +327,7 @@ def binary_search_iterative_alt(values, x):
     >>> binary_search_iterative_alt([10, 20], 15)
     >>>
     """
-    low = 0
-    high = len(values)
-
-    while low < high:
-        mid = (low + high) // 2
-        if values[mid] < x:
-            low = mid + 1
-        elif values[mid] > x:
-            high = mid
-        else:
-            return mid
-
-    return None
+    # FIXME: Implement this.
 
 
 def binary_search_good(values, x):

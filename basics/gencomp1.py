@@ -10,8 +10,6 @@ import collections
 import contextlib
 import itertools
 
-import more_itertools
-
 
 def my_enumerate(iterable, start=0):
     """
@@ -152,11 +150,7 @@ def my_any_alt(iterable):
     >>> my_any_alt(x > 100 for x in range(100))
     False
     """
-    for element in iterable:
-        if element:
-            return True
-
-    return False
+    # FIXME: Implement this.
 
 
 def my_all(iterable):
@@ -200,11 +194,7 @@ def my_all_alt(iterable):
     >>> my_all_alt([1, 1, 1, 6, 7])
     True
     """
-    for element in iterable:
-        if not element:
-            return False
-
-    return True
+    # FIXME: Implement this.
 
 
 def zip_two(first, second):
@@ -361,14 +351,6 @@ def print_zipped():
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
 
 
-def _validate_take_n_arg(n):
-    """Raise an appropriate exception if take/take_good should reject n."""
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-    if n < 0:
-        raise ValueError("can't yield negatively many items")
-
-
 def take_good(iterable, n):
     """
     Yield the first n elements of iterable, or all if there are fewer than n.
@@ -417,8 +399,7 @@ def take_good(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    _validate_take_n_arg(n)
-    return itertools.islice(iterable, n)
+    # FIXME: Implement this.
 
 
 def take(iterable, n):
@@ -466,16 +447,13 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    _validate_take_n_arg(n)
-    return (element for _, element in zip(range(n), iterable))
-
-
-def _validate_drop_n_arg(n):
-    """Raise an appropriate exception if drop/drop_good should reject n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
+
     if n < 0:
-        raise ValueError("can't skip negatively many items")
+        raise ValueError("can't yield negatively many items")
+
+    return (element for _, element in zip(range(n), iterable))
 
 
 def drop_good(iterable, n):
@@ -522,8 +500,7 @@ def drop_good(iterable, n):
     >>> list(drop_good('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    _validate_drop_n_arg(n)
-    return itertools.islice(iterable, n, None)
+    # FIXME: Implement this.
 
 
 def drop(iterable, n):
@@ -568,7 +545,11 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    _validate_drop_n_arg(n)
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't skip negatively many items")
 
     def generate():
         it = iter(iterable)
@@ -763,7 +744,7 @@ def windowed_alt(iterable, n):
     >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    return more_itertools.sliding_window(iterable, n)
+    # FIXME: Implement this.
 
 
 def map_one(func, iterable):
