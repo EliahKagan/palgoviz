@@ -1367,18 +1367,51 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     return 'A' if _a_wins_av(board, a, b) else 'B'
 
 
-def count_av_b_wins(m, n):
+# !!NOTE: When removing implementation bodies, KEEP THIS ENTIRE FUNCTION.
+def count_av_b_wins(m, n, *, verbose=True):
+    """
+    Display and count A Void games where B has a winning strategy.
+
+    A Void heavily favors A. This function repeatedly calls find_av_winner to
+    find the minority of starting configurations where B has the winning
+    strategy. (This further tests find_av_winner and may help in debugging it.)
+
+    >>> count_av_b_wins(2, 3, verbose=False)
+    B won 36 out of 120 games.
+    >>> count_av_b_wins(3, 2, verbose=False)
+    B won 36 out of 120 games.
+    >>> count_av_b_wins(2, 4, verbose=False)
+    B won 76 out of 336 games.
+    >>> count_av_b_wins(4, 2, verbose=False)
+    B won 76 out of 336 games.
+    >>> count_av_b_wins(2, 5, verbose=False)  # A bit slow.  # doctest: +SKIP
+    B won 116 out of 720 games.
+    >>> count_av_b_wins(5, 2, verbose=False)  # A bit slow.  # doctest: +SKIP
+    B won 116 out of 720 games.
+    >>> count_av_b_wins(3, 4, verbose=False)  # Very slow.  # doctest: +SKIP
+    B won 164 out of 1320 games.
+    >>> count_av_b_wins(4, 3, verbose=False)  # Very slow.  # doctest: +SKIP
+    B won 164 out of 1320 games.
+    """
     total = b_wins = 0
 
     positions = itertools.product(range(m), range(n))
 
     for (vi, vj), (ai, aj), (bi, bj) in itertools.permutations(positions, 3):
         total += 1
-        if find_av_winner(m, n, vi, vj, ai, aj, bi, bj) == 'B':
-            b_wins += 1
+        winner = find_av_winner(m, n, vi, vj, ai, aj, bi, bj)
+        if winner == 'A':
+            continue
+        if winner != 'B':
+            raise ValueError(f"winner is {winner!r}, should be 'A' or 'B'")
+        b_wins += 1
+        if verbose:
             print(f'B wins {vi=}, {vj=}, {ai=}, {aj=}, {bi=}, {bj=}')
 
-    print(f'B won {b_wins} out of {total} game(s)')
+    if total == 1:
+        print(f'B won {b_wins} out of {total} game.')
+    else:
+        print(f'B won {b_wins} out of {total} games.')
 
 
 class _IMDPlayer:
