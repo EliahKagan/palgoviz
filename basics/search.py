@@ -1391,20 +1391,18 @@ def _a_wins_imd(holes, memo, a, b, i, ay_run, by_run):
 
 def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     """
-    Predict whether Alice or Bob will win their game of I Must Decline.
+    Predict who, Alice or Bob, will win a game of I Must Decline.
 
-    Alice ("A") and Bob ("B") play a game of Must Decline, which they designed
-    and are perfect at. A player wins when the opposing player has no legal
-    move. Alice takes the first turn.
+    Alice ("A") and Bob ("B") play a game of I Must Decline, which they
+    designed and are perfect at. A player wins when the opposing player has no
+    legal move. Return 'A' if Alice will win, or 'B' if Bob will win.
 
-    A counter has an initial value of i. When Alice moves, she decreases the
-    counter by ax or ay; when Bob moves, he decreases it by bx or by. Alice and
-    Bob can always subtract ax and bx, respectively. Alice can subtract ay if
-    she hasn't done so on all her last ak turns, or if Bob has just subtracted
-    by. Likewise, Bob can subtract by if he hasn't done so on all his last bk
-    turns, or if Alice has just subtracted ay. (That is, an x can always be
-    played; a player may play a y up to k times in succession and also anytime
-    the other player just played a y; and x, y, and k are per-player values.)
+    A counter has an initial value of i. Alice takes the first turn. When Alice
+    moves, she decreases the counter by ax or ay; when Bob moves, he decreases
+    it by bx or by. Alice can always subtract ax, but she can't subtract ay on
+    more than ak consecutive turns, unless Bob has just subtracted by. Bob can
+    always subtract bx, but he can't subtract by on more than bk consecutive
+    turns, unless Alice has just subtracted ay.
 
     Neither player may decrease the counter below zero or to a hole (any value
     in holes). Alice may not decrease it to a positive multiple of af (Alice's
@@ -1415,12 +1413,10 @@ def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     enjoy long games, so n can be pretty big. But ax, xy, ak, bx, by, and bk
     can be assumed small. af, bf, and len(holes) may each be small or large.
 
-    Return 'A' if Alice will win, or 'B' if Bob will win.
-
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Verify tests. Move some to other files. Ensure test coverage of
-    game instances where any recursive implementation has call depth 800-985.
+    FIXME: Verify tests. Move some to other files. Ensure test coverage of game
+    instances where any recursive implementation has call depth 800 to 985.
 
     >>> find_imd_winner(10, set(), 2, 3, 3, 17, 3, 2, 3, 31)
     'B'
