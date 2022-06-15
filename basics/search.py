@@ -1216,10 +1216,8 @@ class _Pos:
     @property
     def neighbors(self):
         """Neighboring positions (but some might be off the board)."""
-        yield _Pos(self.i, self.j - 1)
-        yield _Pos(self.i, self.j + 1)
-        yield _Pos(self.i - 1, self.j)
-        yield _Pos(self.i + 1, self.j)
+        return (_Pos(self.i, self.j - 1), _Pos(self.i, self.j + 1),
+                _Pos(self.i - 1, self.j), _Pos(self.i + 1, self.j))
 
 
 # TODO: Refactor this as a data class (via dataclass or attrs) after testing.
@@ -1271,41 +1269,41 @@ _MAX_GAFFES = 2
 """The maximum number of gaffes allowed to each player in a game of A Void."""
 
 
-def _active_player_wins_av(board, active, inactive):
-    """Tell if the active A Void player has a winning strategy in mid-game."""
-    # If Inactive's move was illegal, Active calls it out and immediately wins.
-    if (inactive.pos not in board or active.is_blocking(active.pos) or
-            (inactive.pos in inactive.vis and inactive.gaffes == _MAX_GAFFES)):
+def _a_wins_av(board, a, b):
+    """Tell if A has a winning strategy in mid-game of A Void."""
+    # If B's move was illegal, A calls it out and immediately wins.
+    if (b.pos not in board or a.is_blocking(a.pos) or
+            (b.pos in b.vis and b.gaffes == _MAX_GAFFES)):
         return True
 
-    # Active ensures that Inactive's current and future gaffes are detected.
-    gaffe = inactive.pos in inactive.vis
+    # A ensures that B's current and future gaffes are detected.
+    gaffe = b.pos in b.vis
     if gaffe:
-        inactive.gaffes += 1
+        b.gaffes += 1
     else:
-        inactive.vis.add(inactive.pos)
+        b.vis.add(b.pos)
 
-    # Record Active's current and old position so we can backtrack the game.
-    old_old_pos = active.old_pos
-    active.old_pos = active.pos
+    # Record A's current and old position so we can backtrack the game.
+    old_old_pos = a.old_pos
+    a.old_pos = a.pos
 
     try:
-        for pos in active.old_pos.neighbors:
-            active.pos = pos
-            if not _active_player_wins_av(board, inactive, active):
-                return True  # Active can deny Inactive a winning strategy.
+        for pos in a.old_pos.neighbors:
+            a.pos = pos
+            if not _a_wins_av(board, b, a):
+                return True  # A can deny B a winning strategy.
 
-        return False  # Active has no way to deny Inactive a winning strategy.
+        return False  # A has no way to deny B a winning strategy.
     finally:
-        # Restore Active's current and old position, to backtrack the game.
-        active.pos = active.old_pos
-        active.old_pos = old_old_pos
+        # Restore A's current and old position, to backtrack the game.
+        a.pos = a.old_pos
+        a.old_pos = old_old_pos
 
-        # Restore Inactive's gaffe bookkeeping too. (Active is honorable.)
+        # Restore B's gaffe bookkeeping too. (A is honorable.)
         if gaffe:
-            inactive.gaffes -= 1
+            b.gaffes -= 1
         else:
-            inactive.vis.remove(inactive.pos)
+            b.vis.remove(b.pos)
 
 
 def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
@@ -1341,7 +1339,7 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     board = _AVBoard(m, n, vi, vj)
     a = _AVPlayer(ai, aj)
     b = _AVPlayer(bi, bj)
-    return 'A' if _active_player_wins_av(board, a, b) else 'B'
+    return 'A' if _a_wins_av(board, a, b) else 'B'
 
 
 class _IMDPlayer:
