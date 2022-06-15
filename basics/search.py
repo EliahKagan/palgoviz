@@ -1290,7 +1290,7 @@ _MAX_GAFFES = 2
 def _a_wins_av(board, a, b):
     """Tell if "A" has a winning strategy in mid-game of A Void."""
     # If B's move was illegal, A calls it out and immediately wins.
-    if (b.pos not in board or a.is_blocking(a.pos) or
+    if (b.pos not in board or a.is_blocking(b.pos) or
             (b.pos in b.vis and b.gaffes == _MAX_GAFFES)):
         return True
 
@@ -1349,10 +1349,16 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     combination of language features. It should be correct and easy to read.
     You might want to make and use helper functions/classes.
 
-    FIXME: Needs more tests.
+    FIXME: Verify tests, and add more.
 
     >>> find_av_winner(1, 3, 0, 0, 0, 1, 0, 2)
+    'B'
+    >>> find_av_winner(3, 3, 1, 2, 0, 0, 2, 2)
     'A'
+    >>> find_av_winner(4, 3, 1, 2, 0, 0, 2, 2)
+    'A'
+    >>> find_av_winner(3, 4, 2, 1, 2, 2, 1, 1)  # FIXME
+    'B'
     """
     board = _AVBoard(m, n, vi, vj)
     a = _AVPlayer(ai, aj)
