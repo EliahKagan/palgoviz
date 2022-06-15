@@ -983,7 +983,8 @@ def count_coin_change_slow(coins, total):
     speed for simplicity other than avoiding unnecessary copying. It may
     resemble the solution to has_subset_sum_slow in other ways, too.
 
-    FIXME: Needs more tests.
+    >>> count_coin_change_slow([2, 3, 5], 500)
+    4251
     """
     def count(start, subtotal):
         if subtotal == 0:
@@ -1005,7 +1006,15 @@ def count_coin_change(coins, total):
     much more efficient. This function relates to count_coin_change_slow in the
     same way that has_subset_sum relates to has_subset_sum_slow.
 
-    FIXME: Needs tests.
+    >>> count_coin_change([1, 2, 2], 5)
+    6
+    >>> count_coin_change([2, 3, 5], 500)
+    4251
+    >>> c = [3, 13, 77, 16, 8, 19, 2, 44, 43, 95, 97, 101, 102, 33, 36, 21, 14]
+    >>> count_coin_change(c, 489)
+    1801044124
+    >>> count_coin_change([17, 2, 19, 3, 13, 682], 4213)
+    960417883
     """
     memo = {}
 
@@ -1037,7 +1046,15 @@ def count_coin_change_alt(coins, total):
     relates to count_coin_change in the same way that has_subset_sum_alt
     relates to has_subset_sum.
 
-    FIXME: Needs tests.
+    >>> count_coin_change_alt([1, 2, 2], 5)
+    6
+    >>> count_coin_change_alt([2, 3, 5], 500)
+    4251
+    >>> c = [3, 13, 77, 16, 8, 19, 2, 44, 43, 95, 97, 101, 102, 33, 36, 21, 14]
+    >>> count_coin_change_alt(c, 489)
+    1801044124
+    >>> count_coin_change_alt([17, 2, 19, 3, 13, 682], 4213)
+    960417883
     """
     @functools.cache
     def count(start, subtotal):
@@ -1414,7 +1431,7 @@ def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Verify tests. Move some to other files. Ensure test coverage of game
+    FIXME: Verify tests. Move some elsewhere. Ensure test coverage of game
     instances where any recursive implementation has call depth 800 to 985.
 
     >>> find_imd_winner(10, set(), 2, 3, 3, 17, 3, 2, 3, 31)
