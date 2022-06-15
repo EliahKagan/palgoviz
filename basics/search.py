@@ -15,6 +15,7 @@ weaker precondition and a list of all functions it applies to in this module.]
 import bisect
 import contextlib
 import functools
+import itertools
 import math
 import operator
 
@@ -1364,6 +1365,20 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     a = _AVPlayer(ai, aj)
     b = _AVPlayer(bi, bj)
     return 'A' if _a_wins_av(board, a, b) else 'B'
+
+
+def count_av_b_wins(m, n):
+    total = b_wins = 0
+
+    positions = itertools.product(range(m), range(n))
+
+    for (vi, vj), (ai, aj), (bi, bj) in itertools.permutations(positions, 3):
+        total += 1
+        if find_av_winner(m, n, vi, vj, ai, aj, bi, bj) == 'B':
+            b_wins += 1
+            print(f'B wins {vi=}, {vj=}, {ai=}, {aj=}, {bi=}, {bj=}')
+
+    print(f'B won {b_wins} out of {total} game(s)')
 
 
 class _IMDPlayer:
