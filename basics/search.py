@@ -1269,8 +1269,9 @@ _MAX_GAFFES = 2
 """The maximum number of gaffes allowed to each player in a game of A Void."""
 
 
+# TODO: Redesign this so all calls, including subcalls, represent legal moves.
 def _a_wins_av(board, a, b):
-    """Tell if A has a winning strategy in mid-game of A Void."""
+    """Tell if "A" has a winning strategy in mid-game of A Void."""
     # If B's move was illegal, A calls it out and immediately wins.
     if (b.pos not in board or a.is_blocking(a.pos) or
             (b.pos in b.vis and b.gaffes == _MAX_GAFFES)):
@@ -1365,7 +1366,7 @@ class _IMDPlayer:
 
 
 def _a_wins_imd(holes, memo, a, b, i, ay_run, by_run):
-    """Tell if Alice has a winning strategy in mid-game of I Must Decline."""
+    """Tell if "Alice" has a winning strategy in mid-game of I Must Decline."""
     with contextlib.suppress(KeyError):
         return memo[a, b, i, ay_run, by_run]
 
