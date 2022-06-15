@@ -1350,15 +1350,15 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     combination of language features. It should be correct and easy to read.
     You might want to make and use helper functions/classes.
 
-    FIXME: Verify tests, and add more.
+    FIXME: Verify tests, and add more elsewhere.
 
-    >>> find_av_winner(1, 3, 0, 0, 0, 1, 0, 2)
+    >>> find_av_winner(m=1, n=3, vi=0, vj=0, ai=0, aj=1, bi=0, bj=2)
     'B'
-    >>> find_av_winner(3, 3, 1, 2, 0, 0, 2, 2)
+    >>> find_av_winner(m=3, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
     'A'
-    >>> find_av_winner(4, 3, 1, 2, 0, 0, 2, 2)
+    >>> find_av_winner(m=4, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
     'A'
-    >>> find_av_winner(3, 4, 2, 1, 2, 2, 1, 1)  # FIXME
+    >>> find_av_winner(m=3, n=4, vi=1, vj=3, ai=0, aj=3, bi=2, bj=2)
     'B'
     """
     board = _AVBoard(m, n, vi, vj)
