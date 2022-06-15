@@ -1417,7 +1417,7 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Verify tests. Make sure some tests exercise recursion depths > 900.
+    FIXME: Verify tests. Ensure some always exercise recursion depths of ~900.
 
     >>> find_unfair_countdown_winner(10, set(), 2, 3, 3, 17, 3, 2, 3, 31)
     'B'
@@ -1428,10 +1428,17 @@ def find_unfair_countdown_winner(n, holes, ax, ay, ak, af, bx, by, bk, bf):
     'A'
     >>> find_unfair_countdown_winner(985, {5}, 2, 3, 3, 17, 3, 2, 3, 31)
     'B'
+    >>> find_unfair_countdown_winner(979, set(), 2, 1, 3, 114, 2, 1, 3, 114)
+    'A'
+    >>> find_unfair_countdown_winner(14783, set(), 15, 17, 4, 2279, 16, 18, 4, 2279)
+    'B'
+    >>> find_unfair_countdown_winner(14784, set(), 15, 17, 4, 2279, 16, 18, 4, 2279)
+    'A'
     """
     a = _UCPlayer(ax, ay, ak, af)
     b = _UCPlayer(bx, by, bk, bf)
-    a_wins = _a_wins_uc(holes, memo={}, a=a, b=b, n=n, ay_run=0, by_run=0)
+    memo = {}
+    a_wins = _a_wins_uc(holes, memo, a=a, b=b, n=n, ay_run=0, by_run=0)
     return 'A' if a_wins else 'B'
 
 
