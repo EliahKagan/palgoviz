@@ -1413,35 +1413,33 @@ def find_imd_winner(i, holes, ax, ay, ak, af, bx, by, bk, bf):
     designed and are perfect at. A player wins when the opposing player has no
     legal move. Return 'A' if Alice will win, or 'B' if Bob will win.
 
-    A counter has an initial value of i. Alice takes the first turn. When Alice
-    moves, she decreases the counter by ax or ay; when Bob moves, he decreases
-    it by bx or by. Alice can always subtract ax, but she can't subtract ay on
-    more than ak consecutive turns, unless Bob has just subtracted by. Bob can
-    always subtract bx, but he can't subtract by on more than bk consecutive
-    turns, unless Alice has just subtracted ay. (See the examples below.)
+    A counter starts at i. Neither player may decrease it below 0 or to a hole.
+    Alice may not decrease it to a positive multiple of af (Alice's factor).
+    Bob may not decrease it to a positive multiple bf (Bob's factor). Alice
+    takes the first turn. When Alice moves, she decreases the counter by ax or
+    ay. When Bob moves, he decreases it by bx or by. Alice can always subtract
+    ax, but she can't subtract ay on more than ak consecutive turns, unless Bob
+    just subtracted by. Bob can always subtract bx, but he can't subtract by on
+    more than bk consecutive turns, unless Alice just subtracted ay.
 
-    Neither player may decrease the counter below zero or to a hole (any value
-    in holes). Alice may not decrease it to a positive multiple of af (Alice's
-    factor). Bob may not decrease it to a positive multiple bf (Bob's factor).
+    In example 1 below, Bob wins, because Alice can't decrease the counter to
+    positive even numbers, but with ax=1, ay=2, and ak=3, she can't skip over
+    evens more than 3 times in a row unless Bob blunders by overusing his by:
+
+    >>> find_imd_winner(20, set(), 1, 2, 3, 2, 4, 2, 2, 7)  # Example 1
+    'B'
+
+    In example 2 below, Alice still can't decrease the counter to positive even
+    numbers, but ax=2 and ay=1, so she can easily skip them. She wins even
+    though Bob is more powerful than before (bk=8 instead of bk=2):
+
+    >>> find_imd_winner(20, set(), 2, 1, 1, 2, 4, 2, 8, 7)  # Example 2
+    'A'
 
     holes is a (possibly empty) set of positive ints; other parameters are
     positive ints, except n may be zero. ax != ay and bx != by. Alice and Bob
     enjoy long games, so n can be pretty big. But ax, xy, ak, bx, by, and bk
     can be assumed small. af, bf, and len(holes) may each be small or large.
-
-    In this first example, Bob wins, because Alice can't decrease the counter
-    to positive even numbers, but with ax=1, ay=2, and ak=3, she can't skip
-    over evens more than 3 times in a row unless Bob blunders:
-
-    >>> find_imd_winner(20, set(), 1, 2, 3, 2, 4, 2, 2, 7)
-    'B'
-
-    In this second example, Alice still can't decrease the counter to positive
-    even numbers, but ax=2 and ay=1, so she can easily skip them. She wins even
-    though Bob is more powerful than before (bk=8 instead of bk=2):
-
-    >>> find_imd_winner(20, set(), 2, 1, 1, 2, 4, 2, 8, 7)
-    'A'
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
