@@ -321,21 +321,21 @@ def binary_search_iterative_alt(values, x):
     exclusive, rather than inclusive, endpoint. This is an implementation
     detail and does not affect externally observable behavior.
 
-    >>> binary_search_iterative([], 9)
-    >>> binary_search_iterative([2, 3], 2)
+    >>> binary_search_iterative_alt([], 9)
+    >>> binary_search_iterative_alt([2, 3], 2)
     0
-    >>> binary_search_iterative((4, 5, 6), 5)
+    >>> binary_search_iterative_alt((4, 5, 6), 5)
     1
-    >>> binary_search_iterative((4, 5, 6), 7)
-    >>> binary_search_iterative([1, 2, 3, 5, 6, 7, 8], 3)
+    >>> binary_search_iterative_alt((4, 5, 6), 7)
+    >>> binary_search_iterative_alt([1, 2, 3, 5, 6, 7, 8], 3)
     2
-    >>> binary_search_iterative([10], 10)
+    >>> binary_search_iterative_alt([10], 10)
     0
-    >>> binary_search_iterative([10, 20], 10)
+    >>> binary_search_iterative_alt([10, 20], 10)
     0
-    >>> binary_search_iterative([10, 20], 20)
+    >>> binary_search_iterative_alt([10, 20], 20)
     1
-    >>> binary_search_iterative([10, 20], 15)
+    >>> binary_search_iterative_alt([10, 20], 15)
     >>>
     """
     low = 0
