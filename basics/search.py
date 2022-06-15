@@ -1372,9 +1372,9 @@ def count_av_b_wins(m, n, *, verbose=True):
     """
     Display and count A Void games where B has a winning strategy.
 
-    A Void heavily favors A. This function repeatedly calls find_av_winner to
-    find the minority of starting configurations where B has the winning
-    strategy. (This further tests find_av_winner and may help in debugging it.)
+    Except on narrow boards, A Void heavily favors A. This uses find_av_winner
+    to find the starting configurations where B has the winning strategy. This
+    further tests find_av_winner and may help in debugging it.
 
     >>> count_av_b_wins(2, 3, verbose=False)
     B won 36 out of 120 games.
