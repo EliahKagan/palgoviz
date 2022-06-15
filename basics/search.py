@@ -1362,7 +1362,7 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
 
 class _IMDPlayer:
     """
-    Unchanging parameters for a player in Unfair Countdown.
+    Unchanging parameters for a player in I Must Decline.
 
     _IMDPlayer instances use reference equality comparisons.
     """
