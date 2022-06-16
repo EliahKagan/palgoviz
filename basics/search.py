@@ -1246,9 +1246,9 @@ class _AVPlayer:
 
     def __init__(self, start_i, start_j):
         """Create a new player with the specified starting coordinates."""
-        self.vis = set()
-        self.old_pos = _Pos(-1, -1)
+        self.old_pos = None
         self.pos = _Pos(start_i, start_j)
+        self.vis = {self.pos}
         self.gaffes = 0
 
     def __repr__(self):
