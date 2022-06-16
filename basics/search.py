@@ -1439,30 +1439,30 @@ def find_av_winner_old(m, n, vi, vj, ai, aj, bi, bj):
 
 
 # !!NOTE: When removing implementation bodies, KEEP THIS ENTIRE FUNCTION.
-def count_av_b_wins(m, n, *, searcher=find_av_winner, verbose=True):
+def count_av_a_wins(m, n, *, searcher=find_av_winner, verbose=True):
     """
     Display and count A Void games where B has a winning strategy.
 
-    Except on narrow boards, A Void heavily favors A. This uses find_av_winner
-    to find the starting configurations where B has the winning strategy. This
-    further tests find_av_winner and may help in debugging it.
+    On most board dimensions, A Void somewhat favors B. This uses
+    find_av_winner to find the starting configurations where A has the winning
+    strategy. (This further tests find_av_winner and may help in debugging it.)
 
-    >>> count_av_b_wins(2, 3, verbose=False)
-    B won 52 out of 120 games.
-    >>> count_av_b_wins(3, 2, verbose=False)
-    B won 52 out of 120 games.
-    >>> count_av_b_wins(2, 4, verbose=False)
-    B won 180 out of 336 games.
-    >>> count_av_b_wins(4, 2, verbose=False)
-    B won 180 out of 336 games.
-    >>> count_av_b_wins(2, 5, verbose=False)  # A bit slow.  # doctest: +SKIP
-    B won 448 out of 720 games.
-    >>> count_av_b_wins(5, 2, verbose=False)  # A bit slow.  # doctest: +SKIP
-    B won 448 out of 720 games.
-    >>> count_av_b_wins(3, 4, verbose=False)  # Very slow.  # doctest: +SKIP
-    B won 900 out of 1320 games.
-    >>> count_av_b_wins(4, 3, verbose=False)  # Very slow.  # doctest: +SKIP
-    B won 900 out of 1320 games.
+    >>> count_av_a_wins(2, 3, verbose=False)
+    A won 68 out of 120 games.
+    >>> count_av_a_wins(3, 2, verbose=False)
+    A won 68 out of 120 games.
+    >>> count_av_a_wins(2, 4, verbose=False)
+    A won 156 out of 336 games.
+    >>> count_av_a_wins(4, 2, verbose=False)
+    A won 156 out of 336 games.
+    >>> count_av_a_wins(2, 5, verbose=False)  # A bit slow.  # doctest: +SKIP
+    A won 272 out of 720 games.
+    >>> count_av_a_wins(5, 2, verbose=False)  # A bit slow.  # doctest: +SKIP
+    A won 272 out of 720 games.
+    >>> count_av_a_wins(3, 4, verbose=False)  # Very slow.  # doctest: +SKIP
+    A won 420 out of 1320 games.
+    >>> count_av_a_wins(4, 3, verbose=False)  # Very slow.  # doctest: +SKIP
+    A won 420 out of 1320 games.
     """
     total = b_wins = 0
 
@@ -1471,18 +1471,18 @@ def count_av_b_wins(m, n, *, searcher=find_av_winner, verbose=True):
     for (vi, vj), (ai, aj), (bi, bj) in itertools.permutations(positions, 3):
         total += 1
         winner = searcher(m, n, vi, vj, ai, aj, bi, bj)
-        if winner == 'A':
+        if winner == 'B':
             continue
-        if winner != 'B':
+        if winner != 'A':
             raise AssertionError(f"winner is {winner!r}, should be 'A' or 'B'")
         b_wins += 1
         if verbose:
-            print(f'B wins {vi=}, {vj=}, {ai=}, {aj=}, {bi=}, {bj=}')
+            print(f'A wins {vi=}, {vj=}, {ai=}, {aj=}, {bi=}, {bj=}')
 
     if total == 1:
-        print(f'B won {b_wins} out of {total} game.')
+        print(f'A won {b_wins} out of {total} game.')
     else:
-        print(f'B won {b_wins} out of {total} games.')
+        print(f'A won {b_wins} out of {total} games.')
 
 
 class _IMDPlayer:
