@@ -1396,9 +1396,11 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     >>> find_av_winner(m=3, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
     'A'
     >>> find_av_winner(m=4, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
-    'A'
+    'B'
     >>> find_av_winner(m=3, n=4, vi=1, vj=3, ai=0, aj=3, bi=2, bj=2)
     'B'
+    >>> find_av_winner(m=3, n=4, vi=2, vj=3, ai=1, aj=0, bi=0, bj=1)
+    'A'
     """
     board = _AVBoard(m, n, vi, vj)
     a = _AVPlayer(ai, aj)
@@ -1415,14 +1417,16 @@ def find_av_winner_old(m, n, vi, vj, ai, aj, bi, bj):
 
     Old implementation.
 
-    >>> find_av_winner_old(m=1, n=3, vi=0, vj=0, ai=0, aj=1, bi=0, bj=2)
+    >>> find_av_winner(m=1, n=3, vi=0, vj=0, ai=0, aj=1, bi=0, bj=2)
     'B'
-    >>> find_av_winner_old(m=3, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
+    >>> find_av_winner(m=3, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
     'A'
-    >>> find_av_winner_old(m=4, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
-    'A'
-    >>> find_av_winner_old(m=3, n=4, vi=1, vj=3, ai=0, aj=3, bi=2, bj=2)
+    >>> find_av_winner(m=4, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
     'B'
+    >>> find_av_winner(m=3, n=4, vi=1, vj=3, ai=0, aj=3, bi=2, bj=2)
+    'B'
+    >>> find_av_winner(m=3, n=4, vi=2, vj=3, ai=1, aj=0, bi=0, bj=1)
+    'A'
     """
     board = _AVBoard(m, n, vi, vj)
     a = _AVPlayer(ai, aj)
@@ -1444,21 +1448,21 @@ def count_av_b_wins(m, n, *, searcher=find_av_winner, verbose=True):
     further tests find_av_winner and may help in debugging it.
 
     >>> count_av_b_wins(2, 3, verbose=False)
-    B won 36 out of 120 games.
+    B won 52 out of 120 games.
     >>> count_av_b_wins(3, 2, verbose=False)
-    B won 36 out of 120 games.
+    B won 52 out of 120 games.
     >>> count_av_b_wins(2, 4, verbose=False)
-    B won 76 out of 336 games.
+    B won 180 out of 336 games.
     >>> count_av_b_wins(4, 2, verbose=False)
-    B won 76 out of 336 games.
+    B won 180 out of 336 games.
     >>> count_av_b_wins(2, 5, verbose=False)  # A bit slow.  # doctest: +SKIP
-    B won 116 out of 720 games.
+    B won 448 out of 720 games.
     >>> count_av_b_wins(5, 2, verbose=False)  # A bit slow.  # doctest: +SKIP
-    B won 116 out of 720 games.
+    B won 448 out of 720 games.
     >>> count_av_b_wins(3, 4, verbose=False)  # Very slow.  # doctest: +SKIP
-    B won 164 out of 1320 games.
+    B won 900 out of 1320 games.
     >>> count_av_b_wins(4, 3, verbose=False)  # Very slow.  # doctest: +SKIP
-    B won 164 out of 1320 games.
+    B won 900 out of 1320 games.
     """
     total = b_wins = 0
 
