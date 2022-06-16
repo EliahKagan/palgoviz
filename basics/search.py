@@ -1348,7 +1348,7 @@ def _a_wins_av_old(board, a, b):
     try:
         for pos in a.old_pos.neighbors:
             a.pos = pos
-            if not _a_wins_av(board, b, a):
+            if not _a_wins_av_old(board, b, a):
                 return True  # A can deny B a winning strategy.
 
         return False  # A has no way to deny B a winning strategy.
@@ -1406,6 +1406,32 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     if a.pos not in board or b.pos not in board or a.pos == b.pos:
         raise ValueError("players starts must differ and be on the board")
     return 'A' if _a_wins_av(board, a=a, b=b) else 'B'
+
+
+# FIXME: Remove this old version after testing the new version above.
+def find_av_winner_old(m, n, vi, vj, ai, aj, bi, bj):
+    """
+    Determine which player, A or B, has a winning strategy in a game of A Void.
+
+    Old implementation.
+
+    >>> find_av_winner_old(m=1, n=3, vi=0, vj=0, ai=0, aj=1, bi=0, bj=2)
+    'B'
+    >>> find_av_winner_old(m=3, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
+    'A'
+    >>> find_av_winner_old(m=4, n=3, vi=1, vj=2, ai=0, aj=0, bi=2, bj=2)
+    'A'
+    >>> find_av_winner_old(m=3, n=4, vi=1, vj=3, ai=0, aj=3, bi=2, bj=2)
+    'B'
+    """
+    board = _AVBoard(m, n, vi, vj)
+    a = _AVPlayer(ai, aj)
+    a.vis.clear()  # Allows the old logic to use the new _AVPlayer class.
+    b = _AVPlayer(bi, bj)
+    b.vis.clear()  # Allows the old logic to use the new _AVPlayer class.
+    if a.pos not in board or b.pos not in board or a.pos == b.pos:
+        raise ValueError("players starts must differ and be on the board")
+    return 'A' if _a_wins_av_old(board, a=a, b=b) else 'B'
 
 
 # !!NOTE: When removing implementation bodies, KEEP THIS ENTIRE FUNCTION.
