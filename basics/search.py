@@ -1426,7 +1426,7 @@ def find_av_winner_old(m, n, vi, vj, ai, aj, bi, bj):
     """
     board = _AVBoard(m, n, vi, vj)
     a = _AVPlayer(ai, aj)
-    a.vis.clear()  # Allows the old logic to use the new _AVPlayer class.
+    # a.vis.clear()  # Comment this out to work around the bug in the old logic.
     b = _AVPlayer(bi, bj)
     b.vis.clear()  # Allows the old logic to use the new _AVPlayer class.
     if a.pos not in board or b.pos not in board or a.pos == b.pos:
@@ -1435,7 +1435,7 @@ def find_av_winner_old(m, n, vi, vj, ai, aj, bi, bj):
 
 
 # !!NOTE: When removing implementation bodies, KEEP THIS ENTIRE FUNCTION.
-def count_av_b_wins(m, n, *, verbose=True):
+def count_av_b_wins(m, n, *, searcher=find_av_winner, verbose=True):
     """
     Display and count A Void games where B has a winning strategy.
 
@@ -1466,7 +1466,7 @@ def count_av_b_wins(m, n, *, verbose=True):
 
     for (vi, vj), (ai, aj), (bi, bj) in itertools.permutations(positions, 3):
         total += 1
-        winner = find_av_winner(m, n, vi, vj, ai, aj, bi, bj)
+        winner = searcher(m, n, vi, vj, ai, aj, bi, bj)
         if winner == 'A':
             continue
         if winner != 'B':
