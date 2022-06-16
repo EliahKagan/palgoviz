@@ -1256,6 +1256,7 @@ class _AVPlayer:
         return (f'<{type(self).__name__}: vis={self.vis} '
                 f'old_pos={self.old_pos} pos={self.pos} gaffes={self.gaffes}>')
 
+    # FIXME: Remove this after the redesign/reimplementation of _a_wins_av.
     def is_blocking(self, pos):
         """Tell if a position is the current or the previous position."""
         return pos in (self.pos, self.old_pos)
@@ -1271,6 +1272,8 @@ class _AVBoard:
         self._m = m
         self._n = n
         self._void = _Pos(vi, vj)
+        if not self._in_bounds(self._void):
+            raise ValueError('the void is outside the board rectangle')
 
     def __repr__(self):
         """Representation for debugging, runnable as Python code."""
@@ -1279,16 +1282,52 @@ class _AVBoard:
 
     def __contains__(self, pos):
         """Tell if a position is on the board (in bounds and not the void)."""
-        return (0 <= pos.i < self._m and 0 <= pos.j < self._n
-                and pos != self._void)
+        return self._in_bounds(pos) and pos != self._void
+
+    def _in_bounds(self, pos):
+        return 0 <= pos.i < self._m and 0 <= pos.j < self._n
 
 
 _MAX_GAFFES = 2
 """The maximum number of gaffes allowed to each player in a game of A Void."""
 
 
-# TODO: Redesign this so all calls, including subcalls, represent legal moves.
 def _a_wins_av(board, a, b):
+    """Tell if "A" has a winning strategy in mid-game of A Void."""
+    win = False
+    old_old_pos = a.old_pos
+    a.old_pos = a.pos
+
+    for a.pos in a.old_pos.neighbors:
+        if a.pos not in board or a.pos in (b.pos, b.old_pos):
+            continue
+
+        if a.pos not in a.vis:
+            gaffe = False
+            a.vis.add(a.pos)
+        elif a.gaffes < _MAX_GAFFES:
+            gaffe = True
+            a.gaffes += 1
+        else:
+            continue
+
+        win = not _a_wins_av(board, a=b, b=a)
+
+        if gaffe:
+            a.gaffes -= 1
+        else:
+            a.vis.remove(a.pos)
+
+        if win:
+            break
+
+    a.pos = a.old_pos
+    a.old_pos = old_old_pos
+    return win
+
+
+# FIXME: Remove this old version after testing the new version above.
+def _a_wins_av_old(board, a, b):
     """Tell if "A" has a winning strategy in mid-game of A Void."""
     # If B's move was illegal, A calls it out and immediately wins.
     if (b.pos not in board or a.is_blocking(b.pos) or
@@ -1364,7 +1403,9 @@ def find_av_winner(m, n, vi, vj, ai, aj, bi, bj):
     board = _AVBoard(m, n, vi, vj)
     a = _AVPlayer(ai, aj)
     b = _AVPlayer(bi, bj)
-    return 'A' if _a_wins_av(board, a, b) else 'B'
+    if a.pos not in board or b.pos not in board or a.pos == b.pos:
+        raise ValueError("players starts must differ and be on the board")
+    return 'A' if _a_wins_av(board, a=a, b=b) else 'B'
 
 
 # !!NOTE: When removing implementation bodies, KEEP THIS ENTIRE FUNCTION.
@@ -1403,7 +1444,7 @@ def count_av_b_wins(m, n, *, verbose=True):
         if winner == 'A':
             continue
         if winner != 'B':
-            raise ValueError(f"winner is {winner!r}, should be 'A' or 'B'")
+            raise AssertionError(f"winner is {winner!r}, should be 'A' or 'B'")
         b_wins += 1
         if verbose:
             print(f'B wins {vi=}, {vj=}, {ai=}, {aj=}, {bi=}, {bj=}')
