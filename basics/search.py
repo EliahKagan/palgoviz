@@ -772,7 +772,20 @@ def two_sum_slow(numbers, total):
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Needs tests.
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_slow(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_slow(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_slow(a, -76)
+    (5, 13)
+    >>> two_sum_slow(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_slow([5, 6, 5], 10)
+    (0, 2)
     """
     # Although un-Pythonic, this code avoids obscuring how the algorithm works.
     for left in range(len(numbers) - 1):
@@ -792,6 +805,21 @@ def two_sum_fast(numbers, total):
     return any of them. If there are no solutions, raise ValueError.
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_fast(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_fast(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_fast(a, -76)
+    (5, 13)
+    >>> two_sum_fast(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_fast([5, 6, 5], 10)
+    (0, 2)
     """
     history = {}
 
@@ -799,7 +827,7 @@ def two_sum_fast(numbers, total):
         try:
             left = history[total - value]
         except KeyError:
-            history[right] = value
+            history[value] = right
         else:
             return left, right
 
@@ -840,17 +868,35 @@ def two_sum_sorted(numbers, total):
     say why that cannot be done, and explain why you believe the tradeoff you
     picked between time and space is a reasonable choice.]
 
-    FIXME: Needs tests.
+    >>> a = (-96, -95, -79, -76, -74, -69, -49, -48, -38, -35, -34, -27, -24,
+    ...      -22, -16, -13, -11, -6, 4, 9, 18, 37, 40, 71, 72)
+    >>> two_sum_sorted(a, 2) in ((5, 23), (8, 22), (9, 21), (14, 20))
+    True
+    >>> two_sum_sorted(a, 5) in ((9, 22), (15, 20))
+    True
+    >>> two_sum_sorted(a, -76)
+    (6, 11)
+    >>> two_sum_sorted(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_sorted([5, 6, 5], 10)
+    (0, 2)
     """
-    return _two_sum_sorted_keyed(numbers, total, lambda num: num)
+    return _two_sum_sorted_keyed(numbers, total, _identity_function)
+
+
+def _normalize_index_pair(left, right):
+    """Return a pair of indices with the lower index first."""
+    return (right, left) if right < left else (left, right)
 
 
 def two_sum_nohash(numbers, total):
     """
     Find indices of two numbers that sum to total, without hashing.
 
-    Minimize running time. If this and a previous function have substantial
-    overlapping logic, extract it a nonpublic module-level function.
+    Minimize running time. If this and any previous function have substantial
+    overlapping logic, extract it to a nonpublic module-level function.
 
     Although the numbers found may be equal, their indices must be unequal.
     Give the left index before the right one. If there are multiple solutions,
@@ -858,11 +904,24 @@ def two_sum_nohash(numbers, total):
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
-    FIXME: Needs tests.
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_nohash(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_nohash(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_nohash(a, -76)
+    (5, 13)
+    >>> two_sum_nohash(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_nohash([5, 6, 5], 10)
+    (0, 2)
     """
     indices = sorted(range(len(numbers)), key=numbers.__getitem__)
     left, right = _two_sum_sorted_keyed(indices, total, numbers.__getitem__)
-    return indices[left], indices[right]
+    return _normalize_index_pair(indices[left], indices[right])
 
 
 def has_subset_sum_slow(numbers, total):
