@@ -967,6 +967,13 @@ def two_sum_nohash(numbers, total):
     return _normalize_index_pair(indices[left], indices[right])
 
 
+# FIXME: Having implemented two_sum_slow, two_sum_fast, two_sum_sorted, and
+# two_sum_nohash, if any of them have substantial overlapping logic, extract it
+# to one or more nonpublic module-level functions. (Ensure tests still pass.)
+# If this is better, keep it. Otherwise, revert it, and briefly state in one or
+# more functions' docstrings why you're retaining duplicate or similar logic.
+
+
 def has_subset_sum_slow(numbers, total):
     """
     Check if any zero or more values in numbers sum to total.
