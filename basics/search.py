@@ -45,14 +45,27 @@ def bsearch(values, x, key=None, reverse=False):
     this exercise. Usually it is very good to look at what you've already done,
     but I think this exercise will be much, MUCH more beneficial if you do not.
 
-    [FIXME: After you are satisfied this solution is correct and all tests
-    pass, review all your binary search implementations in recursion.py and
-    replace this with a statement of which one this is similar to, if any. Also
-    state, for each approach there that you didn't use here, if you could've
-    used it here, why or why not, and, for any you could've used, any major
-    advantages or disadvantages they would have, compared to what you did use.
-    If an approach would require considerably more code, you should still
-    consider it feasible... *if* you are convinced that it really can be done.]
+    [FIXME: AFTER you are satisfied this solution is correct, including in time
+    and space, and all tests pass, THEN review all binary search functions in
+    recursion.py, and replace all this bracketed text with:
+
+      (A) A statement of which one of them this is similar to, if any.
+
+      (B) Taking each pair of "X" and "X_alt" as the same approach (and thus
+          deciding based on factors besides endpoint exclusivity/inclusivity),
+          statements, for each approach you did not use here:
+
+          1. If you could have used it here or not, and why.
+
+          2. For any you could've used here, any major advantages/disadvantages
+             it would have, compared to the approach you did use.
+
+          If an approach would require far more code, you should still consider
+          it feasible, if you are convinced that it really can be done.
+
+    NB: This is not about calling functions in recursion.py, which you should
+    not do anywhere in this module, but about applying the approaches they take
+    in implementing this function.]
 
     >>> bsearch(range(99, -1, -1), 17, reverse=True)
     82
@@ -128,9 +141,10 @@ def bsearch_alt(values, x, key=None, reverse=False):
 
     This alternative implementation of bsearch must use a different technique.
     It has the same requirements, including restrictions on time and space. It
-    should use the same approach as in one of the functions in recursion.py
-    (but not the one, if any, whose approach bsearch uses above), unless that's
-    not possible, as detailed in the text you added to the bsearch docstring.
+    should use the same approach as some function in recursion.py (but not a
+    function, if any, whose approach bsearch uses above, and thus also not the
+    "_alt" version, if any, of such a function), unless that's not possible, as
+    detailed in the text you added to the bsearch docstring.
 
     >>> bsearch_alt(range(99, -1, -1), 17, reverse=True)
     82
@@ -338,7 +352,7 @@ def my_bisect_right(values, x, lo=0, hi=None, *, key=None, reverse=False):
     This is analogous to my_bisect_left, but for bisect.bisect_right. It has
     the same preconditions including how values comes sorted, and likewise must
     not use the bisect module but must do all but O(1) of its work behind some
-    above-defined function (that doesn't either). Do not use my_bisect_left.
+    above-defined function that also doesn't use it. Do not use my_bisect_left.
 
     [FIXME: State the asymptotic time and auxiliary space complexities here.]
 
@@ -1268,7 +1282,7 @@ def min_forest_escape_stamina(forest, start_i, start_j, finish_i, finish_j):
     It's tempting to say this is only a factor of [FIXME: give it in big-O]
     slower than can_escape_forest. But it's often worse than that, because
     [FIXME: Explain. Say what can affect it. Give an example of a software
-    engineering problem where this technique really does enjoy that guarantee].
+    engineering problem where this technique really does enjoy that guarantee.]
 
     FIXME: Needs tests.
     """
