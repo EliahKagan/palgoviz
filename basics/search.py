@@ -820,6 +820,16 @@ def two_sum_fast(numbers, total):
     ValueError: no two numbers sum to 8
     >>> two_sum_fast([5, 6, 5], 10)
     (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = [r.randrange(-2**40, 2**40) for _ in range(10**6)]
+    >>> two_sum_fast(b, -63824289)
+    (541756, 673938)
+    >>> two_sum_fast(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
     """
     history = {}
 
@@ -882,6 +892,16 @@ def two_sum_sorted(numbers, total):
     ValueError: no two numbers sum to 8
     >>> two_sum_sorted([5, 6, 5], 10)
     (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = sorted(r.randrange(-2**40, 2**40) for _ in range(10**6))
+    >>> two_sum_fast(b, -63824289)
+    (499549, 500219)
+    >>> two_sum_fast(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
     """
     return _two_sum_sorted_keyed(numbers, total, _identity_function)
 
@@ -918,6 +938,16 @@ def two_sum_nohash(numbers, total):
     ValueError: no two numbers sum to 8
     >>> two_sum_nohash([5, 6, 5], 10)
     (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = [r.randrange(-2**40, 2**40) for _ in range(10**6)]
+    >>> two_sum_nohash(b, -63824289)
+    (541756, 673938)
+    >>> two_sum_nohash(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
     """
     indices = sorted(range(len(numbers)), key=numbers.__getitem__)
     left, right = _two_sum_sorted_keyed(indices, total, numbers.__getitem__)
