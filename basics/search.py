@@ -915,8 +915,7 @@ def two_sum_nohash(numbers, total):
     """
     Find indices of two numbers that sum to total, without hashing.
 
-    Minimize running time. If this and any previous function have substantial
-    overlapping logic, extract it to a nonpublic module-level function.
+    Minimize running time.
 
     Although the numbers found may be equal, their indices must be unequal.
     Give the left index before the right one. If there are multiple solutions,
