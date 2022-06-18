@@ -1,8 +1,10 @@
 """Mutable collections using hashing or similar techniques."""
 
-from collections.abc import MutableMapping
+import bisect
+from collections.abc import Mapping, MutableMapping
 import itertools
 import math
+import operator
 
 
 class _Entry:
@@ -17,12 +19,25 @@ class _Entry:
     def __repr__(self):
         return f'{type(self).__name__}({self.key!r}, {self.value!r})'
 
-    def matches(self, key):  # FIXME: Factor away uses of this and remove it.
-        """Tell if this entry's key matches the given key."""
-        return self.key is key or self.key == key
+
+class _NiceReprMapping(Mapping):
+    """
+    Mixin class providing a pretty, eval-able repr to a mapping.
+
+    This is only suitable for mappings that can be constructed from a dict
+    passed as the sole argument.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self):
+        """Python code representation of this mapping."""
+        item_strings = (f'{key!r}: {value!r}' for key, value in self.items())
+        dict_repr = '{%s}' % ", ".join(item_strings)
+        return f'{type(self).__name__}({dict_repr})'
 
 
-class SortedFlatTable(MutableMapping):
+class SortedFlatTable(_NiceReprMapping, MutableMapping):
     """
     A mutable mapping storing entries, sorted by key, in a non-nested sequence.
 
@@ -34,7 +49,8 @@ class SortedFlatTable(MutableMapping):
     No special support is provided for pathological objects like math.nan.
 
     Searching takes O(log n) average and worst-case time. Inserting and
-    deleting take O(n) average and worst-case time.
+    deleting take O(n) average and worst-case time. Iterating through all items
+    takes O(n) time.
 
     This data structure is conceptually related to binary search trees, which
     offer average O(log n) but worst-case O(n) time for search, insertion, and
@@ -48,8 +64,62 @@ class SortedFlatTable(MutableMapping):
     aren't objects, just values stored contiguously in the collection's memory.
     """
 
+    __slots__ = ('_entries',)
 
-class UnsortedFlatTable(MutableMapping):
+    def __init__(self, other=()):
+        """Make a sorted flat table, optionally from a mapping or iterable."""
+        self._entries = []
+        self.update(other)
+
+    def __len__(self):
+        """How many key-value pairs are in this sorted flat table."""
+        return len(self._entries)
+
+    def __getitem__(self, key):
+        """Get the value stored at a given key."""
+        _, entry = self._search(key)
+        if entry is None:
+            raise KeyError(key)
+        return entry.value
+
+    def __setitem__(self, key, value):
+        """Create or replace a value to be stored at a given key."""
+        index, entry = self._search(key)
+        if entry is None:
+            self._entries.insert(index, _Entry(key, value))
+        else:
+            entry.value = value
+
+    def __delitem__(self, key):
+        """Remove a value at a given key, so the key is mapped to no value."""
+        index, entry = self._search(key)
+        if entry is None:
+            raise KeyError(key)
+        del self._entries[index]
+
+    def __iter__(self):
+        """Iterate through the keys of this sorted flat table."""
+        return (entry.key for entry in self._entries)
+
+    def clear(self):
+        """Remove all items from this sorted flat table."""
+        self._entries.clear()
+
+    def _search(self, key):
+        """Find the insertion point and, if any, existing entry for a key."""
+        index = bisect.bisect_left(self._entries, key,
+                                   key=operator.attrgetter('key'))
+
+        if index < len(self):
+            entry = self._entries[index]
+            assert not entry.key < key, 'bisection gave wrong result'
+            if not key < entry.key:
+                return index, entry
+
+        return index, None
+
+
+class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
 
@@ -65,15 +135,70 @@ class UnsortedFlatTable(MutableMapping):
     Searching takes O(n) average and worst-case time. Inserting and deleting
     take O(n) as well, because a search is performed first, to do them. As an
     implementation detail, they do only O(1) work in addition to that search.
+    Iterating through all items takes O(n) time.
 
     This data structure is conceptually related to hash tables, which offer
-    amortized O(1) search, insertion, and deletion with high priority, assuming
-    good hash distribution. Hash tables overcome the need to examine linearily
-    many entries to find a match, by using keys' hashes to know roughly where
-    to look. The built-in dict, and the HashTable class below, are hash tables.
+    amortized O(1) search, insertion, and deletion with high probability,
+    assuming good hash distribution. Hash tables overcome the need to examine
+    linearily many entries to find a match, by using keys' hashes to know
+    roughly where to look. dict is a hash table, as is HashTable below.
 
     NOTE: See the explanation in SortedFlatTable on different senses of "flat".
     """
+
+    __slots__ = ('_entries',)
+
+    def __init__(self, other=()):
+        """
+        Make an unsorted flat table, optionally from a mapping or iterable.
+        """
+        self._entries = []
+        self.update(other)
+
+    def __len__(self):
+        """How many key-value pairs are in this unsorted flat table."""
+        return len(self._entries)
+
+    def __getitem__(self, key):
+        """Get the value stored at a given key."""
+        try:
+            _, entry = self._search(key)
+        except StopIteration:
+            raise KeyError(key) from None
+
+        return entry.value
+
+    def __setitem__(self, key, value):
+        """Create or replace a value to be stored at a given key."""
+        try:
+            _, entry = self._search(key)
+        except StopIteration:
+            self._entries.append(_Entry(key, value))
+        else:
+            entry.value = value
+
+    def __delitem__(self, key):
+        """Remove a value at a given key, so the key is mapped to no value."""
+        try:
+            index, _ = self._search(key)
+        except StopIteration:
+            raise KeyError(key) from None
+
+        self._entries[index] = self._entries[-1]
+        del self._entries[-1]
+
+    def __iter__(self):
+        """Iterate through the keys of this unsorted flat table."""
+        return (entry.key for entry in self._entries)
+
+    def clear(self):
+        """Remove all items from this unsorted flat table."""
+        self._entries.clear()
+
+    def _search(self, key):
+        """Find the index and entry for a given key, or raise StopIteration."""
+        return next((index, entry) for index, entry in enumerate(self._entries)
+                    if entry.key is key or entry.key == key)
 
 
 class DirectAddressTable(MutableMapping):
@@ -81,7 +206,10 @@ class DirectAddressTable(MutableMapping):
     A direct address table. Lookups are directly achieved by sequence indexing.
 
     This is the simplest kind of explicit mapping, of those offering
-    constant-time operations. Search, insertion, and deletion are all O(1).
+    constant-time operations. Search, insertion, and deletion are all O(1). But
+    with a capacity of m, it only accepts integer keys k where 0 <= k < m, and
+    it always uses Θ(m) space (thus also taking Ω(m) time to create). Iterating
+    through all n items also takes Θ(m) time, even if n is much smaller than m.
 
     This is the immediate conceptual precursor to a hash-based container, and
     technically constitutes the simplest case of perfect (i.e., collision-free)
@@ -116,7 +244,7 @@ class DirectAddressTable(MutableMapping):
         return f'{type(self).__name__}({self.capacity!r}, {dict_repr})'
 
     def __len__(self):
-        """The number of key-value pairs currently stored in this table."""
+        """How many key-value pairs are in this direct address table."""
         return self._len
 
     def __getitem__(self, key):
@@ -144,11 +272,13 @@ class DirectAddressTable(MutableMapping):
 
     def __iter__(self):
         """Iterate through the keys of this direct address table."""
+        return (key for key, value in enumerate(self._values)
+                if value is not self._absent)
 
     @property
-    def capacity(self):
-        """The exclusive upper bound of the range of allowed keys."""
-        return len(self._values)
+    def key_range(self):
+        """The range of allowed keys."""
+        return range(len(self._values))
 
     def _check_key(self, key):
         """Raise an appropriate exception if a key cannot be used."""
@@ -158,7 +288,7 @@ class DirectAddressTable(MutableMapping):
             raise ValueError(f'key must be in range({self.capacity})')
 
 
-class HashTable(MutableMapping):
+class HashTable(_NiceReprMapping, MutableMapping):
     """
     Hash-based mutable mapping. Like dict but with no order guarantees.
 
@@ -182,6 +312,7 @@ class HashTable(MutableMapping):
     with high probability, assuming good hash distribution. This situation is
     usually described as simply "O(1)", including elsewhere in this project.
     But the operations' non-amortized times are average O(1), worst-case O(n).
+    Iterating through all items takes O(n) time, so [FIXME: say what's needed].
     """
 
     __slots__ = ('_buckets', '_len')
@@ -198,7 +329,7 @@ class HashTable(MutableMapping):
     _REHASH_LOAD_FACTOR = 0.5
     """The target load factor after rehashing to change the bucket count."""
 
-    # These should really be FAR apart, but this just checks they are coherent.
+    # These should be fairly far apart, but this just checks they make sense.
     assert _SHRINK_THRESHOLD < _REHASH_LOAD_FACTOR < _GROW_THRESHOLD
 
     @classmethod
@@ -211,30 +342,21 @@ class HashTable(MutableMapping):
         self.clear()
         self.update(other)
 
-    def __repr__(self):
-        """Python code representation of this hash table."""
-        item_strings = (f'{key!r}: {value!r}' for key, value in self.items())
-        dict_repr = '{%s}' % ", ".join(item_strings)
-        return f'{type(self).__name__}({dict_repr})'
-
     def __len__(self):
-        """The number of key-value pairs currently stored in this hash table."""
+        """How many key-value pairs are in this hash table."""
         return self._len
 
     def __getitem__(self, key):
         """Get the value stored at a given key."""
-        bucket = self._get_bucket(key)
-        try:
-            return next(e.value for e in bucket if e.matches(key))
-        except StopIteration:
-            raise KeyError(key) from None
+        _, _, entry = self._search(key)
+        if entry is None:
+            raise KeyError(key)
+        return entry.value
 
     def __setitem__(self, key, value):
         """Create or replace a value to be stored at a given key."""
-        bucket = self._get_bucket(key)
-        try:
-            entry = next(e for e in bucket if e.matches(key))
-        except StopIteration:
+        bucket, _, entry = self._search(key)
+        if entry is None:
             bucket.append(_Entry(key, value))
             self._len += 1
             self._maybe_grow()
@@ -243,16 +365,13 @@ class HashTable(MutableMapping):
 
     def __delitem__(self, key):
         """Remove a value at a given key, so the key maps to no value."""
-        bucket = self._get_bucket(key)
-        try:
-            index = next(i for i, e in enumerate(bucket) if e.matches(key))
-        except StopIteration:
-            raise KeyError(key) from None
-        else:
-            bucket[index] = bucket[-1]
-            del bucket[-1]
-            self._len -= 1
-            self._maybe_shrink()
+        bucket, index, _ = self._search(key)
+        if index is None:
+            raise KeyError(key)
+        bucket[index] = bucket[-1]
+        del bucket[-1]
+        self._len -= 1
+        self._maybe_shrink()
 
     def __iter__(self):
         """Iterate through the keys of this hash table."""
@@ -265,30 +384,43 @@ class HashTable(MutableMapping):
 
     @property
     def _load_factor(self):
+        """Ratio of number of entries to number of buckets."""
         return len(self) / len(self._buckets)
 
     @property
     def _target_bucket_count(self):
+        """Estimated number of of buckets ideal for the current load."""
         return len(self) / self._REHASH_LOAD_FACTOR
 
     @property
     def _entries(self):
+        """An iterator to all entries in this hash table."""
         return itertools.chain.from_iterable(self._buckets)
 
-    def _get_bucket(self, key):
-        return self._buckets[hash(key) % len(self._buckets)]
+    def _search(self, key):
+        """Find the bucket and, if any, index and entry for a key."""
+        bucket = self._buckets[hash(key) % len(self._buckets)]
+        try:
+            index, entry = next((i, e) for i, e in enumerate(bucket)
+                                if e.key is key or e.key == key)
+        except StopIteration:
+            index = entry = None
+        return bucket, index, entry
 
     def _rehash(self, new_bucket_count):
+        """Rebuild the hash table to have the given number of buckets."""
         new_buckets = [[] for _ in range(new_bucket_count)]
         for entry in self._entries:
             new_buckets[hash(entry.key) % new_bucket_count].append(entry)
         self._buckets = new_buckets
 
     def _maybe_grow(self):
+        """Rehash for more buckets if the load factor is high."""
         if self._load_factor > self._GROW_THRESHOLD:
             self._rehash(math.ceil(self._target_bucket_count))
 
     def _maybe_shrink(self):
+        """Rehash for fewer buckets if the load factor is low and we can."""
         if self._load_factor < self._SHRINK_THRESHOLD:
             new_bucket_count = max(self._MIN_BUCKETS,
                                    math.floor(self._target_bucket_count))
