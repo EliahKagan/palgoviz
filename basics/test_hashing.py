@@ -14,38 +14,9 @@ import pytest
 from hashing import IntKeyTable, HashTable
 
 
-@pytest.fixture(name='example_items', params=[
-    [],
-    [(2, 'two')],
-    [(2, 'two'), (1, 'one')],
-    [(2, 'two'), (1, 'one'), (3, 'three')],
-])
-def fixture_example_items(request):
-    """Lists of (key, value) to insert in a mapping being tested."""
-    return request.param
-
-
-@pytest.fixture(name='prebuilt_ikt', params=[
-    [],
-    [(2, 'two')],
-    [(2, 'two'), (1, 'one')],
-    [(2, 'two'), (1, 'one'), (3, 'three')],
-])
-def fixture_prebuilt_ikt(example_items):
-    """
-    Small IntKeyTable instances.
-
-    This is good for testing lookup and iterator, but not as good for testing
-    behavior specifically related to start, stop, and capacity.
-    """
-    table = IntKeyTable(1, 4)
-    for key, value in example_items:
-        table[key] = value
-    return table
-
 
 # FIXME: These tests are incomplete, overcomplicated, and buggy, and some of
-# the requirements the express are likely to change radically.
+# the requirements they express are likely to change radically.
 #
 # FIXME: The use of fixtures here is no very good, and not really as intended.
 class TestIntKeyTable:
