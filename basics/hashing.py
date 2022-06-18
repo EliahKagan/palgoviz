@@ -26,9 +26,10 @@ class SortedFlatTable(MutableMapping):
     """
     A mutable mapping storing entries, sorted by key, in a non-nested sequence.
 
-    All keys must be comparable with "<" and ">". Keys that are neither less
-    nor greater than one another are regarded to be the same key, and keys must
-    at least have a weak ordering. For example, using (arbitrary) sets as keys
+    All keys must be comparable by "<" and ">". The "==", "!=", "<=", and ">="
+    operators will not be used to compare keys. Keys that are neither less nor
+    greater than one another are regarded to be the same key, and keys must at
+    least have a weak ordering. For example, using (arbitrary) sets as keys
     doesn't work, since the partial ordering of subsets is not a weak ordering.
     No special support is provided for pathological objects like math.nan.
 
@@ -43,7 +44,7 @@ class SortedFlatTable(MutableMapping):
     The Python standard library has no BST. This project doesn't either, yet.
 
     NOTE: This is not "flat" in the sense of flat collections in Python. Those
-    are collections that aren't containers (like str and bytes): their elements
+    are collections like str and bytes that aren't containers: their elements
     aren't objects, just values stored contiguously in the collection's memory.
     """
 
@@ -52,7 +53,7 @@ class UnsortedFlatTable(MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
 
-    Keys may be compared with "is", "is not", "==", and "!-", and have their
+    Keys may be compared with "is", "is not", "==", and "!=", and have their
     prehashes computed with the hash builtin. They need not support any other
     operations. To match the behavior of dict, keys that are the same object
     are regarded to be the same key, even if they are pathologically unequal to
@@ -68,8 +69,8 @@ class UnsortedFlatTable(MutableMapping):
     This data structure is conceptually related to hash tables, which offer
     amortized O(1) search, insertion, and deletion with high priority, assuming
     good hash distribution. Hash tables overcome the need to examine linearily
-    many entries to find a match, by using keys' hashes to know about where to
-    look. The built-in dict, and the HashTable class below, are hash tables.
+    many entries to find a match, by using keys' hashes to know roughly where
+    to look. The built-in dict, and the HashTable class below, are hash tables.
 
     NOTE: See the explanation in SortedFlatTable on different senses of "flat".
     """
@@ -79,8 +80,8 @@ class DirectAddressTable(MutableMapping):
     """
     A direct address table. Lookups are directly achieved by sequence indexing.
 
-    This is the simplest kind of explicit mapping, of those with O(1) lookups.
-    Search, insertion, and deletion all take O(1) time.
+    This is the simplest kind of explicit mapping, of those offering
+    constant-time operations. Search, insertion, and deletion are all O(1).
 
     This is the immediate conceptual precursor to a hash-based container, and
     technically constitutes the simplest case of perfect (i.e., collision-free)
