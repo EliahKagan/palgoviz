@@ -321,7 +321,7 @@ class HashTable(_NiceReprMapping, MutableMapping):
     """The bucket count never drops below this, even in empty tables."""
 
     _SHRINK_THRESHOLD = 0.25
-    """The load factor below which the bucket count may be decreased.."""
+    """The load factor below which the bucket count may be decreased."""
 
     _GROW_THRESHOLD = 0.75
     """The load factor above which the bucket count may be increased."""
