@@ -945,10 +945,11 @@ def least_k(values, k):
     """
     Return a new sorted list of the k smallest elements of values. Unstable.
 
-    The algorithm used here takes O(n * k) time, even though an O(n + k log n)
-    algorithm exists. But evaluating sorted(values)[:k], where the sorted call
-    takes O(n log n) time, is sometimes too slow even for O(n * k). This
-    function is accordingly most reasonable to use when k is very small.
+    This algorithm takes O(1 + n k) time, even though an O(n + k log n)
+    algorithm exists. This furthermore does not call sorted(values)[:k]. That
+    would always give the correct result, but it takes O(n log n) time, so when
+    k is small compared to log n, it takes more than O(1 + n k) time. This
+    function is accordingly most reasonable to use when k is small.
 
     This need not be stable: it returns a length-k prefix of some sorted
     permutation of values, but not necessarily of sorted(values). If x is in
@@ -975,10 +976,11 @@ def greatest_k(values, k):
     """
     Return a new sorted list of the k largest elements of values. Unstable.
 
-    The algorithm used here takes O(n * k) time, even though an O(n + k log n)
-    algorithm exists. But evaluating sorted(values)[-k:] (for k > 0), where the
-    sorted call takes O(n log n) time, is sometimes too slow even for O(n * k).
-    This function is accordingly most reasonable to use when k is very small.
+    This algorithm takes O(1 + n k) time, even though an O(n + k log n)
+    algorithm exists. This furthermore does not call sorted(values)[-k:]. That
+    would give the correct result for any k > 0, but it takes O(n log n) time,
+    so when k is small compared to log n, it takes more than O(1 + n k) time.
+    This function is accordingly most reasonable to use when k is small.
 
     This need not be stable: it returns a length-k suffix of some sorted
     permutation of values, but not necessarily of sorted(values). If x is in
@@ -2855,7 +2857,7 @@ def augmented_sort_in_place(keys, *other, alias=False):
     you may still assume that assigning elements of values1 does not affect
     values2. (This is typically the case, and the caller must ensure it.)
 
-    With n == len(keys) and h == 1 + len(other), this takes:
+    Define n = len(keys) and h = 1 + len(other). When n > 0, this takes:
 
       - Average-case O(n h log n) time.
       - Worst-case O(h + log n) auxiliary space, if alias is True.
