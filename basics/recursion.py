@@ -1188,18 +1188,10 @@ class FlattenLevelOrder:
 
     This is like flatten_levelorder (above), but implemented as a class, with
     the additional requirement that, on an input tree of n nodes that flattens
-    into an m-item iterable, the auxiliary space complexity is O(n - m).
+    into an m-item iterable, the auxiliary space complexity is O(1 + n - m).
 
     This class may make use of the standard library, including builtins. But it
     shouldn't use any other functions or classes in this module or the project.
-
-    [Sub-exercise: Should we worry about how, when n == m, nonzero auxiliary
-    space is used? Explain why that uses positive auxiliary space. Then either
-    show this is a problem and state how the big-O expression should be written
-    to accommodate it, or show that it is not a problem and O(n - m) is still
-    correct. This is a bit more subtle than it seems. You should examine the
-    formal definition of big-O notation (including how it extends to multiple
-    variables), as well as the relationship between n and m in this setting.]
 
     >>> list(FlattenLevelOrder(()))
     []
@@ -1231,7 +1223,7 @@ class FlattenLevelOrder:
     __slots__ = ('_queue', '_iterator')
 
     def __init__(self, root):
-        self._iterator = (node for node in (root,))
+        self._iterator = iter((root,))
         self._queue = collections.deque()
 
     def __iter__(self):
