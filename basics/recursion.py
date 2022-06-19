@@ -1223,7 +1223,7 @@ class FlattenLevelOrder:
     __slots__ = ('_queue', '_iterator')
 
     def __init__(self, root):
-        self._iterator = (node for node in (root,))
+        self._iterator = iter((root,))
         self._queue = collections.deque()
 
     def __iter__(self):
