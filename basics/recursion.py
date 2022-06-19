@@ -1311,7 +1311,7 @@ def merge_many(sorted_lists, *, merge=merge_two):
     """
     Recursively stably merge any number of sorted lists into a new sorted list.
 
-    With n total elements across k lists, the worst-case time is O(n log k).
+    With n total elements across k lists, worst-case time is O(1 + n log k).
 
     >>> merge_many([])
     []
@@ -2796,12 +2796,14 @@ def _augmented_swap(keys, other, i, j):
 
 def _augmented_partition_three_in_place(keys, other, low, high, pivot):
     """
-    Rearrange a[low:high], a=keys and each a in other, to be 3-way partitioned.
+    Rearrange keys[low:high] alongside other sequences to be 3-way partitioned.
 
     This is like partition_three_in_place, but it is augmented, for use in
     augmented_sort_in_place (below). Objects in keys are compared to the pivot.
     No comparisons are done on objects in sequences in other. Those sequences
-    are permuted in the same way that keys is permuted. This takes O(n h) time.
+    are permuted in the same way that keys is permuted.
+
+    When low < high, this takes O((high - low) * (1 + len(other))) time.
     """
     # keys[original_low:low] are the known lesser elements.
     # keys[low:current] are the known similar elements.
@@ -2823,7 +2825,7 @@ def _augmented_partition_three_in_place(keys, other, low, high, pivot):
 
 
 def _do_augmented_safe_quicksort_in_place(keys, other, low, high):
-    """Augmented stack-safe quicksort, recursing on just hte short side."""
+    """Augmented stack-safe quicksort, recursing on just the short side."""
     while high - low > 1:
         pivot = keys[random.randrange(low, high)]
 
@@ -2857,9 +2859,9 @@ def augmented_sort_in_place(keys, *other, alias=False):
     you may still assume that assigning elements of values1 does not affect
     values2. (This is typically the case, and the caller must ensure it.)
 
-    Define n = len(keys) and h = 1 + len(other). When n > 0, this takes:
+    Define n = len(keys) and h = len(other). When n > 1, this takes:
 
-      - Average-case O(n h log n) time.
+      - Average-case O(n (1 + h) log n) time.
       - Worst-case O(h + log n) auxiliary space, if alias is True.
       - Worst-case O(log n) auxiliary space, if alias is False.
 
