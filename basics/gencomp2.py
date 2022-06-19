@@ -239,9 +239,12 @@ def suffix_product(sequences, start):
     Cartesian product of sequences[start], sequences[start + 1], ...,
     sequences[-1].
 
-    This behaves like itertools.product(*sequences[start:]). It uses only
-    O(len(sequences) - start) auxiliary space. Like prefix_product above, this
-    is recursive and does not use a helper function.
+    This returns an iterator that yields tuples from the Cartesian product of a
+    suffix of sequences, behaving like itertools.product(*sequences[start:]),
+    but with the same differences and restrictions described in prefix_product
+    above. This uses O(1 + len(sequences) - start) auxiliary space.
+
+    Like prefix_product, this is recursive and uses no helper function.
 
     >>> list(suffix_product([['a', 'b'], ['x', 'y']], 0))
     [('a', 'x'), ('a', 'y'), ('b', 'x'), ('b', 'y')]
@@ -1376,7 +1379,7 @@ def is_hermitian_alt(matrix):
     True
     """
     # NOTE: I can't use itertools.combinations_with_replacement or
-    #       itertools.product, as they would use O(len(matrix)) space.
+    #       itertools.product, as they would use ϴ(len(matrix)) space.
     return all(matrix[i][j] == matrix[j][i].conjugate()
                for i in range(len(matrix))
                for j in range(i + 1))
