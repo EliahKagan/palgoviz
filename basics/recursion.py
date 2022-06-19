@@ -2799,7 +2799,7 @@ def _augmented_partition_three_in_place(keys, other, low, high, pivot):
     This is like partition_three_in_place, but it is augmented, for use in
     augmented_sort_in_place (below). Objects in keys are compared to the pivot.
     No comparisons are done on objects in sequences in other. Those sequences
-    are permuted in the same way that keys is permuted. This takes O(n k) time.
+    are permuted in the same way that keys is permuted. This takes O(n h) time.
     """
     # keys[original_low:low] are the known lesser elements.
     # keys[low:current] are the known similar elements.
@@ -2855,10 +2855,10 @@ def augmented_sort_in_place(keys, *other, alias=False):
     you may still assume that assigning elements of values1 does not affect
     values2. (This is typically the case, and the caller must ensure it.)
 
-    With n == len(keys) and k == len(other), this takes:
+    With n == len(keys) and h == 1 + len(other), this takes:
 
-      - Average-case O(n k log n) time.
-      - Worst-case O(k + log n) auxiliary space, if alias is True.
+      - Average-case O(n h log n) time.
+      - Worst-case O(h + log n) auxiliary space, if alias is True.
       - Worst-case O(log n) auxiliary space, if alias is False.
 
     FIXME: Needs tests.
