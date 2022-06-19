@@ -5,11 +5,51 @@ Searching.
 
 See also recursion.py.
 
-It is often said, including in the Python documentation and in this module's
-docstrings, that a sequence must be sorted for binary search to work correctly.
-But the actual precondition is much weaker: [TODO: After doing the relevant
-exercises in this module, replace this bracketed text with a statement of the
-weaker precondition and a list of all functions it applies to in this module.]
+Documentation within this module uses these conventions and simplifications:
+
+1. When not otherwise specified, functions that process a single sequence or
+   other iterable, and that are documented with a time or space complexity
+   containing the variable n, use it to mean either the number of items in or
+   to be processed from the input. For example, if the only parameter is values
+   then n == len(values), and if there are also low and high parameters, such
+   that only the region values[low:high] is examined, then n == high - low.
+
+2. It is often said, including in the official Python documentation and in this
+   module's docstrings, that a sequence must be sorted for binary search to
+   work correctly. But the actual precondition is much weaker: [TODO: After
+   doing the relevant exercises in this module, replace this bracketed text
+   with a statement of the weaker precondition and which functions it applies
+   to in this module.]
+
+3. Functions that perform equality or order comparisons on their elements are
+   assumed to receive elements that can be compared in O(1) time, except when
+   otherwise stated or implied. These functions must still work on elements
+   that take asymptotically longer to compare, but their documented time
+   complexities may not hold.
+
+4. "Numbers" passed to functions are assumed to be real-valued and to support
+   all expected and generally desired operations, arithmetic and otherwise, of
+   real-valued numeric types in Python. It follows from this that no infinities
+   or NaNs are passed, as those are not on the real number line. It does not
+   follow that their types are subclasses of Real or even Number. For example,
+   they may be Decimal. They need not be standard library types. But in each
+   invocation of a public function in this module, all numbers passed can be
+   assumed to be of the same or otherwise arithmetically compatible types.
+
+5. For functions that solve problems about sums, implementations may assume
+   that rounding error is not a problem. (So callers are heavily restricted in
+   the float values they can pass, but not in int or Fraction values, and
+   hardly at all in Decimal values.)
+
+6. Where not otherwise stated, time and space complexities given for functions
+   that process numbers may assume comparisons and basic arithmetic operations
+   take O(1) time. This is correct for numbers of limited range and precision,
+   and for ints small enough to fit in a machine word, and a good approximation
+   for ints small enough to fit in a few words. Be aware that, since Python
+   ints may be arbitrarily big, not all of these time and space complexity
+   claims are strictly accurate. Basic operations on big ints take time linear
+   in their operands' representation lengths, which is logarithmic (rather than
+   constant) in their operands' magnitudes.
 """
 
 import bisect
