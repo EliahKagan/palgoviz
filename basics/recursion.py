@@ -964,7 +964,7 @@ def least_k(values, k):
     """
     dup = list(values)
 
-    for left in range(0, k):
+    for left in range(k):
         best_right = min(range(left, len(dup)), key=dup.__getitem__)
         dup[left], dup[best_right] = dup[best_right], dup[left]
 
