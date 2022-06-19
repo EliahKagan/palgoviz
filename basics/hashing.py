@@ -205,10 +205,10 @@ class DirectAddressTable(MutableMapping):
     """
     A direct address table. Lookups are directly achieved by sequence indexing.
 
-    This is the simplest kind of explicit mapping, of those offering
-    constant-time operations. Search, insertion, and deletion are all O(1). But
-    with a capacity of m, it only accepts integer keys k where 0 <= k < m, and
-    it always uses Θ(m) space (thus also taking Ω(m) time to create). Iterating
+    This is the simplest kind of explicit mapping, of those with constant-time
+    operations. Search, insertion, and deletion are all O(1). But with a
+    capacity of m, keys must be nonnegative integers less than m, and space
+    usage is always Θ(m). (Table creation thus also takes Ω(m) time.) Iterating
     through all n items also takes Θ(m) time, even if n is much smaller than m.
 
     This is the immediate conceptual precursor to a hash-based container, and
