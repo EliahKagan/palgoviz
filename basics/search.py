@@ -818,6 +818,11 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
 # NOTE: Having done all the above exercises, do the module docstring TODO.
 
 
+def _two_fail(total, cause=None):
+    """Raise ValueError to indicate there is no solution to a 2-sum problem."""
+    raise ValueError(f'no two numbers sum to {total!r}') from cause
+
+
 def two_sum_slow(numbers, total):
     """
     Find indices of two numbers that sum to total. Minimize auxiliary space.
@@ -849,7 +854,7 @@ def two_sum_slow(numbers, total):
             if numbers[left] + numbers[right] == total:
                 return left, right
 
-    raise ValueError(f'no two numbers sum to {total!r}')
+    _two_fail(total)
 
 
 def two_sum_fast(numbers, total):
@@ -897,7 +902,7 @@ def two_sum_fast(numbers, total):
         else:
             return left, right
 
-    raise ValueError(f'no two numbers sum to {total!r}')
+    _two_fail(total)
 
 
 def _two_sum_sorted_keyed(items, total, key):
@@ -914,7 +919,7 @@ def _two_sum_sorted_keyed(items, total, key):
         else:
             return left, right
 
-    raise ValueError(f'no two numbers sum to {total!r}')
+    _two_fail(total)
 
 
 def two_sum_sorted(numbers, total):
@@ -1051,7 +1056,7 @@ def two_sum_int_narrow(numbers, total):
     try:
         domain = range(min(numbers), max(numbers) + 1)
     except ValueError as error:
-        raise ValueError(f'no two numbers sum to {total!r}') from error
+        _two_fail(total, error)
 
     history = [None] * len(domain)
 
@@ -1064,7 +1069,7 @@ def two_sum_int_narrow(numbers, total):
             return left, right
         history[value - domain.start] = right
 
-    raise ValueError(f'no two numbers sum to {total!r}')
+    _two_fail(total)
 
 
 def has_subset_sum_slow(numbers, total):
