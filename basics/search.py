@@ -1054,20 +1054,21 @@ def two_sum_int_narrow(numbers, total):
     FIXME: Add a bigger test (here or elsewhere).
     """
     try:
-        domain = range(min(numbers), max(numbers) + 1)
+        minimum = min(numbers)
+        maximum = max(numbers)
     except ValueError as error:
         _two_fail(total, error)
 
-    history = [None] * len(domain)
+    history = [None] * (maximum - minimum + 1)
 
     for right, value in enumerate(numbers):
         complement = total - value
-        if complement not in domain:
+        if not minimum <= complement <= maximum:
             continue
-        left = history[complement - domain.start]
+        left = history[complement - minimum]
         if left is not None:
             return left, right
-        history[value - domain.start] = right
+        history[value - minimum] = right
 
     _two_fail(total)
 
