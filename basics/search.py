@@ -1051,7 +1051,16 @@ def two_sum_int_narrow(numbers, total):
     >>> two_sum_int_narrow([5, 6, 5], 10)
     (0, 2)
 
-    FIXME: Add a bigger test (here or elsewhere).
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = [r.randrange(-2997, 2500, 2) for _ in range(10**6)]
+    >>> left, right = two_sum_int_narrow(b, 2574)
+    >>> b[left] + b[right]
+    2574
+    >>> two_sum_int_narrow(b, 2573)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 2573
     """
     try:
         minimum = min(numbers)
