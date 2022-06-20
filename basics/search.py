@@ -1706,9 +1706,9 @@ def count_n_queens_solutions(n):
     if n == 0:
         return 1
 
-    ranks = [False] * n
-    pos_diag = [False] * (n * 2)
-    neg_diag = [False] * (n * 2)
+    ranks = [False] * n  # Indexed 0, ..., n - 1.
+    pos_diag = [False] * (n * 2 - 1)  # Indexed 0, ..., n * 2 - 2.
+    neg_diag = [False] * (n * 2 - 1)  # Indexed -n + 1, ..., n - 1.
 
     def count(qi):
         if qi == n:
@@ -1717,19 +1717,19 @@ def count_n_queens_solutions(n):
         acc = 0
 
         for qj in range(n):
-            if ranks[qj] or pos_diag[qi + qj] or neg_diag[n + qi - qj]:
+            if ranks[qj] or pos_diag[qi + qj] or neg_diag[qi - qj]:
                 continue
 
-            ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = True
+            ranks[qj] = pos_diag[qi + qj] = neg_diag[qi - qj] = True
             acc += count(qi + 1)
-            ranks[qj] = pos_diag[qi + qj] = neg_diag[n + qi - qj] = False
+            ranks[qj] = pos_diag[qi + qj] = neg_diag[qi - qj] = False
 
         return acc
 
     def start_count(qj):
-        ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = True
+        ranks[qj] = pos_diag[qj] = neg_diag[-qj] = True
         result = count(1)
-        ranks[qj] = pos_diag[qj] = neg_diag[n - qj] = False
+        ranks[qj] = pos_diag[qj] = neg_diag[-qj] = False
         return result
 
     total = 2 * sum(start_count(qj) for qj in range(n // 2))
