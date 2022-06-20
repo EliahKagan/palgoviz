@@ -1026,9 +1026,9 @@ def two_sum_int_narrow(numbers, total):
     Find indices of two bounded integers that sum to total, without hashing.
 
     Elements of numbers, and the total, are ints. The algorithm must be correct
-    for any number of integers of any values but needn't be reasonable to use
+    for any number of integers of any values but need not be reasonable to use
     if m = max(numbers) - min(numbers) is much larger than n. When m is small,
-    this should perform at least as well as hashing in practice.
+    this should in practice be at least as fast as hashing, and often faster.
 
     Although the numbers found may be equal, their indices must be unequal.
     Give the left index before the right one. If there are multiple solutions,
