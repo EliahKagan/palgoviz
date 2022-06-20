@@ -1016,6 +1016,57 @@ def two_sum_nohash(numbers, total):
 # more functions' docstrings why you're retaining duplicate or similar logic.
 
 
+def two_sum_int_narrow(numbers, total):
+    """
+    Find indices of two bounded integers that sum to total, without hashing.
+
+    Elements of numbers, and the total, are ints. The algorithm must be correct
+    for any number of integers of any values but needn't be reasonable to use
+    if m = max(numbers) - min(numbers) is much larger than n. When m is small,
+    this should perform at least as well as hashing in practice.
+
+    Although the numbers found may be equal, their indices must be unequal.
+    Give the left index before the right one. If there are multiple solutions,
+    return any of them. If there are no solutions, raise ValueError.
+
+    [FIXME: State the asymptotic time and auxiliary space complexities here.]
+
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_int_narrow(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_int_narrow(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_int_narrow(a, -76)
+    (5, 13)
+    >>> two_sum_int_narrow(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_int_narrow([5, 6, 5], 10)
+    (0, 2)
+
+    FIXME: Add a bigger test (here or elsewhere).
+    """
+    try:
+        domain = range(min(numbers), max(numbers) + 1)
+    except ValueError as error:
+        raise ValueError(f'no two numbers sum to {total!r}') from error
+
+    history = [None] * len(domain)
+
+    for right, value in enumerate(numbers):
+        complement = total - value
+        if complement not in domain:
+            continue
+        left = history[complement - domain.start]
+        if left is not None:
+            return left, right
+        history[value - domain.start] = right
+
+    raise ValueError(f'no two numbers sum to {total!r}')
+
+
 def has_subset_sum_slow(numbers, total):
     """
     Check if any zero or more values in numbers sum to total.
