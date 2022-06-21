@@ -1027,8 +1027,9 @@ def two_sum_int_narrow(numbers, total):
 
     Elements of numbers, and the total, are ints. The algorithm must be correct
     for any number of integers of any values but need not be reasonable to use
-    if m = max(numbers) - min(numbers) is much larger than n. When m is small,
-    this should in practice be at least as fast as hashing, and often faster.
+    if m = max(numbers) - min(numbers) + 1 [the range of values in numbers] is
+    much larger than n. When m is small, this should in practice be as fast as
+    hashing, and often faster.
 
     Although the numbers found may be equal, their indices must be unequal.
     Give the left index before the right one. If there are multiple solutions,
@@ -1080,6 +1081,60 @@ def two_sum_int_narrow(numbers, total):
         history[value - minimum] = right
 
     _two_fail(total)
+
+
+# !!FIXME: The restriction on using order comparisons is no good, because the
+# best ways to apply the intended technique involve checking whether numbers
+# are negative, including numbers that result from subtraction. Yet this is not
+# conceptually central to the technique. I don't know how to allow that while
+# still making clear that techniques as in two_sum_nohash are not allowed.
+# (They may not meet asymptotic upper-bound time complexities in the table
+# here, I still don't want to send people that far down the wrong road..)
+#
+# !!FIXME: The table here gives excessive spoilers for previous exercises. It
+# should be possible to skim later exercises without being deluged with likely
+# unwanted hints. I don't know what to do about this, because the table is big
+# and complicated enough that putting "???" in many of its cells and having a
+# fixme to fill them in, which I'd originally envisioned, seems too burdensome.
+# If this can't be solved, then this problem will have to be split out into a
+# subsequent problem set. (If it comes to that, two_sum_int_narrow should go
+# with it for continuity, and most of the "conventions and simplifications"
+# list in the module docstring might be deferred to that future point, too.)
+def two_sum_int(numbers, total, *, b=2):
+    """
+    Find indices of two integers that sum to total, by making b-way choices.
+
+    Elements of numbers, and the total, are ints. The "branching ratio" b is an
+    int and at least 2 (since a 1-way choice is not a choice). When b is small
+    (say, under 100), this is a fairly efficient way to solve the problem,
+    though two_sum_fast and two_sum_nohash are usually faster.
+
+    This involves substantial logic not used by other 2-sum functions. It does
+    not use hashing or order comparisons, nor does it simulate those operations
+    in terms of others. Use of other operations is otherwise unrestricted.
+
+    This function's asymptotic time complexity depends on the magnitudes of the
+    numbers in its input. All the other 2-sum functions do too, but here it's
+    relevant even for numbers that fit in a machine word. Yet this performs
+    reasonably well even with larger numbers. Consider this table:
+
+    |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                  |
+    |----------|---------------|--------------|------------|------------------|----------------|----------------------|
+    | feature  | <             | hash, -      | <          | <                | <=, -          | //, %, -             |
+    | algo/ds  | (none)        | dict         | (none)     | sorted           | list           | (custom)             |
+    | branches | 2             | O(n)         | 2          | 2                | m              | b                    |
+    | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n log_b M)         |
+    | ~ time   | O(n**2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n log M log_b M)   |
+    | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n log_b M + log M) |
+    | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n log_b M)         |
+
+    FIXME: Write the rest of this description, which explains the table.
+
+    You can optionally try changing the default value of b to tune performance.
+
+    FIXME: Needs tests.
+    """
+    # FIXME: Needs implementation.
 
 
 def has_subset_sum_slow(numbers, total):
