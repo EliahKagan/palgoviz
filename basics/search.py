@@ -1302,7 +1302,7 @@ def two_sum_int(numbers, total, *, b=2):
 
     This function's performance characteristics depend on the magnitudes of the
     numbers in its input. While true of all the other 2-sum functions too, here
-    it's relevant even for numbers that fit in a machine word. Yet, like those
+    it's relevant even for numbers that fit in a machine word. Yet, like most
     others, this should do okay even with larger numbers. Consider this table:
 
     |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                  |
@@ -1321,6 +1321,16 @@ def two_sum_int(numbers, total, *, b=2):
     when n is large. Where hashing is used, good hash distribution is assumed,
     and times that hold with high probability are given. "~" rows give time and
     space when values fit in machine words. Reported space is auxiliary space.
+    With big integers, arithmetic operations take O(log M) time and space, and
+    comparisons take O(log M) time and are assumed to take O(1) space. Language
+    features are only listed if they help distinguish the approaches. The most
+    shared operations (==, !=, len, subscripting, iteration) are not listed.
+
+    FIXME: The table is based on solutions I wrote to test the exercises, not
+    on your solutions, and I may have made mistakes. It must be closely checked
+    to ensure every claim it makes is correct and applies to the existing code,
+    preferably before implementing this. (Thinking about the table may help in
+    designing the algorithm to use here.) This can be done collaboratively.
 
     The exception to the above restriction on using order comparisons is that,
     if you can solve this for nonnegative integers, it is okay to convert that
