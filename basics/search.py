@@ -967,6 +967,57 @@ def two_sum_sorted(numbers, total):
     return _two_sum_sorted_keyed(numbers, total, _identity_function)
 
 
+# !!FIXME: When removing implementation bodies, remove this entirely rather
+# than making it an exercise. Tag the removal commit for possible revert later.
+def two_sum_sorted_alt(numbers, total):
+    """
+    Given sorted numbers, find indices of two numbers that sum to total.
+
+    This is an alternative implementation of two_sum_sorted, satisfying the
+    same requirements with the same asymptotic time and auxiliary space
+    complexities. This implementation contains all its core logic, rather than
+    delegating it to a helper shared with two_sum_nohash.
+
+    >>> a = (-96, -95, -79, -76, -74, -69, -49, -48, -38, -35, -34, -27, -24,
+    ...      -22, -16, -13, -11, -6, 4, 9, 18, 37, 40, 71, 72)
+    >>> two_sum_sorted_alt(a, 2) in ((5, 23), (8, 22), (9, 21), (14, 20))
+    True
+    >>> two_sum_sorted_alt(a, 5) in ((9, 22), (15, 20))
+    True
+    >>> two_sum_sorted_alt(a, -76)
+    (6, 11)
+    >>> two_sum_sorted_alt(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_sorted_alt([5, 6, 5], 10)
+    (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = sorted(r.randrange(-2**40, 2**40) for _ in range(10**6))
+    >>> two_sum_fast(b, -63824289)
+    (499549, 500219)
+    >>> two_sum_fast(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
+    """
+    left = 0
+    right = len(numbers) - 1
+
+    while left < right:
+        total_here = numbers[left] + numbers[right]
+        if total_here < total:
+            left += 1
+        elif total_here > total:
+            right -= 1
+        else:
+            return left, right
+
+    _two_fail(total)
+
+
 def _normalize_index_pair(left, right):
     """Return a pair of indices with the lower index first."""
     return (right, left) if right < left else (left, right)
@@ -1012,6 +1063,110 @@ def two_sum_nohash(numbers, total):
     indices = sorted(range(len(numbers)), key=numbers.__getitem__)
     left, right = _two_sum_sorted_keyed(indices, total, numbers.__getitem__)
     return _normalize_index_pair(indices[left], indices[right])
+
+
+# !!FIXME: When removing implementation bodies, remove this entirely rather
+# than making it an exercise. Tag the removal commit for possible revert later.
+def two_sum_nohash_alt(numbers, total):
+    """
+    Find indices of two numbers that sum to total, without hashing.
+
+    This is an alternative implementation of two_sum_nohash, satisfying the
+    same requirements with the same asymptotic time and auxiliary space
+    complexities. This implementation contains all its core logic, rather than
+    delegating to a helper shared with two_sum_sorted.
+
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_nohash_alt(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_nohash_alt(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_nohash_alt(a, -76)
+    (5, 13)
+    >>> two_sum_nohash_alt(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_nohash_alt([5, 6, 5], 10)
+    (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = [r.randrange(-2**40, 2**40) for _ in range(10**6)]
+    >>> two_sum_nohash_alt(b, -63824289)
+    (541756, 673938)
+    >>> two_sum_nohash_alt(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
+    """
+    decorated = sorted(enumerate(numbers), key=operator.itemgetter(1))
+
+    left = 0
+    right = len(decorated) - 1
+
+    while left < right:
+        left_old_index, left_value = decorated[left]
+        right_old_index, right_value = decorated[right]
+        total_here = left_value + right_value
+
+        if total_here < total:
+            left += 1
+        elif total_here > total:
+            right -= 1
+        else:
+            return _normalize_index_pair(left_old_index, right_old_index)
+
+    _two_fail(total)
+
+
+# !!FIXME: When removing implementation bodies, remove this entirely rather
+# than making it an exercise. Tag the removal commit for possible revert later.
+def two_sum_nohash_alt2(numbers: list, total):
+    """
+    Find indices of two numbers that sum to total, without hashing.
+
+    This is a second alternative implementation of two_sum_nohash, satisfying
+    the same requirements with the same asymptotic time and auxiliary space
+    complexities. This implementation delegates directly to two_sum_sorted_alt,
+    rather than delegating to a deliberately generalized nonpublic function
+    shared with two_sum_sorted (as two_sum_nohash does) or containing all its
+    core logic (as two_sum_nohash_alt does).
+
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_nohash_alt2(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_nohash_alt2(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_nohash_alt2(a, -76)
+    (5, 13)
+    >>> two_sum_nohash_alt2(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_nohash_alt2([5, 6, 5], 10)
+    (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = [r.randrange(-2**40, 2**40) for _ in range(10**6)]
+    >>> two_sum_nohash_alt2(b, -63824289)
+    (541756, 673938)
+    >>> two_sum_nohash_alt2(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
+    """
+    sorted_numbers = sorted(numbers)
+    left, right = two_sum_sorted_alt(sorted_numbers, total)
+    left_value = sorted_numbers[left]
+    right_value = sorted_numbers[right]
+    left_old_index = numbers.index(left_value)
+    if left_value == right_value:
+        return left_old_index, numbers.index(right_value, left_old_index + 1)
+    return _normalize_index_pair(left_old_index, numbers.index(right_value))
 
 
 # FIXME: Having implemented two_sum_slow, two_sum_fast, two_sum_sorted, and
