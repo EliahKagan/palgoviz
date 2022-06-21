@@ -857,6 +857,40 @@ def two_sum_slow(numbers, total):
     _two_fail(total)
 
 
+# !!FIXME: When removing implementation bodies, remove this entirely rather
+# than making it an exercise. Tag the removal commit for possible revert later.
+def two_sum_slow_alt(numbers, total):
+    """
+    Find indices of two numbers that sum to total. Minimize auxiliary space.
+
+    This alternative implementation of two_sum_slow uses the same algorithm but
+    implements it differently to avoid nested loops. (This can also be done
+    with a comprehension and no loops, but it is not clearer.)
+
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_slow_alt(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_slow_alt(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_slow_alt(a, -76)
+    (5, 13)
+    >>> two_sum_slow_alt(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_slow_alt([5, 6, 5], 10)
+    (0, 2)
+    """
+    try:
+        return next((left, right) for (left, left_value), (right, right_value)
+                    in itertools.combinations(enumerate(numbers), 2)
+                    if left_value + right_value == total)
+    except StopIteration:
+        _two_fail(total)
+
+
+
 def two_sum_fast(numbers, total):
     """
     Find indices of two numbers that sum to total. Minimize running time.
