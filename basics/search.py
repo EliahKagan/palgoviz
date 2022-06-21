@@ -1273,19 +1273,18 @@ def two_sum_int_narrow(numbers, total):
     _two_fail(total)
 
 
-# !!FIXME: The table here gives excessive spoilers for previous exercises. It
-# should be possible to skim later exercises without being deluged with likely
-# unwanted hints. I don't know what to do about this, because the table is big
-# and complicated enough that putting "???" in many of its cells and having a
-# fixme to fill them in, which I'd originally envisioned, seems too burdensome.
-# If this can't be solved, then this problem will have to be split out into a
-# subsequent problem set. (If it comes to that, two_sum_int_narrow should go
-# with it for continuity, and most of the "conventions and simplifications"
-# list in the module docstring might be deferred to that future point, too.)
+# !!FIXME: When removing implementation bodies:
 #
-# !!FIXME: When removing implementation bodies, replace the contents of the
-# upper-right table cell (feature row, int column) with "???". That's to avoid
-# spoiling the solution to THIS exercise, and separate from the above concerns.
+#   (1) Change the upper right (feature row, int column) cell to read "???".
+#
+#   (2) Add a fixme to fill that in as part of the exercise. Commit.
+#
+#   (3) In a separate commit, replace the table (and that fixme) with a fixme
+#       saying, after all above exercises are done, to revert a tagged commit
+#       to get a table of various 2-sum details like algorithmic complexities.
+#
+#   (4) Tag that removal commit with the tag named in the text it introduced.
+#
 def two_sum_int(numbers, total, *, b=2):
     """
     Find indices of two integers that sum to total, by making b-way choices.
