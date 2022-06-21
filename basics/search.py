@@ -1300,10 +1300,10 @@ def two_sum_int(numbers, total, *, b=2):
     just one left-to-right pass through numbers, and after two numbers that add
     to total are found, iteration through numbers can stop.
 
-    This function's asymptotic time complexity depends on the magnitudes of the
+    This function's performance characteristics depend on the magnitudes of the
     numbers in its input. While true of all the other 2-sum functions too, here
-    it's relevant even for numbers that fit in a machine word. Yet this should
-    perform okay even with larger numbers. Consider this table:
+    it's relevant even for numbers that fit in a machine word. Yet, like those
+    others, this should do okay even with larger numbers. Consider this table:
 
     |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                  |
     |----------|---------------|--------------|------------|------------------|----------------|----------------------|
@@ -1315,16 +1315,17 @@ def two_sum_int(numbers, total, *, b=2):
     | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n log_b M + log M) |
     | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n log_b M)         |
 
-    M is the maximum magnitude of any number in numbers or of total. The table
-    expresses complexities in terms of M, but when most numbers are smaller,
-    all implementations perform better.
+    In the table, M is the maximum magnitude of any value in numbers or total.
+    But when total and most numbers are smaller than M, all implementations are
+    faster than shown. Indexing and index arithmetic are taken to be O(1) even
+    when n is large. Where hashing is used, good hash distribution is assumed,
+    and times that hold with high probability are given. "~" rows give time and
+    space when values fit in machine words. Reported space is auxiliary space.
 
-    FIXME: Write the rest of the explanation of the table.
-
-    The exception to the restriction on using order comparisons is that, if you
-    can solve this for nonnegative integers, it is okay to convert the solution
-    into one that works on all integers by checking if integers are negative
-    and treating it specially, while keeping conceptually the same algorithm.
+    The exception to the above restriction on using order comparisons is that,
+    if you can solve this for nonnegative integers, it is okay to convert that
+    solution into one for all integers by checking if values are negative and
+    handling them differently, while keeping conceptually the same algorithm.
 
     You can optionally try changing the default value of b to tune performance.
 
