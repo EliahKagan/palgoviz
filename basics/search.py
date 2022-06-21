@@ -1273,14 +1273,6 @@ def two_sum_int_narrow(numbers, total):
     _two_fail(total)
 
 
-# !!FIXME: The restriction on using order comparisons is no good, because the
-# best ways to apply the intended technique involve checking whether numbers
-# are negative, including numbers that result from subtraction. Yet this is not
-# conceptually central to the technique. I don't know how to allow that while
-# still making clear that techniques as in two_sum_nohash are not allowed.
-# (They may not meet asymptotic upper-bound time complexities in the table
-# here, I still don't want to send people that far down the wrong road.)
-#
 # !!FIXME: The table here gives excessive spoilers for previous exercises. It
 # should be possible to skim later exercises without being deluged with likely
 # unwanted hints. I don't know what to do about this, because the table is big
@@ -1304,15 +1296,15 @@ def two_sum_int(numbers, total, *, b=2):
     though two_sum_fast and two_sum_nohash are usually faster.
 
     This involves substantial logic not used by other 2-sum functions. It does
-    not use hashing or order comparisons, nor does it simulate those operations
-    in terms of others. Use of other operations is otherwise unrestricted. Like
-    two_sum_fast, this needs only a single left-to-right pass through numbers,
-    and after two numbers that add to total are found, iteration stops.
+    not use hashing, nor order comparisons except as allowed below, nor does it
+    simulate those operations in terms of others. Like two_sum_fast, this needs
+    just one left-to-right pass through numbers, and after two numbers that add
+    to total are found, iteration through numbers can stop.
 
     This function's asymptotic time complexity depends on the magnitudes of the
-    numbers in its input. All the other 2-sum functions' do too, but here it's
-    relevant even for numbers that fit in a machine word. Yet this performs
-    reasonably well even with larger numbers. Consider this table:
+    numbers in its input. While true of all the other 2-sum functions too, here
+    it's relevant even for numbers that fit in a machine word. Yet this should
+    perform okay even with larger numbers. Consider this table:
 
     |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                  |
     |----------|---------------|--------------|------------|------------------|----------------|----------------------|
@@ -1324,7 +1316,16 @@ def two_sum_int(numbers, total, *, b=2):
     | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n log_b M + log M) |
     | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n log_b M)         |
 
-    FIXME: Write the rest of this description, which explains the table.
+    M is the maximum magnitude of any number in numbers or of total. The table
+    expresses complexities in terms of M, but when most numbers are smaller,
+    all implementations perform better.
+
+    FIXME: Write the rest of the explanation of the table.
+
+    The exception to the restriction on using order comparisons is that, if you
+    can solve this for nonnegative integers, it is okay to convert the solution
+    into one that works on all integers by checking if integers are negative
+    and treating it specially, while keeping conceptually the same algorithm.
 
     You can optionally try changing the default value of b to tune performance.
 
