@@ -957,9 +957,9 @@ def two_sum_sorted(numbers, total):
     >>> import random
     >>> r = random.Random(7278875518357631735)
     >>> b = sorted(r.randrange(-2**40, 2**40) for _ in range(10**6))
-    >>> two_sum_fast(b, -63824289)
+    >>> two_sum_sorted(b, -63824289)
     (499549, 500219)
-    >>> two_sum_fast(b, -63824288)
+    >>> two_sum_sorted(b, -63824288)
     Traceback (most recent call last):
       ...
     ValueError: no two numbers sum to -63824288
@@ -996,9 +996,9 @@ def two_sum_sorted_alt(numbers, total):
     >>> import random
     >>> r = random.Random(7278875518357631735)
     >>> b = sorted(r.randrange(-2**40, 2**40) for _ in range(10**6))
-    >>> two_sum_fast(b, -63824289)
+    >>> two_sum_sorted_alt(b, -63824289)
     (499549, 500219)
-    >>> two_sum_fast(b, -63824288)
+    >>> two_sum_sorted_alt(b, -63824288)
     Traceback (most recent call last):
       ...
     ValueError: no two numbers sum to -63824288
