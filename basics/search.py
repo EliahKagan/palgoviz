@@ -882,12 +882,13 @@ def two_sum_slow_alt(numbers, total):
     >>> two_sum_slow_alt([5, 6, 5], 10)
     (0, 2)
     """
-    try:
-        return next((left, right) for (left, left_value), (right, right_value)
-                    in itertools.combinations(enumerate(numbers), 2)
-                    if left_value + right_value == total)
-    except StopIteration:
-        _two_fail(total)
+    pairs = itertools.combinations(enumerate(numbers), 2)
+
+    for (left, left_value), (right, right_value) in pairs:
+        if left_value + right_value == total:
+            return left, right
+
+    _two_fail(total)
 
 
 
