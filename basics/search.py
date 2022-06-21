@@ -1291,7 +1291,7 @@ def two_sum_int(numbers, total, *, b=2):
 
     Elements of numbers, and the total, are ints. The "branching ratio" b is an
     int and at least 2 (since a 1-way choice is not a choice). When b is small
-    (say, under 100), this is a fairly efficient way to solve the problem,
+    (say, under 50), this is a fairly efficient way to solve the problem,
     though two_sum_fast and two_sum_nohash are usually faster.
 
     This involves substantial logic not used by other 2-sum functions. It does
@@ -1305,15 +1305,15 @@ def two_sum_int(numbers, total, *, b=2):
     it's relevant even for numbers that fit in a machine word. Yet, like most
     others, this should do okay even with larger numbers. Consider this table:
 
-    |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                  |
-    |----------|---------------|--------------|------------|------------------|----------------|----------------------|
-    | feature  | (none)        | hash, -      | <, >       | <, >             | <=, -          | //, %, -             |
-    | algo/ds  | (none)        | dict         | (none)     | sorted           | list           | (custom)             |
-    | branches | 2             | O(n)         | 2          | 2                | m              | b                    |
-    | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n log M log_b M)   |
-    | ~ time   | O(n**2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n log_b M)         |
-    | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n log_b M + log M) |
-    | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n log_b M)         |
+    |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                      |
+    |----------|---------------|--------------|------------|------------------|----------------|--------------------------|
+    | feature  | (none)        | hash, -      | <, >       | <, >             | <=, -          | //, %, -                 |
+    | algo/ds  | (none)        | dict         | (none)     | sorted           | list           | (custom)                 |
+    | branches | 2             | O(n)         | 2          | 2                | m              | b                        |
+    | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n (b + log M) log_b M) |
+    | ~ time   | O(n**2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n b log_b M)           |
+    | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n b log_b M + log M)   |
+    | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n b log_b M)           |
 
     In the table, M is the maximum magnitude of any value in numbers or total.
     But when total and most numbers are smaller than M, all implementations are
