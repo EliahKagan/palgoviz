@@ -1310,8 +1310,8 @@ def two_sum_int(numbers, total, *, b=2):
     | feature  | (none)        | hash, -      | <, >       | <, >             | <=, -          | //, %, -             |
     | algo/ds  | (none)        | dict         | (none)     | sorted           | list           | (custom)             |
     | branches | 2             | O(n)         | 2          | 2                | m              | b                    |
-    | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n log_b M)         |
-    | ~ time   | O(n**2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n log M log_b M)   |
+    | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n log M log_b M)   |
+    | ~ time   | O(n**2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n log_b M)         |
     | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n log_b M + log M) |
     | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n log_b M)         |
 
