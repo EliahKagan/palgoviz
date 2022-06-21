@@ -1281,7 +1281,7 @@ def two_sum_int(numbers, total, *, b=2):
 
     |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                  |
     |----------|---------------|--------------|------------|------------------|----------------|----------------------|
-    | feature  | <             | hash, -      | <          | <                | <=, -          | //, %, -             |
+    | feature  | (none)        | hash, -      | <, >       | <, >             | <=, -          | //, %, -             |
     | algo/ds  | (none)        | dict         | (none)     | sorted           | list           | (custom)             |
     | branches | 2             | O(n)         | 2          | 2                | m              | b                    |
     | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n log_b M)         |
