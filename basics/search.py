@@ -1273,6 +1273,84 @@ def two_sum_int_narrow(numbers, total):
     _two_fail(total)
 
 
+class _Node:
+    """Node in a base-b digit trie (prefix tree). Helper for _Trie."""
+
+    __slots__ = ('children', 'value')
+
+    def __init__(self, b):
+        self.children = [None] * b
+        self.value = None
+
+
+class _Trie:
+    """Special-purpose base-b digit trie (prefix tree), for two_sum_int."""
+
+    __slots__ = ('_b', '_root')
+
+    def __init__(self, b):
+        """Create an initially empty trie."""
+        self._b = b
+        self._root = _Node(b)
+
+    def __getitem__(self, key):
+        """Get the value associated with a nonnegative integer key, if any."""
+        assert key >= 0, 'Negative key accidentally used as _Trie subscript.'
+
+        suffix = key
+        node = self._root
+        b = self._b  # FIXME: Factor this out if it doesn't improve speed.
+
+        while suffix != 0 and node is not None:
+            suffix, index = divmod(suffix, b)
+            node = node.children[index]
+
+        if node is None or node.value is None:
+            raise KeyError(key)
+
+        return node.value
+
+    def __setitem__(self, key, value):
+        """Associate a value (can't be None) with a nonnegative integer key."""
+        assert key >= 0, 'Negative key accidentally used as _Trie subscript.'
+
+        suffix = key
+        node = self._root
+        b = self._b  # FIXME: Factor this out if it doesn't improve speed.
+
+        while suffix != 0:
+            suffix, index = divmod(suffix, b)
+            child = node.children[index]
+            if child is None:
+                child = node.children[index] = _Node(b)
+            node = child
+
+        node.value = value
+
+
+class _BiTrie:
+    """Special-purpose mapping-like type using two tries, for two_sum_int."""
+
+    __slots__ = dict(_pos='Trie whose keys are positive numbers and zero.',
+                     _neg='Trie whose keys are negated negative numbers.')
+
+    def __init__(self, b):
+        """Create an initially empty mapping based on a pair of tries."""
+        self._pos = _Trie(b)
+        self._neg = _Trie(b)
+
+    def __getitem__(self, key):
+        """Get the value associated with an integer key, if any."""
+        return self._neg[-key] if key < 0 else self._pos[key]
+
+    def __setitem__(self, key, value):
+        """Associate a value (can't be None) with an integer key."""
+        if key < 0:
+            self._neg[-key] = value
+        else:
+            self._pos[key] = value
+
+
 # !!FIXME: When removing implementation bodies:
 #
 #   (1) Change the upper right (feature row, int column) cell to read "???".
@@ -1339,9 +1417,42 @@ def two_sum_int(numbers, total, *, b=2):
 
     You can optionally try changing the default value of b to tune performance.
 
-    FIXME: Needs tests.
+    >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
+    ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
+    >>> two_sum_int(a, 2) in ((7, 10), (8, 23), (9, 16), (15, 24))
+    True
+    >>> two_sum_int(a, 5) in ((7, 23), (9, 19))
+    True
+    >>> two_sum_int(a, -76)
+    (5, 13)
+    >>> two_sum_int(a, 8)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to 8
+    >>> two_sum_int([5, 6, 5], 10)
+    (0, 2)
+
+    >>> import random
+    >>> r = random.Random(7278875518357631735)
+    >>> b = [r.randrange(-2**40, 2**40) for _ in range(10**6)]
+    >>> two_sum_int(b, -63824289)
+    (541756, 673938)
+    >>> two_sum_int(b, -63824288)
+    Traceback (most recent call last):
+      ...
+    ValueError: no two numbers sum to -63824288
     """
-    # FIXME: Needs implementation.
+    history = _BiTrie(b)
+
+    for right, value in enumerate(numbers):
+        try:
+            left = history[total - value]
+        except KeyError:
+            history[value] = right
+        else:
+            return left, right
+
+    _two_fail(total)
 
 
 def has_subset_sum_slow(numbers, total):
