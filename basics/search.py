@@ -1305,15 +1305,15 @@ def two_sum_int(numbers, total, *, b=2):
     it's relevant even for numbers that fit in a machine word. Yet, like most
     others, this should do okay even with larger numbers. Consider this table:
 
-    |          | slow          | fast         | sorted     | nohash           | int_narrow     | int                      |
-    |----------|---------------|--------------|------------|------------------|----------------|--------------------------|
-    | feature  | (none)        | hash, -      | <, >       | <, >             | <=, -          | //, %, -                 |
-    | algo/ds  | (none)        | dict         | (none)     | sorted           | list           | (custom)                 |
-    | branches | 2             | O(n)         | 2          | 2                | m              | b                        |
-    | time     | O(n**2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n (b + log M) log_b M) |
-    | ~ time   | O(n**2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n b log_b M)           |
-    | space    | O(log M)      | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n b log_b M + log M)   |
-    | ~ space  | O(1)          | O(n)         | O(1)       | O(n)             | O(m)           | O(n b log_b M)           |
+    |         | slow         | fast         | sorted     | nohash           | int_narrow     | int                      |
+    |---------|--------------|--------------|------------|------------------|----------------|--------------------------|
+    | feature | (none)       | hash, -      | <, >       | <, >             | <=, -          | //, %, -                 |
+    | algo/ds | (none)       | dict         | (none)     | sorted           | list           | (custom)                 |
+    | branch  | 2            | O(n)         | 2          | 2                | m              | b                        |
+    | time    | O(n^2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n (b + log M) log_b M) |
+    | ~ time  | O(n^2)       | O(n)         | O(n)       | O(n log n)       | O(m + n)       | O(n b log_b M)           |
+    | space   | O(log M)     | O(n + log M) | O(1)       | O(n)             | O(m + log M)   | O(n b log_b M + log M)   |
+    | ~ space | O(1)         | O(n)         | O(1)       | O(n)             | O(m)           | O(n b log_b M)           |
 
     In the table, M is the maximum magnitude of any value in numbers or total.
     But when total and most numbers are smaller than M, all implementations are
