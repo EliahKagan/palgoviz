@@ -1266,10 +1266,12 @@ def two_sum_int(numbers, total, *, b=2):
 
     This involves substantial logic not used by other 2-sum functions. It does
     not use hashing or order comparisons, nor does it simulate those operations
-    in terms of others. Use of other operations is otherwise unrestricted.
+    in terms of others. Use of other operations is otherwise unrestricted. Like
+    two_sum_fast, this needs only a single left-to-right pass through numbers,
+    and after two numbers that add to total are found, iteration stops.
 
     This function's asymptotic time complexity depends on the magnitudes of the
-    numbers in its input. All the other 2-sum functions do too, but here it's
+    numbers in its input. All the other 2-sum functions' do too, but here it's
     relevant even for numbers that fit in a machine word. Yet this performs
     reasonably well even with larger numbers. Consider this table:
 
