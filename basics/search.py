@@ -1244,7 +1244,7 @@ def two_sum_int_narrow(numbers, total):
 # conceptually central to the technique. I don't know how to allow that while
 # still making clear that techniques as in two_sum_nohash are not allowed.
 # (They may not meet asymptotic upper-bound time complexities in the table
-# here, I still don't want to send people that far down the wrong road..)
+# here, I still don't want to send people that far down the wrong road.)
 #
 # !!FIXME: The table here gives excessive spoilers for previous exercises. It
 # should be possible to skim later exercises without being deluged with likely
@@ -1255,6 +1255,10 @@ def two_sum_int_narrow(numbers, total):
 # subsequent problem set. (If it comes to that, two_sum_int_narrow should go
 # with it for continuity, and most of the "conventions and simplifications"
 # list in the module docstring might be deferred to that future point, too.)
+#
+# !!FIXME: When removing implementation bodies, replace the contents of the
+# upper-right table cell (feature row, int column) with "???". That's to avoid
+# spoiling the solution to THIS exercise, and separate from the above concerns.
 def two_sum_int(numbers, total, *, b=2):
     """
     Find indices of two integers that sum to total, by making b-way choices.
