@@ -1351,32 +1351,26 @@ class _BiTrie:
             self._pos[key] = value
 
 
-# !!FIXME: When removing implementation bodies:
-#
-#   (1) Change the upper right (feature row, int column) cell to read "???".
-#
-#   (2) Add a fixme to fill that in as part of the exercise. Commit.
-#
-#   (3) In a separate commit, replace the table (and that fixme) with a fixme
-#       saying, after all above exercises are done, to revert a tagged commit
-#       to get a table of various 2-sum details like algorithmic complexities.
-#
-#   (4) Tag that removal commit with the tag named in the text it introduced.
-#
+# !!FIXME: When removing implementation bodies, replace the table with a fixme
+# saying the table has spoilers and what tag name to revert to get it. Commit
+# the replacement by itself and tag the commit, naming the tag accordingly.
 def two_sum_int(numbers, total, *, b=2):
     """
     Find indices of two integers that sum to total, by making b-way choices.
 
     Elements of numbers, and the total, are ints. The "branching ratio" b is an
     int and at least 2 (since a 1-way choice is not a choice). When b is small
-    (say, under 50), this is a fairly efficient way to solve the problem,
-    though two_sum_fast and two_sum_nohash are usually faster.
+    (say, under 50), this is a practical even on many and/or big numbers, but
+    slower in practice than two_sum_fast or two_sum_nohash. (With any b, this
+    may still make some 2-way choices: if-statements and loops are permitted.)
 
     This involves substantial logic not used by other 2-sum functions. It does
-    not use hashing, nor order comparisons except as allowed below, nor does it
-    simulate those operations in terms of others. Like two_sum_fast, this needs
-    just one left-to-right pass through numbers, and after two numbers that add
-    to total are found, iteration through numbers can stop.
+    not use hashing. It does not use order comparisons, except it may use them
+    to generalize a solution for when all(0 <= x <= total for x in numbers) to
+    work with arbitrary integers. It doesn't work around these restrictions by
+    simulating hashing or order comparisons in terms of other operations. Like
+    two_sum_fast, this needs just one left-to-right pass through numbers, and
+    after two numbers that add to total are found, iteration need not continue.
 
     This function's performance characteristics depend on the magnitudes of the
     numbers in its input. While true of all the other 2-sum functions too, here
@@ -1385,7 +1379,7 @@ def two_sum_int(numbers, total, *, b=2):
 
     |         | slow         | fast         | sorted     | nohash           | int_narrow     | int                      |
     |---------|--------------|--------------|------------|------------------|----------------|--------------------------|
-    | feature | (none)       | hash, -      | <, >       | <, >             | <=, -          | //, %, -                 |
+    | ops.    | (none)       | hash, -      | <, >       | <, >             | <=, -          | [FIXME: Fill this in.]   |
     | algo/ds | (none)       | dict         | (none)     | sorted           | list           | (custom)                 |
     | branch  | 2            | O(n)         | 2          | 2                | m              | b                        |
     | time    | O(n^2 log M) | O(n log M)   | O(n log M) | O(n log n log M) | O(m + n log M) | O(n (b + log M) log_b M) |
@@ -1394,28 +1388,20 @@ def two_sum_int(numbers, total, *, b=2):
     | ~ space | O(1)         | O(n)         | O(1)       | O(n)             | O(m)           | O(n b log_b M)           |
 
     In the table, M is the maximum magnitude of any value in numbers or total.
-    But when total and most numbers are smaller than M, all implementations are
-    faster than shown. Indexing and index arithmetic are taken to be O(1) even
-    when n is large. Where hashing is used, good hash distribution is assumed,
-    and times that hold with high probability are given. "~" rows give time and
-    space when values fit in machine words. Reported space is auxiliary space.
-    With big integers, arithmetic operations take O(log M) time and space, and
-    comparisons take O(log M) time and are assumed to take O(1) space. Language
-    features are only listed if they help distinguish the approaches. The most
-    shared operations (==, !=, len, subscripting, iteration) are not listed.
+    If total and most numbers are smaller than M, all functions are faster than
+    shown. Indexing and index arithmetic are taken to be O(1) for any n. With
+    hashing, good hash distribution is assumed, and times hold with high
+    probability. Space is auxiliary (not total). "~" time/space are when values
+    fit in machine words. Otherwise, arithmetic takes O(log M) time and space,
+    and comparisons take O(log M) time and are assumed to take O(1) space. The
+    "ops." row only lists operations useful to distinguish the approaches.
 
-    FIXME: The table is based on solutions I wrote to test the exercises, not
-    on your solutions, and I may have made mistakes. It must be closely checked
-    to ensure every claim it makes is correct and applies to the existing code,
-    preferably before implementing this. (Thinking about the table may help in
-    designing the algorithm to use here.) This can be done collaboratively.
+    FIXME: This table may have errors and is based on my solutions. Closely
+    check all its claims about previous 2-sum implementations. That can be done
+    collaboratively. I think the table will help in designing this algorithm.
 
-    The exception to the above restriction on using order comparisons is that,
-    if you can solve this for nonnegative integers, it is okay to convert that
-    solution into one for all integers by checking if values are negative and
-    handling them differently, while keeping conceptually the same algorithm.
-
-    You can optionally try changing the default value of b to tune performance.
+    FIXME: Once this returns correct results, optimize your code to make it
+    faster. One avenue of optimization is to tune the default value of b.
 
     >>> a = (-79, -48, -96, -22, -11, -27, -34, 40, 37, 18, -38, -76, -6, -49,
     ...      -74, -69, -16, 72, 9, -13, 4, -24, -95, -35, 71)
@@ -1453,6 +1439,15 @@ def two_sum_int(numbers, total, *, b=2):
             return left, right
 
     _two_fail(total)
+
+
+# FIXME: The algorithm in two_sum_int tends to be slower than the algorithms in
+# two_sum_fast and two_sum_nohash for reasons other than asymptotic time
+# complexity, mainly due to its poor cache locality, but also inefficiencies of
+# expressing it in Python. So if it were accidentally implemented wrong and ran
+# moderately slower for that reason, you might not know. Augment the above code
+# to support visualization, then visualize a run of two_sum_int (or the effect
+# of such a run) on a small input.
 
 
 def has_subset_sum_slow(numbers, total):
