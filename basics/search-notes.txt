@@ -17,9 +17,12 @@ search.two_sum_slow
 search.two_sum_fast
 search.two_sum_sorted
 search.two_sum_nohash
+search.two_sum_int_narrow
+search.two_sum_int
 search.has_subset_sum_slow
 search.has_subset_sum
 search.has_subset_sum_alt
+search.has_subset_sum_alt major subexercise
 search.count_coin_change_slow
 search.count_coin_change
 search.count_coin_change_alt
