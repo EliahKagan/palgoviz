@@ -806,15 +806,6 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
     return hi
 
 
-# FIXME: (A) If the function first_satisfying_restricted used from the bisect
-# module was neither bisect.bisect_left nor bisect.bisect_right/bisect.bisect,
-# then reimplement that function here (without the ssize_t restriction). You
-# can call other functions in this module, but not any of the first_satisfying
-# functions, nor anything that directly or indirectly calls them. Write a few
-# tests (of any kind) of your new function, at least one of which must show
-# that injecting it as first_satisfying_restricted's bisector dependency avoids
-# OverflowError. (B) But if it was one of those, just remove this comment.
-
 # NOTE: Having done all the above exercises, do the module docstring TODO.
 
 
