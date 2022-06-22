@@ -1371,10 +1371,10 @@ def two_sum_int(numbers, total, *, b=16):
     Find indices of two integers that sum to total, by making b-way choices.
 
     Elements of numbers, and the total, are ints. The "branching ratio" b is an
-    int and at least 2 (since a 1-way choice is not a choice). When b is small
-    (say, under 50), this is a practical even on many and/or big numbers, but
-    slower in practice than two_sum_fast or two_sum_nohash. (With any b, this
-    may still make some 2-way choices: if-statements and loops are permitted.)
+    int and at least 2 (a 1-way choice is not a choice). When b is small (say,
+    under 50), this is usable even on many and/or big numbers, but slower in
+    practice than two_sum_fast or two_sum_nohash. (With any b, this may also
+    make some 2-way choices: if-statements and loops are permitted as usual.)
 
     This involves substantial logic not used by other 2-sum functions. It does
     not use hashing. It does not use order comparisons, except it may use them
