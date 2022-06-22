@@ -1363,10 +1363,10 @@ class _BiTrie:
             self._pos[key] = value
 
 
-# !!FIXME: When removing implementation bodies, replace the table with a fixme
-# saying the table has spoilers and what tag name to revert to get it. Commit
-# the replacement by itself and tag the commit, naming the tag accordingly.
-def two_sum_int(numbers, total, *, b=2):
+# !!FIXME: When removing implementation bodies: (A) Put back b=2. (B) Replace
+# the table with a fixme saying the table has spoilers and what tag name to
+# revert to get it. Commit the replacement by itself. Tag the commit thusly.
+def two_sum_int(numbers, total, *, b=16):
     """
     Find indices of two integers that sum to total, by making b-way choices.
 
