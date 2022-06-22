@@ -891,8 +891,8 @@ def two_sum_slow_alt(numbers, total):
     _two_fail(total)
 
 
-
-def two_sum_fast(numbers, total):
+# !!FIXME: When removing implementation bodies, drop the mapping_factory param.
+def two_sum_fast(numbers, total, *, mapping_factory=dict):
     """
     Find indices of two numbers that sum to total. Minimize running time.
 
@@ -927,7 +927,7 @@ def two_sum_fast(numbers, total):
       ...
     ValueError: no two numbers sum to -63824288
     """
-    history = {}
+    history = mapping_factory()
 
     for right, value in enumerate(numbers):
         try:
@@ -1058,7 +1058,8 @@ def _normalize_index_pair(left, right):
     return (right, left) if right < left else (left, right)
 
 
-def two_sum_nohash(numbers, total):
+# !!FIXME: When removing implementation bodies, drop the sort_function param.
+def two_sum_nohash(numbers, total, *, sort_function=sorted):
     """
     Find indices of two numbers that sum to total, without hashing.
 
@@ -1095,14 +1096,14 @@ def two_sum_nohash(numbers, total):
       ...
     ValueError: no two numbers sum to -63824288
     """
-    indices = sorted(range(len(numbers)), key=numbers.__getitem__)
+    indices = sort_function(range(len(numbers)), key=numbers.__getitem__)
     left, right = _two_sum_sorted_keyed(indices, total, numbers.__getitem__)
     return _normalize_index_pair(indices[left], indices[right])
 
 
 # !!FIXME: When removing implementation bodies, remove this entirely rather
 # than making it an exercise. Tag the removal commit for possible revert later.
-def two_sum_nohash_alt(numbers, total):
+def two_sum_nohash_alt(numbers, total, *, sort_function=sorted):
     """
     Find indices of two numbers that sum to total, without hashing.
 
@@ -1136,7 +1137,7 @@ def two_sum_nohash_alt(numbers, total):
       ...
     ValueError: no two numbers sum to -63824288
     """
-    decorated = sorted(enumerate(numbers), key=operator.itemgetter(1))
+    decorated = sort_function(enumerate(numbers), key=operator.itemgetter(1))
 
     left = 0
     right = len(decorated) - 1
@@ -1158,7 +1159,7 @@ def two_sum_nohash_alt(numbers, total):
 
 # !!FIXME: When removing implementation bodies, remove this entirely rather
 # than making it an exercise. Tag the removal commit for possible revert later.
-def two_sum_nohash_alt2(numbers: list, total):
+def two_sum_nohash_alt2(numbers, total, *, sort_function=sorted):
     """
     Find indices of two numbers that sum to total, without hashing.
 
@@ -1194,7 +1195,7 @@ def two_sum_nohash_alt2(numbers: list, total):
       ...
     ValueError: no two numbers sum to -63824288
     """
-    sorted_numbers = sorted(numbers)
+    sorted_numbers = sort_function(numbers)
     left, right = two_sum_sorted_alt(sorted_numbers, total)
     left_value = sorted_numbers[left]
     right_value = sorted_numbers[right]
@@ -1209,6 +1210,17 @@ def two_sum_nohash_alt2(numbers: list, total):
 # to one or more nonpublic module-level functions. (Ensure tests still pass.)
 # If this is better, keep it. Otherwise, revert it, and briefly state in one or
 # more functions' docstrings why you're retaining duplicate or similar logic.
+
+# FIXME: Some of two_sum_slow, two_sum_fast, two_sum_sorted, and two_sum_nohash
+# may use an algorithm or data structure you've implemented something similar
+# to (with the same asymptotic worst-case time complexity) in this project, or
+# intend to add in the future. There may be more than one such algorithm or
+# data structure. But each of your 2-sum functions involves at most one. Modify
+# the signature of each such 2-sum function to use dependency injection, so the
+# caller may specify an implementation. When the caller does not, the standard
+# library implementation should still be used (and all tests continue to pass).
+# Where feasible, add tests with the implementation from this project. When
+# that is not feasible, comment (near where you'd add them) to explain why not.
 
 
 def two_sum_int_narrow(numbers, total):
@@ -1428,17 +1440,7 @@ def two_sum_int(numbers, total, *, b=2):
       ...
     ValueError: no two numbers sum to -63824288
     """
-    history = _BiTrie(b)
-
-    for right, value in enumerate(numbers):
-        try:
-            left = history[total - value]
-        except KeyError:
-            history[value] = right
-        else:
-            return left, right
-
-    _two_fail(total)
+    return two_sum_fast(numbers, total, mapping_factory=lambda: _BiTrie(b))
 
 
 # FIXME: The algorithm in two_sum_int tends to be slower than the algorithms in
