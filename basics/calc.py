@@ -1,6 +1,45 @@
 #!/usr/bin/env python
 
-"""Calculator."""
+"""
+Calculator and expression trees.
+
+The postfix_calculate function directly evaluates an arithmetic expression in
+postfix notation. Other functions work with expression trees: building,
+evaluating, simplifying, serializing (into postfix notation), and drawing.
+
+Comparing the implementations of postfix_calculate and postfix_parse reveals
+the (perhaps surprising) similarity between evaluating a postfix expression and
+transforming it into an expression tree.
+
+Both serialization implementations (the postfix_serialize methods taken
+together, and the alternative postfix_serialize_fast function) reveal the
+connection between postfix notation and [FIXME: what kind of?] traversal.
+
+Simplification builds a tree where evaluable branches are contracted to atoms:
+
+>>> Compound('*', Compound('-', Atom(3), Atom(6)), Atom(2.25)).simplify()
+Atom(-6.75)
+>>> _.simplify() is _  # Atoms always simplify to the same object.
+True
+
+>>> postfix_parse('4 .25 + 1 2 / 3 ? -')  # doctest: +NORMALIZE_WHITESPACE
+Compound('-', Compound('+', Atom(4.0), Atom(0.25)),
+              Compound('?', Compound('/', Atom(1.0), Atom(2.0)), Atom(3.0)))
+>>> _.simplify()
+Compound('-', Atom(4.25), Compound('?', Atom(0.5), Atom(3.0)))
+>>> _.simplify() is _  #  Irreducible Compounds simplify to the same object.
+True
+
+Simplification doesn't (currently) know algebraic rules for any operators:
+
+>>> postfix_parse('1 2 + 3 4 @ + 5 6 + +')  # doctest: +NORMALIZE_WHITESPACE
+Compound('+', Compound('+', Compound('+', Atom(1.0), Atom(2.0)),
+                            Compound('@', Atom(3.0), Atom(4.0))),
+              Compound('+', Atom(5.0), Atom(6.0)))
+>>> _.simplify()  # doctest: +NORMALIZE_WHITESPACE
+Compound('+', Compound('+', Atom(3.0), Compound('@', Atom(3.0), Atom(4.0))),
+              Atom(11.0))
+"""
 
 import itertools
 import operator
@@ -47,7 +86,7 @@ def postfix_calculate(expression):
     return operands.pop()
 
 
-class Result:
+class Atom:
     """A leaf node in a binary expression tree."""
 
     __slots__ = ('_value',)
@@ -78,7 +117,7 @@ class Result:
         return self
 
 
-class Operation:
+class Compound:
     """An internal node in a binary expression tree."""
 
     __slots__ = ('_symbol', '_left', '_right')
@@ -123,12 +162,12 @@ class Operation:
         left = self.left.simplify()
         right = self.right.simplify()
         match _OPERATORS, left, right:
-            case {self.symbol: op}, Result(left_value), Result(right_value):
-                return Result(op(left_value, right_value))
+            case {self.symbol: op}, Atom(left_value), Atom(right_value):
+                return Atom(op(left_value, right_value))
             case _, self.left, self.right:
                 return self
             case _, _, _:
-                return Operation(self.symbol, left, right)
+                return Compound(self.symbol, left, right)
 
 
 def postfix_parse(expression):
@@ -154,11 +193,11 @@ def postfix_parse(expression):
 
     for token in expression.split():
         try:
-            operands.append(Result(float(token)))
+            operands.append(Atom(float(token)))
         except ValueError:
             right = operands.pop()
             left = operands.pop()
-            operands.append(Operation(token, left, right))
+            operands.append(Compound(token, left, right))
 
     return operands.pop()
 
@@ -180,9 +219,9 @@ def postfix_serialize_fast(root):
 
     def postorder(node):
         match node:
-            case Result(value):
+            case Atom(value):
                 tokens.append(str(value).removesuffix('.0'))
-            case Operation(symbol, left, right):
+            case Compound(symbol, left, right):
                 postorder(left)
                 postorder(right)
                 tokens.append(symbol)
@@ -203,10 +242,10 @@ def draw(root):
 
     def draw_branch(node):
         match node:
-            case Result(value):
+            case Atom(value):
                 name = next(names)
                 graph.node(name, str(value), fillcolor='lightgreen')
-            case Operation(symbol, left, right):
+            case Compound(symbol, left, right):
                 left_name = draw_branch(left)
                 right_name = draw_branch(right)
                 name = next(names)
@@ -215,7 +254,7 @@ def draw(root):
                 graph.edge(name, left_name)
                 graph.edge(name, right_name)
             case _:
-                raise TypeError(f'node must be Result or Operation, not '
+                raise TypeError(f'node must be Atom or Compound, not '
                                 + type(node).__name__)
 
         return name
