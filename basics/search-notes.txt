@@ -13,6 +13,7 @@ search.my_bisect_left_recursive
 search.my_bisect_left_iterative
 search.my_bisect_right_recursive
 search.my_bisect_right_iterative
+search.make_insort (should make my_insort_left and my_insort_right tests pass)
 search.two_sum_slow
 search.two_sum_fast
 search.two_sum_sorted

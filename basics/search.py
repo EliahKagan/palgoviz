@@ -806,7 +806,104 @@ def my_bisect_right_iterative(values, x, lo=0, hi=None, *,
     return hi
 
 
-# NOTE: Having done all the above exercises, do the module docstring TODO.
+# !!FIXME: When removing implementation bodies, use "return lambda: None" here.
+def make_insort(bisector):
+    """
+    Synthesize a left/right insort function from a left/right bisect function.
+
+    This takes a function like bisect.bisect_left or bisect.bisect_right, but
+    supporting "reverse", and returns a function like bisect.insort_left or
+    bisect.insort_right, respectively, also with "reverse" support.
+
+    The my_insort_left and my_insort_right functions (below) are made this way.
+
+    >>> def fake_bisect_right(values, x, lo=0, hi=None, *,
+    ...                       key=None, reverse: bool = False):
+    ...     if reverse: raise NotImplementedError('reverse support is fake')
+    ...     return bisect.bisect_right(values, x, lo, hi, key=key)
+    >>> f = make_insort(fake_bisect_right)
+    >>> f.__name__, f.__qualname__, f.__module__,  f.__doc__, f.__annotations__
+    ('fake_insort_right', 'fake_insort_right', 'search', None, {})
+    >>> a = []
+    >>> for x in 52, 92, 45, 4, 61, 65, 39, 97, 20, 26, 50, 5, 76, 34: f(a, x)
+    >>> a
+    [4, 5, 20, 26, 34, 39, 45, 50, 52, 61, 65, 76, 92, 97]
+    >>> b = ['Big Bird']
+    >>> for w in 'owl', 'penguin', 'kiwi', 'macaw', 'nightjar', 'duck', 'emu':
+    ...     f(b, w, 1, key=len)
+    >>> b
+    ['Big Bird', 'owl', 'emu', 'kiwi', 'duck', 'macaw', 'penguin', 'nightjar']
+    """
+    def insorter(values, x, lo=0, hi=None, *, key=None, reverse=False):
+        x_key = x if key is None else key(x)
+        index = bisector(values, x_key, lo, hi, key=key, reverse=reverse)
+        values.insert(index, x)
+
+    insorter.__name__ = bisector.__name__.replace('bisect', 'insort')
+    qualname_parts = bisector.__qualname__.split('.')
+    qualname_parts[-1] = qualname_parts[-1].replace('bisect', 'insort')
+    insorter.__qualname__ = '.'.join(qualname_parts)
+    insorter.__module__ = bisector.__module__
+    return insorter
+
+
+my_insort_left = make_insort(my_bisect_left)
+
+my_insort_left.__doc__ = """
+    Insert x at the leftmost position in values[lo:hi] that keeps it sorted.
+
+    This is like bisect.insort_left, but with "reverse" support. values[lo:hi]
+    is assumed already sorted (with respect to the key and reverse arguments).
+
+    This function was synthesized by make_insort. It calls my_bisect_left.
+
+    >>> a, ar = [], []
+    >>> for x in 52, 92, 45, 4, 61, 65, 39, 97, 20, 26, 50, 5, 76, 34:
+    ...     my_insort_right(a, x); my_insort_right(ar, x, reverse=True)
+    >>> a
+    [4, 5, 20, 26, 34, 39, 45, 50, 52, 61, 65, 76, 92, 97]
+    >>> ar
+    [97, 92, 76, 65, 61, 52, 50, 45, 39, 34, 26, 20, 5, 4]
+    >>> b, br = ['Big Bird'], ['Big Bird']
+    >>> for w in 'owl', 'penguin', 'kiwi', 'macaw', 'nightjar', 'duck', 'emu':
+    ...     my_insort_left(b, w, 1, key=len)
+    ...     my_insort_left(br, w, 1, key=len, reverse=True)
+    >>> b
+    ['Big Bird', 'emu', 'owl', 'duck', 'kiwi', 'macaw', 'penguin', 'nightjar']
+    >>> br
+    ['Big Bird', 'nightjar', 'penguin', 'macaw', 'duck', 'kiwi', 'emu', 'owl']
+    """
+
+
+my_insort_right = make_insort(my_bisect_right)
+
+my_insort_right.__doc__ = """
+    Insert x at the rightmost position in values[lo:hi] that keeps it sorted.
+
+    This is like bisect.insort_right, but with "reverse" support. values[lo:hi]
+    is assumed already sorted (with respect to the key and reverse arguments).
+
+    This function was synthesized by make_insort. It calls my_bisect_right.
+
+    >>> a, ar = [], []
+    >>> for x in 52, 92, 45, 4, 61, 65, 39, 97, 20, 26, 50, 5, 76, 34:
+    ...     my_insort_right(a, x); my_insort_right(ar, x, reverse=True)
+    >>> a
+    [4, 5, 20, 26, 34, 39, 45, 50, 52, 61, 65, 76, 92, 97]
+    >>> ar
+    [97, 92, 76, 65, 61, 52, 50, 45, 39, 34, 26, 20, 5, 4]
+    >>> b, br = ['Big Bird'], ['Big Bird']
+    >>> for w in 'owl', 'penguin', 'kiwi', 'macaw', 'nightjar', 'duck', 'emu':
+    ...     my_insort_right(b, w, 1, key=len)
+    ...     my_insort_right(br, w, 1, key=len, reverse=True)
+    >>> b
+    ['Big Bird', 'owl', 'emu', 'kiwi', 'duck', 'macaw', 'penguin', 'nightjar']
+    >>> br
+    ['Big Bird', 'nightjar', 'penguin', 'macaw', 'kiwi', 'duck', 'owl', 'emu']
+    """
+
+
+# NOTE: Having done the above exercises, do the module docstring TODO.
 
 
 def _two_fail(total, cause=None):
