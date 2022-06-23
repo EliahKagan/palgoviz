@@ -55,12 +55,6 @@ def preorder_ancestors(*leaves, filter=None):
 
     Most or all shared logic between this function and dfs_descendants (below)
     should be written in (or extracted to) a module-level nonpublic function.
-
-    Hint: Even though you're returning vertices and edges as separate lists,
-    you still have to record vertices before traversing upward from them, to
-    ensure ancestors in the traversal (which are descendants in the inheritance
-    graph) appear in the returned results before their descendants in the
-    traversal (which are their ancestors in the inheritance graph).
     """
     nodes = []
     edges = []
@@ -89,12 +83,6 @@ def preorder_descendants(*roots, filter=None):
 
     Most or all shared logic between this function and dfs_ancestors (above)
     should be written in (or extracted to) a module-level nonpublic function.
-
-    Hint: Even though you're returning vertices and edges as separate lists,
-    you still have to record vertices before traversing downward from them, to
-    ensure ancestors in the traversal (which are ancestors in the inheritance
-    graph, too) appear in the returned results before their descendants in the
-    traversal (which are their ancestors in the inheritance graph, too).
     """
     nodes = []
     edges = []
