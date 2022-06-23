@@ -60,14 +60,6 @@ class Result:
     def __repr__(self):
         return f'{type(self).__name__}({self.value!r})'
 
-    def __eq__(self, other):
-        """Check if this and another tree represent the same expression."""
-        match other:
-            case Result(value):
-                return self.value == value
-            case _:
-                return NotImplemented
-
     @property
     def value(self):
         """Compute the value of the expression this tree represents."""
@@ -102,15 +94,6 @@ class Operation:
         return (type(self).__name__
                 + f'({self.symbol!r}, {self.left!r}, {self.right!r})')
 
-    def __eq__(self, other):
-        """Check if this and another tree represent the same expression."""
-        match other:
-            case Operation(symbol, left, right):
-                return (self.symbol == symbol
-                        and self.left == left and self.right == right)
-            case _:
-                return NotImplemented
-
     @property
     def symbol(self):
         return self._symbol
@@ -142,7 +125,7 @@ class Operation:
         match _OPERATORS, left, right:
             case {self.symbol: op}, Result(left_value), Result(right_value):
                 return Result(op(left_value, right_value))
-            case _, self.left, self.right:  # FIXME: If __eq__ is kept, fix this!
+            case _, self.left, self.right:
                 return self
             case _, _, _:
                 return Operation(self.symbol, left, right)
