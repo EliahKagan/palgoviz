@@ -40,18 +40,22 @@ def _preorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
             explore(start)
 
 
-# FIXME: Fix wording. They are not necessarily leaves in the inheritance graph.
-#        Maybe rename leaves to starts, too.
-def preorder_ancestors(*leaves, filter=None):
+def preorder_ancestors(*starts, filter=None):
     """
     Recursive depth-first preorder traversal from derived to base classes.
 
-    Classes passed as leaves are leaves in the inheritance graph to traverse
-    upward in. So they are roots of the traversal itself.
+    starts are the starting vertices. Traversal is depth-first from each. The
+    search recursively goes UP the inheritance graph as far as possible before
+    exploring anywhere else. Neighbors are found by checking vertices' direct
+    base classes, and NEVER by checking derived classes. MROs aren't examined.
 
-    If filter is not None, it is a predicate called on vertices, including
-    those in leaves. If it returns a falsy result on a vertex, neither record
-    nor traverse past that vertex.
+    A list of nodes (vertices) and a list of edges are returned. Both lists are
+    in discovery order. But even though traversal goes derived to base, each
+    edge is a tuple of (base, derived), as in preorder_descendants below.
+
+    If filter is not None, it is a predicate called on each vertex found,
+    including the starting vertices. If it returns false, the vertex is neither
+    emitted nor traversed through. This lets the caller limit the search.
 
     Most or all shared logic between this function and dfs_descendants (below)
     should be written in (or extracted to) a module-level nonpublic function.
@@ -59,7 +63,7 @@ def preorder_ancestors(*leaves, filter=None):
     nodes = []
     edges = []
 
-    _preorder(starts=leaves,
+    _preorder(starts=starts,
               filter=filter,
               get_neighbors=operator.attrgetter('__bases__'),
               observe_node=nodes.append,
@@ -68,18 +72,21 @@ def preorder_ancestors(*leaves, filter=None):
     return nodes, edges
 
 
-# FIXME: Fix wording. They are not necessarily roots in the inheritance graph.
-#        Maybe rename roots to starts, too.
-def preorder_descendants(*roots, filter=None):
+def preorder_descendants(*starts, filter=None):
     """
     Recursive depth-first preorder traversal from base to derived classes.
 
-    Classes passed as roots are roots in the inheritance graph to traverse
-    downward in. So they are, non-confusingly, roots of the traversal itself.
+    starts are the starting vertices. Traversal is depth-first from each. The
+    search recursively goes UP the inheritance tree as far as possible before
+    exploring anywhere else. Neighbors are found by checking vertices' direct
+    derived classes, and NEVER by checking base classes. MROs are not examined.
 
-    If filter is not None, it is a predicate called on vertices, including
-    those in leaves. If it returns a falsy result on a vertex, neither record
-    nor traverse past that vertex.
+    A list of nodes (vertices) and a list of edges are returned. Both lists are
+    in discovery order. Each edge is a tuple of (base, derived).
+
+    If filter is not None, it is a predicate called on each vertex found,
+    including the starting vertices. If it returns false, the vertex is neither
+    emitted nor traversed through. This lets the caller limit the search.
 
     Most or all shared logic between this function and dfs_ancestors (above)
     should be written in (or extracted to) a module-level nonpublic function.
@@ -87,7 +94,7 @@ def preorder_descendants(*roots, filter=None):
     nodes = []
     edges = []
 
-    _preorder(starts=roots,
+    _preorder(starts=starts,
               filter=filter,
               get_neighbors=type.__subclasses__,
               observe_node=nodes.append,
