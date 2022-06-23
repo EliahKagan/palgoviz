@@ -138,7 +138,7 @@ def postorder_descendants(*starts, filter=None):
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in the order the traversal RETREATS from them. This is different from the
-    order preorder_ancestors emits them, and not usually the reverse (see
+    order preorder_ancestors emits them, and not usually its reverse (see
     postorder_ancestors for details). Each edge is (base, derived) tuple.
 
     If filter is not None, it limits the search, as in preorder_ancestors.
