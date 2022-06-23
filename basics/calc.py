@@ -2,7 +2,6 @@
 
 """Calculator."""
 
-import contextlib
 import itertools
 import operator
 
@@ -116,11 +115,13 @@ class Operation:
     def simplify(self):
         left = self.left.simplify()
         right = self.right.simplify()
-        with contextlib.suppress(AttributeError, KeyError):  # FIXME: Refactor.
-            return Result(_OPERATORS[self.symbol](left.value, right.value))
-        if left is self.left and right is self.right:
-            return self
-        return Operation(self.symbol, left, right)
+        match _OPERATORS, left, right:
+            case {self.symbol: op}, Result(left_value), Result(right_value):
+                return Result(op(left_value, right_value))
+            case _, self.left, self.right:
+                return self
+            case _, _, _:
+                return Operation(self.symbol, left, right)
 
 
 def parse(expression):
