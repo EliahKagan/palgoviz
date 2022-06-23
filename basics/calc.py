@@ -131,6 +131,17 @@ def parse(expression):
     The expression consists of tokens separated by whitespace, where each token
     either can be interpreted as a floating-point number or an operator symbol.
     Even if the operator symbol is unrecognized, build the tree with it.
+
+    >>> parse('3').evaluate()
+    3.0
+    >>> parse('3 4 +').evaluate()
+    7.0
+    >>> parse('1 3 + 2 7 - /').evaluate()
+    -0.8
+    >>> parse('1 3 2 / + 7 -').evaluate()
+    -4.5
+    >>> round(parse('3 2.2 * 1 + 1 2 / -').evaluate(), 10)
+    7.1
     """
     operands = []
 
