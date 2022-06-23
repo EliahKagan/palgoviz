@@ -5,6 +5,8 @@ Object graphs, also called reference graphs, are graphs with vertices for
 objects and directed edges for references.
 
 See also: the objgraph PyPI package.
+
+For class inheritance graph drawing, see class_graph.py.
 """
 
 import html
