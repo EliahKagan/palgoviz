@@ -1373,8 +1373,8 @@ def two_sum_int_narrow(numbers, total):
     _two_fail(total)
 
 
-class _Node:
-    """Node in a base-b digit trie (prefix tree). Helper for _Trie."""
+class _IntTrieNode:
+    """Base-b digit trie (prefix or suffix tree) node. Helper for _IntTrie."""
 
     __slots__ = ('children', 'value')
 
@@ -1383,7 +1383,7 @@ class _Node:
         self.value = None
 
 
-class _Trie:
+class _IntTrie:
     """Special-purpose base-b digit trie (prefix tree), for two_sum_int."""
 
     __slots__ = ('_b', '_root')
@@ -1391,11 +1391,11 @@ class _Trie:
     def __init__(self, b):
         """Create an initially empty trie."""
         self._b = b
-        self._root = _Node(b)
+        self._root = _IntTrieNode(b)
 
     def __getitem__(self, key):
         """Get the value associated with a nonnegative integer key, if any."""
-        assert key >= 0, 'Negative key accidentally used as _Trie subscript.'
+        assert key >= 0, 'Internal error: Negative _IntTrie subscript.'
 
         suffix = key
         node = self._root
@@ -1412,7 +1412,7 @@ class _Trie:
 
     def __setitem__(self, key, value):
         """Associate a value (can't be None) with a nonnegative integer key."""
-        assert key >= 0, 'Negative key accidentally used as _Trie subscript.'
+        assert key >= 0, 'Internal error: Negative _IntTrie subscript.'
 
         suffix = key
         node = self._root
@@ -1422,13 +1422,13 @@ class _Trie:
             suffix, index = divmod(suffix, b)
             child = node.children[index]
             if child is None:
-                child = node.children[index] = _Node(b)
+                child = node.children[index] = _IntTrieNode(b)
             node = child
 
         node.value = value
 
 
-class _BiTrie:
+class _IntBiTrie:
     """Special-purpose mapping-like type using two tries, for two_sum_int."""
 
     __slots__ = dict(_pos='Trie whose keys are positive numbers and zero.',
@@ -1436,8 +1436,8 @@ class _BiTrie:
 
     def __init__(self, b):
         """Create an initially empty mapping based on a pair of tries."""
-        self._pos = _Trie(b)
-        self._neg = _Trie(b)
+        self._pos = _IntTrie(b)
+        self._neg = _IntTrie(b)
 
     def __getitem__(self, key):
         """Get the value associated with an integer key, if any."""
@@ -1528,7 +1528,7 @@ def two_sum_int(numbers, total, *, b=16):
       ...
     ValueError: no two numbers sum to -63824288
     """
-    return two_sum_fast(numbers, total, mapping_factory=lambda: _BiTrie(b))
+    return two_sum_fast(numbers, total, mapping_factory=lambda: _IntBiTrie(b))
 
 
 # FIXME: The algorithm in two_sum_int tends to be slower than the algorithms in
