@@ -57,9 +57,12 @@ Documentation within this module uses these conventions and simplifications:
 import bisect
 import contextlib
 import functools
+import html
 import itertools
 import math
 import operator
+
+import graphviz
 
 
 def _identity_function(arg):
@@ -1427,6 +1430,31 @@ class _IntTrie:
 
         node.value = value
 
+    def draw(self, format_spec='', *, root_label='', graph=None):
+        """Draw this trie as a Graphviz graph (or into an existing one)."""
+        if graph is None:
+            graph = graphviz.Digraph()
+            graph.node_attr['shape'] = 'circle'
+
+        def draw_node(node, name, label):
+            fillcolor = ('white' if node.value is None else 'lightgreen')
+            graph.node(name, label, style='filled', fillcolor=fillcolor)
+
+        def draw_below(parent, parent_name):
+            for digit, child in enumerate(parent.children):
+                if child is None:
+                    continue
+                child_label = html.escape(format(digit, format_spec))
+                child_name = f'{parent_name},{child_label}'
+                draw_node(child, child_name, child_label)
+                graph.edge(parent_name, child_name)
+                draw_below(child, child_name)
+
+        escaped_root_label = html.escape(root_label)
+        draw_node(self._root, escaped_root_label, escaped_root_label)
+        draw_below(self._root, escaped_root_label)
+        return graph
+
 
 class _IntBiTrie:
     """Special-purpose mapping-like type using two tries, for two_sum_int."""
@@ -1449,6 +1477,12 @@ class _IntBiTrie:
             self._neg[-key] = value
         else:
             self._pos[key] = value
+
+    def draw(self, format_spec=''):
+        """Draw both tries together as a Graphviz graph."""
+        graph = self._pos.draw(format_spec, root_label='+')
+        self._neg.draw(format_spec, root_label='\N{MINUS SIGN}', graph=graph)
+        return graph
 
 
 # !!FIXME: When removing implementation bodies: (A) Put back b=2. (B) Replace
