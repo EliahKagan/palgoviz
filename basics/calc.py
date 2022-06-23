@@ -4,8 +4,8 @@
 Calculator and expression trees.
 
 The postfix_calculate function directly evaluates an arithmetic expression in
-postfix notation. Other functions work with expression trees: building,
-evaluating, simplifying, serializing (into postfix notation), and drawing.
+postfix notation. The other code here works with expression trees: building,
+evaluating, simplifying, serializing (to postfix notation), and drawing.
 
 Comparing the implementations of postfix_calculate and postfix_parse reveals
 the (perhaps surprising) similarity between evaluating a postfix expression and
@@ -57,8 +57,8 @@ def postfix_calculate(expression):
     Simplify a well-formed postfix arithmetic expression, returning a float.
 
     The expression consists of tokens separated by whitespace, where each token
-    either can be interpreted as a floating-point number or is one of the
-    symbols "+", "-", "*", or "/", denoting a binary arithmetic operation.
+    can be interpreted as a floating-point number or is one of the symbols "+",
+    "-", "*", or "/", denoting a binary arithmetic operation.
 
     In postfix notation, operands precede the operator that operates on them.
 
@@ -175,7 +175,7 @@ def postfix_parse(expression):
     Convert a well-formed postfix expression to a binary expression tree.
 
     The expression consists of tokens separated by whitespace, where each token
-    either can be interpreted as a floating-point number or an operator symbol.
+    can be interpreted as a floating-point number or is an operator symbol.
     Even if the operator symbol is unrecognized, build the tree with it.
 
     >>> postfix_parse('3').evaluate()
