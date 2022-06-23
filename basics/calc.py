@@ -60,17 +60,29 @@ class Result:
     def __repr__(self):
         return f'{type(self).__name__}({self.value!r})'
 
+    def __eq__(self, other):
+        """Check if this and another tree represent the same expression."""
+        match other:
+            case Result(value):
+                return self.value == value
+            case _:
+                return NotImplemented
+
     @property
     def value(self):
+        """Compute the value of the expression this tree represents."""
         return self._value
 
     def evaluate(self):
+        """Compute the value of the expression this tree represents."""
         return self.value
 
-    def serialize(self):
-        return str(self.value)
+    def postfix_serialize(self):
+        """Convert this expression tree to a postfix expression."""
+        return str(self.value).removesuffix('.0')
 
     def simplify(self):
+        """Build a copy with evaluable subtrees contracted to their results."""
         return self
 
 
@@ -90,6 +102,15 @@ class Operation:
         return (type(self).__name__
                 + f'({self.symbol!r}, {self.left!r}, {self.right!r})')
 
+    def __eq__(self, other):
+        """Check if this and another tree represent the same expression."""
+        match other:
+            case Operation(symbol, left, right):
+                return (self.symbol == symbol
+                        and self.left == left and self.right == right)
+            case _:
+                return NotImplemented
+
     @property
     def symbol(self):
         return self._symbol
@@ -103,28 +124,31 @@ class Operation:
         return self._right
 
     def evaluate(self):
+        """Compute the value of the expression this tree represents."""
         left_value = self.left.evaluate()
         right_value = self.right.evaluate()
         return _OPERATORS[self.symbol](left_value, right_value)
 
-    def serialize(self):
-        left_text = self.left.serialize()
-        right_text = self.right.serialize()
+    def postfix_serialize(self):
+        """Convert this expression tree to a postfix expression."""
+        left_text = self.left.postfix_serialize()
+        right_text = self.right.postfix_serialize()
         return f'{left_text} {right_text} {self.symbol}'
 
     def simplify(self):
+        """Build a copy with evaluable subtrees contracted to their results."""
         left = self.left.simplify()
         right = self.right.simplify()
         match _OPERATORS, left, right:
             case {self.symbol: op}, Result(left_value), Result(right_value):
                 return Result(op(left_value, right_value))
-            case _, self.left, self.right:
+            case _, self.left, self.right:  # FIXME: If __eq__ is kept, fix this!
                 return self
             case _, _, _:
                 return Operation(self.symbol, left, right)
 
 
-def parse(expression):
+def postfix_parse(expression):
     """
     Convert a well-formed postfix expression to a binary expression tree.
 
@@ -132,15 +156,15 @@ def parse(expression):
     either can be interpreted as a floating-point number or an operator symbol.
     Even if the operator symbol is unrecognized, build the tree with it.
 
-    >>> parse('3').evaluate()
+    >>> postfix_parse('3').evaluate()
     3.0
-    >>> parse('3 4 +').evaluate()
+    >>> postfix_parse('3 4 +').evaluate()
     7.0
-    >>> parse('1 3 + 2 7 - /').evaluate()
+    >>> postfix_parse('1 3 + 2 7 - /').evaluate()
     -0.8
-    >>> parse('1 3 2 / + 7 -').evaluate()
+    >>> postfix_parse('1 3 2 / + 7 -').evaluate()
     -4.5
-    >>> round(parse('3 2.2 * 1 + 1 2 / -').evaluate(), 10)
+    >>> round(postfix_parse('3 2.2 * 1 + 1 2 / -').evaluate(), 10)
     7.1
     """
     operands = []
@@ -154,6 +178,34 @@ def parse(expression):
             operands.append(Operation(token, left, right))
 
     return operands.pop()
+
+
+def postfix_serialize_fast(root):
+    """
+    Convert an expression tree to a postfix expression in linear time.
+
+    >>> postfix_serialize_fast(postfix_parse('3'))
+    '3'
+    >>> postfix_serialize_fast(postfix_parse('3 4 +'))
+    '3 4 +'
+    >>> postfix_serialize_fast(postfix_parse('1 3 + 2 7 - /'))
+    '1 3 + 2 7 - /'
+    >>> postfix_serialize_fast(postfix_parse('3 2.2 * 1 + 1 2 / -'))
+    '3 2.2 * 1 + 1 2 / -'
+    """
+    tokens = []
+
+    def postorder(node):
+        match node:
+            case Result(value):
+                tokens.append(str(value).removesuffix('.0'))
+            case Operation(symbol, left, right):
+                postorder(left)
+                postorder(right)
+                tokens.append(symbol)
+
+    postorder(root)
+    return ' '.join(tokens)
 
 
 def draw(root):
