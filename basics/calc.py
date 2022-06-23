@@ -2,7 +2,11 @@
 
 """Calculator."""
 
+import contextlib
+import itertools
 import operator
+
+import graphviz
 
 _OPERATORS = {'+': operator.add,
               '-': operator.sub,
@@ -42,6 +46,135 @@ def postfix_calculate(expression):
             operands.append(_OPERATORS[token](a, b))
 
     return operands.pop()
+
+
+class Result:
+    """A leaf node in a binary expression tree."""
+
+    __slots__ = ('_value',)
+
+    __match_args__ = ('value',)
+
+    def __init__(self, value):
+        self._value = value
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.value!r})'
+
+    @property
+    def value(self):
+        return self._value
+
+    def evaluate(self):
+        return self.value
+
+    def serialize(self):
+        return str(self.value)
+
+    def simplify(self):
+        return self
+
+
+class Operation:
+    """An internal node in a binary expression tree."""
+
+    __slots__ = ('_symbol', '_left', '_right')
+
+    __match_args__ = ('symbol', 'left', 'right')
+
+    def __init__(self, symbol, left, right):
+        self._symbol = symbol
+        self._left = left
+        self._right = right
+
+    def __repr__(self):
+        return (type(self).__name__
+                + f'({self.symbol!r}, {self.left!r}, {self.right!r})')
+
+    @property
+    def symbol(self):
+        return self._symbol
+
+    @property
+    def left(self):
+        return self._left
+
+    @property
+    def right(self):
+        return self._right
+
+    def evaluate(self):
+        left_value = self.left.evaluate()
+        right_value = self.right.evaluate()
+        return _OPERATORS[self.symbol](left_value, right_value)
+
+    def serialize(self):
+        left_text = self.left.serialize()
+        right_text = self.right.serialize()
+        return f'{left_text} {right_text} {self.symbol}'
+
+    def simplify(self):
+        left = self.left.simplify()
+        right = self.right.simplify()
+        with contextlib.suppress(AttributeError, KeyError):  # FIXME: Refactor.
+            return Result(_OPERATORS[self.symbol](left.value, right.value))
+        if left is self.left and right is self.right:
+            return self
+        return Operation(self.symbol, left, right)
+
+
+def parse(expression):
+    """
+    Convert a well-formed postfix expression to a binary expression tree.
+
+    The expression consists of tokens separated by whitespace, where each token
+    either can be interpreted as a floating-point number or an operator symbol.
+    Even if the operator symbol is unrecognized, build the tree with it.
+    """
+    operands = []
+
+    for token in expression.split():
+        try:
+            operands.append(Result(float(token)))
+        except ValueError:
+            right = operands.pop()
+            left = operands.pop()
+            operands.append(Operation(token, left, right))
+
+    return operands.pop()
+
+
+def draw(root):
+    """
+    Draw an expression tree as a Graphviz graph.
+
+    Shade leaves light green and unrecognized operators pink.
+    """
+    graph = graphviz.Digraph()
+    graph.node_attr['style'] = 'filled'
+    names = map(str, itertools.count())
+
+    def draw_branch(node):
+        match node:
+            case Result(value):
+                name = next(names)
+                graph.node(name, str(value), fillcolor='lightgreen')
+            case Operation(symbol, left, right):
+                left_name = draw_branch(left)
+                right_name = draw_branch(right)
+                name = next(names)
+                fillcolor = ('white' if symbol in _OPERATORS else 'pink')
+                graph.node(name, symbol, fillcolor=fillcolor)
+                graph.edge(name, left_name)
+                graph.edge(name, right_name)
+            case _:
+                raise TypeError(f'node must be Result or Operation, not '
+                                + type(node).__name__)
+
+        return name
+
+    draw_branch(root)
+    return graph
 
 
 if __name__ == '__main__':
