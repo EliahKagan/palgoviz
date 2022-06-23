@@ -86,9 +86,7 @@ def preorder_descendants(*starts, filter=None):
     in discovery order: the order the traversal ADVANCES to them. Each edge is
     a (base, derived) tuple.
 
-    If filter is not None, it is a predicate called on each vertex found,
-    including the starting vertices. If it returns false, the vertex is neither
-    emitted nor traversed through. This lets the caller limit the search.
+    If filter is not None, it limits the search, as in preorder_ancestors.
 
     Most or all shared logic between this and preorder_ancestors (above) should
     be written in (or extracted to) a module-level nonpublic function.
@@ -121,9 +119,7 @@ def postorder_ancestors(*starts, filter=None):
     Even though traversal goes derived to base, each edge is (base, derived)
     tuple, as in postorder_descendants below.
 
-    If filter is not None, it is a predicate called on each vertex found,
-    including the starting vertices. If it returns false, the vertex is neither
-    emitted nor traversed through. This lets the caller limit the search.
+    If filter is not None, it limits the search, as in preorder_ancestors.
 
     Most or all shared logic between this and postorder_descendants (below)
     should be written in (or extracted to) a module-level nonpublic function.
@@ -145,9 +141,7 @@ def postorder_descendants(*starts, filter=None):
     order preorder_ancestors emits them, and not usually the reverse (see
     postorder_ancestors for details). Each edge is (base, derived) tuple.
 
-    If filter is not None, it is a predicate called on each vertex found,
-    including the starting vertices. If it returns false, the vertex is neither
-    emitted nor traversed through. This lets the caller limit the search.
+    If filter is not None, it limits the search, as in preorder_ancestors.
 
     Most or all shared logic between this and postorder_ancestors (above)
     should be written in (or extracted to) a module-level nonpublic function.
