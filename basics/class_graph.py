@@ -40,6 +40,9 @@ def _preorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
             explore(start)
 
 
+# FIXME: Write _postorder here. Make the postorder functions call it.
+
+
 def preorder_ancestors(*starts, filter=None):
     """
     Recursive depth-first preorder traversal from derived to base classes.
@@ -147,6 +150,9 @@ def postorder_descendants(*starts, filter=None):
     should be written in (or extracted to) a module-level nonpublic function.
     """
     # FIXME: Needs implementation.
+
+
+# FIXME: Add bfs_ancestors and bfs_descendants.
 
 
 def draw(nodes, edges):
