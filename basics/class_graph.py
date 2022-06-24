@@ -83,6 +83,34 @@ def _bfs(*, starts, node_filter, get_neighbors, observe_node, observe_edge):
                 queue.append(dest)
 
 
+def _traverse_ancestors(search, starts, node_filter):
+    """Do a derived-to-base search with a generalized traversal function."""
+    nodes = []
+    edges = []
+
+    search(starts=starts,
+           node_filter=_get_filter_or_allow_all(node_filter),
+           get_neighbors=operator.attrgetter('__bases__'),
+           observe_node=nodes.append,
+           observe_edge=lambda src, dest: edges.append((dest, src)))
+
+    return nodes, edges
+
+
+def _traverse_descendants(search, starts, node_filter):
+    """Do a base-to-derived search with a generalized traversal function."""
+    nodes = []
+    edges = []
+
+    search(starts=starts,
+           node_filter=_get_filter_or_allow_all(node_filter),
+           get_neighbors=type.__subclasses__,
+           observe_node=nodes.append,
+           observe_edge=lambda src, dest: edges.append((src, dest)))
+
+    return nodes, edges
+
+
 def preorder_ancestors(*starts, node_filter=None):
     """
     Recursive depth-first preorder traversal from derived to base classes.
@@ -105,16 +133,7 @@ def preorder_ancestors(*starts, node_filter=None):
     Most shared logic between this and preorder_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
     """
-    nodes = []
-    edges = []
-
-    _preorder(starts=starts,
-              node_filter=_get_filter_or_allow_all(node_filter),
-              get_neighbors=operator.attrgetter('__bases__'),
-              observe_node=nodes.append,
-              observe_edge=lambda src, dest: edges.append((dest, src)))
-
-    return nodes, edges
+    return _traverse_ancestors(_preorder, starts, node_filter)
 
 
 def preorder_descendants(*starts, node_filter=None):
@@ -135,16 +154,7 @@ def preorder_descendants(*starts, node_filter=None):
     Most shared logic between this and preorder_ancestors (above) should be
     written in (or extracted to) a module-level nonpublic function.
     """
-    nodes = []
-    edges = []
-
-    _preorder(starts=starts,
-              node_filter=_get_filter_or_allow_all(node_filter),
-              get_neighbors=type.__subclasses__,
-              observe_node=nodes.append,
-              observe_edge=lambda src, dest: edges.append((src, dest)))
-
-    return nodes, edges
+    return _traverse_descendants(_preorder, starts, node_filter)
 
 
 def postorder_ancestors(*starts, node_filter=None):
@@ -168,16 +178,7 @@ def postorder_ancestors(*starts, node_filter=None):
     Most shared logic between this and postorder_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
     """
-    nodes = []
-    edges = []
-
-    _postorder(starts=starts,
-               node_filter=_get_filter_or_allow_all(node_filter),
-               get_neighbors=operator.attrgetter('__bases__'),
-               observe_node=nodes.append,
-               observe_edge=lambda src, dest: edges.append((dest, src)))
-
-    return nodes, edges
+    return _traverse_ancestors(_postorder, starts, node_filter)
 
 
 def postorder_descendants(*starts, node_filter=None):
@@ -199,16 +200,7 @@ def postorder_descendants(*starts, node_filter=None):
     Most shared logic between this and postorder_ancestors (above) should be
     written in (or extracted to) a module-level nonpublic function.
     """
-    nodes = []
-    edges = []
-
-    _postorder(starts=starts,
-               node_filter=_get_filter_or_allow_all(node_filter),
-               get_neighbors=type.__subclasses__,
-               observe_node=nodes.append,
-               observe_edge=lambda src, dest: edges.append((src, dest)))
-
-    return nodes, edges
+    return _traverse_descendants(_postorder, starts, node_filter)
 
 
 def bfs_ancestors(*starts, node_filter=None):
@@ -232,16 +224,7 @@ def bfs_ancestors(*starts, node_filter=None):
     Most shared logic between this and bfs_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
     """
-    nodes = []
-    edges = []
-
-    _bfs(starts=starts,
-         node_filter=_get_filter_or_allow_all(node_filter),
-         get_neighbors=operator.attrgetter('__bases__'),
-         observe_node=nodes.append,
-         observe_edge=lambda src, dest: edges.append((dest, src)))
-
-    return nodes, edges
+    return _traverse_ancestors(_bfs, starts, node_filter)
 
 
 def bfs_descendants(*starts, node_filter=None):
@@ -265,16 +248,7 @@ def bfs_descendants(*starts, node_filter=None):
     Most shared logic between this and bfs_ancestors (above) should be written
     in (or extracted to) a module-level nonpublic function.
     """
-    nodes = []
-    edges = []
-
-    _bfs(starts=starts,
-         node_filter=_get_filter_or_allow_all(node_filter),
-         get_neighbors=type.__subclasses__,
-         observe_node=nodes.append,
-         observe_edge=lambda src, dest: edges.append((src, dest)))
-
-    return nodes, edges
+    return _traverse_descendants(_bfs, starts, node_filter)
 
 
 def draw(nodes, edges):
