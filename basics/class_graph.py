@@ -90,7 +90,7 @@ def preorder_ancestors(*starts, node_filter=None):
     starts are the starting vertices. Traversal is depth-first from each. The
     search always recurses UP the inheritance graph as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
-    base classes, and NEVER by checking derived classes. MROs aren't examined.
+    BASE classes, and NEVER by checking derived classes. MROs aren't examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in discovery order: the order the traversal ADVANCES to them. Even though
@@ -102,8 +102,8 @@ def preorder_ancestors(*starts, node_filter=None):
     incident edges are not recorded, and its incident edges are not traversed.
     This lets the caller limit the search.
 
-    Most or all shared logic between this and preorder_descendants (below)
-    should be written in (or extracted to) a module-level nonpublic function.
+    Most shared logic between this and preorder_descendants (below) should be
+    written in (or extracted to) a module-level nonpublic function.
     """
     nodes = []
     edges = []
@@ -124,7 +124,7 @@ def preorder_descendants(*starts, node_filter=None):
     starts are the starting vertices. Traversal is depth-first from each. The
     search always recurses DOWN the inheritance tree as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
-    derived classes, and NEVER by checking base classes. MROs are not examined.
+    DERIVED classes, and NEVER by checking base classes. MROs are not examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in discovery order: the order the traversal ADVANCES to them. Each edge is
@@ -132,8 +132,8 @@ def preorder_descendants(*starts, node_filter=None):
 
     If node_filter is not None, it limits the search, as in preorder_ancestors.
 
-    Most or all shared logic between this and preorder_ancestors (above) should
-    be written in (or extracted to) a module-level nonpublic function.
+    Most shared logic between this and preorder_ancestors (above) should be
+    written in (or extracted to) a module-level nonpublic function.
     """
     nodes = []
     edges = []
@@ -154,7 +154,7 @@ def postorder_ancestors(*starts, node_filter=None):
     starts are the starting vertices. Traversal is depth-first from each. The
     search always recurses UP the inheritance graph as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
-    base classes, and NEVER by checking derived classes. MROs aren't examined.
+    BASE classes, and NEVER by checking derived classes. MROs aren't examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in the order the traversal RETREATS from them. This is different from the
@@ -165,8 +165,8 @@ def postorder_ancestors(*starts, node_filter=None):
 
     If node_filter is not None, it limits the search, as in preorder_ancestors.
 
-    Most or all shared logic between this and postorder_descendants (below)
-    should be written in (or extracted to) a module-level nonpublic function.
+    Most shared logic between this and postorder_descendants (below) should be
+    written in (or extracted to) a module-level nonpublic function.
     """
     nodes = []
     edges = []
@@ -187,7 +187,7 @@ def postorder_descendants(*starts, node_filter=None):
     starts are the starting vertices. Traversal is depth-first from each. The
     search always recurses DOWN the inheritance tree as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
-    derived classes, and NEVER by checking base classes. MROs are not examined.
+    DERIVED classes, and NEVER by checking base classes. MROs are not examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in the order the traversal RETREATS from them. This is different from the
@@ -196,8 +196,8 @@ def postorder_descendants(*starts, node_filter=None):
 
     If node_filter is not None, it limits the search, as in preorder_ancestors.
 
-    Most or all shared logic between this and postorder_ancestors (above)
-    should be written in (or extracted to) a module-level nonpublic function.
+    Most shared logic between this and postorder_ancestors (above) should be
+    written in (or extracted to) a module-level nonpublic function.
     """
     nodes = []
     edges = []
@@ -211,7 +211,70 @@ def postorder_descendants(*starts, node_filter=None):
     return nodes, edges
 
 
-# FIXME: Add bfs_ancestors and bfs_descendants.
+def bfs_ancestors(*starts, node_filter=None):
+    """
+    Iterative breadth-first traversal (BFS) from derived to base classes.
+
+    starts are the starting vertices. Traversal is breadth-first from each. At
+    every point in the search, of vertices not yet found, those that are BASE
+    classes of those that have been found will be found before those that are
+    not. That is, the search "finds" the start vertices, then finds the start
+    vertices' base classes, then finds the start vertices' base classes' base
+    classes, and so on. Neighbors are found by checking vertices' direct BASE
+    classes, and NEVER by checking derived classes. MROs aren't examined.
+
+    A list of nodes and a list of edges are returned. Both lists are in
+    discovery order. Even though traversal goes from derived to base, each edge
+    is a (base, derived) tuple, as in bfs_descendants below.
+
+    If node_filter is not None, it limits the search, as in preorder_ancestors.
+
+    Most shared logic between this and bfs_descendants (below) should be
+    written in (or extracted to) a module-level nonpublic function.
+    """
+    nodes = []
+    edges = []
+
+    _bfs(starts=starts,
+         node_filter=_get_filter_or_allow_all(node_filter),
+         get_neighbors=operator.attrgetter('__bases__'),
+         observe_node=nodes.append,
+         observe_edge=lambda src, dest: edges.append((dest, src)))
+
+    return nodes, edges
+
+
+def bfs_descendants(*starts, node_filter=None):
+    """
+    Iterative breadth-first traversal (BFS) from base to derived classes.
+
+    starts are the starting vertices. Traversal is breadth-first from each. At
+    every point in the search, of vertices not yet found, those that are
+    DERIVED classes of those that have been found will be found before those
+    that are not. That is, the search "finds" the start vertices, then finds
+    the start vertices' derived classes, then finds the start vertices' derived
+    classes' derived classes, and so on. Neighbors are found by checking
+    vertices' direct DERIVED classes, and NEVER by checking base classes. MROs
+    aren't examined.
+
+    A list of nodes and a list of edges are returned. Both lists are in
+    discovery order. Each edge is a (base, derived) tuple.
+
+    If node_filter is not None, it limits the search, as in preorder_ancestors.
+
+    Most shared logic between this and bfs_ancestors (above) should be written
+    in (or extracted to) a module-level nonpublic function.
+    """
+    nodes = []
+    edges = []
+
+    _bfs(starts=starts,
+         node_filter=_get_filter_or_allow_all(node_filter),
+         get_neighbors=type.__subclasses__,
+         observe_node=nodes.append,
+         observe_edge=lambda src, dest: edges.append((src, dest)))
+
+    return nodes, edges
 
 
 def draw(nodes, edges):
