@@ -278,13 +278,33 @@ def bfs_descendants(*starts, node_filter=None):
 
 
 def draw(nodes, edges):
-    """
+    r"""
     Draw an inheritance graph with the given nodes and edges.
 
     Nodes (that is, vertices) are classes. Edges are inheritance relationships,
     each pointing from a base class to its (immediately) derived class.
 
     This returns a graphviz.Digraph rather than displaying anything directly.
+
+    >>> import re; import graphviz; from class_graph_examples import A
+    >>> graph = draw(*preorder_descendants(A))
+    >>> isinstance(graph, graphviz.Digraph)
+    True
+    >>> dot_code = str(graph).replace('\t', '    ')
+    >>> a, b, c, d = (re.search(fr'(\S+) \[label={label}\]', dot_code).group(1)
+    ...               for label in 'ABCD')  # Extract the actual vertex names.
+    >>> print(dot_code.replace(a, 'alfa').replace(b, 'bravo')
+    ...               .replace(c, 'charlie').replace(d, 'delta'), end='')
+    digraph {
+        alfa [label=A]
+        bravo [label=B]
+        delta [label=D]
+        charlie [label=C]
+        alfa -> bravo
+        bravo -> delta
+        alfa -> charlie
+        charlie -> delta
+    }
     """
     graph = graphviz.Digraph()
     for node in nodes:
