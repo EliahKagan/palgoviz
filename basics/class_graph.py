@@ -13,27 +13,26 @@ downward from source to destination, when such a layout is feasible.
 For (other) object graph drawing, see object_graph.py.
 """
 
+import collections
 import operator
 
 import graphviz
 
 
-def _universal_filter(_):
-    """A predicate that always returns True."""
-    return True
+def _get_filter_or_allow_all(node_filter):
+    """Return the filter passed, or an allow-all filter if None is passed."""
+    return (lambda _: True) if node_filter is None else node_filter
 
 
-def _preorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
-    """General preorder traversal with a node filter."""
-    if filter is None:
-        filter = _universal_filter
-
+def _preorder(*, starts, node_filter, get_neighbors,
+              observe_node, observe_edge):
+    """Generalized preorder DFS traversal with a node filter."""
     vis = set()
 
     def explore(src):
         vis.add(src)
         for dest in get_neighbors(src):
-            if not filter(dest):
+            if not node_filter(dest):
                 continue
             observe_edge(src, dest)
             if dest not in vis:
@@ -41,22 +40,20 @@ def _preorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
                 explore(dest)  # Preorder: use the node/edge, THEN explore.
 
     for start in starts:
-        if filter(start) and start not in vis:
+        if node_filter(start) and start not in vis:
             observe_node(start)
             explore(start)  # Preorder: use the node/edge, THEN explore.
 
 
-def _postorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
-    """General postorder traversal with a node filter."""
-    if filter is None:
-        filter = _universal_filter
-
+def _postorder(*, starts, node_filter, get_neighbors,
+               observe_node, observe_edge):
+    """Generalized postorder DFS traversal with a node filter."""
     vis = set()
 
     def explore(src):
         vis.add(src)
         for dest in get_neighbors(src):
-            if not filter(dest):
+            if not node_filter(dest):
                 continue
             if dest not in vis:
                 explore(dest)  # Postorder: explore, THEN use the node/edge.
@@ -64,12 +61,29 @@ def _postorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
             observe_edge(src, dest)
 
     for start in starts:
-        if filter(start) and start not in vis:
+        if node_filter(start) and start not in vis:
             explore(start)  # Postorder: explore, THEN use the node/edge.
             observe_node(start)
 
 
-def preorder_ancestors(*starts, filter=None):
+def _bfs(*, starts, node_filter, get_neighbors, observe_node, observe_edge):
+    """Generalized BFS traversal with a node filter."""
+    queue = collections.deque(filter(node_filter, starts))
+    vis = set(queue)
+
+    while queue:
+        src = queue.popleft()
+        observe_node(src)
+        for dest in get_neighbors(src):
+            if not node_filter(dest):
+                continue
+            observe_edge(src, dest)
+            if dest not in vis:
+                vis.add(dest)
+                queue.append(dest)
+
+
+def preorder_ancestors(*starts, node_filter=None):
     """
     Recursive depth-first preorder traversal from derived to base classes.
 
@@ -83,9 +97,10 @@ def preorder_ancestors(*starts, filter=None):
     traversal goes from derived to base, each edge is a (base, derived) tuple,
     as in preorder_descendants below.
 
-    If filter is not None, it is a predicate called on each vertex found,
-    including the starting vertices. If it returns false, the vertex is neither
-    emitted nor traversed through. This lets the caller limit the search.
+    If node_filter is not None, it is a predicate called on each vertex found,
+    including the starting vertices. If it returns false, the vertex and any
+    incident edges are not recorded, and its incident edges are not traversed.
+    This lets the caller limit the search.
 
     Most or all shared logic between this and preorder_descendants (below)
     should be written in (or extracted to) a module-level nonpublic function.
@@ -94,7 +109,7 @@ def preorder_ancestors(*starts, filter=None):
     edges = []
 
     _preorder(starts=starts,
-              filter=filter,
+              node_filter=_get_filter_or_allow_all(node_filter),
               get_neighbors=operator.attrgetter('__bases__'),
               observe_node=nodes.append,
               observe_edge=lambda src, dest: edges.append((dest, src)))
@@ -102,7 +117,7 @@ def preorder_ancestors(*starts, filter=None):
     return nodes, edges
 
 
-def preorder_descendants(*starts, filter=None):
+def preorder_descendants(*starts, node_filter=None):
     """
     Recursive depth-first preorder traversal from base to derived classes.
 
@@ -115,7 +130,7 @@ def preorder_descendants(*starts, filter=None):
     in discovery order: the order the traversal ADVANCES to them. Each edge is
     a (base, derived) tuple.
 
-    If filter is not None, it limits the search, as in preorder_ancestors.
+    If node_filter is not None, it limits the search, as in preorder_ancestors.
 
     Most or all shared logic between this and preorder_ancestors (above) should
     be written in (or extracted to) a module-level nonpublic function.
@@ -124,7 +139,7 @@ def preorder_descendants(*starts, filter=None):
     edges = []
 
     _preorder(starts=starts,
-              filter=filter,
+              node_filter=_get_filter_or_allow_all(node_filter),
               get_neighbors=type.__subclasses__,
               observe_node=nodes.append,
               observe_edge=lambda src, dest: edges.append((src, dest)))
@@ -132,7 +147,7 @@ def preorder_descendants(*starts, filter=None):
     return nodes, edges
 
 
-def postorder_ancestors(*starts, filter=None):
+def postorder_ancestors(*starts, node_filter=None):
     """
     Recursive depth-first postorder traversal from derived to base classes.
 
@@ -148,7 +163,7 @@ def postorder_ancestors(*starts, filter=None):
     though traversal goes from derived to base, each edge is a (base, derived)
     tuple, as in postorder_descendants below.
 
-    If filter is not None, it limits the search, as in preorder_ancestors.
+    If node_filter is not None, it limits the search, as in preorder_ancestors.
 
     Most or all shared logic between this and postorder_descendants (below)
     should be written in (or extracted to) a module-level nonpublic function.
@@ -157,7 +172,7 @@ def postorder_ancestors(*starts, filter=None):
     edges = []
 
     _postorder(starts=starts,
-               filter=filter,
+               node_filter=_get_filter_or_allow_all(node_filter),
                get_neighbors=operator.attrgetter('__bases__'),
                observe_node=nodes.append,
                observe_edge=lambda src, dest: edges.append((dest, src)))
@@ -165,7 +180,7 @@ def postorder_ancestors(*starts, filter=None):
     return nodes, edges
 
 
-def postorder_descendants(*starts, filter=None):
+def postorder_descendants(*starts, node_filter=None):
     """
     Recursive depth-first postorder traversal from base to derived classes.
 
@@ -179,7 +194,7 @@ def postorder_descendants(*starts, filter=None):
     order preorder_ancestors emits them, nor usually its reverse (as explained
     in postorder_ancestors). Each edge is a (base, derived) tuple.
 
-    If filter is not None, it limits the search, as in preorder_ancestors.
+    If node_filter is not None, it limits the search, as in preorder_ancestors.
 
     Most or all shared logic between this and postorder_ancestors (above)
     should be written in (or extracted to) a module-level nonpublic function.
@@ -188,7 +203,7 @@ def postorder_descendants(*starts, filter=None):
     edges = []
 
     _postorder(starts=starts,
-               filter=filter,
+               node_filter=_get_filter_or_allow_all(node_filter),
                get_neighbors=type.__subclasses__,
                observe_node=nodes.append,
                observe_edge=lambda src, dest: edges.append((src, dest)))
