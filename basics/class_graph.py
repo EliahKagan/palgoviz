@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Traversing and drawing graphs of class inheritance.
 
@@ -132,6 +134,10 @@ def preorder_ancestors(*starts, node_filter=None):
 
     Most shared logic between this and preorder_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
+
+    >>> from class_graph_examples import D, not_object
+    >>> preorder_ancestors(D, node_filter=not_object)
+    ([D, B, A, C], [(B, D), (A, B), (C, D), (A, C)])
     """
     return _traverse_ancestors(_preorder, starts, node_filter)
 
@@ -153,6 +159,10 @@ def preorder_descendants(*starts, node_filter=None):
 
     Most shared logic between this and preorder_ancestors (above) should be
     written in (or extracted to) a module-level nonpublic function.
+
+    >>> from class_graph_examples import A
+    >>> preorder_descendants(A)
+    ([A, B, D, C], [(A, B), (B, D), (A, C), (C, D)])
     """
     return _traverse_descendants(_preorder, starts, node_filter)
 
@@ -177,6 +187,10 @@ def postorder_ancestors(*starts, node_filter=None):
 
     Most shared logic between this and postorder_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
+
+    >>> from class_graph_examples import D, not_object
+    >>> postorder_ancestors(D, node_filter=not_object)
+    ([A, B, C, D], [(A, B), (B, D), (A, C), (C, D)])
     """
     return _traverse_ancestors(_postorder, starts, node_filter)
 
@@ -199,6 +213,10 @@ def postorder_descendants(*starts, node_filter=None):
 
     Most shared logic between this and postorder_ancestors (above) should be
     written in (or extracted to) a module-level nonpublic function.
+
+    >>> from class_graph_examples import A
+    >>> postorder_descendants(A)
+    ([D, B, C, A], [(B, D), (A, B), (C, D), (A, C)])
     """
     return _traverse_descendants(_postorder, starts, node_filter)
 
@@ -223,6 +241,10 @@ def bfs_ancestors(*starts, node_filter=None):
 
     Most shared logic between this and bfs_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
+
+    >>> from class_graph_examples import D, not_object
+    >>> bfs_ancestors(D, node_filter=not_object)
+    ([D, B, C, A], [(B, D), (C, D), (A, B), (A, C)])
     """
     return _traverse_ancestors(_bfs, starts, node_filter)
 
@@ -247,6 +269,10 @@ def bfs_descendants(*starts, node_filter=None):
 
     Most shared logic between this and bfs_ancestors (above) should be written
     in (or extracted to) a module-level nonpublic function.
+
+    >>> from class_graph_examples import A
+    >>> bfs_descendants(A)
+    ([A, B, C, D], [(A, B), (A, C), (B, D), (C, D)])
     """
     return _traverse_descendants(_bfs, starts, node_filter)
 
@@ -266,3 +292,8 @@ def draw(nodes, edges):
     for base, derived in edges:
         graph.edge(str(id(base)), str(id(derived)))
     return graph
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
