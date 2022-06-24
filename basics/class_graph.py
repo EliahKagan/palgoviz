@@ -18,9 +18,15 @@ import operator
 import graphviz
 
 
+def _universal_filter(_):
+    """A predicate that always returns True."""
+    return True
+
+
 def _preorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
+    """General preorder traversal with a node filter."""
     if filter is None:
-        filter = lambda _: True
+        filter = _universal_filter
 
     vis = set()
 
@@ -32,15 +38,35 @@ def _preorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
             observe_edge(src, dest)
             if dest not in vis:
                 observe_node(dest)
-                explore(dest)
+                explore(dest)  # Preorder: use the node/edge, THEN explore.
 
     for start in starts:
         if filter(start) and start not in vis:
             observe_node(start)
-            explore(start)
+            explore(start)  # Preorder: use the node/edge, THEN explore.
 
 
-# FIXME: Write _postorder here. Make the postorder functions call it.
+def _postorder(*, starts, filter, get_neighbors, observe_node, observe_edge):
+    """General postorder traversal with a node filter."""
+    if filter is None:
+        filter = _universal_filter
+
+    vis = set()
+
+    def explore(src):
+        vis.add(src)
+        for dest in get_neighbors(src):
+            if not filter(dest):
+                continue
+            if dest not in vis:
+                explore(dest)  # Postorder: explore, THEN use the node/edge.
+                observe_node(dest)
+            observe_edge(src, dest)
+
+    for start in starts:
+        if filter(start) and start not in vis:
+            explore(start)  # Postorder: explore, THEN use the node/edge.
+            observe_node(start)
 
 
 def preorder_ancestors(*starts, filter=None):
@@ -127,7 +153,16 @@ def postorder_ancestors(*starts, filter=None):
     Most or all shared logic between this and postorder_descendants (below)
     should be written in (or extracted to) a module-level nonpublic function.
     """
-    # FIXME: Needs implementation.
+    nodes = []
+    edges = []
+
+    _postorder(starts=starts,
+               filter=filter,
+               get_neighbors=operator.attrgetter('__bases__'),
+               observe_node=nodes.append,
+               observe_edge=lambda src, dest: edges.append((dest, src)))
+
+    return nodes, edges
 
 
 def postorder_descendants(*starts, filter=None):
@@ -149,7 +184,16 @@ def postorder_descendants(*starts, filter=None):
     Most or all shared logic between this and postorder_ancestors (above)
     should be written in (or extracted to) a module-level nonpublic function.
     """
-    # FIXME: Needs implementation.
+    nodes = []
+    edges = []
+
+    _postorder(starts=starts,
+               filter=filter,
+               get_neighbors=type.__subclasses__,
+               observe_node=nodes.append,
+               observe_edge=lambda src, dest: edges.append((src, dest)))
+
+    return nodes, edges
 
 
 # FIXME: Add bfs_ancestors and bfs_descendants.
