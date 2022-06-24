@@ -48,14 +48,14 @@ def preorder_ancestors(*starts, filter=None):
     Recursive depth-first preorder traversal from derived to base classes.
 
     starts are the starting vertices. Traversal is depth-first from each. The
-    search recursively goes UP the inheritance graph as far as possible before
+    search always recurses UP the inheritance graph as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
     base classes, and NEVER by checking derived classes. MROs aren't examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in discovery order: the order the traversal ADVANCES to them. Even though
-    traversal goes derived to base, each edge is a (base, derived) tuple, as in
-    preorder_descendants below.
+    traversal goes from derived to base, each edge is a (base, derived) tuple,
+    as in preorder_descendants below.
 
     If filter is not None, it is a predicate called on each vertex found,
     including the starting vertices. If it returns false, the vertex is neither
@@ -81,7 +81,7 @@ def preorder_descendants(*starts, filter=None):
     Recursive depth-first preorder traversal from base to derived classes.
 
     starts are the starting vertices. Traversal is depth-first from each. The
-    search recursively goes DOWN the inheritance tree as far as possible before
+    search always recurses DOWN the inheritance tree as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
     derived classes, and NEVER by checking base classes. MROs are not examined.
 
@@ -111,15 +111,15 @@ def postorder_ancestors(*starts, filter=None):
     Recursive depth-first postorder traversal from derived to base classes.
 
     starts are the starting vertices. Traversal is depth-first from each. The
-    search recursively goes UP the inheritance graph as far as possible before
+    search always recurses UP the inheritance graph as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
     base classes, and NEVER by checking derived classes. MROs aren't examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in the order the traversal RETREATS from them. This is different from the
-    order preorder_ancestors emits them. But not usually the reverse of that
-    order, because [FIXME: explain why postorder isn't just preorder reversed].
-    Even though traversal goes derived to base, each edge is (base, derived)
+    order preorder_ancestors emits them, nor usually the reverse of that order,
+    because [FIXME: explain why postorder isn't just preorder, reversed]. Even
+    though traversal goes from derived to base, each edge is a (base, derived)
     tuple, as in postorder_descendants below.
 
     If filter is not None, it limits the search, as in preorder_ancestors.
@@ -135,14 +135,14 @@ def postorder_descendants(*starts, filter=None):
     Recursive depth-first postorder traversal from base to derived classes.
 
     starts are the starting vertices. Traversal is depth-first from each. The
-    search recursively goes DOWN the inheritance tree as far as possible before
+    search always recurses DOWN the inheritance tree as far as possible before
     exploring anywhere else. Neighbors are found by checking vertices' direct
     derived classes, and NEVER by checking base classes. MROs are not examined.
 
     A list of nodes (vertices) and a list of edges are returned. Both lists are
     in the order the traversal RETREATS from them. This is different from the
-    order preorder_ancestors emits them, and not usually its reverse (see
-    postorder_ancestors for details). Each edge is (base, derived) tuple.
+    order preorder_ancestors emits them, nor usually its reverse (as explained
+    in postorder_ancestors). Each edge is a (base, derived) tuple.
 
     If filter is not None, it limits the search, as in preorder_ancestors.
 
