@@ -6,11 +6,11 @@ Traversing and drawing graphs of class inheritance.
 Inheritance graphs are graphs with vertices for classes (that is, for types)
 and directed edges for inheritance relationships.
 
-In general, both conventions for the direction of edges representing
-inheritance are common. But all functions in this module regard edges to go
-from a base class to a derived class. The functions that traverse from base to
-derived are following those edges forward; the functions that traverse from
-derived to base are following them backward. This convention is handy for
+In general, both possible conventions for the direction of edges representing
+inheritance are common. But all (public) functions in this module report edges
+as going from a base class to a derived class. The functions that traverse from
+base to derived are following those edges forward; the functions that traverse
+from derived to base are following them backward. This convention is handy for
 drawing the graphs with Graphviz, which draws directed graphs with edges
 pointing downward from source to destination when such a layout is feasible.
 
@@ -37,8 +37,8 @@ Compared to object_graph.py:
    lists, a vertex can be added before or after an edge incident to it. So long
    as the order different vertices are added, and the order different edges are
    added, are separately correct, the result will be correct. Then the draw
-   function is responsible for ensuring the node method has been called on all
-   vertices before they appear in a call to the edge method (which is necessary
+   function takes care of ensuring the node method has been called on each
+   vertex before it appears in any calls to the edge method (which is necessary
    if nodes have custom attributes, otherwise they are created without them).
 """
 
