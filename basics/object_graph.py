@@ -52,6 +52,7 @@ def draw_tuples(*roots):
     traversal proceeds, but not necessarily of the graph produced: the roots of
     the graph are whichever arguments are not reachable from other arguments.
 
+    This algorithm is a hybrid of preorder and postorder DFS: [FIXME: explain].
     Time complexity is [FIXME: state it]. Auxiliary space complexity as defined
     in the module docstring is [FIXME: state it]. Space taken up by the emitted
     data (associated with the returned Digraph object) is [FIXME: state it].
@@ -89,7 +90,8 @@ def draw_tuples_alt(*roots):
     the graph are whichever arguments are not reachable from other arguments.
 
     This alternative implementation manually maintains visitation information.
-    It has the same asymptotic time and space complexities as draw_tuples.
+    It is an alternative implementation strategy for the same algorithm. So it
+    has the same asymptotic time and space complexities as draw_tuples.
     """
     graph = Digraph()
     ids = set()
@@ -127,15 +129,15 @@ def draw_tuples_bfs(*roots):
     same. But this algorithm differs from those: it's iterative, and vertices
     and edges closer to a root are added before any farther from the roots.
 
-    Calling str on the returned graphviz.Digraph object will reveal how the
-    order vertices and edges are discovered and emitted is the same in
-    draw_tuples and draw_tuples_alt, but different here.
+    Calling str on the returned Digraph object and examining the resulting DOT
+    code reveals how the order vertices and edges are discovered and emitted is
+    the same in draw_tuples and draw_tuples_alt, but different here.
 
-    [FIXME: Do the draw_tuples FIXMEs if not yet done. They're needed below.]
+    FIXME: Do the draw_tuples FIXMEs if not yet done. They're needed below.
 
-    Asymptotic time and space are as in draw_tuples. To match that auxiliary
-    space here, it was necessary to [FIXME: say what had to be done], or
-    auxiliary space would be [FIXME: state it] instead.
+    Asymptotic time and space are as in draw_tuples/draw_tuples_alt. To match
+    that auxiliary space here, it was necessary to [FIXME: say what had to be
+    done], or auxiliary space would be [FIXME: state it] instead.
 
     Yet recursion.flatten_level_order doesn't do that. If it did, it would
     benefit only by a constant factor, not asymptotically. That's because
