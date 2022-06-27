@@ -127,8 +127,8 @@ def draw_tuples_bfs(*roots):
 
     This is like draw_tuples/draw_tuples_alt, but breadth-first search (BFS) is
     used instead of depth-first search (DFS). All these functions enumerate
-    each vertex's neighbors in the same order, and only tuples are involved so
-    the graph is acyclic. So the drawing Graphviz produces often looks the
+    each vertex's neighbors in the same order, and the graph is acyclic since
+    only tuples are involved. So the drawing Graphviz produces often looks the
     same. But this algorithm differs from those: it's iterative, and vertices
     and edges closer to a root are added before any farther from the roots.
 
@@ -138,11 +138,13 @@ def draw_tuples_bfs(*roots):
 
     [FIXME: Do the draw_tuples FIXMEs if not yet done. They're needed below.]
 
-    Asymptotic time and space match that of draw_tuples/draw_tuples_alt. For
-    that auxiliary space, it was necessary to [FIXME: say what was necessary].
-    Otherwise auxiliary space would've been [FIXME: state it]. In contrast,
-    recursion.flatten_level_order doesn't do that. If it did, it would benefit
-    only by a constant factor, not asymptotically, because [FIXME: say why].
+    Asymptotic time and space are as in draw_tuples. To match that auxiliary
+    space here, it was necessary to [FIXME: say what had to be done], or
+    auxiliary space would be [FIXME: state it] instead.
+
+    Yet recursion.flatten_level_order doesn't do that. If it did, it would
+    benefit only by a constant factor, not asymptotically. That's because
+    [FIXME: explain the relevant difference between that and this situation].
     """
     graph = Digraph()
     ids = set()
