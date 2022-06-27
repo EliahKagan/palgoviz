@@ -14,12 +14,12 @@ derived to base are following them backward. This convention is handy for
 drawing the graphs with Graphviz, which draws directed graphs with edges
 pointing downward from source to destination when such a layout is feasible.
 
-This module separates functionality into traversal functions that don't know
-anything about how the vertices and edges they find are used (and in particular
-make no reference to anything in the graphviz module), and a draw function that
-takes output from any traversal function and builds a graphviz.Digraph.
-
 For drawing (other kinds of) object graphs, see object_graph.py.
+
+This module separates functionality into (a) several traversal functions that
+report vertices and edges as they find them, which occurs in various different
+orders as documented, and (b) a draw function that takes output from any
+traversal function and builds a graphviz.Digraph.
 """
 
 import collections
