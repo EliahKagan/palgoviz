@@ -895,9 +895,9 @@ def my_cycle(iterable):
         yield from pool
 
 
-def _from_iterable(iterable):
-    for element in iterable:
-        yield from element
+def _from_iterable(iterables):
+    for iterable in iterables:
+        yield from iterable
 
 
 def my_chain(*iterables):
@@ -935,8 +935,7 @@ def my_chain(*iterables):
     >>> list(my_chain.from_iterable(() for _ in range(1000)))
     []
     """
-    for iterable in iterables:
-        yield from iterable
+    return _from_iterable(iterables)
 
 
 my_chain.from_iterable = _from_iterable
