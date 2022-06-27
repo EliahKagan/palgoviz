@@ -17,9 +17,9 @@ pointing downward from source to destination when such a layout is feasible.
 For drawing (other kinds of) object graphs, see object_graph.py.
 
 This module separates functionality into (a) several traversal functions that
-report vertices and edges as they find them, which occurs in various different
-orders as documented, and (b) a draw function that takes output from any
-traversal function and builds a graphviz.Digraph.
+report vertices and edges in various orders, as documented, and (b) a draw
+function that accepts such lists of vertices and edges and builds a
+graphviz.Digraph.
 
 Compared to object_graph.py:
 
