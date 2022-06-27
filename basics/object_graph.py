@@ -58,8 +58,8 @@ def draw_tuples(*roots):
     the graph are whichever arguments are not reachable from other arguments.
 
     Time complexity is [FIXME: state it]. Auxiliary space complexity as defined
-    in the module docstring is [FIXME: state it]. Space taken up by state
-    associated with the returned Digraph object is [FIXME: state it].
+    in the module docstring is [FIXME: state it]. Space taken up by the emitted
+    data (associated with the returned Digraph object) is [FIXME: state it].
 
     This implementation uses @memoize_by to maintain visitation information.
     """
