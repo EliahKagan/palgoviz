@@ -138,13 +138,11 @@ def draw_tuples_bfs(*roots):
 
     [FIXME: Do the draw_tuples FIXMEs if not yet done. They're needed below.]
 
-    This has the same asymptotic time and space complexities as draw_tuples and
-    draw_tuples_alt. To achieve that auxiliary space (as defined in the module
-    docstring), it was necessary to [FIXME: read on, then fill in this blank].
+    Asymptotic time and space match that of draw_tuples/draw_tuples_alt. For
+    that auxiliary space, it was necessary to [FIXME: say what was necessary].
     Otherwise auxiliary space would've been [FIXME: state it]. In contrast,
-    recursion.flatten_level_order doesn't do that and wouldn't benefit
-    asymptotically, but only by a constant factor, if it did. That's because
-    [FIXME: explain the relevant difference].
+    recursion.flatten_level_order doesn't do that. If it did, it would benefit
+    only by a constant factor, not asymptotically, because [FIXME: say why].
     """
     graph = Digraph()
     ids = set()
