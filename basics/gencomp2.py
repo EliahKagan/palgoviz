@@ -9,7 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
-import collections
+from collections import deque
 from collections.abc import Iterable
 import itertools
 
@@ -128,11 +128,10 @@ def pairs(iterable):
     >>> list(pairs('AAA'))
     [('A', 'A'), ('A', 'A'), ('A', 'A')]
     """
-    elements = collections.deque(iterable)
-
-    while elements:
-        x = elements.popleft()
-        for y in elements:
+    queue = deque(iterable)
+    while len(queue) > 1:
+        x = queue.popleft()
+        for y in queue:
             yield x, y
 
 
@@ -886,19 +885,17 @@ def my_cycle(iterable):
     10
     True
     """
-    history = []
+    pool = []
 
-    for item in iterable:
-        yield item
-        history.append(item)
+    for element in iterable:
+        pool.append(element)
+        yield element
 
-    if history:
-        while True:
-            yield from history
+    while pool:
+        yield from pool
 
 
-def _chain_from_iterable(iterables):
-    """Iterate an iterable of iterables and chain those iterables."""
+def _from_iterable(iterables):
     return (element for iterable in iterables for element in iterable)
 
 
@@ -937,10 +934,10 @@ def my_chain(*iterables):
     >>> list(my_chain.from_iterable(() for _ in range(1000)))
     []
     """
-    return _chain_from_iterable(iterables)
+    return _from_iterable(iterables)
 
 
-my_chain.from_iterable = _chain_from_iterable
+my_chain.from_iterable = _from_iterable
 
 
 if __name__ == '__main__':
