@@ -885,14 +885,14 @@ def my_cycle(iterable):
     10
     True
     """
-    queue = deque()
+    pool = []
 
     for element in iterable:
-        queue.append(element)
+        pool.append(element)
         yield element
 
-    while queue:
-        yield from queue
+    while pool:
+        yield from pool
 
 
 def my_chain(*iterables):
