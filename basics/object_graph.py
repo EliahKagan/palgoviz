@@ -6,7 +6,7 @@ objects and directed edges for references.
 
 See also: the objgraph PyPI package.
 
-For class inheritance graph drawing, see class_graph.py.
+For drawing class inheritance graphs, see class_graph.py.
 
 Documented time and space complexities are for n vertices and m edges. In this
 module we define auxiliary space as space written to and/or read from that is

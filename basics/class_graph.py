@@ -12,7 +12,7 @@ from a base class to a derived class. That's handy for drawing the graphs with
 Graphviz, which automatically draws directed graphs with edges pointing
 downward from source to destination, when such a layout is feasible.
 
-For (other) object graph drawing, see object_graph.py.
+For drawing (other kinds of) object graphs, see object_graph.py.
 """
 
 import collections

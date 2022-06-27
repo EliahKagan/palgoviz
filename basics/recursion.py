@@ -3,7 +3,35 @@
 """
 Some recursion examples (and a few related iterative implementations).
 
-See also object_graph.py.
+See also class_graph.py for drawing class inheritance graphs, and
+object_graph.py for drawing other kinds of object graphs.
+
+This covers (a) basic recursion, (b) list search, (c) sorting, and (d) DFS and
+BFS in linked structures with rooted-tree or directed acyclic graph topology.
+More in-depth coverage should go in other modules (except it might make sense
+to do more sorting here, where sorting functions are easier to write and read
+because support for optional key= and reverse= keyword argument support is
+deliberately omitted, before going more into depth with it in its own module).
+
+The "flatten" functions traverse rooted trees, in that, even when the input is
+not a tree (i.e., when there are multiple paths to a vertex/object), they are
+treated as trees. Visitation history is not recorded; on each path an object is
+found, it is treated as a new vertex and emitted (yielded) anew.
+
+The "leaf_sum" functions traverse directed acyclic graphs, in that they detect
+when a previously visited object is found and avoid revisiting/reusing it. To
+do this, they record visitation information. Because each object represents a
+subproblem whose solution must be reused, the visitation history is stored in a
+mapping, the memo table, instead of a set. The graphs are acyclic because they
+are tuple structures, and tuple membership relationships do not have cycles.
+
+Depth-first traversals are simpler to implement recursively than iteratively.
+But iterative implementation is fairly simple in trees. So this module includes
+that, in flatten_iterative/flatten_iterative_observed. It is intuitive to think
+replacing the queue in BFS with a stack would give DFS when run on any graph
+structure. Surprisingly, the result is not quite depth-first, except in trees.
+See https://11011110.github.io/blog/2013/12/17/stack-based-graph-traversal.html
+by David Eppstein for further reading on that issue.
 """
 
 import bisect
