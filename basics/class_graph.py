@@ -20,6 +20,26 @@ This module separates functionality into (a) several traversal functions that
 report vertices and edges as they find them, which occurs in various different
 orders as documented, and (b) a draw function that takes output from any
 traversal function and builds a graphviz.Digraph.
+
+Compared to object_graph.py:
+
+1. Adjacency is defined differently: enumerating neighbors is a little more
+   involved here than in object_graph.py, where it's iteration over a vertex.
+
+2. Code here has more stringent requirements: the orders in which vertices and
+   edges are to be emitted are documented, with a public function for each of
+   the major orderings of interest. In object_graph.draw_tuples and
+   object_graph.draw_tuples_alt, they are flexible.
+
+3. But here, traversal logic is unrestrained by the Graphviz API. The traversal
+   functions don't need to handle naming, labels, or other Graphviz node/edge
+   attributes. Furthermore, since they return vertices and edges as separate
+   lists, a vertex can be added before or after an edge incident to it. So long
+   as the order different vertices are added, and the order different edges are
+   added, are separately correct, the result will be correct. Then the draw
+   function is responsible for ensuring the node method has been called on all
+   vertices before they appear in a call to the edge method (which is necessary
+   if nodes have custom attributes, otherwise they are created without them).
 """
 
 import collections
