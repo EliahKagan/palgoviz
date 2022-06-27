@@ -14,13 +14,8 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
-import itertools
-from decorators import peek_return
 
-from fibonacci import fib
-
-
-def make_counter(start=0):
+def make_counter(start):
     """
     Create and return a function that returns successive integers on each call.
 
@@ -29,7 +24,7 @@ def make_counter(start=0):
     # FIXME: Implement this.
 
 
-def make_counter_alt(start=0):
+def make_counter_alt(start):
     """
     Create and return a function that returns successive integers on each call.
 
