@@ -885,15 +885,18 @@ def my_cycle(iterable):
     10
     True
     """
-    # FIXME: This doesn't work
-    while True:
-        it = iter(iterable)
-        try:
-            yield next(it)
-        except StopIteration:
-            return
+    i = iter(iterable)
+    queue = deque()
 
-        yield from it
+    while True:
+        try:
+            x = next(i)
+        except StopIteration:
+            while queue:
+                yield from queue
+            break
+        queue.append(x)
+        yield x
 
 
 def my_chain(*iterables):
