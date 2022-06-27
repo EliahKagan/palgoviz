@@ -885,18 +885,14 @@ def my_cycle(iterable):
     10
     True
     """
-    i = iter(iterable)
     queue = deque()
 
-    while True:
-        try:
-            x = next(i)
-        except StopIteration:
-            while queue:
-                yield from queue
-            break
-        queue.append(x)
-        yield x
+    for element in iterable:
+        queue.append(element)
+        yield element
+
+    while queue:
+        yield from queue
 
 
 def my_chain(*iterables):
