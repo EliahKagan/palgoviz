@@ -8,9 +8,16 @@ and directed edges for inheritance relationships.
 
 In general, both conventions for the direction of edges representing
 inheritance are common. But all functions in this module regard edges to go
-from a base class to a derived class. That's handy for drawing the graphs with
-Graphviz, which automatically draws directed graphs with edges pointing
-downward from source to destination, when such a layout is feasible.
+from a base class to a derived class. The functions that traverse from base to
+derived are following those edges forward; the functions that traverse from
+derived to base are following them backward. This convention is handy for
+drawing the graphs with Graphviz, which draws directed graphs with edges
+pointing downward from source to destination when such a layout is feasible.
+
+This module separates functionality into traversal functions that don't know
+anything about how the vertices and edges they find are used (and in particular
+make no reference to anything in the graphviz module), and a draw function that
+takes output from any traversal function and builds a graphviz.Digraph.
 
 For drawing (other kinds of) object graphs, see object_graph.py.
 """
