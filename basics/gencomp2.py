@@ -896,8 +896,7 @@ def my_cycle(iterable):
 
 
 def _from_iterable(iterables):
-    for iterable in iterables:
-        yield from iterable
+    return (element for iterable in iterables for element in iterable)
 
 
 def my_chain(*iterables):
