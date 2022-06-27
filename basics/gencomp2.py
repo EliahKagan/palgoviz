@@ -9,6 +9,7 @@ Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
 
+from collections import deque
 from collections.abc import Iterable
 import itertools
 
@@ -127,7 +128,11 @@ def pairs(iterable):
     >>> list(pairs('AAA'))
     [('A', 'A'), ('A', 'A'), ('A', 'A')]
     """
-    # FIXME: Implement this.
+    my_i = deque(iterable)
+    while len(my_i) > 1:
+        x = my_i.popleft()
+        for y in my_i:
+            yield x, y
 
 
 def ascending_countdowns():
