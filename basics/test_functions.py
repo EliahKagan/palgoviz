@@ -100,28 +100,46 @@ class TestMakeCounter(_NamedImplementationTestCase):
 
     def test_calls_to_separate_counters_count_independently(self):
         f = self.implementation()
-        self.assertEqual(f(), 0)
-        self.assertEqual(f(), 1)
+        with self.subTest(func='f', call=1):
+            self.assertEqual(f(), 0)
+        with self.subTest(func='f', call=2):
+            self.assertEqual(f(), 1)
 
         g = self.implementation()
-        self.assertEqual(f(), 2)
-        self.assertEqual(g(), 0)
-        self.assertEqual(f(), 3)
-        self.assertEqual(g(), 1)
-        self.assertEqual(g(), 2)
+        with self.subTest(func='f', call=3):
+            self.assertEqual(f(), 2)
+        with self.subTest(func='g', call=1):
+            self.assertEqual(g(), 0)
+        with self.subTest(func='f', call=4):
+            self.assertEqual(f(), 3)
+        with self.subTest(func='g', call=2):
+            self.assertEqual(g(), 1)
+        with self.subTest(func='g', call=3):
+            self.assertEqual(g(), 2)
 
         h = self.implementation(10)
-        self.assertEqual(h(), 10)
-        self.assertEqual(f(), 4)
-        self.assertEqual(g(), 3)
-        self.assertEqual(h(), 11)
-        self.assertEqual(g(), 4)
-        self.assertEqual(h(), 12)
-        self.assertEqual(h(), 13)
-        self.assertEqual(g(), 5)
-        self.assertEqual(g(), 6)
-        self.assertEqual(f(), 5)
-        self.assertEqual(h(), 14)
+        with self.subTest(func='h', call=1):
+            self.assertEqual(h(), 10)
+        with self.subTest(func='f', call=5):
+            self.assertEqual(f(), 4)
+        with self.subTest(func='g', call=4):
+            self.assertEqual(g(), 3)
+        with self.subTest(func='h', call=2):
+            self.assertEqual(h(), 11)
+        with self.subTest(func='g', call=5):
+            self.assertEqual(g(), 4)
+        with self.subTest(func='h', call=3):
+            self.assertEqual(h(), 12)
+        with self.subTest(func='h', call=4):
+            self.assertEqual(h(), 13)
+        with self.subTest(func='g', call=6):
+            self.assertEqual(g(), 5)
+        with self.subTest(func='g', call=7):
+            self.assertEqual(g(), 6)
+        with self.subTest(func='f', call=6):
+            self.assertEqual(f(), 5)
+        with self.subTest(func='h', call=5):
+            self.assertEqual(h(), 14)
 
 
 @parameterized_class(('implementation_name',), [
