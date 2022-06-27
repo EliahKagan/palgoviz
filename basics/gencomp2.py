@@ -128,10 +128,10 @@ def pairs(iterable):
     >>> list(pairs('AAA'))
     [('A', 'A'), ('A', 'A'), ('A', 'A')]
     """
-    my_i = deque(iterable)
-    while len(my_i) > 1:
-        x = my_i.popleft()
-        for y in my_i:
+    queue = deque(iterable)
+    while len(queue) > 1:
+        x = queue.popleft()
+        for y in queue:
             yield x, y
 
 
