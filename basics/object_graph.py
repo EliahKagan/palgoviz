@@ -9,17 +9,12 @@ See also: the objgraph PyPI package.
 For drawing class inheritance graphs, see class_graph.py.
 
 Documented time and space complexities are for n vertices and m edges. In this
-module we define auxiliary space as space written to and/or read from that is
-allocated by the function (thus outside the input tuple structure), and also
-does not belong to the Digraph object being built. That is, we leave out space
-belonging to the data structure that is returned to the caller.
-
-Ordinarily one regards all space a function allocates as auxiliary. But this
-definition makes sense here because it represents the extra space specifically
-associated with the algorithm that performs the traversals.
-
-It's possible to "cheat" by looking into the partially construct Digraph, but
-the functions in this module don't do that.
+module we define auxiliary space as space allocated by the function (thus
+outside the input tuple structure) but not belonging to the Digraph object
+being built. Ordinarily we would regard all space a function allocates to be
+auxiliary. The alternative definition used here is useful because it represents
+just the extra space used by the traversal itself. It's possible to "cheat" by
+examining the partially built Digraph, but the functions here don't do that.
 """
 
 import collections
