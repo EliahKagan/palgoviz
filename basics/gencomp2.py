@@ -895,6 +895,11 @@ def my_cycle(iterable):
         yield from pool
 
 
+def _from_iterable(iterable):
+    for element in iterable:
+        yield from element
+
+
 def my_chain(*iterables):
     """
     Chain iterables, as itertools.chain does.
@@ -930,7 +935,11 @@ def my_chain(*iterables):
     >>> list(my_chain.from_iterable(() for _ in range(1000)))
     []
     """
-    # FIXME: Implement this.
+    for iterable in iterables:
+        yield from iterable
+
+
+my_chain.from_iterable = _from_iterable
 
 
 if __name__ == '__main__':
