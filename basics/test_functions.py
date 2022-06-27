@@ -100,28 +100,46 @@ class TestMakeCounter(_NamedImplementationTestCase):
 
     def test_calls_to_separate_counters_count_independently(self):
         f = self.implementation()
-        self.assertEqual(f(), 0)
-        self.assertEqual(f(), 1)
+        with self.subTest(func='f', call=1):
+            self.assertEqual(f(), 0)
+        with self.subTest(func='f', call=2):
+            self.assertEqual(f(), 1)
 
         g = self.implementation()
-        self.assertEqual(f(), 2)
-        self.assertEqual(g(), 0)
-        self.assertEqual(f(), 3)
-        self.assertEqual(g(), 1)
-        self.assertEqual(g(), 2)
+        with self.subTest(func='f', call=3):
+            self.assertEqual(f(), 2)
+        with self.subTest(func='g', call=1):
+            self.assertEqual(g(), 0)
+        with self.subTest(func='f', call=4):
+            self.assertEqual(f(), 3)
+        with self.subTest(func='g', call=2):
+            self.assertEqual(g(), 1)
+        with self.subTest(func='g', call=3):
+            self.assertEqual(g(), 2)
 
         h = self.implementation(10)
-        self.assertEqual(h(), 10)
-        self.assertEqual(f(), 4)
-        self.assertEqual(g(), 3)
-        self.assertEqual(h(), 11)
-        self.assertEqual(g(), 4)
-        self.assertEqual(h(), 12)
-        self.assertEqual(h(), 13)
-        self.assertEqual(g(), 5)
-        self.assertEqual(g(), 6)
-        self.assertEqual(f(), 5)
-        self.assertEqual(h(), 14)
+        with self.subTest(func='h', call=1):
+            self.assertEqual(h(), 10)
+        with self.subTest(func='f', call=5):
+            self.assertEqual(f(), 4)
+        with self.subTest(func='g', call=4):
+            self.assertEqual(g(), 3)
+        with self.subTest(func='h', call=2):
+            self.assertEqual(h(), 11)
+        with self.subTest(func='g', call=5):
+            self.assertEqual(g(), 4)
+        with self.subTest(func='h', call=3):
+            self.assertEqual(h(), 12)
+        with self.subTest(func='h', call=4):
+            self.assertEqual(h(), 13)
+        with self.subTest(func='g', call=6):
+            self.assertEqual(g(), 5)
+        with self.subTest(func='g', call=7):
+            self.assertEqual(g(), 6)
+        with self.subTest(func='f', call=6):
+            self.assertEqual(f(), 5)
+        with self.subTest(func='h', call=5):
+            self.assertEqual(h(), 14)
 
 
 @parameterized_class(('implementation_name',), [
@@ -143,27 +161,45 @@ class TestMakeNextFibonacci(_NamedImplementationTestCase):
 
     def test_calls_to_separate_functions_compute_independently(self):
         f = self.implementation()
-        self.assertEqual(f(), 0)
-        self.assertEqual(f(), 1)
-        self.assertEqual(f(), 1)
-        self.assertEqual(f(), 2)
-        self.assertEqual(f(), 3)
+        with self.subTest(func='f', call=1):
+            self.assertEqual(f(), 0)
+        with self.subTest(func='f', call=2):
+            self.assertEqual(f(), 1)
+        with self.subTest(func='f', call=3):
+            self.assertEqual(f(), 1)
+        with self.subTest(func='f', call=4):
+            self.assertEqual(f(), 2)
+        with self.subTest(func='f', call=5):
+            self.assertEqual(f(), 3)
 
         g = self.implementation()
-        self.assertEqual(g(), 0)
-        self.assertEqual(f(), 5)
-        self.assertEqual(g(), 1)
-        self.assertEqual(f(), 8)
-        self.assertEqual(g(), 1)
-        self.assertEqual(f(), 13)
-        self.assertEqual(g(), 2)
-        self.assertEqual(f(), 21)
-        self.assertEqual(g(), 3)
-        self.assertEqual(f(), 34)
+        with self.subTest(func='g', call=1):
+            self.assertEqual(g(), 0)
+        with self.subTest(func='f', call=6):
+            self.assertEqual(f(), 5)
+        with self.subTest(func='g', call=2):
+            self.assertEqual(g(), 1)
+        with self.subTest(func='f', call=7):
+            self.assertEqual(f(), 8)
+        with self.subTest(func='g', call=3):
+            self.assertEqual(g(), 1)
+        with self.subTest(func='f', call=8):
+            self.assertEqual(f(), 13)
+        with self.subTest(func='g', call=4):
+            self.assertEqual(g(), 2)
+        with self.subTest(func='f', call=9):
+            self.assertEqual(f(), 21)
+        with self.subTest(func='g', call=5):
+            self.assertEqual(g(), 3)
+        with self.subTest(func='f', call=10):
+            self.assertEqual(f(), 34)
 
-        self.assertEqual(f(), 55)
-        self.assertEqual(f(), 89)
-        self.assertEqual(g(), 5)
+        with self.subTest(func='f', call=11):
+            self.assertEqual(f(), 55)
+        with self.subTest(func='f', call=12):
+            self.assertEqual(f(), 89)
+        with self.subTest(func='g', call=6):
+            self.assertEqual(g(), 5)
 
 
 class TestAsFunc(unittest.TestCase):
@@ -181,26 +217,37 @@ class TestAsFunc(unittest.TestCase):
     def test_returned_function_calls_next_on_iterable(self, _name, iterable):
         f = functions.as_func(iterable)
 
-        self.assertEqual(f(), 0)
-        self.assertEqual(f(), 1)
-        self.assertEqual(f(), 2)
+        with self.subTest(call=1):
+            self.assertEqual(f(), 0)
+        with self.subTest(call=2):
+            self.assertEqual(f(), 1)
+        with self.subTest(call=3):
+            self.assertEqual(f(), 2)
 
-        with self.assertRaises(StopIteration):
-            f()
+        with self.subTest(call=4):
+            with self.assertRaises(StopIteration):
+                f()
 
     def test_calls_to_separate_functions_iterate_independently(self):
         f = functions.as_func([10, 20, 30])
-        self.assertEqual(f(), 10)
-        self.assertEqual(f(), 20)
+        with self.subTest(func='f', call=1):
+            self.assertEqual(f(), 10)
+        with self.subTest(func='f', call=2):
+            self.assertEqual(f(), 20)
 
         g = functions.as_func(x**2 for x in itertools.count(2))
-        self.assertEqual(f(), 30)
-        self.assertEqual(g(), 4)
-        with self.assertRaises(StopIteration):
-            f()
+        with self.subTest(func='f', call=3):
+            self.assertEqual(f(), 30)
+        with self.subTest(func='g', call=1):
+            self.assertEqual(g(), 4)
+        with self.subTest(func='f', call=4):
+            with self.assertRaises(StopIteration):
+                f()
 
-        self.assertEqual(g(), 9)
-        self.assertEqual(g(), 16)
+        with self.subTest(func='g', call=2):
+            self.assertEqual(g(), 9)
+        with self.subTest(func='g', call=3):
+            self.assertEqual(g(), 16)
 
 
 @parameterized_class(('implementation_name',), [
@@ -224,10 +271,13 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             return k
 
         it = self.implementation(f, 'd')
-        self.assertEqual(next(it), 'b')
-        self.assertEqual(next(it), 'c')
-        with self.assertRaises(StopIteration):
-            next(it)
+        with self.subTest(call=1):
+            self.assertEqual(next(it), 'b')
+        with self.subTest(call=2):
+            self.assertEqual(next(it), 'c')
+        with self.subTest(call=3):
+            with self.assertRaises(StopIteration):
+                next(it)
 
     @parameterized.expand([
         ('make_counter', 2000, list(range(2000))),
@@ -245,8 +295,10 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
         """
         f_impl = getattr(functions, f_name)
         it = self.implementation(f_impl(), sentinel)
-        self.assertIsInstance(it, Iterator)
-        self.assertListEqual(list(it), expected)
+        with self.subTest('is an iterator'):
+            self.assertIsInstance(it, Iterator)
+        with self.subTest('has correct values'):
+            self.assertListEqual(list(it), expected)
 
 
 @parameterized_class(('implementation_name',), [
@@ -268,9 +320,13 @@ class TestAsIterator(_NamedImplementationTestCase):
             return k
 
         it = self.implementation(f)
-        self.assertIsInstance(it, Iterator)
-        prefix = list(itertools.islice(it, 12))
-        self.assertListEqual(prefix, list('bcdeabcdeabc'))
+
+        with self.subTest('is an iterator'):
+            self.assertIsInstance(it, Iterator)
+
+        with self.subTest('has correct values'):
+            prefix = list(itertools.islice(it, 12))
+            self.assertListEqual(prefix, list('bcdeabcdeabc'))
 
     @parameterized.expand([
         ('make_counter', 2000, list(range(2000))),
@@ -282,10 +338,13 @@ class TestAsIterator(_NamedImplementationTestCase):
         f_impl = getattr(functions, f_name)
 
         it = self.implementation(f_impl())
-        self.assertIsInstance(it, Iterator)
 
-        prefix = list(itertools.islice(it, prefix_length))
-        self.assertListEqual(prefix, expected)
+        with self.subTest('is an iterator'):
+            self.assertIsInstance(it, Iterator)
+
+        with self.subTest('has correct values'):
+            prefix = list(itertools.islice(it, prefix_length))
+            self.assertListEqual(prefix, expected)
 
 
 @parameterized_class(('implementation_name',), [

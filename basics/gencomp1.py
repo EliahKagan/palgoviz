@@ -41,6 +41,39 @@ def my_enumerate(iterable, start=0):
     return zip(itertools.count(start), iterable)
 
 
+def my_enumerate_alt(iterable, start=0):
+    """
+    Pair up items with indices, without using zip, enumerate, or itertools.
+
+    >>> men = my_enumerate_alt(range(3,10000))
+    >>> next(men)
+    (0, 3)
+    >>> next(men)
+    (1, 4)
+    >>> next(men)
+    (2, 5)
+    >>> next(men)
+    (3, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs']))
+    [(0, 'ham'), (1, 'spam'), (2, 'eggs')]
+    >>> men = my_enumerate_alt(range(3,10000), 3)
+    >>> next(men)
+    (3, 3)
+    >>> next(men)
+    (4, 4)
+    >>> next(men)
+    (5, 5)
+    >>> next(men)
+    (6, 6)
+    >>> list(my_enumerate_alt(['ham', 'spam', 'eggs'], 10))
+    [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
+    """
+    count = start
+    for element in iterable:
+        yield count, element
+        count += 1
+
+
 def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
     """
     Show the effect of my_enumerate on a sequence of 5, ..., 9 (inclusive).
@@ -305,7 +338,6 @@ def take(iterable, n):
     [0, 1, 2]
     >>> list(take(range(3), 1_000_000))
     [0, 1, 2]
-    >>> import itertools
     >>> it = take((x**2 for x in itertools.count(2)), 2)
     >>> next(it)
     4
@@ -365,7 +397,6 @@ def drop(iterable, n):
     []
     >>> list(drop(range(5), 1_000_000))
     []
-    >>> import itertools
     >>> it = take(drop(itertools.count(1), 1000), 2)
     >>> next(it)
     1001
@@ -471,8 +502,7 @@ def tail_opt(iterable, n):
     True
     >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
     ((20, 30, 40), (30, 40), (40,), ())
-    >>> from itertools import chain
-    >>> it = chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> it = itertools.chain(a)  # "Chain" a by itself, but don't call iter yet.
     >>> tail_opt(it, 3)
     Iterating.
     (20, 30, 40)
@@ -543,8 +573,7 @@ def windowed(iterable, n):
     []
     >>> list(windowed(map(str.capitalize, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
     []
-    >>> from itertools import islice
-    >>> list(islice(windowed(range(1_000_000_000_000), 3), 4))
+    >>> list(itertools.islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
     it = iter(iterable)
@@ -1054,7 +1083,7 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
 
-    This implemetaton is the shortest. It uses distinct_dicts_by_keys (below).
+    This implementation is the shortest. It uses distinct_dicts_by_keys (below).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
