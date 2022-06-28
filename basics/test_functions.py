@@ -546,5 +546,38 @@ class TestCountTreeNodesInstrumented(_StdoutCapturingTestCase):
     # TODO: Maybe add a test corresponding to the doctest using fib_nest(3).
 
 
+class TestReportAttributes(_StdoutCapturingTestCase):
+    """Tests for the report_attributes function."""
+
+    def test_message_prints_if_no_non_metadata_attributes(self):
+        functions.report_attributes(lambda x: x**2)
+        self.assertEqual(self.out, 'No non-metadata attributes.\n')
+
+    def test_one_non_metadata_attribute_prints_like_assignment(self):
+        def greet(value):
+            print(greet.fmt.format(value))
+
+        greet.fmt = 'Hello, {}!'
+
+        functions.report_attributes(greet)
+        self.assertEqual(self.out, "greet.fmt = 'Hello, {}!'\n")
+
+    def test_two_non_metadata_attributes_print_like_assignments(self):
+        expected = "square.foo = 42\nsquare.bar = 'seventy-six'\n"
+
+        def square(x):
+            return x**2
+
+        square.foo = 42
+        square.bar = 'seventy-six'
+
+        functions.report_attributes(square)
+        self.assertEqual(self.out, expected)
+
+    def test_builtin_has_no_non_metadata_attributes(self):
+        functions.report_attributes(len)
+        self.assertEqual(self.out, 'No non-metadata attributes.\n')
+
+
 if __name__ == '__main__':
     unittest.main()
