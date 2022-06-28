@@ -251,6 +251,71 @@ class TestAsFunc(unittest.TestCase):
 
 
 @parameterized_class(('implementation_name',), [
+    ('as_func_limited',),
+    ('as_func_limited_alt',),
+])
+class TestAsFuncLimited(_NamedImplementationTestCase):
+    """Tests for the as_func_limited and as_func_limited_alt functions."""
+
+    __slots__ = ()
+
+    @parameterized.expand([
+        ('range', lambda: range(3)),
+        ('range_iterator', lambda: iter(range(3))),
+        ('list', lambda: [0, 1, 2]),
+        ('list_iterator', lambda: iter([0, 1, 2])),
+        ('generator', lambda: (x for x in (0, 1, 2))),
+    ])
+    def test_returned_function_gives_next_item_or_sentinel(self, _name,
+                                                           factory):
+        f = self.implementation(factory(), 42)
+
+        with self.subTest(call=1):
+            self.assertEqual(f(), 0)
+        with self.subTest(call=2):
+            self.assertEqual(f(), 1)
+        with self.subTest(call=3):
+            self.assertEqual(f(), 2)
+
+        with self.subTest(call=4):
+            self.assertEqual(f(), 42)
+        with self.subTest(call=5):
+            self.assertEqual(f(), 42)
+        with self.subTest(call=6):
+            self.assertEqual(f(), 42)
+
+    def test_calls_to_separate_functions_iterate_independently(self):
+        f = self.implementation([10, 20, 30], -1)
+        with self.subTest(func='f', call=1):
+            self.assertEqual(f(), 10)
+        with self.subTest(func='f', call=2):
+            self.assertEqual(f(), 20)
+
+        g = self.implementation((x**2 for x in itertools.count(2)), -2)
+        with self.subTest(func='f', call=3):
+            self.assertEqual(f(), 30)
+        with self.subTest(func='g', call=1):
+            self.assertEqual(g(), 4)
+        with self.subTest(func='f', call=4):
+            self.assertEqual(f(), -1)
+
+        with self.subTest(func='g', call=2):
+            self.assertEqual(g(), 9)
+        with self.subTest(func='g', call=3):
+            self.assertEqual(g(), 16)
+        with self.subTest(func='f', call=5):
+            self.assertEqual(f(), -1)
+
+        h = self.implementation((), -3)
+        with self.subTest(func='g', call=4):
+            self.assertEqual(g(), 25)
+        with self.subTest(func='h', call=1):
+            self.assertEqual(h(), -3)
+        with self.subTest(func='f', call=6):
+            self.assertEqual(f(), -1)
+
+
+@parameterized_class(('implementation_name',), [
     ('as_iterator_limited',),
     ('as_iterator_limited_alt',),
 ])
