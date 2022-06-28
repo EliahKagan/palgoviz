@@ -455,42 +455,42 @@ class TestCountTreeNodes(_NamedImplementationTestCase):
         self.assertEqual(result, expected)
 
 
-# TODO: If reused, extract the stdout-redirecting fixture to its own class.
-class TestCountTreeNodesInstrumented(unittest.TestCase):
-    """Tests for the count_tree_nodes_instrumented function."""
+class _StdoutCapturingTestCase(unittest.TestCase):
+    """Test fixture mixin that redirects standard output."""
 
     def setUp(self):
-        """
-        Arrange the tests by checking a precondition and redirecting a stream.
-
-        This does two things:
-
-        (1) Raise an exception if count_tree_nodes isn't the original function.
-
-        (2) Monkeypatch ("redirect") standard output to capture it for tests.
-
-        TODO: After we make a stdout-patching mixin, have this class use that.
-        """
-        if functions.count_tree_nodes is not _original_count_tree_nodes:
-            # Force an error (rather than mere failure).
-            raise Exception('count_tree_nodes ALREADY wrong at START of test')
-
+        """Redirect standard output."""
+        super().setUp()
         self._old_stdout = sys.stdout
         self._stdout = sys.stdout = io.StringIO()
 
     def tearDown(self):
-        """
-        Restore standard output.
-
-        TODO: Use mixin when available; see setUp docstring for details.
-        """
+        """Undo the redirection of standard output."""
         sys.stdout = self._old_stdout
+        super().tearDown()
+
+    @property
+    def out(self):
+        """The text sent so far to stdout during a single test."""
+        return self._stdout.getvalue()
+
+
+class TestCountTreeNodesInstrumented(_StdoutCapturingTestCase):
+    """Tests for the count_tree_nodes_instrumented function."""
+
+    def setUp(self):
+        """Arrange a test by checking a precondition and redirecting stdout."""
+        if functions.count_tree_nodes is not _original_count_tree_nodes:
+            # Force an error (rather than mere failure).
+            raise Exception('count_tree_nodes ALREADY wrong at START of test')
+
+        super().setUp()  # Capture stdout for the duration of the test.
 
     def test_function_patched_and_restored_when_no_exception_is_raised(self):
         """count_tree_nodes is patched/unpatched in the absence of errors."""
         root1 = recursion.make_deep_tuple(2)
         result1 = functions.count_tree_nodes_instrumented(root1)
-        output1 = self._out
+        output1 = self.out
 
         with self.subTest(run=1, instrumented=True, check='return value'):
             self.assertEqual(result1, 3)
@@ -514,7 +514,7 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
             self.assertEqual(result2, 4)
 
         with self.subTest(run=2, instrumented=False, check='printed output'):
-            self.assertEqual(self._out, output1, 'no more should be printed')
+            self.assertEqual(self.out, output1, 'no more should be printed')
 
     def test_function_patched_and_restored_when_an_exception_propagates(self):
         """
@@ -525,7 +525,7 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
             functions.count_tree_nodes_instrumented(root1)
 
         with self.subTest(run=1, instrumented=True, check='printed output'):
-            self.assertEqual(self._out, '', 'no output should be printed')
+            self.assertEqual(self.out, '', 'no output should be printed')
 
         with self.subTest(run=1, instrumented=True,
                           check='restores original function'):
@@ -541,14 +541,9 @@ class TestCountTreeNodesInstrumented(unittest.TestCase):
             self.assertEqual(result2, 22)
 
         with self.subTest(run=2, instrumented=False, check='printed output'):
-            self.assertEqual(self._out, '', 'no output should be printed')
+            self.assertEqual(self.out, '', 'no output should be printed')
 
     # TODO: Maybe add a test corresponding to the doctest using fib_nest(3).
-
-    @property
-    def _out(self):
-        """The text sent so far to stdout during a single test."""
-        return self._stdout.getvalue()
 
 
 if __name__ == '__main__':
