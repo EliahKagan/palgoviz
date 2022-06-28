@@ -6,5 +6,3 @@ class_graph.bfs_ancestors
 class_graph.bfs_descendants
 class_graph.draw
 object_graph.draw_tuples_bfs
-
-NOTE: These exercises might be merged into ek/review-dev (review-notes.txt).
