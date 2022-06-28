@@ -553,6 +553,10 @@ class TestReportAttributes(_StdoutCapturingTestCase):
         functions.report_attributes(lambda x: x**2)
         self.assertEqual(self.out, 'No non-metadata attributes.\n')
 
+    def test_builtin_has_no_non_metadata_attributes(self):
+        functions.report_attributes(len)
+        self.assertEqual(self.out, 'No non-metadata attributes.\n')
+
     def test_one_non_metadata_attribute_prints_like_assignment(self):
         def greet(value):
             print(greet.fmt.format(value))
@@ -573,10 +577,6 @@ class TestReportAttributes(_StdoutCapturingTestCase):
 
         functions.report_attributes(square)
         self.assertEqual(self.out, expected)
-
-    def test_builtin_has_no_non_metadata_attributes(self):
-        functions.report_attributes(len)
-        self.assertEqual(self.out, 'No non-metadata attributes.\n')
 
 
 if __name__ == '__main__':
