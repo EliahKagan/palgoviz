@@ -55,8 +55,6 @@ class _NamedImplementationTestCase(unittest.TestCase):
     class attribute by using the @parameterized.parameterized_class decorator.
     """
 
-    __slots__ = ()
-
     @property
     def implementation(self):
         """The function being tested."""
@@ -69,8 +67,6 @@ class _NamedImplementationTestCase(unittest.TestCase):
 ])
 class TestMakeCounter(_NamedImplementationTestCase):
     """Tests for the make_counter and make_counter_alt functions."""
-
-    __slots__ = ()
 
     def test_starts_at_zero_with_no_start_argument(self):
         f = self.implementation()
@@ -151,8 +147,6 @@ class TestMakeNextFibonacci(_NamedImplementationTestCase):
     Tests for the make_next_fibonacci and make_next_fibonacci_alt functions.
     """
 
-    __slots__ = ()
-
     def test_successive_fibonacci_numbers_are_returned(self):
         expected = _fib5k()
         f = self.implementation()
@@ -205,8 +199,6 @@ class TestMakeNextFibonacci(_NamedImplementationTestCase):
 class TestAsFunc(unittest.TestCase):
     """Tests for the as_func function."""
 
-    __slots__ = ()
-
     @parameterized.expand([
         ('range', range(3)),
         ('range_iterator', iter(range(3))),
@@ -256,8 +248,6 @@ class TestAsFunc(unittest.TestCase):
 ])
 class TestAsFuncLimited(_NamedImplementationTestCase):
     """Tests for the as_func_limited and as_func_limited_alt functions."""
-
-    __slots__ = ()
 
     @parameterized.expand([
         ('range', lambda: range(3)),
@@ -324,8 +314,6 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
     Tests for the as_iterator_limited and as_iterator_limited_alt functions.
     """
 
-    __slots__ = ()
-
     def test_iterator_calls_simple_f_until_sentinel(self):
         d = {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'}
         k = 'a'
@@ -373,8 +361,6 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
 class TestAsIterator(_NamedImplementationTestCase):
     """Tests for the as_iterator and as_iterator_alt functions."""
 
-    __slots__ = ()
-
     def test_iterator_calls_simple_f(self):
         d = {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e', 'e': 'a'}
         k = 'a'
@@ -418,8 +404,6 @@ class TestAsIterator(_NamedImplementationTestCase):
 ])
 class TestCountTreeNodes(_NamedImplementationTestCase):
     """Tests for the count_tree_nodes and count_tree_nodes_alt functions."""
-
-    __slots__ = ()
 
     def test_str_has_one_node(self):
         """Strings (like other non-tuple iterables) are taken as leaves."""
@@ -474,8 +458,6 @@ class TestCountTreeNodes(_NamedImplementationTestCase):
 # TODO: If reused, extract the stdout-redirecting fixture to its own class.
 class TestCountTreeNodesInstrumented(unittest.TestCase):
     """Tests for the count_tree_nodes_instrumented function."""
-
-    __slots__ = ('_old_stdout', '_stdout')
 
     def setUp(self):
         """
