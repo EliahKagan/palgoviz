@@ -3,6 +3,7 @@
 """Tests for the functions in functions.py."""
 
 from collections.abc import Iterator
+import contextlib
 import functools
 import io
 import itertools
@@ -16,6 +17,54 @@ import functions
 import recursion
 
 _original_count_tree_nodes = functions.count_tree_nodes
+
+
+class _IterableWithGeneratorIterator:
+    """A non-iterator iterable whose iterator is a generator."""
+
+    __slots__ = ('_start',)
+
+    def __init__(self, start):
+        self._start = start
+
+    def __iter__(self):
+        while True:
+            yield self._start
+            self._start += 1
+
+
+class _CloseableNonGeneratorIterator:
+    """An iterator that isn't a generator but has a similar close method."""
+
+    __slots__ = ('_next_result',)
+
+    def __init__(self, start=0):
+        self._next_result = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._next_result is None:
+            raise StopIteration
+        result = self._next_result
+        self._next_result += 1
+        return result
+
+    def close(self):
+        self._next_result = None
+
+
+class _IterableWithCloseableNonGeneratorIterator:
+    """A non-iterator iterable whose iterator is a closeable non-generator."""
+
+    __slots__ = ('_start',)
+
+    def __init__(self, start=0):
+        self._start = start
+
+    def __iter__(self):
+        return _CloseableNonGeneratorIterator(self._start)
 
 
 @functools.cache
@@ -196,18 +245,22 @@ class TestMakeNextFibonacci(_NamedImplementationTestCase):
             self.assertEqual(g(), 5)
 
 
-class TestAsFunc(unittest.TestCase):
-    """Tests for the as_func function."""
+@parameterized_class('implementation_name', [
+    ('as_func',),
+    ('as_closeable_func',),
+])
+class TestAsFunc(_NamedImplementationTestCase):
+    """Tests for the as_func and as_closeable_func functions."""
 
     @parameterized.expand([
-        ('range', range(3)),
-        ('range_iterator', iter(range(3))),
-        ('list', [0, 1, 2]),
-        ('list_iterator', iter([0, 1, 2])),
-        ('generator', (x for x in (0, 1, 2))),
+        ('range', lambda: range(3)),
+        ('range_iterator', lambda: iter(range(3))),
+        ('list', lambda: [0, 1, 2]),
+        ('list_iterator', lambda: iter([0, 1, 2])),
+        ('generator', lambda: (x for x in (0, 1, 2))),
     ])
-    def test_returned_function_calls_next_on_iterable(self, _name, iterable):
-        f = functions.as_func(iterable)
+    def test_returned_function_calls_next_on_iterable(self, _name, factory):
+        f = self.implementation(factory())
 
         with self.subTest(call=1):
             self.assertEqual(f(), 0)
@@ -221,13 +274,13 @@ class TestAsFunc(unittest.TestCase):
                 f()
 
     def test_calls_to_separate_functions_iterate_independently(self):
-        f = functions.as_func([10, 20, 30])
+        f = self.implementation([10, 20, 30])
         with self.subTest(func='f', call=1):
             self.assertEqual(f(), 10)
         with self.subTest(func='f', call=2):
             self.assertEqual(f(), 20)
 
-        g = functions.as_func(x**2 for x in itertools.count(2))
+        g = self.implementation(x**2 for x in itertools.count(2))
         with self.subTest(func='f', call=3):
             self.assertEqual(f(), 30)
         with self.subTest(func='g', call=1):
@@ -242,12 +295,76 @@ class TestAsFunc(unittest.TestCase):
             self.assertEqual(g(), 16)
 
 
+class TestAsCloseableFunc(unittest.TestCase):
+    """Tests specific to the as_closeable_func function."""
+
+    @parameterized.expand([
+        ('generator iterator', (i for i in itertools.count(1))),
+        ('non-generator iterator', _CloseableNonGeneratorIterator(1)),
+        ('generator iterable', _IterableWithGeneratorIterator(1)),
+        ('non-generator iterable',
+            _IterableWithCloseableNonGeneratorIterator(1)),
+    ])
+    def test_has_close_attribute_if_iterator_has_close(self, _name,
+                                                       closeable_iterator):
+        f = functions.as_closeable_func(closeable_iterator)
+        self.assertTrue(hasattr(f, 'close'))
+
+    @parameterized.expand([
+        ('generator iterator', (i for i in itertools.count(1))),
+        ('non-generator iterator', _CloseableNonGeneratorIterator(1)),
+        ('generator iterable', _IterableWithGeneratorIterator(1)),
+        ('non-generator iterable',
+            _IterableWithCloseableNonGeneratorIterator(1)),
+    ])
+    def test_can_close_if_iterator_has_close(self, _name, it):
+        f = functions.as_closeable_func(it)
+
+        with contextlib.closing(f):
+            with self.subTest('before closing', call=1):
+                self.assertEqual(f(), 1)
+            with self.subTest('before closing', call=2):
+                self.assertEqual(f(), 2)
+
+        with self.subTest('after closing', call=3):
+            with self.assertRaises(StopIteration):
+                f()
+
+    @parameterized.expand([
+        ('itertools.count', itertools.count(1)),
+        ('list iterator', iter([1, 2, 3])),
+        ('list', [1, 2, 3]),
+    ])
+    def test_no_close_attribute_if_iterator_has_no_close(self, _name, it):
+        f = functions.as_closeable_func(it)
+        self.assertFalse(hasattr(f, 'close'))
+
+    @parameterized.expand([
+        ('itertools.count', itertools.count(1)),
+        ('list iterator', iter([1, 2, 3])),
+        ('list', [1, 2, 3]),
+    ])
+    def test_cannot_close_if_iterator_has_no_close(self, _name, it):
+        f = functions.as_closeable_func(it)
+
+        with self.assertRaises(AttributeError):
+            with contextlib.closing(f):
+                with self.subTest('before attempting close', call=1):
+                    self.assertEqual(f(), 1)
+                with self.subTest('before attempting close', call=2):
+                    self.assertEqual(f(), 2)
+
+        with self.subTest('after attempting close', call=3):
+            self.assertEqual(f(), 3)
+
+
 @parameterized_class(('implementation_name',), [
     ('as_func_limited',),
     ('as_func_limited_alt',),
+    ('as_closeable_func_limited',),
 ])
 class TestAsFuncLimited(_NamedImplementationTestCase):
-    """Tests for the as_func_limited and as_func_limited_alt functions."""
+    """Tests for as_func_limited and related functions."""
 
     @parameterized.expand([
         ('range', lambda: range(3)),
@@ -305,14 +422,16 @@ class TestAsFuncLimited(_NamedImplementationTestCase):
             self.assertEqual(f(), -1)
 
 
+# FIXME: Write the TestAsCloseableFuncLimited class here.
+
+
 @parameterized_class(('implementation_name',), [
     ('as_iterator_limited',),
     ('as_iterator_limited_alt',),
+    ('as_closeable_iterator_limited',)
 ])
 class TestAsIteratorLimited(_NamedImplementationTestCase):
-    """
-    Tests for the as_iterator_limited and as_iterator_limited_alt functions.
-    """
+    """Tests for as_iterator_limited and related functions."""
 
     def test_iterator_calls_simple_f_until_sentinel(self):
         d = {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'}
@@ -354,9 +473,13 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             self.assertListEqual(list(it), expected)
 
 
+# FIXME: Write the TestAsCloseableIteratorLimited class here.
+
+
 @parameterized_class(('implementation_name',), [
     ('as_iterator',),
     ('as_iterator_alt',),
+    ('as_closeable_iterator',),
 ])
 class TestAsIterator(_NamedImplementationTestCase):
     """Tests for the as_iterator and as_iterator_alt functions."""
@@ -396,6 +519,9 @@ class TestAsIterator(_NamedImplementationTestCase):
         with self.subTest('has correct values'):
             prefix = list(itertools.islice(it, prefix_length))
             self.assertListEqual(prefix, expected)
+
+
+# FIXME: Write the AsCloseableIterator class here.
 
 
 @parameterized_class(('implementation_name',), [
@@ -577,6 +703,9 @@ class TestReportAttributes(_StdoutCapturingTestCase):
 
         functions.report_attributes(square)
         self.assertEqual(self.out, expected)
+
+
+# FIXME: Write the TestFuncFilter class here.
 
 
 if __name__ == '__main__':
