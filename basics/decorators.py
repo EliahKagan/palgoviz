@@ -556,3 +556,75 @@ def auto_prime(func):
         return gen
 
     return wrapper
+
+
+def dict_equality(cls):
+    """
+    Decorator to add instance dictionary based equality comparison and hashing.
+
+    NOTE: This always adds hashing even if there are signs of mutability, such
+    as writeable attributes whose names do not start with an underscore. But
+    instances that themselves have attributes (stored in their instance
+    dictionaries) whose values are non-hashable objects are non-hashable.
+
+    >>> @dict_equality
+    ... class Point:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({self.x!r}, {self.y!r})'
+    >>> Point(1, 2) == Point(1, 2) == Point(1.0, 2.0) != Point(2, 1)
+    True
+    >>> {Point(1, 2), Point(1, 2)}
+    {Point(1, 2)}
+
+    >>> @dict_equality
+    ... class Weird:
+    ...     __slots__ = ('a', 'b', '__dict__')
+    ...     def __init__(self, a, b, c):
+    ...         self.a = a
+    ...         self.b = b
+    ...         self.c = c
+    >>> Weird(1, 2, 3) == Weird(4, 5, 3) != Weird(4, 5, 6)
+    True
+
+    >>> class Base:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    >>> @dict_equality
+    ... class Derived(Base): pass
+    >>> class MoreDerived(Derived): pass
+    >>> Base(1, 2) == Derived(1, 2), Derived(1, 2) == Base(1, 2)
+    (False, False)
+    >>> Derived(1, 2) == MoreDerived(1, 2), MoreDerived(1, 2) == Derived(1, 2)
+    (True, True)
+
+    >>> @dict_equality
+    ... class A: pass
+    >>> @dict_equality
+    ... class B: pass
+    >>> class C: pass
+    >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
+    (True, False, False, False, False)
+    """
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, type(self)):
+            return self.__dict__ != other.__dict__
+        return NotImplemented
+
+    def __hash__(self):
+        normalized = sorted(self.__dict__.items())
+        flattened = itertools.chain.from_iterable(normalized)
+        return hash(tuple(flattened))
+
+    cls.__eq__ = __eq__
+    cls.__ne__ = __ne__
+    cls.__hash__ = __hash__
+    return cls
