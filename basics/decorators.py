@@ -632,6 +632,53 @@ def dict_equality(cls):
     return cls
 
 
+def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
+    """
+    Optionally parameterized decorator to join returned iterables into strings.
+
+    The decorated function must return an iterable, but elements need not be
+    strings. They are formatted with format_spec via the format builtin, unless
+    use_repr is true; then their reprs are used and format_spec is ignored.
+
+    This can be used as a decorator factory, passing zero or more arguments:
+
+    >>> @joining(use_repr=True, begin='[', end=']')
+    ... def f(n): return (ch * n for ch in 'ABC')
+    >>> f(3)
+    "['AAA', 'BBB', 'CCC']"
+    >>> @joining('; ', format_spec='.2f')
+    ... def g(a, b, *, delta=1):
+    ...     while a < b:
+    ...         yield a
+    ...         a += delta
+    >>> g(1.7, 6.4, delta=1.15)
+    '1.70; 2.85; 4.00; 5.15; 6.30'
+
+    When keeping all defaults, it can also be used directly as a decorator:
+
+    >>> @joining
+    ... def g(start, stop):
+    ...     while start > stop:
+    ...         yield start
+    ...         start /= 2
+    >>> g(7, 0.5)
+    '7, 3.5, 1.75, 0.875'
+    """
+    if callable(sep):  # sep is actually the function, rather than a separator.
+        return joining()(sep)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            to_str = repr if use_repr else lambda obj: format(obj, format_spec)
+            joined = sep.join(map(to_str, func(*args, **kwargs)))
+            return f'{begin}{joined}{end}'
+
+        return wrapper
+
+    return decorator
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
