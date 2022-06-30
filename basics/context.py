@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Context managers."""
 
 import functools
@@ -221,3 +223,8 @@ class MonkeyPatch:
             setattr(self._target, self._name, self._old_value)
         else:
             delattr(self._target, self._name)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
