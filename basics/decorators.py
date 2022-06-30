@@ -504,3 +504,55 @@ def convert_return(converter):
         return wrapper
 
     return decorator
+
+
+def auto_prime(func):
+    """
+    Decorator to automatically run returned generator up to the first yield.
+
+    One use of this is to write generator functions contain their own fail-fast
+    validation, without having to write a helper function each time.
+
+    This is called "priming" the generator. It has some other use cases, too.
+
+    >>> import collections, inspect
+    >>> @auto_prime
+    ... def alternate_ends(iterable, *, back_first=False):
+    ...     pool = collections.deque(iterable)
+    ...     yield  # The caller receives a generator primed to here.
+    ...     if pool and back_first: yield pool.pop()
+    ...     while pool:
+    ...         yield pool.popleft()
+    ...         if pool: yield pool.pop()
+
+    >>> it = alternate_ends(range(1, 6))
+    >>> inspect.getgeneratorstate(it)  # GEN_SUSPENDED instead of GEN_CREATED.
+    'GEN_SUSPENDED'
+    >>> list(it)
+    [1, 5, 2, 4, 3]
+    >>> list(alternate_ends(range(1, 6), back_first=True))
+    [5, 1, 4, 2, 3]
+    >>> alternate_ends(10 // i for i in range(3, -1, -1))  # Fails fast.
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: integer division or modulo by zero
+
+    >>> @auto_prime
+    ... def first_yield_non_none(values):
+    ...     while values: yield values.pop()
+    >>> a = [10, 20, 30]
+    >>> first_yield_non_none(a)
+    Traceback (most recent call last):
+      ...
+    TypeError: generator yielded non-None value when primed
+    >>> a
+    [10, 20]
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        gen = func(*args, **kwargs)
+        if next(gen) is not None:
+            raise TypeError('generator yielded non-None value when primed')
+        return gen
+
+    return wrapper
