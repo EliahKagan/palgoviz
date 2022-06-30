@@ -2,6 +2,7 @@
 
 """Tests for context managers in context.py."""
 
+import contextlib
 import io
 import unittest
 
@@ -118,26 +119,34 @@ class _HasClose(_NoClose):
         self.closed = True
 
 
-class TestClosing(unittest.TestCase):
-    """Tests for the context.Closing class."""
+class TestContextlibClosing(unittest.TestCase):
+    """
+    Tests for contextlib.closing, reused below to test context.Closing.
 
-    def test_repr_show_type_and_initializer_argument(self):
-        cm = context.Closing(_HasClose())
-        self.assertEqual(repr(cm), 'Closing(_HasClose())')
+    We needn't test contextlib.closing, but writing the tests so those that
+    apply to both are used to test both has the effect of testing the tests.
+    Furthermore, in the future it is likely that we will have another "closing"
+    implementation that will share most but not all tests with context.Closing.
+    """
+
+    @property
+    def implementation(self):
+        """The "closing" context manager implementation being tested."""
+        return contextlib.closing
 
     def test_enter_returns_initializer_argument(self):
         obj = _HasClose()
-        with context.Closing(obj) as ctx:
+        with self.implementation(obj) as ctx:
             self.assertIs(ctx, obj)
 
     def test_enter_does_not_close(self):
         obj = _HasClose()
-        with context.Closing(obj):
+        with self.implementation(obj):
             self.assertFalse(obj.closed)
 
     def test_exit_closes(self):
         obj = _HasClose()
-        with context.Closing(obj):
+        with self.implementation(obj):
             if obj.closed:
                 raise Exception("can't check if __exit__ closes, already closed")
         self.assertTrue(obj.closed)
@@ -145,7 +154,7 @@ class TestClosing(unittest.TestCase):
     def test_presence_of_close_is_not_pre_checked(self):
         got_to_exit = False
         try:
-            with context.Closing(_NoClose()):
+            with self.implementation(_NoClose()):
                 got_to_exit = True
         except AttributeError:
             pass
@@ -154,7 +163,7 @@ class TestClosing(unittest.TestCase):
     def test_calling_close_attempted_even_if_absent(self):
         with self.subTest('AttributeError raised'):
             with self.assertRaises(AttributeError) as ctx:
-                with context.Closing(_NoClose()):
+                with self.implementation(_NoClose()):
                     pass
 
         with self.subTest('AttributeError name attribute'):
@@ -168,10 +177,22 @@ class TestClosing(unittest.TestCase):
             closed = True
 
         obj = _NoClose()
-        with context.Closing(obj):
+        with self.implementation(obj):
             obj.close = just_in_time_close
 
         self.assertTrue(closed)
+
+
+class TestClosing(TestContextlibClosing):
+    """Tests for the context.Closing class."""
+
+    @property
+    def implementation(self):
+        return context.Closing
+
+    def test_repr_shows_type_and_initializer_argument(self):
+        cm = self.implementation(_HasClose())
+        self.assertEqual(repr(cm), 'Closing(_HasClose())')
 
 
 if __name__ == '__main__':
