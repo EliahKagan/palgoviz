@@ -1,5 +1,6 @@
 """Context managers."""
 
+import functools
 import sys
 
 
@@ -113,7 +114,60 @@ class Suppress:
 
 
 class MonkeyPatch:
-    """Context manager to patch and unpatch an attribute."""
+    """
+    Context manager and decorator to patch and unpatch an attribute.
+
+    A MonkeyPatch instance may be used as a context manager:
+
+    >>> import builtins, contextlib, math
+    >>> with MonkeyPatch(builtins, 'len', lambda _: 42):
+    ...     print(len([]))
+    42
+    >>> len([])
+    0
+
+    Or the instance may be used as a decorator:
+
+    >>> @MonkeyPatch(builtins, 'len', lambda _: 42)
+    ... def mean(*values):
+    ...     return sum(values) / len(values)
+    >>> mean(1, 3, 5)
+    0.21428571428571427
+
+    When used as a decorator, it is reentrant (and also preserves metadata):
+
+    >>> two_digits = MonkeyPatch(math, 'pi', 3.14)
+    >>> five_digits = MonkeyPatch(math, 'pi', 3.14159)
+    >>> @two_digits
+    ... def f(x):
+    ...     '''f.'''
+    ...     @five_digits
+    ...     def g(y):
+    ...         '''g.'''
+    ...         @two_digits
+    ...         def ff(p, q):
+    ...             '''ff.'''
+    ...             @five_digits
+    ...             def gg(r, s):
+    ...                 '''gg.'''
+    ...                 print(math.pi, r, s, end=' ')
+    ...                 raise ValueError
+    ...             print(math.pi, gg.__name__, gg.__doc__, end=' ')
+    ...             with contextlib.suppress(ValueError): gg(s=q+1, r=p+1)
+    ...             print(math.pi, p, q, end=' ')
+    ...         print(math.pi, ff.__name__, ff.__doc__, end=' ')
+    ...         ff(y+1, q=y+2)
+    ...         print(math.pi, y, end=' ')
+    ...     print(math.pi, g.__name__, g.__doc__, end=' ')
+    ...     g(x+1)
+    ...     print(math.pi, x)
+    ...     return x**2
+    >>> print(math.pi, f.__name__, f.__doc__); print(f(4)); print(math.pi)
+    3.141592653589793 f f.
+    3.14 g g. 3.14159 ff ff. 3.14 gg gg. 3.14159 7 8 3.14 6 7 3.14159 5 3.14 4
+    16
+    3.141592653589793
+    """
 
     __slots__ = (
         '_target',
@@ -135,6 +189,16 @@ class MonkeyPatch:
         """Representation of this object as Python code."""
         return (f'{type(self).__name__}({self._target!r}, {self._name!r}, '
                 f'{self._new_value!r}, allow_absent={self._allow_absent!r})')
+
+    def __call__(self, func):
+        """Wrap a function so each invocation patches and unpatches."""
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with type(self)(self._target, self._name, self._new_value,
+                            allow_absent=self._allow_absent):
+                return func(*args, **kwargs)
+
+        return wrapper
 
     def __enter__(self):
         """Patch the attribute."""
