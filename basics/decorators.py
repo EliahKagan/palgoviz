@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Some basic decorators."""
 
 import functools
@@ -628,3 +630,8 @@ def dict_equality(cls):
     cls.__ne__ = __ne__
     cls.__hash__ = __hash__
     return cls
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
