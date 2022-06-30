@@ -26,13 +26,14 @@ class _NonRedirectingOutputCapturingTestCase(unittest.TestCase):
         return self.__out
 
     def assertOutputWas(self, expected):
-        """Clear the output buffer, asserting it had expected content."""
+        """Assert the output has expected content, and clear it."""
         actual = self.out.getvalue()
         self.out.seek(0)
         self.out.truncate(0)
         self.assertEqual(actual, expected)
 
 
+# FIXME: Finish writing these tests (if context.Announce is to be kept).
 class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
     """Tests for the Announce context manager."""
 
@@ -89,6 +90,88 @@ class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
 
         with self.subTest(task='A', when='finish'):
             self.assertOutputWas('_FakeError raised in task A.\n')
+
+
+class _NoClose:
+    """
+    Class without a close method, to help test context.Closing.
+
+    Derived classes may or may not have a close method.
+    """
+
+    def __repr__(self):
+        """Representation of this object as Python code."""
+        return f'{type(self).__name__}()'
+
+    def __str__(self):
+        """Non-code representation. Tests that reprs are used where needed."""
+        return f'{type(self).__name__} instance'
+
+
+class _HasClose(_NoClose):
+    """Class with a close method, to help test context.Closing."""
+
+    def __init__(self):
+        self.closed = False
+
+    def close(self):
+        self.closed = True
+
+
+class TestClosing(unittest.TestCase):
+    """Tests for the context.Closing class."""
+
+    def test_repr_show_type_and_initializer_argument(self):
+        cm = context.Closing(_HasClose())
+        self.assertEqual(repr(cm), 'Closing(_HasClose())')
+
+    def test_enter_returns_initializer_argument(self):
+        obj = _HasClose()
+        with context.Closing(obj) as ctx:
+            self.assertIs(ctx, obj)
+
+    def test_enter_does_not_close(self):
+        obj = _HasClose()
+        with context.Closing(obj):
+            self.assertFalse(obj.closed)
+
+    def test_exit_closes(self):
+        obj = _HasClose()
+        with context.Closing(obj):
+            if obj.closed:
+                raise Exception("can't check if __exit__ closes, already closed")
+        self.assertTrue(obj.closed)
+
+    def test_presence_of_close_is_not_pre_checked(self):
+        got_to_exit = False
+        try:
+            with context.Closing(_NoClose()):
+                got_to_exit = True
+        except AttributeError:
+            pass
+        self.assertTrue(got_to_exit)
+
+    def test_calling_close_attempted_even_if_absent(self):
+        with self.subTest('AttributeError raised'):
+            with self.assertRaises(AttributeError) as ctx:
+                with context.Closing(_NoClose()):
+                    pass
+
+        with self.subTest('AttributeError name attribute'):
+            self.assertEqual(ctx.exception.name, 'close')
+
+    def test_exit_closes_even_if_close_was_just_patched_in(self):
+        closed = False
+
+        def just_in_time_close():
+            nonlocal closed
+            closed = True
+
+        obj = _NoClose()
+        with context.Closing(obj):
+            obj.close = just_in_time_close
+
+        self.assertTrue(closed)
 
 
 if __name__ == '__main__':
