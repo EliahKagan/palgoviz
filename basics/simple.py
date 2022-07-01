@@ -6,6 +6,21 @@ from abc import ABC, abstractmethod
 import itertools
 import sys
 
+__all__ = [
+    'MY_NONE',
+    'Widget',
+    'answer',
+    'is_sorted',
+    'alert',
+    'bail_if',
+    'Squarer',
+    'MulSquarer',
+    'PowSquarer',
+    'make_squarer',
+    'Toggle',
+    'make_toggle',
+    'make_toggle_alt',
+]
 
 MY_NONE = None
 
