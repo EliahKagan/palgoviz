@@ -1527,8 +1527,9 @@ def two_sum_int(numbers, total, *, b=16):
     hashing, good hash distribution is assumed, and times hold with high
     probability. Space is auxiliary (not total). "~" time/space are when values
     fit in machine words. Otherwise, arithmetic takes O(log M) time and space,
-    and comparisons take O(log M) time and are assumed to take O(1) space. The
-    "ops." row only lists operations useful to distinguish the approaches.
+    comparisons take O(log M) time and are assumed to take O(1) space, and
+    "copying" n numbers still takes O(n) space as only references are copied.
+    The "ops." row only lists operations useful to distinguish the approaches.
 
     FIXME: This table may have errors and is based on my solutions. Closely
     check all its claims about previous 2-sum implementations. That can be done
