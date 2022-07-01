@@ -215,9 +215,7 @@ def make_toggle_alt(start):
     return lambda: next(it)
 
 
-__all__ = ['MY_NONE']
-
-__all__.extend(thing.__name__ for thing in (
+__all__ = ['MY_NONE'] + [thing.__name__ for thing in (
     Widget,
     answer,
     is_sorted,
@@ -230,7 +228,7 @@ __all__.extend(thing.__name__ for thing in (
     Toggle,
     make_toggle,
     make_toggle_alt,
-))
+)]
 
 
 if __name__ == '__main__':
