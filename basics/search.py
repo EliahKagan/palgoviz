@@ -1531,7 +1531,7 @@ def two_sum_int(numbers, total, *, b=16):
     "copying" n numbers still takes O(n) space as only references are copied.
     The "ops." row only lists operations useful to distinguish the approaches.
 
-    FIXME: This table may have errors and is based on my solutions. Closely
+    FIXME: This table may have errors, and it's based on my solutions. Closely
     check all its claims about previous 2-sum implementations. That can be done
     collaboratively. I think the table will help in designing this algorithm.
 
