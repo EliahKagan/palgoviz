@@ -6,22 +6,6 @@ from abc import ABC, abstractmethod
 import itertools
 import sys
 
-__all__ = [
-    'MY_NONE',
-    'Widget',
-    'answer',
-    'is_sorted',
-    'alert',
-    'bail_if',
-    'Squarer',
-    'MulSquarer',
-    'PowSquarer',
-    'make_squarer',
-    'Toggle',
-    'make_toggle',
-    'make_toggle_alt',
-]
-
 MY_NONE = None
 
 
@@ -229,6 +213,24 @@ def make_toggle_alt(start):
     _check_toggle_param(start)
     it = itertools.cycle([start, not start])
     return lambda: next(it)
+
+
+__all__ = ['MY_NONE']
+
+__all__.extend(thing.__name__ for thing in (
+    Widget,
+    answer,
+    is_sorted,
+    alert,
+    bail_if,
+    Squarer,
+    MulSquarer,
+    PowSquarer,
+    make_squarer,
+    Toggle,
+    make_toggle,
+    make_toggle_alt,
+))
 
 
 if __name__ == '__main__':
