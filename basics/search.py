@@ -2515,10 +2515,14 @@ def _do_solve_boggle_alt2(board, words):
 
         if low_word == child_prefix:
             frequencies[child_prefix] += 1  # This prefix is a full word.
+            child_low += 1
 
-        # child_high = bisect.bisect_left(words, child_prefix + '\0',  # WRONG
-        #                                 child_low + 1, parent_high)
-        child_high = parent_high  # FIXME: Try to do get faster than this.
+        child_high = first_satisfying(
+            lambda i: not words[i].startswith(child_prefix),
+            child_low, parent_high)
+
+        if child_low == child_high:
+            return # No longer words start with this prefix.
 
         board[i][j] = None  # Mark this cell as visited.
         search(i, j - 1, child_prefix, child_low, child_high)
