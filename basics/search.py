@@ -56,7 +56,6 @@ Documentation within this module uses these conventions and simplifications:
 
 import bisect
 import collections
-from collections.abc import Sequence
 import contextlib
 import functools
 import html
