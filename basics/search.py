@@ -55,6 +55,7 @@ Documentation within this module uses these conventions and simplifications:
 """
 
 import bisect
+import collections
 import contextlib
 import functools
 import html
@@ -2293,6 +2294,127 @@ def count_n_queens_solutions(n):
 
     total = 2 * sum(start_count(qj) for qj in range(n // 2))
     return total if n % 2 == 0 else total + start_count(n // 2)
+
+
+_WORD_MARK = None
+"""Sentinel trie-node key indicating a prefix is present as full word."""
+
+
+def _make_trie_node():
+    """Make a node in a trie (prefix tree) of words, for solve_boggle."""
+    return collections.defaultdict(_make_trie_node)
+
+
+def _build_trie(words):
+    """Build a trie (prefix tree) of words."""
+    root = _make_trie_node()
+
+    for word in words:
+        if not word:
+            raise ValueError('empty word')
+        node = root
+        for ch in word:
+            node = node[ch]
+        node[_WORD_MARK] = word
+
+    return root
+
+
+def _dimensions(board):
+    """Validate a Boggle board's height and width and return them."""
+    height = len(board)
+    if height == 0:
+        raise ValueError('empty board')
+    width = len(board[0])
+    if any(len(row) != width for row in board):
+        raise ValueError('jagged board')
+    if width == 0:
+        raise ValueError('zero-width board')
+    return height, width
+
+
+def _do_solve_boggle(board, root):
+    """Helper for solve_boggle. Takes a fully mutable board and a trie root."""
+    height, width = _dimensions(board)
+    frequencies = collections.Counter()
+
+    def search(i, j, parent):
+        if not (0 <= i < height and 0 <= j < width):
+            return  # Outside the board.
+        ch = board[i][j]
+        if ch is None:
+            return  # Already visited this cell on this path.
+        child = parent.get(ch)
+        if child is None:
+            return  # This path doesn't make a prefix of any word.
+
+        word = child.get(_WORD_MARK)
+        if word is not None:
+            frequencies[word] += 1  # This prefix is a full word.
+
+        board[i][j] = None  # Mark this cell as visited.
+        search(i, j - 1, child)
+        search(i, j + 1, child)
+        search(i - 1, j, child)
+        search(i + 1, j, child)
+        board[i][j] = ch  # Restore this cell for backtracking.
+
+    for start_i, start_j in itertools.product(range(height), range(width)):
+        search(start_i, start_j, root)
+
+    return frequencies
+
+
+def solve_boggle(board, words):
+    """
+    Find words and count their frequencies on a board with 4-way adjacency.
+
+    The board is rectangular with nonzero height and width. Each cell holds a
+    Unicode character. It is represented as a sequence of sequences of length-1
+    strings (such as a list of strings, all of the same length). The board has
+    4-way adjacency: a move goes up, down, left, or right, but not diagonally.
+    A word is on the board if it can be made by any number of moves starting on
+    any cell, without reusing any cell. Separate matches (of the same or
+    different words) may use some or even all of the same cells:
+
+    >>> board1 = ('racecar',
+    ...           'poaxdog',
+    ...           'Parisol')
+    >>> words1 = ['racecar', 'six', 'parisol', 'Paris', 'six', 'doos', 'doosd']
+    >>> freqs1 = solve_boggle(board1, words1)
+    >>> from collections import Counter
+    >>> freqs1 == Counter({'racecar': 4, 'doos': 1, 'Paris': 1, 'six': 1})
+    True
+
+    The words to find are given as an arbitrary iterable of nonempty strings.
+    You don't need to worry about combining characters or normalization: in
+    this problem, we regard words to be sequences of Unicode code points. Good
+    performance should not rely on the words being drawn from any existing
+    language. Glyphs added to Unicode in the future should automatically work.
+    If a word is repeated in words, treat it the same as if it appeared once.
+
+    Return a Counter mapping words to the number of ways to make them on the
+    board. Words absent from the board should be absent from the Counter.
+
+    This problem is inspired by Boggle but the rules are not really the same.
+
+    >>> board2 = ['🤣🐍🧐😾😶😵😎👻👽🦊🎷🐍',
+    ...           '🐍🍉🦆🐼🌴🎨🎮🧩🐍🐍🎻💩',
+    ...           '🧯🖤🦓🦓🦓🧐🧐🦢🐍🦚🤡🙀',
+    ...           '🤐👺😁😁🐶🦨🐍🐙🐙🐙👩🐙',
+    ...           '🎃💩🤯🍒😲😱🧣😿😱🐍🐍🦓',
+    ...           '🦝🦝🍒🍒💩🎱💔🥝🥨💩💪🤠',
+    ...           '😤😿😿👀🥶😭🥶😻🧶😃🦾🤯',
+    ...           '🧐💩🙀🙀🐸😇🙃🌊🌵🤡😻🥶']
+    >>> words2 = ['🥨🦝', '🦝🍒🍒🍒🤯😁', '🐸🥶👀🍒💩🥶', '🐸🥶👀🍒💩🎱💔🥶', '🐙🐙🐍']
+    >>> freqs2 = solve_boggle(board2, words2)
+    >>> freqs2 == Counter({'🐙🐙🐍': 4, '🦝🍒🍒🍒🤯😁': 1, '🐸🥶👀🍒💩🎱💔🥶': 1})
+    True
+
+    FIXME: Needs a bigger test.
+    """
+    return _do_solve_boggle([list(row) for row in board], _build_trie(words))
+
 
 
 if __name__ == '__main__':

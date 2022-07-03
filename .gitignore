@@ -8,3 +8,6 @@ __pycache__/
 *.exe
 *.hi
 *.o
+
+# Downloaded word list
+/basics/words.txt
