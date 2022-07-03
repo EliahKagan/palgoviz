@@ -373,7 +373,7 @@ def report_attributes(func):
     It is the caller's responsibility to ensure func is a function. Although
     bound methods are sometimes regarded to be functions, they are not allowed
     here. (Classes and callable instances are only ever informally regarded as
-    functions, and are likewise not allowed.) You don't have to check for this.
+    functions, and are likewise not allowed.)
 
     >>> report_attributes(lambda x: x**2)
     No non-metadata attributes.

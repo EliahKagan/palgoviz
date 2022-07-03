@@ -14,3 +14,6 @@ functions.as_closeable_func_limited
 functions.as_closeable_iterator_limited
 functions.as_closeable_iterator
 functions.func_filter
+decorators.auto_prime
+decorators.dict_equality
+decorators.joining
