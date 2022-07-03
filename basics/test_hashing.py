@@ -18,7 +18,7 @@ from hashing import IntKeyTable, HashTable
 # FIXME: These tests are incomplete, overcomplicated, and buggy, and some of
 # the requirements they express are likely to change radically.
 #
-# FIXME: The use of fixtures here is no very good, and not really as intended.
+# FIXME: The use of fixtures here is not very good, and not really as intended.
 class TestIntKeyTable:
     """Tests for the IntKeyTable class, a direct address table."""
 
