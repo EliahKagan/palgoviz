@@ -1794,7 +1794,7 @@ def can_escape_forest(forest, stamina, start_i, start_j, finish_i, finish_j):
     when it runs out, except that reaching the rocket ship with zero stamina is
     okay, because being in a rocket ship is exciting enough to wake anybody up.
 
-    If the tourist walks into a tree, the three swallows up the tourist, who
+    If the tourist walks into a tree, the tree swallows up the tourist, who
     will then live the rest of their life inside the tree. Also, the forest is
     suspended in an infinite abyss, so to walk out of it is to fall for all
     eternity. The other matter is that, while the tourist may step on a flower,
