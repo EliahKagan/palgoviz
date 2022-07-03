@@ -8,9 +8,6 @@ See also object_graph.py.
 
 import bisect
 import collections
-import functools
-import math
-import operator
 
 import decorators
 
@@ -133,7 +130,7 @@ def digit_sum(n, b):
     >>> digit_sum(17**90 - 11**28, 41421)
     564328
     """
-    return 0 if n == 0 else n % b + digit_sum(n // b, b)
+    # FIXME: Implement this.
 
 
 def digit_sum_tail(n, b):
@@ -147,10 +144,7 @@ def digit_sum_tail(n, b):
     >>> digit_sum_tail(17**90 - 11**28, 41421)
     564328
     """
-    def accumulate(acc, value):
-        return acc if value == 0 else accumulate(acc + value % b, value // b)
-
-    return accumulate(0, n)
+    # FIXME: Implement this.
 
 
 def digit_sum_iterative(n, b):
@@ -164,11 +158,7 @@ def digit_sum_iterative(n, b):
     >>> digit_sum_iterative(17**90 - 11**28, 41421)
     564328
     """
-    acc = 0
-    while n != 0:
-        acc += n % b
-        n //= b
-    return acc
+    # FIXME: Implement this.
 
 
 def add_all_iterative(values):
