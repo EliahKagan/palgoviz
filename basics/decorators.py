@@ -550,14 +550,7 @@ def auto_prime(func):
     >>> a
     [10, 20]
     """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        gen = func(*args, **kwargs)
-        if next(gen) is not None:
-            raise TypeError('generator yielded non-None value when primed')
-        return gen
-
-    return wrapper
+    # FIXME: Implement this.
 
 
 def dict_equality(cls):
@@ -611,25 +604,7 @@ def dict_equality(cls):
     >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
     (True, False, False, False, False)
     """
-    def __eq__(self, other):
-        if isinstance(other, type(self)):
-            return self.__dict__ == other.__dict__
-        return NotImplemented
-
-    def __ne__(self, other):
-        if isinstance(other, type(self)):
-            return self.__dict__ != other.__dict__
-        return NotImplemented
-
-    def __hash__(self):
-        normalized = sorted(self.__dict__.items())
-        flattened = itertools.chain.from_iterable(normalized)
-        return hash(tuple(flattened))
-
-    cls.__eq__ = __eq__
-    cls.__ne__ = __ne__
-    cls.__hash__ = __hash__
-    return cls
+    # FIXME: Implement this.
 
 
 def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
@@ -664,19 +639,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     >>> g(7, 0.5)
     '7, 3.5, 1.75, 0.875'
     """
-    if callable(sep):  # sep is actually the function, rather than a separator.
-        return joining()(sep)
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            to_str = repr if use_repr else lambda obj: format(obj, format_spec)
-            joined = sep.join(map(to_str, func(*args, **kwargs)))
-            return f'{begin}{joined}{end}'
-
-        return wrapper
-
-    return decorator
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':
