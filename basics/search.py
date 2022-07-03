@@ -2425,7 +2425,9 @@ def _build_prefix_set(words):
 
 
 def _do_solve_boggle_alt(board, words):
-    """Helper for solve_boggle. Takes a fully mutable board and a word set."""
+    """
+    Helper for solve_boggle_alt. Takes a fully mutable board and a word set.
+    """
     height, width = _dimensions(board)
     prefixes = _build_prefix_set(words)
     frequencies = collections.Counter()
