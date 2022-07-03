@@ -2515,16 +2515,13 @@ def _do_solve_boggle_alt2(board, words):
 
         if low_word == child_prefix:
             frequencies[child_prefix] += 1  # This prefix is a full word.
-
-        # child_high = bisect.bisect_left(words, child_prefix + '\0',  # WRONG
-        #                                 child_low + 1, parent_high)
-        child_high = parent_high  # FIXME: Try to do get faster than this.
+            child_low += 1
 
         board[i][j] = None  # Mark this cell as visited.
-        search(i, j - 1, child_prefix, child_low, child_high)
-        search(i, j + 1, child_prefix, child_low, child_high)
-        search(i - 1, j, child_prefix, child_low, child_high)
-        search(i + 1, j, child_prefix, child_low, child_high)
+        search(i, j - 1, child_prefix, child_low, parent_high)
+        search(i, j + 1, child_prefix, child_low, parent_high)
+        search(i - 1, j, child_prefix, child_low, parent_high)
+        search(i + 1, j, child_prefix, child_low, parent_high)
         board[i][j] = ch  # Restore this cell for backtracking.
 
     for start_i, start_j in itertools.product(range(height), range(width)):
