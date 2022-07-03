@@ -1,0 +1,10 @@
+recursion.nest_iterative
+recursion.semifactorial
+recursion.semifactorial_good
+recursion.semifactorial_iterative
+recursion.semifactorial_reduce
+recursion.semifactorial_tail
+recursion.digit_sum
+recursion.digit_sum_tail
+recursion.digit_sum_iterative
+fibonacci.fibonacci_tail
