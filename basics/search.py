@@ -56,6 +56,7 @@ Documentation within this module uses these conventions and simplifications:
 
 import bisect
 import collections
+from collections.abc import Sequence
 import contextlib
 import functools
 import html
@@ -2415,6 +2416,77 @@ def solve_boggle(board, words):
     """
     return _do_solve_boggle([list(row) for row in board], _build_trie(words))
 
+
+def _build_prefix_set(words):
+    """Build a O(1)-time lookup collection of nonempty prefixes of words."""
+    return frozenset(word[:length]
+                     for word in words
+                     for length in range(1, len(word) + 1))
+
+
+def _do_solve_boggle_alt(board, words):
+    """Helper for solve_boggle. Takes a fully mutable board and a word set."""
+    height, width = _dimensions(board)
+    prefixes = _build_prefix_set(words)
+    frequencies = collections.Counter()
+
+    def search(i, j, parent_prefix):
+        if not (0 <= i < height and 0 <= j < width):
+            return  # Outside the board.
+        ch = board[i][j]
+        if ch is None:
+            return  # Already visited this cell on this path.
+        child_prefix = parent_prefix + ch
+        if child_prefix not in prefixes:
+            return  # This path doesn't make a prefix of any word.
+
+        if child_prefix in words:
+            frequencies[child_prefix] += 1  # This prefix is a full word.
+
+        board[i][j] = None  # Mark this cell as visited.
+        search(i, j - 1, child_prefix)
+        search(i, j + 1, child_prefix)
+        search(i - 1, j, child_prefix)
+        search(i + 1, j, child_prefix)
+        board[i][j] = ch  # Restore this cell for backtracking.
+
+    for start_i, start_j in itertools.product(range(height), range(width)):
+        search(start_i, start_j, '')
+
+    return frequencies
+
+
+# !!FIXME: When removing implementation bodies, remove this entirely rather
+# than making it an exercise. Tag the removal commit for possible revert later.
+def solve_boggle_alt(board, words):
+    """
+    Alternative implementation of solve_boggle that does not use a trie.
+
+    >>> board1 = ('racecar',
+    ...           'poaxdog',
+    ...           'Parisol')
+    >>> words1 = ['racecar', 'six', 'parisol', 'Paris', 'six', 'doos', 'doosd']
+    >>> freqs1 = solve_boggle_alt(board1, words1)
+    >>> from collections import Counter
+    >>> freqs1 == Counter({'racecar': 4, 'doos': 1, 'Paris': 1, 'six': 1})
+    True
+
+    >>> board2 = ['🤣🐍🧐😾😶😵😎👻👽🦊🎷🐍',
+    ...           '🐍🍉🦆🐼🌴🎨🎮🧩🐍🐍🎻💩',
+    ...           '🧯🖤🦓🦓🦓🧐🧐🦢🐍🦚🤡🙀',
+    ...           '🤐👺😁😁🐶🦨🐍🐙🐙🐙👩🐙',
+    ...           '🎃💩🤯🍒😲😱🧣😿😱🐍🐍🦓',
+    ...           '🦝🦝🍒🍒💩🎱💔🥝🥨💩💪🤠',
+    ...           '😤😿😿👀🥶😭🥶😻🧶😃🦾🤯',
+    ...           '🧐💩🙀🙀🐸😇🙃🌊🌵🤡😻🥶']
+    >>> words2 = ['🥨🦝', '🦝🍒🍒🍒🤯😁', '🐸🥶👀🍒💩🥶', '🐸🥶👀🍒💩🎱💔🥶', '🐙🐙🐍']
+    >>> freqs2 = solve_boggle_alt(board2, words2)
+    >>> freqs2 == Counter({'🐙🐙🐍': 4, '🦝🍒🍒🍒🤯😁': 1, '🐸🥶👀🍒💩🎱💔🥶': 1})
+    True
+
+    FIXME: Needs a bigger test (as in solve_boggle, above).
+    """
+    return _do_solve_boggle_alt([list(row) for row in board], frozenset(words))
 
 
 if __name__ == '__main__':
