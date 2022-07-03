@@ -2491,6 +2491,81 @@ def solve_boggle_alt(board, words):
     return _do_solve_boggle_alt([list(row) for row in board], frozenset(words))
 
 
+def _do_solve_boggle_alt2(board, words):
+    """
+    Helper for solve_boggle_alt2. Takes a fully mutable board and sorted words.
+    """
+    height, width = _dimensions(board)
+    frequencies = collections.Counter()
+
+    def search(i, j, parent_prefix, parent_low, parent_high):
+        if not (0 <= i < height and 0 <= j < width):
+            return  # Outside the board.
+        ch = board[i][j]
+        if ch is None:
+            return  # Already visited this cell on this path.
+        child_prefix = parent_prefix + ch
+        child_low = bisect.bisect_left(words, child_prefix,
+                                       parent_low, parent_high)
+        if child_low == parent_high:
+            return  # This path doesn't make a prefix of any word (1 of 2).
+        low_word = words[child_low]
+        if not low_word.startswith(child_prefix):
+            return  # This path doesn't make a prefix of any word (2 of 2).
+
+        if low_word == child_prefix:
+            frequencies[child_prefix] += 1  # This prefix is a full word.
+
+        # child_high = bisect.bisect_left(words, child_prefix + '\0',  # WRONG
+        #                                 child_low + 1, parent_high)
+        child_high = parent_high  # FIXME: Try to do get faster than this.
+
+        board[i][j] = None  # Mark this cell as visited.
+        search(i, j - 1, child_prefix, child_low, child_high)
+        search(i, j + 1, child_prefix, child_low, child_high)
+        search(i - 1, j, child_prefix, child_low, child_high)
+        search(i + 1, j, child_prefix, child_low, child_high)
+        board[i][j] = ch  # Restore this cell for backtracking.
+
+    for start_i, start_j in itertools.product(range(height), range(width)):
+        search(start_i, start_j, '', 0, len(words))
+
+    return frequencies
+
+
+# !!FIXME: When removing implementation bodies, remove this entirely rather
+# than making it an exercise. Tag the removal commit for possible revert later.
+def solve_boggle_alt2(board, words):
+    """
+    Second alternative implementation of solve_boggle that does not use a trie.
+
+    >>> board1 = ('racecar',
+    ...           'poaxdog',
+    ...           'Parisol')
+    >>> words1 = ['racecar', 'six', 'parisol', 'Paris', 'six', 'doos', 'doosd']
+    >>> freqs1 = solve_boggle_alt2(board1, words1)
+    >>> from collections import Counter
+    >>> freqs1 == Counter({'racecar': 4, 'doos': 1, 'Paris': 1, 'six': 1})
+    True
+
+    >>> board2 = ['🤣🐍🧐😾😶😵😎👻👽🦊🎷🐍',
+    ...           '🐍🍉🦆🐼🌴🎨🎮🧩🐍🐍🎻💩',
+    ...           '🧯🖤🦓🦓🦓🧐🧐🦢🐍🦚🤡🙀',
+    ...           '🤐👺😁😁🐶🦨🐍🐙🐙🐙👩🐙',
+    ...           '🎃💩🤯🍒😲😱🧣😿😱🐍🐍🦓',
+    ...           '🦝🦝🍒🍒💩🎱💔🥝🥨💩💪🤠',
+    ...           '😤😿😿👀🥶😭🥶😻🧶😃🦾🤯',
+    ...           '🧐💩🙀🙀🐸😇🙃🌊🌵🤡😻🥶']
+    >>> words2 = ['🥨🦝', '🦝🍒🍒🍒🤯😁', '🐸🥶👀🍒💩🥶', '🐸🥶👀🍒💩🎱💔🥶', '🐙🐙🐍']
+    >>> freqs2 = solve_boggle_alt2(board2, words2)
+    >>> freqs2 == Counter({'🐙🐙🐍': 4, '🦝🍒🍒🍒🤯😁': 1, '🐸🥶👀🍒💩🎱💔🥶': 1})
+    True
+
+    FIXME: Needs a bigger test (as above in solve_boggle and solve_boggle_alt).
+    """
+    return _do_solve_boggle_alt2([list(row) for row in board], sorted(words))
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
