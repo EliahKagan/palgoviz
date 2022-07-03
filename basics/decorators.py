@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Some basic decorators."""
 
 import functools
@@ -504,3 +506,8 @@ def convert_return(converter):
         return wrapper
 
     return decorator
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
