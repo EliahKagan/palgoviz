@@ -83,7 +83,7 @@ def semifactorial_tail(n):
 
 def semifactorial_iterative(n):
     """
-    Compute the semifactorial ("double factorial") of n by explicit iteration.
+    Compute the semifactorial ("double factorial") of n, by explicit iteration.
 
     This implementation uses the iterative accumulator pattern. This could be
     done with either a for loop or a while loop. To clarify the conceptual
@@ -97,7 +97,7 @@ def semifactorial_iterative(n):
 
 def semifactorial_good(n):
     """
-    Compute the semifactorial ("double factorial") of n via math.prod.
+    Compute the semifactorial ("double factorial") of n, via math.prod.
 
     This implementation uses no recursion and no loops or comprehensions. (It
     fits easily on one line.)
@@ -110,7 +110,7 @@ def semifactorial_good(n):
 
 def semifactorial_reduce(n):
     """
-    Compute the semifactorial ("double factorial") of n via functools.reduce.
+    Compute the semifactorial ("double factorial") of n, via functools.reduce.
 
     This implementation uses no recursion and no loops or comprehensions. (It
     fits easily on one line.) This was the best way do do it prior to Python
@@ -120,6 +120,55 @@ def semifactorial_reduce(n):
     [1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840, 10395, 46080, 135135, 645120]
     """
     # FIXME: Implement this.
+
+
+def digit_sum(n, b):
+    """
+    Add the base-b digits of a nonnegative int n, by simple recursion.
+
+    >>> digit_sum(27366190058, 10)
+    47
+    >>> digit_sum(789375894362756346572643752397854500432577629543, 16)
+    313
+    >>> digit_sum(17**90 - 11**28, 41421)
+    564328
+    """
+    return 0 if n == 0 else n % b + digit_sum(n // b, b)
+
+
+def digit_sum_tail(n, b):
+    """
+    Add the base-b digits of a nonnegative int n, by tail recursion.
+
+    >>> digit_sum_tail(27366190058, 10)
+    47
+    >>> digit_sum_tail(789375894362756346572643752397854500432577629543, 16)
+    313
+    >>> digit_sum_tail(17**90 - 11**28, 41421)
+    564328
+    """
+    def accumulate(acc, value):
+        return acc if value == 0 else accumulate(acc + value % b, value // b)
+
+    return accumulate(0, n)
+
+
+def digit_sum_iterative(n, b):
+    """
+    Add the base-b digits of a nonnegative int n, by explicit iteration.
+
+    >>> digit_sum_iterative(27366190058, 10)
+    47
+    >>> digit_sum_iterative(789375894362756346572643752397854500432577629543, 16)
+    313
+    >>> digit_sum_iterative(17**90 - 11**28, 41421)
+    564328
+    """
+    acc = 0
+    while n != 0:
+        acc += n % b
+        n //= b
+    return acc
 
 
 def add_all_iterative(values):
