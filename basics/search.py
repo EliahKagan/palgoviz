@@ -2498,7 +2498,7 @@ def _do_solve_boggle_alt2(board, words):
     height, width = _dimensions(board)
     frequencies = collections.Counter()
 
-    def search(i, j, parent_prefix, parent_low, parent_high):
+    def search(i, j, parent_length, parent_prefix, parent_low, parent_high):
         if not (0 <= i < height and 0 <= j < width):
             return  # Outside the board.
         ch = board[i][j]
@@ -2517,21 +2517,22 @@ def _do_solve_boggle_alt2(board, words):
             frequencies[child_prefix] += 1  # This prefix is a full word.
             child_low += 1
 
-        get_prefix = operator.itemgetter(slice(None, len(child_prefix)))
+        child_length = parent_length + 1
+        get_prefix = operator.itemgetter(slice(None, child_length))
         child_high = bisect.bisect_right(words, child_prefix, child_low,
                                          parent_high, key=get_prefix)
         if child_low == child_high:
             return  # This path doesn't make a prefix of any longer words.
 
         board[i][j] = None  # Mark this cell as visited.
-        search(i, j - 1, child_prefix, child_low, child_high)
-        search(i, j + 1, child_prefix, child_low, child_high)
-        search(i - 1, j, child_prefix, child_low, child_high)
-        search(i + 1, j, child_prefix, child_low, child_high)
+        search(i, j - 1, child_length, child_prefix, child_low, child_high)
+        search(i, j + 1, child_length, child_prefix, child_low, child_high)
+        search(i - 1, j, child_length, child_prefix, child_low, child_high)
+        search(i + 1, j, child_length, child_prefix, child_low, child_high)
         board[i][j] = ch  # Restore this cell for backtracking.
 
     for start_i, start_j in itertools.product(range(height), range(width)):
-        search(start_i, start_j, '', 0, len(words))
+        search(start_i, start_j, 0, '', 0, len(words))
 
     return frequencies
 
