@@ -1,0 +1,1 @@
+print('Han shoots first.')
