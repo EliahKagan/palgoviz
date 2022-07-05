@@ -1,6 +1,6 @@
 """Fibonacci sequence."""
 
-from nspkg.subpkg.lucas import compute_lucas_u as _compute_lucas_u
+from .lucas import compute_lucas_u as _compute_lucas_u
 
 
 def compute_fibonacci(n):
