@@ -252,18 +252,18 @@ def derive_with_cleanup(base, cm=True, finalize=False):
     The cleanup function must be callable with one (positional) argument. Its
     first positional parameter can have any name but represents the derived
     class instance. So it is best named "self". Any other parameters must have
-    default values. The cleanup function is conceptually void. The user of this
-    decorator is responsible to ensure it never returns a non-None value.
+    default values. It should be conceptually void and thus always return None,
+    but whatever object it returns shall be ignored.
 
-    Instances of the derived class represent resources. For each instance, once
-    it exists, the resource is considered acquired. If cm=True, the created
-    derived class is a context manager class whose __enter__ method returns
-    self, and whose __exit__ method calls the cleanup function and never
-    suppresses exceptions originating from the suite of a with statement. If
-    finalize=False, the derived class introduces no __del__ method (though it
-    may inherit one from base). If finalize=True and cm=False, the derived
+    Instances of the derived class this creates represent resources. For each
+    instance, once it exists, the resource is considered acquired. If cm=True,
+    the created derived class is a context manager class whose __enter__ method
+    returns self, and whose __exit__ method calls the cleanup function and
+    never suppresses exceptions originating from the suite of a with statement.
+    If finalize=False, the derived class introduces no __del__ method (though
+    it may inherit one from base). If finalize=True and cm=False, the derived
     class's __del__ method calls the cleanup function. If finalize=True and
-    cm=True, the derived class's __del__ method is a backup: it calls the
+    cm=True, the derived class's __del__ method acts as a backup: it calls the
     cleanup function if the cleanup function has not already successfully run.
 
     If the derived class both inherits a __del__ method and introduces its own,
