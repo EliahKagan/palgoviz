@@ -1,1 +1,3 @@
-print('Loading subpkg ... ')
+"""Grids and adapters."""
+
+first_shooter = 'Han'
