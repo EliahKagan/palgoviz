@@ -22,7 +22,7 @@ class Announce:
         return f'{type(self).__name__}({self.name!r}, out={self._out!r})'
 
     def __enter__(self):
-        """Announce the task is starting, unless cancel() has been called."""
+        """Announce the task is starting."""
         self._put(f'Starting task {self._name}.')
         return self
 
