@@ -1,3 +1,4 @@
 """Grids and adapters."""
 
-first_shooter = 'Han'
+import tradpkg.subpkg.adapters
+import tradpkg.subpkg.grids
