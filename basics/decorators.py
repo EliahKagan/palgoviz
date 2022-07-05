@@ -679,6 +679,50 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     return decorator
 
 
+# !!FIXME: When removing implementation bodies, replace
+#          "class linear_combinable:" with "def linear_combinable(func):".
+def linear_combinable(func):
+    """
+    Decorator to wrap a function to support addition and scalar multiplication.
+
+    Unary function definitions decorated with @linear_combinable support "+"
+    and "-" among one another. They do not support "+" and "-" with functions
+    not decorated @linear_combinable. They support "*" with instances of Number
+    types, and "/" with nonzero instances of a Number type on the right. The
+    results of all these operations themselves support these operations.
+
+    Don't write any helpers. But "def linear_combinable(function):" line may be
+    modified in any way that doesn't mislead the caller about how this
+    decorator should be used. (So don't add implementation-detail parameters.)
+
+    >>> @linear_combinable
+    ... def f(x): return x * 2
+    >>> @linear_combinable
+    ... def g(x): return x**2 - 1
+    >>> @linear_combinable
+    ... def three(_): return 3
+
+    >>> h = 3 * f - 2 * g + three
+    >>> [h(x) for x in range(6)]
+    [5, 9, 9, 5, -3, -15]
+
+    >>> (2 * f / 2 * 2 / 2 * 2 / 2 * 2)(10)
+    20.0
+    >>> f / 0
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: second-order division by zero
+    >>> 1 / f  # doctest: +ELLIPSIS
+    TypeError: unsupported operand type(s) for /: 'int' and '...'
+
+    >>> (2 * linear_combinable(str.toupper) * 3 + f)('xyz')
+    'XYZXYZXYZXYZXYZXYZxyzxyz'
+
+    FIXME: Add a test to check that this works even when "*" isn't commutative.
+    """
+    # FIXME: Needs implementation.
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
