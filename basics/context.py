@@ -91,7 +91,9 @@ class Suppress:
     def __exit__(self, exc_type, exc_value, traceback):
         """If an exception of an appropriate type was raised, suppress it."""
         del exc_value, traceback
-        return issubclass(exc_type, self._exception_types)
+
+        return (exc_type is not None
+                and issubclass(exc_type, self._exception_types))
 
 
 class MonkeyPatch:
