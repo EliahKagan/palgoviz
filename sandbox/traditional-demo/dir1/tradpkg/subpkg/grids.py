@@ -9,4 +9,4 @@ def make_grid(m, n):
 
     Time complexity is O(mn).
     """
-    return [[0 for _ in range(n)] for _ in range(m)]
+    return [[0] * n for _ in range(m)]
