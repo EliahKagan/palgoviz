@@ -37,7 +37,6 @@ class _NonRedirectingOutputCapturingTestCase(unittest.TestCase):
         self.assertEqual(actual, expected)
 
 
-# FIXME: Finish writing these tests (if context.Announce is to be kept).
 class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
     """Tests for the Announce context manager."""
 
