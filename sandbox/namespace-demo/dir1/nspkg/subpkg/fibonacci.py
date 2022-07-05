@@ -1,6 +1,6 @@
 """Fibonacci sequence."""
 
-import nspkg.subpkg.lucas
+from nspkg.subpkg.lucas import compute_lucas_u
 
 
 def compute_fibonacci(n):
@@ -10,4 +10,4 @@ def compute_fibonacci(n):
     This delegates to the lucas function in the module lucas module of this
     subpackage. That function takes exponential time, so this does too.
     """
-    return nspkg.subpkg.lucas.compute_lucas_u(1, -1, n)
+    return compute_lucas_u(1, -1, n)
