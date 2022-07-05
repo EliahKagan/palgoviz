@@ -206,63 +206,6 @@ class MonkeyPatch:
             delattr(self._target, self._name)
 
 
-def derive_with_cleanup(base, cm=True, finalize=False):
-    """
-    Parameterized decorator to make a derived class from a cleanup function.
-
-    This function is called with exactly one base class, an optional cm
-    argument specifying if the derived class will be a context manager class,
-    and an optional finalize argument specifying if the derived class has a
-    finalizer.
-
-    base must not have an __enter__ or __exit__ attribute (which implies it is
-    not itself a context manager, but this is a slightly stronger restriction),
-    or TypeError is raised, even if cm=False.
-
-    cm and finalize must not both be False, or ValueError is raised.
-
-    The result of calling derive_with_cleanup will be used to decorate a
-    cleanup function. Doing so produces a class that derives from base and that
-    uses the behavior in the decorated cleanup function to implement __exit__
-    if cm=True, and to implement __del__ if finalize=True. The created derived
-    class always has an instance dictionary and does not introduce any slots.
-    Any non-inherited class or instance attributes introduced as implementation
-    details (that is, whose names and behavior are not given in this docstring)
-    have mangled names.
-
-    The cleanup function must be callable with one (positional) argument. Its
-    first positional parameter can have any name but represents the derived
-    class instance. So it is best named "self". Any other parameters must have
-    default values. It should be conceptually void and thus always return None,
-    but whatever object it returns shall be ignored.
-
-    Instances of the derived class this creates represent resources. For each
-    instance, once it exists, the resource is considered acquired. If cm=True,
-    the created derived class is a context manager class whose __enter__ method
-    returns self, and whose __exit__ method calls the cleanup function and
-    never suppresses exceptions originating from the suite of a with statement.
-    If finalize=False, the derived class introduces no __del__ method (though
-    it may inherit one from base). If finalize=True and cm=False, the derived
-    class's __del__ method calls the cleanup function. If finalize=True and
-    cm=True, the derived class's __del__ method acts as a backup: it calls the
-    cleanup function if the cleanup function has not already successfully run.
-
-    If the derived class both inherits a __del__ method and introduces its own,
-    the newly introduced __del__, after completing any cleanup it seeks to do
-    itself, calls the inherited __del__. (This is done via super(). No code in
-    any method of the derived class uses base directly. No code inside or
-    outside the derived class use base to check if __del__ will be inherited.)
-
-    If the cleanup function raises an exception when called by a derived class
-    __del__ method, and there is no base class __del__, then the exception is
-    allowed to propagate outside __del__ (which will typically result in the
-    interpreter printing a warning to stderr). If the cleanup function raises
-    an exception when called by a derived class __del__ method when there is
-    also an inherited __del__ method, [FIXME: explain why this situation is
-    truly cursed, and make and document some decision about what to do in it].
-    """
-
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
