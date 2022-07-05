@@ -1,4 +1,5 @@
 """Grids and adapters."""
 
-import tradpkg.subpkg.adapters
-import tradpkg.subpkg.grids
+__all__ = ['adapters', 'grids']
+
+from . import adapters, grids
