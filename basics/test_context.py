@@ -4,7 +4,10 @@
 
 import contextlib
 import io
+import sys
 import unittest
+
+from parameterized import parameterized
 
 import context
 
@@ -91,6 +94,55 @@ class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
 
         with self.subTest(task='A', when='finish'):
             self.assertOutputWas('_FakeError raised in task A.\n')
+
+    @parameterized.expand([
+        ('no error', False, 'Finished task A.\n'),
+        ('with error', True, '_FakeError raised in task A.\n'),
+    ])
+    def test_if_out_is_none_stdout_is_used(self, _name, do_error, end_message):
+        announce = context.Announce('A')
+        old_stdout = sys.stdout
+        out1 = io.StringIO()
+        out2 = io.StringIO()
+        sys.stdout = out1
+        try:
+            with announce:
+                sys.stdout = out2
+                if do_error:
+                    raise _FakeError
+        except _FakeError:
+            pass
+        finally:
+            sys.stdout = old_stdout
+
+        with self.subTest('__enter__'):
+            self.assertEqual(out1.getvalue(), 'Starting task A.\n')
+        with self.subTest('__exit__'):
+            self.assertEqual(out2.getvalue(), end_message)
+
+    def test_repr_shows_name_and_out_if_not_none(self):
+        expected = (r"Announce\('A', "
+                    r'out=<_?io\.StringIO object at 0x[0-9a-fA-F]+>\)')
+        announce = context.Announce('A', out=self.out)
+        self.assertRegex(repr(announce), expected)
+
+    def test_repr_shows_just_name_if_out_is_none(self):
+        announce = context.Announce('A')
+        self.assertEqual(repr(announce), "Announce('A')")
+
+    def test_name_attribute_has_name(self):
+        announce = context.Announce('A', out=self.out)
+        self.assertEqual(announce.name, 'A')
+
+    def test_name_attribute_is_read_only(self):
+        announce = context.Announce('A', out=self.out)
+        with self.assertRaises(AttributeError):
+            announce.name = 'B'
+
+    def test_new_attributes_cannot_be_created(self):
+        announce = context.Announce('A', out=self.out)
+        with self.assertRaises(AttributeError):
+            announce.blah = 'B'
 
 
 class _NoClose:
