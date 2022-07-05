@@ -4,6 +4,7 @@
 
 import functools
 import itertools
+from numbers import Number
 
 
 def peek_arg(func):
@@ -681,7 +682,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
 
 # !!FIXME: When removing implementation bodies, replace
 #          "class linear_combinable:" with "def linear_combinable(func):".
-def linear_combinable(func):
+class linear_combinable:
     """
     Decorator to wrap a function to support addition and scalar multiplication.
 
@@ -691,9 +692,9 @@ def linear_combinable(func):
     types, and "/" with nonzero instances of a Number type on the right. The
     results of all these operations themselves support these operations.
 
-    Don't write any helpers. But "def linear_combinable(function):" line may be
-    modified in any way that doesn't mislead the caller about how this
-    decorator should be used. (So don't add implementation-detail parameters.)
+    The initial implementation should not use any helpers. But you may modify
+    "def linear_combinable(function):" in any way that does not misinform the
+    caller about proper usage (so no implementation-detail parameters).
 
     >>> @linear_combinable
     ... def f(x): return x * 2
@@ -702,25 +703,77 @@ def linear_combinable(func):
     >>> @linear_combinable
     ... def three(_): return 3
 
+    >>> g(10)
+    99
     >>> h = 3 * f - 2 * g + three
     >>> [h(x) for x in range(6)]
     [5, 9, 9, 5, -3, -15]
+    >>> f + (lambda x: x**2)  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for +: '...' and 'function'
 
-    >>> (2 * f / 2 * 2 / 2 * 2 / 2 * 2)(10)
-    20.0
+    >>> (2 * g / 2 * 2 / 2 * 2 / 2 * 2)(10)
+    198.0
     >>> f / 0
     Traceback (most recent call last):
       ...
     ZeroDivisionError: second-order division by zero
     >>> 1 / f  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
     TypeError: unsupported operand type(s) for /: 'int' and '...'
-
-    >>> (2 * linear_combinable(str.toupper) * 3 + f)('xyz')
+    >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
     'XYZXYZXYZXYZXYZXYZxyzxyz'
 
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
-    # FIXME: Needs implementation.
+    __slots__ = ('_wrapped',)
+
+    def __init__(self, func):
+        self._wrapped = func
+
+    def __call__(self, arg):
+        return self._wrapped(arg)
+
+    def __add__(self, right_addend):
+        if not isinstance(right_addend, linear_combinable):
+            return NotImplemented
+
+        f = self._wrapped
+        g = right_addend._wrapped
+        return linear_combinable(lambda arg: f(arg) + g(arg))
+
+    def __sub__(self, subtrahend):
+        if not isinstance(subtrahend, linear_combinable):
+            return NotImplemented
+
+        f = self._wrapped
+        g = subtrahend._wrapped
+        return linear_combinable(lambda arg: f(arg) - g(arg))
+
+    def __mul__(self, right_coefficient):
+        if not isinstance(right_coefficient, Number):
+            return NotImplemented
+
+        f = self._wrapped
+        return linear_combinable(lambda arg: f(arg) * right_coefficient)
+
+    def __rmul__(self, left_coefficient):
+        if not isinstance(left_coefficient, Number):
+            return NotImplemented
+
+        g = self._wrapped
+        return linear_combinable(lambda arg: left_coefficient * g(arg))
+
+    def __truediv__(self, divisor):
+        if not isinstance(divisor, Number):
+            return NotImplemented
+        if divisor == 0:
+            raise ZeroDivisionError('second-order division by zero')
+
+        f = self._wrapped
+        return linear_combinable(lambda arg: f(arg) / divisor)
 
 
 if __name__ == '__main__':
