@@ -511,10 +511,10 @@ def convert_return(converter):
 
 def auto_prime(func):
     """
-    Decorator to automatically run returned generator up to the first yield.
+    Decorator to automatically run returned generators up to their first yield.
 
-    One use of this is to write generator functions contain their own fail-fast
-    validation, without having to write a helper function each time.
+    One use of this is to write generator functions that contain their own
+    fail-fast validation, without having to write a helper function each time.
 
     This is called "priming" the generator. It has some other use cases, too.
 
