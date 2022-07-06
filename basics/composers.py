@@ -140,6 +140,10 @@ def curry_one(function):
     return lambda x: lambda y: function(x, y)
 
 
+# TODO: Eventually cover other forms of currying, the difference between
+#       currying and partial function application, and functools.partial.
+
+
 # Can also run:  python -m doctest composers.py
 # (Pass -v after doctest for verbose output.)
 if __name__ == '__main__':
