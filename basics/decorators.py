@@ -697,11 +697,11 @@ class linear_combinable:
     caller about proper usage (so no implementation-detail parameters).
 
     >>> @linear_combinable
-    ... def f(x): return x * 2
+    ... def f(x): 'Double a number.'; return x * 2
     >>> @linear_combinable
-    ... def g(x): return x**2 - 1
+    ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
     >>> @linear_combinable
-    ... def three(_): return 3
+    ... def three(_): 'Return 3, no matter the argument.'; return 3
 
     >>> g(10)
     99
@@ -726,44 +726,52 @@ class linear_combinable:
     >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
     'XYZXYZXYZXYZXYZXYZxyzxyz'
 
+    >>> for h in f, g, three:  # Check that metadata attributes are intact.
+    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
+    ['decorators', 'f', 'f', 'Double a number.', {}]
+    ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
+    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
+
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
-    __slots__ = ('_wrapped',)
 
     def __init__(self, func):
-        self._wrapped = func
+        functools.wraps(func)(self)
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.__wrapped__!r})'
 
     def __call__(self, arg):
-        return self._wrapped(arg)
+        return self.__wrapped__(arg)
 
     def __add__(self, right_addend):
         if not isinstance(right_addend, linear_combinable):
             return NotImplemented
 
-        f = self._wrapped
-        g = right_addend._wrapped
+        f = self.__wrapped__
+        g = right_addend.__wrapped__
         return linear_combinable(lambda arg: f(arg) + g(arg))
 
     def __sub__(self, subtrahend):
         if not isinstance(subtrahend, linear_combinable):
             return NotImplemented
 
-        f = self._wrapped
-        g = subtrahend._wrapped
+        f = self.__wrapped__
+        g = subtrahend.__wrapped__
         return linear_combinable(lambda arg: f(arg) - g(arg))
 
     def __mul__(self, right_coefficient):
         if not isinstance(right_coefficient, Number):
             return NotImplemented
 
-        f = self._wrapped
+        f = self.__wrapped__
         return linear_combinable(lambda arg: f(arg) * right_coefficient)
 
     def __rmul__(self, left_coefficient):
         if not isinstance(left_coefficient, Number):
             return NotImplemented
 
-        g = self._wrapped
+        g = self.__wrapped__
         return linear_combinable(lambda arg: left_coefficient * g(arg))
 
     def __truediv__(self, divisor):
@@ -772,7 +780,7 @@ class linear_combinable:
         if divisor == 0:
             raise ZeroDivisionError('second-order division by zero')
 
-        f = self._wrapped
+        f = self.__wrapped__
         return linear_combinable(lambda arg: f(arg) / divisor)
 
 
