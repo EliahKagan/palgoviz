@@ -419,3 +419,45 @@ Old doctests for @joining():
     ...         start /= 2
     >>> g(7, 0.5)
     '7, 3.5, 1.75, 0.875'
+
+
+Old doctests for @linear_combinable:
+
+    >>> @linear_combinable
+    ... def f(x): 'Double a number.'; return x * 2
+    >>> @linear_combinable
+    ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
+    >>> @linear_combinable
+    ... def three(_): 'Return 3, no matter the argument.'; return 3
+
+    >>> g(10)
+    99
+    >>> h = 3 * f - 2 * g + three
+    >>> [h(x) for x in range(6)]
+    [5, 9, 9, 5, -3, -15]
+    >>> def sq(x): x**2
+    >>> f + sq  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for +: '...' and 'function'
+
+    >>> (2 * g / 2 * 2 / 2 * 2 / 2 * 2)(10)
+    198.0
+    >>> f / 0
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: second-order division by zero
+    >>> 1 / f  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for /: 'int' and '...'
+    >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
+    'XYZXYZXYZXYZXYZXYZxyzxyz'
+
+    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
+    4
+    >>> for h in f, g, three:  # Check that metadata attributes are intact.
+    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
+    ['__main__', 'f', 'f', 'Double a number.', {}]
+    ['__main__', 'g', 'g', 'Square a number and subtract 1.', {}]
+    ['__main__', 'three', 'three', 'Return 3, no matter the argument.', {}]
