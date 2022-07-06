@@ -4,6 +4,7 @@
 
 import functools
 import itertools
+from numbers import Number
 
 
 def peek_arg(func):
@@ -510,10 +511,10 @@ def convert_return(converter):
 
 def auto_prime(func):
     """
-    Decorator to automatically run returned generator up to the first yield.
+    Decorator to automatically run returned generators up to their first yield.
 
-    One use of this is to write generator functions contain their own fail-fast
-    validation, without having to write a helper function each time.
+    One use of this is to write generator functions that contain their own
+    fail-fast validation, without having to write a helper function each time.
 
     This is called "priming" the generator. It has some other use cases, too.
 
@@ -640,6 +641,122 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     '7, 3.5, 1.75, 0.875'
     """
     # FIXME: Implement this.
+
+
+# !!FIXME: When removing implementation bodies, replace
+#          "class linear_combinable:" with "def linear_combinable(func):".
+class linear_combinable:
+    """
+    Decorator to wrap a function to support addition and scalar multiplication.
+
+    Unary function definitions decorated with @linear_combinable support "+"
+    and "-" among one another. They do not support "+" and "-" with functions
+    not decorated @linear_combinable. They support "*" with instances of Number
+    types, and "/" with nonzero instances of a Number type on the right. The
+    results of all these operations themselves support these operations.
+
+    The initial implementation should not use any helpers. But you may modify
+    "def linear_combinable(func):" in any way that does not misinform the
+    caller about proper usage (so no implementation-detail parameters).
+
+    >>> @linear_combinable
+    ... def f(x): 'Double a number.'; return x * 2
+    >>> @linear_combinable
+    ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
+    >>> @linear_combinable
+    ... def three(_): 'Return 3, no matter the argument.'; return 3
+
+    >>> g(10)
+    99
+    >>> h = 3 * f - 2 * g + three
+    >>> [h(x) for x in range(6)]
+    [5, 9, 9, 5, -3, -15]
+    >>> def sq(x): x**2
+    >>> f + sq  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for +: '...' and 'function'
+
+    >>> (2 * g / 2 * 2 / 2 * 2 / 2 * 2)(10)
+    198.0
+    >>> f / 0
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: second-order division by zero
+    >>> 1 / f  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for /: 'int' and '...'
+    >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
+    'XYZXYZXYZXYZXYZXYZxyzxyz'
+
+    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
+    4
+    >>> for h in f, g, three:  # Check that metadata attributes are intact.
+    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
+    ['decorators', 'f', 'f', 'Double a number.', {}]
+    ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
+    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
+
+    FIXME: Add a test to check that this works even when "*" isn't commutative.
+    """
+
+    def __init__(self, func):
+        functools.wraps(func)(self)
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.__wrapped__!r})'
+
+    def __eq__(self, other):
+        """When f == g, linear_combinable(f) == linear_combinable(g)."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__wrapped__ == other.__wrapped__
+
+    def __hash__(self):
+        return hash(self.__wrapped__)
+
+    def __call__(self, arg):
+        return self.__wrapped__(arg)
+
+    def __add__(self, right_addend):
+        if not isinstance(right_addend, linear_combinable):
+            return NotImplemented
+
+        f = self.__wrapped__
+        g = right_addend.__wrapped__
+        return linear_combinable(lambda arg: f(arg) + g(arg))
+
+    def __sub__(self, subtrahend):
+        if not isinstance(subtrahend, linear_combinable):
+            return NotImplemented
+
+        f = self.__wrapped__
+        g = subtrahend.__wrapped__
+        return linear_combinable(lambda arg: f(arg) - g(arg))
+
+    def __mul__(self, right_coefficient):
+        if not isinstance(right_coefficient, Number):
+            return NotImplemented
+
+        f = self.__wrapped__
+        return linear_combinable(lambda arg: f(arg) * right_coefficient)
+
+    def __rmul__(self, left_coefficient):
+        if not isinstance(left_coefficient, Number):
+            return NotImplemented
+
+        g = self.__wrapped__
+        return linear_combinable(lambda arg: left_coefficient * g(arg))
+
+    def __truediv__(self, divisor):
+        if not isinstance(divisor, Number):
+            return NotImplemented
+        if divisor == 0:
+            raise ZeroDivisionError('second-order division by zero')
+
+        f = self.__wrapped__
+        return linear_combinable(lambda arg: f(arg) / divisor)
 
 
 if __name__ == '__main__':

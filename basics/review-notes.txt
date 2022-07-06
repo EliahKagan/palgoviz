@@ -3,6 +3,8 @@ gencomp1.my_all_alt
 gencomp1.take_good
 gencomp1.drop_good
 gencomp1.windowed_alt
+composers.compose
+composers.curry_one
 recursion.linear_search_iterative_alt
 recursion.binary_search_alt
 recursion.binary_search_iterative_alt
@@ -17,3 +19,4 @@ functions.func_filter
 decorators.auto_prime
 decorators.dict_equality
 decorators.joining
+decorators.linear_combinable
