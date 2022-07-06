@@ -693,7 +693,7 @@ class linear_combinable:
     results of all these operations themselves support these operations.
 
     The initial implementation should not use any helpers. But you may modify
-    "def linear_combinable(function):" in any way that does not misinform the
+    "def linear_combinable(func):" in any way that does not misinform the
     caller about proper usage (so no implementation-detail parameters).
 
     >>> @linear_combinable
