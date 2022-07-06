@@ -4,7 +4,6 @@
 
 import functools
 import itertools
-from numbers import Number
 
 
 def peek_arg(func):
@@ -643,9 +642,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     # FIXME: Implement this.
 
 
-# !!FIXME: When removing implementation bodies, replace
-#          "class linear_combinable:" with "def linear_combinable(func):".
-class linear_combinable:
+def linear_combinable(func):
     """
     Decorator to wrap a function to support addition and scalar multiplication.
 
@@ -700,63 +697,7 @@ class linear_combinable:
 
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
-
-    def __init__(self, func):
-        functools.wraps(func)(self)
-
-    def __repr__(self):
-        return f'{type(self).__name__}({self.__wrapped__!r})'
-
-    def __eq__(self, other):
-        """When f == g, linear_combinable(f) == linear_combinable(g)."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.__wrapped__ == other.__wrapped__
-
-    def __hash__(self):
-        return hash(self.__wrapped__)
-
-    def __call__(self, arg):
-        return self.__wrapped__(arg)
-
-    def __add__(self, right_addend):
-        if not isinstance(right_addend, linear_combinable):
-            return NotImplemented
-
-        f = self.__wrapped__
-        g = right_addend.__wrapped__
-        return linear_combinable(lambda arg: f(arg) + g(arg))
-
-    def __sub__(self, subtrahend):
-        if not isinstance(subtrahend, linear_combinable):
-            return NotImplemented
-
-        f = self.__wrapped__
-        g = subtrahend.__wrapped__
-        return linear_combinable(lambda arg: f(arg) - g(arg))
-
-    def __mul__(self, right_coefficient):
-        if not isinstance(right_coefficient, Number):
-            return NotImplemented
-
-        f = self.__wrapped__
-        return linear_combinable(lambda arg: f(arg) * right_coefficient)
-
-    def __rmul__(self, left_coefficient):
-        if not isinstance(left_coefficient, Number):
-            return NotImplemented
-
-        g = self.__wrapped__
-        return linear_combinable(lambda arg: left_coefficient * g(arg))
-
-    def __truediv__(self, divisor):
-        if not isinstance(divisor, Number):
-            return NotImplemented
-        if divisor == 0:
-            raise ZeroDivisionError('second-order division by zero')
-
-        f = self.__wrapped__
-        return linear_combinable(lambda arg: f(arg) / divisor)
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':

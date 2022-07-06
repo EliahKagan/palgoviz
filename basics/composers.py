@@ -115,12 +115,7 @@ def compose(*functions):
     >>> add_50005000(7)
     50005007
     """
-    def composed(arg):
-        for func in reversed(functions):
-            arg = func(arg)
-        return arg
-
-    return composed
+    # FIXME: Implement this.
 
 
 def curry_one(function):
@@ -137,7 +132,7 @@ def curry_one(function):
     >>> curry_one(compose)(lambda x: x + 'a')(lambda x: x + 'b')('z')
     'zba'
     """
-    return lambda x: lambda y: function(x, y)
+    # FIXME: Implement this.
 
 
 # TODO: Eventually cover other forms of currying, the difference between
