@@ -708,7 +708,8 @@ class linear_combinable:
     >>> h = 3 * f - 2 * g + three
     >>> [h(x) for x in range(6)]
     [5, 9, 9, 5, -3, -15]
-    >>> f + (lambda x: x**2)  # doctest: +ELLIPSIS
+    >>> def sq(x): x**2
+    >>> f + sq  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     TypeError: unsupported operand type(s) for +: '...' and 'function'
@@ -726,6 +727,8 @@ class linear_combinable:
     >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
     'XYZXYZXYZXYZXYZXYZxyzxyz'
 
+    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
+    4
     >>> for h in f, g, three:  # Check that metadata attributes are intact.
     ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
     ['decorators', 'f', 'f', 'Double a number.', {}]
@@ -740,6 +743,15 @@ class linear_combinable:
 
     def __repr__(self):
         return f'{type(self).__name__}({self.__wrapped__!r})'
+
+    def __eq__(self, other):
+        """When f == g, linear_combinable(f) == linear_combinable(g)."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__wrapped__ == other.__wrapped__
+
+    def __hash__(self):
+        return hash(self.__wrapped__)
 
     def __call__(self, arg):
         return self.__wrapped__(arg)
