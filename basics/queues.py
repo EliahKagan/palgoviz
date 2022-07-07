@@ -78,7 +78,7 @@ class PriorityQueue(Queue):
 
 
 class DequeFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a collections.deque."""
+    """A FIFO queue (i.e. a "queue") based on a collections.deque."""
 
     __slots__ = ('_deque',)
 
@@ -104,7 +104,7 @@ class DequeFifoQueue(FifoQueue):
 
 class AltDequeFifoQueue(FifoQueue):
     """
-    A FIFO queue (i.e., a "queue") based on a collections.deque.
+    A FIFO queue (i.e. a "queue") based on a collections.deque.
 
     Like DequeFifoQueue but elements move through in the other direction.
     """
@@ -132,7 +132,7 @@ class AltDequeFifoQueue(FifoQueue):
 
 
 class SlowFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
+    """A FIFO queue (i.e. a "queue") based on a list. Linear-time dequeue."""
 
     __slots__ = ('_list',)
 
@@ -157,7 +157,7 @@ class SlowFifoQueue(FifoQueue):
 
 
 class BiStackFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
+    """A FIFO queue (i.e. a "queue") based on two lists used as stacks."""
 
     __slots__ = ('_out', '_in')
 
@@ -194,7 +194,7 @@ class BiStackFifoQueue(FifoQueue):
 
 class RingFifoQueue(FifoQueue):
     """
-    A FIFO queue (i.e., a "queue") based on a list. All operations O(1).
+    A FIFO queue (i.e. a "queue") based on a list. All operations O(1).
 
     This uses a single list as a buffer: at all times, except possibly while a
     method is running, all but O(1) space belongs to a single list object.
@@ -202,65 +202,128 @@ class RingFifoQueue(FifoQueue):
     is eligible to be garbage collected on return. (Methods may make as many
     lists as they like, if they abandon all but one.)
 
-    Enqueueing takes amortized O(1) time in general, but strictly O(1) unless
-    it causes the queue to become larger than ever before. Dequeueing takes
-    strictly O(1) time and O(1) space. Space complexity is linear in the
-    maximum size that has ever been reached.
+    Enqueue takes amortized O(1) time, but strictly O(1) unless the queue grows
+    larger than it ever has before. Dequeue and peek take strictly O(1) time.
+    Space complexity is linear in the maximum length the queue has reached.
     """
 
-    __slots__ = ('_buffer', '_front', '_len')
+    __slots__ = ('__buffer', '__front', '__len')
 
-    _absent = object()
+    _INITIAL_CAPACITY = 1
+    """The size the buffer is grown to from zero."""
+
+    _GROWTH_FACTOR = 2
+    """
+    Multiplier by which capacity is increased.
+
+    This is a protected constant: this and derived classes may read its value.
+    """
+
+    __ABSENT = object()
     """Sentinel representing the absence of an item, so debugging is easier."""
 
     def __init__(self):
         """Construct a RingFifoQueue, which uses a single list as a buffer."""
-        self._buffer = [self._absent]
-        self._front = self._len = 0
+        self.__buffer = []
+        self.__front = self.__len = 0
 
     def __bool__(self):
-        return self._len != 0
+        return self.__len != 0
 
     def __len__(self):
-        return self._len
+        return self.__len
 
     def enqueue(self, item):
-        if self._len == len(self._buffer):
-            self._grow()
+        assert item is not self.__ABSENT
 
-        assert item is not self._absent
-        index = (self._front + self._len) % len(self._buffer)
-        assert self._buffer[index] is self._absent
-        self._buffer[index] = item
-        self._len += 1
+        self.__ensure_capacity()
+        index = (self.__front + self.__len) % self._capacity
+        assert self.__buffer[index] is self.__ABSENT
+        self.__buffer[index] = item
+        self.__len += 1
 
     def dequeue(self):
-        item = self._do_peek("Can't dequeue from empty queue")
-        self._buffer[self._front] = self._absent
-        self._front = (self._front + 1) % len(self._buffer)
-        self._len -= 1
+        item = self.__do_peek("Can't dequeue from empty queue")
+        self.__buffer[self.__front] = self.__ABSENT
+        self.__front = (self.__front + 1) % self._capacity
+        self.__len -= 1
         return item
 
     def peek(self):
-        return self._do_peek("Can't peek from empty queue")
+        return self.__do_peek("Can't peek from empty queue")
 
-    def _do_peek(self, fail_message):
+    @property
+    def _capacity(self):
+        """
+        The maximum length the current buffer can hold without being expanded.
+
+        This is a protected property: only this and derived classes may use it.
+        """
+        return len(self.__buffer)
+
+    def _resize_buffer(self, new_capacity):
+        """
+        Change the buffer capacity.
+
+        This is a protected method: only this and derived classes may use it.
+        """
+        if new_capacity < self.__len:
+            raise ValueError(
+                f'capacity {new_capacity!r} less than length {self.__len!r}')
+
+        end1 = min(self.__front + self.__len, self._capacity)
+        end2 = max(0, self.__len - (end1 - self.__front))  # Wrap around.
+
+        self.__buffer = (self.__buffer[self.__front:end1] + self.__buffer[:end2]
+                        + [self.__ABSENT] * (new_capacity - self.__len))
+        self.__front = 0  # TODO: Ensure tests catch if this is omitted.
+
+        assert self._capacity == new_capacity
+
+    def __ensure_capacity(self):
+        if self.__len < self._capacity:
+            return
+
+        assert self.__len == self._capacity
+
+        if self.__len == 0:
+            self._resize_buffer(self._INITIAL_CAPACITY)
+        else:
+            self._resize_buffer(self.__len * self._GROWTH_FACTOR)
+
+    def __do_peek(self, fail_message):
         if not self:
             raise LookupError(fail_message)
-        item = self._buffer[self._front]
-        assert item is not self._absent
+        item = self.__buffer[self.__front]
+        assert item is not self.__ABSENT
         return item
 
-    def _grow(self):
-        end1 = min(self._front + self._len, self._len)
-        end2 = max(0, self._len - (end1 - self._front))
-        self._buffer = (self._buffer[self._front:end1] + self._buffer[:end2]
-                        + [self._absent] * self._len)
-        self._front = 0  # TODO: Ensure tests catch if this is omitted.
+
+class CompactRingFifoQueue(RingFifoQueue):
+    """
+    A FIFO queue (i.e. a "queue") based on a list. O(1) operations. O(n) space.
+
+    This derives from RingFifoQueue and satisfies its documented guarantees,
+    except time complexities for enqueue and dequeue are only amortized, and
+    space is linear in the current length. Amortization does cover arbitrarily
+    interleaved operations: a series of any n public method calls takes
+    strictly O(n) time.
+    """
+
+    __slots__ = ()
+
+    _SHRINK_TRIGGER = RingFifoQueue._GROWTH_FACTOR * 2
+    """Capacity is decreased when it is this many times the length in use."""
+
+    def dequeue(self):
+        item = super().dequeue()
+        if len(self) * self._SHRINK_TRIGGER <= self._capacity:
+            self._resize_buffer(len(self))
+        return item
 
 
 class SinglyLinkedListFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a singly linked list."""
+    """A FIFO queue (i.e. a "queue") based on a singly linked list."""
 
     __slots__ = ('_head', '_tail', '_len')
 

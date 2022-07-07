@@ -218,7 +218,7 @@ class DirectAddressTable(MutableMapping):
 
     __slots__ = ('_values', '_len')
 
-    _absent = object()
+    _ABSENT = object()
     """Sentinel representing the absence of an entry."""
 
     def __init__(self, capacity, other=()):
@@ -233,7 +233,7 @@ class DirectAddressTable(MutableMapping):
             raise TypeError(f'capacity must be int, not {typename}')
         if capacity < 0:
             raise ValueError(f'capacity cannot be negative')
-        self._values = [self._absent] * capacity
+        self._values = [self._ABSENT] * capacity
         self._len = 0
         self.update(other)
 
@@ -251,29 +251,29 @@ class DirectAddressTable(MutableMapping):
         """Get the value stored at a given key."""
         self._check_key(key)
         value = self._values[key]
-        if value is self._absent:
+        if value is self._ABSENT:
             raise KeyError(key)
         return self._values
 
     def __setitem__(self, key, value):
         """Create or replace a value to be stored at a given key."""
         self._check_key(key)
-        if self._values[key] is self._absent:
+        if self._values[key] is self._ABSENT:
             self._len += 1
         self._values[key] = value
 
     def __delitem__(self, key):
         """Remove a value at a given key, so the key is mapped to no value."""
         self._check_key(key)
-        if self._values[key] is self._absent:
+        if self._values[key] is self._ABSENT:
             raise KeyError(key)
-        self._values[key] = self._absent
+        self._values[key] = self._ABSENT
         self._len -= 1
 
     def __iter__(self):
         """Iterate through the keys of this direct address table."""
         return (key for key, value in enumerate(self._values)
-                if value is not self._absent)
+                if value is not self._ABSENT)
 
     @property
     def key_range(self):

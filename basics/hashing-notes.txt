@@ -1,4 +1,5 @@
 queues.RingFifoQueue
+queues.CompactRingFifoQueue
 hashing.SortedFlatTable
 hashing.UnsortedFlatTable
 hashing.DirectAddressTable

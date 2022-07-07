@@ -944,6 +944,17 @@ class TestRingFifoQueue(_Bases.TestSignatures,
         return queues.RingFifoQueue
 
 
+class TestCompactRingFifoQueue(_Bases.TestSignatures,
+                               _Bases.TestSubclasses,
+                               _Bases.TestConcrete,
+                               _Bases.TestFifos):
+    """Tests for the CompactRingFifoQueue class."""
+
+    @property
+    def queue_type(self):
+        return queues.CompactRingFifoQueue
+
+
 class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
