@@ -308,6 +308,19 @@ class CompactRingFifoQueue(RingFifoQueue):
     space is linear in the current length. Amortization does cover arbitrarily
     interleaved operations: a series of any n public method calls takes
     strictly O(n) time.
+
+    FIXME: Ensure CompactRingFifoQueue duplicates no logic from RingFifoQueue,
+    and that encapsulation is never violated. You can add protected members to
+    RingFifoQueue to facilitate the operations CompactRingFifoQueue requires to
+    meet its time and space guarantees, but only if (i) they would be broadly
+    useful to derived classes, not specific to CompactRingFifoQueue, (ii) some
+    public methods of RingFifoQueue are modified to use them, and code quality
+    is preserved or improved, (iii) separation is preserved, so derived classes
+    rely minimally or not at all on implementation details of RingFifoQueue,
+    and (iv) encapsulation is preserved, so derived classes aren't given power
+    that wouldn't tend to be useful, and the protected interface can't be used
+    to corrupt any data managed by the base class (without deliberate effort).
+    If this doesn't hold initially, that's OK, but please revise to satisfy it.
     """
 
     __slots__ = ()
