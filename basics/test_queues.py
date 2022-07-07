@@ -916,7 +916,7 @@ class _Bases:
             duplicate_dequeued = []
             while original and duplicate:
                 original_dequeued.append(original.dequeue())
-                duplicate_dequeued.append(original.dequeue())
+                duplicate_dequeued.append(duplicate.dequeue())
 
             with self.subTest('no items vanish', queue='original'):
                 self.assertFalse(original)
@@ -932,7 +932,7 @@ class _Bases:
             original_dequeued = []
             duplicate_dequeued = []
             while original and duplicate:
-                duplicate_dequeued.append(original.dequeue())
+                duplicate_dequeued.append(duplicate.dequeue())
                 original_dequeued.append(original.dequeue())
 
             with self.subTest('no items vanish', queue='original'):

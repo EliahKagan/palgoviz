@@ -391,7 +391,14 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         [FIXME: how much space?] in the worst case. These are the best this
         concrete data structure can do, due to how it represents data.
         """
-        # FIXME: Needs implementation.
+        dup = type(self)()
+
+        node = self._head
+        while node:
+            dup.enqueue(node.value)
+            node = node.nextn
+
+        return dup
 
 
 class ListLifoQueue(LifoQueue):
@@ -520,7 +527,10 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         [FIXME: how much space?] in the worst case. These are the best this
         concrete data structure can do, due to how it represents data.
         """
-        # FIXME: Needs implementation.
+        dup = type(self)()
+        dup._head = self._head
+        dup._len = self._len
+        return dup
 
     # !!FIXME: When removing implementation bodies, change "def draw(*queues):"
     # to "def draw(replace_this_with_whatever_your_function_parameters_are):".
