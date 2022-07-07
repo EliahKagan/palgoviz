@@ -192,6 +192,73 @@ class BiStackFifoQueue(FifoQueue):
         return self._out[-1] if self._out else self._in[0]
 
 
+class RingFifoQueue(FifoQueue):
+    """
+    A FIFO queue (i.e., a "queue") based on a list. All operations O(1).
+
+    This uses a single list as a buffer: at all times, except possibly while a
+    method is running, all but O(1) space belongs to a single list object.
+    Methods may sometimes replace it with a new list, but if so, the old list
+    is eligible to be garbage collected on return. (Methods may make as many
+    lists as they like, if they abandon all but one.)
+
+    Enqueueing takes amortized O(1) time in general, but strictly O(1) unless
+    it causes the queue to become larger than ever before. Dequeueing takes
+    strictly O(1) time and O(1) space. Space complexity is linear in the
+    maximum size that has ever been reached.
+    """
+
+    __slots__ = ('_buffer', '_front', '_len')
+
+    _absent = object()
+    """Sentinel representing the absence of an item, so debugging is easier."""
+
+    def __init__(self):
+        """Construct a RingFifoQueue, which uses a single list as a buffer."""
+        self._buffer = [self._absent]
+        self._front = self._len = 0
+
+    def __bool__(self):
+        return self._len != 0
+
+    def __len__(self):
+        return self._len
+
+    def enqueue(self, item):
+        if self._len == len(self._buffer):
+            self._grow()
+
+        assert item is not self._absent
+        index = (self._front + self._len) % len(self._buffer)
+        assert self._buffer[index] is self._absent
+        self._buffer[index] = item
+        self._len += 1
+
+    def dequeue(self):
+        item = self._do_peek("Can't dequeue from empty queue")
+        self._buffer[self._front] = self._absent
+        self._front = (self._front + 1) % len(self._buffer)
+        self._len -= 1
+        return item
+
+    def peek(self):
+        return self._do_peek("Can't peek from empty queue")
+
+    def _do_peek(self, fail_message):
+        if not self:
+            raise LookupError(fail_message)
+        item = self._buffer[self._front]
+        assert item is not self._absent
+        return item
+
+    def _grow(self):
+        end1 = min(self._front + self._len, self._len)
+        end2 = max(0, self._len - (end1 - self._front))
+        self._buffer = (self._buffer[self._front:end1] + self._buffer[:end2]
+                        + [self._absent] * self._len)
+        self._front = 0  # TODO: Ensure tests catch if this is omitted.
+
+
 class SinglyLinkedListFifoQueue(FifoQueue):
     """A FIFO queue (i.e., a "queue") based on a singly linked list."""
 

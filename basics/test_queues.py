@@ -852,7 +852,7 @@ class _Bases:
 
 class TestQueue(_Bases.TestAbstract,
                 _Bases.TestSignatures):
-    """Tests for Queue class."""
+    """Tests for the Queue class."""
 
     @property
     def queue_type(self):
@@ -862,7 +862,7 @@ class TestQueue(_Bases.TestAbstract,
 class TestFifoQueue(_Bases.TestAbstract,
                     _Bases.TestSignatures,
                     _Bases.TestSubclasses):
-    """Tests for FifoQueue class."""
+    """Tests for the FifoQueue class."""
 
     @property
     def queue_type(self):
@@ -872,7 +872,7 @@ class TestFifoQueue(_Bases.TestAbstract,
 class TestLifoQueue(_Bases.TestAbstract,
                     _Bases.TestSignatures,
                     _Bases.TestSubclasses):
-    """Tests for LifoQueue class."""
+    """Tests for the LifoQueue class."""
 
     @property
     def queue_type(self):
@@ -882,7 +882,7 @@ class TestLifoQueue(_Bases.TestAbstract,
 class TestPriorityQueue(_Bases.TestAbstract,
                         _Bases.TestSignatures,
                         _Bases.TestSubclasses):
-    """Tests for PriorityQueue class."""
+    """Tests for the PriorityQueue class."""
 
     @property
     def queue_type(self):
@@ -893,7 +893,7 @@ class TestDequeFifoQueue(_Bases.TestSignatures,
                          _Bases.TestSubclasses,
                          _Bases.TestConcrete,
                          _Bases.TestFifos):
-    """Tests for DequeFifoQueue class."""
+    """Tests for the DequeFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -904,7 +904,7 @@ class TestAltDequeFifoQueue(_Bases.TestSignatures,
                             _Bases.TestSubclasses,
                             _Bases.TestConcrete,
                             _Bases.TestFifos):
-    """Tests for AltDequeFifoQueue class."""
+    """Tests for the AltDequeFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -915,7 +915,7 @@ class TestSlowFifoQueue(_Bases.TestSignatures,
                         _Bases.TestSubclasses,
                         _Bases.TestConcrete,
                         _Bases.TestFifos):
-    """Tests for SlowFifoQueue class."""
+    """Tests for the SlowFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -926,18 +926,29 @@ class TestBiStackFifoQueue(_Bases.TestSignatures,
                            _Bases.TestSubclasses,
                            _Bases.TestConcrete,
                            _Bases.TestFifos):
-    """Tests for BiStackFifoQueue class."""
+    """Tests for the BiStackFifoQueue class."""
 
     @property
     def queue_type(self):
         return queues.BiStackFifoQueue
 
 
+class TestRingFifoQueue(_Bases.TestSignatures,
+                        _Bases.TestSubclasses,
+                        _Bases.TestConcrete,
+                        _Bases.TestFifos):
+    """Tests for the RingFifoQueue class."""
+
+    @property
+    def queue_type(self):
+        return queues.RingFifoQueue
+
+
 class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
                                     _Bases.TestFifos):
-    """Tests for SinglyLinkedListFifoQueue class."""
+    """Tests for the SinglyLinkedListFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -948,7 +959,7 @@ class TestListLifoQueue(_Bases.TestSignatures,
                         _Bases.TestSubclasses,
                         _Bases.TestConcrete,
                         _Bases.TestLifos):
-    """Tests for ListLifoQueue class."""
+    """Tests for the ListLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -959,7 +970,7 @@ class TestDequeLifoQueue(_Bases.TestSignatures,
                          _Bases.TestSubclasses,
                          _Bases.TestConcrete,
                          _Bases.TestLifos):
-    """Tests for DequeLifoQueue class."""
+    """Tests for the DequeLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -970,7 +981,7 @@ class TestAltDequeLifoQueue(_Bases.TestSignatures,
                             _Bases.TestSubclasses,
                             _Bases.TestConcrete,
                             _Bases.TestLifos):
-    """Tests for AltDequeLifoQueue class."""
+    """Tests for the AltDequeLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -981,7 +992,7 @@ class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
                                     _Bases.TestLifos):
-    """Tests for SinglyLinkedListLifoQueue class."""
+    """Tests for the SinglyLinkedListLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -992,7 +1003,7 @@ class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures,
                                       _Bases.TestSubclasses,
                                       _Bases.TestConcrete,
                                       _Bases.TestPriorityQueues):
-    """Tests for FastEnqueueMaxPriorityQueue class."""
+    """Tests for the FastEnqueueMaxPriorityQueue class."""
 
     @property
     def queue_type(self):
@@ -1003,7 +1014,7 @@ class TestFastDequeueMaxPriorityQueue(_Bases.TestSignatures,
                                       _Bases.TestSubclasses,
                                       _Bases.TestConcrete,
                                       _Bases.TestPriorityQueues):
-    """Tests for FastDequeueMaxPriorityQueue class."""
+    """Tests for the FastDequeueMaxPriorityQueue class."""
 
     @property
     def queue_type(self):
