@@ -433,6 +433,20 @@ class HashTable(_NiceReprMapping, MutableMapping):
                 self._rehash(new_bucket_count)
 
 
+# !!FIXME: Although class factories are often good, here the design is inferior
+# to having a GeneralOrderedMapping class that, when constructed, takes the
+# underlying mutable mapping type by dependency injection, probably via a
+# required keyword-only argument to __init__. Then one can directly instantiate
+# GeneralOrderedMapping for one-off uses or, more often, inherit from it to
+# bind that argument via a super() call in the derived class __init__. Then
+# derived class metadata are correct automatically. (GeneralOrderedMapping
+# would itself have no direct or indirect concrete base classes except object.)
+#
+# This exercise should either be changed to require that design, or a major
+# subexercise should be added, calling for such a redesign. The former may be
+# better, since the burdensome nature of the latter does not seem clearly
+# justified. (There are other ways to have a class factory exercise.)
+#
 def make_ordered_mapping(mutable_mapping):
     """
     Create a new ordered mapping type based on a given mutable mapping type.
