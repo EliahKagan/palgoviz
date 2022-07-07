@@ -4,6 +4,7 @@
 
 import functools
 import itertools
+from numbers import Number
 
 
 def peek_arg(func):
@@ -506,6 +507,293 @@ def convert_return(converter):
         return wrapper
 
     return decorator
+
+
+def auto_prime(func):
+    """
+    Decorator to automatically run returned generators up to their first yield.
+
+    One use of this is to write generator functions that contain their own
+    fail-fast validation, without having to write a helper function each time.
+
+    This is called "priming" the generator. It has some other use cases, too.
+
+    >>> import collections, inspect
+    >>> @auto_prime
+    ... def alternate_ends(iterable, *, back_first=False):
+    ...     pool = collections.deque(iterable)
+    ...     yield  # The caller receives a generator primed to here.
+    ...     if pool and back_first: yield pool.pop()
+    ...     while pool:
+    ...         yield pool.popleft()
+    ...         if pool: yield pool.pop()
+
+    >>> it = alternate_ends(range(1, 6))
+    >>> inspect.getgeneratorstate(it)  # GEN_SUSPENDED instead of GEN_CREATED.
+    'GEN_SUSPENDED'
+    >>> list(it)
+    [1, 5, 2, 4, 3]
+    >>> list(alternate_ends(range(1, 6), back_first=True))
+    [5, 1, 4, 2, 3]
+    >>> alternate_ends(10 // i for i in range(3, -1, -1))  # Fails fast.
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: integer division or modulo by zero
+
+    >>> @auto_prime
+    ... def first_yield_non_none(values):
+    ...     while values: yield values.pop()
+    >>> a = [10, 20, 30]
+    >>> first_yield_non_none(a)
+    Traceback (most recent call last):
+      ...
+    TypeError: generator yielded non-None value when primed
+    >>> a
+    [10, 20]
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        gen = func(*args, **kwargs)
+        if next(gen) is not None:
+            raise TypeError('generator yielded non-None value when primed')
+        return gen
+
+    return wrapper
+
+
+def dict_equality(cls):
+    """
+    Decorator to add instance dictionary based equality comparison and hashing.
+
+    NOTE: This always adds hashing even if there are signs of mutability, such
+    as writeable attributes whose names do not start with an underscore. But
+    instances that themselves have attributes (stored in their instance
+    dictionaries) whose values are non-hashable objects are non-hashable.
+
+    >>> @dict_equality
+    ... class Point:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({self.x!r}, {self.y!r})'
+    >>> Point(1, 2) == Point(1, 2) == Point(1.0, 2.0) != Point(2, 1)
+    True
+    >>> {Point(1, 2), Point(1, 2)}
+    {Point(1, 2)}
+
+    >>> @dict_equality
+    ... class Weird:
+    ...     __slots__ = ('a', 'b', '__dict__')
+    ...     def __init__(self, a, b, c):
+    ...         self.a = a
+    ...         self.b = b
+    ...         self.c = c
+    >>> Weird(1, 2, 3) == Weird(4, 5, 3) != Weird(4, 5, 6)
+    True
+
+    >>> class Base:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    >>> @dict_equality
+    ... class Derived(Base): pass
+    >>> class MoreDerived(Derived): pass
+    >>> Base(1, 2) == Derived(1, 2), Derived(1, 2) == Base(1, 2)
+    (False, False)
+    >>> Derived(1, 2) == MoreDerived(1, 2), MoreDerived(1, 2) == Derived(1, 2)
+    (True, True)
+
+    >>> @dict_equality
+    ... class A: pass
+    >>> @dict_equality
+    ... class B: pass
+    >>> class C: pass
+    >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
+    (True, False, False, False, False)
+    """
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, type(self)):
+            return self.__dict__ != other.__dict__
+        return NotImplemented
+
+    def __hash__(self):
+        normalized = sorted(self.__dict__.items())
+        flattened = itertools.chain.from_iterable(normalized)
+        return hash(tuple(flattened))
+
+    cls.__eq__ = __eq__
+    cls.__ne__ = __ne__
+    cls.__hash__ = __hash__
+    return cls
+
+
+def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
+    """
+    Optionally parameterized decorator to join returned iterables into strings.
+
+    The decorated function must return an iterable, but elements need not be
+    strings. They are formatted with format_spec via the format builtin, unless
+    use_repr is true; then their reprs are used and format_spec is ignored.
+
+    This can be used as a decorator factory, passing zero or more arguments:
+
+    >>> @joining(use_repr=True, begin='[', end=']')
+    ... def f(n): return (ch * n for ch in 'ABC')
+    >>> f(3)
+    "['AAA', 'BBB', 'CCC']"
+    >>> @joining('; ', format_spec='.2f')
+    ... def g(a, b, *, delta=1):
+    ...     while a < b:
+    ...         yield a
+    ...         a += delta
+    >>> g(1.7, 6.4, delta=1.15)
+    '1.70; 2.85; 4.00; 5.15; 6.30'
+
+    When keeping all defaults, it can also be used directly as a decorator:
+
+    >>> @joining
+    ... def g(start, stop):
+    ...     while start > stop:
+    ...         yield start
+    ...         start /= 2
+    >>> g(7, 0.5)
+    '7, 3.5, 1.75, 0.875'
+    """
+    if callable(sep):  # sep is actually the function, rather than a separator.
+        return joining()(sep)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            to_str = repr if use_repr else lambda obj: format(obj, format_spec)
+            joined = sep.join(map(to_str, func(*args, **kwargs)))
+            return f'{begin}{joined}{end}'
+
+        return wrapper
+
+    return decorator
+
+
+# !!FIXME: When removing implementation bodies, replace
+#          "class linear_combinable:" with "def linear_combinable(func):".
+class linear_combinable:
+    """
+    Decorator to wrap a function to support addition and scalar multiplication.
+
+    Unary function definitions decorated with @linear_combinable support "+"
+    and "-" among one another. They do not support "+" and "-" with functions
+    not decorated @linear_combinable. They support "*" with instances of Number
+    types, and "/" with nonzero instances of a Number type on the right. The
+    results of all these operations themselves support these operations.
+
+    The initial implementation should not use any helpers. But you may modify
+    "def linear_combinable(func):" in any way that does not misinform the
+    caller about proper usage (so no implementation-detail parameters).
+
+    >>> @linear_combinable
+    ... def f(x): 'Double a number.'; return x * 2
+    >>> @linear_combinable
+    ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
+    >>> @linear_combinable
+    ... def three(_): 'Return 3, no matter the argument.'; return 3
+
+    >>> g(10)
+    99
+    >>> h = 3 * f - 2 * g + three
+    >>> [h(x) for x in range(6)]
+    [5, 9, 9, 5, -3, -15]
+    >>> def sq(x): x**2
+    >>> f + sq  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for +: '...' and 'function'
+
+    >>> (2 * g / 2 * 2 / 2 * 2 / 2 * 2)(10)
+    198.0
+    >>> f / 0
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: second-order division by zero
+    >>> 1 / f  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for /: 'int' and '...'
+    >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
+    'XYZXYZXYZXYZXYZXYZxyzxyz'
+
+    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
+    4
+    >>> for h in f, g, three:  # Check that metadata attributes are intact.
+    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
+    ['decorators', 'f', 'f', 'Double a number.', {}]
+    ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
+    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
+
+    FIXME: Add a test to check that this works even when "*" isn't commutative.
+    """
+
+    def __init__(self, func):
+        functools.wraps(func)(self)
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.__wrapped__!r})'
+
+    def __eq__(self, other):
+        """When f == g, linear_combinable(f) == linear_combinable(g)."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__wrapped__ == other.__wrapped__
+
+    def __hash__(self):
+        return hash(self.__wrapped__)
+
+    def __call__(self, arg):
+        return self.__wrapped__(arg)
+
+    def __add__(self, right_addend):
+        if not isinstance(right_addend, linear_combinable):
+            return NotImplemented
+
+        f = self.__wrapped__
+        g = right_addend.__wrapped__
+        return linear_combinable(lambda arg: f(arg) + g(arg))
+
+    def __sub__(self, subtrahend):
+        if not isinstance(subtrahend, linear_combinable):
+            return NotImplemented
+
+        f = self.__wrapped__
+        g = subtrahend.__wrapped__
+        return linear_combinable(lambda arg: f(arg) - g(arg))
+
+    def __mul__(self, right_coefficient):
+        if not isinstance(right_coefficient, Number):
+            return NotImplemented
+
+        f = self.__wrapped__
+        return linear_combinable(lambda arg: f(arg) * right_coefficient)
+
+    def __rmul__(self, left_coefficient):
+        if not isinstance(left_coefficient, Number):
+            return NotImplemented
+
+        g = self.__wrapped__
+        return linear_combinable(lambda arg: left_coefficient * g(arg))
+
+    def __truediv__(self, divisor):
+        if not isinstance(divisor, Number):
+            return NotImplemented
+        if divisor == 0:
+            raise ZeroDivisionError('second-order division by zero')
+
+        f = self.__wrapped__
+        return linear_combinable(lambda arg: f(arg) / divisor)
 
 
 if __name__ == '__main__':

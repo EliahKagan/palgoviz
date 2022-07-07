@@ -313,3 +313,151 @@ Old doctests for @convert_return():
     Traceback (most recent call last):
         ...
     TypeError: 'generator' object is not subscriptable
+
+
+Old doctests for @auto_prime:
+
+    >>> import collections, inspect
+    >>> @auto_prime
+    ... def alternate_ends(iterable, *, back_first=False):
+    ...     pool = collections.deque(iterable)
+    ...     yield  # The caller receives a generator primed to here.
+    ...     if pool and back_first: yield pool.pop()
+    ...     while pool:
+    ...         yield pool.popleft()
+    ...         if pool: yield pool.pop()
+
+    >>> it = alternate_ends(range(1, 6))
+    >>> inspect.getgeneratorstate(it)  # GEN_SUSPENDED instead of GEN_CREATED.
+    'GEN_SUSPENDED'
+    >>> list(it)
+    [1, 5, 2, 4, 3]
+    >>> list(alternate_ends(range(1, 6), back_first=True))
+    [5, 1, 4, 2, 3]
+    >>> alternate_ends(10 // i for i in range(3, -1, -1))  # Fails fast.
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: integer division or modulo by zero
+
+    >>> @auto_prime
+    ... def first_yield_non_none(values):
+    ...     while values: yield values.pop()
+    >>> a = [10, 20, 30]
+    >>> first_yield_non_none(a)
+    Traceback (most recent call last):
+      ...
+    TypeError: generator yielded non-None value when primed
+    >>> a
+    [10, 20]
+
+
+Old doctests for @dict_equality:
+
+    >>> @dict_equality
+    ... class Point:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    ...     def __repr__(self):
+    ...         return f'{type(self).__name__}({self.x!r}, {self.y!r})'
+    >>> Point(1, 2) == Point(1, 2) == Point(1.0, 2.0) != Point(2, 1)
+    True
+    >>> {Point(1, 2), Point(1, 2)}
+    {Point(1, 2)}
+
+    >>> @dict_equality
+    ... class Weird:
+    ...     __slots__ = ('a', 'b', '__dict__')
+    ...     def __init__(self, a, b, c):
+    ...         self.a = a
+    ...         self.b = b
+    ...         self.c = c
+    >>> Weird(1, 2, 3) == Weird(4, 5, 3) != Weird(4, 5, 6)
+    True
+
+    >>> class Base:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    >>> @dict_equality
+    ... class Derived(Base): pass
+    >>> class MoreDerived(Derived): pass
+    >>> Base(1, 2) == Derived(1, 2), Derived(1, 2) == Base(1, 2)
+    (False, False)
+    >>> Derived(1, 2) == MoreDerived(1, 2), MoreDerived(1, 2) == Derived(1, 2)
+    (True, True)
+
+    >>> @dict_equality
+    ... class A: pass
+    >>> @dict_equality
+    ... class B: pass
+    >>> class C: pass
+    >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
+    (True, False, False, False, False)
+
+
+Old doctests for @joining():
+
+    >>> @joining(use_repr=True, begin='[', end=']')
+    ... def f(n): return (ch * n for ch in 'ABC')
+    >>> f(3)
+    "['AAA', 'BBB', 'CCC']"
+    >>> @joining('; ', format_spec='.2f')
+    ... def g(a, b, *, delta=1):
+    ...     while a < b:
+    ...         yield a
+    ...         a += delta
+    >>> g(1.7, 6.4, delta=1.15)
+    '1.70; 2.85; 4.00; 5.15; 6.30'
+
+    When keeping all defaults, it can also be used directly as a decorator:
+
+    >>> @joining
+    ... def g(start, stop):
+    ...     while start > stop:
+    ...         yield start
+    ...         start /= 2
+    >>> g(7, 0.5)
+    '7, 3.5, 1.75, 0.875'
+
+
+Old doctests for @linear_combinable:
+
+    >>> @linear_combinable
+    ... def f(x): 'Double a number.'; return x * 2
+    >>> @linear_combinable
+    ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
+    >>> @linear_combinable
+    ... def three(_): 'Return 3, no matter the argument.'; return 3
+
+    >>> g(10)
+    99
+    >>> h = 3 * f - 2 * g + three
+    >>> [h(x) for x in range(6)]
+    [5, 9, 9, 5, -3, -15]
+    >>> def sq(x): x**2
+    >>> f + sq  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for +: '...' and 'function'
+
+    >>> (2 * g / 2 * 2 / 2 * 2 / 2 * 2)(10)
+    198.0
+    >>> f / 0
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: second-order division by zero
+    >>> 1 / f  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for /: 'int' and '...'
+    >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
+    'XYZXYZXYZXYZXYZXYZxyzxyz'
+
+    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
+    4
+    >>> for h in f, g, three:  # Check that metadata attributes are intact.
+    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
+    ['__main__', 'f', 'f', 'Double a number.', {}]
+    ['__main__', 'g', 'g', 'Square a number and subtract 1.', {}]
+    ['__main__', 'three', 'three', 'Return 3, no matter the argument.', {}]
