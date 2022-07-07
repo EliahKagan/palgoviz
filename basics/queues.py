@@ -522,6 +522,27 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         """
         # FIXME: Needs implementation.
 
+    # !!FIXME: When removing implementation bodies, change "def draw(*queues):"
+    # to "def draw(replace_this_with_whatever_your_function_parameters_are):".
+    def draw(*queues):
+        """
+        Visualize how zero or more SinglyLinkedLifoQueues are/aren't related.
+
+        Copying a SinglyLinkedListLifoQueue is more efficient than copying a
+        SinglyLinkedListFifoQueue, in a way that makes it interesting to
+        visualize the state of multiple SinglyLinkedListLifoQueue instances if
+        some may have been created by copying others.
+
+        This creates and returns such a drawing as a graphviz.Digraph. This
+        function can be called with static method syntax or instance method
+        syntax. For example, SinglyLinkedListLifoQueue.draw() draws zero
+        queues, SinglyLinkedListLifoQueue.draw(a, b, c) draws three queues, and
+        a.draw(b, c) draws those same three queues.
+
+        Some such drawings can be seen in [FIXME: say where you put them].
+        """
+        # FIXME: Needs implementation.
+
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
