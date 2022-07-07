@@ -1,5 +1,7 @@
 queues.RingFifoQueue
 queues.CompactRingFifoQueue
+queues.SinglyLinkedListFifoQueue.copy
+queues.SinglyLinkedListLifoQueue.copy
 hashing.SortedFlatTable
 hashing.UnsortedFlatTable
 hashing.DirectAddressTable

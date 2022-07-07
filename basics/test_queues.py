@@ -849,6 +849,107 @@ class _Bases:
                 out = pq.dequeue()
                 self.assertEqual(out, compare.WeakDiamond.SOUTH)
 
+    class TestCopyable(_QueueTestCase):
+        """
+        Common tests for queues that support shallow copying via a copy method.
+
+        This may be expanded in the future to also test support for copy.copy
+        and copy.deepcopy, if some or all queues gain custom logic for that. If
+        all queue types are made copyable in ways tested here, then these tests
+        can go in TestSubclasses or TestConcrete and this class can be removed.
+
+        For now, these tests apply only to SinglyLinkedListFifoQueue and
+        SinglyLinkedListLifoQueue, and their FIFO/LIFO specific copy tests are
+        in the concrete classes below.
+        """
+
+        _parameterize_elements = parameterized.expand([
+            (0, []),
+            (1, [20]),
+            (2, [20, 10]),
+            (3, [20, 10, 30]),
+        ])
+
+        @_parameterize_elements
+        def test_copy_has_exact_same_type(self, _len, items):
+            original, duplicate = self._make_queues(items)
+            self.assertIs(type(duplicate), type(original))
+
+        @_parameterize_elements
+        def test_copy_has_same_length(self, _len, items):
+            original, duplicate = self._make_queues(items)
+            self.assertEqual(len(duplicate), len(original))
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_orig_then_copy(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            original_dequeued = []
+            while original:
+                original_dequeued.append(original.dequeue())
+
+            duplicate_dequeued = []
+            while duplicate:
+                duplicate_dequeued.append(duplicate.dequeue())
+
+            self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_copy_then_orig(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            duplicate_dequeued = []
+            while duplicate:
+                duplicate_dequeued.append(duplicate.dequeue())
+
+            original_dequeued = []
+            while original:
+                original_dequeued.append(original.dequeue())
+
+            self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_interleave_orig_copy(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            original_dequeued = []
+            duplicate_dequeued = []
+            while original and duplicate:
+                original_dequeued.append(original.dequeue())
+                duplicate_dequeued.append(original.dequeue())
+
+            with self.subTest('no items vanish', queue='original'):
+                self.assertFalse(original)
+            with self.subTest('no items vanish', queue='duplicate'):
+                self.assertFalse(duplicate)
+            with self.subTest('same items dequeued in same order'):
+                self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_interleave_copy_orig(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            original_dequeued = []
+            duplicate_dequeued = []
+            while original and duplicate:
+                duplicate_dequeued.append(original.dequeue())
+                original_dequeued.append(original.dequeue())
+
+            with self.subTest('no items vanish', queue='original'):
+                self.assertFalse(original)
+            with self.subTest('no items vanish', queue='duplicate'):
+                self.assertFalse(duplicate)
+            with self.subTest('same items dequeued in same order'):
+                self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        def _make_queues(self, items):
+            original = self.queue_type()
+            for item in items:
+                original.enqueue(item)
+            duplicate = original.copy()
+            return original, duplicate
+
+
 
 class TestQueue(_Bases.TestAbstract,
                 _Bases.TestSignatures):
@@ -958,12 +1059,59 @@ class TestCompactRingFifoQueue(_Bases.TestSignatures,
 class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
-                                    _Bases.TestFifos):
+                                    _Bases.TestFifos,
+                                    _Bases.TestCopyable):
     """Tests for the SinglyLinkedListFifoQueue class."""
 
     @property
     def queue_type(self):
         return queues.SinglyLinkedListFifoQueue
+
+    def test_original_and_copy_are_independent_fifos(self):
+        """Operations on a copy/original don't affect the original/copy."""
+        original = self.queue_type()
+        original.enqueue(10)
+        original.enqueue(20)
+        original.enqueue(30)
+        duplicate = original.copy()
+
+        original.enqueue(40)
+
+        with self.subTest(queue='duplicate', dequeue=1):
+            self.assertEqual(duplicate.dequeue(), 10)
+
+        duplicate.enqueue(50)
+
+        with self.subTest(queue='duplicate', dequeue=2):
+            self.assertEqual(duplicate.dequeue(), 20)
+
+        with self.subTest(queue='original', dequeue=1):
+            self.assertEqual(original.dequeue(), 10)
+
+        original.enqueue(60)
+
+        with self.subTest(queue='original', dequeue=2):
+            self.assertEqual(original.dequeue(), 20)
+
+        with self.subTest(queue='duplicate', dequeue=3):
+            self.assertEqual(duplicate.dequeue(), 30)
+
+        with self.subTest(queue='duplicate', dequeue=4):
+            self.assertEqual(duplicate.dequeue(), 50)
+
+        with self.subTest(queue='original', dequeue=3):
+            self.assertEqual(original.dequeue(), 30)
+
+        duplicate.enqueue(70)
+
+        with self.subTest(queue='original', dequeue=4):
+            self.assertEqual(original.dequeue(), 40)
+
+        with self.subTest(queue='duplicate', dequeue=5):
+            self.assertEqual(duplicate.dequeue(), 70)
+
+        with self.subTest(queue='original', dequeue=5):
+            self.assertEqual(original.dequeue(), 60)
 
 
 class TestListLifoQueue(_Bases.TestSignatures,
@@ -1002,12 +1150,59 @@ class TestAltDequeLifoQueue(_Bases.TestSignatures,
 class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
-                                    _Bases.TestLifos):
+                                    _Bases.TestLifos,
+                                    _Bases.TestCopyable):
     """Tests for the SinglyLinkedListLifoQueue class."""
 
     @property
     def queue_type(self):
         return queues.SinglyLinkedListLifoQueue
+
+    def test_original_and_copy_are_independent_lifos(self):
+        """Operations on a copy/original don't affect the original/copy."""
+        original = self.queue_type()
+        original.enqueue(10)
+        original.enqueue(20)
+        original.enqueue(30)
+        duplicate = original.copy()
+
+        original.enqueue(40)
+
+        with self.subTest(queue='duplicate', dequeue=1):
+            self.assertEqual(duplicate.dequeue(), 30)
+
+        duplicate.enqueue(50)
+
+        with self.subTest(queue='duplicate', dequeue=2):
+            self.assertEqual(duplicate.dequeue(), 50)
+
+        with self.subTest(queue='original', dequeue=1):
+            self.assertEqual(original.dequeue(), 40)
+
+        original.enqueue(60)
+
+        with self.subTest(queue='original', dequeue=2):
+            self.assertEqual(original.dequeue(), 60)
+
+        with self.subTest(queue='duplicate', dequeue=3):
+            self.assertEqual(duplicate.dequeue(), 20)
+
+        with self.subTest(queue='duplicate', dequeue=4):
+            self.assertEqual(duplicate.dequeue(), 10)
+
+        with self.subTest(queue='original', dequeue=3):
+            self.assertEqual(original.dequeue(), 30)
+
+        duplicate.enqueue(70)
+
+        with self.subTest(queue='original', dequeue=4):
+            self.assertEqual(original.dequeue(), 20)
+
+        with self.subTest(queue='duplicate', dequeue=5):
+            self.assertEqual(duplicate.dequeue(), 70)
+
+        with self.subTest(queue='original', dequeue=5):
+            self.assertEqual(original.dequeue(), 10)
 
 
 class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures,

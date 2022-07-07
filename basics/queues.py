@@ -378,6 +378,21 @@ class SinglyLinkedListFifoQueue(FifoQueue):
             raise LookupError("Can't peek from empty queue")
         return self._head.value
 
+    def copy(self):
+        """
+        Create a SinglyLinkedListFifoQueue that is a copy of this one.
+
+        This may be called any number of times, including on copies. Operations
+        on an instance do not affect any copies or originals related to it.
+
+        The time complexity to copy is [FIXME: state it]. A series of k
+        operations, each of which constructs or calls a public method on some
+        SinglyLinkedListFifoQueue instance, takes [FIXME: how long?] and uses
+        [FIXME: how much space?] in the worst case. These are the best this
+        concrete data structure can do, due to how it represents data.
+        """
+        # FIXME: Needs implementation.
+
 
 class ListLifoQueue(LifoQueue):
     """A LIFO queue (i.e., a stack) based on a list."""
@@ -491,6 +506,21 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         if not self._head:
             raise LookupError("Can't peek from empty queue")
         return self._head.value
+
+    def copy(self):
+        """
+        Create a SinglyLinkedListLifoQueue that is a copy of this one.
+
+        This may be called any number of times, including on copies. Operations
+        on an instance do not affect any copies or originals related to it.
+
+        The time complexity to copy is [FIXME: state it]. A series of k
+        operations, each of which constructs or calls a public method on some
+        SinglyLinkedListLifoQueue instance, takes [FIXME: how long?] and uses
+        [FIXME: how much space?] in the worst case. These are the best this
+        concrete data structure can do, due to how it represents data.
+        """
+        # FIXME: Needs implementation.
 
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
