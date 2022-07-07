@@ -1,4 +1,9 @@
-"""Mutable collections using hashing or similar techniques."""
+"""
+Mutable collections using hashing or similar techniques.
+
+If more mappings are added in the future, this may be split into multiple
+modules, or renamed to reflect that it is less centered around hashing.
+"""
 
 import bisect
 from collections.abc import Mapping, MutableMapping
