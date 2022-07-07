@@ -7,3 +7,5 @@ hashing.SortedFlatTable
 hashing.UnsortedFlatTable
 hashing.DirectAddressTable
 hashing.HashTable
+hashing.make_ordered_mapping
+hashing.MyOrderedDict/hashing.OrderedHashTable metadata

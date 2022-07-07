@@ -431,3 +431,50 @@ class HashTable(_NiceReprMapping, MutableMapping):
                                    math.floor(self._target_bucket_count))
             if new_bucket_count < len(self._buckets):
                 self._rehash(new_bucket_count)
+
+
+def make_ordered_mapping(mutable_mapping):
+    """
+    Create a new ordered mapping type based on a given mutable mapping type.
+
+    This factory creates and returns a mutable mapping type, implemented in
+    terms of mutable_mapping but not inheriting from it, that is ordered in
+    the sense of satisfying all the following even if mutable_mapping doesn't:
+
+      1. Iteration yields in insertion order. (Except per #4 below.)
+      2. The reverse builtin gives an iterator going in the opposite order.
+      3. Each call to next on either such iterator takes strictly O(1) time.
+      4. A move_to_end method is provided, just as in collections.OrderedDict.
+
+    This is to say that the relationship between mutable_mapping and
+    make_ordered_mapping(mutable_mapping) is analogous to that between dict and
+    OrderedDict, except composition is used instead of inheritance. Besides
+    object, any direct or indirect base classes of types returned by
+    make_ordered_mapping must be abstract.
+
+    make_ordered_mapping(mutable_mapping) must support search, insertion, and
+    removal with the same keys mutable_mapping supports, with the same time and
+    space complexities, and the same exception types and messages on errors.
+    Nothing may be assumed about the mechanism mutable_mapping uses to look up
+    keys or what keys are valid. For example, keys in dict and HashTable must
+    be hashable, and the basic operations all take O(1) amortized time with
+    high probability assuming good hash distribution, so all that is true of
+    make_ordered_mapping(dict) and make_ordered_mapping(HashTable), too. If you
+    have a BST class that is a mutable mapping type based on a self-balancing
+    binary search tree, its keys need not be hashable but must be comparable
+    with "<" and be (at least) weakly ordered, and all basic operations take
+    O(log n) time, so all that is true of make_ordered_mapping(BST), too.
+    """
+    # FIXME: Needs implementation.
+
+
+# FIXME: Fix metadata, including adding docstring. Don't change implementation.
+MyOrderedDict = make_ordered_mapping(dict)
+
+
+# FIXME: Fix metadata, including adding docstring. Don't change implementation.
+OrderedHashTable = make_ordered_mapping(HashTable)
+
+
+# FIXME: After all tests of code in this module are passing, read the code of
+# collections.OrderedDict and compare techniques with make_ordered_mapping.
