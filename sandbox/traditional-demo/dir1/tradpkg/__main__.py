@@ -14,7 +14,7 @@ import sys
 from .subpkg.grids import make_grid
 
 
-def run():
+def run():  # We usually call this main(), but it can be called anything.
     match sys.argv:
         case [_]:
             m = 5
