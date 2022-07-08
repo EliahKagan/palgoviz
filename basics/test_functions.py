@@ -558,14 +558,14 @@ class TestCloseableIteratorLimited(unittest.TestCase):
 
     @unittest.skipUnless(platform.python_implementation() == 'CPython',
                          'This test relies on reference counting GC.')
-    def test_function_without_close_ok_when_not_started_not_called(self):
+    def test_function_without_close_ok_when_not_started_not_closed(self):
         """f need not be closeable. (Test with no calls to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
         it = functions.as_closeable_iterator_limited(a.pop, 20)
         r = weakref.ref(it)
         try:
             del it
-            if r:
+            if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
         except AttributeError as error:
@@ -590,7 +590,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
-            if r:
+            if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
         except AttributeError as error:
@@ -636,14 +636,14 @@ class TestCloseableIteratorLimited(unittest.TestCase):
 
         mock_close = unittest.mock.Mock()
         f.close = mock_close
-        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        it = functions.as_closeable_iterator_limited(f, 20)
         with self.subTest('close not called too early'):
             mock_close.assert_not_called()
 
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
-            if r:
+            if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
             mock_close.assert_called_once()
@@ -657,7 +657,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
 
         mock_close = unittest.mock.Mock()
         f.close = mock_close
-        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        it = functions.as_closeable_iterator_limited(f, 20)
         with self.subTest('close not called too early'):
             mock_close.assert_not_called()
         with self.subTest('closing generator closes function'):
@@ -675,7 +675,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
 
         mock_close = unittest.mock.Mock()
         f.close = mock_close
-        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        it = functions.as_closeable_iterator_limited(f, 20)
         next(it)
         with self.subTest('close not called too early'):
             mock_close.assert_not_called()
@@ -683,7 +683,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
-            if r:
+            if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
             mock_close.assert_called_once()
@@ -697,7 +697,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
 
         mock_close = unittest.mock.Mock()
         f.close = mock_close
-        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        it = functions.as_closeable_iterator_limited(f, 20)
         next(it)
         with self.subTest('close not called too early'):
             mock_close.assert_not_called()
@@ -714,7 +714,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
 
         mock_close = unittest.mock.Mock()
         f.close = mock_close
-        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        it = functions.as_closeable_iterator_limited(f, 20)
         with self.subTest('close not called way too early'):
             mock_close.assert_not_called()
         with self.subTest('exhausting generator closes function'):
