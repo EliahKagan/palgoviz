@@ -99,6 +99,7 @@ def as_iterator_limited_alt(func, end_sentinel):
     This is an alternative implementation of as_iterator_limited. One
     implementation uses the iter builtin; the other does not.
     """
+    # TODO: Maybe refactor this to eliminate the duplicated logic.
     result = func()
     while result != end_sentinel:
         yield result
@@ -111,8 +112,7 @@ def as_iterator(func):
     it.
     """
     while True:
-        ret = func()
-        yield ret
+        yield func()
 
 
 def as_iterator_alt(func):
@@ -136,18 +136,10 @@ def count_tree_nodes(root):
 
     This is a simple recursive implementation. No helper function is used.
     """
-    if not root:
-        return 1
-
     if not isinstance(root, tuple):
         return 1
 
-    count = 1
-
-    for child in root:
-        count += count_tree_nodes(child)
-
-    return count
+    return 1 + sum(count_tree_nodes(child) for child in root)
 
 
 def count_tree_nodes_alt(root):
@@ -167,17 +159,13 @@ def count_tree_nodes_alt(root):
 
     def helper(root):
         nonlocal count
-
         count += 1
-
         if not isinstance(root, tuple):
             return
-
         for child in root:
             helper(child)
 
     helper(root)
-
     return count
 
 
