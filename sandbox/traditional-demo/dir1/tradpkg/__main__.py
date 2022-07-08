@@ -13,12 +13,18 @@ import sys
 
 from .subpkg.grids import make_grid
 
-match sys.argv:
-    case [_]:
-        m = 5
-        n = 7
-    case [_, arg1, arg2]:
-        m = int(arg1)
-        n = int(arg2)
 
-pprint.pprint(make_grid(m, n), width=40)
+def run():
+    match sys.argv:
+        case [_]:
+            m = 5
+            n = 7
+        case [_, arg1, arg2]:
+            m = int(arg1)
+            n = int(arg2)
+
+    pprint.pprint(make_grid(m, n), width=40)
+
+
+if __name__ == '__main__':
+    run()
