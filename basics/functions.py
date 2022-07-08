@@ -14,23 +14,34 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
+import itertools
 
-def make_counter(start):
+from decorators import peek_return
+from fibonacci import fib
+
+def make_counter(start=0):
     """
     Create and return a function that returns successive integers on each call.
 
     This implementation never assigns to a variable that already exists.
     """
-    # FIXME: Implement this.
+    it = itertools.count(start)
+    return lambda: next(it)
 
 
-def make_counter_alt(start):
+def make_counter_alt(start=0):
     """
     Create and return a function that returns successive integers on each call.
 
     This implementation does not involve iterators in any way.
     """
-    # FIXME: Implement this.
+    def counter():
+        nonlocal start
+        old = start
+        start += 1
+        return old
+
+    return counter
 
 
 def make_next_fibonacci():
@@ -40,7 +51,8 @@ def make_next_fibonacci():
 
     This implementation is simple, using an existing function in the project.
     """
-    # FIXME: Implement this.
+    it = fib()
+    return lambda: next(it)
 
 
 def make_next_fibonacci_alt():
@@ -51,14 +63,24 @@ def make_next_fibonacci_alt():
     This implementation is self-contained: it does not use anything defined
     outside, not even builtins. It also does not involve iterators in any way.
     """
-    # FIXME: Implement this.
+    a = 0
+    b = 1
+
+    def next_fibonacci():
+        nonlocal a, b
+        old_a = a
+        a, b = b, a + b
+        return old_a
+
+    return next_fibonacci
 
 
 def as_func(iterable):
     """
     Given an iterable, return a function that steps through it on each call.
     """
-    # FIXME: Implement this.
+    it = iter(iterable)
+    return lambda: next(it)
 
 
 def as_iterator_limited(func, end_sentinel):
@@ -66,7 +88,7 @@ def as_iterator_limited(func, end_sentinel):
     Given a parameterless function, return an iterator that calls it until
     end_sentinel is reached.
     """
-    # FIXME: Implement this.
+    return iter(func, end_sentinel)
 
 
 def as_iterator_limited_alt(func, end_sentinel):
@@ -77,7 +99,10 @@ def as_iterator_limited_alt(func, end_sentinel):
     This is an alternative implementation of as_iterator_limited. One
     implementation uses the iter builtin; the other does not.
     """
-    # FIXME: Implement this.
+    result = func()
+    while result != end_sentinel:
+        yield result
+        result = func()
 
 
 def as_iterator(func):
@@ -85,7 +110,9 @@ def as_iterator(func):
     Given a parameterless function, return an iterator that repeatedly calls
     it.
     """
-    # FIXME: Implement this.
+    while True:
+        ret = func()
+        yield ret
 
 
 def as_iterator_alt(func):
@@ -96,7 +123,7 @@ def as_iterator_alt(func):
     This is an alternative implementation of as_iterator. One implementation
     uses the iter builtin; the other does not.
     """
-    # FIXME: Implement this.
+    return iter(func, object())
 
 
 def count_tree_nodes(root):
@@ -109,7 +136,18 @@ def count_tree_nodes(root):
 
     This is a simple recursive implementation. No helper function is used.
     """
-    # FIXME: Implement this.
+    if not root:
+        return 1
+
+    if not isinstance(root, tuple):
+        return 1
+
+    count = 1
+
+    for child in root:
+        count += count_tree_nodes(child)
+
+    return count
 
 
 def count_tree_nodes_alt(root):
@@ -125,7 +163,22 @@ def count_tree_nodes_alt(root):
     No other callables, besides the helper and maybe builtins, are ever used.
     count_tree_nodes_alt never calls itself, nor does the helper ever call it.
     """
-    # FIXME: Implement this.
+    count = 0
+
+    def helper(root):
+        nonlocal count
+
+        count += 1
+
+        if not isinstance(root, tuple):
+            return
+
+        for child in root:
+            helper(child)
+
+    helper(root)
+
+    return count
 
 
 def count_tree_nodes_instrumented(root):
@@ -142,7 +195,20 @@ def count_tree_nodes_instrumented(root):
     an entirely different means, such as posting it to a network server--then
     tests would need to change, but this function's implementation would not.
     """
-    # FIXME: Implement this.
+    global count_tree_nodes
+
+    old_func = count_tree_nodes
+
+    @peek_return
+    def count_tree_nodes(root):
+        return old_func(root)
+
+    try:
+        ret = count_tree_nodes(root)
+    finally:
+        count_tree_nodes = old_func
+
+    return ret
 
 
 if __name__ == '__main__':
