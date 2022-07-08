@@ -4,6 +4,6 @@ Print a grid.
 This demonstrates running the top-level package as a script.
 """
 
-from . import subpkg
+from .subpkg.grids import make_grid
 
-print(subpkg.grids.make_grid(4, 4))
+print(make_grid(4, 4))
