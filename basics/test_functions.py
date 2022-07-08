@@ -2,13 +2,18 @@
 
 """Tests for the functions in functions.py."""
 
+import collections
 from collections.abc import Iterator
 import contextlib
 import functools
+import inspect
 import io
 import itertools
+import platform
 import sys
 import unittest
+import unittest.mock
+import weakref
 
 from parameterized import parameterized, parameterized_class
 
@@ -542,7 +547,179 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             self.assertListEqual(list(it), expected)
 
 
-# FIXME: Write the TestAsCloseableIteratorLimited class here.
+# FIXME: Eliminate each skipUnless via an opposite conditional gc.collect call.
+class TestCloseableIteratorLimited(unittest.TestCase):
+    """Tests specific to the as_closeable_iterator_limited function."""
+
+    def test_result_is_generator(self):
+        """The result must be a generator, not just any iterator."""
+        it = functions.as_closeable_iterator_limited(lambda: 42, 42)
+        self.assertTrue(inspect.isgenerator(it))
+
+    @unittest.skipUnless(platform.python_implementation() == 'CPython',
+                         'This test relies on reference counting GC.')
+    def test_function_without_close_ok_when_not_started_not_called(self):
+        """f need not be closeable. (Test with no calls to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        r = weakref.ref(it)
+        try:
+            del it
+            if r:
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_not_started_but_called(self):
+        """f need not be closeable. (Test with no calls to next, 2 of 2.)"""
+        a = [10, 20, 30, 40, 50]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    @unittest.skipUnless(platform.python_implementation() == 'CPython',
+                         'This test relies on reference counting GC.')
+    def test_function_without_close_ok_when_started_not_closed(self):
+        """f need not be closeable. (Test with one call to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        next(it)
+        r = weakref.ref(it)
+        try:
+            del it
+            if r:
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_started_then_closed(self):
+        """f need not be closeable. (Test with one call to next, 2 of 2.)"""
+        a = [10, 20, 30, 40, 50]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        next(it)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_finished(self):
+        """f need not be closeable. (Test exhausting the generator, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        try:
+            collections.deque(it, maxlen=0)  # Exhaust the generator.
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_even_if_finished_then_closed(self):
+        """f need not be closeable. (Test exhausting the generator, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        collections.deque(it, maxlen=0)  # Exhaust the generator.
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    @unittest.skipUnless(platform.python_implementation() == 'CPython',
+                         'This test relies on reference counting GC.')
+    def test_closeable_function_closed_after_not_started_not_closed(self):
+        """close called if present. (Test with no calls to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('close called on finalization'):
+            r = weakref.ref(it)
+            del it
+            if r:
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_not_started_but_closed(self):
+        """close called if present. (Test with no calls to next, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+        with self.subTest('closing generator closes function'):
+            it.close()
+            mock_close.assert_called_once()
+
+    @unittest.skipUnless(platform.python_implementation() == 'CPython',
+                         'This test relies on reference counting GC.')
+    def test_closeable_function_closed_after_started_not_closed(self):
+        """close called if present. (Test with one call to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        next(it)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('close called on finalization'):
+            r = weakref.ref(it)
+            del it
+            if r:
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_started_then_closed(self):
+        """close called if present. (Test with one call to next, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        next(it)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+        with self.subTest('closing generator closes function'):
+            it.close()
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_when_finished(self):
+        """close called if present. (Test exhausting the generator, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        with self.subTest('close not called way too early'):
+            mock_close.assert_not_called()
+        with self.subTest('exhausting generator closes function'):
+            collections.deque(it, maxlen=0)  # Exhaust the generator.
+            mock_close.assert_called_once()
 
 
 @parameterized_class(('implementation_name',), [
