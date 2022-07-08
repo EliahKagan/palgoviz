@@ -6,6 +6,7 @@ import collections
 from collections.abc import Iterator
 import contextlib
 import functools
+import gc
 import inspect
 import io
 import itertools
@@ -22,6 +23,16 @@ import functions
 import recursion
 
 _original_count_tree_nodes = functions.count_tree_nodes
+
+
+if platform.python_implementation() == 'CPython':
+    def _collect_if_not_ref_counting():
+        """Force a collection if we might not be using reference counting."""
+        # CPython always refcounts as its primary GC strategy, so do nothing.
+else:
+    def _collect_if_not_ref_counting():
+        """Force a collection if we might not be using reference counting."""
+        gc.collect()
 
 
 class _IterableWithGeneratorIterator:
@@ -547,7 +558,6 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             self.assertListEqual(list(it), expected)
 
 
-# FIXME: Eliminate each skipUnless via an opposite conditional gc.collect call.
 class TestCloseableIteratorLimited(unittest.TestCase):
     """Tests specific to the as_closeable_iterator_limited function."""
 
@@ -556,8 +566,6 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         it = functions.as_closeable_iterator_limited(lambda: 42, 42)
         self.assertTrue(inspect.isgenerator(it))
 
-    @unittest.skipUnless(platform.python_implementation() == 'CPython',
-                         'This test relies on reference counting GC.')
     def test_function_without_close_ok_when_not_started_not_closed(self):
         """f need not be closeable. (Test with no calls to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -565,6 +573,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
+            _collect_if_not_ref_counting()
             if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -580,8 +589,6 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         except AttributeError as error:
             self.fail(f'Got AttributeError: {error}')
 
-    @unittest.skipUnless(platform.python_implementation() == 'CPython',
-                         'This test relies on reference counting GC.')
     def test_function_without_close_ok_when_started_not_closed(self):
         """f need not be closeable. (Test with one call to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -590,6 +597,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
+            _collect_if_not_ref_counting()
             if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -625,8 +633,6 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         except AttributeError as error:
             self.fail(f'Got AttributeError: {error}')
 
-    @unittest.skipUnless(platform.python_implementation() == 'CPython',
-                         'This test relies on reference counting GC.')
     def test_closeable_function_closed_after_not_started_not_closed(self):
         """close called if present. (Test with no calls to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -643,6 +649,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
+            _collect_if_not_ref_counting()
             if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -664,8 +671,6 @@ class TestCloseableIteratorLimited(unittest.TestCase):
             it.close()
             mock_close.assert_called_once()
 
-    @unittest.skipUnless(platform.python_implementation() == 'CPython',
-                         'This test relies on reference counting GC.')
     def test_closeable_function_closed_after_started_not_closed(self):
         """close called if present. (Test with one call to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -683,6 +688,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
+            _collect_if_not_ref_counting()
             if r():
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
