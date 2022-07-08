@@ -590,7 +590,7 @@ class TestAsIterator(_NamedImplementationTestCase):
             self.assertListEqual(prefix, expected)
 
 
-# FIXME: Write the AsCloseableIterator class here.
+# FIXME: Write the TestAsCloseableIterator class here.
 
 
 @parameterized_class(('implementation_name',), [
