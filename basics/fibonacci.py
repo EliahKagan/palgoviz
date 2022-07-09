@@ -144,7 +144,7 @@ def fibonacci_cached_3(n):
     return helper(n)
 
 
-@memoize
+@memoize  # Could also use @functools.cache.
 def fibonacci_cached_4(n):
     """
     Memoized recursive Fibonacci algorithm. Caches across all calls.
@@ -196,7 +196,7 @@ def fibonacci_cached_5(n):
     >>> fibonacci_cached_5(500)  # No RecursionError, we split the paths.
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
-    @functools.cache
+    @memoize  # Could also use @functools.cache.
     def helper(n):
         if n == 0:
             return 0
