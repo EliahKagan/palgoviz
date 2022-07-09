@@ -169,6 +169,7 @@ def count_tree_nodes_alt(root):
     return count
 
 
+# FIXME: Refactor this implementation to simplify it.
 def count_tree_nodes_instrumented(root):
     """
     Call count_tree_nodes as if it were decorated with @decorators.peek_return.
