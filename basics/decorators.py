@@ -838,7 +838,7 @@ class linear_combinable:
     """
 
     def __init__(self, func):
-        functools.wraps(func)(self)
+        functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
     def __repr__(self):
         return f'{type(self).__name__}({self.__wrapped__!r})'
