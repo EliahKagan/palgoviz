@@ -169,7 +169,6 @@ def count_tree_nodes_alt(root):
     return count
 
 
-# FIXME: Refactor this implementation to simplify it.
 def count_tree_nodes_instrumented(root):
     """
     Call count_tree_nodes as if it were decorated with @decorators.peek_return.
@@ -185,12 +184,8 @@ def count_tree_nodes_instrumented(root):
     tests would need to change, but this function's implementation would not.
     """
     global count_tree_nodes
-
     old_func = count_tree_nodes
-
-    @peek_return
-    def count_tree_nodes(root):
-        return old_func(root)
+    count_tree_nodes = peek_return(count_tree_nodes)
 
     try:
         ret = count_tree_nodes(root)
