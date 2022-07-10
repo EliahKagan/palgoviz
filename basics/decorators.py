@@ -633,6 +633,60 @@ def dict_equality(cls):
     return cls
 
 
+def wrap_uncallable_args(*, kw=False):
+    """
+    Optionally parameterized decorator to convert non-callable arguments to
+    constant functions.
+
+    When a higher-order function expects its arguments to be callable, but you
+    want to pass some non-callable values when you really mean functions that
+    always return those values, decorating the higher-order function with this
+    decorator will achieve that. By default only non-callable positional
+    arguments are made into constant functions, but with kw=True, non-callable
+    keyword arguments are also made into constant functions.
+
+    >>> class Squarer:  # Used in demonstrations/tests below.
+    ...     def __call__(self, x): return x**2
+
+    wrap_uncallable_args can be used as a decorator factory with kw=False:
+
+    >>> @wrap_uncallable_args(kw=False)  # Same effect here as with "()".
+    ... def inside_out_map(*functions, *, preimage, materialize=False):
+    ...     images = (f(preimage) for f in functions)
+    ...     return list(images) if materialize else images
+    >>> inside_out_map(abs, Squarer(), 3, lambda x: 2**x, -5,
+    ...                preimage=-7, materialize=True)
+    [7, 49, 3, 0.0078125, -5]
+
+    wrap_uncallable_args can be used as a decorator factory with kw=True:
+
+    >>> @wrap_uncallable_args(kw=True)  # kw=True must be passed explicitly.
+    ... def pass_args_through(*args, **kwargs):
+    ...     return args, kwargs
+    >>> a, kw = pass_args_through(min, 42, f=max, g=76)
+    >>> a[0](10, 20), a[0](20, 10), a[1](10, 20), a[1](20, 10)
+    (10, 10, 42, 42)
+    >>> kw['f'](10, 20), kw['f'](20, 10), kw['g'](10, 20), kw['g'](20, 10)
+    (20, 20, 76, 76)
+    >>> a[1](foo=bar), kw['g'](1, 2, 3, 4, 5, ham=6, spam=7, eggs=8)
+    (42, 76)
+
+    wrap_uncallable_args can also be used directly as a decorator, but only if
+    you want the default of kw=False:
+
+    >>> @wrap_uncallable_args  # Same effect here as with "()", too!
+    ... def inside_out_map_alt(*functions, *, preimage, materialize=False):
+    ...     images = (f(preimage) for f in functions)
+    ...     return list(images) if materialize else images
+    >>> inside_out_map_alt(abs, Squarer(), 3, lambda x: 2**x, -5,
+    ...                    preimage=-7, materialize=True)
+    [7, 49, 3, 0.0078125, -5]
+
+    Hint: You might want to get it working just as a decorator factory first.
+    """
+    # FIXME: Needs implementation.
+
+
 def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     """
     Optionally parameterized decorator to join returned iterables into strings.
@@ -678,6 +732,52 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
         return wrapper
 
     return decorator
+
+
+def repeat_collect(count=2):
+    r"""
+    Optionally parameterized decorator to repeat a function and return all
+    results.
+
+    This is like @repeat(), but a tuple of results from each call is returned,
+    and this is usable both as a decorator factory and as a plain decorator (in
+    which case the default repetition count of 2 is used).
+
+    It is not a goal to return information about combinations of successes and
+    failures. If any of the repeated calls raises an exception, that exception
+    is propagated, and any results of previous calls are discarded.
+
+    >>> import math, io, itertools
+
+    >>> indices = itertools.count(1)
+    >>> @repeat_collect(3)
+    ... def f(*, weight, bias):
+    ...     print(f'Called {f.__name__}({weight=}, {bias=}).')
+    ...     return next(indices) * weight + bias
+    >>> f(weight=2, bias=3)
+    Called f(weight=2, bias=3).
+    Called f(weight=2, bias=3).
+    Called f(weight=2, bias=3).
+    (5, 7, 9)
+
+    >>> sio = io.StringIO('foo\nbar\nbaz\n')
+    >>> @repeat_collect
+    ... def g(back, front): back(front(sio.readline().removesuffix('\n')))
+    >>> g(str.capitalize, lambda s: s[:1])
+    ('Oo', 'Ar')
+
+    >>> repeat_collect(0)(math.cos)(math.pi)
+    ()
+    >>> repeat_collect(1)(math.cos)(math.pi)
+    (-1.0,)
+    >>> repeat_collect(2)(math.cos)(math.pi)
+    (-1.0, -1.0)
+    >>> repeat_collect()(math.cos)(math.pi)
+    (-1.0, -1.0)
+    >>> repeat_collect(math.cos)(math.pi)
+    (-1.0, -1.0)
+    """
+    # FIXME: Needs implementation.
 
 
 # !!FIXME: When removing implementation bodies, replace
