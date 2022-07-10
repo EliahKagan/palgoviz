@@ -2,13 +2,19 @@
 
 """Tests for the functions in functions.py."""
 
+import collections
 from collections.abc import Iterator
 import contextlib
 import functools
+import gc
+import inspect
 import io
 import itertools
+import platform
 import sys
 import unittest
+import unittest.mock
+import weakref
 
 from parameterized import parameterized, parameterized_class
 
@@ -17,6 +23,16 @@ import functions
 import recursion
 
 _original_count_tree_nodes = functions.count_tree_nodes
+
+
+if platform.python_implementation() == 'CPython':
+    def _collect_if_not_ref_counting():
+        """Force a collection if we might not be using reference counting."""
+        # CPython always refcounts as its primary GC strategy, so do nothing.
+else:
+    def _collect_if_not_ref_counting():
+        """Force a collection if we might not be using reference counting."""
+        gc.collect()
 
 
 class _IterableWithGeneratorIterator:
@@ -542,7 +558,174 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             self.assertListEqual(list(it), expected)
 
 
-# FIXME: Write the TestAsCloseableIteratorLimited class here.
+class TestAsCloseableIteratorLimited(unittest.TestCase):
+    """Tests specific to the as_closeable_iterator_limited function."""
+
+    def test_result_is_generator(self):
+        """The result must be a generator, not just any iterator."""
+        it = functions.as_closeable_iterator_limited(lambda: 42, 42)
+        self.assertTrue(inspect.isgenerator(it))
+
+    def test_function_without_close_ok_when_not_started_not_closed(self):
+        """f need not be closeable. (Test with no calls to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        r = weakref.ref(it)
+        try:
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_not_started_but_closed(self):
+        """f need not be closeable. (Test with no calls to next, 2 of 2.)"""
+        a = [10, 20, 30, 40, 50]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_started_not_closed(self):
+        """f need not be closeable. (Test with one call to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        next(it)
+        r = weakref.ref(it)
+        try:
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_started_then_closed(self):
+        """f need not be closeable. (Test with one call to next, 2 of 2.)"""
+        a = [10, 20, 30, 40, 50]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        next(it)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_finished(self):
+        """f need not be closeable. (Test exhausting the generator, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        try:
+            collections.deque(it, maxlen=0)  # Exhaust the generator.
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_even_if_finished_then_closed(self):
+        """f need not be closeable. (Test exhausting the generator, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator_limited(a.pop, 20)
+        collections.deque(it, maxlen=0)  # Exhaust the generator.
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_closeable_function_closed_after_not_started_not_closed(self):
+        """close called if present. (Test with no calls to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, 20)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('close called on finalization'):
+            r = weakref.ref(it)
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_not_started_but_closed(self):
+        """close called if present. (Test with no calls to next, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, 20)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+        with self.subTest('closing generator closes function'):
+            it.close()
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_started_not_closed(self):
+        """close called if present. (Test with one call to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, 20)
+        next(it)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('close called on finalization'):
+            r = weakref.ref(it)
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_started_then_closed(self):
+        """close called if present. (Test with one call to next, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, 20)
+        next(it)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+        with self.subTest('closing generator closes function'):
+            it.close()
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_when_finished(self):
+        """close called if present. (Test exhausting the generator, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, 20)
+        with self.subTest('close not called way too early'):
+            mock_close.assert_not_called()
+        with self.subTest('exhausting generator closes function'):
+            collections.deque(it, maxlen=0)  # Exhaust the generator.
+            mock_close.assert_called_once()
 
 
 @parameterized_class(('implementation_name',), [
@@ -590,7 +773,147 @@ class TestAsIterator(_NamedImplementationTestCase):
             self.assertListEqual(prefix, expected)
 
 
-# FIXME: Write the AsCloseableIterator class here.
+class TestAsCloseableIterator(unittest.TestCase):
+    """
+    Tests specific to the as_closeable_iterator function.
+
+    Compare to TestAsCloseableIteratorLimited (above). The tests are similar,
+    but besides testing a different function and calling it differently (with
+    one argument instead of two), this doesn't have tests for "finished"
+    states, since here there is no sentinel value the function can return to
+    indicate that it is finished.
+    """
+
+    def test_result_is_generator(self):
+        """The result must be a generator, not just any iterator."""
+        it = functions.as_closeable_iterator(lambda: 42)
+        self.assertTrue(inspect.isgenerator(it))
+
+    def test_function_without_close_ok_when_not_started_not_closed(self):
+        """f need not be closeable. (Test with no calls to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator(a.pop)
+        r = weakref.ref(it)
+        try:
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_not_started_but_closed(self):
+        """f need not be closeable. (Test with no calls to next, 2 of 2.)"""
+        a = [10, 20, 30, 40, 50]
+        it = functions.as_closeable_iterator(a.pop)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_started_not_closed(self):
+        """f need not be closeable. (Test with one call to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+        it = functions.as_closeable_iterator(a.pop)
+        next(it)
+        r = weakref.ref(it)
+        try:
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_function_without_close_ok_when_started_then_closed(self):
+        """f need not be closeable. (Test with one call to next, 2 of 2.)"""
+        a = [10, 20, 30, 40, 50]
+        it = functions.as_closeable_iterator(a.pop)
+        next(it)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
+    def test_closeable_function_closed_after_not_started_not_closed(self):
+        """close called if present. (Test with no calls to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator(f)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('close called on finalization'):
+            r = weakref.ref(it)
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_not_started_but_closed(self):
+        """close called if present. (Test with no calls to next, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator(f)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+        with self.subTest('closing generator closes function'):
+            it.close()
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_started_not_closed(self):
+        """close called if present. (Test with one call to next, 1 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator(f)
+        next(it)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('close called on finalization'):
+            r = weakref.ref(it)
+            del it
+            _collect_if_not_ref_counting()
+            if r():
+                raise Exception(
+                    "unreferenced result exists, can't test implicit close")
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_after_started_then_closed(self):
+        """close called if present. (Test with one call to next, 2 of 2.)"""
+        a = [10, 20, 30, 40]
+
+        def f():
+            return a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator(f)
+        next(it)
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+        with self.subTest('closing generator closes function'):
+            it.close()
+            mock_close.assert_called_once()
 
 
 @parameterized_class(('implementation_name',), [
@@ -774,7 +1097,131 @@ class TestReportAttributes(_StdoutCapturingTestCase):
         self.assertEqual(self.out, expected)
 
 
-# FIXME: Write the TestFuncFilter class here.
+class TestFuncFilter(unittest.TestCase):
+    """Tests for the func_filter function."""
+
+    def test_none_satisfying_is_empty(self):
+        """When no items satisfy the predicate, the result is empty."""
+        get_number = unittest.mock.Mock()
+        get_number.side_effect = itertools.count()
+
+        result_func = functions.func_filter(lambda n: n < 0, get_number, 3)
+
+        with self.subTest('initial result is sentinel'):
+            self.assertEqual(result_func(), 3)
+        with self.subTest('subsequent call gives sentinel'):
+            self.assertEqual(result_func(), 3)
+        with self.subTest('4 input calls: 0, 1, 2, <sentinel>'):
+            self.assertEqual(get_number.call_count, 4)
+
+    def test_some_satisfying_gives_those(self):
+        """When only some satisfy the predicate, those are the result."""
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['ham', 'spam', 'foo', 'eggs', 'done', 'a', 'b']
+
+        result_func = functions.func_filter(lambda x: len(x) == 3,
+                                            get_word, 'done')
+
+        with self.subTest('first result is first matching word'):
+            self.assertEqual(result_func(), 'ham')
+        with self.subTest('second result is second matching word'):
+            self.assertEqual(result_func(), 'foo')
+        with self.subTest('third call gives sentinel'):
+            self.assertEqual(result_func(), 'done')
+        with self.subTest('subsequent call gives sentinel'):
+            self.assertEqual(result_func(), 'done')
+        with self.subTest('5 input calls: ham, spam, foo, eggs, <sentinel>'):
+            self.assertEqual(get_word.call_count, 5)
+
+    def test_none_predicate_filters_truthy(self):
+        """A predicate of None checks the items themselves."""
+        sentinel = object()
+        mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
+        suffixes = (seq[1:] for seq in mixed)
+        get_suffix = unittest.mock.Mock()
+        get_suffix.side_effect = itertools.chain(suffixes, (sentinel,))
+
+        result_func = functions.func_filter(None, get_suffix, sentinel)
+
+        with self.subTest('first result is first truthy (nonempty) suffix'):
+            self.assertEqual(result_func(), 'y')
+        with self.subTest('second result is second truthy (nonempty) suffix'):
+            self.assertEqual(result_func(), (2, 3))
+        with self.subTest('third call gives sentinel'):
+            self.assertIs(result_func(), sentinel)
+        with self.subTest('subsequent call gives sentinel'):
+            self.assertIs(result_func(), sentinel)
+        with self.subTest('6 input calls: the 5 suffixes, then the sentinel'):
+            self.assertEqual(get_suffix.call_count, 6)
+
+    def test_none_predicate_filters_truthy_even_if_none(self):
+        """A predicate of None gets nothing through if all are falsy."""
+        sentinel = object()
+        get_empty = unittest.mock.Mock()
+        get_empty.side_effect = ([], (), {}, set(), sentinel, '')
+
+        result_func = functions.func_filter(None, get_empty, sentinel)
+
+        with self.subTest('initial result is sentinel'):
+            self.assertIs(result_func(), sentinel)
+        with self.subTest('subsequent call gives sentinel'):
+            self.assertIs(result_func(), sentinel)
+        with self.subTest('5 input calls: [], (), {}, set(), <sentinel>'):
+            self.assertEqual(get_empty.call_count, 5)
+
+    def test_none_predicate_filters_truthy_even_if_all(self):
+        """A predicate of None lets everything through if none are falsy."""
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['hello', 'glorious', 'world', '!', '??', '...']
+
+        result_func = functions.func_filter(None, get_word, '!')
+
+        with self.subTest('first result is first word'):
+            self.assertEqual(result_func(), 'hello')
+        with self.subTest('second result is second word'):
+            self.assertEqual(result_func(), 'glorious')
+        with self.subTest('third result is third word'):
+            self.assertEqual(result_func(), 'world')
+        with self.subTest('fourth call gives sentinel'):
+            self.assertEqual(result_func(), '!')
+        with self.subTest('subsequent call gives sentinel'):
+            self.assertEqual(result_func(), '!')
+        with self.subTest('4 input calls: hello, glorious, world, <sentinel>'):
+            self.assertEqual(get_word.call_count, 4)
+
+    def test_infinite_source_filters_lazily(self):
+        """We can get a prefix, filtering a some-truthy infinite input."""
+        get_number = unittest.mock.Mock()
+        get_number.side_effect = itertools.count()
+
+        result_func = functions.func_filter(lambda k: k % 2,
+                                            get_number, object())
+
+        with self.subTest('correct return values when called'):
+            expected = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+            actual = [result_func() for _ in range(13)]
+            self.assertEqual(actual, expected)
+
+        # If the above subtest failed, such as with an exception, then this
+        # result will almost certainly be wrong... but in that situation, we
+        # almost certainly do want to inspect this result, too.
+        with self.subTest('26 input calls: 0, 1, ..., 24, 25 (stop)'):
+            self.assertEqual(get_number.call_count, 26)
+
+    def test_call_can_skip_many_filtered_out_values(self):
+        """
+        A call to the result function may call the input function many times.
+        """
+        get_number = unittest.mock.Mock()
+        get_number.side_effect = itertools.count()
+
+        result_func = functions.func_filter(lambda k: k > 10_000,
+                                            get_number, object())
+
+        with self.subTest('first result is first matching number'):
+            self.assertEqual(result_func(), 10_001)
+        with self.subTest('10,002 input calls: 0, ..., 10_000, 10_001 (stop)'):
+            self.assertEqual(get_number.call_count, 10_002)
 
 
 if __name__ == '__main__':
