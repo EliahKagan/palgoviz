@@ -168,11 +168,11 @@ def as_iterator_limited_alt(func, end_sentinel):
     >>> list(as_iterator_limited_alt(make_next_fibonacci_alt(), 89))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    # TODO: Maybe refactor this to eliminate the duplicated logic.
-    result = func()
-    while result != end_sentinel:
-        yield result
+    while True:
         result = func()
+        if result == end_sentinel:
+            break
+        yield result
 
 
 def as_iterator(func):
