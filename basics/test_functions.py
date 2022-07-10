@@ -558,7 +558,7 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             self.assertListEqual(list(it), expected)
 
 
-class TestCloseableIteratorLimited(unittest.TestCase):
+class TestAsCloseableIteratorLimited(unittest.TestCase):
     """Tests specific to the as_closeable_iterator_limited function."""
 
     def test_result_is_generator(self):
@@ -580,7 +580,7 @@ class TestCloseableIteratorLimited(unittest.TestCase):
         except AttributeError as error:
             self.fail(f'Got AttributeError: {error}')
 
-    def test_function_without_close_ok_when_not_started_but_called(self):
+    def test_function_without_close_ok_when_not_started_but_closed(self):
         """f need not be closeable. (Test with no calls to next, 2 of 2.)"""
         a = [10, 20, 30, 40, 50]
         it = functions.as_closeable_iterator_limited(a.pop, 20)
