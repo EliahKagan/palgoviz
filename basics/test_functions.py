@@ -773,9 +773,7 @@ class TestAsIterator(_NamedImplementationTestCase):
             self.assertListEqual(prefix, expected)
 
 
-# FIXME: Write the TestAsCloseableIterator class (or whatever tests
-# as_closeable_iterator) here. Use @parameterized_class or inheritance for code
-# reuse. Nearly all logic can be shared with TestAsCloseableIteratorLimited.
+# FIXME: Write the TestAsCloseableIterator class here.
 
 
 @parameterized_class(('implementation_name',), [
