@@ -640,49 +640,44 @@ def wrap_uncallable_args(*, kw=False):
 
     When a higher-order function expects its arguments to be callable, but you
     want to pass some non-callable values when you really mean functions that
-    always return those values, decorating the higher-order function with this
-    decorator will achieve that. By default only non-callable positional
-    arguments are made into constant functions, but with kw=True, non-callable
-    keyword arguments are also made into constant functions.
+    always return those values, this decorator lets you do that.
 
-    >>> class Squarer:  # Used in demonstrations/tests below.
-    ...     def __call__(self, x): return x**2
+    By default, only non-callable positional arguments are made into constant
+    functions. But with kw=True, non-callable keyword arguments are also made
+    into constant functions.
 
-    wrap_uncallable_args can be used as a decorator factory with kw=False:
+    wrap_uncallable_args can be used as a decorator factory, with kw=False:
 
-    >>> @wrap_uncallable_args(kw=False)  # Same effect here as with "()".
-    ... def inside_out_map(*functions, *, preimage, materialize=False):
-    ...     images = (f(preimage) for f in functions)
-    ...     return list(images) if materialize else images
-    >>> inside_out_map(abs, Squarer(), 3, lambda x: 2**x, -5,
-    ...                preimage=-7, materialize=True)
-    [7, 49, 3, 0.0078125, -5]
+    >>> @wrap_uncallable_args(kw=False)  # Same effect as with "()".
+    ... def pass_args_through_1(*args, **kwargs): return args, kwargs
+    >>> a, kw = pass_args_through_1(min, 42, f=max, g=76)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=y, w=z)
+    (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
 
-    wrap_uncallable_args can be used as a decorator factory with kw=True:
+    wrap_uncallable_args can be used as a decorator factory, with kw=True:
 
-    >>> @wrap_uncallable_args(kw=True)  # kw=True must be passed explicitly.
-    ... def pass_args_through(*args, **kwargs):
-    ...     return args, kwargs
-    >>> a, kw = pass_args_through(min, 42, f=max, g=76)
-    >>> a[0](10, 20), a[0](20, 10), a[1](10, 20), a[1](20, 10)
-    (10, 10, 42, 42)
-    >>> kw['f'](10, 20), kw['f'](20, 10), kw['g'](10, 20), kw['g'](20, 10)
-    (20, 20, 76, 76)
-    >>> a[1](foo=bar), kw['g'](1, 2, 3, 4, 5, ham=6, spam=7, eggs=8)
+    >>> @wrap_uncallable_args(kw=True)  # kw=True has to be passed explicitly.
+    ... def pass_args_through_2(*args, **kwargs): return args, kwargs
+    >>> a, kw = pass_args_through_2(min, 42, f=max, g=76)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5)
+    (5, 5, 42, 42)
+    >>> kw['f'](5, 7), kw['f'](7, 5), kw['g'](5, 7), kw['g'](7, 5)
+    (7, 7, 76, 76)
+    >>> a[1](0, x=y, w=z), kw['g'](0, x=y, w=z)
     (42, 76)
 
     wrap_uncallable_args can also be used directly as a decorator, but only if
     you want the default of kw=False:
 
     >>> @wrap_uncallable_args  # Same effect here as with "()", too!
-    ... def inside_out_map_alt(*functions, *, preimage, materialize=False):
-    ...     images = (f(preimage) for f in functions)
-    ...     return list(images) if materialize else images
-    >>> inside_out_map_alt(abs, Squarer(), 3, lambda x: 2**x, -5,
-    ...                    preimage=-7, materialize=True)
-    [7, 49, 3, 0.0078125, -5]
+    ... def pass_args_through_3(*args, **kwargs): return args, kwargs
+    >>> a, kw = pass_args_through_3(min, 42, f=max, g=76)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=y, w=z)
+    (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
 
     Hint: You might want to get it working just as a decorator factory first.
+
+    FIXME: Non-function callables should be treated like functions. Add a test.
     """
     # FIXME: Needs implementation.
 
