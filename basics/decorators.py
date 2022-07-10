@@ -646,6 +646,10 @@ def wrap_uncallable_args(*, kw=False):
     functions. But with kw=True, non-callable keyword arguments are also made
     into constant functions.
 
+    Since functions and other callables may have side effects (including side
+    effects that cause a different value to be returned on a later call with
+    the same arguments), this must check callability without attempting calls.
+
     wrap_uncallable_args can be used as a decorator factory, with kw=False:
 
     >>> @wrap_uncallable_args(kw=False)  # Same effect as with "()".
