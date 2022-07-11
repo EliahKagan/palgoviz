@@ -16,6 +16,7 @@ functions.as_closeable_func_limited
 functions.as_closeable_iterator_limited
 functions.as_closeable_iterator
 functions.func_filter
+decorators.give_metadata_from augmentation
 decorators.auto_prime
 decorators.assign_attributes
 decorators.suppressing
