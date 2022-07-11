@@ -576,12 +576,7 @@ def assign_attributes(**assignments):
     >>> UniversalAdditiveIdentity() + 3, UniversalAdditiveIdentity() + [10, 20]
     (3, [10, 20])
     """
-    def decorator(func):
-        for name, value in assignments.items():
-            setattr(func, name, value)
-        return func
-
-    return decorator
+    # FIXME: Implement this.
 
 
 def suppressing(*exception_types, fallback_result=None):
@@ -606,16 +601,7 @@ def suppressing(*exception_types, fallback_result=None):
     >>> suppressing(ValueError)(int)('2.5') is None
     True
     """
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            with contextlib.suppress(*exception_types):
-                return func(*args, **kwargs)
-            return fallback_result
-
-        return wrapper
-
-    return decorator
+    # FIXME: Implement this.
 
 
 def dict_equality(cls):
@@ -672,10 +658,7 @@ def dict_equality(cls):
     # FIXME: Implement this.
 
 
-# !!FIXME: When removing implementation bodies, replace
-#          "def count_calls_in_attribute(optional_func=None, name='count'):"
-#          with "def count_calls_in_attribute(*, name='count'):".
-def count_calls_in_attribute(optional_func=None, *, name='count'):
+def count_calls_in_attribute(*, name='count'):
     """
     Optionally parameterized decorator to count calls in a function attribute.
 
@@ -712,31 +695,10 @@ def count_calls_in_attribute(optional_func=None, *, name='count'):
 
     Hint: You might want to get it working just as a decorator factory first.
     """
-    if optional_func is not None:
-        return count_calls_in_attribute(name=name)(optional_func)
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            setattr(wrapper, name, getattr(wrapper, name) + 1)
-            return func(*args, **kwargs)
-
-        setattr(wrapper, name, 0)
-        return wrapper
-
-    return decorator
+    # FIXME: Implement this.
 
 
-# !!FIXME: When removing implementation bodies, remove this too.
-def _wrap_if_uncallable(value):
-    """Return value if callable, otherwise a function that returns it."""
-    return value if callable(value) else lambda *_args, **_kwargs: value
-
-
-# !!FIXME: When removing implementation bodies, replace
-#          "def wrap_uncallable_args(optional_func=None, *, kw=False):" with
-#          "def wrap_uncallable_args(*, kw=False):".
-def wrap_uncallable_args(optional_func=None, *, kw=False):
+def wrap_uncallable_args(*, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
     constant functions.
@@ -787,21 +749,7 @@ def wrap_uncallable_args(optional_func=None, *, kw=False):
     >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
     (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
     """
-    if optional_func is not None:
-        return wrap_uncallable_args(kw=kw)(optional_func)
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            args = [_wrap_if_uncallable(arg) for arg in args]
-            if kw:
-                kwargs = {name: _wrap_if_uncallable(value)
-                          for name, value in kwargs.items()}
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
+    # FIXME: Implement this.
 
 
 def make_fmap(preimage, *, strict=False, collector=tuple):
@@ -913,20 +861,7 @@ def repeat_collect(count=2):
     >>> repeat_collect(math.cos)(math.pi)
     (-1.0, -1.0)
     """
-    if callable(count):  # count is actually the function, rather than a count.
-        return repeat_collect()(count)
-
-    if not isinstance(count, int):  # Not required, but may prevent confusion.
-        raise TypeError('non-int count passed')
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            return tuple(func(*args, **kwargs) for _ in range(count))
-
-        return wrapper
-
-    return decorator
+    # FIXME: Implement this.
 
 
 def linear_combinable(func):
