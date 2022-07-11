@@ -208,47 +208,8 @@ def peek(func):
     return wrapper
 
 
-def give_metadata_from(wrapped, *, expose=False):
-    """
-    Parameterized decorator to give a function's metadata to a wrapper.
-
-    This copies the metadata attributes @functools.wraps copies by default.
-    functools.WRAPPER_ASSIGNMENTS lists them, but this decorator factory
-    doesn't use that (modifying or reassigning it doesn't affect this). Also
-    unlike @functools.wraps, this copies no other attributes, even if present
-    in wrapped.__dict__, and accepts no arguments to customize what is copied.
-
-    With expose=True, __wrapped__ is set on the wrapper, giving access to the
-    wrapped function. (__wrapped__ is a dunder, but this usage is as explicitly
-    documented in the functools documentation, so it should be okay.) Note that
-    @functools.wraps has no expose parameter and always sets __wrapped__.
-
-    Most often, wrapped is a function (and is referred to as such above), but
-    it can be any object. Typically it is callable, but that is not required.
-
-    >>> def round_result(func):
-    ...     @give_metadata_from(func)
-    ...     def wrapper(*args, **kwargs): return round(func(*args, **kwargs))
-    ...     return wrapper
-    >>> @round_result
-    ... def square(x): 'A function docstring.'; return x**2
-    >>> square.__name__, square.__doc__, square(2.5), square.__wrapped__(2.5)
-    ('square', 'A function docstring.', 6, 6.25)
-
-    As in @functools.wraps, if wrapped lacks an attribute, it is simply not
-    copied, but if it is present on wrapped but cannot be set on the wrapper,
-    that fails with AttributeError. Unlike @functools.wraps, the wrapper is not
-    limited to being a function or class instance: it can also be a class.
-
-    >>> class Wrapped: 'A class docstring.'; __slots__ = ()
-    >>> @give_metadata_from(Wrapped)
-    ... class Wrapper: pass
-    >>> Wrapper.__name__, Wrapper.__doc__, Wrapper.__wrapped__.__slots__
-    ('Wrapped', 'A class docstring.', ())
-
-    FIXME: Write tests for the thus-far untested requirements listed above.
-    """
-    # FIXME: Modify this code to satisfy the new requirements in the docstring.
+def give_metadata_from(wrapped):
+    """Parameterized decorator to give a function's metadata to a wrapper."""
     def decorator(wrapper):
         wrapper.__name__ = wrapped.__name__
         wrapper.__module__ = wrapped.__module__
