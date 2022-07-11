@@ -747,6 +747,9 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     if callable(sep):  # sep is actually the function, rather than a separator.
         return joining()(sep)
 
+    if not isinstance(sep, str):  # Not required, but may prevent confusion.
+        raise TypeError('non-string separator passed')
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -764,9 +767,10 @@ def repeat_collect(count=2):
     Optionally parameterized decorator to repeat a function and return all
     results.
 
-    This is like @repeat(), but a tuple of results from each call is returned,
-    and this is usable both as a decorator factory and as a plain decorator (in
-    which case the default repetition count of 2 is used).
+    This is like @repeat(), but it can decorate any function of any signature
+    (not just parameterless functions), a tuple of results from each call is
+    returned, and this is usable both as a decorator factory and as a plain
+    decorator (in which case the default repetition count of 2 is used).
 
     It is not a goal to return information about combinations of successes and
     failures. If any of the repeated calls raises an exception, that exception
@@ -787,8 +791,9 @@ def repeat_collect(count=2):
 
     >>> sio = io.StringIO('foo\nbar\nbaz\n')
     >>> @repeat_collect
-    ... def g(back, front): back(front(sio.readline().removesuffix('\n')))
-    >>> g(str.capitalize, lambda s: s[:1])
+    ... def g(back, front):
+    ...     return back(front(sio.readline().removesuffix('\n')))
+    >>> g(str.capitalize, lambda s: s[1:])
     ('Oo', 'Ar')
 
     >>> repeat_collect(0)(math.cos)(math.pi)
@@ -802,7 +807,20 @@ def repeat_collect(count=2):
     >>> repeat_collect(math.cos)(math.pi)
     (-1.0, -1.0)
     """
-    # FIXME: Needs implementation.
+    if callable(count):  # count is actually the function, rather than a count.
+        return repeat_collect()(count)
+
+    if not isinstance(count, int):  # Not required, but may prevent confusion.
+        raise TypeError('non-int count passed')
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return tuple(func(*args, **kwargs) for _ in range(count))
+
+        return wrapper
+
+    return decorator
 
 
 # !!FIXME: When removing implementation bodies, replace
