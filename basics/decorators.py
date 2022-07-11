@@ -8,6 +8,11 @@ import itertools
 from numbers import Number
 
 
+def identity_function(arg):
+    """Return the argument unchanged."""
+    return arg
+
+
 def peek_arg(func):
     """
     Decorator wrapping a unary function and showing calls to it.
@@ -764,7 +769,8 @@ def wrap_uncallable_args(optional_func=None, *, kw=False):
 
     When a higher-order function expects its arguments to be callable, but you
     want to pass some non-callable values when you really mean functions that
-    always return those values, this decorator lets you do that.
+    always return those values, this decorator lets you do that. See make_fmap
+    below for an intuitive use. Its tests should pass once this is implemented.
 
     By default, only non-callable positional arguments are made into constant
     functions. But with kw=True, non-callable keyword arguments are also made
@@ -806,8 +812,6 @@ def wrap_uncallable_args(optional_func=None, *, kw=False):
     >>> a, kw = pass_args_through_3(min, 42, f=max, g=76)
     >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
     (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
-
-    FIXME: Non-function callables should be treated like functions. Add a test.
     """
     if optional_func is not None:
         return wrap_uncallable_args(kw=kw)(optional_func)
@@ -824,6 +828,35 @@ def wrap_uncallable_args(optional_func=None, *, kw=False):
         return wrapper
 
     return decorator
+
+
+def make_fmap(preimage, *, strict=False, collector=tuple):
+    """
+    Make a function that applies many functions to one argument, the preimage.
+
+    This demonstrates an intuitive use of @wrap_uncallable_args. Here, the
+    "functions" must be unary (even as @wrap_uncallable_args imposes no such
+    restriction). But they may be any callables, not just actual functions.
+
+    >>> class Squarer:
+    ...     def __call__(self, x): return x**2
+
+    >>> make_fmap(-7)(abs, Squarer(), 3, lambda x: 2**x, -5)
+    (7, 49, 3, 0.0078125, -5)
+
+    >>> make_fmap(-7, strict=True)(abs, Squarer(), 3, lambda x: 2**x, -5)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'int' object is not callable
+    """
+    if collector is None:
+        collector = identity_function
+
+    @(identity_function if strict else wrap_uncallable_args)
+    def fmap(*functions):
+        return collector(f(preimage) for f in functions)
+
+    return fmap
 
 
 def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
