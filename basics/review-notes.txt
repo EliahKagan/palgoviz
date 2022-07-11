@@ -18,5 +18,7 @@ functions.as_closeable_iterator
 functions.func_filter
 decorators.auto_prime
 decorators.dict_equality
+decorators.wrap_uncallable_args
 decorators.joining
+decorators.repeat_collect
 decorators.linear_combinable

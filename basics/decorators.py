@@ -633,7 +633,15 @@ def dict_equality(cls):
     return cls
 
 
-def wrap_uncallable_args(*, kw=False):
+def _wrap_if_uncallable(value):
+    """Return value if callable, otherwise a function that returns it."""
+    return value if callable(value) else lambda *_args, **_kwargs: value
+
+
+# !!FIXME: When removing implementation bodies, replace
+#          "def wrap_uncallable_args(func=None, *, kw=False):" with
+#          "def wrap_uncallable_args(*, kw=False):".
+def wrap_uncallable_args(func=None, *, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
     constant functions.
@@ -650,12 +658,16 @@ def wrap_uncallable_args(*, kw=False):
     effects that cause a different value to be returned on a later call with
     the same arguments), this must check callability without attempting calls.
 
+    "Wrap" in "wrap_uncallable_args" refers to wrapping a value and returning
+    it. This is subtly different from wrapping another function and calling it,
+    which is the kind of wrapping more often relevant to decorators.
+
     wrap_uncallable_args can be used as a decorator factory, with kw=False:
 
     >>> @wrap_uncallable_args(kw=False)  # Same effect as with "()".
     ... def pass_args_through_1(*args, **kwargs): return args, kwargs
     >>> a, kw = pass_args_through_1(min, 42, f=max, g=76)
-    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=y, w=z)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
     (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
 
     wrap_uncallable_args can be used as a decorator factory, with kw=True:
@@ -667,7 +679,7 @@ def wrap_uncallable_args(*, kw=False):
     (5, 5, 42, 42)
     >>> kw['f'](5, 7), kw['f'](7, 5), kw['g'](5, 7), kw['g'](7, 5)
     (7, 7, 76, 76)
-    >>> a[1](0, x=y, w=z), kw['g'](0, x=y, w=z)
+    >>> a[1](0, x=4, w=6), kw['g'](0, x=4, w=6)
     (42, 76)
 
     wrap_uncallable_args can also be used directly as a decorator, but only if
@@ -676,14 +688,28 @@ def wrap_uncallable_args(*, kw=False):
     >>> @wrap_uncallable_args  # Same effect here as with "()", too!
     ... def pass_args_through_3(*args, **kwargs): return args, kwargs
     >>> a, kw = pass_args_through_3(min, 42, f=max, g=76)
-    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=y, w=z)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
     (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
 
     Hint: You might want to get it working just as a decorator factory first.
 
     FIXME: Non-function callables should be treated like functions. Add a test.
     """
-    # FIXME: Needs implementation.
+    if func is not None:
+        return wrap_uncallable_args(kw=kw)(func)
+
+    def decorator(actual_function):
+        @functools.wraps(actual_function)
+        def wrapper(*args, **kwargs):
+            args = [_wrap_if_uncallable(arg) for arg in args]
+            if kw:
+                kwargs = {name: _wrap_if_uncallable(value)
+                        for name, value in kwargs.items()}
+            return actual_function(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
