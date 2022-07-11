@@ -449,7 +449,7 @@ def as_closeable_func(iterable):
     >>> h = as_closeable_func([10, 20, 30, 40, 50])
     >>> hasattr(h, 'close')
     False
-    >>> list(as_iterator(h))
+    >>> list(as_iterator_alt(h))
     [10, 20, 30, 40, 50]
     """
     it = iter(iterable)
