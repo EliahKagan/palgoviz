@@ -561,6 +561,31 @@ def auto_prime(func):
     return wrapper
 
 
+def assign_attributes(**assignments):
+    """
+    Parameterized decorator to assign attributes on a function or class.
+
+    >>> @assign_attributes(__name__='affine', weight=10, bias=20)
+    ... def f(x): return x * f.weight + f.bias
+    >>> f.__name__, f.weight, f.bias, f(3.75)
+    ('affine', 10, 20, 57.5)
+
+    >>> @assign_attributes(__add__=lambda self, other: other,
+    ...                    __radd__=lambda self, other: other)
+    ... class UniversalAdditiveIdentity: __slots__ = ()
+    >>> 3 + UniversalAdditiveIdentity(), [10, 20] + UniversalAdditiveIdentity()
+    (3, [10, 20])
+    >>> UniversalAdditiveIdentity() + 3, UniversalAdditiveIdentity() + [10, 20]
+    (3, [10, 20])
+    """
+    def decorator(func):
+        for name, value in assignments.items():
+            setattr(func, name, value)
+        return func
+
+    return decorator
+
+
 def dict_equality(cls):
     """
     Decorator to add instance dictionary based equality comparison and hashing.
@@ -631,6 +656,12 @@ def dict_equality(cls):
     cls.__ne__ = __ne__
     cls.__hash__ = __hash__
     return cls
+
+
+# def blahblahblah(*, ):
+#     """
+#     Optionally parameterized decorator
+#     """
 
 
 def _wrap_if_uncallable(value):
