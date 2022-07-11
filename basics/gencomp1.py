@@ -835,7 +835,8 @@ def my_filter_alt(predicate, iterable):
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> list(my_filter_alt(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
+    >>> foods = ['ham', 'spam', 'foo', 'eggs']
+    >>> list(my_filter_alt(lambda x: len(x) == 3, foods))
     ['ham', 'foo']
     >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
     >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
