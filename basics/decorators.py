@@ -693,10 +693,59 @@ def dict_equality(cls):
     return cls
 
 
-# def blahblahblah(*, ):
-#     """
-#     Optionally parameterized decorator
-#     """
+# !!FIXME: When removing implementation bodies, replace
+#          "def count_calls_in_attribute(optional_func=None, name='count'):"
+#          with "def count_calls_in_attribute(*, name='count'):".
+def count_calls_in_attribute(optional_func=None, *, name='count'):
+    """
+    Optionally parameterized decorator to count calls in a function attribute.
+
+    This can be used as a decorator factory, specifying the name to be used for
+    the counter attribute:
+
+    >>> @count_calls_in_attribute(name='veterancy')
+    ... def do(verb, noun, direction, speed):
+    ...     print(f'Got: {verb=}, {noun=}, {direction=}, {speed=}')
+    >>> do.veterancy
+    0
+    >>> do('defuse', 'bomb', 'northwest', 'slow'); do.veterancy
+    Got: verb='defuse', noun='bomb', direction='northwest', speed='slow'
+    1
+    >>> do('carry', 'microfilm', speed='fast', direction='east'); do.veterancy
+    Got: verb='carry', noun='microfilm', direction='east', speed='fast'
+    2
+    >>> hasattr(do, 'count')  # Named counter and metadata attributes only.
+    False
+
+    The attribute name is optional, defaulting to "count":
+
+    >>> @count_calls_in_attribute()  # Same as passing name='count'.
+    ... def add_up(*nums): return sum(nums)
+    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
+    (0, 12, 1, 5, 2)
+
+    When keeping this default, it can also be used directly as a decorator:
+
+    >>> @count_calls_in_attribute
+    ... def add_up(*nums): return sum(nums)
+    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
+    (0, 12, 1, 5, 2)
+
+    Hint: You might want to get it working just as a decorator factory first.
+    """
+    if optional_func is not None:
+        return count_calls_in_attribute(name=name)(optional_func)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            setattr(wrapper, name, getattr(wrapper, name) + 1)
+            return func(*args, **kwargs)
+
+        setattr(wrapper, name, 0)
+        return wrapper
+
+    return decorator
 
 
 # !!FIXME: When removing implementation bodies, remove this too.
@@ -706,9 +755,9 @@ def _wrap_if_uncallable(value):
 
 
 # !!FIXME: When removing implementation bodies, replace
-#          "def wrap_uncallable_args(func=None, *, kw=False):" with
+#          "def wrap_uncallable_args(optional_func=None, *, kw=False):" with
 #          "def wrap_uncallable_args(*, kw=False):".
-def wrap_uncallable_args(func=None, *, kw=False):
+def wrap_uncallable_args(optional_func=None, *, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
     constant functions.
@@ -752,27 +801,25 @@ def wrap_uncallable_args(func=None, *, kw=False):
     wrap_uncallable_args can also be used directly as a decorator, but only if
     you want the default of kw=False:
 
-    >>> @wrap_uncallable_args  # Same effect here as with "()", too!
+    >>> @wrap_uncallable_args  # Same effect here as with "()", too.
     ... def pass_args_through_3(*args, **kwargs): return args, kwargs
     >>> a, kw = pass_args_through_3(min, 42, f=max, g=76)
     >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
     (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
 
-    Hint: You might want to get it working just as a decorator factory first.
-
     FIXME: Non-function callables should be treated like functions. Add a test.
     """
-    if func is not None:
-        return wrap_uncallable_args(kw=kw)(func)
+    if optional_func is not None:
+        return wrap_uncallable_args(kw=kw)(optional_func)
 
-    def decorator(actual_function):
-        @functools.wraps(actual_function)
+    def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             args = [_wrap_if_uncallable(arg) for arg in args]
             if kw:
                 kwargs = {name: _wrap_if_uncallable(value)
-                        for name, value in kwargs.items()}
-            return actual_function(*args, **kwargs)
+                          for name, value in kwargs.items()}
+            return func(*args, **kwargs)
 
         return wrapper
 
@@ -834,10 +881,10 @@ def repeat_collect(count=2):
     Optionally parameterized decorator to repeat a function and return all
     results.
 
-    This is like @repeat(), but it can decorate any function of any signature
-    (not just parameterless functions), a tuple of results from each call is
-    returned, and this is usable both as a decorator factory and as a plain
-    decorator (in which case the default repetition count of 2 is used).
+    This is like @repeat(), except (1) this can decorate any function of any
+    signature, not just parameterless functions, (2) it returns a tuple of the
+    results from each call, and (3) it can be used as a decorator factory or a
+    plain decorator (in which case the default repetition count of 2 is used).
 
     It is not a goal to return information about combinations of successes and
     failures. If any of the repeated calls raises an exception, that exception

@@ -20,6 +20,7 @@ decorators.auto_prime
 decorators.assign_attributes
 decorators.suppressing
 decorators.dict_equality
+decorators.count_calls_in_attribute
 decorators.wrap_uncallable_args
 decorators.joining
 decorators.repeat_collect
