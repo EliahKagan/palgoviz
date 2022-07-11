@@ -2,9 +2,15 @@
 
 """Some basic decorators."""
 
+import contextlib
 import functools
 import itertools
 from numbers import Number
+
+
+def identity_function(arg):
+    """Return the argument unchanged."""
+    return arg
 
 
 def peek_arg(func):
@@ -208,7 +214,7 @@ def peek(func):
 
 
 def give_metadata_from(wrapped):
-    """Parameterized decorater to give a function's metadata to a wrapper."""
+    """Parameterized decorator to give a function's metadata to a wrapper."""
     def decorator(wrapper):
         wrapper.__name__ = wrapped.__name__
         wrapper.__module__ = wrapped.__module__
@@ -561,6 +567,65 @@ def auto_prime(func):
     return wrapper
 
 
+def assign_attributes(**assignments):
+    """
+    Parameterized decorator to assign attributes on a function or class.
+
+    >>> @assign_attributes(__name__='affine', weight=10, bias=20)
+    ... def f(x): return x * f.weight + f.bias
+    >>> f.__name__, f.weight, f.bias, f(3.75)
+    ('affine', 10, 20, 57.5)
+
+    >>> @assign_attributes(__add__=lambda self, other: other,
+    ...                    __radd__=lambda self, other: other)
+    ... class UniversalAdditiveIdentity: __slots__ = ()
+    >>> 3 + UniversalAdditiveIdentity(), [10, 20] + UniversalAdditiveIdentity()
+    (3, [10, 20])
+    >>> UniversalAdditiveIdentity() + 3, UniversalAdditiveIdentity() + [10, 20]
+    (3, [10, 20])
+    """
+    def decorator(func):
+        for name, value in assignments.items():
+            setattr(func, name, value)
+        return func
+
+    return decorator
+
+
+def suppressing(*exception_types, fallback_result=None):
+    """
+    Parameterized decorator to suppress and return on specific exception types.
+
+    >>> @suppressing(TypeError, IndexError, fallback_result='FAIL!')
+    ... def add_firsts(a, b, *, reverse=False):
+    ...     return b[0] + a[0] if reverse else a[0] + b[0]
+
+    >>> add_firsts('foo', 'bar'), add_firsts('foo', 'bar', reverse=True)
+    ('fb', 'bf')
+    >>> add_firsts('foo', 3), add_firsts('foo', 3, reverse=True)
+    ('FAIL!', 'FAIL!')
+    >>> add_firsts('', 'bar'), add_firsts('', 'bar', reverse=True)
+    ('FAIL!', 'FAIL!')
+    >>> add_firsts({}, 2)
+    Traceback (most recent call last):
+      ...
+    KeyError: 0
+
+    >>> suppressing(ValueError)(int)('2.5') is None
+    True
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with contextlib.suppress(*exception_types):
+                return func(*args, **kwargs)
+            return fallback_result
+
+        return wrapper
+
+    return decorator
+
+
 def dict_equality(cls):
     """
     Decorator to add instance dictionary based equality comparison and hashing.
@@ -633,6 +698,167 @@ def dict_equality(cls):
     return cls
 
 
+# !!FIXME: When removing implementation bodies, replace
+#          "def count_calls_in_attribute(optional_func=None, name='count'):"
+#          with "def count_calls_in_attribute(*, name='count'):".
+def count_calls_in_attribute(optional_func=None, *, name='count'):
+    """
+    Optionally parameterized decorator to count calls in a function attribute.
+
+    This can be used as a decorator factory, specifying the name to be used for
+    the counter attribute:
+
+    >>> @count_calls_in_attribute(name='veterancy')
+    ... def do(verb, noun, direction, speed):
+    ...     print(f'Got: {verb=}, {noun=}, {direction=}, {speed=}')
+    >>> do.veterancy
+    0
+    >>> do('defuse', 'bomb', 'northwest', 'slow'); do.veterancy
+    Got: verb='defuse', noun='bomb', direction='northwest', speed='slow'
+    1
+    >>> do('carry', 'microfilm', speed='fast', direction='east'); do.veterancy
+    Got: verb='carry', noun='microfilm', direction='east', speed='fast'
+    2
+    >>> hasattr(do, 'count')  # Named counter and metadata attributes only.
+    False
+
+    The attribute name is optional, defaulting to "count":
+
+    >>> @count_calls_in_attribute()  # Same as passing name='count'.
+    ... def add_up(*nums): return sum(nums)
+    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
+    (0, 12, 1, 5, 2)
+
+    When keeping this default, it can also be used directly as a decorator:
+
+    >>> @count_calls_in_attribute
+    ... def add_up(*nums): return sum(nums)
+    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
+    (0, 12, 1, 5, 2)
+
+    Hint: You might want to get it working just as a decorator factory first.
+    """
+    if optional_func is not None:
+        return count_calls_in_attribute(name=name)(optional_func)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            setattr(wrapper, name, getattr(wrapper, name) + 1)
+            return func(*args, **kwargs)
+
+        setattr(wrapper, name, 0)
+        return wrapper
+
+    return decorator
+
+
+# !!FIXME: When removing implementation bodies, remove this too.
+def _wrap_if_uncallable(value):
+    """Return value if callable, otherwise a function that returns it."""
+    return value if callable(value) else lambda *_args, **_kwargs: value
+
+
+# !!FIXME: When removing implementation bodies, replace
+#          "def wrap_uncallable_args(optional_func=None, *, kw=False):" with
+#          "def wrap_uncallable_args(*, kw=False):".
+def wrap_uncallable_args(optional_func=None, *, kw=False):
+    """
+    Optionally parameterized decorator to convert non-callable arguments to
+    constant functions.
+
+    When a higher-order function expects its arguments to be callable, but you
+    want to pass some non-callable values when you really mean functions that
+    always return those values, this decorator lets you do that. See make_fmap
+    below for an intuitive use. Its tests should pass once this is implemented.
+
+    By default, only non-callable positional arguments are made into constant
+    functions. But with kw=True, non-callable keyword arguments are also made
+    into constant functions.
+
+    Since functions and other callables may have side effects (including side
+    effects that cause a different value to be returned on a later call with
+    the same arguments), this must check callability without attempting calls.
+
+    "Wrap" in "wrap_uncallable_args" refers to wrapping a value and returning
+    it. This is subtly different from wrapping another function and calling it,
+    which is the kind of wrapping more often relevant to decorators.
+
+    wrap_uncallable_args can be used as a decorator factory, with kw=False:
+
+    >>> @wrap_uncallable_args(kw=False)  # Same effect as with "()".
+    ... def pass_args_through_1(*args, **kwargs): return args, kwargs
+    >>> a, kw = pass_args_through_1(min, 42, f=max, g=76)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
+    (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
+
+    wrap_uncallable_args can be used as a decorator factory, with kw=True:
+
+    >>> @wrap_uncallable_args(kw=True)  # kw=True has to be passed explicitly.
+    ... def pass_args_through_2(*args, **kwargs): return args, kwargs
+    >>> a, kw = pass_args_through_2(min, 42, f=max, g=76)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5)
+    (5, 5, 42, 42)
+    >>> kw['f'](5, 7), kw['f'](7, 5), kw['g'](5, 7), kw['g'](7, 5)
+    (7, 7, 76, 76)
+    >>> a[1](0, x=4, w=6), kw['g'](0, x=4, w=6)
+    (42, 76)
+
+    wrap_uncallable_args can also be used directly as a decorator, but only if
+    you want the default of kw=False:
+
+    >>> @wrap_uncallable_args  # Same effect here as with "()", too.
+    ... def pass_args_through_3(*args, **kwargs): return args, kwargs
+    >>> a, kw = pass_args_through_3(min, 42, f=max, g=76)
+    >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
+    (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
+    """
+    if optional_func is not None:
+        return wrap_uncallable_args(kw=kw)(optional_func)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            args = [_wrap_if_uncallable(arg) for arg in args]
+            if kw:
+                kwargs = {name: _wrap_if_uncallable(value)
+                          for name, value in kwargs.items()}
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def make_fmap(preimage, *, strict=False, collector=tuple):
+    """
+    Make a function that applies many functions to one argument, the preimage.
+
+    This demonstrates an intuitive use of @wrap_uncallable_args. Here, the
+    "functions" must be unary (even as @wrap_uncallable_args imposes no such
+    restriction). But they may be any callables, not just actual functions.
+
+    >>> class Squarer:
+    ...     def __call__(self, x): return x**2
+
+    >>> make_fmap(-7)(abs, Squarer(), 3, lambda x: 2**x, -5)
+    (7, 49, 3, 0.0078125, -5)
+
+    >>> make_fmap(-7, strict=True)(abs, Squarer(), 3, lambda x: 2**x, -5)
+    Traceback (most recent call last):
+      ...
+    TypeError: 'int' object is not callable
+    """
+    if collector is None:
+        collector = identity_function
+
+    @(identity_function if strict else wrap_uncallable_args)
+    def fmap(*functions):
+        return collector(f(preimage) for f in functions)
+
+    return fmap
+
+
 def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     """
     Optionally parameterized decorator to join returned iterables into strings.
@@ -668,12 +894,76 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     if callable(sep):  # sep is actually the function, rather than a separator.
         return joining()(sep)
 
+    if not isinstance(sep, str):  # Not required, but may prevent confusion.
+        raise TypeError('non-string separator passed')
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             to_str = repr if use_repr else lambda obj: format(obj, format_spec)
             joined = sep.join(map(to_str, func(*args, **kwargs)))
             return f'{begin}{joined}{end}'
+
+        return wrapper
+
+    return decorator
+
+
+def repeat_collect(count=2):
+    r"""
+    Optionally parameterized decorator to repeat a function and return all
+    results.
+
+    This is like @repeat(), except (1) this can decorate any function of any
+    signature, not just parameterless functions, (2) it returns a tuple of the
+    results from each call, and (3) it can be used as a decorator factory or a
+    plain decorator (in which case the default repetition count of 2 is used).
+
+    It is not a goal to return information about combinations of successes and
+    failures. If any of the repeated calls raises an exception, that exception
+    is propagated, and any results of previous calls are discarded.
+
+    >>> import math, io, itertools
+
+    >>> indices = itertools.count(1)
+    >>> @repeat_collect(3)
+    ... def f(*, weight, bias):
+    ...     print(f'Called {f.__name__}({weight=}, {bias=}).')
+    ...     return next(indices) * weight + bias
+    >>> f(weight=2, bias=3)
+    Called f(weight=2, bias=3).
+    Called f(weight=2, bias=3).
+    Called f(weight=2, bias=3).
+    (5, 7, 9)
+
+    >>> sio = io.StringIO('foo\nbar\nbaz\n')
+    >>> @repeat_collect
+    ... def g(back, front):
+    ...     return back(front(sio.readline().removesuffix('\n')))
+    >>> g(str.capitalize, lambda s: s[1:])
+    ('Oo', 'Ar')
+
+    >>> repeat_collect(0)(math.cos)(math.pi)
+    ()
+    >>> repeat_collect(1)(math.cos)(math.pi)
+    (-1.0,)
+    >>> repeat_collect(2)(math.cos)(math.pi)
+    (-1.0, -1.0)
+    >>> repeat_collect()(math.cos)(math.pi)
+    (-1.0, -1.0)
+    >>> repeat_collect(math.cos)(math.pi)
+    (-1.0, -1.0)
+    """
+    if callable(count):  # count is actually the function, rather than a count.
+        return repeat_collect()(count)
+
+    if not isinstance(count, int):  # Not required, but may prevent confusion.
+        raise TypeError('non-int count passed')
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return tuple(func(*args, **kwargs) for _ in range(count))
 
         return wrapper
 
@@ -739,7 +1029,7 @@ class linear_combinable:
     """
 
     def __init__(self, func):
-        functools.wraps(func)(self)
+        functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
     def __repr__(self):
         return f'{type(self).__name__}({self.__wrapped__!r})'
