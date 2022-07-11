@@ -18,6 +18,7 @@ functions.as_closeable_iterator
 functions.func_filter
 decorators.auto_prime
 decorators.assign_attributes
+decorators.suppressing
 decorators.dict_equality
 decorators.wrap_uncallable_args
 decorators.joining

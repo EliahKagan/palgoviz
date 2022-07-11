@@ -2,6 +2,7 @@
 
 """Some basic decorators."""
 
+import contextlib
 import functools
 import itertools
 from numbers import Number
@@ -586,6 +587,40 @@ def assign_attributes(**assignments):
     return decorator
 
 
+def suppressing(*exception_types, fallback_result=None):
+    """
+    Parameterized decorator to suppress and return on specific exception types.
+
+    >>> @suppressing(TypeError, IndexError, fallback_result='FAIL!')
+    ... def add_firsts(a, b, *, reverse=False):
+    ...     return b[0] + a[0] if reverse else a[0] + b[0]
+
+    >>> add_firsts('foo', 'bar'), add_firsts('foo', 'bar', reverse=True)
+    ('fb', 'bf')
+    >>> add_firsts('foo', 3), add_firsts('foo', 3, reverse=True)
+    ('FAIL!', 'FAIL!')
+    >>> add_firsts('', 'bar'), add_firsts('', 'bar', reverse=True)
+    ('FAIL!', 'FAIL!')
+    >>> add_firsts({}, 2)
+    Traceback (most recent call last):
+      ...
+    KeyError: 0
+
+    >>> suppressing(ValueError)(int)('2.5') is None
+    True
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with contextlib.suppress(*exception_types):
+                return func(*args, **kwargs)
+            return fallback_result
+
+        return wrapper
+
+    return decorator
+
+
 def dict_equality(cls):
     """
     Decorator to add instance dictionary based equality comparison and hashing.
@@ -664,6 +699,7 @@ def dict_equality(cls):
 #     """
 
 
+# !!FIXME: When removing implementation bodies, remove this too.
 def _wrap_if_uncallable(value):
     """Return value if callable, otherwise a function that returns it."""
     return value if callable(value) else lambda *_args, **_kwargs: value
