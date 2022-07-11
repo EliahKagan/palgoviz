@@ -209,7 +209,34 @@ def peek(func):
 
 
 def give_metadata_from(wrapped):
-    """Parameterized decorater to give a function's metadata to a wrapper."""
+    """
+    Parameterized decorator to give a function's metadata to a wrapper.
+
+    This copies the metadata attributes @functools.wraps copies by default.
+    Also like @functools.wraps, it makes the wrapped function available as
+    __wrapped__. (Being a dunder name, __wrapped__ must not be used in
+    arbitrary ways, but this follows the use documented explicitly in the
+    functools documentation, so it should be okay.) Unlike @functools.wraps,
+    this does not allow which attributes it copies to be customized, nor does
+    it automatically copy other attributes appearing in an instance dictionary.
+
+    >>> def round_result(func):
+    ...     @give_metadata_from(func)
+    ...     def wrapper(*args, **kwargs): return round(func(*args, **kwargs))
+    ...     return wrapper
+    >>> @round_result
+    ... def square(x): 'A function docstring.'; return x**2
+    >>> square.__name__, square.__doc__, square(2.5), square.__wrapped__(2.5)
+    ('square', 'A function docstring.', 6, 6.25)
+
+    Also unlike @functools.wraps, this works when the wrapper is a class:
+
+    >>> class Wrapped: 'A class docstring.'; __slots__ = ()
+    >>> @give_metadata_from(Wrapped)
+    ... class Wrapper: pass
+
+    With @functools.wraps,
+    """
     def decorator(wrapper):
         wrapper.__name__ = wrapped.__name__
         wrapper.__module__ = wrapped.__module__
