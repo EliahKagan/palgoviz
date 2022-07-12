@@ -1,3 +1,6 @@
+adders.Adder
+test_adders.TestMakeAdder
+test_adders.TestAdder
 gencomp1.my_any_alt
 gencomp1.my_all_alt
 gencomp1.take_good
