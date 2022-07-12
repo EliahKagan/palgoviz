@@ -6,7 +6,15 @@ import functools
 
 
 class Announce:
-    """Context manager to announce starting and finishing a task, by name."""
+    """
+    Context manager to announce starting and finishing a task, by name.
+
+    >>> with Announce('Example Task') as ctx:
+    ...     print(f'In task {ctx.name}.')
+    Starting task Example Task.
+    In task Example Task.
+    Finished task Example Task.
+    """
 
     __slots__ = ('_name', '_out')
 
@@ -49,7 +57,15 @@ class Announce:
 
 
 class Closing:
-    """Context manager to call close. Like contextlib.closing."""
+    """
+    Context manager to call close. Like contextlib.closing.
+
+    >>> with Closing(ch for ch in 'abcde') as gen:
+    ...     print(next(gen), next(gen))
+    a b
+    >>> list(gen)
+    []
+    """
 
     __slots__ = ('_closeable_object',)
 
@@ -72,7 +88,17 @@ class Closing:
 
 
 class Suppress:
-    """Context manager to swallow some exceptions. Like contextlib.suppress."""
+    """
+    Context manager to swallow some exceptions. Like contextlib.suppress.
+
+    >>> d = dict(s=20, q=10, v=30)
+    >>> for ch in 'pqrstuvwx':
+    ...     with Suppress(KeyError):
+    ...         print(d[ch])
+    10
+    20
+    30
+    """
 
     __slots__ = ('_exception_types',)
 
