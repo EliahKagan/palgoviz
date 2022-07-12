@@ -340,6 +340,14 @@ class TestMonkeyPatch(unittest.TestCase):
             self.assertEqual(target.a, 20)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_cm_enters_with_existing(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+        entered = False
+        with context.MonkeyPatch(target, 'a', 20, **kwargs):
+            entered = True
+        self.assertTrue(entered)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_unpatches_existing(self, _name, kwargs):
         target = types.SimpleNamespace(a=10)
         with context.MonkeyPatch(target, 'a', 20, **kwargs):
@@ -352,29 +360,51 @@ class TestMonkeyPatch(unittest.TestCase):
             r"\A'types\.SimpleNamespace' object has no attribute 'b'\Z")
 
         target = types.SimpleNamespace(a=10)
+
+        with self.assertRaisesRegex(AttributeError, expected_message):
+            with context.MonkeyPatch(target, 'b', 15, **kwargs):
+                pass
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_cm_does_not_enter_with_nonexisting(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
         entered = False
 
-        with self.subTest('exception details'):
-            with self.assertRaisesRegex(AttributeError, expected_message):
-                with context.MonkeyPatch(target, 'b', 15, **kwargs):
-                    entered = True
+        with contextlib.suppress(AttributeError):
+            with context.MonkeyPatch(target, 'b', 15, **kwargs):
+                entered = True
 
-        with self.subTest('attribute should not be created'):
-            self.assertFalse(hasattr(target, 'b'))
+        self.assertFalse(entered)
 
-        with self.subTest('with block should not be run'):
-            self.assertFalse(entered)
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_cm_does_not_add_nonexisting(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+
+        with contextlib.suppress(AttributeError):
+            with context.MonkeyPatch(target, 'b', 15, **kwargs):
+                pass
+
+        with self.assertRaises(AttributeError):
+            target.b
 
     def test_cm_patches_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
         with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
             self.assertEqual(target.b, 15)
 
+    def test_cm_enters_with_nonexisting_if_allow_absent_true(self):
+        target = types.SimpleNamespace(a=10)
+        entered = False
+        with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+            entered = True
+        self.assertTrue(entered)
+
     def test_cm_unpatches_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
         with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
             pass
-        self.assertFalse(hasattr(target, 'b'))
+        with self.assertRaises(AttributeError):
+            target.b
 
 
 if __name__ == '__main__':
