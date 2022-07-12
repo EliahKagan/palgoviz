@@ -334,6 +334,54 @@ class TestMonkeyPatch(unittest.TestCase):
     ]
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_construction_does_not_patch(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+        _cm = context.MonkeyPatch(target, 'a', 20, **kwargs)  # Hold the ref.
+        self.assertEqual(target.a, 10)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_construction_does_not_check_writeable(self, _name, kwargs):
+        """Construction should't fail fast, since the situation may change."""
+        target = 3.0
+        try:
+            context.MonkeyPatch(target, 'numerator', 4.0, **kwargs)
+        except AttributeError:
+            self.fail('writeability should not be checked on construction')
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_construction_does_not_check_existence(self, _name, kwargs):
+        """Construction should't fail fast, since the situation may change."""
+        target = types.SimpleNamespace(a=10)
+        try:
+            context.MonkeyPatch(target, 'b', 15, **kwargs)
+        except AttributeError:
+            self.fail('existence should not be checked on construction')
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_repr_looks_like_code(self, _name, kwargs):
+        expected = "MonkeyPatch(namespace(a=10), 'a', 20, allow_absent=False)"
+        target = types.SimpleNamespace(a=10)
+        patcher = context.MonkeyPatch(target, 'a', 20, **kwargs)
+        self.assertEqual(repr(patcher), expected)
+
+    def test_repr_looks_like_code_if_allow_absent_true(self):
+        expected = "MonkeyPatch(namespace(a=10), 'a', 20, allow_absent=True)"
+        target = types.SimpleNamespace(a=10)
+        patcher = context.MonkeyPatch(target, 'a', 20, allow_absent=True)
+        self.assertEqual(repr(patcher), expected)
+
+    def test_new_attributes_cannot_be_created(self):
+        # Change the example if a target attribute is added in the future.
+        expected_message = (
+            r"\A'MonkeyPatch' object has no attribute 'target'\Z")
+
+        target = types.SimpleNamespace(a=10)
+        patcher = context.MonkeyPatch(target, 'a', 20)
+
+        with self.assertRaisesRegex(AttributeError, expected_message):
+            patcher.target = types.SimpleNamespace(c=15, d=17)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_patches_existing(self, _name, kwargs):
         target = types.SimpleNamespace(a=10)
         with context.MonkeyPatch(target, 'a', 20, **kwargs):
@@ -405,6 +453,48 @@ class TestMonkeyPatch(unittest.TestCase):
             pass
         with self.assertRaises(AttributeError):
             target.b
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_cm_patches_just_created(self, _name, kwargs):
+        """It doesn't matter what existed when the patcher was constructed."""
+        target = types.SimpleNamespace(a=10)
+        patcher = context.MonkeyPatch(target, 'c', 30, **kwargs)
+        target.c = 25
+        with patcher:
+            self.assertEqual(target.c, 30)
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_cm_refuses_to_patch_just_deleted(self, _name, kwargs):
+        """It doesn't matter what existed when the patcher was constructed."""
+        expected_message = (
+            r"\A'types\.SimpleNamespace' object has no attribute 'c'\Z")
+
+        target = types.SimpleNamespace(a=10, c=25)
+        patcher = context.MonkeyPatch(target, 'c', 30, **kwargs)
+        del target.c
+
+        with self.assertRaisesRegex(AttributeError, expected_message):
+            with patcher:
+                pass
+
+    def test_cm_unpatches_just_deleted_if_allow_absent_true(self):
+        """It doesn't matter what existed when the patcher was constructed."""
+        target = types.SimpleNamespace(a=10, c=25)
+        patcher = context.MonkeyPatch(target, 'c', 30, allow_absent=True)
+        del target.c
+
+        with patcher:
+            # Usually I don't check this, since at least one test should pass
+            # due to any unintentional bug, but here the situation is
+            # conceptually complicated enough that I think this check may help
+            # make the tests more useful.
+            try:
+                target.c
+            except AttributeError as error:
+                raise Exception("not patched, can't test unpatch") from error
+
+        with self.assertRaises(AttributeError):
+            target.c
 
 
 if __name__ == '__main__':
