@@ -61,34 +61,7 @@ class Adder:
       ...
     AttributeError: 'Adder' object has no attribute 'right_addend'
     """
-
-    __slots__ = ('_left_addend',)
-
-    def __init__(self, left_addend):
-        """Create an adder for the given addend."""
-        self._left_addend = left_addend
-
-    def __repr__(self):
-        """Representation of this Adder as Python code."""
-        return f'{type(self).__name__}({self.left_addend!r})'
-
-    def __call__(self, right_addend):
-        """Add the stored left addend to the passed right addend."""
-        return self.left_addend + right_addend
-
-    def __eq__(self, other):
-        """Two adders are equal if their left addends are equal."""
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.left_addend == other.left_addend
-
-    def __hash__(self):
-        return hash(self.left_addend)
-
-    @property
-    def left_addend(self):
-        """The left addend this adder adds to its argument when called."""
-        return self._left_addend
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':
