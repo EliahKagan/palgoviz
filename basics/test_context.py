@@ -5,6 +5,7 @@
 import contextlib
 import io
 import sys
+import types
 import unittest
 
 from parameterized import parameterized
@@ -38,7 +39,7 @@ class _NonRedirectingOutputCapturingTestCase(unittest.TestCase):
 
 
 class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
-    """Tests for the Announce context manager."""
+    """Tests for the context.Announce context manager class."""
 
     def test_announces_single_completed_task(self):
         with context.Announce('A', out=self.out):
@@ -302,7 +303,7 @@ class TestContextlibSuppress(unittest.TestCase):
 
 
 class TestSuppress(TestContextlibSuppress):
-    """Tests for the context.Suppress class."""
+    """Tests for the context.Suppress context manager class."""
 
     @property
     def implementation(self):
@@ -317,6 +318,63 @@ class TestSuppress(TestContextlibSuppress):
     def test_repr_shows_exception_type_names(self, to_suppress, expected):
         cm = context.Suppress(*to_suppress)
         self.assertEqual(repr(cm), expected)
+
+
+class TestMonkeyPatch(unittest.TestCase):
+    """Test for the context.TestMonkeyPatch context manager class."""
+
+    _DENY_ABSENT_KWARGS = [
+        ('if allow_absent unspecified', dict()),
+        ('if allow_absent false', dict(allow_absent=False)),
+    ]
+
+    _DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS = [
+        *_DENY_ABSENT_KWARGS,
+        ('if allow_absent true', dict(allow_absent=True)),
+    ]
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_cm_patches_existing(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+        with context.MonkeyPatch(target, 'a', 20, **kwargs):
+            self.assertEqual(target.a, 20)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_cm_unpatches_existing(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+        with context.MonkeyPatch(target, 'a', 20, **kwargs):
+            pass
+        self.assertEqual(target.a, 10)
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_cm_refuses_to_patch_nonexisting(self, _name, kwargs):
+        expected_message = (
+            r"\A'types\.SimpleNamespace' object has no attribute 'b'\Z")
+
+        target = types.SimpleNamespace(a=10)
+        entered = False
+
+        with self.subTest('exception details'):
+            with self.assertRaisesRegex(AttributeError, expected_message):
+                with context.MonkeyPatch(target, 'b', 15, **kwargs):
+                    entered = True
+
+        with self.subTest('attribute should not be created'):
+            self.assertFalse(hasattr(target, 'b'))
+
+        with self.subTest('with block should not be run'):
+            self.assertFalse(entered)
+
+    def test_cm_patches_nonexisting_if_allow_absent_true(self):
+        target = types.SimpleNamespace(a=10)
+        with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+            self.assertEqual(target.b, 15)
+
+    def test_cm_unpatches_nonexisting_if_allow_absent_true(self):
+        target = types.SimpleNamespace(a=10)
+        with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+            pass
+        self.assertFalse(hasattr(target, 'b'))
 
 
 if __name__ == '__main__':
