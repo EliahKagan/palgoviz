@@ -389,6 +389,15 @@ class TestMonkeyPatch(unittest.TestCase):
             self.assertEqual(target.a, 20)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_cm_patches_existing_not_via_dict(self, _name, **kwargs):
+        """Patched attribute needn't be settable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        with context.MonkeyPatch(Target, 'a', 20, **kwargs):
+            self.assertEqual(Target.a, 20)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_enters_with_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         entered = False
@@ -402,6 +411,18 @@ class TestMonkeyPatch(unittest.TestCase):
         with context.MonkeyPatch(target, 'a', 20, **kwargs):
             pass
         self.assertEqual(target.a, 10)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_cm_unpatches_existing_not_via_dict(self, _name, **kwargs):
+        """Patched attribute needn't be deletable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        with context.MonkeyPatch(Target, 'a', 20, **kwargs):
+            pass
+
+        self.assertEqual(Target.a, 10)
+
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_unpatches_existing_on_error(self, _name, **kwargs):
@@ -451,6 +472,14 @@ class TestMonkeyPatch(unittest.TestCase):
         with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
             self.assertEqual(target.b, 15)
 
+    def test_cm_patches_nonexisting_not_via_dict_if_allow_absent_true(self):
+        """Patched attribute needn't be settable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        with context.MonkeyPatch(Target, 'b', 15, allow_absent=True):
+            self.assertEqual(Target.b, 15)
+
     def test_cm_enters_with_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
         entered = False
@@ -464,6 +493,16 @@ class TestMonkeyPatch(unittest.TestCase):
             pass
         with self.assertRaises(AttributeError):
             target.b
+
+    def test_cm_unpatches_nonexisting_not_via_dict_if_allow_absent_true(self):
+        """Patched attribute needn't be deletable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        with context.MonkeyPatch(Target, 'b', 15, allow_absent=True):
+            pass
+        with self.assertRaises(AttributeError):
+            Target.b
 
     def test_cm_unpatches_nonexisting_on_error_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
@@ -560,6 +599,18 @@ class TestMonkeyPatch(unittest.TestCase):
         decorated_function()
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_wrapper_patches_existing_not_via_dict(self, _name, **kwargs):
+        """Patched attribute needn't be settable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        @context.MonkeyPatch(Target, 'a', 20, **kwargs)
+        def decorated_function():
+            self.assertEqual(Target.a, 20)
+
+        decorated_function()
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_wrapper_calls_wrapped(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         called = False
@@ -582,6 +633,19 @@ class TestMonkeyPatch(unittest.TestCase):
 
         decorated_function()
         self.assertEqual(target.a, 10)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_wrapper_unpatches_existing_not_via_dict(self, _name, **kwargs):
+        """Patched attribute needn't be deletable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        @context.MonkeyPatch(Target, 'a', 20, **kwargs)
+        def decorated_function():
+            pass
+
+        decorated_function()
+        self.assertEqual(Target.a, 10)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_wrapper_unpatches_existing_on_error(self, _name, **kwargs):
@@ -649,6 +713,18 @@ class TestMonkeyPatch(unittest.TestCase):
 
         decorated_function()
 
+    def test_wrapper_patches_nonexisting_not_via_dict_if_allow_absent_true(
+            self):
+        """Patched attribute needn't be settable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        @context.MonkeyPatch(Target, 'b', 15, allow_absent=True)
+        def decorated_function():
+            self.assertEqual(Target.b, 15)
+
+        decorated_function()
+
     def test_wrapper_calls_wrapped_with_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
         called = False
@@ -671,6 +747,20 @@ class TestMonkeyPatch(unittest.TestCase):
         decorated_function()
         with self.assertRaises(AttributeError):
             target.b
+
+    def test_wrapper_unpatches_nonexisting_not_via_dict_if_allow_absent_true(
+            self):
+        """Patched attribute needn't be deletable via instance dictionary."""
+        class Target:  # Target.__dict__ is a mappingproxy (not writeable).
+            a = 10
+
+        @context.MonkeyPatch(Target, 'b', 15, allow_absent=True)
+        def decorated_function():
+            pass
+
+        decorated_function()
+        with self.assertRaises(AttributeError):
+            Target.b
 
     def test_wrapper_unpatches_nonexisting_on_error_if_allow_absent_true(self):
         target = types.SimpleNamespace()
