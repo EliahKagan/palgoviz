@@ -685,6 +685,55 @@ class TestMonkeyPatch(unittest.TestCase):
         with self.assertRaises(AttributeError):
             target.b
 
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_wrapper_patches_just_created(self, _name, **kwargs):
+        """It doesn't matter what existed when the decorated def was run."""
+        target = types.SimpleNamespace(a=10)
+
+        @context.MonkeyPatch(target, 'c', 30, **kwargs)
+        def decorated_function():
+            self.assertEqual(target.c, 30)
+
+        target.c = 25
+        decorated_function()
+
+    @parameterized.expand(_DENY_ABSENT_KWARGS)
+    def test_wrapper_refuses_to_patch_just_deleted(self, _name, **kwargs):
+        """It doesn't matter what existed when the decorated def was run."""
+        expected_message = (
+            r"\A'types\.SimpleNamespace' object has no attribute 'c'\Z")
+
+        target = types.SimpleNamespace(a=10, c=25)
+
+        @context.MonkeyPatch(target, 'c', 30, **kwargs)
+        def decorated_function():
+            pass
+
+        del target.c
+
+        with self.assertRaisesRegex(AttributeError, expected_message):
+            decorated_function()
+
+    def test_wrapper_unpatches_just_deleted_if_allow_absent_true(self):
+        """It doesn't matter what existed when the decorated def was run."""
+        target = types.SimpleNamespace(a=10, c=25)
+
+        @context.MonkeyPatch(target, 'c', 30, allow_absent=True)
+        def decorated_function():
+            # Usually I don't check this, since at least one test should pass
+            # due to any unintentional bug, but here the situation is
+            # conceptually complicated enough that I think this check may help
+            # make the tests more useful.
+            try:
+                target.c
+            except AttributeError as error:
+                raise Exception("not patched, can't test unpatch") from error
+
+        del target.c
+        decorated_function()
+        with self.assertRaises(AttributeError):
+            target.c
+
 
 if __name__ == '__main__':
     unittest.main()
