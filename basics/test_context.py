@@ -3,6 +3,7 @@
 """Tests for context managers in context.py."""
 
 import contextlib
+import inspect
 import io
 import sys
 import types
@@ -504,10 +505,9 @@ class TestMonkeyPatch(unittest.TestCase):
         del target.c
 
         with patcher:
-            # Usually I don't check this, since at least one test should pass
-            # due to any unintentional bug, but here the situation is
-            # conceptually complicated enough that I think this check may help
-            # make the tests more useful.
+            # Usually I don't check this, since at least one test should fail
+            # whenever there is a bug. Here the situation is conceptually
+            # complicated enough, I think this may help make the tests clearer.
             try:
                 target.c
             except AttributeError as error:
@@ -720,10 +720,9 @@ class TestMonkeyPatch(unittest.TestCase):
 
         @context.MonkeyPatch(target, 'c', 30, allow_absent=True)
         def decorated_function():
-            # Usually I don't check this, since at least one test should pass
-            # due to any unintentional bug, but here the situation is
-            # conceptually complicated enough that I think this check may help
-            # make the tests more useful.
+            # Usually I don't check this, since at least one test should fail
+            # whenever there is a bug. Here the situation is conceptually
+            # complicated enough, I think this may help make the tests clearer.
             try:
                 target.c
             except AttributeError as error:
@@ -733,6 +732,45 @@ class TestMonkeyPatch(unittest.TestCase):
         decorated_function()
         with self.assertRaises(AttributeError):
             target.c
+
+    def test_can_decorate_function_of_any_signature(self):
+        target = types.SimpleNamespace(a=10)
+
+        @context.MonkeyPatch(target, 'a', 20)
+        def decorated_function(x, y, p, q, r, *, u, v, w, **kwargs):
+            return (x, y, p, q, r, u, v, w, kwargs)
+
+        expected = (1, 2, 3, 4, 5, 8, 7, 9, {'m': 10, 'n': 11})
+        actual = decorated_function(1, 2, r=5, p=3, q=4, v=7, u=8, w=9,
+                                    m=10, n=11)
+        self.assertTupleEqual(actual, expected)
+
+    def test_wrapper_has_wrapped_metadata(self):
+        serious_numbers = types.SimpleNamespace()
+
+        class C:
+            @staticmethod
+            @context.MonkeyPatch(serious_numbers, 'two', 2, allow_absent=True)
+            def halve(x: int) -> float:
+                """Find half x."""
+                return x / serious_numbers.two
+
+        with self.subTest('__module__'):
+            self.assertEqual(C.halve.__module__, 'test_context')
+        with self.subTest('__name__'):
+            self.assertEqual(C.halve.__name__, 'halve')
+        with self.subTest('__qualname__'):
+            expected_qualname = (
+                'TestMonkeyPatch.test_wrapper_has_wrapped_metadata.<locals>'
+                '.C.halve')
+            self.assertEqual(C.halve.__qualname__, expected_qualname)
+        with self.subTest('__doc__'):
+            # Formats the docstring. In this case, we could just check __doc__.
+            self.assertEqual(inspect.getdoc(C.halve), "Find half x.")
+        with self.subTest('__annotations__'):
+            # Better than checking __annotations__, even here, due to PEP 563.
+            self.assertDictEqual(inspect.get_annotations(C.halve),
+                                 {'x': int, 'return': float})
 
 
 if __name__ == '__main__':
