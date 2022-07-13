@@ -862,6 +862,20 @@ class TestMonkeyPatch(unittest.TestCase):
             self.assertDictEqual(inspect.get_annotations(C.halve),
                                  {'x': int, 'return': float})
 
+    def test_wrapper_exposes_wrapped(self):
+        """The wrapper has a __wrapped__ attribute (see the functools docs)."""
+        target = types.SimpleNamespace(a=10)
+
+        @context.MonkeyPatch(target, 'a', 20)
+        def decorated_function():
+            return target.a
+
+        if decorated_function() != 20:
+            raise Exception("not patched, can't contrast to unpatched version")
+
+        original = decorated_function.__wrapped__
+        self.assertEqual(original(), 10)
+
 
 if __name__ == '__main__':
     unittest.main()
