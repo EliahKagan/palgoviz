@@ -8,7 +8,7 @@ import sys
 import types
 import unittest
 
-from parameterized import parameterized
+from parameterized import param, parameterized
 
 import context
 
@@ -324,23 +324,23 @@ class TestMonkeyPatch(unittest.TestCase):
     """Test for the context.TestMonkeyPatch context manager class."""
 
     _DENY_ABSENT_KWARGS = [
-        ('if allow_absent unspecified', dict()),
-        ('if allow_absent false', dict(allow_absent=False)),
+        param('if allow_absent unspecified'),
+        param('if allow_absent false', allow_absent=False),
     ]
 
     _DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS = [
         *_DENY_ABSENT_KWARGS,
-        ('if allow_absent true', dict(allow_absent=True)),
+        param('if allow_absent true', allow_absent=True),
     ]
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_construction_does_not_patch(self, _name, kwargs):
+    def test_construction_does_not_patch(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         _cm = context.MonkeyPatch(target, 'a', 20, **kwargs)  # Hold the ref.
         self.assertEqual(target.a, 10)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_construction_does_not_check_writeable(self, _name, kwargs):
+    def test_construction_does_not_check_writeable(self, _name, **kwargs):
         """Construction should't fail fast, since the situation may change."""
         target = 3.0
         try:
@@ -349,7 +349,7 @@ class TestMonkeyPatch(unittest.TestCase):
             self.fail('writeability should not be checked on construction')
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_construction_does_not_check_existence(self, _name, kwargs):
+    def test_construction_does_not_check_existence(self, _name, **kwargs):
         """Construction should't fail fast, since the situation may change."""
         target = types.SimpleNamespace(a=10)
         try:
@@ -358,7 +358,7 @@ class TestMonkeyPatch(unittest.TestCase):
             self.fail('existence should not be checked on construction')
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_repr_looks_like_code(self, _name, kwargs):
+    def test_repr_looks_like_code(self, _name, **kwargs):
         expected = "MonkeyPatch(namespace(a=10), 'a', 20, allow_absent=False)"
         target = types.SimpleNamespace(a=10)
         patcher = context.MonkeyPatch(target, 'a', 20, **kwargs)
@@ -382,13 +382,13 @@ class TestMonkeyPatch(unittest.TestCase):
             patcher.target = types.SimpleNamespace(c=15, d=17)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_cm_patches_existing(self, _name, kwargs):
+    def test_cm_patches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         with context.MonkeyPatch(target, 'a', 20, **kwargs):
             self.assertEqual(target.a, 20)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_cm_enters_with_existing(self, _name, kwargs):
+    def test_cm_enters_with_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         entered = False
         with context.MonkeyPatch(target, 'a', 20, **kwargs):
@@ -396,14 +396,14 @@ class TestMonkeyPatch(unittest.TestCase):
         self.assertTrue(entered)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_cm_unpatches_existing(self, _name, kwargs):
+    def test_cm_unpatches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         with context.MonkeyPatch(target, 'a', 20, **kwargs):
             pass
         self.assertEqual(target.a, 10)
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_cm_refuses_to_patch_nonexisting(self, _name, kwargs):
+    def test_cm_refuses_to_patch_nonexisting(self, _name, **kwargs):
         expected_message = (
             r"\A'types\.SimpleNamespace' object has no attribute 'b'\Z")
 
@@ -414,7 +414,7 @@ class TestMonkeyPatch(unittest.TestCase):
                 pass
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_cm_does_not_enter_with_nonexisting(self, _name, kwargs):
+    def test_cm_does_not_enter_with_nonexisting(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         entered = False
 
@@ -425,7 +425,7 @@ class TestMonkeyPatch(unittest.TestCase):
         self.assertFalse(entered)
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_cm_does_not_add_nonexisting(self, _name, kwargs):
+    def test_cm_does_not_add_nonexisting(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
         with contextlib.suppress(AttributeError):
@@ -455,7 +455,7 @@ class TestMonkeyPatch(unittest.TestCase):
             target.b
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_cm_patches_just_created(self, _name, kwargs):
+    def test_cm_patches_just_created(self, _name, **kwargs):
         """It doesn't matter what existed when the patcher was constructed."""
         target = types.SimpleNamespace(a=10)
         patcher = context.MonkeyPatch(target, 'c', 30, **kwargs)
@@ -464,7 +464,7 @@ class TestMonkeyPatch(unittest.TestCase):
             self.assertEqual(target.c, 30)
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
-    def test_cm_refuses_to_patch_just_deleted(self, _name, kwargs):
+    def test_cm_refuses_to_patch_just_deleted(self, _name, **kwargs):
         """It doesn't matter what existed when the patcher was constructed."""
         expected_message = (
             r"\A'types\.SimpleNamespace' object has no attribute 'c'\Z")
@@ -497,7 +497,7 @@ class TestMonkeyPatch(unittest.TestCase):
             target.c
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_decorator_does_not_patch_at_def_time(self, _name, kwargs):
+    def test_decorator_does_not_patch_at_def_time(self, _name, **kwargs):
         """Patching and unpatching happens per call, not in the definition."""
         target = types.SimpleNamespace(a=10)
 
@@ -508,7 +508,7 @@ class TestMonkeyPatch(unittest.TestCase):
         self.assertEqual(target.a, 10)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_decorator_patches_existing(self, _name, kwargs):
+    def test_decorator_patches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
         @context.MonkeyPatch(target, 'a', 20, **kwargs)
@@ -518,7 +518,7 @@ class TestMonkeyPatch(unittest.TestCase):
         decorated_function()
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_decorator_wrapper_calls_wrapped(self, _name, kwargs):
+    def test_decorator_wrapper_calls_wrapped(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         called = False
 
@@ -531,7 +531,7 @@ class TestMonkeyPatch(unittest.TestCase):
         self.assertTrue(called)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
-    def test_decorator_unpatches_existing(self, _name, kwargs):
+    def test_decorator_unpatches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
         @context.MonkeyPatch(target, 'a', 20, **kwargs)
