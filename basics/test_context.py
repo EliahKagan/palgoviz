@@ -200,7 +200,8 @@ class TestContextlibClosing(unittest.TestCase):
         obj = _HasClose()
         with self.implementation(obj):
             if obj.closed:
-                raise Exception("can't check if __exit__ closes, already closed")
+                raise Exception(
+                    "can't check if __exit__ closes, already closed")
         self.assertTrue(obj.closed)
 
     def test_presence_of_close_is_not_pre_checked(self):
@@ -361,7 +362,7 @@ class TestMonkeyPatch(unittest.TestCase):
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_construction_does_not_patch(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
-        _cm = context.MonkeyPatch(target, 'a', 20, **kwargs)  # Hold the ref.
+        _ = context.MonkeyPatch(target, 'a', 20, **kwargs)  # Hold the ref.
         self.assertEqual(target.a, 10)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
@@ -422,7 +423,6 @@ class TestMonkeyPatch(unittest.TestCase):
             pass
 
         self.assertEqual(Target.a, 10)
-
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_unpatches_existing_on_error(self, _name, **kwargs):
