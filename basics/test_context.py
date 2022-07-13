@@ -496,6 +496,51 @@ class TestMonkeyPatch(unittest.TestCase):
         with self.assertRaises(AttributeError):
             target.c
 
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_decorator_does_not_patch_at_def_time(self, _name, kwargs):
+        """Patching and unpatching happens per call, not in the definition."""
+        target = types.SimpleNamespace(a=10)
+
+        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        def _decorated_function():
+            pass
+
+        self.assertEqual(target.a, 10)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_decorator_patches_existing(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+
+        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        def decorated_function():
+            self.assertEqual(target.a, 20)
+
+        decorated_function()
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_decorator_wrapper_calls_wrapped(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+        called = False
+
+        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        def decorated_function():
+            nonlocal called
+            called = True
+
+        decorated_function()
+        self.assertTrue(called)
+
+    @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
+    def test_decorator_unpatches_existing(self, _name, kwargs):
+        target = types.SimpleNamespace(a=10)
+
+        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        def decorated_function():
+            pass
+
+        decorated_function()
+        self.assertEqual(target.a, 10)
+
 
 if __name__ == '__main__':
     unittest.main()
