@@ -733,7 +733,7 @@ class TestMonkeyPatch(unittest.TestCase):
         with self.assertRaises(AttributeError):
             target.c
 
-    def test_can_decorate_function_of_any_signature(self):
+    def test_wrapper_forwards_arbitrary_args_and_return(self):
         target = types.SimpleNamespace(a=10)
 
         @context.MonkeyPatch(target, 'a', 20)
