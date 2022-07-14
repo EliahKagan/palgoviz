@@ -320,11 +320,9 @@ def count_tree_nodes_instrumented(root):
     count_tree_nodes = peek_return(count_tree_nodes)
 
     try:
-        ret = count_tree_nodes(root)
+        return count_tree_nodes(root)
     finally:
         count_tree_nodes = old_func
-
-    return ret
 
 
 if __name__ == '__main__':
