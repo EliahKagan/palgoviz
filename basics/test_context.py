@@ -2,16 +2,20 @@
 
 """Tests for context managers in context.py."""
 
+import bisect
 import contextlib
+import enum
 import inspect
 import io
 import sys
 import types
 import unittest
+import weakref
 
 from parameterized import param, parameterized
 
 import context
+import enumerations
 
 
 class _FakeError(Exception):
@@ -320,6 +324,75 @@ class TestSuppress(TestContextlibSuppress):
     def test_repr_shows_exception_type_names(self, to_suppress, expected):
         cm = context.Suppress(*to_suppress)
         self.assertEqual(repr(cm), expected)
+
+
+@enum.unique
+class _Access(enumerations.CodeReprEnum):
+    """Kind of access that occurred, for _AttributeSpy history entries."""
+    SET = enum.auto()
+    GET = enum.auto()
+    DELETE = enum.auto()
+
+
+_attribute_spy_histories = weakref.WeakKeyDictionary()
+
+
+class _AttributeSpy:
+    r"""
+    Class that records successful accesses to its attributes.
+
+    >>> spy = _AttributeSpy(x=10, y=20)
+    >>> spy.w = 30
+    >>> spy.x += 5
+    >>> spy.history
+    [(_Access.SET, 'w', 30), (_Access.GET, 'x', 10), (_Access.SET, 'x', 15)]
+    >>> spy.history.clear()
+    >>> del spy.w
+    >>> spy.__dict__
+    {'x': 15, 'y': 20}
+    >>> spy.history
+    [(_Access.DELETE, 'w'), (_Access.GET, '__dict__', {'x': 15, 'y': 20})]
+    >>> import re; [s for s in dir(spy) if not re.match(r'\A__\w+__\Z', s)]
+    ['history', 'x', 'y']
+    """
+
+    def __init__(self, **initial):
+        """Create a new _AttributeSpy with the given initial attributes."""
+        for name, value in initial.items():
+            super().__setattr__(name, value)
+
+        _attribute_spy_histories[self] = []
+
+    def __dir__(self):
+        """List all attributes, including the dynamic 'history' attribute."""
+        names = super().__dir__()
+        bisect.insort(names, 'history')
+        return names
+
+    def __getattribute__(self, name):
+        """Get the named attribute, logging to history if successful."""
+        if name == 'history':
+            return _attribute_spy_histories[self]
+
+        value = super().__getattribute__(name)
+        _attribute_spy_histories[self].append((_Access.GET, name, value))
+        return value
+
+    def __setattr__(self, name, value):
+        """Set the named attribute, logging to history if successful."""
+        if name == 'history':
+            raise RuntimeError("attempt to set 'history' indicates a bug")
+
+        super().__setattr__(name, value)
+        _attribute_spy_histories[self].append((_Access.SET, name, value))
+
+    def __delattr__(self, name):
+        """Delete the named attribute, logging to history if successful."""
+        if name == 'history':
+            raise RuntimeError("attempt to delete 'history' indicates a bug")
+
+        super().__delattr__(name)
+        _attribute_spy_histories[self].append((_Access.DELETE, name))
 
 
 class TestMonkeyPatch(unittest.TestCase):
@@ -875,6 +948,197 @@ class TestMonkeyPatch(unittest.TestCase):
 
         original = decorated_function.__wrapped__
         self.assertEqual(original(), 10)
+
+    def test_separate_wrappers_can_nest_calls(self):
+        target = types.SimpleNamespace()
+
+        @context.MonkeyPatch(target, 'x', 50, allow_absent=True)
+        def direct():
+            return indirect() + target.x
+
+        @context.MonkeyPatch(target, 'x', 12)
+        def indirect():
+            return target.x
+
+        self.assertEqual(direct(), 62)
+
+    def test_separate_wrappers_can_nest_calls_with_errors(self):
+        target = types.SimpleNamespace()
+
+        @context.MonkeyPatch(target, 'x', 50, allow_absent=True)
+        def direct():
+            try:
+                indirect()
+            except _FakeError as error:
+                return error.value + target.x
+
+        @context.MonkeyPatch(target, 'x', 12)
+        def indirect():
+            error = _FakeError()
+            error.value = target.x
+            raise error
+
+        self.assertEqual(direct(), 62)
+
+    def test_wrappers_from_same_decorator_can_nest_calls(self):
+        target = _AttributeSpy(a=10)
+        patcher = context.MonkeyPatch(target, 'a', 20)
+
+        @patcher
+        def direct():
+            indirect()
+
+        @patcher
+        def indirect():
+            del target.a
+
+        direct()
+
+        self.assertListEqual(target.history, [
+            (_Access.GET, 'a', 10),
+            (_Access.SET, 'a', 20),
+            (_Access.GET, 'a', 20),
+            (_Access.SET, 'a', 20),
+            (_Access.DELETE, 'a'),  # Done inside indirect, not by a wrapper.
+            (_Access.SET, 'a', 20),
+            (_Access.SET, 'a', 10),
+        ])
+
+    def test_wrappers_from_the_same_decorator_can_nest_calls_with_errors(self):
+        target = _AttributeSpy(a=10)
+        patcher = context.MonkeyPatch(target, 'a', 20)
+
+        @patcher
+        def direct():
+            indirect()
+
+        @patcher
+        def indirect():
+            del target.a
+            raise _FakeError
+
+        with contextlib.suppress(_FakeError):
+            direct()
+
+        self.assertListEqual(target.history, [
+            (_Access.GET, 'a', 10),
+            (_Access.SET, 'a', 20),
+            (_Access.GET, 'a', 20),
+            (_Access.SET, 'a', 20),
+            (_Access.DELETE, 'a'),  # Done inside indirect, not by a wrapper.
+            (_Access.SET, 'a', 20),
+            (_Access.SET, 'a', 10),
+        ])
+
+    def test_decorated_defs_can_nest_with_nested_calls(self):
+        target = _AttributeSpy(x=0)
+        patcher1 = context.MonkeyPatch(target, 'x', 1)
+        patcher2 = context.MonkeyPatch(target, 'x', 2)
+
+        @patcher1
+        def f(repeat):
+            @patcher2
+            def g():
+                @patcher1
+                def ff():
+                    @patcher2
+                    def gg():
+                        if repeat:
+                            f(False)
+                        else:
+                            del target.x
+
+                    gg()
+
+                ff()
+
+            g()
+
+        f(True)
+
+        self.assertListEqual(target.history, [
+            (_Access.GET, 'x', 0),  # f (note: 0, not 2)
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.GET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.GET, 'x', 2),  # f (note: 2, not 0)
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.GET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.DELETE, 'x'),  # gg (wrapped)
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # f (note: 2, not 0)
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 0),  # f (note: 0, not 2)
+        ])
+
+    def test_decorated_defs_can_nest_with_nested_calls_with_errors(self):
+        target = _AttributeSpy(x=0)
+        patcher1 = context.MonkeyPatch(target, 'x', 1)
+        patcher2 = context.MonkeyPatch(target, 'x', 2)
+
+        @patcher1
+        def f(repeat):
+            @patcher2
+            def g():
+                @patcher1
+                def ff():
+                    @patcher2
+                    def gg():
+                        if repeat:
+                            f(False)
+                        else:
+                            del target.x
+                            raise _FakeError
+
+                    gg()
+
+                ff()
+
+            g()
+
+        with contextlib.suppress(_FakeError):
+            f(True)
+
+        self.assertListEqual(target.history, [
+            (_Access.GET, 'x', 0),  # f (note: 0, not 2)
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.GET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.GET, 'x', 2),  # f (note: 2, not 0)
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.GET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.DELETE, 'x'),  # gg (wrapped)
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # f (note: 2, not 0)
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 0),  # f (note: 0, not 2)
+        ])
 
 
 if __name__ == '__main__':
