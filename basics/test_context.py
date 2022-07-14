@@ -421,6 +421,13 @@ class TestMonkeyPatch(unittest.TestCase):
         patcher = context.MonkeyPatch(target, 'a', 20, allow_absent=True)
         self.assertEqual(repr(patcher), expected)
 
+    def test_allow_absent_not_accepted_positionally(self):
+        expected_message = (r'\AMonkeyPatch\.__init__\(\) takes 4 positional'
+                            r' arguments but 5 were given\Z')
+
+        with self.assertRaisesRegex(TypeError, expected_message):
+            context.MonkeyPatch(10, 'a', 4, True)
+
     def test_new_attributes_cannot_be_created(self):
         # Change the example if a target attribute is added in the future.
         expected_message = (
