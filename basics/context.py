@@ -100,6 +100,8 @@ class MonkeyPatch:
     3.14 g g. 3.14159 ff ff. 3.14 gg gg. 3.14159 7 8 3.14 6 7 3.14159 5 3.14 4
     16
     3.141592653589793
+
+    Hint: You might want to get it working just as a context manager first.
     """
     # FIXME: Implement this.
 
