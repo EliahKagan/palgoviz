@@ -28,3 +28,7 @@ decorators.wrap_uncallable_args
 decorators.joining
 decorators.repeat_collect
 decorators.linear_combinable
+context.Announce
+context.Closing
+context.Suppress
+context.MonkeyPatch
