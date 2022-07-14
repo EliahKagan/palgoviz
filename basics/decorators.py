@@ -212,14 +212,61 @@ def peek(func):
     return wrapper
 
 
-def give_metadata_from(wrapped):
-    """Parameterized decorator to give a function's metadata to a wrapper."""
+def give_metadata_from(wrapped, *, expose=False):
+    """
+    Parameterized decorator to give a function's metadata to a wrapper.
+
+    This copies the metadata attributes @functools.wraps copies by default, but
+    they are not customizable, and AttributeError is raised if any are absent
+    on the wrapped function (or class). No other attributes are copied, but if
+    expose=True then __wrapped__ is also set on the wrapper, giving access to
+    the wrapped function. (__wrapped__ is a dunder, but this should be okay
+    because [FIXME: explain, with a supporting citation]).
+
+    >>> def f(): 'Wrapped docstring.'
+
+    >>> @give_metadata_from(f)
+    ... def g(): pass
+    >>> g.__name__, g.__module__, g.__qualname__, g.__doc__, g.__annotations__
+    ('f', 'decorators', 'f', 'Wrapped docstring.', {})
+    >>> hasattr(g, '__wrapped__')
+    False
+
+    >>> @give_metadata_from(f, expose=True)
+    ... def h(): pass
+    >>> h.__name__, h.__module__, h.__qualname__, h.__doc__, h.__annotations__
+    ('f', 'decorators', 'f', 'Wrapped docstring.', {})
+    >>> h.__wrapped__ is f
+    True
+
+    @give_metadata_from supports no other customization. But it automatically
+    supports one important case where @functools.wraps does need customization.
+    When the wrapper is a class, its __dict__ attribute is a mappingproxy, so:
+
+    >>> @functools.wraps(f)  # Will try to call C1.__dict__.update(f.__dict__).
+    ... class C1: pass
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'mappingproxy' object has no attribute 'update'
+
+    >>> @functools.wraps(f, updated=())  # Works, no C2.__dict__.update call.
+    ... class C2: pass
+    >>> C2.__name__
+    'f'
+
+    >>> @give_metadata_from(f)  # Never calls anything like C3.__dict__.update.
+    ... class C3: pass
+    >>> C3.__name__
+    'f'
+    """
     def decorator(wrapper):
         wrapper.__name__ = wrapped.__name__
         wrapper.__module__ = wrapped.__module__
         wrapper.__qualname__ = wrapped.__qualname__
         wrapper.__doc__ = wrapped.__doc__
         wrapper.__annotations__ = wrapped.__annotations__
+        if expose:
+            wrapper.__wrapped__ = wrapped
         return wrapper
 
     return decorator
