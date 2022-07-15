@@ -14,11 +14,11 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
-import contextlib
 import itertools
 
 from decorators import peek_return
 from fibonacci import fib
+
 
 def make_counter(start=0):
     """
