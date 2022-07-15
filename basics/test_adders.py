@@ -1,9 +1,14 @@
+#!/usr/bin/env python
+
+"""Tests for the adders module."""
+
 import unittest
 
+from adders import Adder, make_adder
 
-from adders import make_adder, Adder
 
 class TestMakeAdder(unittest.TestCase):
+    """Tests for the make_adder function."""
 
     def test_adders_are_resuable(self):
         f = make_adder(7)
@@ -21,7 +26,9 @@ class TestMakeAdder(unittest.TestCase):
         s = make_adder('cat')
         self.assertEqual(s(' dog'), 'cat dog')
 
+
 class TestAdder(unittest.TestCase):
+    """Tests for the Adder class."""
 
     def test_adders_are_resusable(self):
         a = Adder(7)
@@ -61,3 +68,7 @@ class TestAdder(unittest.TestCase):
         a = Adder(7)
         with self.assertRaises(AttributeError):
             a.right_addend = 5
+
+
+if __name__ == '__main__':
+    unittest.main()
