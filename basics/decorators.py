@@ -698,6 +698,9 @@ def dict_equality(cls):
     >>> class C: pass
     >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
     (True, False, False, False, False)
+    >>> x = A(); y = A(); x.p = 10; x.q = 20; y.q = 20; y.p = 10
+    >>> x == y, hash(x) == hash(y)
+    (True, True)
     """
     # FIXME: Implement this.
 
@@ -727,15 +730,15 @@ def count_calls_in_attribute(*, name='count'):
 
     >>> @count_calls_in_attribute()  # Same as passing name='count'.
     ... def add_up(*nums): return sum(nums)
-    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
-    (0, 12, 1, 5, 2)
+    >>> add_up.count, add_up(2, 7, 3), add_up(), add_up(4, 1), add_up.count
+    (0, 12, 0, 5, 3)
 
     When keeping this default, it can also be used directly as a decorator:
 
     >>> @count_calls_in_attribute
     ... def add_up(*nums): return sum(nums)
-    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
-    (0, 12, 1, 5, 2)
+    >>> add_up.count, add_up(2, 7, 3), add_up(), add_up(4, 1), add_up.count
+    (0, 12, 0, 5, 3)
 
     Hint: You might want to get it working just as a decorator factory first.
     """
