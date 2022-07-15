@@ -46,6 +46,22 @@ class _NonRedirectingOutputCapturingTestCase(unittest.TestCase):
 class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
     """Tests for the context.Announce context manager class."""
 
+    def test_out_argument_not_accepted_positionally(self):
+        expected_message = (r'\AAnnounce\.__init__\(\) takes 2 positional'
+                            r' arguments but 3 were given\Z')
+        with self.assertRaisesRegex(TypeError, expected_message):
+            context.Announce('A', self.out)
+
+    def test_repr_shows_name_and_out_if_not_none(self):
+        expected = (r"Announce\('A', "
+                    r'out=<_?io\.StringIO object at 0x[0-9a-fA-F]+>\)')
+        cm = context.Announce('A', out=self.out)
+        self.assertRegex(repr(cm), expected)
+
+    def test_repr_shows_just_name_if_out_is_none(self):
+        cm = context.Announce('A')
+        self.assertEqual(repr(cm), "Announce('A')")
+
     def test_announces_single_completed_task(self):
         with context.Announce('A', out=self.out):
             with self.subTest(when='start'):
@@ -124,16 +140,6 @@ class TestAnnounce(_NonRedirectingOutputCapturingTestCase):
             self.assertEqual(out1.getvalue(), 'Starting task A.\n')
         with self.subTest('__exit__'):
             self.assertEqual(out2.getvalue(), end_message)
-
-    def test_repr_shows_name_and_out_if_not_none(self):
-        expected = (r"Announce\('A', "
-                    r'out=<_?io\.StringIO object at 0x[0-9a-fA-F]+>\)')
-        cm = context.Announce('A', out=self.out)
-        self.assertRegex(repr(cm), expected)
-
-    def test_repr_shows_just_name_if_out_is_none(self):
-        cm = context.Announce('A')
-        self.assertEqual(repr(cm), "Announce('A')")
 
     def test_name_attribute_has_name(self):
         cm = context.Announce('A', out=self.out)
