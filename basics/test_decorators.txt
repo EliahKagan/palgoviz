@@ -119,6 +119,45 @@ Old doctests for @peek:
     proclaim('Hello', 'world', sep=': ', end='!\n') -> None
 
 
+Old doctests for @give_metadata_from():
+
+    >>> def f(): 'Wrapped docstring.'
+
+    >>> @give_metadata_from(f)
+    ... def g(): pass
+    >>> g.__name__, g.__module__, g.__qualname__, g.__doc__, g.__annotations__
+    ('f', '__main__', 'f', 'Wrapped docstring.', {})
+    >>> hasattr(g, '__wrapped__')
+    False
+
+    >>> @give_metadata_from(f, expose=True)
+    ... def h(): pass
+    >>> h.__name__, h.__module__, h.__qualname__, h.__doc__, h.__annotations__
+    ('f', '__main__', 'f', 'Wrapped docstring.', {})
+    >>> h.__wrapped__ is f
+    True
+
+    @give_metadata_from supports no other customization. But it automatically
+    supports one important case where @functools.wraps does need customization.
+    When the wrapper is a class, its __dict__ attribute is a mappingproxy, so:
+
+    >>> @functools.wraps(f)  # Will try to call C1.__dict__.update(f.__dict__).
+    ... class C1: pass
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'mappingproxy' object has no attribute 'update'
+
+    >>> @functools.wraps(f, updated=())  # Works, no C2.__dict__.update call.
+    ... class C2: pass
+    >>> C2.__name__
+    'f'
+
+    >>> @give_metadata_from(f)  # Never calls anything like C3.__dict__.update.
+    ... class C3: pass
+    >>> C3.__name__
+    'f'
+
+
 Old doctests for @memoize:
 
     >>> @memoize
@@ -436,6 +475,9 @@ Old doctests for @dict_equality:
     >>> class C: pass
     >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
     (True, False, False, False, False)
+    >>> x = A(); y = A(); x.p = 10; x.q = 20; y.q = 20; y.p = 10
+    >>> x == y, hash(x) == hash(y)
+    (True, True)
 
 
 Old doctests for @count_calls_in_attribute():
@@ -458,15 +500,15 @@ Old doctests for @count_calls_in_attribute():
 
     >>> @count_calls_in_attribute()  # Same as passing name='count'.
     ... def add_up(*nums): return sum(nums)
-    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
-    (0, 12, 1, 5, 2)
+    >>> add_up.count, add_up(2, 7, 3), add_up(), add_up(4, 1), add_up.count
+    (0, 12, 0, 5, 3)
 
     When keeping this default, it can also be used directly as a decorator:
 
     >>> @count_calls_in_attribute
     ... def add_up(*nums): return sum(nums)
-    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
-    (0, 12, 1, 5, 2)
+    >>> add_up.count, add_up(2, 7, 3), add_up(), add_up(4, 1), add_up.count
+    (0, 12, 0, 5, 3)
 
 
 Old doctests for @wrap_uncallable_args():
