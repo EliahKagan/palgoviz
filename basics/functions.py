@@ -19,6 +19,7 @@ import itertools
 from decorators import peek_return
 from fibonacci import fib
 
+
 def make_counter(start=0):
     """
     Create and return a function that returns successive integers on each call.

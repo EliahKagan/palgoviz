@@ -8,6 +8,7 @@ from parameterized import parameterized, parameterized_class
 
 import adders
 
+
 class _MyStr(str):
     """Trivially derived string type for testing nonidentical equal strings."""
 
