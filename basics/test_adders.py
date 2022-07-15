@@ -16,11 +16,11 @@ class TestMakeAdder(unittest.TestCase):
             self.assertEqual(f(10), 17)
 
     # Test adds to argument no assignment (int)
-    def test_adds_correctly(self):
+    def test_adds(self):
         self.assertEqual(make_adder(6)(2), 8)
 
     # Test adds to argument (string)
-    def test_adds_cat_and_dog_correctly(self):
+    def test_adds_cat_and_dog(self):
         s = make_adder('cat')
         self.assertEqual(s(' dog'), 'cat dog')
 
@@ -38,11 +38,11 @@ class TestAdder(unittest.TestCase):
             self.assertEqual(a(10), 17)
 
     # Test adds to argument no assignment (int)
-    def test_adds_correctly(self):
+    def test_adds(self):
         self.assertEqual(Adder(6)(2), 8)
 
     # Test adds to argument (string)
-    def test_adds_cat_and_dog_correctly(self):
+    def test_adds_cat_and_dog(self):
         u = Adder('cat')
         self.assertEqual(u(' dog'), 'cat dog')
 
@@ -58,7 +58,7 @@ class TestAdder(unittest.TestCase):
         self.assertTrue(lhs == rhs)
 
     # Test can access left_addend
-    def test_can_access_left_addend_and_it_is_correct(self):
+    def test_can_access_left_addend(self):
         a = Adder(7)
         self.assertEqual(a.left_addend, 7)
 
