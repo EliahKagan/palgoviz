@@ -274,14 +274,9 @@ class TestContextlibSuppress(unittest.TestCase):
 
     def test_enter_returns_none(self):
         """The __enter__ method should implicitly return None."""
-        assertion_ran = False
-
         with self.implementation(ValueError) as ctx:
-            self.assertIsNone(ctx)
-            assertion_ran = True
-
-        if not assertion_ran:
-            raise Exception('The test AssertionError was itself suppressed!')
+            pass
+        self.assertIsNone(ctx)
 
     @parameterized.expand([
         ([ValueError], ValueError),
@@ -468,6 +463,13 @@ class TestMonkeyPatch(unittest.TestCase):
             context.MonkeyPatch(target, 'b', 15, **kwargs)
         except AttributeError:
             self.fail("shouldn't check existence on construction")
+
+    def test_enter_returns_none(self):
+        """The __enter__ method should implicitly return None."""
+        target = types.SimpleNamespace(a=10)
+        with context.MonkeyPatch(target, 'a', 20) as ctx:
+            pass
+        self.assertIsNone(ctx)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_patches_existing(self, _name, **kwargs):
