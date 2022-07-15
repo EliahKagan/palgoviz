@@ -723,6 +723,9 @@ def dict_equality(cls):
     >>> class C: pass
     >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
     (True, False, False, False, False)
+    >>> x = A(); y = A(); x.p = 10; x.q = 20; y.q = 20; y.p = 10
+    >>> x == y, hash(x) == hash(y)
+    (True, True)
     """
     def __eq__(self, other):
         if isinstance(other, type(self)):
