@@ -1,4 +1,12 @@
-"""Making functions that add to the same value."""
+"""Callables that add a fixed value to their argument."""
+
+# FIXME: Write unittest tests for the make_adder function and the Adder class,
+# in a separate test module. They should (at least) test all the behaviors
+# shown in the doctests. This can be done before or after implementing the
+# Adder class. The names (and number) of test classes given in review-notes.txt
+# are just suggestions. If your initial tests duplicate logic, such as to test
+# behavior that applies to both make_adder and Adder, then reorganize the tests
+# to eliminate that duplication. (Once that's done, remove this whole comment.)
 
 
 def make_adder(left_addend):
@@ -19,6 +27,68 @@ def make_adder(left_addend):
     def adder(right_addend):
         return left_addend + right_addend
     return adder
+
+
+class Adder:
+    """
+    Callable object that adds its argument to the addend given on construction.
+
+    The fixed added an Adder stores and uses is a left addend, which matters in
+    some noncommutative meanings of "+", such as sequence concatenation. This
+    is the class version of make_adder, with some more features classes allow.
+
+    >>> a = Adder(7)
+    >>> a(4)
+    11
+    >>> a(10)
+    17
+    >>> Adder(6)(2)
+    8
+    >>> Adder('cat')
+    Adder('cat')
+    >>> _(' dog')
+    'cat dog'
+    >>> {Adder(7), Adder(7), Adder(6), Adder(7.0)} == {Adder(6), Adder(7)}
+    True
+    >>> a.left_addend
+    7
+    >>> a.left_addend = 8
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute 'left_addend'
+    >>> a.right_addend = 5  # This would be a conceptual mistake.
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'Adder' object has no attribute 'right_addend'
+    """
+
+    __slots__ = ('_left_addend',)
+
+    def __init__(self, left_addend):
+        """Create an adder for the given addend."""
+        self._left_addend = left_addend
+
+    def __repr__(self):
+        """Representation of this Adder as Python code."""
+        return f'{type(self).__name__}({self.left_addend!r})'
+
+    def __call__(self, right_addend):
+        """Add the stored left addend to the passed right addend."""
+        return self.left_addend + right_addend
+
+    def __eq__(self, other):
+        """Two adders are equal if their left addends are equal."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.left_addend == other.left_addend
+
+    def __hash__(self):
+        return hash(self.left_addend)
+
+    @property
+    def left_addend(self):
+        """The left addend this adder adds to its argument when called."""
+        return self._left_addend
 
 
 if __name__ == '__main__':

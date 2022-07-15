@@ -17,6 +17,8 @@ just the extra space used by the traversal itself. It's possible to "cheat" by
 examining the partially built Digraph, but the functions here don't do that.
 """
 
+__all__ = ['draw_one_tuple', 'draw_tuples', 'draw_tuples_alt']
+
 import collections
 import html
 
