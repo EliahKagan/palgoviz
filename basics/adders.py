@@ -33,9 +33,10 @@ class Adder:
     """
     Callable object that adds its argument to the addend given on construction.
 
-    The fixed added an Adder stores and uses is a left addend, which matters in
-    some noncommutative meanings of "+", such as sequence concatenation. This
-    is the class version of make_adder, with some more features classes allow.
+    The fixed addend an Adder stores and uses is a left addend, which matters
+    in some noncommutative meanings of "+", such as sequence concatenation.
+    This is the class version of make_adder, with some more features classes
+    allow.
 
     >>> a = Adder(7)
     >>> a(4)
@@ -61,7 +62,34 @@ class Adder:
       ...
     AttributeError: 'Adder' object has no attribute 'right_addend'
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('_left_addend',)
+
+    def __init__(self, left_addend):
+        """Construct an adder with left_addend."""
+        self._left_addend = left_addend
+
+    def __repr__(self):
+        """Representation of this adder as Python code."""
+        return f"{type(self).__name__}({self.left_addend!r})"
+
+    def __call__(self, right_addend):
+        """Add this adder's left addend to the argument."""
+        return self.left_addend + right_addend
+
+    def __eq__(self, other):
+        """Check if two adders have the same left_addend."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.left_addend == other.left_addend
+
+    def __hash__(self):
+        return hash(self.left_addend)
+
+    @property
+    def left_addend(self):
+        """This adder's left addend."""
+        return self._left_addend
 
 
 if __name__ == '__main__':
