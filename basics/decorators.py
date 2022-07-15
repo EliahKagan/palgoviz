@@ -2,7 +2,6 @@
 
 """Some basic decorators."""
 
-import contextlib
 import functools
 import itertools
 

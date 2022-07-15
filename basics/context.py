@@ -2,8 +2,6 @@
 
 """Context managers."""
 
-import functools
-
 
 class Announce:
     """
