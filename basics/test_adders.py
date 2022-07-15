@@ -6,16 +6,17 @@ from adders import make_adder, Adder
 class TestMakeAdder(unittest.TestCase):
 
     # Test adds to argument when assigned (int)
-    def test_adds_7_and_4_correctly(self):
+    def test_adders_are_resuable(self):
         f = make_adder(7)
-        self.assertEqual(f(4), 11)
 
-    def test_adds_7_and_10_correctly(self):
-        f = make_adder(7)
-        self.assertEqual(f(10), 17)
+        with self.subTest(arg=4):
+            self.assertEqual(f(4), 11)
+
+        with self.subTest(arg=10):
+            self.assertEqual(f(10), 17)
 
     # Test adds to argument no assignment (int)
-    def test_adds_6_and_2_no_assignment(self):
+    def test_adds_correctly(self):
         self.assertEqual(make_adder(6)(2), 8)
 
     # Test adds to argument (string)
@@ -27,16 +28,17 @@ class TestMakeAdder(unittest.TestCase):
 class TestAdder(unittest.TestCase):
 
     # Test adds to argument when assigned (int)
-    def test_adds_7_and_4_correctly(self):
+    def test_adders_are_resusable(self):
         a = Adder(7)
-        self.assertEqual(a(4), 11)
 
-    def test_adds_7_and_10_correctly(self):
-        a = Adder(7)
-        self.assertEqual(a(10), 17)
+        with self.subTest(arg=4):
+            self.assertEqual(a(4), 11)
+
+        with self.subTest(arg=10):
+            self.assertEqual(a(10), 17)
 
     # Test adds to argument no assignment (int)
-    def test_adds_6_and_2_correctly(self):
+    def test_adds_correctly(self):
         self.assertEqual(Adder(6)(2), 8)
 
     # Test adds to argument (string)
