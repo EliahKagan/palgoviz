@@ -19,3 +19,6 @@ dependencies:
   - parameterized
   - pytest
   - pytest-subtests
+
+  # For static analysis
+  - flake8
