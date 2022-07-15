@@ -1,0 +1,8 @@
+name: algoviz-sandbox
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.10
+  - jupyterlab>=3.1
