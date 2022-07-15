@@ -44,6 +44,11 @@ class TestAdder(unittest.TestCase):
         u = Adder('cat')
         self.assertEqual(u(' dog'), 'cat dog')
 
+    #Test repr
+    def test_repr_shows_type_and_arg_and_looks_like_python_code(self):
+        u = Adder('cat')
+        self.assertEqual(repr(u), "Adder('cat')")
+
     # Test both equality comparison and hashability
     def test_equal_sets_compare_equal(self):
         lhs = {Adder(7), Adder(7), Adder(6), Adder(7.0)}
