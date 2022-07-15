@@ -455,8 +455,12 @@ def as_closeable_func(iterable):
     def get_next():
         return next(it)
 
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
+    try:
+        close = it.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
 
     return get_next
 
@@ -489,8 +493,12 @@ def as_closeable_func_limited(iterable, end_sentinel):
     def get_next():
         return next(it, end_sentinel)
 
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
+    try:
+        close = it.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
 
     return get_next
 
@@ -527,7 +535,7 @@ def as_closeable_iterator_limited(func, end_sentinel):
     """
     def generate():
         try:
-            yield
+            yield  # For priming the generator to get it into the try block.
 
             while (result := func()) != end_sentinel:
                 yield result
