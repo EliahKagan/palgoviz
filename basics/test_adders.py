@@ -2,16 +2,21 @@
 
 """Tests for the adders module."""
 
+from abc import ABC, abstractmethod
 import unittest
 
 from adders import Adder, make_adder
 
 
-class TestMakeAdder(unittest.TestCase):
-    """Tests for the make_adder function."""
+class _TestAddersAbstract(ABC, unittest.TestCase):
+    """ABC for for tests for adders."""
+    @property
+    @abstractmethod
+    def impl(self):
+        """The adder being tested."""
 
     def test_adders_are_resuable(self):
-        f = make_adder(7)
+        f = self.impl(7)
 
         with self.subTest(arg=4):
             self.assertEqual(f(4), 11)
@@ -20,54 +25,53 @@ class TestMakeAdder(unittest.TestCase):
             self.assertEqual(f(10), 17)
 
     def test_adds(self):
-        self.assertEqual(make_adder(6)(2), 8)
+        self.assertEqual(self.impl(6)(2), 8)
 
     def test_adds_in_order(self):
-        s = make_adder('cat')
+        s = self.impl('cat')
         self.assertEqual(s(' dog'), 'cat dog')
 
 
-class TestAdder(unittest.TestCase):
+class TestMakeAdder(_TestAddersAbstract):
+    """Tests for the make_adder function."""
+
+    @property
+    def impl(self):
+        return make_adder
+
+
+class TestAdder(_TestAddersAbstract):
     """Tests for the Adder class."""
 
-    def test_adders_are_resusable(self):
-        a = Adder(7)
-
-        with self.subTest(arg=4):
-            self.assertEqual(a(4), 11)
-
-        with self.subTest(arg=10):
-            self.assertEqual(a(10), 17)
-
-    def test_adds(self):
-        self.assertEqual(Adder(6)(2), 8)
-
-    def test_adds_in_order(self):
-        u = Adder('cat')
-        self.assertEqual(u(' dog'), 'cat dog')
+    @property
+    def impl(self):
+        return Adder
 
     def test_repr_shows_type_and_arg_and_looks_like_python_code(self):
-        u = Adder('cat')
+        u = self.impl('cat')
         self.assertEqual(repr(u), "Adder('cat')")
 
     def test_equality_and_hashability(self):
-        lhs = {Adder(7), Adder(7), Adder(6), Adder(7.0)}
-        rhs = {Adder(6), Adder(7)}
+        lhs = {self.impl(7), self.impl(7), self.impl(6), self.impl(7.0)}
+        rhs = {self.impl(6), self.impl(7)}
         self.assertTrue(lhs == rhs)
 
     def test_can_access_left_addend(self):
-        a = Adder(7)
+        a = self.impl(7)
         self.assertEqual(a.left_addend, 7)
 
     def test_cannot_assign_left_addend(self):
-        a = Adder(7)
+        a = self.impl(7)
         with self.assertRaises(AttributeError):
             a.left_addend = 8
 
     def test_cannot_assign_new_attributes(self):
-        a = Adder(7)
+        a = self.impl(7)
         with self.assertRaises(AttributeError):
             a.right_addend = 5
+
+
+del _TestAddersAbstract
 
 
 if __name__ == '__main__':
