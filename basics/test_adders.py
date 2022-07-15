@@ -5,6 +5,8 @@
 from abc import ABC, abstractmethod
 import unittest
 
+from parameterized import parameterized
+
 from adders import Adder, make_adder
 
 
@@ -50,6 +52,18 @@ class TestAdder(_TestAddersAbstract):
     def test_repr_shows_type_and_arg_and_looks_like_python_code(self):
         u = self.impl('cat')
         self.assertEqual(repr(u), "Adder('cat')")
+
+    @parameterized.expand([
+        ('2_2', 2, 2),
+        ('2_2.0', 2, 2.0),
+        ('cat', 'cat', 'cat'),
+        ('True_1', True, 1),
+        ('False_0', False, 0),
+    ])
+    def test_equal_if_addends_equal(self, _name, lhs_arg, rhs_arg):
+        lhs = self.impl(lhs_arg)
+        rhs = self.impl(rhs_arg)
+        self.assertEqual(lhs, rhs)
 
     def test_equality_and_hashability(self):
         lhs = {self.impl(7), self.impl(7), self.impl(6), self.impl(7.0)}
