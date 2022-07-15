@@ -37,7 +37,7 @@ def _noop_if_none(func):
 
 
 def preorder(root):
-    """Recursive preorder binary-tree traversal, yielding elements."""
+    """Recursive preorder (DFS) binary-tree traversal, yielding elements."""
     if root:
         yield root.element
         yield from preorder(root.left)
@@ -45,7 +45,7 @@ def preorder(root):
 
 
 def inorder(root):
-    """Recursive inorder binary-tree traversal, yielding elements."""
+    """Recursive inorder (DFS) binary-tree traversal, yielding elements."""
     if root:
         yield from inorder(root.left)
         yield root.element
@@ -53,7 +53,7 @@ def inorder(root):
 
 
 def postorder(root):
-    """Recursive postorder binary-tree traversal, yielding elements."""
+    """Recursive postorder (DFS) binary-tree traversal, yielding elements."""
     if root:
         yield from postorder(root.left)
         yield from postorder(root.right)
@@ -120,6 +120,4 @@ def preorder_iterative(root):
             stack.append(node.left)
 
 
-# FIXME: Add exercises to emit nodes and edges to an arbitrary observer in each
-# of the above orders, and at least one exercise to draw binary trees as
-# graphviz.Digraph objects.
+# FIXME: Add an exercise to draw binary trees as graphviz.Digraph objects.
