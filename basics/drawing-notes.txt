@@ -1,3 +1,11 @@
+tree.Node
+tree.preorder
+tree.inorder
+tree.postorder
+tree.dfs
+tree.levelorder
+tree.preorder_iterative
+tree.draw
 class_graph.preorder_ancestors
 class_graph.preorder_descendants
 class_graph.postorder_ancestors

@@ -78,7 +78,7 @@ def _do_dfs(root, pre_fn, in_fn, post_fn):
 
 def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
     """
-    Recursive interleaved preorder, inorder, and postorder traversal.
+    Recursive interleaved DFS traversals: preorder, inorder, and postorder.
 
     Whichever of the preorder, inorder, and postorder functions are passed are
     called at the time a preorder, inorder, or postorder "visitation" occurs.
