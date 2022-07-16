@@ -1,6 +1,10 @@
 """Binary trees."""
 
 import collections
+import html
+import itertools
+
+import graphviz
 
 
 class Node:
@@ -120,4 +124,47 @@ def preorder_iterative(root):
             stack.append(node.left)
 
 
-# FIXME: Add an exercise to draw binary trees as graphviz.Digraph objects.
+def draw(root):
+    """
+    Draw a binary tree with Graphviz, returning a graphviz.Digraph object.
+
+    This uses the technique due to Eli Bendersky of always drawing point nodes
+    for empty branches (that is, where a child attribute is None), so having a
+    left but no right child, or a right but no left child, are distinguishable:
+    https://eli.thegreenplace.net/2009/11/23/visualizing-binary-trees-with-graphviz
+
+    But the version of the technique used here is modified:
+
+    1. This uses the graphviz module (via https://pypi.org/project/graphviz/)
+       for drawing, instead of generating DOT code. (If desired, DOT code can
+       then be obtained by calling str on the graphviz.Digraph object.)
+
+    2. Separate nodes whose elements have the same representation, or even
+       whose elements are the same object, are supported and drawn separately
+       (rather than considered the same node). But the benefits of Bendersky's
+       approach are retained: the output is deterministic, depending only on
+       the tree's structure and elements. Calling it on a tree twice, or on a
+       tree and a copy of the tree, are guaranteed to give the same output,
+       including the DOT code (that is, not limited to the visual appearance of
+       the drawing), even across separate runs of the program.
+
+    The caller is responsible for ensuring the input really is a binary tree.
+    This returns a graphviz.Digraph rather than displaying anything directly.
+    """
+    graph = graphviz.Digraph()
+    counter = itertools.count()
+
+    def draw_subtree(parent):
+        parent_name = str(next(counter))
+
+        if parent:
+            graph.node(parent_name, label=html.escape(repr(parent)))
+            graph.edge(parent_name, draw_subtree(parent.left))
+            graph.edge(parent_name, draw_subtree(parent.right))
+        else:
+            graph.node(parent_name, shape='point')
+
+        return parent_name
+
+    draw_subtree(root)
+    return graph
