@@ -151,7 +151,10 @@ def my_any_alt(iterable):
     >>> my_any_alt(x > 100 for x in range(100))
     False
     """
-    # FIXME: Implement this.
+    for element in iterable:
+        if element:
+            return True
+    return False
 
 
 def my_all(iterable):
