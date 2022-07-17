@@ -43,6 +43,7 @@ Compared to object_graph.py:
 """
 
 import collections
+import html
 import operator
 
 import graphviz
@@ -335,7 +336,7 @@ def draw(nodes, edges):
     """
     graph = graphviz.Digraph()
     for node in nodes:
-        graph.node(str(id(node)), node.__name__)
+        graph.node(str(id(node)), html.escape(node.__name__))
     for base, derived in edges:
         graph.edge(str(id(base)), str(id(derived)))
     return graph
