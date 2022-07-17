@@ -358,14 +358,20 @@ def print_zipped():
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
 
 
+def _validate(n):
+    """Shared validation logic for take and take_good functions."""
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
+
+
 def take_good(iterable, n):
     """
     Yield the first n elements of iterable, or all if there are fewer than n.
 
     This implementation uses something in itertools to do almost all its work.
-
-    FIXME: If take_good and take (below) have similar validation logic, extract
-    it to a module-level nonpublic function called by both.
 
     >>> next(take_good(range(3), 0))
     Traceback (most recent call last):
@@ -406,7 +412,8 @@ def take_good(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    # FIXME: Implement this.
+    _validate(n)
+    return itertools.islice(iterable, n)
 
 
 def take(iterable, n):
@@ -454,12 +461,7 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-
-    if n < 0:
-        raise ValueError("can't yield negatively many items")
-
+    _validate(n)
     return (element for _, element in zip(range(n), iterable))
 
 
