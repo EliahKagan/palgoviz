@@ -124,6 +124,207 @@ def preorder_iterative(root):
             stack.append(node.left)
 
 
+def copy(root):
+    """
+    Recursively copy a binary tree.
+
+    The new tree's root is returned. The new tree has the same structure, and
+    the same objects as elements, but all its nodes are new objects.
+    """
+    if not root:
+        return None
+
+    return Node(root.element, copy(root.left), copy(root.right))
+
+
+def copy_iterative(root):
+    """
+    Nonrecursively copy a binary tree.
+
+    This has the same requirements as copy, but it's iterative, not recursive.
+    """
+    if not root:
+        return None
+
+    copied_root = Node(root.element)
+    stack = [root, copied_root]
+
+    while stack:
+        node, copied_node = stack.pop()
+
+        if node.left:
+            copied_node.left = Node(node.left.element)
+            stack.append(copied_node.left)
+
+        if node.right:
+            copied_node.right = Node(node.right.element)
+            stack.append(copied_node.right)
+
+    return copied_root
+
+
+def height(root):
+    """Recursively compute a binary tree's max root-to-leaf path length."""
+    return 1 + max(height(root.left), height(root.right)) if root else -1
+
+
+def height_iterative(root):
+    """Nonrecursively compute a binary tree's max root-to-leaf path length."""
+    queue = collections.deque()
+    if root:
+        queue.append(root)
+
+    for height in itertools.count(-1):
+        if not queue:
+            return height
+
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+
+
+def height_iterative_alt(root):
+    """
+    Nonrecursively compute a binary tree's max root-to-leaf path length.
+
+    This alternative implementation of height_iterative uses a substantially
+    different algorithm.
+    """
+    height = -1
+    stack = []
+    if root:
+        stack.append((root, 0))
+
+    while stack:
+        node, depth = stack.pop()
+
+        if not (node.left or node.right):
+            height = max(height, depth)
+            continue
+
+        if node.left:
+            stack.append((node.left, depth + 1))
+
+        if node.right:
+            stack.append((node.right, depth + 1))
+
+    return height
+
+
+def structural_equal(lhs_root, rhs_root):
+    """
+    Recursively check if two binary trees have the same structure with all
+    corresponding elements equal.
+    """
+    if not (lhs_root and rhs_root):
+        return not (lhs_root or rhs_root)
+
+    return (lhs_root.element == rhs_root.element
+            and structural_equal(lhs_root.left, rhs_root.left)
+            and structural_equal(lhs_root.right, rhs_root.right))
+
+
+def structural_equal_iterative(lhs_root, rhs_root):
+    """
+    Nonrecursively check if two binary trees have the same structure with all
+    corresponding elements equal.
+    """
+    stack = [(lhs_root, rhs_root)]
+
+    while stack:
+        if not (lhs_root and rhs_root):
+            if lhs_root or rhs_root:
+                return False
+            continue
+
+        if lhs_root.element != rhs_root.element:
+            return False
+
+        stack.append((lhs_root.left, rhs_root.left))
+        stack.append((lhs_root.right, rhs_root.right))
+
+    return True
+
+
+def reflect_in_place(root):
+    """
+    Recursively modify a tree so it becomes its left-right mirror image.
+
+    This uses [FIXME: how much?] auxiliary space.
+    """
+    if root:
+        root.left, root.right = root.right, root.left
+        reflect_in_place(root.left)
+        reflect_in_place(root.right)
+
+
+def reflect_in_place_iterative(root):
+    """
+    Nonrecursively modify a tree so it becomes its left-right mirror image.
+
+    This uses [FIXME: how much?] auxiliary space.
+    """
+    stack = []
+    if root:
+        stack.append(root)
+
+    while stack:
+        node = stack.pop()
+        node.left, node.right = node.right, node.left
+        stack.append(node.left)
+        stack.append(node.right)
+
+
+def _check_reflected(left, right):
+    """Helper function for is_own_reflection. Compares branches."""
+    if not (left and right):
+        return not (left or right)
+
+    return (left.element == right.element
+            and _check_reflected(left.left, right.right)
+            and _check_reflected(left.right, right.left))
+
+
+def is_own_reflection(root):
+    """
+    Recursively check if a tree is its own left-to-right mirror image.
+
+    The tree is not modified, even temporarily. It is also not copied.
+    """
+    return not root or _check_reflected(root.left, root.right)
+
+
+def is_own_reflection_iterative(root):
+    """
+    Nonrecursively check if a tree is its own left-to-right mirror image.
+
+    This iterative version of is_own_reflection has the same restrictions.
+    """
+    if not root:
+        return True
+
+    stack = [(root.left, root.right)]
+
+    while stack:
+        left, right = stack.pop()
+
+        if not (left and right):
+            if left or right:
+                return False
+            continue
+
+        if left.element != right.element:
+            return False
+
+        stack.append((left.left, right.right))
+        stack.append((left.right, right.left))
+
+    return True
+
+
 def draw(root):
     """
     Recursively draw a binary tree.
@@ -205,6 +406,49 @@ def draw_iterative(root):
     return graph
 
 
+def linear_search(root, value):
+    """
+    Recursive sequential search in a binary tree for an element equal to value.
+
+    Returns a node that holds the matching element, or None if no match.
+
+    If more than one node matches, any may be returned.
+    """
+    if not root or root.element == value:
+        return root
+
+    return linear_search(root.left, value) or linear_search(root.right, value)
+
+
+def linear_search_iterative(root, value):
+    """
+    Nonrecursive sequential search in a binary tree for an element equal to
+    value.
+
+    This iterative version of linear_search returns a matching node or None.
+
+    If more than one node matches, this is guaranteed to return the same node
+    that linear_search would return.
+    """
+    if not root:
+        return None
+
+    stack = [root]
+
+    while stack:
+        node = stack.pop()
+
+        if node.element == value:
+            return node
+
+        if node.right:
+            stack.append(node.right)
+        if node.left:
+            stack.append(node.left)
+
+    return None
+
+
 __all__ = [thing.__name__ for thing in (
     Node,
     preorder,
@@ -213,6 +457,19 @@ __all__ = [thing.__name__ for thing in (
     dfs,
     levelorder,
     preorder_iterative,
+    copy,
+    copy_iterative,
+    height,
+    height_iterative,
+    height_iterative_alt,
+    structural_equal,
+    structural_equal_iterative,
+    reflect_in_place,
+    reflect_in_place_iterative,
+    is_own_reflection,
+    is_own_reflection_iterative,
     draw,
     draw_iterative,
+    linear_search,
+    linear_search_iterative,
 )]
