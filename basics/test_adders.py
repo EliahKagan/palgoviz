@@ -94,8 +94,7 @@ class TestAdder(_TestAddersAbstract):
         rhs = self.impl(rhs_arg)
         self.assertEqual(hash(lhs), hash(rhs))
 
-    # FIXME: change name to better reflect intent of this test
-    def test_equality_and_hashability(self):
+    def test_adders_work_in_hash_based_containers(self):
         lhs = {self.impl(7), self.impl(7), self.impl(6), self.impl(7.0)}
         rhs = {self.impl(6), self.impl(7)}
         self.assertEqual(lhs, rhs)
