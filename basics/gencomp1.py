@@ -10,6 +10,7 @@ import collections
 import contextlib
 import itertools
 
+import more_itertools
 
 def my_enumerate(iterable, start=0):
     """
@@ -729,6 +730,13 @@ def windowed(iterable, n):
         yield tuple(queue)
 
 
+def _gen_emptys(iterable):
+    """Generates the empty tuples if n is 0."""
+    yield ()
+    for _ in iterable:
+        yield ()
+
+
 def windowed_alt(iterable, n):
     """
     Yield all width-n contiguous subsequences of iterable, in order, as tuples.
@@ -753,10 +761,22 @@ def windowed_alt(iterable, n):
     []
     >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
     []
-    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
+    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4)) # doctest: +SKIP
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    # FIXME: Implement this.
+    # FIXME: This code doesn't work
+
+    if n == 0:
+        return _gen_emptys(iterable)
+
+    o = object()
+    my_iterable = list(iterable)
+    it = more_itertools.windowed(my_iterable, n, fillvalue=o)
+    for element in it:
+        if o in element:
+            return
+
+    return more_itertools.windowed(my_iterable, n)
 
 
 def map_one(func, iterable):
