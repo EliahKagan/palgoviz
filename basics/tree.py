@@ -449,6 +449,148 @@ def linear_search_iterative(root, value):
     return None
 
 
+def is_bst(root):
+    """
+    Recursively check if a binary tree is a binary search tree (BST).
+
+    This implementation is based on how a BST can be defined as [FIXME: what?].
+
+    On a tree of n nodes, this takes O(n) time.
+    """
+    # FIXME: Needs implementation.
+
+
+def is_bst_alt(root):
+    """
+    Recursively check if a binary tree is a binary search tree (BST).
+
+    One of is_bst and is_bst_alt is self-contained except for its own helpers,
+    if any. The other uses an existing recursive function in this module (that
+    is not about BSTs) to do some of its work, and is not otherwise recursive.
+
+    This implementation is based on how a BST can b defined as [FIXME: what?].
+    The definition in is_bst, and this, are equivalent, even though they sound
+    quite different (with code one writes to express them likewise differing).
+    """
+    # FIXME: Needs implementation.
+
+
+def is_bst_iterative(root):
+    """
+    Nonrecursively check if a binary tree is a binary search tree (BST).
+
+    This iterative implementation is conceptually similar to one of is_bst or
+    is_bst_alt. Recursion is not used, not even indirectly.
+    """
+    # FIXME: Needs implementation.
+
+
+def binary_search(root, value):
+    """
+    Recursive binary search in a binary search tree (BST).
+
+    The caller is responsible for ensuring the tree is a BST, with at least a
+    weak ordering among them and the value argument. A node whose element is
+    similar to (neither less nor greater than) value is returned, unless there
+    is no such node, in which case None is returned.
+
+    This takes time linear in the tree's height.
+    [FIXME: State the auxiliary space complexity.]
+    """
+    # FIXME: Needs implementation.
+
+
+def binary_search_iterative(root, value):
+    """
+    Nonrecursive binary search in a binary search tree (BST).
+
+    See binary_search. This is the iterative version.
+    [FIXME: State the time complexity and auxiliary space complexity.]
+    """
+    # FIXME: Needs implementation.
+
+
+def binary_insert(root, element, *, allow_duplicate=False):
+    """
+    Recursively insert a new node in a BST, keeping it a BST.
+
+    The allow_duplicate parameter specifies whether a new node should be added
+    even if one or more existing nodes' elements are similar to element.
+
+    The updated tree's root node is returned, though this will be the same as
+    the old root node unless the tree was empty and there was no such node.
+
+    [FIXME: State the time complexity and auxiliary space complexity.]
+    """
+    # FIXME: Needs implementation.
+
+
+def binary_insert_iterative(root, element):
+    """
+    Nonrecursively insert a new node in a BST, keeping it a BST.
+
+    See binary_insert. This is the iterative version.
+
+    [FIXME: State the time complexity and auxiliary space complexity.]
+    """
+    # FIXME: Needs implementation.
+
+
+def build_tree(iterable):
+    """
+    Build a binary search tree from the given elements.
+
+    This uses existing functions. It performs no element comparisons directly.
+
+    TODO: In many applications, it is not necessary to hand out references to
+    individual nodes. Then it's best to encapsulate the logic of building and
+    operating on a BST in a class: in Python, usually a Set (often MutableSet)
+    or Mapping (often MutableMapping) class. When this project gains such a
+    class, it should support inserting elements, but also deleting elements.
+
+    [FIXME: State average and worst-case time.]
+    """
+    # FIXME: Needs implementation.
+
+
+def tree_sort(iterable):
+    """
+    Sort values, by [FIXME: briefly say how].
+
+    This BST-based technique has [FIXME: State average and worst case time and
+    space.]
+    """
+    # FIXME: Needs implementation.
+
+
+def find_subtree(tree, subtree):
+    """
+    Find a copy of a subtree in a binary tree, if present, in quadratic time.
+
+    This looks for a subtree of tree with the same structure as, and all
+    corresponding elements equal to, the subtree argument. If such a subtree
+    exists, its root is returned; otherwise None is returned. The elements may
+    be any objects (assuming equality comparison is not broken). In particular,
+    tree and subtree need not be binary search trees, and they probably aren't.
+
+    This is the naive algorithm. If tree has m nodes and subtree has n nodes,
+    this takes O(m * n) time.
+    """
+    # FIXME: Needs implementation.
+
+
+def find_subtree_fast(tree, subtree):
+    """
+    Find a copy of a subtree in a binary tree, if present, in linear time.
+
+    This is like find_subtree, but it uses a more clever algorithm. But this
+    only works if all the elements are hashable. Nothing else is known about
+    the elements; as in find_subtree, tree and subtree need not be BSTs. If
+    tree has m nodes and subtree has n nodes, this takes O(m + n) time.
+    """
+    # FIXME: Needs implementation.
+
+
 __all__ = [thing.__name__ for thing in (
     Node,
     preorder,
@@ -472,4 +614,15 @@ __all__ = [thing.__name__ for thing in (
     draw_iterative,
     linear_search,
     linear_search_iterative,
+    is_bst,
+    is_bst_alt,
+    is_bst_iterative,
+    binary_search,
+    binary_search_iterative,
+    binary_insert,
+    binary_insert_iterative,
+    build_tree,
+    tree_sort,
+    find_subtree,
+    find_subtree_fast,
 )]

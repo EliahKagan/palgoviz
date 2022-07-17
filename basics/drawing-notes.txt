@@ -20,6 +20,17 @@ tree.draw
 tree.draw_iterative
 tree.linear_search
 tree.linear_search_iterative
+tree.is_bst
+tree.is_bst_alt
+tree.is_bst_iterative
+tree.binary_search
+tree.binary_search_iterative
+tree.binary_insert
+tree.binary_insert_iterative
+tree.build_tree
+tree.tree_sort
+tree.find_subtree
+tree.find_subtree_fast
 class_graph.preorder_ancestors
 class_graph.preorder_descendants
 class_graph.postorder_ancestors
