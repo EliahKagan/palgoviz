@@ -1,4 +1,5 @@
 tree.Node
+tree.FrozenNode
 tree.preorder
 tree.inorder
 tree.postorder
@@ -27,7 +28,7 @@ tree.binary_search
 tree.binary_search_iterative
 tree.binary_insert
 tree.binary_insert_iterative
-tree.build_tree
+tree.build_bst
 tree.tree_sort
 tree.find_subtree
 tree.find_subtree_fast

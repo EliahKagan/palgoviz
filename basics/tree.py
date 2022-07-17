@@ -1,4 +1,14 @@
-"""Binary trees."""
+"""
+Binary trees.
+
+Except as otherwise stated:
+
+1. Functions that create new tree nodes create Node instances and, if
+   applicable, may assume input trees' nodes are of that type.
+
+2. Other functions work equally well on trees made of Node, FrozenNode, or any
+   object that has element, left, and right attributes with the same meaning.
+"""
 
 import collections
 import html
@@ -29,6 +39,52 @@ class Node:
     def element(self):
         """The element held in this node."""
         return self._element
+
+
+class FrozenNode:
+    """
+    A binary tree node without mutable state.
+
+    Node and FrozenNode are both immutable, in that both use reference-based
+    equality comparison, whose result does not change even when attributes do.
+    But Node facilitates changing its child references; FrozenNode does not.
+
+    Node thus builds mutable trees, while FrozenNode builds immutable trees,
+    relative to structural equality comparison of trees; see structural_equal
+    below. This module does not encapsulate whole trees as class instances,
+    which is often useful, especially for BSTs; see build_bst below. Nor does
+    it treat nodes as the trees they root (one would define their operations as
+    methods instead of top-level functions, structural_equal becoming __eq__),
+    as there are design subtleties for base cases; see calc.Atom/calc.Compound.
+    """
+
+    __slots__ = ('_element', '_left', '_right')
+
+    def __init__(self, element, left=None, right=None):
+        """Create a binary tree node with the given element and children."""
+        self._element = element
+        self._left = left
+        self._right = right
+
+    def __repr__(self):
+        """Representation of the subtree rooted at this node as Python code."""
+        return (f'{type(self).__name__}({self.element!r},'
+                f' left={self.left!r}, right={self.right!r})')
+
+    @property
+    def element(self):
+        """The element held in this node."""
+        return self._element
+
+    @property
+    def left(self):
+        """The left child."""
+        return self._left
+
+    @property
+    def right(self):
+        """The right child."""
+        return self._right
 
 
 def _noop(_):
@@ -536,7 +592,7 @@ def binary_insert_iterative(root, element):
     # FIXME: Needs implementation.
 
 
-def build_tree(iterable):
+def build_bst(iterable):
     """
     Build a binary search tree from the given elements.
 
@@ -621,7 +677,7 @@ __all__ = [thing.__name__ for thing in (
     binary_search_iterative,
     binary_insert,
     binary_insert_iterative,
-    build_tree,
+    build_bst,
     tree_sort,
     find_subtree,
     find_subtree_fast,
