@@ -65,7 +65,7 @@ class TestAdder(_TestAddersAbstract):
         rhs = self.impl(rhs_arg)
         self.assertEqual(lhs, rhs)
 
-    # FIXME: Add a test of the basic import properties for hash.
+    # FIXME: Add a test of the basic important properties for hash.
 
     def test_equality_and_hashability(self):
         lhs = {self.impl(7), self.impl(7), self.impl(6), self.impl(7.0)}
