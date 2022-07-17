@@ -86,7 +86,7 @@ class TestAdder(_TestAddersAbstract):
     def test_equality_and_hashability(self):
         lhs = {self.impl(7), self.impl(7), self.impl(6), self.impl(7.0)}
         rhs = {self.impl(6), self.impl(7)}
-        self.assertTrue(lhs == rhs)  # FIXME: Use assertEqual here.
+        self.assertEqual(lhs, rhs)
 
     def test_can_access_left_addend(self):
         a = self.impl(7)
