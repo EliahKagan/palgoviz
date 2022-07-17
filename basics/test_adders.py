@@ -53,12 +53,15 @@ class TestAdder(_TestAddersAbstract):
         u = self.impl('cat')
         self.assertEqual(repr(u), "Adder('cat')")
 
-    @parameterized.expand([  # FIXME: Consider using type-based _name values.
-        ('2_2', 2, 2),
-        ('2_2.0', 2, 2.0),
-        ('cat', 'cat', 'cat'),
-        ('True_1', True, 1),
-        ('False_0', False, 0),
+    @parameterized.expand([
+        ('int_int', 2, 2),
+        ('int_float', 2, 2.0),
+        ('float_int', 3.0, 3),
+        ('str_str', 'cat', 'cat'),
+        ('bool_int_truthy', True, 1),
+        ('int_bool_truthy', 1, True),
+        ('bool_int_falsy', False, 0),
+        ('int_bool_falsy', 0, False),
     ])
     def test_equal_if_addends_equal(self, _name, lhs_arg, rhs_arg):
         lhs = self.impl(lhs_arg)
