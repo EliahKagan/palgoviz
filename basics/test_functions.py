@@ -574,7 +574,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         try:
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
         except AttributeError as error:
@@ -598,7 +598,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         try:
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
         except AttributeError as error:
@@ -650,7 +650,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
             r = weakref.ref(it)
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
             mock_close.assert_called_once()
@@ -689,7 +689,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
             r = weakref.ref(it)
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
             mock_close.assert_called_once()
@@ -797,7 +797,7 @@ class TestAsCloseableIterator(unittest.TestCase):
         try:
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
         except AttributeError as error:
@@ -821,7 +821,7 @@ class TestAsCloseableIterator(unittest.TestCase):
         try:
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
         except AttributeError as error:
@@ -854,7 +854,7 @@ class TestAsCloseableIterator(unittest.TestCase):
             r = weakref.ref(it)
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
             mock_close.assert_called_once()
@@ -893,7 +893,7 @@ class TestAsCloseableIterator(unittest.TestCase):
             r = weakref.ref(it)
             del it
             _collect_if_not_ref_counting()
-            if r():
+            if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
             mock_close.assert_called_once()
