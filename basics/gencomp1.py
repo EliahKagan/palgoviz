@@ -198,7 +198,10 @@ def my_all_alt(iterable):
     >>> my_all_alt([1, 1, 1, 6, 7])
     True
     """
-    # FIXME: Implement this.
+    for element in iterable:
+        if not element:
+            return False
+    return True
 
 
 def zip_two(first, second):
