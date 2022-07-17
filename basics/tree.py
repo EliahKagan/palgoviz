@@ -126,7 +126,7 @@ def preorder_iterative(root):
 
 def draw(root):
     """
-    Draw a binary tree with Graphviz, returning a graphviz.Digraph object.
+    Recursively draw a binary tree.
 
     This uses the technique due to Eli Bendersky of always drawing point nodes
     for empty branches (that is, where a child attribute is None), so having a
@@ -150,6 +150,8 @@ def draw(root):
 
     The caller is responsible for ensuring the input really is a binary tree.
     This returns a graphviz.Digraph rather than displaying anything directly.
+
+    This implementation [FIXME: say what kind (or kinds) of traversal is used.]
     """
     graph = graphviz.Digraph()
     counter = itertools.count()
@@ -158,7 +160,7 @@ def draw(root):
         parent_name = str(next(counter))
 
         if parent:
-            graph.node(parent_name, label=html.escape(repr(parent)))
+            graph.node(parent_name, label=html.escape(repr(parent.element)))
             graph.edge(parent_name, draw_subtree(parent.left))
             graph.edge(parent_name, draw_subtree(parent.right))
         else:
@@ -168,3 +170,49 @@ def draw(root):
 
     draw_subtree(root)
     return graph
+
+
+def draw_iterative(root):
+    """
+    Nonrecursively draw a binary tree.
+
+    Like draw, but iterative instead of recursive. This need not have the exact
+    behavior of draw. As with draw, separate calls to draw_iterative for
+    equivalent trees, even across separate runs of a program, must give the
+    same output, including DOT code, as each other. But draw and draw_iterative
+    may give different output, so long as their drawings look the same.
+
+    This implementation [FIXME: say what kind (or kinds) of traversal is used.]
+    """
+    graph = graphviz.Digraph()
+    counter = itertools.count()
+    stack = [(None, root)]
+
+    while stack:
+        parent_name, child = stack.pop()
+        child_name = str(next(counter))
+
+        if child:
+            graph.node(child_name, label=html.escape(repr(child.element)))
+            stack.append((child_name, child.right))
+            stack.append((child_name, child.left))
+        else:
+            graph.node(child_name, shape='point')
+
+        if parent_name is not None:
+            graph.edge(parent_name, child_name)
+
+    return graph
+
+
+__all__ = [thing.__name__ for thing in (
+    Node,
+    preorder,
+    inorder,
+    postorder,
+    dfs,
+    levelorder,
+    preorder_iterative,
+    draw,
+    draw_iterative,
+)]

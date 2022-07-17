@@ -6,6 +6,7 @@ tree.dfs
 tree.levelorder
 tree.preorder_iterative
 tree.draw
+tree.draw_iterative
 class_graph.preorder_ancestors
 class_graph.preorder_descendants
 class_graph.postorder_ancestors
