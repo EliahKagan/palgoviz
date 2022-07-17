@@ -68,6 +68,19 @@ class TestAdder(_TestAddersAbstract):
         rhs = self.impl(rhs_arg)
         self.assertEqual(lhs, rhs)
 
+    @parameterized.expand([
+        ('int_int', 2, 3),
+        ('int_float', 2, 4.0),
+        ('float_int', 3.0, 5),
+        ('str_str', 'cat', 'dog'),
+        ('bool_int', True, 0),
+        ('int_bool', 1, False),
+    ])
+    def test_not_equal_if_addends_not_equal(self, _name, lhs_arg, rhs_arg):
+        lhs = self.impl(lhs_arg)
+        rhs = self.impl(rhs_arg)
+        self.assertNotEqual(lhs, rhs)
+
     # FIXME: Add a test of the basic important properties for hash.
 
     def test_equality_and_hashability(self):
