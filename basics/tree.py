@@ -202,52 +202,41 @@ def preorder_iterative(root):
             stack.append(node.left)
 
 
-def copy(root):
+def size(root):
     """
-    Recursively copy a binary tree.
+    Compute the number of nodes in a binary tree.
 
-    The new tree's root is returned. The new tree has the same structure, and
-    the same objects as elements, but all its nodes are new objects.
+    This implementation is very simple because it uses an existing function in
+    this module (that is not about size).
 
-    [FIXME: State the time complexity, for a tree of n nodes and height h.]
+    [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    if not root:
-        return None
-
-    return Node(root.element, copy(root.left), copy(root.right))
+    # FIXME: Needs implementation.
 
 
-def copy_iterative(root):
+def size_recursive(root):
     """
-    Nonrecursively copy a binary tree.
+    Recursively compute the number of nodes in a binary tree.
 
-    This has the same requirements as copy, but it's iterative, not recursive.
-
-    [FIXME: State the time complexity, for a tree of n nodes and height h.]
+    This implementation is recursive, not using other functions in this module.
     """
-    if not root:
-        return None
+    # FIXME: Needs implementation.
 
-    copied_root = Node(root.element)
-    stack = [root, copied_root]
 
-    while stack:
-        node, copied_node = stack.pop()
+def size_iterative(root):
+    """
+    Nonrecursively compute the number of nodes in a binary tree.
 
-        if node.left:
-            copied_node.left = Node(node.left.element)
-            stack.append(copied_node.left)
-
-        if node.right:
-            copied_node.right = Node(node.right.element)
-            stack.append(copied_node.right)
-
-    return copied_root
+    This implementation is iterative, not using other functions in this module.
+    """
+    # FIXME: Needs implementation.
 
 
 def height(root):
     """
     Recursively compute a binary tree's max root-to-leaf path length.
+
+    We define the height of an empty "tree" (that is, when root is None) as -1.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -304,6 +293,49 @@ def height_iterative_alt(root):
             stack.append((node.right, depth + 1))
 
     return height
+
+
+def copy(root):
+    """
+    Recursively copy a binary tree.
+
+    The new tree's root is returned. The new tree has the same structure, and
+    the same objects as elements, but all its nodes are new objects.
+
+    [FIXME: State the time complexity, for a tree of n nodes and height h.]
+    """
+    if not root:
+        return None
+
+    return Node(root.element, copy(root.left), copy(root.right))
+
+
+def copy_iterative(root):
+    """
+    Nonrecursively copy a binary tree.
+
+    This has the same requirements as copy, but it's iterative, not recursive.
+
+    [FIXME: State the time complexity, for a tree of n nodes and height h.]
+    """
+    if not root:
+        return None
+
+    copied_root = Node(root.element)
+    stack = [root, copied_root]
+
+    while stack:
+        node, copied_node = stack.pop()
+
+        if node.left:
+            copied_node.left = Node(node.left.element)
+            stack.append(copied_node.left)
+
+        if node.right:
+            copied_node.right = Node(node.right.element)
+            stack.append(copied_node.right)
+
+    return copied_root
 
 
 def structural_equal(lhs_root, rhs_root):
@@ -553,6 +585,53 @@ def linear_search_iterative(root, value):
     return None
 
 
+def linear_search_mindepth(root, value):
+    """
+    Sequential search in a binary tree for a shallowest element equal to value.
+
+    This is like linear_search/linear_search_iterative, but of all nodes that
+    contain an element equal to value, one of them of minimal distance from the
+    root is returned. If there are multiple such minimum-depth nodes, any may
+    be returned. If no node's element is equal to value, None is returned.
+
+    The algorithm works well on most or all inputs, but it is optimized to run
+    fast when the probability, for each node, that it holds an element equal to
+    value, is greater than 1/n (with n total nodes).
+
+    [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
+    """
+
+
+def linear_search_mindepth_alt(root, value):
+    """
+    Sequential search in a binary tree for a shallowest element equal to value.
+
+    This is like linear_search_mindepth but it uses a very different algorithm.
+    One of them is recursive and the other iterative. Their worst-case
+    asymptotic time complexities are the same. But while linear_search_mindepth
+    is time optimized for when the probability of a node's element being equal
+    to value is greater than 1/n, this function is instead auxiliary-space
+    optimized for when that probability is less than 1/n.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
+    """
+
+
+def nearest_ancestor(root, value1, value2):
+    """
+    Find the lowest common ancestor of nodes with elements value1 and value2.
+
+    It is guaranteed that the tree rooted at root has exactly one node holding
+    value1 and exactly one node holding value2. Given this restriction, there
+    is always exactly one nearest ancestor node. It may be the root. If value1
+    and value2 are equal, then they are in the same node, which we consider to
+    be its own ancestor (and thus the nearest ancestor in common with itself).
+
+    [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
+    """
+    # FIXME: Needs implementation.
+
+
 def is_bst(root):
     """
     Recursively check if a binary tree is a binary search tree (BST).
@@ -704,17 +783,21 @@ def find_subtree_fast(tree, subtree):
 
 __all__ = [thing.__name__ for thing in (
     Node,
+    FrozenNode,
     preorder,
     inorder,
     postorder,
     dfs,
     levelorder,
     preorder_iterative,
-    copy,
-    copy_iterative,
+    size,
+    size_recursive,
+    size_iterative,
     height,
     height_iterative,
     height_iterative_alt,
+    copy,
+    copy_iterative,
     structural_equal,
     structural_equal_iterative,
     reflect_in_place,
@@ -725,6 +808,9 @@ __all__ = [thing.__name__ for thing in (
     draw_iterative,
     linear_search,
     linear_search_iterative,
+    linear_search_mindepth,
+    linear_search_mindepth_alt,
+    nearest_ancestor,
     is_bst,
     is_bst_alt,
     is_bst_iterative,
