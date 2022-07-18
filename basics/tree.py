@@ -97,7 +97,11 @@ def _noop_if_none(func):
 
 
 def preorder(root):
-    """Recursive preorder (DFS) binary-tree traversal, yielding elements."""
+    """
+    Recursive preorder (DFS) binary-tree traversal, yielding elements.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     if root:
         yield root.element
         yield from preorder(root.left)
@@ -105,7 +109,11 @@ def preorder(root):
 
 
 def inorder(root):
-    """Recursive inorder (DFS) binary-tree traversal, yielding elements."""
+    """
+    Recursive inorder (DFS) binary-tree traversal, yielding elements.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     if root:
         yield from inorder(root.left)
         yield root.element
@@ -113,7 +121,11 @@ def inorder(root):
 
 
 def postorder(root):
-    """Recursive postorder (DFS) binary-tree traversal, yielding elements."""
+    """
+    Recursive postorder (DFS) binary-tree traversal, yielding elements.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     if root:
         yield from postorder(root.left)
         yield from postorder(root.right)
@@ -139,6 +151,8 @@ def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
     Whichever of the preorder, inorder, and postorder functions are passed are
     called at the time a preorder, inorder, or postorder "visitation" occurs.
     Traversal is in a single pass, guaranteeing the relative order of calls.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     return _do_dfs(root,
                    _noop_if_none(pre_fn),
@@ -147,7 +161,11 @@ def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
 
 
 def levelorder(root):
-    """Level-order (BFS) binary-tree traversal, yielding elements."""
+    """
+    Level-order (BFS) binary-tree traversal, yielding elements.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     if not root:
         return
 
@@ -164,7 +182,11 @@ def levelorder(root):
 
 
 def preorder_iterative(root):
-    """Nonrecursive preorder binary-tree traversal, yielding elements."""
+    """
+    Nonrecursive preorder binary-tree traversal, yielding elements.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     if not root:
         return
 
@@ -186,6 +208,8 @@ def copy(root):
 
     The new tree's root is returned. The new tree has the same structure, and
     the same objects as elements, but all its nodes are new objects.
+
+    [FIXME: State the time complexity, for a tree of n nodes of height h.]
     """
     if not root:
         return None
@@ -198,6 +222,8 @@ def copy_iterative(root):
     Nonrecursively copy a binary tree.
 
     This has the same requirements as copy, but it's iterative, not recursive.
+
+    [FIXME: State the time complexity, for a tree of n nodes of height h.]
     """
     if not root:
         return None
@@ -220,12 +246,20 @@ def copy_iterative(root):
 
 
 def height(root):
-    """Recursively compute a binary tree's max root-to-leaf path length."""
+    """
+    Recursively compute a binary tree's max root-to-leaf path length.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     return 1 + max(height(root.left), height(root.right)) if root else -1
 
 
 def height_iterative(root):
-    """Nonrecursively compute a binary tree's max root-to-leaf path length."""
+    """
+    Nonrecursively compute a binary tree's max root-to-leaf path length.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
+    """
     queue = collections.deque()
     if root:
         queue.append(root)
@@ -248,6 +282,8 @@ def height_iterative_alt(root):
 
     This alternative implementation of height_iterative uses a substantially
     different algorithm.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     height = -1
     stack = []
@@ -274,6 +310,8 @@ def structural_equal(lhs_root, rhs_root):
     """
     Recursively check if two binary trees have the same structure with all
     corresponding elements equal.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     if not (lhs_root and rhs_root):
         return not (lhs_root or rhs_root)
@@ -287,6 +325,8 @@ def structural_equal_iterative(lhs_root, rhs_root):
     """
     Nonrecursively check if two binary trees have the same structure with all
     corresponding elements equal.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     stack = [(lhs_root, rhs_root)]
 
@@ -307,9 +347,9 @@ def structural_equal_iterative(lhs_root, rhs_root):
 
 def reflect_in_place(root):
     """
-    Recursively modify a tree so it becomes its left-right mirror image.
+    Recursively modify a tree into its left-right mirror image.
 
-    This uses [FIXME: how much?] auxiliary space.
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     if root:
         root.left, root.right = root.right, root.left
@@ -319,9 +359,9 @@ def reflect_in_place(root):
 
 def reflect_in_place_iterative(root):
     """
-    Nonrecursively modify a tree so it becomes its left-right mirror image.
+    Nonrecursively modify a tree into its left-right mirror image.
 
-    This uses [FIXME: how much?] auxiliary space.
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     stack = []
     if root:
@@ -349,6 +389,8 @@ def is_own_reflection(root):
     Recursively check if a tree is its own left-to-right mirror image.
 
     The tree is not modified, even temporarily. It is also not copied.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     return not root or _check_reflected(root.left, root.right)
 
@@ -358,6 +400,8 @@ def is_own_reflection_iterative(root):
     Nonrecursively check if a tree is its own left-to-right mirror image.
 
     This iterative version of is_own_reflection has the same restrictions.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     if not root:
         return True
@@ -469,6 +513,8 @@ def linear_search(root, value):
     Returns a node that holds the matching element, or None if no match.
 
     If more than one node matches, any may be returned.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     if not root or root.element == value:
         return root
@@ -485,6 +531,8 @@ def linear_search_iterative(root, value):
 
     If more than one node matches, this is guaranteed to return the same node
     that linear_search would return.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     if not root:
         return None
@@ -511,7 +559,9 @@ def is_bst(root):
 
     This implementation is based on how a BST can be defined as [FIXME: what?].
 
-    On a tree of n nodes, this takes O(n) time.
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.
+    The time complexity should be asymptotically optimal for this problem. Say
+    why it is not possible for any asymptotically faster solution to exist.]
     """
     # FIXME: Needs implementation.
 
@@ -527,6 +577,9 @@ def is_bst_alt(root):
     This implementation is based on how a BST can b defined as [FIXME: what?].
     The definition in is_bst, and this, are equivalent, even though they sound
     quite different (with code one writes to express them likewise differing).
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.
+    Time complexity is as in is_bst. If auxiliary space differs, explain.]
     """
     # FIXME: Needs implementation.
 
@@ -537,6 +590,9 @@ def is_bst_iterative(root):
 
     This iterative implementation is conceptually similar to one of is_bst or
     is_bst_alt. Recursion is not used, not even indirectly.
+
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.
+    Time complexity is as in is_bst. If auxiliary space differs, explain.]
     """
     # FIXME: Needs implementation.
 
@@ -550,8 +606,7 @@ def binary_search(root, value):
     similar to (neither less nor greater than) value is returned, unless there
     is no such node, in which case None is returned.
 
-    This takes time linear in the tree's height.
-    [FIXME: State the auxiliary space complexity.]
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     # FIXME: Needs implementation.
 
@@ -560,8 +615,7 @@ def binary_search_iterative(root, value):
     """
     Nonrecursive binary search in a binary search tree (BST).
 
-    See binary_search. This is the iterative version.
-    [FIXME: State the time complexity and auxiliary space complexity.]
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     # FIXME: Needs implementation.
 
@@ -576,7 +630,7 @@ def binary_insert(root, element, *, allow_duplicate=False):
     The updated tree's root node is returned, though this will be the same as
     the old root node unless the tree was empty and there was no such node.
 
-    [FIXME: State the time complexity and auxiliary space complexity.]
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     # FIXME: Needs implementation.
 
@@ -587,7 +641,7 @@ def binary_insert_iterative(root, element):
 
     See binary_insert. This is the iterative version.
 
-    [FIXME: State the time complexity and auxiliary space complexity.]
+    [FIXME: State time and auxiliary space for a tree of n nodes of height h.]
     """
     # FIXME: Needs implementation.
 
@@ -604,7 +658,7 @@ def build_bst(iterable):
     or Mapping (often MutableMapping) class. When this project gains such a
     class, it should support inserting elements, but also deleting elements.
 
-    [FIXME: State average and worst-case time.]
+    [FIXME: State best, average, and worst-case time, for a length-n iterable.]
     """
     # FIXME: Needs implementation.
 
@@ -613,8 +667,8 @@ def tree_sort(iterable):
     """
     Sort values, by [FIXME: briefly say how].
 
-    This BST-based technique has [FIXME: State average and worst case time and
-    space.]
+    This BST-based technique has [FIXME: State best, average, and worst-case
+    time and space complexities.]
     """
     # FIXME: Needs implementation.
 
@@ -630,7 +684,7 @@ def find_subtree(tree, subtree):
     tree and subtree need not be binary search trees, and they probably aren't.
 
     This is the naive algorithm. If tree has m nodes and subtree has n nodes,
-    this takes O(m * n) time.
+    this takes O(m * n) time and uses [FIXME: how much?] auxiliary space.
     """
     # FIXME: Needs implementation.
 
@@ -642,7 +696,8 @@ def find_subtree_fast(tree, subtree):
     This is like find_subtree, but it uses a more clever algorithm. But this
     only works if all the elements are hashable. Nothing else is known about
     the elements; as in find_subtree, tree and subtree need not be BSTs. If
-    tree has m nodes and subtree has n nodes, this takes O(m + n) time.
+    tree has m nodes and subtree has n nodes, this takes O(m + n) time and uses
+    [FIXME: how much?] auxiliary space.
     """
     # FIXME: Needs implementation.
 
