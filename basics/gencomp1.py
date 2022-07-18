@@ -730,13 +730,6 @@ def windowed(iterable, n):
         yield tuple(queue)
 
 
-def _gen_emptys(iterable):
-    """Generates the empty tuples if n is 0."""
-    yield ()
-    for _ in iterable:
-        yield ()
-
-
 def windowed_alt(iterable, n):
     """
     Yield all width-n contiguous subsequences of iterable, in order, as tuples.
@@ -767,16 +760,19 @@ def windowed_alt(iterable, n):
     # FIXME: This code doesn't work
 
     if n == 0:
-        return _gen_emptys(iterable)
+        for _ in iterable:
+            yield ()
 
     o = object()
-    my_iterable = list(iterable)
-    it = more_itertools.windowed(my_iterable, n, fillvalue=o)
-    for element in it:
-        if o in element:
-            return
+    it = more_itertools.windowed(iterable, n, fillvalue=o)
+    first = next(it)
+    if o in first:
+        return
+    yield first
+    yield from it
 
-    return more_itertools.windowed(my_iterable, n)
+
+
 
 
 def map_one(func, iterable):
