@@ -1,13 +1,41 @@
 """
 Binary trees.
 
-Except as otherwise stated:
+In most binary trees, including those used in this module, empty branches are
+represented as "null" sentinels. In Python this is the special None object.
+There are two conventions for how we describe these trees, which affect the
+answers to questions like, "How many nodes are in the tree?"
+
+The most common convention, which we use, is that these branches are truly
+empty. So None represents the absence of a node, not a leaf. A node whose
+children are both given as None is a leaf.
+
+The other convention is to regard the sentinels as the actual leaves, as in The
+Art of Computer Programming by Donald Knuth. We don't use this convention. But:
+
+1. Unless otherwise documented, functions that accept a tree by taking its root
+   node as an argument also accept an empty "tree" when None is passed. Really,
+   there is no such thing as an empty tree, and what we call an empty tree is a
+   forest of zero trees. However, broadening what we regard to be a tree is
+   common, very useful, and often makes implementations more elegant.
+
+2. When we draw the trees with Graphviz, which the draw, draw_iterative, and
+   draw_extended functions do, we draw point nodes for empty branches, using a
+   technique presented by Eli Bendersky. See the docstrings for details. That
+   is, we are drawing the trees as conceptualized by Knuth, even though we are
+   otherwise not regarding None to represent a node. We do this to ensure that
+   left and right children are always distinguished.
+
+Some of our functions create or add nodes to trees. Except as otherwise stated:
 
 1. Functions that create new tree nodes create Node instances and, if
    applicable, may assume input trees' nodes are of that type.
 
 2. Other functions work equally well on trees made of Node, FrozenNode, or any
    object that has element, left, and right attributes with the same meaning.
+
+Infinite trees are meaningful and can even be represented via lazy techniques.
+But the classes and functions in this module all assume finite trees.
 """
 
 import collections
@@ -773,8 +801,24 @@ def find_subtree(tree, subtree):
     be any objects (assuming equality comparison is not broken). In particular,
     tree and subtree need not be binary search trees, and they probably aren't.
 
+    The tree argument is the root node of the corpus--the tree being searched
+    in. The subtree argument is the root node of the pattern--the tree being
+    searched for. It's possible that subtree is actually a node in tree, in
+    which case there is a match. But usually when there is a match, subtree is
+    still not a node in tree, but instead is the root of a tree structurally
+    equal to some actual subtree of tree. Thus "corpus" and "pattern" (or
+    "haystack" and "needle") would be more accurate (but less intuitive) names.
+
+    The tree and/or subtree arguments may be None. As in other functions in
+    this module, None indicates an empty "tree". Because we treat empty "trees"
+    as trees, an empty pattern is always a match. If the corpus is also empty,
+    they are the same "tree". Otherwise, because the corpus is finite, it has a
+    leaf, which has two empty branches; an empty pattern matches an empty
+    branch. None is thus returned if there is no match or if subtree is None.
+
     This is the naive algorithm. If tree has m nodes and subtree has n nodes,
-    this takes O(m * n) time and uses [FIXME: how much?] auxiliary space.
+    with m > 0 and n > 0, this takes O(m * n) time and uses [FIXME: how much?]
+    auxiliary space.
     """
     # FIXME: Needs implementation.
 
