@@ -184,12 +184,51 @@ def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
     called at the time a preorder, inorder, or postorder "visitation" occurs.
     Traversal is in a single pass, guaranteeing the relative order of calls.
 
+    Consider this form of DFS on binary trees that traverses but does nothing:
+
+        def skeletal_dfs(root):
+            if root:
+                skeletal_dfs(root.left)
+                skeletal_dfs(root.right)
+
+    All forms of recursively implemented DFS on a binary tree are based on that
+    logic. (They make be in a different style, may use results of subcalls, and
+    may be generator or asynchronous functions instead of regular functions.)
+
+    Examining what preorder, inorder, and postorder traversals each add to that
+    skeleton shows that a generalized binary-tree DFS is possible, by adding
+    code corresponding to what all three add. This performs any combination of
+    preorder, inorder, and postorder actions. If none of pre_fn, in_fn, and
+    post_fn are passed, this works like skeletal_dfs. If only one is passed,
+    it behaves like preorder, inorder, or postorder. With more than one, this
+    combines and interleaves the effects of any two, or all three, of preorder,
+    inorder, and postorder, without having to traverse the tree more than once.
+
+    It is occasionally useful to call this generalized function. But the main
+    point of this is to show that preorder, inorder, and postorder actions can
+    be used together. Many highly specialized traversals do so. Furthermore,
+    many recursive algorithms that are not obviously related to trees can be
+    understood, through this lens, as traversal in implicit tree structures.
+    Divide and conquer algorithms divide the work (preorder), make recursive
+    calls, and combine the results (postorder). Some of them do some of their
+    dividing or combining or other work in between recursive calls (inorder).
+
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
     return _do_dfs(root,
                    _noop_fallback(pre_fn),
                    _noop_fallback(in_fn),
                    _noop_fallback(post_fn))
+
+
+# FIXME: Having completed dfs above, consider mergesort. It is a divide and
+# conquer algorithm in which each recursive case (internal node) has two
+# children. The children are even identifiable as left and right. Add a brief
+# explanation to the recursion.merge_sort docstring about what combination of
+# preorder, inorder, and postorder actions it has. If it has only one kind, say
+# how mergesort facilitates that, and whether this is true of all forms of
+# recursive mergeort (if implemented reasonably). Otherwise, include a brief
+# description of another form of mergesort that would only have one kind.
 
 
 def levelorder(root):
