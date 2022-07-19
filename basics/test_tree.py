@@ -1,8 +1,11 @@
 """Tests for tree.py."""
 
 from abc import ABC, abstractmethod
+import functools
 import inspect
 import unittest
+
+from parameterized import parameterized_class
 
 import tree
 
@@ -242,3 +245,140 @@ class TestFrozenNode(_TestNodeBase):
 
 
 del _TestNodeBase
+
+
+def _wraps_unannotated(func):
+    """
+    Decorator factory like @functools.wraps, but doesn't copy __annotations__.
+
+    As currently used in this module, this makes no difference, since I'm not
+    using type annotations. I use this to avoid wrongly communicating that it
+    would be correct (or make sense) to copy __annotations__ when it would not.
+    """
+    assigned = ('__module__', '__name__', '__qualname__', '__doc__')
+    return functools.wraps(func, assigned=assigned)
+
+
+def _example(func):
+    """
+    Convert a function taking a node-type argument to a _Maker-style method.
+
+    This is used for _Maker, _BstMaker, and _AlmostBstMaker instance methods.
+    """
+    @_wraps_unannotated(func)
+    def wrapper(self):
+        return func(self.node_type)
+
+    return wrapper
+
+
+class _MakerBase:
+    """Shared base class for _Maker, _BstMaker, and _AlmostBstMaker."""
+
+    __slots__ = ('_node_type',)
+
+    def __init__(self, node_type):
+        """Create a maker that builds trees using the given node type."""
+        self._node_type = node_type
+
+    def __repr__(self):
+        """Largely code-like representation suitable for debugging."""
+        return f'{type(self).__name__}({self._node_type.__qualname__})'
+
+    @property
+    def node_type(self):
+        """The type used to construct nodes in trees being built."""
+        return self._node_type
+
+
+class _TrivialMaker(_MakerBase):
+    """Shared base class for _Maker and _BstMaker, but not _AlmostBstMaker."""
+
+    __slots__ = ()
+
+    @_example
+    def empty(_t):
+        """A "tree" with no nodes."""
+        return None
+
+    @_example
+    def singleton(t):
+        """A tree with only one node."""
+        return t(1)
+
+
+class _Maker(_TrivialMaker):
+    """Factory for examples of small binary trees for use in testing."""
+
+    __slots__ = ()
+
+    @_example
+    def left_only(t):
+        """A tree with a root and left child."""
+        return t(1, t(2), None)
+
+    @_example
+    def right_only(t):
+        """A tree with a root and right child."""
+        return t(2, None, t(1))  # Deliberately not a BST. See _BstMaker.
+
+    @_example
+    def tiny(t):
+        """A 3-node tree of minimal height."""
+        return t(1, t(2), t(3))
+
+    @_example
+    def small(t):
+        """A 7-node tree of minimal height."""
+        return t(1, t(2, t(4), t(5)), t(3, t(6), t(7)))
+
+    @_example
+    def small_no_left_left(t):
+        """A 6-node balanced tree, with the 1st bottom-level position empty."""
+        return t(1, t(2, None, t(4)), t(3, t(5), t(6)))
+
+    @_example
+    def small_no_left_right(t):
+        """A 6-node balanced tree, with the 2nd bottom-level position empty."""
+        return t(1, t(2, t(4), None), t(3, t(5), t(6)))
+
+    @_example
+    def small_no_right_left(t):
+        """A 6-node balanced tree, with the 3rd bottom-level position empty."""
+        return t(1, t(2, t(4), t(5)), t(3, None, t(6)))
+
+    @_example
+    def small_no_right_right(t):
+        """A 6-node balanced tree, with the 4th bottom-level position empty."""
+        return t(1, t(2, t(4), t(5)), t(3, t(6), None))
+
+    # FIXME: Write the rest of the methods.
+
+
+class _BstMaker(_TrivialMaker):
+    """Factory for examples of small binary search trees for use in testing."""
+
+    __slots__ = ()
+
+    # FIXME: Write the methods.
+
+
+class _AlmostBstMaker(_MakerBase):
+    """Factory of small not-quite-BST binary trees, for testing is_bst*."""
+
+    __slots__ = ()
+
+    # FIXME: Write the methods.
+
+
+_parameterize_class_by_node_type = parameterized_class(('name', 'node_type'), [
+    (tree.Node.__name__, tree.Node),
+    (tree.FrozenNode.__name__, tree.FrozenNode),
+])
+
+
+@_parameterize_class_by_node_type
+class TestPreorder(unittest.TestCase):
+    """Tests for the preorder function."""
+
+    # FIXME: Write the tests. Use _Maker and _BstMaker example trees.
