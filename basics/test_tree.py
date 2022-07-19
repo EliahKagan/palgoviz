@@ -371,13 +371,33 @@ class _AlmostBstMaker(_MakerBase):
     # FIXME: Write the methods.
 
 
+_NODE_TYPES = (tree.Node, tree.FrozenNode)
+"""Node classes to test with."""
+
+
 _parameterize_class_by_node_type = parameterized_class(('name', 'node_type'), [
-    (tree.Node.__name__, tree.Node),
-    (tree.FrozenNode.__name__, tree.FrozenNode),
+    (node_type.__name__, node_type) for node_type in _NODE_TYPES
 ])
+"""Parameterize a test class by a binary tree node class."""
 
 
-@_parameterize_class_by_node_type
+def _static_callable(f):
+    """Wrap a callable f, if needed/correct for use in @parameterized_class."""
+    return staticmethod(f) if inspect.isfunction(f) else f
+
+
+def _parameterize_class_by_function_and_node_type(*implementations):
+    """Parameterize a test class by function (implementation) and node type."""
+    return parameterized_class(('label', 'implementation', 'node_type'), [
+        (f'{f.__name__}_{node_type.__name__}', _static_callable(f), node_type)
+        for f in implementations for node_type in _NODE_TYPES
+    ])
+
+
+@_parameterize_class_by_function_and_node_type(
+    tree.preorder,
+    tree.preorder_iterative,
+)
 class TestPreorder(unittest.TestCase):
     """Tests for the preorder function."""
 
