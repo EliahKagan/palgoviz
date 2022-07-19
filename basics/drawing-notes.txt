@@ -38,6 +38,8 @@ tree.build_bst
 tree.tree_sort
 tree.find_subtree
 tree.find_subtree_fast
+tree.copy_compact
+tree.draw_extended
 class_graph.preorder_ancestors
 class_graph.preorder_descendants
 class_graph.postorder_ancestors

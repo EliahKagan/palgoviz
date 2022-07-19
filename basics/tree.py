@@ -481,8 +481,10 @@ def draw(root):
        including the DOT code (that is, not limited to the visual appearance of
        the drawing), even across separate runs of the program.
 
-    The caller is responsible for ensuring the input really is a binary tree.
-    This returns a graphviz.Digraph rather than displaying anything directly.
+    If the same node object appears in multiple places, this draws separate
+    subtrees. The caller must ensure the input is otherwise a binary tree. A
+    graphviz.Digraph is returned rather than displaying anything directly. No
+    caching is performed across calls to draw.
 
     This implementation [FIXME: say what kind (or kinds) of traversal is used.]
     """
@@ -513,7 +515,8 @@ def draw_iterative(root):
     behavior of draw. As with draw, separate calls to draw_iterative for
     equivalent trees, even across separate runs of a program, must give the
     same output, including DOT code, as each other. But draw and draw_iterative
-    may give different output, so long as their drawings look the same.
+    may give different output, so long as their drawings look the same. Other
+    requirements are the same.
 
     This implementation [FIXME: say what kind (or kinds) of traversal is used.]
     """
@@ -595,8 +598,8 @@ def linear_search_mindepth(root, value):
     be returned. If no node's element is equal to value, None is returned.
 
     The algorithm works well on most or all inputs, but it is optimized to run
-    fast when the probability, for each node, that it holds an element equal to
-    value, is greater than 1/n (with n total nodes).
+    fast when each node's probability of holding an element equal to value is
+    greater than 1/n (with n total nodes).
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -609,9 +612,9 @@ def linear_search_mindepth_alt(root, value):
     This is like linear_search_mindepth but it uses a very different algorithm.
     One of them is recursive and the other iterative. Their worst-case
     asymptotic time complexities are the same. But while linear_search_mindepth
-    is time optimized for when the probability of a node's element being equal
-    to value is greater than 1/n, this function is instead auxiliary-space
-    optimized for when that probability is less than 1/n.
+    is time optimized for when each node's probability of holding an element
+    equal to value is greater than 1/n, this is auxiliary-space optimized for
+    when that probability is less than 1/n.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -681,9 +684,9 @@ def binary_search(root, value):
     Recursive binary search in a binary search tree (BST).
 
     The caller is responsible for ensuring the tree is a BST, with at least a
-    weak ordering among them and the value argument. A node whose element is
-    similar to (neither less nor greater than) value is returned, unless there
-    is no such node, in which case None is returned.
+    weak ordering among the tree's elements and the value argument. A node
+    whose element is similar to (neither less nor greater than) value is
+    returned, unless there is no such node, in which case None is returned.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -693,6 +696,9 @@ def binary_search(root, value):
 def binary_search_iterative(root, value):
     """
     Nonrecursive binary search in a binary search tree (BST).
+
+    Like binary_search, this returns a node whose element is similar to value,
+    or None if there is no such node.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -781,6 +787,51 @@ def find_subtree_fast(tree, subtree):
     # FIXME: Needs implementation.
 
 
+def copy_compact(root):
+    """
+    Copy a binary tree as a FrozenNode tree with all subtrees de-duplicated.
+
+    This only supports input trees whose elements are all hashable objects.
+
+    Reusing subtrees is often a good idea for immutable trees, like the tree
+    this builds. It is far less often appropriate for mutable trees, so copy
+    and copy_iterative do not do so. This is because [FIXME: explain].
+
+    Time complexity is asymptotically optimal: [FIXME: State the time
+    complexity for n nodes and height h.]
+    """
+    # FIXME: Needs implementation.
+
+
+def draw_extended(root, as_dag=False):
+    """
+    Draw a binary tree, distinguishing de-duplicated subtrees.
+
+    If as_dag=False, then for each subtree reused in multiple places (as in
+    output of copy_compact), all but one occurrence is drawn with all nodes and
+    edges faded out. This is, others are drawn in light gray instead of black.
+
+    If as_dag=True, the directed acyclic graph structure of the nodes, as
+    represented in memory, is drawn. Thus even reused nodes are drawn just
+    once, and the drawing is of an outdegree-2 DAG. If no nodes are reused, the
+    DAG is a binary tree. Otherwise, it's not a tree at all, because a tree has
+    exactly one path between any pair of nodes. None of the drawing is faded.
+    (See also object_graph.draw_tuple and class_graph.draw, which draw DAGs.)
+
+    If no nodes are reused, then as_dag does not affect the output, and the
+    drawing looks the same as in draw and draw_iterative, but it need not have
+    the exact same DOT code. However, separate draw_extended calls with the
+    same as_dag argument, on the same tree or on different trees whose DAG
+    representations in memory have the same structure and all the same
+    corresponding values, must all emit the same DOT code, even in separate
+    runs of the program. No caching is performed across calls to draw_extended.
+
+    As in draw and draw_iterative, empty branches are drawn as point nodes so
+    left and right are distinguished, and a graphviz.Digraph is returned.
+    """
+    # FIXME: Needs implementation.
+
+
 __all__ = [thing.__name__ for thing in (
     Node,
     FrozenNode,
@@ -822,4 +873,6 @@ __all__ = [thing.__name__ for thing in (
     tree_sort,
     find_subtree,
     find_subtree_fast,
+    copy_compact,
+    draw_extended,
 )]
