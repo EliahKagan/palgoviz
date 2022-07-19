@@ -65,6 +65,7 @@ class FrozenNode(_NodeReprMixin):
     it treat nodes as the trees they root (one would define their operations as
     methods instead of top-level functions, structural_equal becoming __eq__),
     as there are design subtleties for base cases; see calc.Atom/calc.Compound.
+    So this mutability/immutability isn't relative to any actual == comparison.
     """
 
     __slots__ = ('_element', '_left', '_right')
@@ -95,7 +96,7 @@ def _noop(_):
     """Accept a single argument, but do nothing."""
 
 
-def _noop_if_none(func):
+def _noop_fallback(func):
     """Convert None to a noop function. Otherwise return func unchanged."""
     return _noop if func is None else func
 
@@ -159,9 +160,9 @@ def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
     return _do_dfs(root,
-                   _noop_if_none(pre_fn),
-                   _noop_if_none(in_fn),
-                   _noop_if_none(post_fn))
+                   _noop_fallback(pre_fn),
+                   _noop_fallback(in_fn),
+                   _noop_fallback(post_fn))
 
 
 def levelorder(root):
@@ -238,7 +239,7 @@ def size_iterative(root):
 
 def height(root):
     """
-    Recursively compute a binary tree's max root-to-leaf path length.
+    Recursively compute a binary tree's maximum root-to-leaf path length.
 
     We define the height of an empty "tree" (that is, when root is None) as -1.
 
@@ -249,7 +250,7 @@ def height(root):
 
 def height_iterative(root):
     """
-    Nonrecursively compute a binary tree's max root-to-leaf path length.
+    Nonrecursively compute a binary tree's maximum root-to-leaf path length.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -271,7 +272,7 @@ def height_iterative(root):
 
 def height_iterative_alt(root):
     """
-    Nonrecursively compute a binary tree's max root-to-leaf path length.
+    Nonrecursively compute a binary tree's maximum root-to-leaf path length.
 
     This alternative implementation of height_iterative uses a substantially
     different algorithm.
@@ -472,9 +473,9 @@ def draw(root):
 
     But the version of the technique used here is modified:
 
-    1. This uses the graphviz module (via https://pypi.org/project/graphviz/)
-       for drawing, instead of generating DOT code. (If desired, DOT code can
-       then be obtained by calling str on the graphviz.Digraph object.)
+    1. This uses the graphviz module (https://pypi.org/project/graphviz/) for
+       drawing, instead of generating DOT code. (If desired, DOT code can then
+       be obtained by calling str on the graphviz.Digraph object.)
 
     2. Separate nodes whose elements have the same representation, or even
        whose elements are the same object, are supported and drawn separately
@@ -617,8 +618,8 @@ def linear_search_mindepth_alt(root, value):
     One of them is recursive and the other iterative. Their worst-case
     asymptotic time complexities are the same. But while linear_search_mindepth
     is time optimized for when each node's probability of holding an element
-    equal to value is greater than 1/n, this is auxiliary-space optimized for
-    when that probability is less than 1/n.
+    equal to value is greater than 1/n, this is instead auxiliary-space
+    optimized for when that probability is less than 1/n.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
@@ -660,7 +661,7 @@ def is_bst_alt(root):
     if any. The other uses an existing recursive function in this module (that
     is not about BSTs) to do some of its work, and is not otherwise recursive.
 
-    This implementation is based on how a BST can b defined as [FIXME: what?].
+    This implementation is based on how a BST can be defined as [FIXME: what?].
     The definition in is_bst, and this, are equivalent, even though they sound
     quite different (with code one writes to express them likewise differing).
 
