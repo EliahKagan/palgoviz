@@ -16,6 +16,11 @@ class _TestNodeBase(ABC, unittest.TestCase):
         """The node class being tested."""
         raise NotImplementedError
 
+    @property
+    def name(self):
+        """The name of the node type. (Override if node_type isn't a class.)"""
+        return self.node_type.__name__
+
     def test_cannot_construct_with_no_args(self):
         with self.assertRaises(TypeError):
             self.node_type()
@@ -104,6 +109,37 @@ class _TestNodeBase(ABC, unittest.TestCase):
         with self.assertRaises(TypeError):
             self.node_type(left=left, right=right)
 
+    def test_repr_of_leaf_shows_just_element_arg(self):
+        node = self.node_type('hello')
+        self.assertEqual(repr(node), f"{self.name}('hello')")
+
+    def test_repr_with_both_children_shows_three_positional_args(self):
+        expected = f"{self.name}('P', {self.name}('LC'), {self.name}('RC'))"
+        left = self.node_type('LC')
+        right = self.node_type('RC')
+        root = self.node_type('P', left=left, right=right)
+        self.assertEqual(repr(root), expected)
+
+    def test_repr_with_just_left_child_shows_three_positional_args(self):
+        expected = f"{self.name}('P', {self.name}('LC'), None)"
+        left = self.node_type('LC')
+        root = self.node_type('P', left=left)
+        self.assertEqual(repr(root), expected)
+
+    def test_repr_with_just_right_child_shows_three_positional_args(self):
+        expected = f"{self.name}('P', None, {self.name}('RC'))"
+        right = self.node_type('RC')
+        root = self.node_type('P', right=right)
+        self.assertEqual(repr(root), expected)
+
+    def test_different_instances_are_not_equal(self):
+        """This represents a node, not subtree. Reference equality applies."""
+        lhs = self.node_type('A')
+        rhs = self.node_type('B')
+        if lhs is rhs:
+            raise Exception("separate nodes are identical, can't test ==")
+        self.assertNotEqual(lhs, rhs)
+
     def test_cannot_reassign_element(self):
         node = self.node_type('hello')
         with self.assertRaises(AttributeError):
@@ -172,8 +208,6 @@ class TestNode(_TestNodeBase):
         """It can be reassigned and isn't validated. Not worth a property."""
         self.assertNotIsInstance(tree.Node.right, property)
 
-    # FIXME: Add repr and equality comparison tests.
-
 
 class TestFrozenNode(_TestNodeBase):
     """Tests for the FrozenNode class."""
@@ -205,8 +239,6 @@ class TestFrozenNode(_TestNodeBase):
         root = tree.FrozenNode('P', right=right)
         with self.assertRaises(AttributeError):
             root.right = None
-
-    # FIXME: Add repr and equality comparison tests.
 
 
 del _TestNodeBase

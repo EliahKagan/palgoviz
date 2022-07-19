@@ -17,7 +17,21 @@ import itertools
 import graphviz
 
 
-class Node:
+class _NodeReprMixin:
+    """Base class to supply nice repr functionality for binary tree nodes."""
+
+    __slots__ = ()
+
+    def __repr__(self):
+        """Recursive representation of this node as Python code."""
+        if not (self.left or self.right):  # This is a leaf.
+            return f'{type(self).__name__}({self.element!r})'
+
+        return (f'{type(self).__name__}({self.element!r},'
+                f' {self.left!r}, {self.right!r})')
+
+
+class Node(_NodeReprMixin):
     """A binary tree node."""
 
     __slots__ = dict(_element=None,
@@ -30,18 +44,13 @@ class Node:
         self.left = left
         self.right = right
 
-    def __repr__(self):
-        """Representation of the subtree rooted at this node as Python code."""
-        return (f'{type(self).__name__}({self.element!r},'
-                f' left={self.left!r}, right={self.right!r})')
-
     @property
     def element(self):
         """The element held in this node."""
         return self._element
 
 
-class FrozenNode:
+class FrozenNode(_NodeReprMixin):
     """
     A binary tree node without mutable state.
 
@@ -65,11 +74,6 @@ class FrozenNode:
         self._element = element
         self._left = left
         self._right = right
-
-    def __repr__(self):
-        """Representation of the subtree rooted at this node as Python code."""
-        return (f'{type(self).__name__}({self.element!r},'
-                f' left={self.left!r}, right={self.right!r})')
 
     @property
     def element(self):
