@@ -16,15 +16,14 @@ Art of Computer Programming by Donald Knuth. We don't use this convention. But:
 1. Unless otherwise documented, functions that accept a tree by taking its root
    node as an argument also accept an empty "tree" when None is passed. Really,
    there is no such thing as an empty tree, and what we call an empty tree is a
-   forest of zero trees. However, broadening what we regard to be a tree is
-   common, very useful, and often makes implementations more elegant.
+   forest of zero trees. But broadening what we regard to be a tree in this way
+   is common, very useful, and often makes implementations more elegant.
 
-2. When we draw the trees with Graphviz, which the draw, draw_iterative, and
-   draw_extended functions do, we draw point nodes for empty branches, using a
-   technique presented by Eli Bendersky. See the docstrings for details. That
-   is, we are drawing the trees as conceptualized by Knuth, even though we are
-   otherwise not regarding None to represent a node. We do this to ensure that
-   left and right children are always distinguished.
+2. When we draw the trees with Graphviz--which the draw, draw_iterative, and
+   draw_extended functions do--we draw point nodes for empty branches. See the
+   docstrings for details. That is, we draw the trees as conceptualized by
+   Knuth, even though we do not otherwise regard None to represent a node. We
+   do this to ensure that left and right children are always distinguished.
 
 Some of our functions create or add nodes to trees. Except as otherwise stated:
 
@@ -32,7 +31,7 @@ Some of our functions create or add nodes to trees. Except as otherwise stated:
    applicable, may assume input trees' nodes are of that type.
 
 2. Other functions work equally well on trees made of Node, FrozenNode, or any
-   object that has element, left, and right attributes with the same meaning.
+   object that has element, left, and right attributes with the same meanings.
 
 Infinite trees are meaningful and can even be represented via lazy techniques.
 But the classes and functions in this module all assume finite trees.
