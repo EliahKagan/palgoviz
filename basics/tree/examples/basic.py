@@ -1,16 +1,6 @@
 """Nontrivial but mostly small examples of non-BST binary trees."""
 
 
-def empty(_t):
-    """A "tree" with no nodes."""
-    return None
-
-
-def singleton(t):
-    """A tree with only one node."""
-    return t(1)
-
-
 def left_only(t):
     """A tree with a root and left child."""
     return t(1, t(2), None)
