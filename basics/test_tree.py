@@ -381,24 +381,26 @@ class _Maker(_TrivialMaker):
     @_example
     def medium(t):
         """A mostly balanced 24-node tree with a few duplicate elements."""
+        # The noqa are for "continuation line over-indented for visual indent".
         return t(1, t(2, t(4, t(8, t(16), t(17)),
-                              t(9, None, t(18))),
-                         t(5, t(10, t(19), t(20)),
-                              t(11, t(21), None))),
-                    t(3, t(6, t(12), t(13)),
-                         t(7, t(14, t(1), t(2)),
-                              t(15, None, t(3)))))
+                              t(9, None, t(18))),    # noqa: E127
+                         t(5, t(10, t(19), t(20)),   # noqa: E127
+                              t(11, t(21), None))),  # noqa: E127
+                    t(3, t(6, t(12), t(13)),         # noqa: E127
+                         t(7, t(14, t(1), t(2)),     # noqa: E127
+                              t(15, None, t(3)))))   # noqa: E127
 
     @_example
     def medium_redundant(t):
         """A mostly balanced 24-node tree with lots of subtree duplication."""
+        # The noqa are for "continuation line over-indented for visual indent".
         return t(1, t(2, t(7, t(14, t(1), t(2)),
-                              t(15, None, t(3))),
-                         t(5, t(6, t(12), t(13)),
-                              t(11, t(21), None))),
-                    t(3, t(6, t(12), t(13)),
-                         t(7, t(14, t(1), t(2)),
-                              t(15, None, t(3)))))
+                              t(15, None, t(3))),    # noqa: E127
+                         t(5, t(6, t(12), t(13)),    # noqa: E127
+                              t(11, t(21), None))),  # noqa: E127
+                    t(3, t(6, t(12), t(13)),         # noqa: E127
+                         t(7, t(14, t(1), t(2)),     # noqa: E127
+                              t(15, None, t(3)))))   # noqa: E127
 
 
 class _BstMaker(_TrivialMaker):
@@ -474,13 +476,14 @@ class _BstMaker(_TrivialMaker):
     @_example
     def medium(t):
         """A mostly balanced 24-node tree with a few duplicate elements."""
+        # The noqa are for "continuation line over-indented for visual indent".
         return t(11, t(4,  t(2,  t(1, t(1), t(2)),
-                                 t(3, None, t(3))),
-                           t(8,  t(6, t(5), t(7)),
-                                 t(10, t(9), None))),
-                     t(15, t(13, t(12), t(14)),
-                           t(19, t(17, t(16), t(18)),
-                                 t(20, None, t(21)))))
+                                 t(3, None, t(3))),     # noqa: E127
+                           t(8,  t(6, t(5), t(7)),      # noqa: E127
+                                 t(10, t(9), None))),   # noqa: E127
+                     t(15, t(13, t(12), t(14)),         # noqa: E127
+                           t(19, t(17, t(16), t(18)),   # noqa: E127
+                                 t(20, None, t(21)))))  # noqa: E127
 
 
 class _AlmostBstMaker(_MakerBase):
