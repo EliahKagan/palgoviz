@@ -471,7 +471,16 @@ class _BstMaker(_TrivialMaker):
         """A 9-node BST whose left branches never have multiple nodes."""
         return t(2, t(1), t(4, t(3), t(6, t(5), t(8, t(7), t(9)))))
 
-    # FIXME: Add medium.
+    @_example
+    def medium(t):
+        """A mostly balanced 24-node tree with a few duplicate elements."""
+        return t(11, t(4,  t(2,  t(1, t(1), t(2)),
+                                 t(3, None, t(3))),
+                           t(8,  t(6, t(5), t(7)),
+                                 t(10, t(9), None))),
+                     t(15, t(13, t(12), t(14)),
+                           t(19, t(17, t(16), t(18)),
+                                 t(20, None, t(21)))))
 
 
 class _AlmostBstMaker(_MakerBase):
