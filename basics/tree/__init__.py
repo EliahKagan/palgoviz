@@ -43,6 +43,8 @@ import itertools
 
 import graphviz
 
+from . import examples
+
 
 class _NodeReprMixin:
     """Base class to supply nice repr functionality for binary tree nodes."""
@@ -926,6 +928,7 @@ def draw_extended(root, as_dag=False):
 
 
 __all__ = [thing.__name__ for thing in (
+    examples,
     Node,
     FrozenNode,
     preorder,
