@@ -192,7 +192,7 @@ def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
                 skeletal_dfs(root.right)
 
     All forms of recursively implemented DFS on a binary tree are based on that
-    logic. (They make be in a different style, may use results of subcalls, and
+    logic. (They may be in a different style, may use results of subcalls, and
     may be generator or asynchronous functions instead of regular functions.)
 
     Examining what preorder, inorder, and postorder traversals each add to that
