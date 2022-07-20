@@ -380,7 +380,7 @@ class _Maker(_TrivialMaker):
 
     @_example
     def medium(t):
-        """A mostly balanced 22-node tree with a few duplicate elements."""
+        """A mostly balanced 24-node tree with a few duplicate elements."""
         return t(1, t(2, t(4, t(8, t(16), t(17)),
                               t(9, None, t(18))),
                          t(5, t(10, t(19), t(20)),
@@ -391,7 +391,7 @@ class _Maker(_TrivialMaker):
 
     @_example
     def medium_redundant(t):
-        """A mostly balanced 22-node tree with lots of subtree duplication."""
+        """A mostly balanced 24-node tree with lots of subtree duplication."""
         return t(1, t(2, t(7, t(14, t(1), t(2)),
                               t(15, None, t(3))),
                          t(5, t(6, t(12), t(13)),
