@@ -485,7 +485,7 @@ class TestPreorder(unittest.TestCase):
 
 @_parameterize_class_by_implementation(
     tree.inorder,
-    # NOTE: In the future we will have more than one inorder traverser to test.
+    # NOTE: In the future we will have multiple inorder traversers to test.
 )
 class TestInorder(unittest.TestCase):
     """Tests for callables returning inorder traversal iterators."""
@@ -691,6 +691,219 @@ class TestInorder(unittest.TestCase):
     def test_medium_redundant(self, _name, node_type):
         expected = [1, 14, 2, 7, 15, 3, 2, 12, 6, 13, 5, 21, 11,
                     1, 12, 6, 13, 3, 1, 14, 2, 7, 15, 3]
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), expected)
+
+
+@_parameterize_class_by_implementation(
+    tree.postorder,
+    # NOTE: In the future we will have multiple postorder traversers to test.
+)
+class TestPostorder(unittest.TestCase):
+    """Tests for callables returning postorder traversal iterators."""
+
+    @_parameterize_by_node_type
+    def test_returns_iterator(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertIsInstance(result, Iterator)
+
+    def test_empty(self):
+        """The result of postorder traversing an empty "tree" is empty."""
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(root)
+
+        with self.assertRaises(StopIteration):
+            next(result)
+
+    @_parameterize_by_node_type
+    def test_singleton(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1])
+
+    @_parameterize_by_node_type
+    def test_left_only(self, _name, node_type):
+        root = basic.left_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 1])
+
+    @_parameterize_by_node_type
+    def test_left_only_bst(self, _name, node_type):
+        root = bst.left_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2])
+
+    @_parameterize_by_node_type
+    def test_right_only(self, _name, node_type):
+        root = basic.right_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2])
+
+    @_parameterize_by_node_type
+    def test_right_only_bst(self, _name, node_type):
+        root = bst.right_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 1])
+
+    @_parameterize_by_node_type
+    def test_tiny(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_tiny_bst(self, _name, node_type):
+        root = bst.tiny(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 3, 2])
+
+    @_parameterize_by_node_type
+    def test_small(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 5, 2, 6, 7, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_small_bst(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 3, 2, 5, 7, 6, 4])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left(self, _name, node_type):
+        root = basic.small_no_left_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 5, 6, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_bst(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [3, 2, 5, 7, 6, 4])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right(self, _name, node_type):
+        root = basic.small_no_left_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 5, 6, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_bst(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 5, 7, 6, 4])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left(self, _name, node_type):
+        root = basic.small_no_right_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 5, 2, 6, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_bst(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 3, 2, 7, 6, 4])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right(self, _name, node_type):
+        root = basic.small_no_right_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 5, 2, 6, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_bst(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 3, 2, 5, 6, 4])
+
+    @_parameterize_by_node_type
+    def test_left_degenerate(self, _name, node_type):
+        root = basic.left_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [5, 4, 3, 2, 1])
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_bst(self, _name, node_type):
+        root = bst.left_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3, 4, 5])
+
+    @_parameterize_by_node_type
+    def test_right_degenerate(self, _name, node_type):
+        root = basic.right_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3, 4, 5])
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_bst(self, _name, node_type):
+        root = bst.right_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [5, 4, 3, 2, 1])
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate(self, _name, node_type):
+        root = basic.zigzag_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [5, 4, 3, 2, 1])
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_bst(self, _name, node_type):
+        root = bst.zigzag_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [3, 4, 2, 5, 1])
+
+    @_parameterize_by_node_type
+    def test_lefty(self, _name, node_type):
+        root = basic.lefty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [8, 9, 6, 7, 4, 5, 2, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_lefty_bst(self, _name, node_type):
+        root = bst.lefty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 3, 2, 5, 4, 7, 6, 9, 8])
+
+    @_parameterize_by_node_type
+    def test_righty(self, _name, node_type):
+        root = basic.righty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 4, 6, 8, 9, 7, 5, 3, 1])
+
+    @_parameterize_by_node_type
+    def test_righty_bst(self, _name, node_type):
+        root = bst.righty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 3, 5, 7, 9, 8, 6, 4, 2])
+
+    @_parameterize_by_node_type
+    def test_medium(self, _name, node_type):
+        expected = [16, 17, 8, 18, 9, 4, 19, 20, 10, 21, 11, 5, 2,
+                    12, 13, 6, 1, 2, 14, 3, 15, 7, 3, 1]
+        root = basic.medium(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), expected)
+
+    @_parameterize_by_node_type
+    def test_medium_bst(self, _name, node_type):
+        expected = [1, 2, 1, 3, 3, 2, 5, 7, 6, 9, 10, 8, 4,
+                    12, 14, 13, 16, 18, 17, 21, 20, 19, 15, 11]
+        root = bst.medium(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), expected)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant(self, _name, node_type):
+        expected = [1, 2, 14, 3, 15, 7, 12, 13, 6, 21, 11, 5, 2,
+                    12, 13, 6, 1, 2, 14, 3, 15, 7, 3, 1]
         root = basic.medium_redundant(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), expected)
