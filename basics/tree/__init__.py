@@ -371,7 +371,7 @@ def copy(root):
     Recursively copy a binary tree.
 
     The new tree's root is returned. The new tree has the same structure, and
-    the same objects as elements, but all its nodes are new objects.
+    the same objects as elements, but all its nodes are new Node objects.
 
     [FIXME: State the time complexity, for a tree of n nodes and height h.]
     """
@@ -414,6 +414,10 @@ def structural_equal(lhs_root, rhs_root):
     Recursively check if two binary trees have the same structure with all
     corresponding elements equal.
 
+    Only structure and element values are considered, not node type. Trees of
+    Node and trees of FrozenNode can thus be structurally equal to each other.
+    (In this way, this is more like set equality than sequence equality.)
+
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
     if not (lhs_root and rhs_root):
@@ -428,6 +432,8 @@ def structural_equal_iterative(lhs_root, rhs_root):
     """
     Nonrecursively check if two binary trees have the same structure with all
     corresponding elements equal.
+
+    This is the iterative version of structural_equal.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
