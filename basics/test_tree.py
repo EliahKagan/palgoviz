@@ -352,7 +352,53 @@ class _Maker(_TrivialMaker):
         """A 6-node balanced tree, with the 4th bottom-level position empty."""
         return t(1, t(2, t(4), t(5)), t(3, t(6), None))
 
-    # FIXME: Write the rest of the methods.
+    @_example
+    def left_degenerate(t):
+        """A 5-node tree in which no node has a right child."""
+        return t(1, t(2, t(3, t(4, t(5), None), None), None), None)
+
+    @_example
+    def right_degenerate(t):
+        """A 5-node tree in which no node has a left child."""
+        # Deliberately not a BST. See _BstMaker.
+        return t(5, None, t(4, None, t(3, None, t(2, None, t(1)))))
+
+    @_example
+    def zigzag_degenerate(t):
+        """A 5-node tree of maximum depth, alternating left and right."""
+        return t(1, None, t(2, t(3, None, t(4, t(5), None)), None))
+
+    @_example
+    def lefty(t):
+        """A 9-node tree whose right branches never have multiple nodes."""
+        return t(1, t(2, t(4, t(6, t(8), t(9)), t(7)), t(5)), t(3))
+
+    @_example
+    def righty(t):
+        """A 9-node tree whose left branches never have multiple nodes."""
+        return t(1, t(2), t(3, t(4), t(5, t(6), t(7, t(8), t(9)))))
+
+    @_example
+    def medium(t):
+        """A mostly balanced 22-node tree with a few duplicate elements."""
+        return t(1, t(2, t(4, t(8, t(16), t(17)),
+                              t(9, None, t(18))),
+                         t(5, t(10, t(19), t(20)),
+                              t(11, t(21), None))),
+                    t(3, t(6, t(12), t(13)),
+                         t(7, t(14, t(1), t(2)),
+                              t(15, None, t(3)))))
+
+    @_example
+    def medium_redundant(t):
+        """A mostly balanced 22-node tree with lots of subtree duplication."""
+        return t(1, t(2, t(7, t(14, t(1), t(2)),
+                              t(15, None, t(3))),
+                         t(5, t(6, t(12), t(13)),
+                              t(11, t(21), None))),
+                    t(3, t(6, t(12), t(13)),
+                         t(7, t(14, t(1), t(2)),
+                              t(15, None, t(3)))))
 
 
 class _BstMaker(_TrivialMaker):
