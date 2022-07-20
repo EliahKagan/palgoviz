@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Tests for tree.py."""
 
 from abc import ABC, abstractmethod
@@ -273,7 +275,7 @@ _parameterize_by_node_type = parameterized.expand([
     tree.preorder_iterative,
 )
 class TestPreorder(unittest.TestCase):
-    """Tests for the preorder function."""
+    """Tests for the preorder traversal generator functions."""
 
     @_parameterize_by_node_type
     def test_returns_iterator(self, _name, node_type):
@@ -395,3 +397,91 @@ class TestPreorder(unittest.TestCase):
         root = bst.small_no_right_right(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [4, 2, 1, 3, 6, 5])
+
+    @_parameterize_by_node_type
+    def test_left_degenerate(self, _name, node_type):
+        root = basic.left_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3, 4, 5])
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_bst(self, _name, node_type):
+        root = bst.left_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [5, 4, 3, 2, 1])
+
+    @_parameterize_by_node_type
+    def test_right_degenerate(self, _name, node_type):
+        root = basic.right_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [5, 4, 3, 2, 1])
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_bst(self, _name, node_type):
+        root = bst.right_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3, 4, 5])
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate(self, _name, node_type):
+        root = basic.zigzag_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3, 4, 5])
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_bst(self, _name, node_type):
+        root = bst.zigzag_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 5, 2, 4, 3])
+
+    @_parameterize_by_node_type
+    def test_lefty(self, _name, node_type):
+        root = basic.lefty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 4, 6, 8, 9, 7, 5, 3])
+
+    @_parameterize_by_node_type
+    def test_lefty_bst(self, _name, node_type):
+        root = bst.lefty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [8, 6, 4, 2, 1, 3, 5, 7, 9])
+
+    @_parameterize_by_node_type
+    def test_righty(self, _name, node_type):
+        root = basic.righty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    @_parameterize_by_node_type
+    def test_righty_bst(self, _name, node_type):
+        root = bst.righty(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 1, 4, 3, 6, 5, 8, 7, 9])
+
+    @_parameterize_by_node_type
+    def test_medium(self, _name, node_type):
+        expected = [1, 2, 4, 8, 16, 17, 9, 18, 5, 10, 19, 20, 11, 21,
+                    3, 6, 12, 13, 7, 14, 1, 2, 15, 3]
+        root = basic.medium(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), expected)
+
+    @_parameterize_by_node_type
+    def test_medium_bst(self, _name, node_type):
+        expected = [11, 4, 2, 1, 1, 2, 3, 3, 8, 6, 5, 7, 10, 9,
+                    15, 13, 12, 14, 19, 17, 16, 18, 20, 21]
+        root = bst.medium(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), expected)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant(self, _name, node_type):
+        expected = [1, 2, 7, 14, 1, 2, 15, 3, 5, 6, 12, 13, 11, 21,
+                    3, 6, 12, 13, 7, 14, 1, 2, 15, 3]
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), expected)
+
+
+if __name__ == '__main__':
+    unittest.main()
