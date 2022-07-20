@@ -552,10 +552,10 @@ def draw(root):
        including the DOT code (that is, not limited to the visual appearance of
        the drawing), even across separate runs of the program.
 
-    If the same node object appears in multiple places, this draws separate
-    subtrees. The caller must ensure the input is otherwise a binary tree. A
-    graphviz.Digraph is returned rather than displaying anything directly. No
-    caching is performed across calls to draw.
+    If the same node object appears in multiple places, this still draws
+    separate subtrees. Other than such duplication, the caller must ensure the
+    input is a binary tree. A graphviz.Digraph is returned rather than
+    displaying anything directly. No caching is performed across calls to draw.
 
     This implementation [FIXME: say what kind (or kinds) of traversal is used.]
     """
@@ -896,7 +896,7 @@ def draw_extended(root, as_dag=False):
 
     If as_dag=False, then for each subtree reused in multiple places (as in
     output of copy_compact), all but one occurrence is drawn with all nodes and
-    edges faded out. This is, others are drawn in light gray instead of black.
+    edges faded out. That is, others are drawn in light gray instead of black.
 
     If as_dag=True, the directed acyclic graph structure of the nodes, as
     represented in memory, is drawn. Thus even reused nodes are drawn just
