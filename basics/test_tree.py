@@ -1,6 +1,7 @@
 """Tests for tree.py."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 import inspect
 import unittest
 
@@ -274,4 +275,123 @@ _parameterize_by_node_type = parameterized.expand([
 class TestPreorder(unittest.TestCase):
     """Tests for the preorder function."""
 
-    # FIXME: Write the tests. Use tree.example submodules' example trees.
+    @_parameterize_by_node_type
+    def test_returns_iterator(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertIsInstance(result, Iterator)
+
+    def test_empty(self):
+        """The result of preorder traversing an empty "tree" is empty."""
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(root)
+
+        with self.assertRaises(StopIteration):
+            next(result)
+
+    @_parameterize_by_node_type
+    def test_singleton(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1])
+
+    @_parameterize_by_node_type
+    def test_left_only(self, _name, node_type):
+        root = basic.left_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2])
+
+    @_parameterize_by_node_type
+    def test_left_only_bst(self, _name, node_type):
+        root = bst.left_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 1])
+
+    @_parameterize_by_node_type
+    def test_right_only(self, _name, node_type):
+        root = basic.right_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 1])
+
+    @_parameterize_by_node_type
+    def test_right_only_bst(self, _name, node_type):
+        root = bst.right_only(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2])
+
+    @_parameterize_by_node_type
+    def test_tiny(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 3])
+
+    @_parameterize_by_node_type
+    def test_tiny_bst(self, _name, node_type):
+        root = bst.tiny(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [2, 1, 3])
+
+    @_parameterize_by_node_type
+    def test_small(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 4, 5, 3, 6, 7])
+
+    @_parameterize_by_node_type
+    def test_small_bst(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 1, 3, 6, 5, 7])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left(self, _name, node_type):
+        root = basic.small_no_left_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 4, 3, 5, 6])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_bst(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 3, 6, 5, 7])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right(self, _name, node_type):
+        root = basic.small_no_left_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 4, 3, 5, 6])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_bst(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 1, 6, 5, 7])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left(self, _name, node_type):
+        root = basic.small_no_right_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 4, 5, 3, 6])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_bst(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 1, 3, 6, 7])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right(self, _name, node_type):
+        root = basic.small_no_right_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [1, 2, 4, 5, 3, 6])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_bst(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root)
+        self.assertListEqual(list(result), [4, 2, 1, 3, 6, 5])
