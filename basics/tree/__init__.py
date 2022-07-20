@@ -43,7 +43,7 @@ import itertools
 
 import graphviz
 
-from . import examples
+from . import examples, green
 
 
 class _NodeReprMixin:
@@ -929,6 +929,7 @@ def draw_extended(root, as_dag=False):
 
 __all__ = [thing.__name__ for thing in (
     examples,
+    green,
     Node,
     FrozenNode,
     preorder,
