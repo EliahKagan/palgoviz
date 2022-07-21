@@ -273,6 +273,7 @@ _parameterize_by_node_type = parameterized.expand([
 @_parameterize_class_by_implementation(
     tree.preorder,
     tree.preorder_iterative,
+    tree.green.preorder_via_general_dfs,
 )
 class TestPreorder(unittest.TestCase):
     """Tests for callables returning preorder traversal iterators."""
@@ -485,7 +486,7 @@ class TestPreorder(unittest.TestCase):
 
 @_parameterize_class_by_implementation(
     tree.inorder,
-    # NOTE: In the future we will have multiple inorder traversers to test.
+    tree.green.inorder_via_general_dfs,
 )
 class TestInorder(unittest.TestCase):
     """Tests for callables returning inorder traversal iterators."""
@@ -698,7 +699,7 @@ class TestInorder(unittest.TestCase):
 
 @_parameterize_class_by_implementation(
     tree.postorder,
-    # NOTE: In the future we will have multiple postorder traversers to test.
+    tree.green.postorder_via_general_dfs,
 )
 class TestPostorder(unittest.TestCase):
     """Tests for callables returning postorder traversal iterators."""
