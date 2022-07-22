@@ -4,11 +4,13 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
+import enum
 import inspect
 import unittest
 
 from parameterized import parameterized, parameterized_class
 
+import enumerations
 import tree
 from tree.examples import almost_bst, basic, bst, trivial
 
@@ -910,7 +912,27 @@ class TestPostorder(unittest.TestCase):
         self.assertListEqual(list(result), expected)
 
 
-class TestGeneralDfs:
+@enum.unique
+class _Visit(enumerations.CodeReprEnum):
+    """Whether an action ("visitation") is preorder, inorder, or postorder."""
+    PRE = enum.auto()
+    IN = enum.auto()
+    POST = enum.auto()
+
+
+def _run_general_dfs(root):
+    """Run tree.general_dfs and return a sequence of logged actions."""
+    visits = []
+
+    tree.general_dfs(root,
+                     pre_fn=lambda value: visits.append((_Visit.PRE, value)),
+                     in_fn=lambda value: visits.append((_Visit.IN, value)),
+                     post_fn=lambda value: visits.append((_Visit.POST, value)))
+
+    return visits
+
+
+class TestGeneralDfs(unittest.TestCase):
     """
     Tests of nontrivial uses of general_dfs.
 
@@ -923,7 +945,175 @@ class TestGeneralDfs:
     This class tests more sophisticated usage that does not reduce to just one
     of preorder, inorder, or postorder traversal.
     """
-    # FIXME: Write these tests.
+    @_parameterize_by_node_type
+    def test_returns_none(self, _name, node_type):
+        """general_dfs should implicitly return None."""
+        root = basic.small(node_type)
+        actual_return = tree.general_dfs(root)
+        self.assertIsNone(actual_return)
+
+    def test_empty(self):
+        """There are no nodes to visit in an empty "tree"."""
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [])
+
+    @_parameterize_by_node_type
+    def test_singleton(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_left_only(self, _name, node_type):
+        root = basic.left_only(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_left_only_bst(self, _name, node_type):
+        root = bst.left_only(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+        ])
+
+    @_parameterize_by_node_type
+    def test_right_only(self, _name, node_type):
+        root = basic.right_only(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.POST, 2)
+        ])
+
+    @_parameterize_by_node_type
+    def test_right_only_bst(self, _name, node_type):
+        root = bst.right_only(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.POST, 1)
+        ])
+
+    @_parameterize_by_node_type
+    def test_tiny(self, _name, node_type):
+        root = basic.tiny(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_tiny_bst(self, _name, node_type):
+        root = bst.tiny(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small(self, _name, node_type):
+        root = basic.small(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_bst(self, _name, node_type):
+        root = bst.small(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 6),
+            (_Visit.POST, 4),
+        ])
+
+    # FIXME: Write the rest of these tests.
 
 
 @_parameterize_class_by_implementation(
