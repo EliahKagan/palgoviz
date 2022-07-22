@@ -1,14 +1,15 @@
 """
-Binary tree DFS generator functions delegating to tree.dfs, using greenlets.
+Binary tree DFS generator functions delegating to tree.general_dfs.
 
-tree.dfs is a recursive DFS implementation that traverses a binary tree and
-does any combination of preorder, inorder, and postorder actions by calling
+This module's functions use greenlets. See green.md for details and theory.
+
+tree.general_dfs is a recursive DFS implementation that traverses a binary tree
+and does any combination of preorder, inorder, and postorder actions by calling
 f_pre, f_in, or f_post functions passed as optional keyword-only arguments.
 
-Since tree.dfs claims to be a generalization of tree.preorder, tree.inorder,
-and tree.postorder, it must be possible to make alternative implementations
-of them that delegate traversal to tree.dfs. This submodule contains those
-implementations. See green.md in this directory for theoretical details.
+For the claim that general_dfs generalizes preorder, inorder, and postorder to
+be true, it must be possible to make alternative implementations of those three
+generator functions that delegate traversal to general_dfs. That is done here.
 """
 
 from greenlet import greenlet as _greenlet
@@ -30,17 +31,17 @@ def _adapt(produce):
 
 def preorder_via_general_dfs(root):
     """Preorder traversal, delegating to tree.dfs but yielding elements."""
-    return _adapt(lambda receive: _tree.dfs(root, pre_fn=receive))
+    return _adapt(lambda receive: _tree.general_dfs(root, pre_fn=receive))
 
 
 def inorder_via_general_dfs(root):
     """Inorder traversal, delegating to tree.dfs but yielding elements."""
-    return _adapt(lambda receive: _tree.dfs(root, in_fn=receive))
+    return _adapt(lambda receive: _tree.general_dfs(root, in_fn=receive))
 
 
 def postorder_via_general_dfs(root):
     """Postorder traversal, delegating to tree.dfs but yielding elements."""
-    return _adapt(lambda receive: _tree.dfs(root, post_fn=receive))
+    return _adapt(lambda receive: _tree.general_dfs(root, post_fn=receive))
 
 
 __all__ = [thing.__name__ for thing in (

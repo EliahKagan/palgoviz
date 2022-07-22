@@ -166,19 +166,19 @@ def postorder(root):
         yield root.element
 
 
-def _do_dfs(root, pre_fn, in_fn, post_fn):
-    """Helper for dfs."""
+def _do_general_dfs(root, pre_fn, in_fn, post_fn):
+    """Helper for general_dfs."""
     if not root:
         return
 
     pre_fn(root.element)
-    _do_dfs(root.left, pre_fn, in_fn, post_fn)
+    _do_general_dfs(root.left, pre_fn, in_fn, post_fn)
     in_fn(root.element)
-    _do_dfs(root.right, pre_fn, in_fn, post_fn)
+    _do_general_dfs(root.right, pre_fn, in_fn, post_fn)
     post_fn(root.element)
 
 
-def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
+def general_dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
     """
     Recursive interleaved DFS traversals: preorder, inorder, and postorder.
 
@@ -217,10 +217,10 @@ def dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    return _do_dfs(root,
-                   _noop_fallback(pre_fn),
-                   _noop_fallback(in_fn),
-                   _noop_fallback(post_fn))
+    return _do_general_dfs(root,
+                           _noop_fallback(pre_fn),
+                           _noop_fallback(in_fn),
+                           _noop_fallback(post_fn))
 
 
 # FIXME: Having completed dfs above, consider mergesort. It is a divide and
@@ -935,7 +935,7 @@ __all__ = [thing.__name__ for thing in (
     preorder,
     inorder,
     postorder,
-    dfs,
+    general_dfs,
     levelorder,
     preorder_iterative,
     size,

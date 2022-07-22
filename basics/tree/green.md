@@ -1,6 +1,6 @@
 # Theory behind `tree.green`
 
-`tree.dfs` is a recursive
+`tree.general_dfs` is a recursive
 [DFS](https://en.wikipedia.org/wiki/Depth-first_search) implementation that
 traverses a [binary tree](https://en.wikipedia.org/wiki/Binary_tree) and does
 any combination of [preorder, inorder, and
@@ -8,10 +8,10 @@ postorder](https://en.wikipedia.org/wiki/Tree_traversal) actions by calling
 `f_pre`, `f_in`, or `f_post` functions passed as optional keyword-only
 arguments.
 
-Since `tree.dfs` claims to be a generalization of `tree.preorder`,
+Since `tree.general_dfs` claims to be a generalization of `tree.preorder`,
 `tree.inorder`, and `tree.postorder`, it must be possible to make alternative
-implementations of them that delegate traversal to `tree.dfs`. The `tree.green`
-submodule contains those implementations.
+implementations of them that delegate traversal to `tree.general_dfs`. The
+`tree.green` submodule contains those implementations.
 
 To identify the challenge to be overcome, first consider a situation with three
 functions: a generator function `produce` that yields values, a function
@@ -54,11 +54,10 @@ But we really want to do it lazily. Each time `produce` calls `receive`,
 `receive` again (or before `produce` returns, if that was the last time
 `produce` was going to call `receive`).
 
-Being quite general, `produce` doesn't
-know we want this kind of concurrency. So whatever mechanism we use to make
-`produce` suspend when it calls `receive`, and to make `produce` resume
-whenever `adapt` resumes after yielding the value `receive` was called with,
-will itself be external to `produce`.
+Being quite general, `produce` doesn't know we want this kind of concurrency.
+So whatever mechanism we use to make `produce` suspend when it calls `receive`,
+and to make `produce` resume whenever `adapt` resumes after yielding the value
+`receive` was called with, will itself be external to `produce`.
 
 One approach might be to avoid solving the problem altogether, and report a bug
 in `produce`, claiming `produce` should just be a generator function in the
@@ -67,13 +66,13 @@ first place. That would often be right. But sometimes there may be a reason
 `produce` is a function in a native code library that doesn't know anything
 about Python, being called from Python.
 
-Here, another reason applies. `produce` is `tree.dfs`, and `receive` is any of
-`f_pre`, `f_in`, or `f_post`. `tree.dfs` calls separate functions for preorder,
-inorder, and postorder actions because you may want to use more than one. It
-could have been a generator function that yielded objects that both carry
-values and specify if they are preorder, inorder, or postorder results, letting
-the consumer filter them. But it is not obvious that this would be better,
-since many simple uses would become more complicated.
+Here, another reason applies. `produce` is `tree.general_dfs`, and `receive` is
+any of `f_pre`, `f_in`, or `f_post`. `tree.general_dfs` calls separate
+functions for preorder, inorder, and postorder actions because you may want to
+use more than one. It could have been a generator function that yielded objects
+that both carry values and specify if they are preorder, inorder, or postorder
+results, letting the consumer filter them. But it is not obvious that this
+would be better, since many simple uses would become more complicated.
 
 So how do we pass `produce` a function that, when called, *suspends* execution
 and switches back to code in `adapt` that can then yield a result?
@@ -126,9 +125,9 @@ results are accessed by using the `await` operator to await that object or an
 object derived from it, or by passing it to `asyncio.run` to run it as the
 entry point of a new event loop.
 
-`tree.dfs` calls `f_pre`, `f_in`, and `f_post` synchronously and is not a
-generator function or asynchronous function. So lazily delegating to it from a
-generator is a case that calls for a use of fibers separate from what can be
+`tree.general_dfs` calls `f_pre`, `f_in`, and `f_post` synchronously and is not
+a generator function or asynchronous function. So lazily delegating to it from
+a generator is a case that calls for a use of fibers separate from what can be
 achieved with Python syntax.
 
 **The [`greenlet`](https://greenlet.readthedocs.io/en/latest/) library**

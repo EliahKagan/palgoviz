@@ -3,7 +3,7 @@ tree.FrozenNode
 tree.preorder
 tree.inorder
 tree.postorder
-tree.dfs
+tree.general_dfs
 tree.levelorder
 tree.preorder_iterative
 tree.size
