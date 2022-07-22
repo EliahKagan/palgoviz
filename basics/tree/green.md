@@ -115,15 +115,17 @@ their own call stacks, and their own instruction pointers in the sense of
 states keeping track of where in the generator's code execution will resume.
 Asynchronous functions likewise have their own call stacks, and their own
 instruction pointers in the sense of states keeping track of where they will
-resume after awaiting another coroutine or other awaitable. Generator functions
-and asynchronous functions rely on Python language features, supported by
-syntax. A generator function contains `yield` or `yield from`, returns a
-generator object before any of its code is run, and results are accessed by
-iteration or manually calling `next`. An asynchronous function is defined with
-`async def` and returns a coroutine object before any of its code is run, and
-results are accessed by using the `await` operator to await that object or an
-object derived from it, or by passing it to `asyncio.run` to run it as the
-entry point of a new event loop.
+resume after awaiting another coroutine or other awaitable.
+
+Generator functions and asynchronous functions rely on Python language
+features, supported by syntax. A generator function contains `yield` or `yield
+from`, returns a generator object before any of its code is run, and results
+are accessed by iteration or manually calling `next`. An asynchronous function
+is defined with `async def` and returns a coroutine object before any of its
+code is run, and results are accessed by using the `await` operator to await
+that object or an object derived from it (such as by `asyncio.create_task`), or
+by passing it to `asyncio.run` to run it as the entry point of a new event
+loop.
 
 `tree.general_dfs` calls `f_pre`, `f_in`, and `f_post` synchronously and is not
 a generator function or asynchronous function. So lazily delegating to it from
