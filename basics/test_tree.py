@@ -910,6 +910,22 @@ class TestPostorder(unittest.TestCase):
         self.assertListEqual(list(result), expected)
 
 
+class TestGeneralDfs:
+    """
+    Tests of nontrivial uses of general_dfs.
+
+    Functions in the green submodule perform pure preorder, inorder, and
+    postorder traversals by delegating to general_dfs. Those indirect uses,
+    some of which would most likely fail if general_dfs is implemented wrongly,
+    are tested in TestPreorder, TestInorder, and TestPostorder, along with
+    tests of the regular preorder, inorder, and postorder functions.
+
+    This class tests more sophisticated usage that does not reduce to just one
+    of preorder, inorder, or postorder traversal.
+    """
+    # FIXME: Write these tests.
+
+
 @_parameterize_class_by_implementation(
     tree.levelorder,
     # NOTE: In the future we will have multiple level-order traversers to test.
