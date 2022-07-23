@@ -284,7 +284,7 @@ def size(root):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    return sum(1 for _ in preorder(root))
 
 
 def size_recursive(root):
@@ -293,7 +293,10 @@ def size_recursive(root):
 
     This implementation is recursive, not using other functions in this module.
     """
-    # FIXME: Needs implementation.
+    if not root:
+        return 0
+
+    return 1 + size_recursive(root.left) + size_recursive(root.right)
 
 
 def size_iterative(root):
@@ -302,7 +305,21 @@ def size_iterative(root):
 
     This implementation is iterative, not using other functions in this module.
     """
-    # FIXME: Needs implementation.
+    count = 0
+    stack = []
+
+    if root:
+        stack.append(root)
+
+    while stack:
+        count += 1
+        node = stack.pop()
+        if node.left:
+            stack.append(node.left)
+        if node.right:
+            stack.append(node.right)
+
+    return count
 
 
 def height(root):

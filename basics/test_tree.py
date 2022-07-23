@@ -2032,5 +2032,211 @@ class TestLevelOrder(unittest.TestCase):
         self.assertListEqual(list(result), expected)
 
 
+@_parameterize_class_by_implementation(
+    tree.size,
+    tree.size_recursive,
+    tree.size_iterative,
+)
+class TestSize(unittest.TestCase):
+    """Tests for functions that count all nodes in a binary tree."""
+
+    @_parameterize_by_node_type
+    def test_returns_int(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertIsInstance(result, int)
+
+    def test_empty(self):
+        """The result of level-order traversing an empty "tree" is empty."""
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(root)
+        self.assertEqual(result, 0)
+
+    @_parameterize_by_node_type
+    def test_singleton(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 1)
+
+    @_parameterize_by_node_type
+    def test_left_only(self, _name, node_type):
+        root = basic.left_only(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 2)
+
+    @_parameterize_by_node_type
+    def test_left_only_bst(self, _name, node_type):
+        root = bst.left_only(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 2)
+
+    @_parameterize_by_node_type
+    def test_right_only(self, _name, node_type):
+        root = basic.right_only(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 2)
+
+    @_parameterize_by_node_type
+    def test_right_only_bst(self, _name, node_type):
+        root = bst.right_only(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 2)
+
+    @_parameterize_by_node_type
+    def test_tiny(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 3)
+
+    @_parameterize_by_node_type
+    def test_tiny_bst(self, _name, node_type):
+        root = bst.tiny(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 3)
+
+    @_parameterize_by_node_type
+    def test_small(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 7)
+
+    @_parameterize_by_node_type
+    def test_small_bst(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 7)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left(self, _name, node_type):
+        root = basic.small_no_left_left(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_bst(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right(self, _name, node_type):
+        root = basic.small_no_left_right(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_bst(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left(self, _name, node_type):
+        root = basic.small_no_right_left(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_bst(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right(self, _name, node_type):
+        root = basic.small_no_right_right(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_bst(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 6)
+
+    @_parameterize_by_node_type
+    def test_left_degenerate(self, _name, node_type):
+        root = basic.left_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 5)
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_bst(self, _name, node_type):
+        root = bst.left_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 5)
+
+    @_parameterize_by_node_type
+    def test_right_degenerate(self, _name, node_type):
+        root = basic.right_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 5)
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_bst(self, _name, node_type):
+        root = bst.right_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 5)
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate(self, _name, node_type):
+        root = basic.zigzag_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 5)
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_bst(self, _name, node_type):
+        root = bst.zigzag_degenerate(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 5)
+
+    @_parameterize_by_node_type
+    def test_lefty(self, _name, node_type):
+        root = basic.lefty(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 9)
+
+    @_parameterize_by_node_type
+    def test_lefty_bst(self, _name, node_type):
+        root = bst.lefty(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 9)
+
+    @_parameterize_by_node_type
+    def test_righty(self, _name, node_type):
+        root = basic.righty(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 9)
+
+    @_parameterize_by_node_type
+    def test_righty_bst(self, _name, node_type):
+        root = bst.righty(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 9)
+
+    @_parameterize_by_node_type
+    def test_medium(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 24)
+
+    @_parameterize_by_node_type
+    def test_medium_bst(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 24)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root)
+        self.assertEqual(result, 24)
+
+
 if __name__ == '__main__':
     unittest.main()
