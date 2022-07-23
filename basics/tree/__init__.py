@@ -182,9 +182,9 @@ def general_dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
     """
     Recursive interleaved DFS traversals: preorder, inorder, and postorder.
 
-    Whichever of the preorder, inorder, and postorder functions are passed are
-    called at the time a preorder, inorder, or postorder "visitation" occurs.
-    Traversal is in a single pass, guaranteeing the relative order of calls.
+    Whichever of the pre_fn, in_fn, and post_fn functions are passed are called
+    on preorder, inorder, and postorder visitation, respectively. Traversal is
+    in a single pass, guaranteeing the relative order of calls.
 
     Consider this form of DFS on binary trees that traverses but does nothing:
 
