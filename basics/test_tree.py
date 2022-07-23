@@ -1445,7 +1445,143 @@ class TestGeneralDfs(unittest.TestCase):
             (_Visit.POST, 1),
         ])
 
-    # FIXME: Write the rest of these tests.
+    @_parameterize_by_node_type
+    def test_lefty(self, _name, node_type):
+        root = basic.lefty(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 8),
+            (_Visit.IN, 8),
+            (_Visit.POST, 8),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 9),
+            (_Visit.IN, 9),
+            (_Visit.POST, 9),
+            (_Visit.POST, 6),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 4),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_lefty_bst(self, _name, node_type):
+        root = bst.lefty(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 8),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 4),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 6),
+            (_Visit.IN, 8),
+            (_Visit.PRE, 9),
+            (_Visit.IN, 9),
+            (_Visit.POST, 9),
+            (_Visit.POST, 8),
+        ])
+
+    @_parameterize_by_node_type
+    def test_righty(self, _name, node_type):
+        root = basic.righty(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 5),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.IN, 5),
+            (_Visit.PRE, 7),
+            (_Visit.PRE, 8),
+            (_Visit.IN, 8),
+            (_Visit.POST, 8),
+            (_Visit.IN, 7),
+            (_Visit.PRE, 9),
+            (_Visit.IN, 9),
+            (_Visit.POST, 9),
+            (_Visit.POST, 7),
+            (_Visit.POST, 5),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_righty_bst(self, _name, node_type):
+        root = bst.righty(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 8),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.IN, 8),
+            (_Visit.PRE, 9),
+            (_Visit.IN, 9),
+            (_Visit.POST, 9),
+            (_Visit.POST, 8),
+            (_Visit.POST, 6),
+            (_Visit.POST, 4),
+            (_Visit.POST, 2),
+        ])
+
+    # FIXME: Write the remaining three tests (on "medium" trees).
 
 
 @_parameterize_class_by_implementation(
