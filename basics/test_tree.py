@@ -1113,6 +1113,338 @@ class TestGeneralDfs(unittest.TestCase):
             (_Visit.POST, 4),
         ])
 
+    @_parameterize_by_node_type
+    def test_small_no_left_left(self, _name, node_type):
+        root = basic.small_no_left_left(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_bst(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 6),
+            (_Visit.POST, 4),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right(self, _name, node_type):
+        root = basic.small_no_left_right(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_bst(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 6),
+            (_Visit.POST, 4),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left(self, _name, node_type):
+        root = basic.small_no_right_left(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_bst(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.PRE, 7),
+            (_Visit.IN, 7),
+            (_Visit.POST, 7),
+            (_Visit.POST, 6),
+            (_Visit.POST, 4),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right(self, _name, node_type):
+        root = basic.small_no_right_right(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 6),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_bst(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 6),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 6),
+            (_Visit.POST, 6),
+            (_Visit.POST, 4),
+        ])
+
+    @_parameterize_by_node_type
+    def test_left_degenerate(self, _name, node_type):
+        root = basic.left_degenerate(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_bst(self, _name, node_type):
+        root = bst.left_degenerate(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 5),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 3),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+        ])
+
+    @_parameterize_by_node_type
+    def test_right_degenerate(self, _name, node_type):
+        root = basic.right_degenerate(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.POST, 1),
+            (_Visit.POST, 2),
+            (_Visit.POST, 3),
+            (_Visit.POST, 4),
+            (_Visit.POST, 5),
+        ])
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_bst(self, _name, node_type):
+        root = bst.right_degenerate(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 4),
+            (_Visit.IN, 4),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 4),
+            (_Visit.POST, 3),
+            (_Visit.POST, 2),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate(self, _name, node_type):
+        root = basic.zigzag_degenerate(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 2),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 5),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.POST, 3),
+            (_Visit.IN, 2),
+            (_Visit.POST, 2),
+            (_Visit.POST, 1),
+        ])
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_bst(self, _name, node_type):
+        root = bst.zigzag_degenerate(node_type)
+        results = _run_general_dfs(root)
+        self.assertListEqual(results, [
+            (_Visit.PRE, 1),
+            (_Visit.IN, 1),
+            (_Visit.PRE, 5),
+            (_Visit.PRE, 2),
+            (_Visit.IN, 2),
+            (_Visit.PRE, 4),
+            (_Visit.PRE, 3),
+            (_Visit.IN, 3),
+            (_Visit.POST, 3),
+            (_Visit.IN, 4),
+            (_Visit.POST, 4),
+            (_Visit.POST, 2),
+            (_Visit.IN, 5),
+            (_Visit.POST, 5),
+            (_Visit.POST, 1),
+        ])
+
     # FIXME: Write the rest of these tests.
 
 
