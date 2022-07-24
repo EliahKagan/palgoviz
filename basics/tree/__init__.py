@@ -40,6 +40,7 @@ But the classes and functions in this module all assume finite trees.
 import collections
 import html
 import itertools
+import math
 
 import graphviz
 
@@ -699,7 +700,23 @@ def linear_search_mindepth(root, value):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    if not root:
+        return None
+
+    queue = collections.deque((root,))
+
+    while queue:
+        node = queue.popleft()
+
+        if node.element == value:
+            return node
+
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+
+    return None
 
 
 def linear_search_mindepth_alt(root, value):
@@ -715,7 +732,39 @@ def linear_search_mindepth_alt(root, value):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    def dfs(node, depth):
+        if not node:
+            return math.inf, None
+        if node.element == value:
+            return depth, node
+
+        left_depth, left = dfs(node.left, depth + 1)
+        right_depth, right = dfs(node.right, depth + 1)
+
+        if right_depth < left_depth:
+            return right_depth, right
+        return left_depth, left
+
+    _, result = dfs(root, 0)
+    return result
+
+
+def _get_path(root, value):
+    """Return a list of nodes in a path from the root to a node with value."""
+    path = []
+
+    def dfs(node):
+        if not node:
+            return None
+        path.append(node)
+        if node.element == value:
+            return path
+        return dfs(node.left) or dfs(node.right)
+
+    result = dfs(root)
+    if not result:
+        raise ValueError(f'no node with value {value!r} found')
+    return result
 
 
 def nearest_ancestor(root, value1, value2):
@@ -730,7 +779,10 @@ def nearest_ancestor(root, value1, value2):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    path1 = _get_path(root, value1)
+    path2 = _get_path(root, value2)
+    zipped_reversed = zip(reversed(path1), reversed(path2))
+    return next(node1 for node1, node2 in zipped_reversed if node1 is node2)
 
 
 def is_bst(root):
@@ -743,7 +795,7 @@ def is_bst(root):
     The time complexity should be asymptotically optimal for this problem. Say
     why it is not possible for any asymptotically faster solution to exist.]
     """
-    # FIXME: Needs implementation.
+    return not any(cur < pre for pre, cur in itertools.pairwise(inorder(root)))
 
 
 def is_bst_alt(root):
@@ -761,7 +813,18 @@ def is_bst_alt(root):
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.
     Time complexity is as in is_bst. If auxiliary space differs, explain.]
     """
-    # FIXME: Needs implementation.
+    unbounded = object()
+
+    def is_bounded_bst(node, lower, upper):
+        if not node:
+            return True
+
+        return ((lower is unbounded or not node.element < lower) and
+                (upper is unbounded or not upper < node.element) and
+                is_bounded_bst(node.left, lower, node.element) and
+                is_bounded_bst(node.right, node.element, upper))
+
+    return is_bounded_bst(root, unbounded, unbounded)
 
 
 def is_bst_iterative(root):
@@ -774,7 +837,26 @@ def is_bst_iterative(root):
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.
     Time complexity is as in is_bst. If auxiliary space differs, explain.]
     """
-    # FIXME: Needs implementation.
+    if not root:
+        return True
+
+    unbounded = object()
+    stack = [(root, unbounded, unbounded)]
+
+    while stack:
+        node, lower, upper = stack.pop()
+
+        if lower is not unbounded and node.element < lower:
+            return False
+        if upper is not unbounded and upper < node.element:
+            return False
+
+        if node.left:
+            stack.append((node.left, lower, node.element))
+        if node.right:
+            stack.append((node.right, node.element, upper))
+
+    return True
 
 
 def binary_search(root, value):
@@ -788,7 +870,13 @@ def binary_search(root, value):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    if not root:
+        return None
+    if value < root.element:
+        return binary_search(root.left, value)
+    if value > root.element:
+        return binary_search(root.right, value)
+    return root
 
 
 def binary_search_iterative(root, value):
@@ -800,7 +888,15 @@ def binary_search_iterative(root, value):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    while root:
+        if value < root.element:
+            root = root.left
+        elif value > root.element:
+            root = root.right
+        else:
+            return root
+
+    return None
 
 
 def binary_insert(root, element, *, allow_duplicate=False):
@@ -815,10 +911,21 @@ def binary_insert(root, element, *, allow_duplicate=False):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    def insert(node):
+        if not node:
+            return Node(element)
+
+        if element < node.element:
+            node.left = insert(node.left)
+        elif allow_duplicate or element > node.element:
+            node.right = insert(node.right)
+
+        return node
+
+    return insert(root)
 
 
-def binary_insert_iterative(root, element):
+def binary_insert_iterative(root, element, *, allow_duplicate=False):
     """
     Nonrecursively insert a new node in a BST, keeping it a BST.
 
@@ -829,11 +936,14 @@ def binary_insert_iterative(root, element):
     # FIXME: Needs implementation.
 
 
-def build_bst(iterable):
+def build_bst(iterable, *, multiset=False):
     """
     Build a binary search tree from the given elements.
 
     This uses existing functions. It performs no element comparisons directly.
+
+    The multiset parameter specifies if multiple elements that compare similar
+    (neither greater nor less than each other) are all inserted, or just one.
 
     TODO: In many applications, it is not necessary to hand out references to
     individual nodes. Then it's best to encapsulate the logic of building and
