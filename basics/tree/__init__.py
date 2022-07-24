@@ -7,8 +7,8 @@ There are two conventions for how we describe these trees, which affect the
 answers to questions like, "How many nodes are in the tree?"
 
 The most common convention, which we use, is that these branches are truly
-empty. So None represents the absence of a node, not a leaf. A node whose
-children are both given as None is a leaf.
+empty. So None represents the absence of a node. It does not represent a leaf.
+A node whose children are both given as None is a leaf.
 
 The other convention is to regard the sentinels as the actual leaves, as in The
 Art of Computer Programming by Donald Knuth. We don't use this convention. But:
@@ -33,8 +33,15 @@ Some of our functions create or add nodes to trees. Except as otherwise stated:
 2. Other functions work equally well on trees made of Node, FrozenNode, or any
    object that has element, left, and right attributes with the same meanings.
 
-Infinite trees are meaningful and can even be represented via lazy techniques.
-But the classes and functions in this module all assume finite trees.
+Finally, here are two general notes significant to design decisions throughout:
+
+1. Infinite trees are meaningful and can even be represented using lazy
+   techniques. But classes and functions in this module assume finite trees.
+
+2. A tree can be so tall that RecursionError would be raised when attempting to
+   traverse it with a recursive algorithm. Unless stated otherwise, it is okay
+   for recursive functions in this module to be limited in this way (even when
+   their descriptions do not insist they be implemented recursively).
 """
 
 import collections
