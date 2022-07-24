@@ -1053,7 +1053,7 @@ def _setdefault(mapping, key, default):
 
 def _memoize(root, memo):
     """
-    Find the first subtree this has and recorded in memo that matches root.
+    Find the first subtree ever found using this memo table that matches root.
 
     By left-to-right postorder traversal, each subtree of the tree rooted at
     root, if it doesn't match any tree recorded in memo, is recorded in memo.
