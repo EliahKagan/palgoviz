@@ -38,6 +38,7 @@ But the classes and functions in this module all assume finite trees.
 """
 
 import collections
+import functools
 import html
 import itertools
 import math
@@ -1039,6 +1040,36 @@ def find_subtree(tree, subtree):
     return _do_find_subtree(tree, subtree) if subtree else None
 
 
+def _setdefault(mapping, key, default):
+    """
+    Like Mapping.setdefault, but mapping need not be mutable if key is present.
+    """
+    try:
+        return mapping[key]
+    except KeyError:
+        mapping[key] = default
+        return default
+
+
+def _memoize(root, memo):
+    """
+    Find the first subtree this has and recorded in memo that matches root.
+
+    By left-to-right postorder traversal, each subtree of the tree rooted at
+    root, if it doesn't match any tree recorded in memo, is recorded in memo.
+
+    memo is expected to be a mapping, empty except entries added by prior calls
+    to _deduplicate. If no tree structurally equal to the tree rooted at root
+    (that is, matching it) was seen before, memo must be mutable or TypeError
+    is raised. There is no guarantee on how data are represented in memo.
+    """
+    if not root:
+        return None
+
+    key = (root.element, _memoize(root.left, memo), _memoize(root.right, memo))
+    return _setdefault(memo, key, root)
+
+
 def find_subtree_fast(tree, subtree):
     """
     Find a copy of a subtree in a binary tree, if present, in linear time.
@@ -1052,29 +1083,13 @@ def find_subtree_fast(tree, subtree):
     if not (tree and subtree):
         return None
 
-    writeable_memo = {}  # (element, left index, right index) -> index
-    nodes = [None]       # index -> node
-
-    def encode(node, memo):
-        if not node:
-            return 0
-
-        key = (node.element, encode(node.left, memo), encode(node.right, memo))
-
-        if key not in memo:
-            memo[key] = len(nodes)  # Raises TypeError if memo is mappingproxy.
-            nodes.append(node)
-
-        return memo[key]
-
-    encode(tree, writeable_memo)
+    memo = {}
+    _memoize(tree, memo)
 
     try:
-        subtree_index = encode(subtree, types.MappingProxyType(writeable_memo))
+        return _memoize(subtree, types.MappingProxyType(memo))
     except TypeError:
         return None
-    else:
-        return nodes[subtree_index]
 
 
 def copy_compact(root):
@@ -1087,8 +1102,11 @@ def copy_compact(root):
     this builds. It is far less often appropriate for mutable trees, so copy
     and copy_iterative do not do so. This is because [FIXME: explain].
 
-    Time complexity is asymptotically optimal: [FIXME: State the time
-    complexity for n nodes and height h.]
+    For simplicity, the returned tree's nodes are all newly created. None are
+    shared with the input tree, even if the input tree is a FrozenNode tree.
+
+    The time complexity is asymptotically optimal. [FIXME: State the time and
+    auxiliary space complexities for n nodes and height h.]
     """
     # FIXME: Needs implementation.
 
