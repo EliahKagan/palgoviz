@@ -1110,7 +1110,7 @@ def copy_compact(root):
     The time complexity is asymptotically optimal. [FIXME: State the time and
     auxiliary space complexities for n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    return _memoize_subtrees(root, {}, FrozenNode)
 
 
 def draw_extended(root, as_dag=False):
