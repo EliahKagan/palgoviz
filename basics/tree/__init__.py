@@ -1116,22 +1116,25 @@ def copy_compact(root):
 
 # FIXME: Having implemented find_subtree_fast and copy_compact, make any
 # changes needed so they share most of their logic. Factor the shared logic out
-# into a shared helper function. It should have a descriptive name, as well as
-# a docstring explaining what it does, which may need more than just its
-# initial summary line. Make sure you do this in a way you are confident is a
+# into a shared helper function. It must have a descriptive name, as well as a
+# docstring explaining what it does, which may need more than just its initial
+# summary line. Make sure you do this in a way you are confident is a
 # reasonable and non-contrived approach to implementing find_subtree_fast and
 # copy_compact, and that demonstrates the conceptual connection between them
-# (even without reading docstrings ot comments). They should never call each
-# other, only the helper. find_subtree_fast should never create any tree nodes.
+# (even without reading docstrings or comments). They must not call each other,
+# only the helper. find_subtree_fast must never create any tree nodes.
 #
-# Once this is done, the body of at least one of find_subtree_fast or
-# copy_compact (besides its docstring) should then consist of a single return
-# statement that is clear and fits easily on one line.
+# If find_subtree_fast previously had two helper functions with similar logic
+# (even if their code was mostly different), that will no longer be the case.
+# It is unlikely either find_subtree_fast or compact_compact will have helpers
+# besides the one they will now share. Furthermore, at least one of them must
+# not only use no other helpers, but also its body must consist of a single
+# return statement that is clear and fits easily on one line.
 #
 # This can be done before or after implementing draw_extended below. If, after
 # doing this and committing the result, you decide you prefer not to share the
 # logic in this way, feel free to make further changes, so long as you regard
-# your ultimate solutions to be at least as elegant as in this approach.
+# your ultimate implementations to be at least as elegant as in this approach.
 
 
 def draw_extended(root, as_dag=False):
