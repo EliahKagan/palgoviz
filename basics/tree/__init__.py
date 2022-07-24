@@ -41,6 +41,7 @@ import collections
 import html
 import itertools
 import math
+import types
 
 import graphviz
 
@@ -1051,31 +1052,26 @@ def find_subtree_fast(tree, subtree):
     if not (tree and subtree):
         return None
 
-    table = {}      # (element, left index, right index) -> index
-    nodes = [None]  # index -> node
+    writeable_memo = {}  # (element, left index, right index) -> index
+    nodes = [None]       # index -> node
 
-    def encode(node):
+    def encode(node, memo):
         if not node:
             return 0
 
-        key = (node.element, encode(node.left), encode(node.right))
+        key = (node.element, encode(node.left, memo), encode(node.right, memo))
 
-        if key not in table:
-            table[key] = len(nodes)
+        if key not in memo:
+            memo[key] = len(nodes)  # Raises TypeError if memo is mappingproxy.
             nodes.append(node)
 
-        return table[key]
+        return memo[key]
 
-    def search(node):
-        if not node:
-            return 0
-        return table[node.element, search(node.left), search(node.right)]
-
-    encode(tree)
+    encode(tree, writeable_memo)
 
     try:
-        subtree_index = search(subtree)
-    except KeyError:
+        subtree_index = encode(subtree, types.MappingProxyType(writeable_memo))
+    except TypeError:
         return None
     else:
         return nodes[subtree_index]
