@@ -906,6 +906,9 @@ def binary_insert(root, element, *, allow_duplicate=False):
     The allow_duplicate parameter specifies whether a new node should be added
     even if one or more existing nodes' elements are similar to element.
 
+    The tree is never spliced or rebalanced: all preexisting paths from a root
+    to any node continue to be paths in the tree after a new node is added.
+
     The updated tree's root node is returned, though this will be the same as
     the old root node unless the tree was empty and there was no such node.
 
@@ -929,18 +932,39 @@ def binary_insert_iterative(root, element, *, allow_duplicate=False):
     """
     Nonrecursively insert a new node in a BST, keeping it a BST.
 
-    See binary_insert. This is the iterative version.
+    See binary_insert. This is the iterative version. It has the same effect on
+    the tree as binary_insert, including when multiple distinct modifications
+    to the tree could be correct, which happens [FIXME: finish this sentence].
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
-    # FIXME: Needs implementation.
+    if not root:
+        return Node(element)
+
+    node = root
+
+    while True:
+        if element < node.element:
+            if not node.left:
+                node.left = Node(element)
+                break
+            node = node.left
+        elif allow_duplicate or element > node.element:
+            if not node.right:
+                node.right = Node(element)
+                break
+            node = node.right
+        else:
+            break
+
+    return root
 
 
 def build_bst(iterable, *, multiset=False):
     """
     Build a binary search tree from the given elements.
 
-    This uses existing functions. It performs no element comparisons directly.
+    This uses an existing function. It makes no element comparisons directly.
 
     The multiset parameter specifies if multiple elements that compare similar
     (neither greater nor less than each other) are all inserted, or just one.
@@ -953,17 +977,33 @@ def build_bst(iterable, *, multiset=False):
 
     [FIXME: State best, average, and worst-case time, for a length-n iterable.]
     """
-    # FIXME: Needs implementation.
+    root = None
+    for element in iterable:
+        binary_insert(root, element, allow_duplicate=multiset)
+    return root
 
 
 def tree_sort(iterable):
     """
     Sort values, by [FIXME: briefly say how].
 
-    This BST-based technique has [FIXME: State best, average, and worst-case
-    time and space complexities, for a length-n iterable.]
+    This BST-based technique returns an iterable of sorted values. It has
+    [FIXME: State best, average, and worst-case time and space complexities,
+    for a length-n input iterable.]
     """
-    # FIXME: Needs implementation.
+    return inorder(build_bst(iterable, multiset=True))
+
+
+def _do_find_subtree(tree, nonempty_subtree):  # TODO: Should this be a helper?
+    """Recursive helper for find_subtree."""
+    if not tree:
+        return None
+
+    if structural_equal(tree, nonempty_subtree):
+        return tree
+
+    return (_do_find_subtree(tree.left, nonempty_subtree) or
+            _do_find_subtree(tree.right, nonempty_subtree))
 
 
 def find_subtree(tree, subtree):
@@ -995,7 +1035,7 @@ def find_subtree(tree, subtree):
     with m > 0 and n > 0, this takes O(m * n) time and uses [FIXME: how much?]
     auxiliary space.
     """
-    # FIXME: Needs implementation.
+    return _do_find_subtree(tree, subtree) if subtree else None
 
 
 def find_subtree_fast(tree, subtree):
@@ -1008,7 +1048,37 @@ def find_subtree_fast(tree, subtree):
     tree has m nodes and subtree has n nodes, this takes O(m + n) time and uses
     [FIXME: how much?] auxiliary space.
     """
-    # FIXME: Needs implementation.
+    if not (tree and subtree):
+        return None
+
+    table = {}      # (element, left index, right index) -> index
+    nodes = [None]  # index -> node
+
+    def encode(node):
+        if not node:
+            return 0
+
+        key = (node.element, encode(node.left), encode(node.right))
+
+        if key not in table:
+            table[key] = len(nodes)
+            nodes.append(node)
+
+        return table[key]
+
+    def search(node):
+        if not node:
+            return 0
+        return table[node.element, search(node.left), search(node.right)]
+
+    encode(tree)
+
+    try:
+        subtree_index = search(subtree)
+    except KeyError:
+        return None
+    else:
+        return nodes[subtree_index]
 
 
 def copy_compact(root):
