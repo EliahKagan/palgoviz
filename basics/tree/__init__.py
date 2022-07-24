@@ -699,6 +699,7 @@ def linear_search_mindepth(root, value):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
+    # FIXME: Needs implementation.
 
 
 def linear_search_mindepth_alt(root, value):
@@ -714,6 +715,7 @@ def linear_search_mindepth_alt(root, value):
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """
+    # FIXME: Needs implementation.
 
 
 def nearest_ancestor(root, value1, value2):
