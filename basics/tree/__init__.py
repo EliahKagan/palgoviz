@@ -38,7 +38,6 @@ But the classes and functions in this module all assume finite trees.
 """
 
 import collections
-import functools
 import html
 import itertools
 import math
@@ -1040,20 +1039,9 @@ def find_subtree(tree, subtree):
     return _do_find_subtree(tree, subtree) if subtree else None
 
 
-def _setdefault(mapping, key, default):
+def _memoize_subtrees(root, memo, factory):
     """
-    Like Mapping.setdefault, but mapping need not be mutable if key is present.
-    """
-    try:
-        return mapping[key]
-    except KeyError:
-        mapping[key] = default
-        return default
-
-
-def _memoize_subtrees(root, memo):
-    """
-    Find the first subtree ever found using this memo table that matches root.
+    Find or record a subtree that matches root in the memo table. Return it.
 
     By left-to-right postorder traversal, each subtree of the tree rooted at
     root, if it doesn't match any tree recorded in memo, is recorded in memo.
@@ -1062,15 +1050,26 @@ def _memoize_subtrees(root, memo):
     to _deduplicate. If no tree structurally equal to the tree rooted at root
     (that is, matching it) was seen before, memo must be mutable or TypeError
     is raised. There is no guarantee on how data are represented in memo.
+
+    If factory is None, existing nodes are memoized and returned. In that case,
+    the caller must ensure that, if a subtree rooted at a memoized node is
+    mutated, no subsequent call is made with that memo table (unless cleared).
+    If factory is not None, it is expected to a binary tree node type, and it
+    is used to construct the nodes that are memoized and returned. Calls that
+    reuse the same memo argument should use the same factory argument, too.
     """
     if not root:
         return None
 
     key = (root.element,
-           _memoize_subtrees(root.left, memo),
-           _memoize_subtrees(root.right, memo))
+           _memoize_subtrees(root.left, memo, factory),
+           _memoize_subtrees(root.right, memo, factory))
 
-    return _setdefault(memo, key, root)
+    try:
+        return memo[key]
+    except KeyError:
+        result = memo[key] = (root if factory is None else factory(*key))
+        return result
 
 
 def find_subtree_fast(tree, subtree):
@@ -1087,10 +1086,10 @@ def find_subtree_fast(tree, subtree):
         return None
 
     memo = {}
-    _memoize_subtrees(tree, memo)
+    _memoize_subtrees(tree, memo, None)
 
     try:
-        return _memoize_subtrees(subtree, types.MappingProxyType(memo))
+        return _memoize_subtrees(subtree, types.MappingProxyType(memo), None)
     except TypeError:
         return None
 
