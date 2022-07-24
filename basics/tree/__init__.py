@@ -1051,7 +1051,7 @@ def _setdefault(mapping, key, default):
         return default
 
 
-def _memoize(root, memo):
+def _memoize_subtrees(root, memo):
     """
     Find the first subtree ever found using this memo table that matches root.
 
@@ -1066,7 +1066,10 @@ def _memoize(root, memo):
     if not root:
         return None
 
-    key = (root.element, _memoize(root.left, memo), _memoize(root.right, memo))
+    key = (root.element,
+           _memoize_subtrees(root.left, memo),
+           _memoize_subtrees(root.right, memo))
+
     return _setdefault(memo, key, root)
 
 
@@ -1084,10 +1087,10 @@ def find_subtree_fast(tree, subtree):
         return None
 
     memo = {}
-    _memoize(tree, memo)
+    _memoize_subtrees(tree, memo)
 
     try:
-        return _memoize(subtree, types.MappingProxyType(memo))
+        return _memoize_subtrees(subtree, types.MappingProxyType(memo))
     except TypeError:
         return None
 
