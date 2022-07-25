@@ -1213,7 +1213,7 @@ def _draw_extended_dag(root):
 
 def draw_extended(root, dag=False):
     """
-    Draw a binary tree, distinguishing de-duplicated subtrees.
+    Draw a binary tree, identifying de-duplicated subtrees.
 
     If dag=False, then for each subtree reused in multiple places (as in output
     of copy_compact), all but one occurrence is drawn with all nodes and edges
