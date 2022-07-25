@@ -139,9 +139,7 @@ def curry_one(function):
     >>> curry_one(compose)(lambda x: x + 'a')(lambda x: x + 'b')('z')
     'zba'
     """
-    def g(x):
-        return lambda y: function(x, y)
-    return g
+    return lambda x: lambda y: function(x, y)
 
 
 # TODO: Eventually cover other forms of currying, the difference between
