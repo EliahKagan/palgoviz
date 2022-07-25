@@ -169,7 +169,10 @@ def linear_search_iterative_alt(values, x):
     >>> linear_search_iterative_alt([3, 1, 2, 8, 6, 5, 7], 8)
     3
     """
-    # FIXME: Implement this.
+    try:
+        return next(index for index, value in enumerate(values) if value == x)
+    except StopIteration:
+        return None
 
 
 def linear_search(values, x):
