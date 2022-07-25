@@ -754,10 +754,10 @@ def windowed_alt(iterable, n):
     []
     >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
     []
-    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4)) # doctest: +SKIP
+    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    # FIXME: This code doesn't work
+    # FIXME: Make this very short and much simpler.
 
     if n == 0:
         for _ in iterable:
@@ -770,9 +770,6 @@ def windowed_alt(iterable, n):
         return
     yield first
     yield from it
-
-
-
 
 
 def map_one(func, iterable):
