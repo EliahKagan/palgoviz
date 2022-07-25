@@ -1143,15 +1143,14 @@ def copy_compact(root):
 # This can all be done before or after implementing draw_extended below. If,
 # after doing this and committing the result, you decide you prefer not to
 # share the logic this way, feel free to make further changes, so long as you
-# regard your ultimate implementations to be as or more elegant than this way.
+# regard your ultimate implementations to be at least as elegant as this way.
 
 
 _COLORS_SOLID = dict(color='black', fontcolor='black')
-"""Color options for Graphviz to show a node as solid (not faded)."""
-
+"""Color options for Graphviz to show a node or edge as solid (not faded)."""
 
 _COLORS_FADED = dict(color='lightgray', fontcolor='lightgray')
-"""Color options for Graphviz to show a node as faded."""
+"""Color options for Graphviz to show a node or edge as faded."""
 
 
 def _draw_extended_faded(root):
