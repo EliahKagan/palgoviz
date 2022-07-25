@@ -1144,25 +1144,25 @@ def copy_compact(root):
 # regard your ultimate implementations to be as or more elegant than this way.
 
 
-def draw_extended(root, as_dag=False):
+def draw_extended(root, dag=False):
     """
     Draw a binary tree, distinguishing de-duplicated subtrees.
 
-    If as_dag=False, then for each subtree reused in multiple places (as in
-    output of copy_compact), all but one occurrence is drawn with all nodes and
-    edges faded out. That is, others are drawn in light gray instead of black.
+    If dag=False, then for each subtree reused in multiple places (as in output
+    of copy_compact), all but one occurrence is drawn with all nodes and edges
+    faded out. That is, others are drawn in light gray instead of black.
 
-    If as_dag=True, the directed acyclic graph structure of the nodes, as
+    If dag=True, the directed acyclic graph structure of the nodes, as
     represented in memory, is drawn. Thus even reused nodes are drawn just
     once, and the drawing is of an outdegree-2 DAG. If no nodes are reused, the
     DAG is a binary tree. Otherwise, it's not a tree at all, because a tree has
     exactly one path between any pair of nodes. None of the drawing is faded.
     (See also object_graph.draw_tuple and class_graph.draw, which draw DAGs.)
 
-    If no nodes are reused, then as_dag does not affect the output, and the
+    If no nodes are reused, then dag does not affect the output, and the
     drawing looks the same as in draw and draw_iterative, but it need not have
     the exact same DOT code. However, separate draw_extended calls with the
-    same as_dag argument, on the same tree or on different trees whose DAG
+    same dag argument, on the same tree or on different trees whose DAG
     representations in memory have the same structure and all the same
     corresponding values, must all emit the same DOT code, even in separate
     runs of the program. No caching is performed across calls to draw_extended.
