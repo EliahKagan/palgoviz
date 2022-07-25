@@ -2444,5 +2444,248 @@ class TestHeight(unittest.TestCase):
         self.assertEqual(result, 4)
 
 
+@_parameterize_class_by_implementation(
+    tree.copy,
+    tree.copy_iterative,
+)
+class TestCopy(unittest.TestCase):
+    """
+    Tests for functions that copy the structure and values of a binary tree.
+
+    Copying and structural equality comparison are closely related. The tests
+    in this class test only copying. If the copying functions are correctly
+    implemented but the structural equality comparison functions are buggy or
+    unimplemented, these tests should all still pass.
+    """
+
+    @_parameterize_by_node_type
+    def test_empty_returns_none(self, _name, node_type):
+        original = trivial.empty(tree.Node)
+
+        if original is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(original)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_nonempty_returns_node(self, _name, node_type):
+        """Copied trees are made of Node, regardless of the input node type."""
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertIsInstance(result, tree.Node)
+
+    @_parameterize_by_node_type
+    def test_singleton(self, _name, node_type):
+        expected = trivial.singleton(tree.Node)
+        original = trivial.singleton(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_left_only(self, _name, node_type):
+        expected = basic.left_only(tree.Node)
+        original = basic.left_only(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_left_only_bst(self, _name, node_type):
+        expected = bst.left_only(tree.Node)
+        original = bst.left_only(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_right_only(self, _name, node_type):
+        expected = basic.right_only(tree.Node)
+        original = basic.right_only(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_right_only_bst(self, _name, node_type):
+        expected = bst.right_only(tree.Node)
+        original = bst.right_only(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_tiny(self, _name, node_type):
+        expected = basic.tiny(tree.Node)
+        original = basic.tiny(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_tiny_bst(self, _name, node_type):
+        expected = bst.tiny(tree.Node)
+        original = bst.tiny(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small(self, _name, node_type):
+        expected = basic.small(tree.Node)
+        original = basic.small(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_bst(self, _name, node_type):
+        expected = bst.small(tree.Node)
+        original = bst.small(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left(self, _name, node_type):
+        expected = basic.small_no_left_left(tree.Node)
+        original = basic.small_no_left_left(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_bst(self, _name, node_type):
+        expected = bst.small_no_left_left(tree.Node)
+        original = bst.small_no_left_left(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right(self, _name, node_type):
+        expected = basic.small_no_left_right(tree.Node)
+        original = basic.small_no_left_right(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_bst(self, _name, node_type):
+        expected = bst.small_no_left_right(tree.Node)
+        original = bst.small_no_left_right(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left(self, _name, node_type):
+        expected = basic.small_no_right_left(tree.Node)
+        original = basic.small_no_right_left(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_bst(self, _name, node_type):
+        expected = bst.small_no_right_left(tree.Node)
+        original = bst.small_no_right_left(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right(self, _name, node_type):
+        expected = basic.small_no_right_right(tree.Node)
+        original = basic.small_no_right_right(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_bst(self, _name, node_type):
+        expected = bst.small_no_right_right(tree.Node)
+        original = bst.small_no_right_right(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_left_degenerate(self, _name, node_type):
+        expected = basic.left_degenerate(tree.Node)
+        original = basic.left_degenerate(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_bst(self, _name, node_type):
+        expected = bst.left_degenerate(tree.Node)
+        original = bst.left_degenerate(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_right_degenerate(self, _name, node_type):
+        expected = basic.right_degenerate(tree.Node)
+        original = basic.right_degenerate(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_bst(self, _name, node_type):
+        expected = bst.right_degenerate(tree.Node)
+        original = bst.right_degenerate(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate(self, _name, node_type):
+        expected = basic.zigzag_degenerate(tree.Node)
+        original = basic.zigzag_degenerate(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_bst(self, _name, node_type):
+        expected = bst.zigzag_degenerate(tree.Node)
+        original = bst.zigzag_degenerate(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_lefty(self, _name, node_type):
+        expected = basic.lefty(tree.Node)
+        original = basic.lefty(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_lefty_bst(self, _name, node_type):
+        expected = bst.lefty(tree.Node)
+        original = bst.lefty(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_righty(self, _name, node_type):
+        expected = basic.righty(tree.Node)
+        original = basic.righty(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_righty_bst(self, _name, node_type):
+        expected = bst.righty(tree.Node)
+        original = bst.righty(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_medium(self, _name, node_type):
+        expected = basic.medium(tree.Node)
+        original = basic.medium(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_medium_bst(self, _name, node_type):
+        expected = bst.medium(tree.Node)
+        original = bst.medium(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant(self, _name, node_type):
+        expected = basic.medium_redundant(tree.Node)
+        original = basic.medium_redundant(node_type)
+        actual = self.implementation(original)
+        self.assertEqual(repr(actual), repr(expected))
+
+
 if __name__ == '__main__':
     unittest.main()

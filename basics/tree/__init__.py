@@ -422,18 +422,18 @@ def copy_iterative(root):
         return None
 
     copied_root = Node(root.element)
-    stack = [root, copied_root]
+    stack = [(root, copied_root)]
 
     while stack:
         node, copied_node = stack.pop()
 
         if node.left:
             copied_node.left = Node(node.left.element)
-            stack.append(copied_node.left)
+            stack.append((node.left, copied_node.left))
 
         if node.right:
             copied_node.right = Node(node.right.element)
-            stack.append(copied_node.right)
+            stack.append((node.right, copied_node.right))
 
     return copied_root
 
