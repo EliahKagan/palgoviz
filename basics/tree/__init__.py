@@ -45,6 +45,7 @@ Finally, here are two general notes significant to design decisions throughout:
 """
 
 import collections
+import contextlib
 import html
 import itertools
 import math
@@ -594,10 +595,10 @@ def draw(root):
     This implementation [FIXME: say what kind (or kinds) of traversal is used.]
     """
     graph = graphviz.Digraph()
-    counter = itertools.count()
+    names = map(str, itertools.count())
 
     def draw_subtree(parent):
-        parent_name = str(next(counter))
+        parent_name = next(names)
 
         if parent:
             graph.node(parent_name, label=html.escape(repr(parent.element)))
@@ -1145,33 +1146,101 @@ def copy_compact(root):
 # regard your ultimate implementations to be as or more elegant than this way.
 
 
+_COLORS_SOLID = dict(color='black', fontcolor='black')
+"""Color options for Graphviz to show a node as solid (not faded)."""
+
+
+_COLORS_FADED = dict(color='lightgray', fontcolor='lightgray')
+"""Color options for Graphviz to show a node as faded."""
+
+
+def _draw_extended_faded(root):
+    """Helper for draw_extended, covering dag=False."""
+    graph = graphviz.Digraph()
+    names = map(str, itertools.count())
+    vis = set()
+
+    def draw_subtree(parent, colors):
+        parent_name = next(names)
+
+        if not parent:
+            graph.node(parent_name, shape='point', **colors)
+            return parent_name
+
+        if parent in vis:
+            colors = _COLORS_FADED
+        else:
+            vis.add(parent)
+
+        parent_label = html.escape(repr(parent.element))
+        graph.node(parent_name, label=parent_label, **colors)
+        graph.edge(parent_name, draw_subtree(parent.left, colors), **colors)
+        graph.edge(parent_name, draw_subtree(parent.right, colors), **colors)
+        return parent_name
+
+    draw_subtree(root, _COLORS_SOLID)
+    return graph
+
+
+def _draw_extended_dag(root):
+    """Helper for draw_extended, covering dag=True."""
+    graph = graphviz.Digraph()
+    names = map(str, itertools.count())
+    memo = {}
+
+    def draw_subtree(parent):
+        with contextlib.suppress(KeyError):
+            return memo[parent]
+
+        parent_name = next(names)
+
+        if not parent:
+            graph.node(parent_name, shape='point')
+            return parent_name
+
+        memo[parent] = parent_name
+        graph.node(parent_name, label=html.escape(repr(parent.element)))
+        left_name = draw_subtree(parent.left)
+        graph.edge(parent_name, left_name, label='L', fontcolor='gray')
+        right_name = draw_subtree(parent.right)
+        graph.edge(parent_name, right_name, label='R', fontcolor='gray')
+
+        return parent_name
+
+    draw_subtree(root)
+    return graph
+
+
 def draw_extended(root, dag=False):
     """
     Draw a binary tree, distinguishing de-duplicated subtrees.
 
     If dag=False, then for each subtree reused in multiple places (as in output
     of copy_compact), all but one occurrence is drawn with all nodes and edges
-    faded out. That is, others are drawn in light gray instead of black.
+    faded out. That is, others are drawn in some light shade of gray instead of
+    black. As in draw and draw_iterative, edges are not labeled.
 
-    If dag=True, the directed acyclic graph structure of the nodes, as
-    represented in memory, is drawn. Thus even reused nodes are drawn just
-    once, and the drawing is of an outdegree-2 DAG. If no nodes are reused, the
-    DAG is a binary tree. Otherwise, it's not a tree at all, because a tree has
-    exactly one path between any pair of nodes. None of the drawing is faded.
-    (See also object_graph.draw_tuple and class_graph.draw, which draw DAGs.)
+    If dag=True, the directed acyclic graph structure of the nodes in memory is
+    drawn: even reused nodes are drawn just once, and the drawing is of a DAG
+    whose maximum outdegree is 2. If no nodes are reused, this DAG is a binary
+    tree; otherwise, it is not a tree at all (because a rooted tree has exactly
+    one path from the root to any node). Empty branches are still drawn
+    separately, so multiple edges will never come into the same point "node."
+    Shared branches may end up crossed: an edge from a node to its left child
+    may appear to the right of an edge from the same node to its right child.
+    To compensate, each edge is labeled with an "L" or an "R". These labels are
+    always colored some suitable shade of gray, but nothing else is ever faded.
 
-    If no nodes are reused, then dag does not affect the output, and the
-    drawing looks the same as in draw and draw_iterative, but it need not have
-    the exact same DOT code. However, separate draw_extended calls with the
-    same dag argument, on the same tree or on different trees whose DAG
-    representations in memory have the same structure and all the same
-    corresponding values, must all emit the same DOT code, even in separate
-    runs of the program. No caching is performed across calls to draw_extended.
+    (See object_graph.draw_tuple and class_graph.draw, which also draw DAGs.)
 
-    As in draw and draw_iterative, empty branches are drawn as point nodes so
-    left and right are distinguished, and a graphviz.Digraph is returned.
+    Separate draw_extended calls with the same dag argument, on the same tree
+    or on different trees whose representations in memory have the same
+    structure and corresponding values, must all emit the same DOT code, even
+    across separate program runs. No caching is performed across calls to
+    draw_extended. As in draw and draw_iterative, empty branches are drawn as
+    point nodes, and a graphviz.Digraph is returned.
     """
-    # FIXME: Needs implementation.
+    return _draw_extended_dag(root) if dag else _draw_extended_faded(root)
 
 
 __all__ = [thing.__name__ for thing in (
