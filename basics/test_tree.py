@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 import enum
 import inspect
+import sys
 import unittest
 
 from parameterized import parameterized, parameterized_class
@@ -250,6 +251,64 @@ class TestFrozenNode(_TestNodeBase):
 
 
 del _TestNodeBase
+
+
+# TODO: Consider giving _Spy a more specific name and moving it to a module of
+# testing helpers (perhaps testing.py), even if no other test modules need it.
+# If other test modules would benefit from it, then definitely do that.
+class _Spy:
+    """
+    Context manager to patch/unpatch a callable in a module to count calls.
+
+    This is used for temporarily patching Node and FrozenNode to ensure
+    functions that make nodes call them the correct number of times. A fixture
+    mixin is not a good way to cause tests in this module do that, as patching
+    is needed for some parts of test cases, yet must not happen in other parts.
+
+    >>> with _Spy(tree.Node) as spy:
+    ...     basic.small(tree.Node)
+    Node(1, Node(2, Node(4), Node(5)), Node(3, Node(6), Node(7)))
+    >>> tree.Node
+    <class 'tree.Node'>
+    >>> spy.call_count
+    7
+    """
+
+    __slots__ = ('_module', '_wrapped', '_call_count')
+
+    def __init__(self, cls):
+        """Create a new _Spy. Find the target, but don't patch it yet."""
+        self._module = sys.modules[cls.__module__]
+        if getattr(self._module, cls.__name__) is not cls:
+            raise ValueError("node class in module doesn't match")
+        self._wrapped = cls
+        self._call_count = 0
+
+    def __repr__(self):
+        """Code-like representation of this _Spy context manager object."""
+        return f'{type(self).__name__}({self._wrapped.__qualname__})'
+
+    def __enter__(self):
+        """Patch the target callable to count calls."""
+        if getattr(self._module, self._wrapped.__name__) is not self._wrapped:
+            raise ValueError('node class in module no longer matches')
+        setattr(self._module, self._wrapped.__name__, self._call_wrapped)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Unpatch the target callable. This stops counting calls to it."""
+        del exc_type, exc_value, traceback
+        setattr(self._module, self._wrapped.__name__, self._wrapped)
+
+    @property
+    def call_count(self):
+        """How many times the target callable has been called while patched."""
+        return self._call_count
+
+    def _call_wrapped(self, *args, **kwargs):
+        """Increment the call count and call the original target callable."""
+        self._call_count += 1
+        return self._wrapped(*args, **kwargs)
 
 
 def _static_callable(f):
@@ -2477,214 +2536,431 @@ class TestCopy(unittest.TestCase):
         self.assertIsInstance(result, tree.Node)
 
     @_parameterize_by_node_type
-    def test_singleton(self, _name, node_type):
+    def test_empty_creates_no_nodes(self, _name, node_type):
+        original = trivial.empty(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 0)
+
+    @_parameterize_by_node_type
+    def test_singleton_reprs_match(self, _name, node_type):
         expected = trivial.singleton(tree.Node)
         original = trivial.singleton(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_left_only(self, _name, node_type):
+    def test_singleton_creates_node(self, _name, node_type):
+        original = trivial.singleton(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by_node_type
+    def test_left_only_reprs_match(self, _name, node_type):
         expected = basic.left_only(tree.Node)
         original = basic.left_only(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_left_only_bst(self, _name, node_type):
+    def test_left_only_creates_nodes(self, _name, node_type):
+        original = basic.left_only(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 2)
+
+    @_parameterize_by_node_type
+    def test_left_only_bst_reprs_match(self, _name, node_type):
         expected = bst.left_only(tree.Node)
         original = bst.left_only(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_right_only(self, _name, node_type):
+    def test_left_only_bst_creates_nodes(self, _name, node_type):
+        original = bst.left_only(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 2)
+
+    @_parameterize_by_node_type
+    def test_right_only_reprs_match(self, _name, node_type):
         expected = basic.right_only(tree.Node)
         original = basic.right_only(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_right_only_bst(self, _name, node_type):
+    def test_right_only_creates_nodes(self, _name, node_type):
+        original = basic.right_only(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 2)
+
+    @_parameterize_by_node_type
+    def test_right_only_bst_reprs_match(self, _name, node_type):
         expected = bst.right_only(tree.Node)
         original = bst.right_only(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_tiny(self, _name, node_type):
+    def test_right_only_bst_creates_nodes(self, _name, node_type):
+        original = bst.right_only(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 2)
+
+    @_parameterize_by_node_type
+    def test_tiny_reprs_match(self, _name, node_type):
         expected = basic.tiny(tree.Node)
         original = basic.tiny(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_tiny_bst(self, _name, node_type):
+    def test_tiny_creates_nodes(self, _name, node_type):
+        original = basic.tiny(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 3)
+
+    @_parameterize_by_node_type
+    def test_tiny_bst_reprs_match(self, _name, node_type):
         expected = bst.tiny(tree.Node)
         original = bst.tiny(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small(self, _name, node_type):
+    def test_tiny_bst_creates_nodes(self, _name, node_type):
+        original = bst.tiny(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 3)
+
+    @_parameterize_by_node_type
+    def test_small_reprs_match(self, _name, node_type):
         expected = basic.small(tree.Node)
         original = basic.small(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_bst(self, _name, node_type):
+    def test_small_creates_nodes(self, _name, node_type):
+        original = basic.small(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 7)
+
+    @_parameterize_by_node_type
+    def test_small_bst_reprs_match(self, _name, node_type):
         expected = bst.small(tree.Node)
         original = bst.small(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_left_left(self, _name, node_type):
+    def test_small_bst_creates_nodes(self, _name, node_type):
+        original = bst.small(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 7)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_reprs_match(self, _name, node_type):
         expected = basic.small_no_left_left(tree.Node)
         original = basic.small_no_left_left(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_left_left_bst(self, _name, node_type):
+    def test_small_no_left_left_creates_nodes(self, _name, node_type):
+        original = basic.small_no_left_left(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_bst_reprs_match(self, _name, node_type):
         expected = bst.small_no_left_left(tree.Node)
         original = bst.small_no_left_left(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_left_right(self, _name, node_type):
+    def test_small_no_left_left_bst_creates_nodes(self, _name, node_type):
+        original = bst.small_no_left_left(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_reprs_match(self, _name, node_type):
         expected = basic.small_no_left_right(tree.Node)
         original = basic.small_no_left_right(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_left_right_bst(self, _name, node_type):
+    def test_small_no_left_right_creates_nodes(self, _name, node_type):
+        original = basic.small_no_left_right(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_bst_reprs_match(self, _name, node_type):
         expected = bst.small_no_left_right(tree.Node)
         original = bst.small_no_left_right(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_right_left(self, _name, node_type):
+    def test_small_no_left_right_bst_creates_nodes(self, _name, node_type):
+        original = bst.small_no_left_right(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_reprs_match(self, _name, node_type):
         expected = basic.small_no_right_left(tree.Node)
         original = basic.small_no_right_left(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_right_left_bst(self, _name, node_type):
+    def test_small_no_right_left_creates_nodes(self, _name, node_type):
+        original = basic.small_no_right_left(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_bst_reprs_match(self, _name, node_type):
         expected = bst.small_no_right_left(tree.Node)
         original = bst.small_no_right_left(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_right_right(self, _name, node_type):
+    def test_small_no_right_left_bst_creates_nodes(self, _name, node_type):
+        original = bst.small_no_right_left(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_reprs_match(self, _name, node_type):
         expected = basic.small_no_right_right(tree.Node)
         original = basic.small_no_right_right(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_small_no_right_right_bst(self, _name, node_type):
+    def test_small_no_right_right_creates_nodes(self, _name, node_type):
+        original = basic.small_no_right_right(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_bst_reprs_match(self, _name, node_type):
         expected = bst.small_no_right_right(tree.Node)
         original = bst.small_no_right_right(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
+    def test_small_no_right_right_bst_creates_nodes(self, _name, node_type):
+        original = bst.small_no_right_right(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 6)
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_reprs_match(self, _name, node_type):
         expected = basic.left_degenerate(tree.Node)
         original = basic.left_degenerate(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
+    def test_left_degenerate_creates_nodes(self, _name, node_type):
+        original = basic.left_degenerate(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 5)
+
+    @_parameterize_by_node_type
+    def test_left_degenerate_bst_reprs_match(self, _name, node_type):
         expected = bst.left_degenerate(tree.Node)
         original = bst.left_degenerate(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
+    def test_left_degenerate_bst_creates_nodes(self, _name, node_type):
+        original = bst.left_degenerate(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 5)
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_reprs_match(self, _name, node_type):
         expected = basic.right_degenerate(tree.Node)
         original = basic.right_degenerate(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
+    def test_right_degenerate_creates_nodes(self, _name, node_type):
+        original = basic.right_degenerate(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 5)
+
+    @_parameterize_by_node_type
+    def test_right_degenerate_bst_reprs_match(self, _name, node_type):
         expected = bst.right_degenerate(tree.Node)
         original = bst.right_degenerate(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
+    def test_right_degenerate_bst_creates_nodes(self, _name, node_type):
+        original = bst.right_degenerate(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 5)
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_reprs_match(self, _name, node_type):
         expected = basic.zigzag_degenerate(tree.Node)
         original = basic.zigzag_degenerate(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
+    def test_zigzag_degenerate_creates_nodes(self, _name, node_type):
+        original = basic.zigzag_degenerate(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 5)
+
+    @_parameterize_by_node_type
+    def test_zigzag_degenerate_bst_reprs_match(self, _name, node_type):
         expected = bst.zigzag_degenerate(tree.Node)
         original = bst.zigzag_degenerate(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_lefty(self, _name, node_type):
+    def test_zigzag_degenerate_bst_creates_nodes(self, _name, node_type):
+        original = bst.zigzag_degenerate(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 5)
+
+    @_parameterize_by_node_type
+    def test_lefty_reprs_match(self, _name, node_type):
         expected = basic.lefty(tree.Node)
         original = basic.lefty(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_lefty_bst(self, _name, node_type):
+    def test_lefty_creates_nodes(self, _name, node_type):
+        original = basic.lefty(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 9)
+
+    @_parameterize_by_node_type
+    def test_lefty_bst_reprs_match(self, _name, node_type):
         expected = bst.lefty(tree.Node)
         original = bst.lefty(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_righty(self, _name, node_type):
+    def test_lefty_bst_creates_nodes(self, _name, node_type):
+        original = bst.lefty(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 9)
+
+    @_parameterize_by_node_type
+    def test_righty_reprs_match(self, _name, node_type):
         expected = basic.righty(tree.Node)
         original = basic.righty(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_righty_bst(self, _name, node_type):
+    def test_righty_creates_nodes(self, _name, node_type):
+        original = basic.righty(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 9)
+
+    @_parameterize_by_node_type
+    def test_righty_bst_reprs_match(self, _name, node_type):
         expected = bst.righty(tree.Node)
         original = bst.righty(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_medium(self, _name, node_type):
+    def test_righty_bst_creates_nodes(self, _name, node_type):
+        original = bst.righty(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 9)
+
+    @_parameterize_by_node_type
+    def test_medium_reprs_match(self, _name, node_type):
         expected = basic.medium(tree.Node)
         original = basic.medium(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_medium_bst(self, _name, node_type):
+    def test_medium_creates_nodes(self, _name, node_type):
+        original = basic.medium(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 24)
+
+    @_parameterize_by_node_type
+    def test_medium_bst_reprs_match(self, _name, node_type):
         expected = bst.medium(tree.Node)
         original = bst.medium(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_medium_redundant(self, _name, node_type):
+    def test_medium_bst_creates_nodes(self, _name, node_type):
+        original = bst.medium(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 24)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_reprs_match(self, _name, node_type):
         expected = basic.medium_redundant(tree.Node)
         original = basic.medium_redundant(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_creates_nodes(self, _name, node_type):
+        original = basic.medium_redundant(node_type)
+        with _Spy(tree.Node) as spy:
+            self.implementation(original)
+        self.assertEqual(spy.call_count, 24)
 
 
 if __name__ == '__main__':
