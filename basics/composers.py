@@ -117,13 +117,12 @@ def compose(*functions):
     >>> add_50005000(7)
     50005007
     """
-    def ret(x):
+    def rvalue(x):
+        for function in reversed(functions):
+            x = function(x)
         return x
 
-    for function in functions:
-        ret = compose2(ret, function)
-
-    return ret
+    return rvalue
 
 
 def curry_one(function):
