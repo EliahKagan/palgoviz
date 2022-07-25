@@ -33,7 +33,7 @@ Some of our functions create or add nodes to trees. Except as otherwise stated:
 2. Other functions work equally well on trees made of Node, FrozenNode, or any
    object that has element, left, and right attributes with the same meanings.
 
-Finally, here are two general notes significant to design decisions throughout:
+Finally, two general design notes:
 
 1. Infinite trees are meaningful and can even be represented using lazy
    techniques. But classes and functions in this module assume finite trees.
