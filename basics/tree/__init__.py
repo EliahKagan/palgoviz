@@ -1054,9 +1054,10 @@ def _memoize_subtrees(root, memo, factory):
     root, if it doesn't match any tree recorded in memo, is recorded in memo.
 
     memo is expected to be a mapping, empty except entries added by prior calls
-    to _deduplicate. If no tree structurally equal to the tree rooted at root
-    (that is, matching it) was seen before, memo must be mutable or TypeError
-    is raised. There is no guarantee on how data are represented in memo.
+    to _memoize_subtrees. If no tree structurally equal to the tree rooted at
+    root (that is, matching it) was seen before, memo must be mutable or
+    TypeError is raised. There is no guarantee on how data are represented in
+    memo.
 
     If factory is None, existing nodes are memoized and returned. In that case,
     the caller must ensure that, if a subtree rooted at a memoized node is
