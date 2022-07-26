@@ -1137,7 +1137,7 @@ def copy_compact(root):
 #
 # If find_subtree_fast previously had two helper functions with similar logic
 # (even if their code was mostly different), that will no longer be the case.
-# It is unlikely either find_subtree_fast or compact_compact will have helpers
+# It is unlikely either find_subtree_fast or copy_compact will have helpers
 # besides the one they will now share. Furthermore, at least one of them must
 # not only use no other helpers, but also, its body must consist of a single
 # return statement that is clear and fits easily on one line.
