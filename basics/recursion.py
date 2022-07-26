@@ -328,7 +328,19 @@ def binary_search_iterative_alt(values, x):
     >>> binary_search_iterative_alt([10, 20], 15)
     >>>
     """
-    # FIXME: Implement this.
+    low = 0
+    high = len(values)
+
+    while low < high:
+        halfway = (low + high) // 2
+        if x > values[halfway]:
+            low = halfway + 1
+        elif x < values[halfway]:
+            high = halfway
+        else:  # values[halfway] should = x, possibly add assert.
+            return halfway
+
+    return None
 
 
 def binary_search_good(values, x):
