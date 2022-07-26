@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 import enum
 import inspect
+import itertools
 import sys
 import unittest
 
@@ -314,9 +315,10 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
-def _glue_names(*named_things):
-    """Join all __name__ attributes by underscores (builds test names)."""
-    return '_'.join(thing.__name__ for thing in named_things)
+def _named_product(*iterables):
+    """Cartesian product with a leading element joining the __name__ values."""
+    return [('_'.join(element.__name__ for element in elements), *elements)
+            for elements in itertools.product(*iterables)]
 
 
 def _static_callable(f):
@@ -3024,13 +3026,7 @@ class TestStructuralEqual(unittest.TestCase):
     ]
     """Tree factories from example.trivial, example.basic, and example.bst."""
 
-    @parameterized.expand([
-        (_glue_names(factory, lhs_node_type, rhs_node_type),
-            factory, lhs_node_type, rhs_node_type)
-        for factory in _FACTORIES
-        for lhs_node_type in _NODE_TYPES
-        for rhs_node_type in _NODE_TYPES
-    ])
+    @parameterized.expand(_named_product(_FACTORIES, _NODE_TYPES, _NODE_TYPES))
     def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
         lhs = factory(lhs_node_type)
         rhs = factory(rhs_node_type)
