@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 import enum
 import inspect
-import itertools
 import sys
 import unittest
 
@@ -313,6 +312,11 @@ class _Spy:
         """Increment the call count and call the original target callable."""
         self._call_count += 1
         return self._wrapped(*args, **kwargs)
+
+
+def _glue_names(*named_things):
+    """Join all __name__ attributes by underscores (builds test names)."""
+    return '_'.join(thing.__name__ for thing in named_things)
 
 
 def _static_callable(f):
@@ -3020,14 +3024,20 @@ class TestStructuralEqual(unittest.TestCase):
     ]
     """Tree factories from example.trivial, example.basic, and example.bst."""
 
-    @parameterized.expand(
-        list(itertools.product(_FACTORIES, _NODE_TYPES, _NODE_TYPES))
-    )
-    def test_equal(self, factory, lhs_node_type, rhs_node_type):
+    @parameterized.expand([
+        (_glue_names(factory, lhs_node_type, rhs_node_type),
+            factory, lhs_node_type, rhs_node_type)
+        for factory in _FACTORIES
+        for lhs_node_type in _NODE_TYPES
+        for rhs_node_type in _NODE_TYPES
+    ])
+    def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
         lhs = factory(lhs_node_type)
         rhs = factory(rhs_node_type)
         result = self.implementation(lhs, rhs)
         self.assertTrue(result)
+
+    # FIXME: Write test_unequal. (Testing 930 factory pairs may be excessive.)
 
 
 if __name__ == '__main__':
