@@ -1065,9 +1065,9 @@ def _memoize_subtrees(root, memo, factory):
     If factory is None, existing nodes are memoized and returned. In that case,
     the caller must ensure that, if a subtree rooted at a memoized node is
     mutated, no subsequent call is made with that memo table (unless cleared).
-    If factory is not None, it is expected to a binary tree node type, and it
-    is used to construct the nodes that are memoized and returned. Calls that
-    reuse the same memo argument should use the same factory argument, too.
+    If factory is not None, it is expected to be a binary tree node type, and
+    it is used to construct the nodes that are memoized and returned. Calls
+    reusing the same memo argument should use the same factory argument, too.
     """
     if not root:
         return None
