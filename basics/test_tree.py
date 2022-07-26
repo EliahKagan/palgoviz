@@ -328,15 +328,13 @@ def _parameterize_class_by_implementation(*implementations):
     ])
 
 
-def _named_product(*iterables):
-    """Cartesian product with a leading element joining the __name__ values."""
-    return [('_'.join(element.__name__ for element in elements), *elements)
-            for elements in itertools.product(*iterables)]
-
-
-def _parameterize_by(*iterables):
-    """Parameterize a test method by one or more iterable of named things."""
-    return parameterized.expand(_named_product(*iterables))
+def _parameterize_by(*iterables, row_filter=None):
+    """Parameterize a test by a named Cartesian product of iterables."""
+    rows = itertools.product(*iterables)
+    if row_filter is not None:
+        rows = (row for row in rows if row_filter(*row))
+    named = [('_'.join(elem.__name__ for elem in row), *row) for row in rows]
+    return parameterized.expand(named)
 
 
 _parameterize_by_node_type = _parameterize_by(_NODE_TYPES)
@@ -3036,7 +3034,15 @@ class TestStructuralEqual(unittest.TestCase):
         result = self.implementation(lhs, rhs)
         self.assertTrue(result)
 
-    # FIXME: Write test_unequal. (Testing 930 factory pairs may be excessive.)
+    # FIXME: This adds 7440 tests. That's too many. They take too long to run.
+    @_parameterize_by(_FACTORIES, _FACTORIES, _NODE_TYPES, _NODE_TYPES,
+                      row_filter=lambda lf, rf, _lnt, _rnt: lf is not rf)
+    def test_unequal(self, _name,
+                     lhs_factory, rhs_factory, lhs_node_type, rhs_node_type):
+        lhs = lhs_factory(lhs_node_type)
+        rhs = rhs_factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
