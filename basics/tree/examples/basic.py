@@ -41,18 +41,18 @@ def small_no_right_right(t):
     return t(1, t(2, t(4), t(5)), t(3, t(6), None))
 
 
-def left_degenerate(t):
+def left_chain(t):
     """A 5-node tree in which no node has a right child."""
     return t(1, t(2, t(3, t(4, t(5), None), None), None), None)
 
 
-def right_degenerate(t):
+def right_chain(t):
     """A 5-node tree in which no node has a left child."""
     # Deliberately not a BST. See tree.examples.bst.
     return t(5, None, t(4, None, t(3, None, t(2, None, t(1)))))
 
 
-def zigzag_degenerate(t):
+def zigzag_chain(t):
     """A 5-node tree of maximum depth, alternating left and right."""
     return t(1, None, t(2, t(3, None, t(4, t(5), None)), None))
 

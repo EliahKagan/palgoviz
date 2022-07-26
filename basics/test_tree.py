@@ -471,38 +471,38 @@ class TestPreorder(unittest.TestCase):
         self.assertListEqual(list(result), [4, 2, 1, 3, 6, 5])
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 5, 2, 4, 3])
 
@@ -684,38 +684,38 @@ class TestInorder(unittest.TestCase):
         self.assertListEqual(list(result), [1, 2, 3, 4, 5, 6])
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 3, 5, 4, 2])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
@@ -897,38 +897,38 @@ class TestPostorder(unittest.TestCase):
         self.assertListEqual(list(result), [1, 3, 2, 5, 6, 4])
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [3, 4, 2, 5, 1])
 
@@ -1383,8 +1383,8 @@ class TestGeneralDfs(unittest.TestCase):
         ])
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         results = _run_general_dfs(root)
         self.assertListEqual(results, [
             (_Visit.PRE, 1),
@@ -1405,8 +1405,8 @@ class TestGeneralDfs(unittest.TestCase):
         ])
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         results = _run_general_dfs(root)
         self.assertListEqual(results, [
             (_Visit.PRE, 5),
@@ -1427,8 +1427,8 @@ class TestGeneralDfs(unittest.TestCase):
         ])
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         results = _run_general_dfs(root)
         self.assertListEqual(results, [
             (_Visit.PRE, 5),
@@ -1449,8 +1449,8 @@ class TestGeneralDfs(unittest.TestCase):
         ])
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         results = _run_general_dfs(root)
         self.assertListEqual(results, [
             (_Visit.PRE, 1),
@@ -1471,8 +1471,8 @@ class TestGeneralDfs(unittest.TestCase):
         ])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         results = _run_general_dfs(root)
         self.assertListEqual(results, [
             (_Visit.PRE, 1),
@@ -1493,8 +1493,8 @@ class TestGeneralDfs(unittest.TestCase):
         ])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         results = _run_general_dfs(root)
         self.assertListEqual(results, [
             (_Visit.PRE, 1),
@@ -2017,38 +2017,38 @@ class TestLevelOrder(unittest.TestCase):
         self.assertListEqual(list(result), [4, 2, 6, 1, 3, 5])
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [5, 4, 3, 2, 1])
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 2, 3, 4, 5])
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertListEqual(list(result), [1, 5, 2, 4, 3])
 
@@ -2229,38 +2229,38 @@ class TestSize(unittest.TestCase):
         self.assertEqual(result, 6)
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 5)
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 5)
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 5)
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 5)
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 5)
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 5)
 
@@ -2435,38 +2435,38 @@ class TestHeight(unittest.TestCase):
         self.assertEqual(result, 2)
 
     @_parameterize_by_node_type
-    def test_left_degenerate(self, _name, node_type):
-        root = basic.left_degenerate(node_type)
+    def test_left_chain(self, _name, node_type):
+        root = basic.left_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 4)
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst(self, _name, node_type):
-        root = bst.left_degenerate(node_type)
+    def test_left_chain_bst(self, _name, node_type):
+        root = bst.left_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 4)
 
     @_parameterize_by_node_type
-    def test_right_degenerate(self, _name, node_type):
-        root = basic.right_degenerate(node_type)
+    def test_right_chain(self, _name, node_type):
+        root = basic.right_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 4)
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst(self, _name, node_type):
-        root = bst.right_degenerate(node_type)
+    def test_right_chain_bst(self, _name, node_type):
+        root = bst.right_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 4)
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate(self, _name, node_type):
-        root = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 4)
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst(self, _name, node_type):
-        root = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
         result = self.implementation(root)
         self.assertEqual(result, 4)
 
@@ -2791,85 +2791,85 @@ class TestCopy(unittest.TestCase):
         self.assertEqual(spy.call_count, 6)
 
     @_parameterize_by_node_type
-    def test_left_degenerate_reprs_match(self, _name, node_type):
-        expected = basic.left_degenerate(tree.Node)
-        original = basic.left_degenerate(node_type)
+    def test_left_chain_reprs_match(self, _name, node_type):
+        expected = basic.left_chain(tree.Node)
+        original = basic.left_chain(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_left_degenerate_creates_nodes(self, _name, node_type):
-        original = basic.left_degenerate(node_type)
+    def test_left_chain_creates_nodes(self, _name, node_type):
+        original = basic.left_chain(node_type)
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 5)
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst_reprs_match(self, _name, node_type):
-        expected = bst.left_degenerate(tree.Node)
-        original = bst.left_degenerate(node_type)
+    def test_left_chain_bst_reprs_match(self, _name, node_type):
+        expected = bst.left_chain(tree.Node)
+        original = bst.left_chain(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_left_degenerate_bst_creates_nodes(self, _name, node_type):
-        original = bst.left_degenerate(node_type)
+    def test_left_chain_bst_creates_nodes(self, _name, node_type):
+        original = bst.left_chain(node_type)
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 5)
 
     @_parameterize_by_node_type
-    def test_right_degenerate_reprs_match(self, _name, node_type):
-        expected = basic.right_degenerate(tree.Node)
-        original = basic.right_degenerate(node_type)
+    def test_right_chain_reprs_match(self, _name, node_type):
+        expected = basic.right_chain(tree.Node)
+        original = basic.right_chain(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_right_degenerate_creates_nodes(self, _name, node_type):
-        original = basic.right_degenerate(node_type)
+    def test_right_chain_creates_nodes(self, _name, node_type):
+        original = basic.right_chain(node_type)
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 5)
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst_reprs_match(self, _name, node_type):
-        expected = bst.right_degenerate(tree.Node)
-        original = bst.right_degenerate(node_type)
+    def test_right_chain_bst_reprs_match(self, _name, node_type):
+        expected = bst.right_chain(tree.Node)
+        original = bst.right_chain(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_right_degenerate_bst_creates_nodes(self, _name, node_type):
-        original = bst.right_degenerate(node_type)
+    def test_right_chain_bst_creates_nodes(self, _name, node_type):
+        original = bst.right_chain(node_type)
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 5)
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_reprs_match(self, _name, node_type):
-        expected = basic.zigzag_degenerate(tree.Node)
-        original = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain_reprs_match(self, _name, node_type):
+        expected = basic.zigzag_chain(tree.Node)
+        original = basic.zigzag_chain(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_creates_nodes(self, _name, node_type):
-        original = basic.zigzag_degenerate(node_type)
+    def test_zigzag_chain_creates_nodes(self, _name, node_type):
+        original = basic.zigzag_chain(node_type)
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 5)
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst_reprs_match(self, _name, node_type):
-        expected = bst.zigzag_degenerate(tree.Node)
-        original = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst_reprs_match(self, _name, node_type):
+        expected = bst.zigzag_chain(tree.Node)
+        original = bst.zigzag_chain(node_type)
         actual = self.implementation(original)
         self.assertEqual(repr(actual), repr(expected))
 
     @_parameterize_by_node_type
-    def test_zigzag_degenerate_bst_creates_nodes(self, _name, node_type):
-        original = bst.zigzag_degenerate(node_type)
+    def test_zigzag_chain_bst_creates_nodes(self, _name, node_type):
+        original = bst.zigzag_chain(node_type)
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 5)
@@ -3011,12 +3011,12 @@ class TestStructuralEqual(unittest.TestCase):
         bst.small_no_right_left,
         basic.small_no_right_right,
         bst.small_no_right_right,
-        basic.left_degenerate,
-        bst.left_degenerate,
-        basic.right_degenerate,
-        bst.right_degenerate,
-        basic.zigzag_degenerate,
-        bst.zigzag_degenerate,
+        basic.left_chain,
+        bst.left_chain,
+        basic.right_chain,
+        bst.right_chain,
+        basic.zigzag_chain,
+        bst.zigzag_chain,
         basic.lefty,
         bst.lefty,
         basic.righty,
