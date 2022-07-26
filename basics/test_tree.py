@@ -3052,6 +3052,13 @@ class TestStructuralEqual(unittest.TestCase):
     ]
     """All factories from example.trivial, example.basic, and example.bst."""
 
+    @_parameterize_by(_TREE_FACTORIES, _NODE_TYPES, _NODE_TYPES)
+    def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
+        lhs = factory(lhs_node_type)
+        rhs = factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertTrue(result)
+
     def _parameterize_unequal_test(tree_factory_group):
         """Parameterize a test method on unequal tree pairs and node types."""
         def factories_are_distinct(lhs_factory, rhs_factory, *_):
@@ -3063,17 +3070,41 @@ class TestStructuralEqual(unittest.TestCase):
                                 _NODE_TYPES,
                                 row_filter=factories_are_distinct)
 
-    @_parameterize_by(_TREE_FACTORIES, _NODE_TYPES, _NODE_TYPES)
-    def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
-        lhs = factory(lhs_node_type)
-        rhs = factory(rhs_node_type)
+    @_parameterize_unequal_test(_VERY_SMALL_TREE_FACTORIES)
+    def test_unequal_very_small(self, _name, lhs_factory, rhs_factory,
+                                lhs_node_type, rhs_node_type):
+        lhs = lhs_factory(lhs_node_type)
+        rhs = rhs_factory(rhs_node_type)
         result = self.implementation(lhs, rhs)
-        self.assertTrue(result)
+        self.assertFalse(result)
 
-    # FIXME: This adds 7440 tests. That's too many. They take too long to run.
-    @_parameterize_unequal_test(_TREE_FACTORIES)
-    def test_unequal(self, _name,
-                     lhs_factory, rhs_factory, lhs_node_type, rhs_node_type):
+    @_parameterize_unequal_test(_SMALL_TREE_FACTORIES)
+    def test_unequal_small(self, _name, lhs_factory, rhs_factory,
+                           lhs_node_type, rhs_node_type):
+        lhs = lhs_factory(lhs_node_type)
+        rhs = rhs_factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertFalse(result)
+
+    @_parameterize_unequal_test(_CHAIN_TREE_FACTORIES)
+    def test_unequal_chain(self, _name, lhs_factory, rhs_factory,
+                           lhs_node_type, rhs_node_type):
+        lhs = lhs_factory(lhs_node_type)
+        rhs = rhs_factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertFalse(result)
+
+    @_parameterize_unequal_test(_LEANING_TREE_FACTORIES)
+    def test_unequal_leaning(self, _name, lhs_factory, rhs_factory,
+                             lhs_node_type, rhs_node_type):
+        lhs = lhs_factory(lhs_node_type)
+        rhs = rhs_factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertFalse(result)
+
+    @_parameterize_unequal_test(_MEDIUM_TREE_FACTORIES)
+    def test_unequal_medium(self, _name, lhs_factory, rhs_factory,
+                            lhs_node_type, rhs_node_type):
         lhs = lhs_factory(lhs_node_type)
         rhs = rhs_factory(rhs_node_type)
         result = self.implementation(lhs, rhs)
