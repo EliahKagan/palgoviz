@@ -3060,7 +3060,20 @@ class TestStructuralEqual(unittest.TestCase):
         self.assertTrue(result)
 
     def _parameterize_unequal_test(tree_factory_group):
-        """Parameterize a test method on unequal tree pairs and node types."""
+        """
+        Parameterize a test method on tree factory pairs and node types.
+
+        This is for parameterizing tests that verify that trees differing by
+        structure or corresponding elements are found to be structurally
+        unequal. As such, tree factories are not paired with themselves, which
+        would generate structurally equal trees.
+
+        The test_unequal_* methods use this function. Unlike with test_equal,
+        there are several test_unequal* methods in order to break the factories
+        up into groups, to avoid generating too many test cases. Each group
+        produces quadratically many tests; the sum of the squares of the group
+        sizes is much smaller than the square of the sum of the group sizes.
+        """
         def factories_are_distinct(lhs_factory, rhs_factory, *_):
             return lhs_factory is not rhs_factory
 
