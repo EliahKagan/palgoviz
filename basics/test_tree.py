@@ -2992,7 +2992,7 @@ class TestStructuralEqual(unittest.TestCase):
     and trees that really are structurally equal to one another.
     """
 
-    _FACTORIES = [
+    _VERY_SMALL_TREE_FACTORIES = [
         trivial.empty,
         trivial.singleton,
         basic.left_only,
@@ -3001,6 +3001,10 @@ class TestStructuralEqual(unittest.TestCase):
         bst.right_only,
         basic.tiny,
         bst.tiny,
+    ]
+    """Factories for very small trees."""
+
+    _SMALL_TREE_FACTORIES = [
         basic.small,
         bst.small,
         basic.small_no_left_left,
@@ -3011,23 +3015,48 @@ class TestStructuralEqual(unittest.TestCase):
         bst.small_no_right_left,
         basic.small_no_right_right,
         bst.small_no_right_right,
+    ]
+    """Factories for small trees."""
+
+    _CHAIN_TREE_FACTORIES = [
         basic.left_chain,
         bst.left_chain,
         basic.right_chain,
         bst.right_chain,
         basic.zigzag_chain,
         bst.zigzag_chain,
+    ]
+    """Factories for degenerate trees: those that are single chains."""
+
+    _LEANING_TREE_FACTORIES = [
         basic.lefty,
         bst.lefty,
         basic.righty,
         bst.righty,
+    ]
+    """Factories for tree that are chains except opposite size-1 branches."""
+
+    _MEDIUM_TREE_FACTORIES = [
         basic.medium,
         bst.medium,
         basic.medium_redundant,
     ]
-    """Tree factories from example.trivial, example.basic, and example.bst."""
+    """Factories for medium-sized trees, same structure, different elements."""
 
-    @_parameterize_by(_FACTORIES, _NODE_TYPES, _NODE_TYPES)
+    _TREE_FACTORIES = [
+        *_VERY_SMALL_TREE_FACTORIES,
+        *_SMALL_TREE_FACTORIES,
+        *_CHAIN_TREE_FACTORIES,
+        *_LEANING_TREE_FACTORIES,
+        *_MEDIUM_TREE_FACTORIES,
+    ]
+    """All factories from example.trivial, example.basic, and example.bst."""
+
+    def _factories_are_distinct(lhs_factory, rhs_factory, *_):
+        """Filter for using @_parameterize_by on test_unequal."""
+        return lhs_factory is not rhs_factory
+
+    @_parameterize_by(_TREE_FACTORIES, _NODE_TYPES, _NODE_TYPES)
     def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
         lhs = factory(lhs_node_type)
         rhs = factory(rhs_node_type)
@@ -3035,8 +3064,8 @@ class TestStructuralEqual(unittest.TestCase):
         self.assertTrue(result)
 
     # FIXME: This adds 7440 tests. That's too many. They take too long to run.
-    @_parameterize_by(_FACTORIES, _FACTORIES, _NODE_TYPES, _NODE_TYPES,
-                      row_filter=lambda lf, rf, _lnt, _rnt: lf is not rf)
+    @_parameterize_by(_TREE_FACTORIES, _TREE_FACTORIES, _NODE_TYPES, _NODE_TYPES,
+                      row_filter=_factories_are_distinct)
     def test_unequal(self, _name,
                      lhs_factory, rhs_factory, lhs_node_type, rhs_node_type):
         lhs = lhs_factory(lhs_node_type)
