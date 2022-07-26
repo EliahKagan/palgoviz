@@ -315,12 +315,6 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
-def _named_product(*iterables):
-    """Cartesian product with a leading element joining the __name__ values."""
-    return [('_'.join(element.__name__ for element in elements), *elements)
-            for elements in itertools.product(*iterables)]
-
-
 def _static_callable(f):
     """Wrap a callable f, if needed/correct for use in @parameterized_class."""
     return staticmethod(f) if inspect.isfunction(f) else f
@@ -334,9 +328,18 @@ def _parameterize_class_by_implementation(*implementations):
     ])
 
 
-_parameterize_by_node_type = parameterized.expand([
-    (node_type.__name__, node_type) for node_type in _NODE_TYPES
-])
+def _named_product(*iterables):
+    """Cartesian product with a leading element joining the __name__ values."""
+    return [('_'.join(element.__name__ for element in elements), *elements)
+            for elements in itertools.product(*iterables)]
+
+
+def _parameterize_by(*iterables):
+    """Parameterize a test method by one or more iterable of named things."""
+    return parameterized.expand(_named_product(*iterables))
+
+
+_parameterize_by_node_type = _parameterize_by(_NODE_TYPES)
 """Parameterize a test method by what class is used to instantiate nodes."""
 
 
@@ -3026,7 +3029,7 @@ class TestStructuralEqual(unittest.TestCase):
     ]
     """Tree factories from example.trivial, example.basic, and example.bst."""
 
-    @parameterized.expand(_named_product(_FACTORIES, _NODE_TYPES, _NODE_TYPES))
+    @_parameterize_by(_FACTORIES, _NODE_TYPES, _NODE_TYPES)
     def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
         lhs = factory(lhs_node_type)
         rhs = factory(rhs_node_type)
