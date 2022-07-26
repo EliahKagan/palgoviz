@@ -3052,9 +3052,16 @@ class TestStructuralEqual(unittest.TestCase):
     ]
     """All factories from example.trivial, example.basic, and example.bst."""
 
-    def _factories_are_distinct(lhs_factory, rhs_factory, *_):
-        """Filter for using @_parameterize_by on test_unequal."""
-        return lhs_factory is not rhs_factory
+    def _parameterize_unequal_test(tree_factory_group):
+        """Parameterize a test method on unequal tree pairs and node types."""
+        def factories_are_distinct(lhs_factory, rhs_factory, *_):
+            return lhs_factory is not rhs_factory
+
+        return _parameterize_by(tree_factory_group,
+                                tree_factory_group,
+                                _NODE_TYPES,
+                                _NODE_TYPES,
+                                row_filter=factories_are_distinct)
 
     @_parameterize_by(_TREE_FACTORIES, _NODE_TYPES, _NODE_TYPES)
     def test_equal(self, _name, factory, lhs_node_type, rhs_node_type):
@@ -3064,8 +3071,7 @@ class TestStructuralEqual(unittest.TestCase):
         self.assertTrue(result)
 
     # FIXME: This adds 7440 tests. That's too many. They take too long to run.
-    @_parameterize_by(_TREE_FACTORIES, _TREE_FACTORIES, _NODE_TYPES, _NODE_TYPES,
-                      row_filter=_factories_are_distinct)
+    @_parameterize_unequal_test(_TREE_FACTORIES)
     def test_unequal(self, _name,
                      lhs_factory, rhs_factory, lhs_node_type, rhs_node_type):
         lhs = lhs_factory(lhs_node_type)
