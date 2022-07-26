@@ -469,16 +469,18 @@ def structural_equal_iterative(lhs_root, rhs_root):
     stack = [(lhs_root, rhs_root)]
 
     while stack:
-        if not (lhs_root and rhs_root):
-            if lhs_root or rhs_root:
+        lhs_node, rhs_node = stack.pop()
+
+        if not (lhs_node and rhs_node):
+            if lhs_node or rhs_node:
                 return False
             continue
 
-        if lhs_root.element != rhs_root.element:
+        if lhs_node.element != rhs_node.element:
             return False
 
-        stack.append((lhs_root.left, rhs_root.left))
-        stack.append((lhs_root.right, rhs_root.right))
+        stack.append((lhs_node.left, rhs_node.left))
+        stack.append((lhs_node.right, rhs_node.right))
 
     return True
 

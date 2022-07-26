@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 import enum
 import inspect
+import itertools
 import sys
 import unittest
 
@@ -14,6 +15,9 @@ from parameterized import parameterized, parameterized_class
 import enumerations
 import tree
 from tree.examples import almost_bst, basic, bst, trivial
+
+_NODE_TYPES = (tree.Node, tree.FrozenNode)
+"""The binary tree node types that most functions are to be tested with."""
 
 
 class _TestNodeBase(ABC, unittest.TestCase):
@@ -325,8 +329,7 @@ def _parameterize_class_by_implementation(*implementations):
 
 
 _parameterize_by_node_type = parameterized.expand([
-    (node_type.__name__, node_type)
-    for node_type in (tree.Node, tree.FrozenNode)
+    (node_type.__name__, node_type) for node_type in _NODE_TYPES
 ])
 """Parameterize a test method by what class is used to instantiate nodes."""
 
@@ -2961,6 +2964,70 @@ class TestCopy(unittest.TestCase):
         with _Spy(tree.Node) as spy:
             self.implementation(original)
         self.assertEqual(spy.call_count, 24)
+
+
+@_parameterize_class_by_implementation(
+    tree.structural_equal,
+    tree.structural_equal_iterative,
+)
+class TestStructuralEqual(unittest.TestCase):
+    """
+    Tests for functions to check if binary trees match in structure and values.
+
+    Copying and structural equality comparison are closely related. The tests
+    in this class test only structural equality comparison. If the structural
+    equality comparison functions are correctly implemented but the copying
+    functions are buggy or unimplemented, these tests should all still pass.
+
+    These tests include comparison of trees that have the same values and the
+    same structure except with one node absent, as well as trees with the same
+    structure but different values, trees that differ even more substantially,
+    and trees that really are structurally equal to one another.
+    """
+
+    _FACTORIES = [
+        trivial.empty,
+        trivial.singleton,
+        basic.left_only,
+        bst.left_only,
+        basic.right_only,
+        bst.right_only,
+        basic.tiny,
+        bst.tiny,
+        basic.small,
+        bst.small,
+        basic.small_no_left_left,
+        bst.small_no_left_left,
+        basic.small_no_left_right,
+        bst.small_no_left_right,
+        basic.small_no_right_left,
+        bst.small_no_right_left,
+        basic.small_no_right_right,
+        bst.small_no_right_right,
+        basic.left_degenerate,
+        bst.left_degenerate,
+        basic.right_degenerate,
+        bst.right_degenerate,
+        basic.zigzag_degenerate,
+        bst.zigzag_degenerate,
+        basic.lefty,
+        bst.lefty,
+        basic.righty,
+        bst.righty,
+        basic.medium,
+        bst.medium,
+        basic.medium_redundant,
+    ]
+    """Tree factories from example.trivial, example.basic, and example.bst."""
+
+    @parameterized.expand(
+        list(itertools.product(_FACTORIES, _NODE_TYPES, _NODE_TYPES))
+    )
+    def test_equal(self, factory, lhs_node_type, rhs_node_type):
+        lhs = factory(lhs_node_type)
+        rhs = factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':
