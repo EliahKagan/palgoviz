@@ -375,9 +375,26 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
-def _join_names(named_things):
-    """Join the __name__ attributes of each thing together by underscores."""
-    return '_'.join(thing.__name__ for thing in named_things)
+def _join_names(arguments, *, indices=None):
+    """
+    Join the __name__ attributes of each argument together by underscores.
+
+    This is for use in building names of parameterized test cases. The objects
+    whose names are used are typically passed as arguments to a test method.
+    (This is why they are called "arguments" here.)
+
+    If indices is None, then all arguments' names are joined. Otherwise,
+    indices must be an iterable of indices of arguments whose names are to be
+    used, and all other arguments do not contribute to the joined string. The
+    order in which indices are given does not matter.
+    """
+    if indices is None:
+        return '_'.join(arg.__name__ for arg in arguments)
+
+    index_set = set(indices)
+
+    return '_'.join(arg.__name__ for index, arg in enumerate(arguments)
+                    if index in index_set)
 
 
 def _static_callable(f):
@@ -400,12 +417,25 @@ def _parameterize_class_by_implementation(*implementations):
     return _parameterize_class_by(implementation=implementations)
 
 
-def _parameterize_by(*iterables, row_filter=None):
-    """Parameterize a test method by a named Cartesian product of iterables."""
+def _parameterize_by(*iterables, row_filter=None, name_indices=None):
+    """
+    Parameterize a test method by a named Cartesian product of iterables.
+
+    If row_filter is None, all rows are used. Otherwise row_filter is called on
+    each row, by passing the row's elements as separate arguments, to decide if
+    the row is to be included.
+
+    If name_indices is None, then all elements of each row are used to name the
+    test based on that row. Otherwise name_indices is an iterable of indices of
+    elements whose names are included in the test name. The order of indices in
+    name_indices does not matter. Usually name_indices should be kept as None,
+    but it can be useful if some elements always have the same name as others
+    in the same row, or if some elements lack __name__ attributes.
+    """
     rows = itertools.product(*iterables)
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
-    named = [(_join_names(row), *row) for row in rows]
+    named = [(_join_names(row, indices=name_indices), *row) for row in rows]
     return parameterized.expand(named)
 
 
@@ -3166,6 +3196,16 @@ class TestCopyStructuralEqual(unittest.TestCase):
         copy = self.copy_impl(original)
         result = self.eq_impl(original, copy)
         self.assertTrue(result)
+
+
+@_parameterize_class_by_implementation(
+    tree.reflect_in_place,
+    tree.reflect_in_place_iterative,
+)
+class TestReflectInPlace(unittest.TestCase):
+    """Tests for functions that turn a binary tree into its mirror image."""
+
+
 
 
 if __name__ == '__main__':
