@@ -233,13 +233,13 @@ def general_dfs(root, *, pre_fn=None, in_fn=None, post_fn=None):
                            _noop_fallback(post_fn))
 
 
-# FIXME: Having completed dfs above, consider mergesort. It is a divide and
-# conquer algorithm in which each recursive case (internal node) has two
+# FIXME: Having completed general_dfs above, consider mergesort. It is a divide
+# and conquer algorithm in which each recursive case (internal node) has two
 # children. The children are even identifiable as left and right. Add a brief
 # explanation to the recursion.merge_sort docstring about what combination of
 # preorder, inorder, and postorder actions it has. If it has only one kind, say
 # how mergesort facilitates that, and whether this is true of all forms of
-# recursive mergeort (if implemented reasonably). Otherwise, include a brief
+# recursive mergesort (if implemented reasonably). Otherwise, include a brief
 # description of another form of mergesort that would only have one kind.
 
 
