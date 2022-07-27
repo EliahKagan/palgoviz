@@ -2,10 +2,10 @@
 
 
 def empty(_t):
-    """A "tree" with no nodes."""
+    """Make a "tree" with no nodes."""
     return None
 
 
 def singleton(t):
-    """A tree with only one node."""
+    """Make a tree with only one node."""
     return t(1)
