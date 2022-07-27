@@ -315,25 +315,37 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
+def _join_names(named_things):
+    """Join the __name__ attributes of each thing together by underscores."""
+    return '_'.join(thing.__name__ for thing in named_things)
+
+
 def _static_callable(f):
     """Wrap a callable f, if needed/correct for use in @parameterized_class."""
     return staticmethod(f) if inspect.isfunction(f) else f
 
 
+def _parameterize_class_by(**groups):
+    """Parameterize a test class by at least one function/class under test."""
+    if 'name' in groups:
+        raise ValueError("cannot name a group 'name'")
+
+    rows = itertools.product(*groups.values())
+    named = [(_join_names(row), *map(_static_callable, row)) for row in rows]
+    return parameterized_class(('name', *groups), named)
+
+
 def _parameterize_class_by_implementation(*implementations):
-    """Parameterize a test class by the function/class of code under test."""
-    return parameterized_class(('name', 'implementation'), [
-        (implementation.__name__, _static_callable(implementation))
-        for implementation in implementations
-    ])
+    """Parameterize a test class by a single function or class under test."""
+    return _parameterize_class_by(implementation=implementations)
 
 
 def _parameterize_by(*iterables, row_filter=None):
-    """Parameterize a test by a named Cartesian product of iterables."""
+    """Parameterize a test method by a named Cartesian product of iterables."""
     rows = itertools.product(*iterables)
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
-    named = [('_'.join(elem.__name__ for elem in row), *row) for row in rows]
+    named = [(_join_names(row), *row) for row in rows]
     return parameterized.expand(named)
 
 
