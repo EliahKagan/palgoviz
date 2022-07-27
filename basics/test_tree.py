@@ -77,7 +77,57 @@ _TREE_FACTORIES = [
     *_LEANING_TREE_FACTORIES,
     *_MEDIUM_TREE_FACTORIES,
 ]
-"""All factories from example.trivial, example.basic, and example.bst."""
+"""
+All factories from example.trivial, example.basic, and example.bst.
+
+These are all the general-purpose tree factories, but it does not include the
+special-purpose ones. See the tree.examples package docstring and submodules.
+
+This also does not automatically pick up new factories that may be added to the
+trivial, basic, and bst submodules, because it is not clear, if that were to
+happen, whether (or how) they ought to cause more unit tests to be generated.
+"""
+
+_BASIC_TREE_FACTORIES = [
+    basic.left_only,
+    basic.right_only,
+    basic.tiny,
+    basic.small,
+    basic.small_no_left_left,
+    basic.small_no_left_right,
+    basic.small_no_right_left,
+    basic.small_no_right_right,
+    basic.left_chain,
+    basic.right_chain,
+    basic.zigzag_chain,
+    basic.lefty,
+    basic.righty,
+    basic.medium,
+    basic.medium_redundant,
+]
+"""Factories from example.basic."""
+
+_MIRROR_TREE_FACTORIES = [
+    mirror.left_only,
+    mirror.right_only,
+    mirror.tiny,
+    mirror.small,
+    mirror.small_no_left_left,
+    mirror.small_no_left_right,
+    mirror.small_no_right_left,
+    mirror.small_no_right_right,
+    mirror.left_chain,
+    mirror.right_chain,
+    mirror.zigzag_chain,
+    mirror.lefty,
+    mirror.righty,
+    mirror.medium,
+    mirror.medium_redundant,
+]
+"""Factories from example.mirror. See its docstring regarding their names."""
+
+assert all(bas.__name__ == mir.__name__ for bas, mir
+           in zip(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES, strict=True))
 
 
 class _TestNodeBase(ABC, unittest.TestCase):
@@ -417,9 +467,21 @@ def _parameterize_class_by_implementation(*implementations):
     return _parameterize_class_by(implementation=implementations)
 
 
-def _parameterize_by(*iterables, row_filter=None, name_indices=None):
+def _parameterize_by(*iterables,
+                     combiner=itertools.product,
+                     row_filter=None,
+                     name_indices=None):
     """
-    Parameterize a test method by a named Cartesian product of iterables.
+    Parameterize a test method by combining iterables and naming the results.
+
+    By default, the Cartesian product of the iterables is taken, by passing
+    each iterable (that is, each positional argument _parameterize_by receives)
+    to itertools.product. To combine them in a different way, pass a different
+    callable as the combiner keyword-only argument. The combiner must accept
+    each iterable as a separate positional argument and return an iterator that
+    yields tuples of elements. For each such tuple, its elements will be passed
+    together to a test-case method, after a name argument generated from them.
+    That will happen when the tests are collected and run.
 
     If row_filter is None, all rows are used. Otherwise row_filter is called on
     each row, by passing the row's elements as separate arguments, to decide if
@@ -432,7 +494,7 @@ def _parameterize_by(*iterables, row_filter=None, name_indices=None):
     but it can be useful if some elements always have the same name as others
     in the same row, or if some elements lack __name__ attributes.
     """
-    rows = itertools.product(*iterables)
+    rows = combiner(*iterables)
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
     named = [(_join_names(row, indices=name_indices), *row) for row in rows]
@@ -3198,14 +3260,59 @@ class TestCopyStructuralEqual(unittest.TestCase):
         self.assertTrue(result)
 
 
+def _combine_factory_pairs_and_node_type(in_factories, out_factories):
+    """
+    Combiner for _parameterize_by_factory_pairs_and_node_type.
+
+    This is an implementation detail of that function (which appears below).
+    """
+    factory_pairs = list(zip(in_factories, out_factories))
+
+    assert all(in_factory.__name__ == out_factory.__name__
+               for in_factory, out_factory in factory_pairs)
+
+    return [(in_factory, out_factory, node_type)
+            for in_factory, out_factory in factory_pairs
+            for node_type in _NODE_TYPES]
+
+
+def _parameterize_by_factory_pairs_and_node_type(in_factories, out_factories):
+    """
+    Parameterize test methods in TestReflectInPlace.
+
+    Factories are zipped. But factory pairs and node type vary independently.
+
+    This is a special purpose parameterization decorator, even within this test
+    module, which is why it appears here (near the class that uses it) rather
+    than above with most of the other parameterization decorator definitions.
+    """
+    # The tree factories should have the same name. Avoid repeating that name.
+    name_indices = (0, 2)
+
+    return _parameterize_by(in_factories, out_factories,
+                            combiner=_combine_factory_pairs_and_node_type,
+                            name_indices=name_indices)
+
+
 @_parameterize_class_by_implementation(
     tree.reflect_in_place,
     tree.reflect_in_place_iterative,
 )
 class TestReflectInPlace(unittest.TestCase):
-    """Tests for functions that turn a binary tree into its mirror image."""
+    """
+    Tests for functions that turn a binary tree into its mirror image.
 
+    These tests do not rely on structural_equality/structural_equal_iterative.
+    """
 
+    @_parameterize_by_node_type
+    def test_returns_none(self, _name, node_type):
+        """None should be implicitly returned."""
+        root = basic.small(node_type)
+        result = self.implementation(root)
+        self.assertIsNone(result)
+
+    #@_parameterize_by_factory_pairs_and_node_type
 
 
 if __name__ == '__main__':
