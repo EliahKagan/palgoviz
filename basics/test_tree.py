@@ -126,6 +126,24 @@ _MIRROR_TREE_FACTORIES = [
 ]
 """Factories from example.mirror. See its docstring regarding their names."""
 
+_BST_TREE_FACTORIES = [
+    bst.left_only,
+    bst.right_only,
+    bst.tiny,
+    bst.small,
+    bst.small_no_left_left,
+    bst.small_no_left_right,
+    bst.small_no_right_left,
+    bst.small_no_right_right,
+    bst.left_chain,
+    bst.right_chain,
+    bst.zigzag_chain,
+    bst.lefty,
+    bst.righty,
+    bst.medium,
+]
+"""Factories from example.bst."""
+
 assert all(bas.__name__ == mir.__name__ for bas, mir
            in zip(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES, strict=True))
 
@@ -3265,6 +3283,22 @@ class TestCopyStructuralEqual(unittest.TestCase):
         self.assertTrue(result)
 
 
+# FIXME: Give this a more general name. Move it up to the other parameterizers.
+def _parameterize_reflect_test(in_factories, out_factories):
+    """
+    Parameterize a test method by factory pairs produced by zipping.
+
+    This is used in TestReflectInPlace and TestReflectInPlaceStructuralEqual.
+
+    Only the name of the first factory is used, since the names should be the
+    same. Also, if they were not the same, the first factory supplies the tree
+    that is actually being reflected, while the second supplies the expected
+    tree to compare against, so the first would be sufficient.
+    """
+    return _parameterize_by(in_factories, out_factories,
+                            combiner=_zip_strict, name_indices=(0,))
+
+
 @_parameterize_class_by_implementation(
     tree.reflect_in_place,
     tree.reflect_in_place_iterative,
@@ -3282,17 +3316,7 @@ class TestReflectInPlace(unittest.TestCase):
         result = self.implementation(root)
         self.assertIsNone(result)
 
-    def _parameterize_reflect_test(in_factories, out_factories):
-        """
-        Parameterize a test method by factory pairs produced by zipping.
-
-        Only the name of the first factory is used, since the names should be
-        the same. Also, if they were not the same, the first factory supplies
-        the tree that is actually being reflected, while the second supplies
-        the expected tree to compare against, so the first would be sufficient.
-        """
-        return _parameterize_by(in_factories, out_factories,
-                                combiner=_zip_strict, name_indices=(0,))
+    # FIXME: Write the tree.examples.bilateral methods. Test with them here.
 
     @_parameterize_reflect_test(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES)
     def test_basic_reflects_to_mirror(self, _name, in_factory, out_factory):
@@ -3311,6 +3335,98 @@ class TestReflectInPlace(unittest.TestCase):
             raise Exception('wrongly matches expected before being reflected')
         self.implementation(root)
         self.assertEqual(repr(root), repr(expected))
+
+
+@_parameterize_class_by(
+    reflect_impl=[tree.reflect_in_place, tree.reflect_in_place_iterative],
+    eq_impl=[tree.structural_equal, tree.structural_equal_iterative],
+)
+class TestReflectInPlaceStructuralEqual(unittest.TestCase):
+    """
+    More tests for functions that turn a binary tree into its mirror image.
+
+    Compared to the tests in TestReflectInPlace, which use repr, these test for
+    structural equality, so they are likely to catch bugs in the structural
+    equality functions, but also may fail to catch bugs in in-place reflection
+    functions if there happen to be complementary structural equality bugs.
+    """
+
+    # FIXME: Write the tree.examples.bilateral methods. Test with them here.
+
+    @_parameterize_reflect_test(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES)
+    def test_reflected_basic_equals_mirror(self, _name,
+                                           in_factory, out_factory):
+        expected = out_factory(tree.Node)
+        root = in_factory(tree.Node)
+        if self.eq_impl(root, expected):
+            raise Exception('wrongly matches expected before being reflected')
+        self.reflect_impl(root)
+        result = self.eq_impl(root, expected)
+        self.assertTrue(result)
+
+    @_parameterize_reflect_test(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES)
+    def test_mirror_equals_reflected_basic(self, _name,
+                                           in_factory, out_factory):
+        expected = out_factory(tree.Node)
+        root = in_factory(tree.Node)
+        if self.eq_impl(expected, root):
+            raise Exception('wrongly matches expected before being reflected')
+        self.reflect_impl(root)
+        result = self.eq_impl(expected, root)
+        self.assertTrue(result)
+
+    @_parameterize_reflect_test(_MIRROR_TREE_FACTORIES, _BASIC_TREE_FACTORIES)
+    def test_reflected_mirror_equals_basic(self, _name,
+                                           in_factory, out_factory):
+        expected = out_factory(tree.Node)
+        root = in_factory(tree.Node)
+        if self.eq_impl(root, expected):
+            raise Exception('wrongly matches expected before being reflected')
+        self.reflect_impl(root)
+        result = self.eq_impl(root, expected)
+        self.assertTrue(result)
+
+    @_parameterize_reflect_test(_MIRROR_TREE_FACTORIES, _BASIC_TREE_FACTORIES)
+    def test_basic_equals_reflected_mirror(self, _name,
+                                           in_factory, out_factory):
+        expected = out_factory(tree.Node)
+        root = in_factory(tree.Node)
+        if self.eq_impl(expected, root):
+            raise Exception('wrongly matches expected before being reflected')
+        self.reflect_impl(root)
+        result = self.eq_impl(expected, root)
+        self.assertTrue(result)
+
+
+@_parameterize_class_by_implementation(
+    tree.is_own_reflection,
+    tree.is_own_reflection_iterative,
+)
+class TestIsOwnReflection(unittest.TestCase):
+    """Tests for functions that check if a tree is its own reflection."""
+
+    @_parameterize_by([trivial.empty, trivial.singleton], _NODE_TYPES)
+    def test_trivial(self, _name, factory, node_type):
+        """Trees without multiple nodes are their own reflections."""
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertTrue(result)
+
+    # FIXME: Write the tree.examples.bilateral methods. Test with them here.
+
+    @_parameterize_by(_BASIC_TREE_FACTORIES, _NODE_TYPES)
+    def test_bilaterally_asymmetric(self, _name, factory, node_type):
+        """Bilaterally asymmetric binary trees aren't their own reflections."""
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertFalse(result)
+
+    @_parameterize_by(_BST_TREE_FACTORIES, _NODE_TYPES)
+    def test_bilaterally_asymmetric_bst(self, _name, factory, node_type):
+        """Bilaterally asymmetric BSTs aren't their own reflections."""
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
