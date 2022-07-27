@@ -3136,5 +3136,43 @@ class TestStructuralEqual(unittest.TestCase):
         self.assertFalse(result)
 
 
+@_parameterize_class_by(
+    copy_impl=[tree.copy, tree.copy_iterative],
+    eq_impl=[tree.structural_equal, tree.structural_equal_iterative],
+)
+class TestCopyStructuralEqual(unittest.TestCase):
+    """
+    Tests for the expected relationship of copying to structural equality.
+
+    These tests test the binary tree copying functions together with the binary
+    tree structural equality comparison functions. They test that, when a tree
+    is copied, the copy is structurally equal to the original.
+
+    Bugs in either or both will most likely cause some of these tests to fail,
+    but it is possible for all to pass if the bugs are complementary. (But then
+    tests in at least one of TestCopy and TestStructuralEqual should fail.)
+    """
+
+    # FIXME: Parameterize this further to test all the examples at once, since
+    # there is nothing at all that differs between besides the factory that is
+    # called exactly once, and also the code is longer and more complicated
+    # than I would want to have manually repeated. Currently only basic.medium
+    # is tested, but parameterizing it will make it test with all the factories
+    # in the examples.trivial, examples.basic, and examples.bst submodules.
+
+    @_parameterize_by_node_type
+    def test_medium(self, _name, node_type):
+        original = basic.medium(node_type)
+        copy = self.copy_impl(original)
+
+        with self.subTest(lhs='original', rhs='copy'):
+            result = self.eq_impl(original, copy)
+            self.assertTrue(result)
+
+        with self.subTest(lhs='copy', rhs='original'):
+            result = self.eq_impl(copy, original)
+            self.assertTrue(result)
+
+
 if __name__ == '__main__':
     unittest.main()
