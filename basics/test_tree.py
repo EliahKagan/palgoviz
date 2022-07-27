@@ -3444,7 +3444,8 @@ class TestIsOwnReflection(unittest.TestCase):
         """
         Binary trees without multiple nodes are their own reflections.
 
-        This tests trees that are trivially bilaterally symmetric: size < 2.
+        This tests trees that are trivially bilaterally symmetric because they
+        contain fewer than 2 nodes.
         """
         root = factory(node_type)
         result = self.implementation(root)
@@ -3455,7 +3456,8 @@ class TestIsOwnReflection(unittest.TestCase):
         """
         Bilaterally symmetric binary trees are their own reflections.
 
-        This tests with nontrivially bilaterally symmetric tree: size >= 2.
+        This tests trees that are nontrivially bilaterally symmetric: they have
+        more than 2 nodes, so their symmetry does not follow from their size.
         """
         root = factory(node_type)
         result = self.implementation(root)
