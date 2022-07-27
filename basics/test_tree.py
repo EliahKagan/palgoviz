@@ -3294,10 +3294,8 @@ class TestReflectInPlace(unittest.TestCase):
         return _parameterize_by(in_factories, out_factories,
                                 combiner=_zip_strict, name_indices=(0,))
 
-    @_parameterize_reflect_test(_BASIC_TREE_FACTORIES + _MIRROR_TREE_FACTORIES,
-                                _MIRROR_TREE_FACTORIES + _BASIC_TREE_FACTORIES)
-    def test_bilaterally_asymmetric(self, _name, in_factory, out_factory):
-        """Trees that aren't their own reflection reflect to their mirrors."""
+    @_parameterize_reflect_test(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES)
+    def test_basic_reflects_to_mirror(self, _name, in_factory, out_factory):
         expected = out_factory(tree.Node)
         root = in_factory(tree.Node)
         if repr(root) == repr(expected):
