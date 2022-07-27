@@ -280,8 +280,7 @@ def binary_search_alt(values, x):
     If there are no occurrences of x in values, None is returned.
 
     This alternative implementation of binary_search uses high as an exclusive,
-    rather than inclusive, endpoint. This is an implementation detail and does
-    not affect externally observable behavior.
+    rather than inclusive, endpoint.
 
     >>> binary_search_alt([], 9)
     >>> binary_search_alt([2, 3], 2)
@@ -320,8 +319,7 @@ def binary_search_iterative_alt(values, x):
     If there are no occurrences of x in values, None is returned.
 
     This alternative implementation of binary_search_iterative uses high as an
-    exclusive, rather than inclusive, endpoint. This is an implementation
-    detail and does not affect externally observable behavior.
+    exclusive, rather than inclusive, endpoint.
 
     >>> binary_search_iterative_alt([], 9)
     >>> binary_search_iterative_alt([2, 3], 2)
