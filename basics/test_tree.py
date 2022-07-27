@@ -14,7 +14,7 @@ from parameterized import parameterized, parameterized_class
 
 import enumerations
 import tree
-from tree.examples import almost_bst, basic, bst, trivial
+from tree.examples import almost_bst, basic, bilateral, bst, mirror, trivial
 
 _NODE_TYPES = (tree.Node, tree.FrozenNode)
 """The binary tree node types that most functions are to be tested with."""
