@@ -130,6 +130,11 @@ assert all(bas.__name__ == mir.__name__ for bas, mir
            in zip(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES, strict=True))
 
 
+def _zip_strict(*iterables):
+    """Zip iterables, raising ValueError if any differ in length."""
+    return zip(*iterables, strict=True)
+
+
 class _TestNodeBase(ABC, unittest.TestCase):
     """Base class providing shared tests for node classes."""
 
@@ -3260,40 +3265,6 @@ class TestCopyStructuralEqual(unittest.TestCase):
         self.assertTrue(result)
 
 
-def _combine_factory_pairs_and_node_type(in_factories, out_factories):
-    """
-    Combiner for _parameterize_by_factory_pairs_and_node_type.
-
-    This is an implementation detail of that function (which appears below).
-    """
-    factory_pairs = list(zip(in_factories, out_factories))
-
-    assert all(in_factory.__name__ == out_factory.__name__
-               for in_factory, out_factory in factory_pairs)
-
-    return [(in_factory, out_factory, node_type)
-            for in_factory, out_factory in factory_pairs
-            for node_type in _NODE_TYPES]
-
-
-def _parameterize_by_factory_pairs_and_node_type(in_factories, out_factories):
-    """
-    Parameterize test methods in TestReflectInPlace.
-
-    Factories are zipped. But factory pairs and node type vary independently.
-
-    This is a special purpose parameterization decorator, even within this test
-    module, which is why it appears here (near the class that uses it) rather
-    than above with most of the other parameterization decorator definitions.
-    """
-    # The tree factories should have the same name. Avoid repeating that name.
-    name_indices = (0, 2)
-
-    return _parameterize_by(in_factories, out_factories,
-                            combiner=_combine_factory_pairs_and_node_type,
-                            name_indices=name_indices)
-
-
 @_parameterize_class_by_implementation(
     tree.reflect_in_place,
     tree.reflect_in_place_iterative,
@@ -3305,14 +3276,32 @@ class TestReflectInPlace(unittest.TestCase):
     These tests do not rely on structural_equality/structural_equal_iterative.
     """
 
-    @_parameterize_by_node_type
-    def test_returns_none(self, _name, node_type):
+    def test_returns_none(self):
         """None should be implicitly returned."""
-        root = basic.small(node_type)
+        root = basic.small(tree.Node)
         result = self.implementation(root)
         self.assertIsNone(result)
 
-    #@_parameterize_by_factory_pairs_and_node_type
+    def _parameterize_reflect_test(in_factories, out_factories):
+        """
+        Parameterize a test method by factory pairs produced by zipping.
+
+        Only the name of the first factory is used, since the names should be
+        the same. Also, if they were not the same, the first factory supplies
+        the tree that is actually being reflected, while the second supplies
+        the expected tree to compare against, so the first would be sufficient.
+        """
+        return _parameterize_by(in_factories, out_factories,
+                                combiner=_zip_strict, name_indices=(0,))
+
+    @_parameterize_reflect_test(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES)
+    def test_basic_reflects_to_mirror(self, _name, in_factory, out_factory):
+        expected = out_factory(tree.Node)
+        root = in_factory(tree.Node)
+        if repr(root) == repr(expected):
+            raise Exception('wrongly matches expected before being reflected')
+        self.implementation(root)
+        self.assertEqual(repr(root), repr(expected))
 
 
 if __name__ == '__main__':
