@@ -3303,6 +3303,15 @@ class TestReflectInPlace(unittest.TestCase):
         self.implementation(root)
         self.assertEqual(repr(root), repr(expected))
 
+    @_parameterize_reflect_test(_MIRROR_TREE_FACTORIES, _BASIC_TREE_FACTORIES)
+    def test_mirror_reflects_to_basic(self, _name, in_factory, out_factory):
+        expected = out_factory(tree.Node)
+        root = in_factory(tree.Node)
+        if repr(root) == repr(expected):
+            raise Exception('wrongly matches expected before being reflected')
+        self.implementation(root)
+        self.assertEqual(repr(root), repr(expected))
+
 
 if __name__ == '__main__':
     unittest.main()
