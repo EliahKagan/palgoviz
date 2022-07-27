@@ -3153,25 +3153,19 @@ class TestCopyStructuralEqual(unittest.TestCase):
     tests in at least one of TestCopy and TestStructuralEqual should fail.)
     """
 
-    # FIXME: Parameterize this further to test all the examples at once, since
-    # there is nothing at all that differs between besides the factory that is
-    # called exactly once, and also the code is longer and more complicated
-    # than I would want to have manually repeated. Currently only basic.medium
-    # is tested, but parameterizing it will make it test with all the factories
-    # in the examples.trivial, examples.basic, and examples.bst submodules.
-
-    @_parameterize_by_node_type
-    def test_medium(self, _name, node_type):
-        original = basic.medium(node_type)
+    @_parameterize_by(_TREE_FACTORIES, _NODE_TYPES)
+    def test_copy_equals_original(self, _name, factory, node_type):
+        original = factory(node_type)
         copy = self.copy_impl(original)
+        result = self.eq_impl(copy, original)
+        self.assertTrue(result)
 
-        with self.subTest(lhs='original', rhs='copy'):
-            result = self.eq_impl(original, copy)
-            self.assertTrue(result)
-
-        with self.subTest(lhs='copy', rhs='original'):
-            result = self.eq_impl(copy, original)
-            self.assertTrue(result)
+    @_parameterize_by(_TREE_FACTORIES, _NODE_TYPES)
+    def test_original_equals_copy(self, _name, factory, node_type):
+        original = factory(node_type)
+        copy = self.copy_impl(original)
+        result = self.eq_impl(original, copy)
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':
