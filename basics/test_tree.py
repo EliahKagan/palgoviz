@@ -3484,7 +3484,13 @@ class TestIsOwnReflection(unittest.TestCase):
     tree.linear_search_mindepth_alt,
 )
 class TestLinearSearch(unittest.TestCase):
-    """Tests for functions that sequentially search for a node by value."""
+    """
+    Tests for functions that sequentially search for a node by value.
+
+    These are tests for all the binary tree linear search functions, but some
+    of them have guarantees about what nodes they may return when there are is
+    more than one possible matches. This is covered in subsequent test classes.
+    """
 
     def test_empty_returns_none(self):
         root = trivial.empty(tree.Node)
@@ -3779,7 +3785,12 @@ class TestLinearSearch(unittest.TestCase):
 
 
 # FIXME: Add the TestLinearSearchMinDepth test class for testing that
-# linear_search_mindepth/linear_search_mindepth_alt find minimum depth matches.
+# linear_search_mindepth and linear_search_mindepth_alt find min-depth matches.
+
+
+# FIXME: Add the TestLinerSearchConsistency test class for testing that
+# linear_search and linear_search_iterative return the same match, and that
+# linear_search_mindepth and linear_search_mindepth_alt return the same match.
 
 
 if __name__ == '__main__':
