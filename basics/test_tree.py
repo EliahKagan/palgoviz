@@ -3487,9 +3487,9 @@ class TestLinearSearch(unittest.TestCase):
     """
     Tests for functions that sequentially search for a node by value.
 
-    These are tests for all the binary tree linear search functions, but some
-    of them have guarantees about what nodes they may return when there are is
-    more than one possible matches. This is covered in subsequent test classes.
+    These are tests for all the binary tree linear search functions. Some of
+    those functions have guarantees about what nodes they find when there is
+    more than one possible match. This is covered in subsequent test classes.
     """
 
     def test_empty_returns_none(self):
@@ -3784,8 +3784,96 @@ class TestLinearSearch(unittest.TestCase):
         self.assertIn(result, expected)
 
 
-# FIXME: Add the TestLinearSearchMinDepth test class for testing that
-# linear_search_mindepth and linear_search_mindepth_alt find min-depth matches.
+@_parameterize_class_by_implementation(
+    tree.linear_search_mindepth,
+    tree.linear_search_mindepth_alt,
+)
+class TestLinearSearchMinDepth(unittest.TestCase):
+    """Tests that "mindepth" linear search functions find min-depth matches."""
+
+    @_parameterize_by_node_type
+    def test_medium_at_root(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_at_left(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_at_right(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_medium_mirror_at_root(self, _name, node_type):
+        root = mirror.medium(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_mirror_at_left(self, _name, node_type):
+        root = mirror.medium(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_mirror_at_right(self, _name, node_type):
+        root = mirror.medium(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_root(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_left(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_right(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_right_left(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_root(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_left(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_right(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_left_right(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.left.right)
 
 
 # FIXME: Add the TestLinerSearchConsistency test class for testing that
