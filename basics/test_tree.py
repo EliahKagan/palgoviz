@@ -3982,7 +3982,9 @@ class TestLinearSearchConsistency(unittest.TestCase):
         root = mirror.medium_redundant(node_type)
         self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
 
-    # FIXME: Add tests with "layered" trees (all elements equal in each level).
+    # FIXME: Add tests with bilaterally symmetric trees, to catch bugs where
+    # implementations required to find the same match differ in left-to-right
+    # vs. right-to-left searching.
 
 
 if __name__ == '__main__':
