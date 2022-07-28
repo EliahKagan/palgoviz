@@ -61,7 +61,7 @@ _LEANING_TREE_FACTORIES = [
     basic.righty,
     bst.righty,
 ]
-"""Factories for tree that are chains except opposite size-1 branches."""
+"""Factories for trees that are chains except opposite singleton branches."""
 
 _MEDIUM_TREE_FACTORIES = [
     basic.medium,
@@ -124,7 +124,7 @@ _MIRROR_TREE_FACTORIES = [
     mirror.medium,
     mirror.medium_redundant,
 ]
-"""Factories from tree.example.mirror. See docstring regarding their names."""
+"""Factories from tree.example.mirror. On names, see that module docstring."""
 
 assert all(bas.__name__ == mir.__name__ for bas, mir
            in zip(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES, strict=True))
@@ -156,6 +156,7 @@ _BILATERALLY_SYMMETRIC_TREE_FACTORIES = [
     bilateral.medium_large_redundant,
 ]
 """Factories from tree.example.bilateral."""
+
 
 def _zip_strict(*iterables):
     """Zip iterables, raising ValueError if any differ in length."""
