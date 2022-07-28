@@ -3932,7 +3932,7 @@ class TestLinearSearchConsistency(unittest.TestCase):
         self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
 
     @_parameterize_by_node_type
-    def test_medium_at_right_or_bottom_Level(self, _name, node_type):
+    def test_medium_at_right_or_bottom(self, _name, node_type):
         root = basic.medium(node_type)
         self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
 
@@ -3967,6 +3967,11 @@ class TestLinearSearchConsistency(unittest.TestCase):
         self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
 
     @_parameterize_by_node_type
+    def test_medium_redundant_at_height_2_or_3(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 6), self.alt_impl(root, 6))
+
+    @_parameterize_by_node_type
     def test_medium_redundant_mirror_at_root_or_bottom(self, _name, node_type):
         root = mirror.medium_redundant(node_type)
         self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
@@ -3982,9 +3987,85 @@ class TestLinearSearchConsistency(unittest.TestCase):
         root = mirror.medium_redundant(node_type)
         self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
 
-    # FIXME: Add tests with bilaterally symmetric trees, to catch bugs where
-    # implementations required to find the same match differ in left-to-right
-    # vs. right-to-left searching.
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_height_2_or_3(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 6), self.alt_impl(root, 6))
+
+    @_parameterize_by_node_type
+    def test_bilateral_tiny(self, _name, node_type):
+        root = bilateral.tiny(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_middle(self, _name, node_type):
+        root = bilateral.small(node_type)
+        self.assertIs(self.main_impl(root, 9), self.alt_impl(root, 9))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_bottom_corners(self, _name, node_type):
+        root = bilateral.small(node_type)
+        self.assertIs(self.main_impl(root, 4), self.alt_impl(root, 4))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_bottom_center(self, _name, node_type):
+        root = bilateral.small(node_type)
+        self.assertIs(self.main_impl(root, 5), self.alt_impl(root, 5))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_no_corners_middle(self, _name, node_type):
+        root = bilateral.small_no_corners(node_type)
+        self.assertIs(self.main_impl(root, 9), self.alt_impl(root, 9))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_no_corners_bottom(self, _name, node_type):
+        root = bilateral.small_no_corners(node_type)
+        self.assertIs(self.main_impl(root, 5), self.alt_impl(root, 5))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_no_center_middle(self, _name, node_type):
+        root = bilateral.small_no_center(node_type)
+        self.assertIs(self.main_impl(root, 9), self.alt_impl(root, 9))
+
+    @_parameterize_by_node_type
+    def test_bilateral_small_no_center_bottom(self, _name, node_type):
+        root = bilateral.small_no_center(node_type)
+        self.assertIs(self.main_impl(root, 4), self.alt_impl(root, 4))
+
+    @_parameterize_by_node_type
+    def test_bilateral_medium_large_at_top_or_bottom(self, _name, node_type):
+        root = bilateral.medium_large(node_type)
+        self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
+
+    @_parameterize_by_node_type
+    def test_bilateral_medium_large_at_left_right_or_bottom(self, _name,
+                                                            node_type):
+        root = bilateral.medium_large(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    @_parameterize_by_node_type
+    def test_bilateral_medium_large_at_right_left_or_bottom(self, _name,
+                                                            node_type):
+        root = bilateral.medium_large(node_type)
+        self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
+
+    @_parameterize_by_node_type
+    def test_bilateral_medium_large_redundant_at_top_or_bottom(self, _name,
+                                                               node_type):
+        root = bilateral.medium_large_redundant(node_type)
+        self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
+
+    @_parameterize_by_node_type
+    def test_bilateral_medium_large_redundant_at_left_right_or_bottom(
+            self, _name, node_type):
+        root = bilateral.medium_large_redundant(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    @_parameterize_by_node_type
+    def test_bilateral_medium_large_redundant_at_right_left_or_bottom(
+            self, _name, node_type):
+        root = bilateral.medium_large_redundant(node_type)
+        self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
 
 
 if __name__ == '__main__':
