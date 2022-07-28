@@ -485,12 +485,30 @@ def _static_callable(f):
     return staticmethod(f) if inspect.isfunction(f) else f
 
 
-def _parameterize_class_by(**groups):
-    """Parameterize a test class by at least one function/class under test."""
+def _parameterize_class_by(combiner=itertools.product, **groups):
+    """
+    Parameterize a test class by combining iterables and naming the results.
+
+    The iterables' elements are assumed to be callable.
+
+    By default, the Cartesian product of the iterables is taken, by passing
+    each iterable (that is, each keyword-argument value _parameterize_class_by
+    receives) to itertools.product. To combine them in a different way, pass a
+    different callable as the combiner argument. The combiner must accept each
+    iterable as a separate positional argument and return an iterator that
+    yields tuples of elements. For each such tuple, its elements will be used
+    together to synthesize a test class.
+
+    NOTE: When calling _parameterize_class_by with a custom combiner, you must
+    ensure the tuples it yields preserve the order of fields. The kth field in
+    each yielded element will be assigned to a class attribute named after the
+    kth keyword-argument key. Examples of combiners that satisfy this are
+    itertools.product (the default) and zip.
+    """
     if 'name' in groups:
         raise ValueError("cannot name a group 'name'")
 
-    rows = itertools.product(*groups.values())
+    rows = combiner(*groups.values())
     named = [(_join_names(row), *map(_static_callable, row)) for row in rows]
     return parameterized_class(('name', *groups), named)
 
@@ -514,7 +532,7 @@ def _parameterize_by(*iterables,
     each iterable as a separate positional argument and return an iterator that
     yields tuples of elements. For each such tuple, its elements will be passed
     together to a test-case method, after a name argument generated from them.
-    That will happen when the tests are collected and run.
+    That will happen when the tests are collected into test suites and run.
 
     If row_filter is None, all rows are used. Otherwise row_filter is called on
     each row, by passing the row's elements as separate arguments, to decide if
@@ -3877,7 +3895,7 @@ class TestLinearSearchMinDepth(unittest.TestCase):
         self.assertIs(result, root.left.right)
 
 
-# FIXME: Add the TestLinerSearchConsistency test class for testing that
+# FIXME: Add the TestLinearSearchConsistency test class for testing that
 # linear_search and linear_search_iterative return the same match, and that
 # linear_search_mindepth and linear_search_mindepth_alt return the same match.
 
