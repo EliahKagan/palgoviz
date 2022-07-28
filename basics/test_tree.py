@@ -3911,20 +3911,78 @@ class TestLinearSearchConsistency(unittest.TestCase):
     """
     Test that pairs of alternative linear searchers find the same nodes.
 
-    When there are no more than one possible results, any implementation that
-    is itself correct (irrespective of consistency with other code) will return
-    it. But when there are multiple solutions, we impose some restriction on
-    some implementations: linear_search and linear_search_iterative must always
-    return the same results; likewise and separately, linear_search_mindepth
-    and linear_search_mindepth_alt must always return the same results.
+    When there are zero or one possible matches, any implementation that is
+    itself correct (irrespective of consistency with other code) automatically
+    must return the same result (that match, or None). But when there are
+    multiple solutions, we impose some restrictions on some implementations.
+
+    This tests the restriction that linear_search and linear_search_iterative
+    must always return the same results, and that linear_search_mindepth and
+    linear_search_mindepth_alt must always return the same results.
     """
 
     @_parameterize_by_node_type
-    def test_medium_at_top_or_bottom(self, _name, node_type):
+    def test_medium_at_root_or_bottom(self, _name, node_type):
         root = basic.medium(node_type)
         self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
 
-    # FIXME: Write the rest of the test methods.
+    @_parameterize_by_node_type
+    def test_medium_at_left_or_bottom(self, _name, node_type):
+        root = basic.medium(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    @_parameterize_by_node_type
+    def test_medium_at_right_or_bottom_Level(self, _name, node_type):
+        root = basic.medium(node_type)
+        self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
+
+    @_parameterize_by_node_type
+    def test_medium_mirror_at_root_or_bottom(self, _name, node_type):
+        root = mirror.medium(node_type)
+        self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
+
+    @_parameterize_by_node_type
+    def test_medium_mirror_at_left_or_bottom(self, _name, node_type):
+        root = mirror.medium(node_type)
+        self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
+
+    @_parameterize_by_node_type
+    def test_medium_mirror_at_right_or_bottom(self, _name, node_type):
+        root = mirror.medium(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_root_or_bottom(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_left_or_bottom(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_at_right_or_bottom(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_root_or_bottom(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_left_or_bottom(self, _name, node_type):
+        root = mirror.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_mirror_at_right_or_bottom(self, _name,
+                                                        node_type):
+        root = mirror.medium_redundant(node_type)
+        self.assertIs(self.main_impl(root, 2), self.alt_impl(root, 2))
+
+    # FIXME: Add tests with "layered" trees (all elements equal in each level).
 
 
 if __name__ == '__main__':
