@@ -458,7 +458,7 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
-def _join_names(arguments, *, indices=None):
+def _join_names(*arguments, indices=None):
     """
     Join the __name__ attributes of each argument together by underscores.
 
@@ -509,7 +509,7 @@ def _parameterize_class_by(combiner=itertools.product, **groups):
         raise ValueError("cannot name a group 'name'")
 
     rows = combiner(*groups.values())
-    named = [(_join_names(row), *map(_static_callable, row)) for row in rows]
+    named = [(_join_names(*row), *map(_static_callable, row)) for row in rows]
     return parameterized_class(('name', *groups), named)
 
 
@@ -548,7 +548,7 @@ def _parameterize_by(*iterables,
     rows = combiner(*iterables)
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
-    named = [(_join_names(row, indices=name_indices), *row) for row in rows]
+    named = [(_join_names(*row, indices=name_indices), *row) for row in rows]
     return parameterized.expand(named)
 
 
@@ -3895,9 +3895,36 @@ class TestLinearSearchMinDepth(unittest.TestCase):
         self.assertIs(result, root.left.right)
 
 
-# FIXME: Add the TestLinearSearchConsistency test class for testing that
-# linear_search and linear_search_iterative return the same match, and that
-# linear_search_mindepth and linear_search_mindepth_alt return the same match.
+# TODO: If this pattern of class parameterization is used again, extract it to
+#       its own parameterization decorator (up with the other parameterizers).
+@parameterized_class([
+    dict(name=_join_names(tree.linear_search,
+                          tree.linear_search_iterative),
+         main_impl=_static_callable(tree.linear_search),
+         alt_impl=_static_callable(tree.linear_search_iterative)),
+    dict(name=_join_names(tree.linear_search_mindepth,
+                          tree.linear_search_mindepth_alt),
+         main_impl=_static_callable(tree.linear_search_mindepth),
+         alt_impl=_static_callable(tree.linear_search_mindepth_alt))
+])
+class TestLinearSearchConsistency(unittest.TestCase):
+    """
+    Test that pairs of alternative linear searchers find the same nodes.
+
+    When there are no more than one possible results, any implementation that
+    is itself correct (irrespective of consistency with other code) will return
+    it. But when there are multiple solutions, we impose some restriction on
+    some implementations: linear_search and linear_search_iterative must always
+    return the same results; likewise and separately, linear_search_mindepth
+    and linear_search_mindepth_alt must always return the same results.
+    """
+
+    @_parameterize_by_node_type
+    def test_medium_at_top_or_bottom(self, _name, node_type):
+        root = basic.medium(node_type)
+        self.assertIs(self.main_impl(root, 1), self.alt_impl(root, 1))
+
+    # FIXME: Write the rest of the test methods.
 
 
 if __name__ == '__main__':
