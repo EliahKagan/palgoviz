@@ -2723,8 +2723,7 @@ class TestCopy(unittest.TestCase):
     unimplemented, these tests should all still pass.
     """
 
-    @_parameterize_by_node_type
-    def test_empty_returns_none(self, _name, node_type):
+    def test_empty_returns_none(self):
         original = trivial.empty(tree.Node)
 
         if original is not None:
@@ -3476,6 +3475,311 @@ class TestIsOwnReflection(unittest.TestCase):
         root = factory(node_type)
         result = self.implementation(root)
         self.assertFalse(result)
+
+
+@_parameterize_class_by_implementation(
+    tree.linear_search,
+    tree.linear_search_iterative,
+    tree.linear_search_mindepth,
+    tree.linear_search_mindepth_alt,
+)
+class TestLinearSearch(unittest.TestCase):
+    """Tests for functions that sequentially search for a node by value."""
+
+    def test_empty_returns_none(self):
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(root, 42)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_singleton_returns_none_if_absent(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root, 42)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_singleton_returns_node_if_present(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_does_not_search_by_node_object_itself(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root, root)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_left_only_absent(self, _name, node_type):
+        root = basic.left_only(node_type)
+        result = self.implementation(root, 3)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_left_only_at_root(self, _name, node_type):
+        root = basic.left_only(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_left_only_at_child(self, _name, node_type):
+        root = basic.left_only(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_right_only_absent(self, _name, node_type):
+        root = basic.right_only(node_type)
+        result = self.implementation(root, 3)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_right_only_at_root(self, _name, node_type):
+        root = basic.right_only(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_right_only_at_child(self, _name, node_type):
+        root = basic.right_only(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_tiny_absent(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root, 0)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_tiny_at_root(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_tiny_at_left(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_tiny_at_right(self, _name, node_type):
+        root = basic.tiny(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_absent(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 8)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_at_root(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_at_left(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_at_left_left(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_at_left_right(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_at_right(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_at_right_left(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_small_at_right_right(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_absent(self, _name, node_type):
+        root = basic.small_no_left_left(node_type)
+        result = self.implementation(root, 0)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_present(self, _name, node_type):
+        root = basic.small_no_left_left(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_absent(self, _name, node_type):
+        root = basic.small_no_left_right(node_type)
+        result = self.implementation(root, 7)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_present(self, _name, node_type):
+        root = basic.small_no_left_right(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_absent(self, _name, node_type):
+        root = basic.small_no_right_left(node_type)
+        result = self.implementation(root, 3.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_present(self, _name, node_type):
+        root = basic.small_no_right_left(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_absent(self, _name, node_type):
+        root = basic.small_no_right_right(node_type)
+        result = self.implementation(root, 5.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_present(self, _name, node_type):
+        root = basic.small_no_right_right(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_left_chain_absent(self, _name, node_type):
+        root = basic.left_chain(node_type)
+        result = self.implementation(root, 6)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_left_chain_present(self, _name, node_type):
+        root = basic.left_chain(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root.left.left.left)
+
+    @_parameterize_by_node_type
+    def test_right_chain_absent(self, _name, node_type):
+        root = basic.right_chain(node_type)
+        result = self.implementation(root, 0)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_right_chain_present(self, _name, node_type):
+        root = basic.right_chain(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.right.right.right)
+
+    @_parameterize_by_node_type
+    def test_zigzag_chain_absent(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
+        result = self.implementation(root, 3.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_zigzag_chain_present(self, _name, node_type):
+        root = basic.zigzag_chain(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.right.left.right.left)
+
+    @_parameterize_by_node_type
+    def test_lefty_absent(self, _name, node_type):
+        root = basic.lefty(node_type)
+        result = self.implementation(root, 10)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_lefty_present(self, _name, node_type):
+        root = basic.lefty(node_type)
+        result = self.implementation(root, 9)
+        self.assertIs(result, root.left.left.left.right)
+
+    @_parameterize_by_node_type
+    def test_righty_absent(self, _name, node_type):
+        root = basic.righty(node_type)
+        result = self.implementation(root, 10)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_righty_present(self, _name, node_type):
+        root = basic.righty(node_type)
+        result = self.implementation(root, 8)
+        self.assertIs(result, root.right.right.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_absent(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 12.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_medium_shallow(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_deep(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 21)
+        self.assertIs(result, root.left.right.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_duplicated(self, _name, node_type):
+        root = basic.medium(node_type)
+        expected = {root.left, root.right.right.left.right}
+        result = self.implementation(root, 2)
+        self.assertIn(result, expected)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_absent(self, _name, node_type):
+        root = basic.medium_redundant(node_type)
+        result = self.implementation(root, 0)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_similar_heights(self, _name, node_type):
+        """Should find one of possible matches that are at heights 3 and 4."""
+        root = basic.medium_redundant(node_type)
+        expected = {root.right.left.left, root.left.right.left.left}
+        result = self.implementation(root, 12)
+        self.assertIn(result, expected)
+
+    @_parameterize_by_node_type
+    def test_medium_redundant_dissimilar_heights(self, _name, node_type):
+        """Should find one of possible matches that are at heights 1 and 4."""
+        root = basic.medium_redundant(node_type)
+        expected = {root.left.left.right.right, root.right}
+        result = self.implementation(root, 3)
+        self.assertIn(result, expected)
+
+
+# FIXME: Add the TestLinearSearchMinDepth test class for testing that
+# linear_search_mindepth/linear_search_mindepth_alt find minimum depth matches.
 
 
 if __name__ == '__main__':
