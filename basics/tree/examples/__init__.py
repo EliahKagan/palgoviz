@@ -28,6 +28,6 @@ example, the mirrored factory for basic.left_chain, mirror.left_chain, is
 actually equivalent to bst.right_chain.
 """
 
-__all__ = ('almost_bst', 'basic', 'bilateral', 'bst', 'mirror', 'trivial')
+__all__ = ['almost_bst', 'basic', 'bilateral', 'bst', 'mirror', 'trivial']
 
 from . import almost_bst, basic, bilateral, bst, mirror, trivial
