@@ -770,9 +770,12 @@ def _get_path(root, value):
         if not node:
             return None
         path.append(node)
-        if node.element == value:
-            return path
-        return dfs(node.left) or dfs(node.right)
+        try:
+            if node.element == value:
+                return path[:]
+            return dfs(node.left) or dfs(node.right)
+        finally:
+            del path[-1]
 
     result = dfs(root)
     if not result:
@@ -794,8 +797,17 @@ def nearest_ancestor(root, value1, value2):
     """
     path1 = _get_path(root, value1)
     path2 = _get_path(root, value2)
-    zipped_reversed = zip(reversed(path1), reversed(path2))
-    return next(node1 for node1, node2 in zipped_reversed if node1 is node2)
+
+    ancestor = None
+    for node1, node2 in zip(path1, path2):
+        if node1 is not node2:
+            break
+        ancestor = node1
+
+    if not ancestor:
+        raise ValueError('ancestor not found, check input')
+
+    return ancestor
 
 
 def is_bst(root):

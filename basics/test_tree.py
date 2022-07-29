@@ -2105,7 +2105,7 @@ class TestGeneralDfs(unittest.TestCase):
 
 @_parameterize_class_by_implementation(
     tree.levelorder,
-    # NOTE: In the future we will have multiple level-order traversers to test.
+    # NOTE: We'll eventually have multiple level-order traversers to test.
 )
 class TestLevelOrder(unittest.TestCase):
     """Tests for callables returning level-order traversal iterators."""
@@ -4066,6 +4066,20 @@ class TestLinearSearchConsistency(unittest.TestCase):
             self, _name, node_type):
         root = bilateral.medium_large_redundant(node_type)
         self.assertIs(self.main_impl(root, 3), self.alt_impl(root, 3))
+
+
+@_parameterize_class_by_implementation(
+    tree.nearest_ancestor,
+    # NOTE: We'll eventually have multiple nearest-ancestor functions to test.
+)
+class TestNearestAncestor(unittest.TestCase):
+    """Tests for functions to find nodes and their lowest shared ancestor."""
+
+    @_parameterize_by_node_type
+    def test_medium_19_21(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 19, 21)
+        self.assertIs(result, root.left.right)
 
 
 if __name__ == '__main__':
