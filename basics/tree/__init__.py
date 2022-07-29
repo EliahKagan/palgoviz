@@ -1246,7 +1246,7 @@ def draw_extended(root, dag=False):
     return _draw_extended_dag(root) if dag else _draw_extended_faded(root)
 
 
-__all__ = [thing.__name__ for thing in (
+__all__ = [thing.__name__.split('.')[-1] for thing in (
     examples,
     green,
     Node,
