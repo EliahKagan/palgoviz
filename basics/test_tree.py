@@ -4076,10 +4076,39 @@ class TestNearestAncestor(unittest.TestCase):
     """Tests for functions to find nodes and their lowest shared ancestor."""
 
     @_parameterize_by_node_type
-    def test_medium_19_21(self, _name, node_type):
+    def test_medium_itself(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 9, 9)
+        self.assertIs(result, root.left.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_sibling(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 15, 14)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_by_node_type
+    def test_medium_first_cousin(self, _name, node_type):
         root = basic.medium(node_type)
         result = self.implementation(root, 19, 21)
         self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_second_cousin(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 17, 21)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_third_cousin(self, _name, node_type):
+        root = basic.medium(node_type)
+        root = node_type(0, root.left, root.right)  # Make element=1 unique.
+        result = self.implementation(root, 1, 18)
+        self.assertIs(result, root)
+
+    # FIXME: Add (considerably) more tests, including tests on nodes at
+    # different levels: parent, child, cousin once removed up, cousin once
+    # removed down, cousin twice removed up, cousin twice removed down, etc.
 
 
 if __name__ == '__main__':
