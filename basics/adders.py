@@ -77,7 +77,7 @@ class Adder:
         return self.left_addend + right_addend
 
     def __eq__(self, other):
-        """Two adders are equal if their left addends are equal."""
+        """Two adders are equal when their (left) addends are equal."""
         if not isinstance(other, type(self)):
             return NotImplemented
         return self.left_addend == other.left_addend
