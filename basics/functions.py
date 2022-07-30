@@ -498,6 +498,17 @@ def as_closeable_func_limited(iterable, end_sentinel):
     return get_next
 
 
+def _get_gen(func, end_sentinel): # Assume func has close()
+    try:
+        while True:
+            result = func()
+            if result == end_sentinel:
+                break
+            yield result
+    finally:
+        func.close()
+
+
 def as_closeable_iterator_limited(func, end_sentinel):
     """
     Given a parameterless callable, return a generator that calls it until
@@ -528,7 +539,12 @@ def as_closeable_iterator_limited(func, end_sentinel):
     >>> it3.close()
     Done.
     """
-    # FIXME: Implement this.
+    try:
+        func.close
+    except AttributeError:
+        return as_iterator_limited_alt(func, end_sentinel)
+    else:
+        return _get_gen(func, end_sentinel)
 
 
 def as_closeable_iterator(func):
