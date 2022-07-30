@@ -451,11 +451,11 @@ def as_closeable_func(iterable):
         return next(it)
 
     try:
-        c = it.close
+        close = it.close
     except AttributeError:
         pass
     else:
-        get_next.close = c
+        get_next.close = close
 
     return get_next
 
@@ -483,7 +483,19 @@ def as_closeable_func_limited(iterable, end_sentinel):
     >>> a + [g() for _ in range(6)]
     [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
-    # FIXME: Implement this.
+    it = iter(iterable)
+
+    def get_next():
+        return next(it, end_sentinel)
+
+    try:
+        close = it.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
+
+    return get_next
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
