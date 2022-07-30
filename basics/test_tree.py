@@ -4106,9 +4106,33 @@ class TestNearestAncestor(unittest.TestCase):
         result = self.implementation(root, 1, 18)
         self.assertIs(result, root)
 
-    # FIXME: Add (considerably) more tests, including tests on nodes at
-    # different levels: parent, child, cousin once removed up, cousin once
-    # removed down, cousin twice removed up, cousin twice removed down, etc.
+    @_parameterize_by_node_type
+    def test_medium_child(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 7, 14)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_by_node_type
+    def test_medium_parent(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 14, 7)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_by_node_type
+    def test_medium_niece(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 11, 20)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_aunt(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 20, 11)
+        self.assertIs(result, root.left.right)
+
+    # FIXME: Add (considerably) more tests: grandparent, great aunt, cousin
+    # once removed up, cousin once removed down, cousin twice removed up,
+    # cousin twice removed down, etc.
 
 
 if __name__ == '__main__':
