@@ -445,7 +445,19 @@ def as_closeable_func(iterable):
     >>> list(as_iterator_alt(h))
     [10, 20, 30, 40, 50]
     """
-    # FIXME: Implement this.
+    it = iter(iterable)
+
+    def get_next():
+        return next(it)
+
+    try:
+        c = it.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = c
+
+    return get_next
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
