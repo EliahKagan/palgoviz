@@ -187,7 +187,13 @@ def as_func_limited_alt(iterable, end_sentinel):
     >>> f()
     'END'
     """
-    # FIXME: Implement this.
+    def gen_from_iterable():
+        yield from iterable
+        while True:
+            yield end_sentinel
+
+    it = gen_from_iterable()
+    return lambda: next(it)
 
 
 def as_iterator_limited(func, end_sentinel):
