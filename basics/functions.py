@@ -15,6 +15,7 @@ TODO: Either move these functions to other modules or better explain what this
 """
 
 import itertools
+from sys import builtin_module_names
 
 from decorators import peek_return
 from fibonacci import fib
@@ -400,7 +401,16 @@ def report_attributes(func):
     >>> report_attributes(greet)
     greet.fmt = 'Hello, {}!'
     """
-    # FIXME: Implement this.
+    try:
+        attributes = func.__dict__
+    except AttributeError:
+        attributes = {}
+
+    if not attributes:
+        print('No non-metadata attributes.')
+
+    for key in attributes:
+        print(f'{func.__name__}.{key} = {attributes[key]!r}')
 
 
 def as_closeable_func(iterable):
