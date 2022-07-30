@@ -409,8 +409,8 @@ def report_attributes(func):
     if not attributes:
         print('No non-metadata attributes.')
 
-    for key in attributes:
-        print(f'{func.__name__}.{key} = {attributes[key]!r}')
+    for key, value in attributes.items():
+        print(f'{func.__name__}.{key} = {value!r}')
 
 
 def as_closeable_func(iterable):
