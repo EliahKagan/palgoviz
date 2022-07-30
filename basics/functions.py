@@ -159,7 +159,15 @@ def as_func_limited(iterable, end_sentinel):
     >>> f()
     'END'
     """
-    # FIXME: Implement this.
+    it = iter(iterable)
+
+    def get_next():
+        try:
+            return next(it)
+        except StopIteration:
+            return end_sentinel
+
+    return get_next
 
 
 def as_func_limited_alt(iterable, end_sentinel):
