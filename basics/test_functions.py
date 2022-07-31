@@ -141,27 +141,6 @@ def _fib5k():
         return list(map(int, file))
 
 
-# TODO: Replace this with a parameterized-decorator factory (so it will be a
-# decorator factory factory) that takes a module name and returns a decorator
-# factory that takes a variable number of implementation name arguments and
-# behaves like @parameterized.parameterized_class as used in the tests below.
-# Write tests for it, and also use it instead of @parameterized_class below.
-#
-# If you name it make_implementation_parameterizer, usage will look like:
-#
-#     for_implementations = make_implementation_parameterizer(functions)
-#
-#     @for_implementations('make_counter', 'make_counter_alt')
-#     class TestMakeCounter(unittest.TestCase):
-#         ...
-#
-#     @for_implementations('make_next_fibonacci', 'make_next_fibonacci_alt')
-#     class TestMakeNextFibonacci(unittest.TestCase):
-#         ...
-#
-# The parameterized decorator (like for_implementations in the above example)
-# returned by the decorator factory factory should accept arbitrarily many
-# positional arguments representing names of entities to test.
 class _NamedImplementationTestCase(unittest.TestCase):
     """
     Base class to test entities in the functions module by their names.
