@@ -378,13 +378,15 @@ class TestMergeSort(unittest.TestCase):
 
     def test_several_ints_are_sorted(self):
         vals = [5660, -6307, 5315, 389, 3446, 2673, 1555, -7225, 1597, -7129]
-        expected = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315, 5660]
+        expected = [-7225, -7129, -6307, 389, 1555, 1597, 2673, 3446, 5315,
+                    5660]
         result = self.sort(vals, **self.kwargs)
         self.assertListEqual(result, expected)
 
     def test_several_strings_are_sorted(self):
         vals = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
-        expected = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
+        expected = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux',
+                    'spam']
         result = self.sort(vals, **self.kwargs)
         self.assertListEqual(result, expected)
 
