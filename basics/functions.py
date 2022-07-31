@@ -508,7 +508,12 @@ def _get_gen(func, end_sentinel): # Assume func has close()
                 break
             yield result
     finally:
-        func.close()
+        try:
+            close = func.close
+        except AttributeError:
+            pass
+        else:
+            close()
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
@@ -541,14 +546,9 @@ def as_closeable_iterator_limited(func, end_sentinel):
     >>> it3.close()
     Done.
     """
-    try:
-        func.close
-    except AttributeError:
-        return as_iterator_limited_alt(func, end_sentinel)
-    else:
-        generator = _get_gen(func, end_sentinel)
-        next(generator)  # Prime the generator, so closing runs finally.
-        return generator
+    generator = _get_gen(func, end_sentinel)
+    next(generator)  # Prime the generator, so closing runs finally.
+    return generator
 
 
 def as_closeable_iterator(func):
