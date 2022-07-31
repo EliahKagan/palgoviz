@@ -40,8 +40,11 @@ class _IterableWithGeneratorIterator:
 
     __slots__ = ('_start',)
 
-    def __init__(self, start):
+    def __init__(self, start=0):
         self._start = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._start!r})'
 
     def __iter__(self):
         while True:
@@ -56,6 +59,9 @@ class _CloseableNonGeneratorIterator:
 
     def __init__(self, start=0):
         self._next_result = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._next_result!r})'
 
     def __iter__(self):
         return self
@@ -79,8 +85,53 @@ class _IterableWithCloseableNonGeneratorIterator:
     def __init__(self, start=0):
         self._start = start
 
+    def __repr__(self):
+        return f'{type(self).__name__}({self._start!r})'
+
     def __iter__(self):
         return _CloseableNonGeneratorIterator(self._start)
+
+
+class _NonCloseableIterator:
+    """An iterator that isn't a generator and doesn't have a close method."""
+
+    __slots__ = ('_next_result',)
+
+    def __init__(self, start=0):
+        self._next_result = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._next_result!r})'
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        result = self._next_result
+        self._next_result += 1
+        return result
+
+
+class _CloseableIterableWithNonCloseableIterator:
+    """
+    A non-iterator iterable with a close method and a non-closeable iterator.
+    """
+
+    __slots__ = ('_start',)
+
+    def __init__(self, start=0):
+        self._start = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._start!r})'
+
+    def __iter__(self):
+        return _NonCloseableIterator(self._start)
+
+    def close(self):
+        """Raise an AssertionError, since our tests should not call this."""
+        raise AssertionError(
+            "called iterable's close instead of iterator's close")
 
 
 @functools.cache
@@ -354,6 +405,7 @@ class TestAsCloseableFunc(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_no_close_attribute_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func(it)
@@ -363,6 +415,7 @@ class TestAsCloseableFunc(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_cannot_close_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func(it)
@@ -486,6 +539,7 @@ class TestAsCloseableFuncLimited(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_no_close_attribute_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func_limited(it, -17)
@@ -495,6 +549,7 @@ class TestAsCloseableFuncLimited(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_cannot_close_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func_limited(it, -17)
@@ -558,6 +613,8 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
             self.assertListEqual(list(it), expected)
 
 
+# FIXME: Test that close() is called when the generator is exited due to an
+# exception (other than StopIteration or GeneratorExit).
 class TestAsCloseableIteratorLimited(unittest.TestCase):
     """Tests specific to the as_closeable_iterator_limited function."""
 
@@ -773,6 +830,9 @@ class TestAsIterator(_NamedImplementationTestCase):
             self.assertListEqual(prefix, expected)
 
 
+# FIXME: As in TestAsCloseableIteratorLimited above, test that close() is
+# called when the generator is exited due to an exception (other than
+# StopIteration or GeneratorExit).
 class TestAsCloseableIterator(unittest.TestCase):
     """
     Tests specific to the as_closeable_iterator function.
