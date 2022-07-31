@@ -14,10 +14,9 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
-import contextlib
 import itertools
-from decorators import peek_return
 
+from decorators import peek_return
 from fibonacci import fib
 
 
@@ -59,9 +58,9 @@ def make_counter_alt(start=0):
     """
     def counter():
         nonlocal start
-        current = start
+        old = start
         start += 1
-        return current
+        return old
 
     return counter
 
@@ -106,13 +105,13 @@ def make_next_fibonacci_alt():
     a = 0
     b = 1
 
-    def next_fib():
+    def next_fibonacci():
         nonlocal a, b
-        ret = a
+        old_a = a
         a, b = b, a + b
-        return ret
+        return old_a
 
-    return next_fib
+    return next_fibonacci
 
 
 def as_func(iterable):
@@ -223,7 +222,7 @@ def as_iterator_limited_alt(func, end_sentinel):
     while True:
         result = func()
         if result == end_sentinel:
-            return
+            break
         yield result
 
 
@@ -238,7 +237,8 @@ def as_iterator(func):
     >>> list(itertools.islice(as_iterator(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    return iter(func, object())
+    while True:
+        yield func()
 
 
 def as_iterator_alt(func):
@@ -255,8 +255,7 @@ def as_iterator_alt(func):
     >>> list(itertools.islice(as_iterator_alt(make_next_fibonacci_alt()), 11))
     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     """
-    while True:
-        yield func()
+    return iter(func, object())
 
 
 def count_tree_nodes(root):
@@ -285,7 +284,7 @@ def count_tree_nodes(root):
     if not isinstance(root, tuple):
         return 1
 
-    return sum(count_tree_nodes(element) for element in root) + 1
+    return 1 + sum(count_tree_nodes(child) for child in root)
 
 
 def count_tree_nodes_alt(root):
@@ -316,15 +315,15 @@ def count_tree_nodes_alt(root):
     """
     count = 0
 
-    def count_nodes(root):
+    def helper(root):
         nonlocal count
-        count +=1
+        count += 1
         if not isinstance(root, tuple):
             return
-        for element in root:
-            count_nodes(element)
+        for child in root:
+            helper(child)
 
-    count_nodes(root)
+    helper(root)
     return count
 
 
@@ -368,12 +367,13 @@ def count_tree_nodes_instrumented(root):
     5
     """
     global count_tree_nodes
-    non_decorated = count_tree_nodes
+    old_func = count_tree_nodes
     count_tree_nodes = peek_return(count_tree_nodes)
+
     try:
         return count_tree_nodes(root)
     finally:
-        count_tree_nodes = non_decorated
+        count_tree_nodes = old_func
 
 
 def _get_dict_attributes(obj):
@@ -391,7 +391,7 @@ def report_attributes(func):
     It is the caller's responsibility to ensure func is a function. Although
     bound methods are sometimes regarded to be functions, they are not allowed
     here. (Classes and callable instances are only ever informally regarded as
-    functions, and are likewise not allowed.) You don't have to check for this.
+    functions, and are likewise not allowed.)
 
     >>> report_attributes(lambda x: x**2)
     No non-metadata attributes.
@@ -416,6 +416,21 @@ def report_attributes(func):
 
     for key, value in attributes.items():
         print(f'{func.__name__}.{key} = {value!r}')
+
+
+def _do_as_closeable_func(iterable, make_get_next):
+    """Shared logic for as_closeable_func and as_closeable_func_limited."""
+    iterator = iter(iterable)
+    get_next = make_get_next(iterator)
+
+    try:
+        close = iterator.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
+
+    return get_next
 
 
 def as_closeable_func(iterable):
@@ -447,18 +462,13 @@ def as_closeable_func(iterable):
     >>> h = as_closeable_func([10, 20, 30, 40, 50])
     >>> hasattr(h, 'close')
     False
-    >>> list(as_iterator(h))
+    >>> list(as_iterator_alt(h))
     [10, 20, 30, 40, 50]
     """
-    it = iter(iterable)
+    def make_get_next(iterator):
+        return lambda: next(iterator)
 
-    def get_next():
-        return next(it)
-
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
-
-    return get_next
+    return _do_as_closeable_func(iterable, make_get_next)
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
@@ -484,15 +494,10 @@ def as_closeable_func_limited(iterable, end_sentinel):
     >>> a + [g() for _ in range(6)]
     [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
-    it = iter(iterable)
+    def make_get_next(iterator):
+        return lambda: next(iterator, end_sentinel)
 
-    def get_next():
-        return next(it, end_sentinel)
-
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
-
-    return get_next
+    return _do_as_closeable_func(iterable, make_get_next)
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
@@ -527,7 +532,7 @@ def as_closeable_iterator_limited(func, end_sentinel):
     """
     def generate():
         try:
-            yield
+            yield  # For priming the generator to get it into the try block.
 
             while (result := func()) != end_sentinel:
                 yield result
