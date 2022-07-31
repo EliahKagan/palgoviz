@@ -276,7 +276,7 @@ class TestFierceBobcat(unittest.TestCase):
     @parameterized.expand([
         ('int_float', int, float),
         ('int_frac', int, Fraction),
-        ('float_int', float, int ),
+        ('float_int', float, int),
         ('float_frac', float, Fraction),
         ('frac_int', Fraction, int),
         ('frac_float', Fraction, float),
