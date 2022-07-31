@@ -500,7 +500,7 @@ def as_closeable_func_limited(iterable, end_sentinel):
 
 def _get_gen(func, end_sentinel): # Assume func has close()
     try:
-        yield
+        yield  # For priming the generator to get it into the try block.
 
         while True:
             result = func()
@@ -547,7 +547,7 @@ def as_closeable_iterator_limited(func, end_sentinel):
         return as_iterator_limited_alt(func, end_sentinel)
     else:
         generator = _get_gen(func, end_sentinel)
-        next(generator)
+        next(generator)  # Prime the generator, so closing runs finally.
         return generator
 
 
