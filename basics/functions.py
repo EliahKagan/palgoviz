@@ -551,6 +551,21 @@ def as_closeable_iterator_limited(func, end_sentinel):
     return generator
 
 
+def _get_gen_unlimited(func): # Assume func has close()
+    try:
+        yield  # For priming the generator to get it into the try block.
+
+        while True:
+            yield func()
+    finally:
+        try:
+            close = func.close
+        except AttributeError:
+            pass
+        else:
+            close()
+
+
 def as_closeable_iterator(func):
     """
     Given a parameterless callable, return an iterator that repeatedly calls
@@ -584,7 +599,9 @@ def as_closeable_iterator(func):
     >>> it2.close()
     Done.
     """
-    # FIXME: Implement this.
+    generator = _get_gen_unlimited(func)
+    next(generator)  # Prime the generator, so closing runs finally.
+    return generator
 
 
 def func_filter(predicate, func, end_sentinel):
