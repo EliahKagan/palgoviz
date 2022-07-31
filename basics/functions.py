@@ -500,7 +500,8 @@ def as_closeable_func_limited(iterable, end_sentinel):
 
 def _get_gen(func, end_sentinel): # Assume func has close()
     try:
-        yield object()
+        yield
+
         while True:
             result = func()
             if result == end_sentinel:
@@ -545,9 +546,9 @@ def as_closeable_iterator_limited(func, end_sentinel):
     except AttributeError:
         return as_iterator_limited_alt(func, end_sentinel)
     else:
-        x = _get_gen(func, end_sentinel)
-        next(x)
-        return x
+        generator = _get_gen(func, end_sentinel)
+        next(generator)
+        return generator
 
 
 def as_closeable_iterator(func):
