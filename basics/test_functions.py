@@ -804,7 +804,6 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('failed call to next closed the function'):
             mock_close.assert_called_once()
 
-
     def test_closeable_function_closed_on_exception(self):
         """close called if present. (Test raising exceptions, 2 of 2.)"""
         a = [-3, -2, -1, 0, 1]
@@ -1058,7 +1057,6 @@ class TestAsCloseableIterator(unittest.TestCase):
 
         with self.subTest('failed call to next closed the function'):
             mock_close.assert_called_once()
-
 
     def test_closeable_function_closed_on_exception(self):
         """close called if present. (Test raising exceptions, 2 of 2.)"""
