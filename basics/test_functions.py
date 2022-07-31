@@ -668,6 +668,8 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         except AttributeError as error:
             self.fail(f'Got AttributeError: {error}')
 
+    # FIXME: Add test_function_without_close_ok_on_exception.
+
     def test_closeable_function_closed_after_not_started_not_closed(self):
         """close called if present. (Test with no calls to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -748,6 +750,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
 
     def test_closeable_function_closed_when_finished(self):
         """close called if present. (Test exhausting the generator, 1 of 2.)"""
+        # FIXME: Improve docstring. ("2 of 2" only in TestAsCloseableIterator.)
         a = [10, 20, 30, 40]
 
         def f():
@@ -761,6 +764,8 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('exhausting generator closes function'):
             collections.deque(it, maxlen=0)  # Exhaust the generator.
             mock_close.assert_called_once()
+
+    # FIXME: Add test_closeable_function_closed_on_exception.
 
 
 @parameterized_class(('implementation_name',), [
@@ -810,7 +815,8 @@ class TestAsIterator(_NamedImplementationTestCase):
 
 # FIXME: As in TestAsCloseableIteratorLimited above, test that close() is
 # called when the generator is exited due to an exception (other than
-# StopIteration or GeneratorExit).
+# StopIteration or GeneratorExit). See the detailed FIXMEs about that in the
+# TestAsCloseableIteratorLimited body, and do those here too, if applicable.
 class TestAsCloseableIterator(unittest.TestCase):
     """
     Tests specific to the as_closeable_iterator function.
