@@ -757,19 +757,7 @@ def windowed_alt(iterable, n):
     >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    # FIXME: Make this very short and much simpler.
-
-    if n == 0:
-        for _ in iterable:
-            yield ()
-
-    o = object()
-    it = more_itertools.windowed(iterable, n, fillvalue=o)
-    first = next(it)
-    if o in first:
-        return
-    yield first
-    yield from it
+    return more_itertools.sliding_window(iterable, n)
 
 
 def map_one(func, iterable):
