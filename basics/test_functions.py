@@ -130,8 +130,7 @@ class _CloseableIterableWithNonCloseableIterator:
 
     def close(self):
         """Raise an AssertionError, since our tests should not call this."""
-        raise AssertionError(
-            "called iterable's close instead of iterator's close")
+        raise AssertionError('attempt to close the iterable itself')
 
 
 @functools.cache
