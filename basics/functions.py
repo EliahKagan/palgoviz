@@ -616,7 +616,19 @@ def func_filter(predicate, func, end_sentinel):
     >>> a
     [11, 22]
     """
-    # FIXME: Implement this.
+    # FIXME: Not working yet
+    if predicate is None:
+        predicate = lambda x: x
+
+    def ret():
+        value = func()
+
+        while value != end_sentinel and not predicate(value):
+            value = func()
+
+        return value
+
+    return ret
 
 
 if __name__ == '__main__':
