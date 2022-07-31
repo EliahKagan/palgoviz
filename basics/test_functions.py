@@ -750,7 +750,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
 
     def test_closeable_function_closed_when_finished(self):
         """close called if present. (Test exhausting the generator, 1 of 2.)"""
-        # FIXME: Improve docstring. ("2 of 2" only in TestAsCloseableIterator.)
+        # FIXME: Improve docstring. (If this is 1 of 2, where is 2 of 2?)
         a = [10, 20, 30, 40]
 
         def f():
