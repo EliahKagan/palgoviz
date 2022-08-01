@@ -10,6 +10,8 @@ import collections
 import contextlib
 import itertools
 
+import more_itertools
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -138,6 +140,26 @@ def my_any(iterable):
     return next((True for element in iterable if element), False)
 
 
+def my_any_alt(iterable):
+    """
+    Test if any element of an iterable is truthy, using no comprehensions.
+
+    >>> my_any_alt([])
+    False
+    >>> my_any_alt([17, 4, 9, 0, 3, 5, 0])
+    True
+    >>> my_any_alt(x % 17 == 0 for x in range(100))
+    True
+    >>> my_any_alt(x > 100 for x in range(100))
+    False
+    """
+    for element in iterable:
+        if element:
+            return True
+
+    return False
+
+
 def my_all(iterable):
     """
     Tell if all elements of an iterable are truthy.
@@ -158,6 +180,32 @@ def my_all(iterable):
     True
     """
     return next((False for element in iterable if not element), True)
+
+
+def my_all_alt(iterable):
+    """
+    Test if all elements of an iterable are truthy, using no comprehensions.
+
+    >>> my_all_alt([])
+    True
+    >>> my_all_alt([17, 4, 9, 0, 3, 5, 0])
+    False
+    >>> my_all_alt(x % 17 == 0 for x in range(100))
+    False
+    >>> my_all_alt(x > 100 for x in range(100))
+    False
+    >>> my_all_alt(x % 17 == 0 for x in range(0, 100, 17))
+    True
+    >>> my_all_alt([1])
+    True
+    >>> my_all_alt([1, 1, 1, 6, 7])
+    True
+    """
+    for element in iterable:
+        if not element:
+            return False
+
+    return True
 
 
 def zip_two(first, second):
@@ -314,15 +362,71 @@ def print_zipped():
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
 
 
+def _validate_take_n_arg(n):
+    """Raise an appropriate exception if take/take_good should reject n."""
+    if not isinstance(n, int):
+        raise TypeError('n must be an int')
+    if n < 0:
+        raise ValueError("can't yield negatively many items")
+
+
+def take_good(iterable, n):
+    """
+    Yield the first n elements of iterable, or all if there are fewer than n.
+
+    This implementation uses something in itertools to do almost all its work.
+
+    FIXME: If take_good and take (below) have similar validation logic, extract
+    it to a module-level nonpublic function called by both.
+
+    >>> next(take_good(range(3), 0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(take_good(range(3), 1))
+    [0]
+    >>> list(take_good(range(3), 2))
+    [0, 1]
+    >>> list(take_good(range(3), 3))
+    [0, 1, 2]
+    >>> list(take_good(range(3), 4))
+    [0, 1, 2]
+    >>> list(take_good(range(3), 1_000_000))
+    [0, 1, 2]
+    >>> it = take_good((x**2 for x in itertools.count(2)), 2)
+    >>> next(it)
+    4
+    >>> next(it)
+    9
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> take_good(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> take_good(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many items
+    >>> list(take_good('pqr', True))  # OK, since bool is a subclass of int.
+    ['p']
+    >>> it = (x**2 for x in range(1, 6))
+    >>> list(take_good(it, 2))
+    [1, 4]
+    >>> list(it)  # Make sure we didn't consume too much.
+    [9, 16, 25]
+    """
+    _validate_take_n_arg(n)
+    return itertools.islice(iterable, n)
+
+
 def take(iterable, n):
     """
     Yield the first n elements of iterable, or all if there are fewer than n.
 
-    This behaves like itertools.islice when given no stop or step arguments:
-
-        itertools.islice(iterable, n)
-
-    Please don't call islice in this implementation.
+    Unlike take_good, this implementation does not use anything from itertools.
 
     >>> next(take(range(3), 0))
     Traceback (most recent call last):
@@ -363,25 +467,73 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
+    _validate_take_n_arg(n)
+    return (element for _, element in zip(range(n), iterable))
+
+
+def _validate_drop_n_arg(n):
+    """Raise an appropriate exception if drop/drop_good should reject n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
-
     if n < 0:
-        raise ValueError("can't yield negatively many items")
+        raise ValueError("can't skip negatively many items")
 
-    return (element for _, element in zip(range(n), iterable))
+
+def drop_good(iterable, n):
+    """
+    Skip the first n elements of iterable (or all if fewer). Yield the rest.
+
+    This implementation uses something in itertools to do most of its work, and
+    there are no restrictions on what or how it uses things from itertools.
+
+    FIXME: If drop_good and drop (below) have similar validation logic, extract
+    it to a module-level nonpublic function called by both.
+
+    >>> list(drop_good(range(5), 0))
+    [0, 1, 2, 3, 4]
+    >>> list(drop_good(range(5), 1))
+    [1, 2, 3, 4]
+    >>> list(drop_good(range(5), 2))
+    [2, 3, 4]
+    >>> list(drop_good(range(5), 4))
+    [4]
+    >>> list(drop_good(range(5), 5))
+    []
+    >>> list(drop_good(range(5), 6))
+    []
+    >>> list(drop_good(range(5), 1_000_000))
+    []
+    >>> it = take(drop_good(itertools.count(1), 1000), 2)
+    >>> next(it)
+    1001
+    >>> next(it)
+    1002
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> drop_good(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> drop_good(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't skip negatively many items
+    >>> list(drop_good('pqr', True))  # OK, since bool is a subclass of int.
+    ['q', 'r']
+    """
+    _validate_drop_n_arg(n)
+    return itertools.islice(iterable, n, None)
 
 
 def drop(iterable, n):
     """
-    Skip the first n elements of iterable (or all if there are fewer).
-    Yield the rest.
+    Skip the first n elements of iterable (or all if fewer). Yield the rest.
 
-    This behaves like itertools.islice with a start of n and a stop of None:
-
-        itertools.islice(iterable, n, None)
-
-    Please don't call islice in this implementation with more than 2 arguments.
+    Unlike drop_good, this implementation may only use up to one function/class
+    from itertools, and if that class is islice, it may not call it with more
+    than two arguments.
 
     >>> list(drop(range(5), 0))
     [0, 1, 2, 3, 4]
@@ -417,11 +569,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    if not isinstance(n, int):
-        raise TypeError('n must be an int')
-
-    if n < 0:
-        raise ValueError("can't skip negatively many items")
+    _validate_drop_n_arg(n)
 
     def generate():
         it = iter(iterable)
@@ -589,6 +737,36 @@ def windowed(iterable, n):
         yield tuple(queue)
 
 
+def windowed_alt(iterable, n):
+    """
+    Yield all width-n contiguous subsequences of iterable, in order, as tuples.
+
+    This alternative implementation is much shorter than windowed (above),
+    because this uses something from the more-itertools library.
+
+    >>> scap = str.capitalize  # To keep the following lines under 80 columns.
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+    return more_itertools.sliding_window(iterable, n)
+
+
 def map_one(func, iterable):
     """
     Map values from the given iterable through the unary function func.
@@ -707,7 +885,7 @@ def length_of(iterable):
     0
     >>> length_of(x for x in ['ham', 'spam', 'foo', 'eggs', ''] if len(x) == 3)
     2
-    >>> length_of(set(object() for _ in range(100_000)))
+    >>> length_of({object() for _ in range(100_000)})
     100000
     """
     return sum(1 for _ in iterable)
@@ -729,7 +907,7 @@ def length_of_opt(iterable):
     0
     >>> length_of_opt(x for x in ['ham', 'sp', 'foo', 'eg', ''] if len(x) == 3)
     2
-    >>> length_of_opt(set(object() for _ in range(100_000)))
+    >>> length_of_opt({object() for _ in range(100_000)})
     100000
     >>> length_of_opt(range(2_000_000_000))
     2000000000
