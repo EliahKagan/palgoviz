@@ -95,6 +95,55 @@ def repeat_compose(function, count):
     return rvalue
 
 
+def compose(*functions):
+    """
+    Compose functions left to right, so the rightmost function is called first.
+
+    This supports being called with a large number of arguments.
+
+    >>> compose()(3)
+    3
+    >>> def fa(x): return x + 'a'
+    >>> def fb(x): return x + 'b'
+    >>> def fc(x): return x + 'c'
+    >>> def fd(x): return x + 'd'
+    >>> def fe(x): return x + 'e'
+    >>> compose(fa, fb, fc, fd, fe)('z')
+    'zedcba'
+    >>> from adders import make_adder
+    >>> add_50005000 = compose(*(make_adder(i) for i in range(1, 10_001)))
+    >>> add_50005000(7)
+    50005007
+    """
+    def composed(arg):
+        for func in reversed(functions):
+            arg = func(arg)
+        return arg
+
+    return composed
+
+
+def curry_one(function):
+    """
+    Convert a binary function to a unary function returning a unary function.
+
+    Calling the returned function binds a first argument, thus returning a
+    unary function requiring only a second argument. That is, if curry(f)
+    returns g, both f(x, y) and g(x)(y) have the same behavior and results.
+
+    >>> import operator
+    >>> curry_one(operator.add)('ab')('cd')
+    'abcd'
+    >>> curry_one(compose)(lambda x: x + 'a')(lambda x: x + 'b')('z')
+    'zba'
+    """
+    return lambda x: lambda y: function(x, y)
+
+
+# TODO: Eventually cover other forms of currying, the difference between
+#       currying and partial function application, and functools.partial.
+
+
 # Can also run:  python -m doctest composers.py
 # (Pass -v after doctest for verbose output.)
 if __name__ == '__main__':
