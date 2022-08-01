@@ -14,11 +14,11 @@ TODO: Either move these functions to other modules or better explain what this
       module should and shouldn't contain.
 """
 
-import contextlib
 import itertools
 
 from decorators import peek_return
 from fibonacci import fib
+
 
 def make_counter(start=0):
     """
@@ -418,6 +418,21 @@ def report_attributes(func):
         print(f'{func.__name__}.{key} = {value!r}')
 
 
+def _do_as_closeable_func(iterable, make_get_next):
+    """Shared logic for as_closeable_func and as_closeable_func_limited."""
+    iterator = iter(iterable)
+    get_next = make_get_next(iterator)
+
+    try:
+        close = iterator.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
+
+    return get_next
+
+
 def as_closeable_func(iterable):
     """
     Return a function to step through an iterable, exposing close() if present.
@@ -450,15 +465,10 @@ def as_closeable_func(iterable):
     >>> list(as_iterator_alt(h))
     [10, 20, 30, 40, 50]
     """
-    it = iter(iterable)
+    def make_get_next(iterator):
+        return lambda: next(iterator)
 
-    def get_next():
-        return next(it)
-
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
-
-    return get_next
+    return _do_as_closeable_func(iterable, make_get_next)
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
@@ -484,15 +494,10 @@ def as_closeable_func_limited(iterable, end_sentinel):
     >>> a + [g() for _ in range(6)]
     [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
-    it = iter(iterable)
+    def make_get_next(iterator):
+        return lambda: next(iterator, end_sentinel)
 
-    def get_next():
-        return next(it, end_sentinel)
-
-    with contextlib.suppress(AttributeError):
-        get_next.close = it.close
-
-    return get_next
+    return _do_as_closeable_func(iterable, make_get_next)
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
@@ -527,7 +532,7 @@ def as_closeable_iterator_limited(func, end_sentinel):
     """
     def generate():
         try:
-            yield
+            yield  # For priming the generator to get it into the try block.
 
             while (result := func()) != end_sentinel:
                 yield result

@@ -31,7 +31,7 @@ class Announce:
 
     def __enter__(self):
         """Announce the task is starting."""
-        self._put(f'Starting task {self._name}.')
+        self._put(f'Starting task {self.name}.')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -49,7 +49,7 @@ class Announce:
         return self._name
 
     def _put(self, message):
-        """Output a message."""
+        """Output a message to the appropriate output file/stream."""
         if self._out is None:
             print(message)
         else:
@@ -78,7 +78,7 @@ class Closing:
         return f'{type(self).__name__}({self._closeable_object!r})'
 
     def __enter__(self):
-        """Return the closeable object."""
+        """Just return the closeable object."""
         return self._closeable_object
 
     def __exit__(self, exc_type, exc_value, traceback):

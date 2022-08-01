@@ -2,7 +2,6 @@
 
 """Some basic decorators."""
 
-import contextlib
 import functools
 import itertools
 from numbers import Number
@@ -664,9 +663,10 @@ def suppressing(*exception_types, fallback_result=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            with contextlib.suppress(*exception_types):
+            try:
                 return func(*args, **kwargs)
-            return fallback_result
+            except (*exception_types,):
+                return fallback_result
 
         return wrapper
 
@@ -723,6 +723,9 @@ def dict_equality(cls):
     >>> class C: pass
     >>> A() == A(), A() == B(), B() == A(), A() == C(), C() == A()
     (True, False, False, False, False)
+    >>> x = A(); y = A(); x.p = 10; x.q = 20; y.q = 20; y.p = 10
+    >>> x == y, hash(x) == hash(y)
+    (True, True)
     """
     def __eq__(self, other):
         if isinstance(other, type(self)):
@@ -773,15 +776,15 @@ def count_calls_in_attribute(optional_func=None, *, name='count'):
 
     >>> @count_calls_in_attribute()  # Same as passing name='count'.
     ... def add_up(*nums): return sum(nums)
-    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
-    (0, 12, 1, 5, 2)
+    >>> add_up.count, add_up(2, 7, 3), add_up(), add_up(4, 1), add_up.count
+    (0, 12, 0, 5, 3)
 
     When keeping this default, it can also be used directly as a decorator:
 
     >>> @count_calls_in_attribute
     ... def add_up(*nums): return sum(nums)
-    >>> add_up.count, add_up(2, 7, 3), add_up.count, add_up(4, 1), add_up.count
-    (0, 12, 1, 5, 2)
+    >>> add_up.count, add_up(2, 7, 3), add_up(), add_up(4, 1), add_up.count
+    (0, 12, 0, 5, 3)
 
     Hint: You might want to get it working just as a decorator factory first.
     """
@@ -944,12 +947,13 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     if not isinstance(sep, str):  # Not required, but may prevent confusion.
         raise TypeError('non-string separator passed')
 
+    to_str = repr if use_repr else lambda obj: format(obj, format_spec)
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            to_str = repr if use_repr else lambda obj: format(obj, format_spec)
-            joined = sep.join(map(to_str, func(*args, **kwargs)))
-            return f'{begin}{joined}{end}'
+            tokens = map(to_str, func(*args, **kwargs))
+            return f'{begin}{sep.join(tokens)}{end}'
 
         return wrapper
 
@@ -1076,13 +1080,15 @@ class linear_combinable:
     """
 
     def __init__(self, func):
+        """Create a linearily combinable object wrapping a function."""
         functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
     def __repr__(self):
+        """Code-like representation of this linear_combinable object."""
         return f'{type(self).__name__}({self.__wrapped__!r})'
 
     def __eq__(self, other):
-        """When f == g, linear_combinable(f) == linear_combinable(g)."""
+        """linear_combinable objects are equal if they wrap equal callables."""
         if not isinstance(other, type(self)):
             return NotImplemented
         return self.__wrapped__ == other.__wrapped__
@@ -1091,25 +1097,47 @@ class linear_combinable:
         return hash(self.__wrapped__)
 
     def __call__(self, arg):
+        """Call the wrapped function."""
         return self.__wrapped__(arg)
 
     def __add__(self, right_addend):
-        if not isinstance(right_addend, linear_combinable):
+        """Add two functions, with the other function on the right."""
+        if not isinstance(right_addend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
         g = right_addend.__wrapped__
         return linear_combinable(lambda arg: f(arg) + g(arg))
 
+    def __radd__(self, left_addend):
+        """Add two functions, with the other function on the left."""
+        if not isinstance(left_addend, type(self)):
+            return NotImplemented
+
+        f = left_addend.__wrapped__
+        g = self.__wrapped__
+        return linear_combinable(lambda arg: f(arg) + g(arg))
+
     def __sub__(self, subtrahend):
-        if not isinstance(subtrahend, linear_combinable):
+        """Subtract two functions, with the other function on the right."""
+        if not isinstance(subtrahend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
         g = subtrahend.__wrapped__
         return linear_combinable(lambda arg: f(arg) - g(arg))
 
+    def __rsub__(self, minuend):
+        """Subtract two functions, with the other function on the left."""
+        if not isinstance(minuend, type(self)):
+            return NotImplemented
+
+        f = minuend.__wrapped__
+        g = self.__wrapped__
+        return linear_combinable(lambda arg: f(arg) - g(arg))
+
     def __mul__(self, right_coefficient):
+        """Scalar multiplication, with the coefficient on the right."""
         if not isinstance(right_coefficient, Number):
             return NotImplemented
 
@@ -1117,6 +1145,7 @@ class linear_combinable:
         return linear_combinable(lambda arg: f(arg) * right_coefficient)
 
     def __rmul__(self, left_coefficient):
+        """Scalar multiplication, with the coefficient on the left."""
         if not isinstance(left_coefficient, Number):
             return NotImplemented
 
@@ -1124,6 +1153,7 @@ class linear_combinable:
         return linear_combinable(lambda arg: left_coefficient * g(arg))
 
     def __truediv__(self, divisor):
+        """Division by a nonzero scalar, with the scalar on the right."""
         if not isinstance(divisor, Number):
             return NotImplemented
         if divisor == 0:
