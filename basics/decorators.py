@@ -268,6 +268,10 @@ def give_metadata_from(wrapped, *, expose=False):
         wrapper.__qualname__ = wrapped.__qualname__
         wrapper.__doc__ = wrapped.__doc__
         wrapper.__annotations__ = wrapped.__annotations__
+
+        if expose:
+            wrapper.__wrapped__ = wrapped
+
         return wrapper
 
     return decorator
