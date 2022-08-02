@@ -622,15 +622,25 @@ def func_filter(predicate, func, end_sentinel):
     >>> a
     [11, 22]
     """
-    # FIXME: Not working yet
     if predicate is None:
         predicate = lambda x: x
 
-    def ret():
-        value = func()
+    hit_end_sentinel = False
 
-        while value != end_sentinel and not predicate(value):
+    def ret():
+        nonlocal hit_end_sentinel
+
+        if hit_end_sentinel:
+            return end_sentinel
+
+        value = func()
+        if value == end_sentinel:
+            hit_end_sentinel = True
+
+        while hit_end_sentinel == False and not predicate(value):
             value = func()
+            if value == end_sentinel:
+                hit_end_sentinel = True
 
         return value
 
