@@ -416,6 +416,9 @@ def report_attributes(func):
         print(f'{func.__name__}.{key} = {value!r}')
 
 
+# FIXME: Deduplicate shared as_closeable_func/as_closeable_func_limited logic.
+
+
 def as_closeable_func(iterable):
     """
     Return a function to step through an iterable, exposing close() if present.
