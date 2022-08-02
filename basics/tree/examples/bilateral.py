@@ -1,7 +1,5 @@
 """Small examples of binary trees that have left-right (bilateral) symmetry."""
 
-import itertools as _itertools
-
 from . import basic as _basic, mirror as _mirror
 
 
