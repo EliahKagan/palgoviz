@@ -1388,6 +1388,43 @@ class TestFuncFilter(unittest.TestCase):
         with self.subTest('10,002 input calls: 0, ..., 10_000, 10_001 (stop)'):
             self.assertEqual(get_number.call_count, 10_002)
 
+    def test_predicate_not_called_on_sentinel(self):
+        """
+        The predicate may only be valid on values returned before the sentinel.
+        """
+        sentinel = object()
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['hello', 'glorious', 'world', sentinel]
+
+        result_func = functions.func_filter(lambda w: len(w) == 5,
+                                            get_word, sentinel)
+
+        try:
+            while result_func() != sentinel:
+                pass
+        except TypeError as error:
+            self.fail(f'predicate called on sentinel ({error})')
+
+    def test_predicate_called_on_all_input_values(self):
+        """
+        The predicate is called on all each input value before the sentinel.
+        """
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['first', 'second', 'third', 'fourth', 'fifth']
+
+        predicate_arguments = []
+
+        def predicate(word):
+            predicate_arguments.append(word)
+            return len(word) == 5
+
+        result_func = functions.func_filter(predicate, get_word, 'fourth')
+
+        for _ in range(25):
+            result_func()
+
+        self.assertListEqual(predicate_arguments, ['first', 'second', 'third'])
+
 
 if __name__ == '__main__':
     unittest.main()
