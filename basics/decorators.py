@@ -197,7 +197,7 @@ def peek(func):
     proclaim('Hello', 'world', sep=': ', end='!\n')
     Good news: Hello: world!
     proclaim('Hello', 'world', sep=': ', end='!\n') -> None
-    """
+    """  # r makes this a raw string literal.
     @functools.wraps(func)
     def wrapper(*pargs, **kwargs):
         kvs = (f'{key}={value!r}' for key, value in kwargs.items())
@@ -608,7 +608,15 @@ def auto_prime(func):
     >>> a
     [10, 20]
     """
-    # FIXME: Implement this.
+    @functools.wraps(func)
+    def wrapper(*pargs, **kwargs):
+        generator = func(*pargs, **kwargs)
+        first = next(generator)
+        if first is not None:
+            raise TypeError('generator yielded non-None value when primed')
+        return generator
+
+    return wrapper
 
 
 def assign_attributes(**assignments):
