@@ -3,15 +3,18 @@
 """
 Examples demonstrating language features and techniques for functions.
 
-This showcases higher order functions, nested and top-level helpers, nonlocal,
-global, function attributes and instance dictionaries, temporary decoration by
-monkey patching, stateful functions, converting between iterators and stateful
-functions, sentinels, and techniques for suspending an iterative process across
-multiple calls to a function.
+This showcases higher order functions, defining and returning local functions,
+top-level and local helper functions, nonlocal, global, function instance
+dictionaries and attributes, stateful functions, converting between iterators
+and stateful functions, detecting and emitting sentinel values, temporary
+decoration by monkey patching, generator functions, techniques for ensuring
+cleanup of resources owned by suspended generators, and other (non-generator)
+techniques for suspending an iterative process across multiple function calls.
 
-See also functions.ipynb, scopes.ipynb, and scopes.py.
-
-Most material on higher-order functions is in composers.py or decorators.py.
+See also functions.ipynb, scopes.ipynb, and scopes.py. Most material on
+higher-order functions is in composers.py or decorators.py. Most material on
+generator functions is in gencomp1.ipynp, gencomp2.ipynb, gencomp3.ipynb,
+gencomp1.py, and gencomp2.py.
 """
 
 import itertools
