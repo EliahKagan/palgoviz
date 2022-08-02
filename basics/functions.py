@@ -626,12 +626,12 @@ def func_filter(predicate, func, end_sentinel):
     if predicate is None:
         predicate = lambda x: x
 
-    hit_end_sentinel = False
+    done = False
 
-    def ret():
-        nonlocal hit_end_sentinel
+    def filtered():
+        nonlocal done
 
-        if hit_end_sentinel:
+        if done:
             return end_sentinel
 
         while True:
@@ -642,10 +642,10 @@ def func_filter(predicate, func, end_sentinel):
             if predicate(value):
                 return value
 
-        hit_end_sentinel = True
+        done = True
         return end_sentinel
 
-    return ret
+    return filtered
 
 
 if __name__ == '__main__':
