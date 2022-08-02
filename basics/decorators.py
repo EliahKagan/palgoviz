@@ -611,8 +611,7 @@ def auto_prime(func):
     @functools.wraps(func)
     def wrapper(*pargs, **kwargs):
         generator = func(*pargs, **kwargs)
-        first = next(generator)
-        if first is not None:
+        if next(generator) is not None:
             raise TypeError('generator yielded non-None value when primed')
         return generator
 
