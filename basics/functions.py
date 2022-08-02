@@ -19,6 +19,7 @@ gencomp1.py, and gencomp2.py.
 
 import itertools
 from sys import builtin_module_names
+from unittest.mock import sentinel
 
 from decorators import peek_return
 from fibonacci import fib
@@ -633,16 +634,15 @@ def func_filter(predicate, func, end_sentinel):
         if hit_end_sentinel:
             return end_sentinel
 
-        value = func()
-        if value == end_sentinel:
-            hit_end_sentinel = True
-
-        while hit_end_sentinel == False and not predicate(value):
+        while True:
             value = func()
+
             if value == end_sentinel:
                 hit_end_sentinel = True
+                return end_sentinel
 
-        return value
+            if predicate(value):
+                return value
 
     return ret
 
