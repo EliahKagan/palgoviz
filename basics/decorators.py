@@ -219,8 +219,12 @@ def give_metadata_from(wrapped, *, expose=False):
     they are not customizable, and AttributeError is raised if any are absent
     on the wrapped function (or class). No other attributes are copied, but if
     expose=True then __wrapped__ is also set on the wrapper, giving access to
-    the wrapped function. (__wrapped__ is a dunder, but this should be okay
-    because [FIXME: explain, with a supporting citation]).
+    the wrapped function.
+
+    __wrapped__ is a dunder, but this should be okay because it is not a new
+    dunder and is being used as documented in functools.update_wrapper:
+
+    https://docs.python.org/3/library/functools.html#functools.update_wrapper
 
     >>> def f(): 'Wrapped docstring.'
 
