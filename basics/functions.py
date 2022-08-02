@@ -636,13 +636,14 @@ def func_filter(predicate, func, end_sentinel):
 
         while True:
             value = func()
-
             if value == end_sentinel:
-                hit_end_sentinel = True
-                return end_sentinel
+                break
 
             if predicate(value):
                 return value
+
+        hit_end_sentinel = True
+        return end_sentinel
 
     return ret
 
