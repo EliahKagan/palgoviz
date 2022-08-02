@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 """
-Examples demonstrating language features for functions.
+Examples demonstrating language features and techniques for functions.
 
-This is a "bikeshed" file containing a handful of examples/exercises that don't
-fit well elsewhere.
+This showcases higher order functions, nested and top-level helpers, nonlocal,
+global, function attributes and instance dictionaries, temporary decoration by
+monkey patching, stateful functions, converting between iterators and stateful
+functions, sentinels, and techniques for suspending an iterative process across
+multiple calls to a function.
 
 See also functions.ipynb, scopes.ipynb, and scopes.py.
 
 Most material on higher-order functions is in composers.py or decorators.py.
-
-TODO: Either move these functions to other modules or better explain what this
-      module should and shouldn't contain.
 """
 
 import itertools
