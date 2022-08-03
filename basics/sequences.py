@@ -40,3 +40,4 @@ class Vec(MutableSequence):
     ones. That is, all the default implementations are sufficient. This applies
     to methods MutableSequence introduces and those it inherits from Sequence.
     """
+    # FIXME: Needs implementation.
