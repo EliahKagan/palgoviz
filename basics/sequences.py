@@ -1,17 +1,4 @@
-"""
-Mutable sequences.
-
-TODO: The initial implementation of Vec can increase and decrease in length,
-but it only grows its capacity, never shrinking it. This is to simplify the
-initial exercise so it doesn't become dull. After all, Vec is rather contrived:
-in Python, we rarely if ever have a type that supports setting items but not
-inserting or deleting them, and we already have list! The technique used here
-is useful, including in Python... but for more complicated problems that don't
-offer an ideal setting for figuring it out initially. At least one such problem
-appears as a later exercise. After that, there will be another exercise to
-augment Vec so it will shrink capacity (but to allow opting out of this to get
-the original grow-only behavior). [Once that is done, remove this paragraph.]
-"""
+"""Mutable sequences."""
 
 from collections.abc import MutableSequence
 
