@@ -40,8 +40,11 @@ class _IterableWithGeneratorIterator:
 
     __slots__ = ('_start',)
 
-    def __init__(self, start):
+    def __init__(self, start=0):
         self._start = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._start!r})'
 
     def __iter__(self):
         while True:
@@ -56,6 +59,9 @@ class _CloseableNonGeneratorIterator:
 
     def __init__(self, start=0):
         self._next_result = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._next_result!r})'
 
     def __iter__(self):
         return self
@@ -79,8 +85,52 @@ class _IterableWithCloseableNonGeneratorIterator:
     def __init__(self, start=0):
         self._start = start
 
+    def __repr__(self):
+        return f'{type(self).__name__}({self._start!r})'
+
     def __iter__(self):
         return _CloseableNonGeneratorIterator(self._start)
+
+
+class _NonCloseableIterator:
+    """An iterator that isn't a generator and doesn't have a close method."""
+
+    __slots__ = ('_next_result',)
+
+    def __init__(self, start=0):
+        self._next_result = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._next_result!r})'
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        result = self._next_result
+        self._next_result += 1
+        return result
+
+
+class _CloseableIterableWithNonCloseableIterator:
+    """
+    A non-iterator iterable with a close method and a non-closeable iterator.
+    """
+
+    __slots__ = ('_start',)
+
+    def __init__(self, start=0):
+        self._start = start
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._start!r})'
+
+    def __iter__(self):
+        return _NonCloseableIterator(self._start)
+
+    def close(self):
+        """Raise an AssertionError, since our tests should not call this."""
+        raise AssertionError('attempt to close the iterable itself')
 
 
 @functools.cache
@@ -90,27 +140,6 @@ def _fib5k():
         return list(map(int, file))
 
 
-# TODO: Replace this with a parameterized-decorator factory (so it will be a
-# decorator factory factory) that takes a module name and returns a decorator
-# factory that takes a variable number of implementation name arguments and
-# behaves like @parameterized.parameterized_class as used in the tests below.
-# Write tests for it, and also use it instead of @parameterized_class below.
-#
-# If you name it make_implementation_parameterizer, usage will look like:
-#
-#     for_implementations = make_implementation_parameterizer(functions)
-#
-#     @for_implementations('make_counter', 'make_counter_alt')
-#     class TestMakeCounter(unittest.TestCase):
-#         ...
-#
-#     @for_implementations('make_next_fibonacci', 'make_next_fibonacci_alt')
-#     class TestMakeNextFibonacci(unittest.TestCase):
-#         ...
-#
-# The parameterized decorator (like for_implementations in the above example)
-# returned by the decorator factory factory should accept arbitrarily many
-# positional arguments representing names of entities to test.
 class _NamedImplementationTestCase(unittest.TestCase):
     """
     Base class to test entities in the functions module by their names.
@@ -354,6 +383,7 @@ class TestAsCloseableFunc(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_no_close_attribute_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func(it)
@@ -363,6 +393,7 @@ class TestAsCloseableFunc(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_cannot_close_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func(it)
@@ -486,6 +517,7 @@ class TestAsCloseableFuncLimited(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_no_close_attribute_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func_limited(it, -17)
@@ -495,6 +527,7 @@ class TestAsCloseableFuncLimited(unittest.TestCase):
         ('itertools.count', itertools.count(1)),
         ('list iterator', iter([1, 2, 3])),
         ('list', [1, 2, 3]),
+        ('closeable iterable', _CloseableIterableWithNonCloseableIterator(1)),
     ])
     def test_cannot_close_if_iterator_has_no_close(self, _name, it):
         f = functions.as_closeable_func_limited(it, -17)
@@ -633,6 +666,29 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         except AttributeError as error:
             self.fail(f'Got AttributeError: {error}')
 
+    def test_function_without_close_ok_on_exception(self):
+        """
+        f need not be closeable. (Test raising exceptions, 1 of 2.)
+
+        In the example here, ZeroDivisionError must be raised. Other
+        exceptions, such as AttributeError, must not be raised.
+        """
+        a = [-3, -2, -1, 0, 1, 2]
+        it = functions.as_closeable_iterator_limited(lambda: 1 / a.pop(), -2)
+        with self.assertRaises(ZeroDivisionError):
+            collections.deque(it, maxlen=0)
+
+    def test_function_without_close_ok_on_exception_then_closed(self):
+        """f need not be closeable. (Test raising exceptions, 2 of 2.)"""
+        a = [-3, -2, -1, 0, 1, 2]
+        it = functions.as_closeable_iterator_limited(lambda: 1 / a.pop(), -2)
+        with contextlib.suppress(ZeroDivisionError):
+            collections.deque(it, maxlen=0)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
     def test_closeable_function_closed_after_not_started_not_closed(self):
         """close called if present. (Test with no calls to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -712,7 +768,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
             mock_close.assert_called_once()
 
     def test_closeable_function_closed_when_finished(self):
-        """close called if present. (Test exhausting the generator, 1 of 2.)"""
+        """close called if present. (Test exhausting the generator.)"""
         a = [10, 20, 30, 40]
 
         def f():
@@ -725,6 +781,49 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
             mock_close.assert_not_called()
         with self.subTest('exhausting generator closes function'):
             collections.deque(it, maxlen=0)  # Exhaust the generator.
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_on_exception_in_first_call(self):
+        """close called if present. (Test raising exceptions, 1 of 2.)"""
+        a = [-3, -2, -1, 0]
+
+        def f():
+            return 1 / a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, -2)
+
+        with self.subTest('close not called way too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('failed call to next propagates correct exception'):
+            with self.assertRaises(ZeroDivisionError):
+                next(it)
+
+        with self.subTest('failed call to next closed the function'):
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_on_exception(self):
+        """close called if present. (Test raising exceptions, 2 of 2.)"""
+        a = [-3, -2, -1, 0, 1]
+
+        def f():
+            return 1 / a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator_limited(f, -2)
+        next(it)
+
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('failed call to next propagates correct exception'):
+            with self.assertRaises(ZeroDivisionError):
+                next(it)
+
+        with self.subTest('failed call to next closed the function'):
             mock_close.assert_called_once()
 
 
@@ -837,6 +936,29 @@ class TestAsCloseableIterator(unittest.TestCase):
         except AttributeError as error:
             self.fail(f'Got AttributeError: {error}')
 
+    def test_function_without_close_ok_on_exception(self):
+        """
+        f need not be closeable. (Test raising exceptions, 1 of 2.)
+
+        In the example here, ZeroDivisionError must be raised. Other
+        exceptions, such as AttributeError, must not be raised.
+        """
+        a = [-3, -2, -1, 0, 1, 2]
+        it = functions.as_closeable_iterator(lambda: 1 / a.pop())
+        with self.assertRaises(ZeroDivisionError):
+            collections.deque(it, maxlen=0)
+
+    def test_function_without_close_ok_on_exception_then_closed(self):
+        """f need not be closeable. (Test raising exceptions, 2 of 2.)"""
+        a = [-3, -2, -1, 0, 1, 2]
+        it = functions.as_closeable_iterator(lambda: 1 / a.pop())
+        with contextlib.suppress(ZeroDivisionError):
+            collections.deque(it, maxlen=0)
+        try:
+            it.close()
+        except AttributeError as error:
+            self.fail(f'Got AttributeError: {error}')
+
     def test_closeable_function_closed_after_not_started_not_closed(self):
         """close called if present. (Test with no calls to next, 1 of 2.)"""
         a = [10, 20, 30, 40]
@@ -913,6 +1035,49 @@ class TestAsCloseableIterator(unittest.TestCase):
             mock_close.assert_not_called()
         with self.subTest('closing generator closes function'):
             it.close()
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_on_exception_in_first_call(self):
+        """close called if present. (Test raising exceptions, 1 of 2.)"""
+        a = [-3, -2, -1, 0]
+
+        def f():
+            return 1 / a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator(f)
+
+        with self.subTest('close not called way too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('failed call to next propagates correct exception'):
+            with self.assertRaises(ZeroDivisionError):
+                next(it)
+
+        with self.subTest('failed call to next closed the function'):
+            mock_close.assert_called_once()
+
+    def test_closeable_function_closed_on_exception(self):
+        """close called if present. (Test raising exceptions, 2 of 2.)"""
+        a = [-3, -2, -1, 0, 1]
+
+        def f():
+            return 1 / a.pop()
+
+        mock_close = unittest.mock.Mock()
+        f.close = mock_close
+        it = functions.as_closeable_iterator(f)
+        next(it)
+
+        with self.subTest('close not called too early'):
+            mock_close.assert_not_called()
+
+        with self.subTest('failed call to next propagates correct exception'):
+            with self.assertRaises(ZeroDivisionError):
+                next(it)
+
+        with self.subTest('failed call to next closed the function'):
             mock_close.assert_called_once()
 
 
@@ -1222,6 +1387,53 @@ class TestFuncFilter(unittest.TestCase):
             self.assertEqual(result_func(), 10_001)
         with self.subTest('10,002 input calls: 0, ..., 10_000, 10_001 (stop)'):
             self.assertEqual(get_number.call_count, 10_002)
+
+    def test_predicate_not_called_on_sentinel(self):
+        """
+        The predicate may only be valid on values returned before the sentinel.
+
+        This checks that it is never called on the sentinel value itself.
+        """
+        sentinel = object()
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['hello', 'glorious', 'world', sentinel]
+
+        result_func = functions.func_filter(lambda w: len(w) == 5,
+                                            get_word, sentinel)
+
+        try:
+            while result_func() != sentinel:
+                pass
+        except TypeError as error:
+            if str(error) == "object of type 'object' has no len()":
+                self.fail(f'predicate called on sentinel ({error})')
+            raise
+
+    def test_predicate_called_on_all_input_values(self):
+        """
+        The predicate is called on each input value before the sentinel.
+
+        If test_predicate_not_called_on_sentinel fails, this should fail too,
+        since this asserts the arguments and order of all predicate calls. That
+        test case is intended to clearly reveal that bug if present (and to
+        express that it is a bug), while this test case is intended to guard
+        against other possible bugs that cannot all be predicted.
+        """
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['first', 'second', 'third', 'fourth', 'fifth']
+
+        predicate_arguments = []
+
+        def predicate(word):
+            predicate_arguments.append(word)
+            return len(word) == 5
+
+        result_func = functions.func_filter(predicate, get_word, 'fourth')
+
+        for _ in range(25):
+            result_func()
+
+        self.assertListEqual(predicate_arguments, ['first', 'second', 'third'])
 
 
 if __name__ == '__main__':

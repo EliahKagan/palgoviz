@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 
 """
-Examples demonstrating language features for functions.
+Examples demonstrating language features and techniques for functions.
 
-This is a "bikeshed" file containing a handful of examples/exercises that don't
-fit well elsewhere.
+This showcases higher order functions, defining and returning local functions,
+top-level and local helper functions, nonlocal, global, function instance
+dictionaries and attributes, stateful functions, converting between iterators
+and stateful functions, detecting and emitting sentinel values, temporary
+decoration by monkey patching, generator functions, techniques for ensuring
+cleanup of resources owned by suspended generators, and other (non-generator)
+techniques for suspending an iterative process across multiple function calls.
 
-See also functions.ipynb, scopes.ipynb, and scopes.py.
-
-Most material on higher-order functions is in composers.py or decorators.py.
-
-TODO: Either move these functions to other modules or better explain what this
-      module should and shouldn't contain.
+See also functions.ipynb, scopes.ipynb, and scopes.py. Most material on
+higher-order functions is in composers.py or decorators.py. Most material on
+generator functions is in gencomp1.ipynp, gencomp2.ipynb, gencomp3.ipynb,
+gencomp1.py, and gencomp2.py.
 """
 
 import itertools
@@ -418,6 +421,21 @@ def report_attributes(func):
         print(f'{func.__name__}.{key} = {value!r}')
 
 
+def _do_as_closeable_func(iterable, make_get_next):
+    """Shared logic for as_closeable_func and as_closeable_func_limited."""
+    iterator = iter(iterable)
+    get_next = make_get_next(iterator)
+
+    try:
+        close = iterator.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
+
+    return get_next
+
+
 def as_closeable_func(iterable):
     """
     Return a function to step through an iterable, exposing close() if present.
@@ -450,19 +468,10 @@ def as_closeable_func(iterable):
     >>> list(as_iterator_alt(h))
     [10, 20, 30, 40, 50]
     """
-    it = iter(iterable)
+    def make_get_next(iterator):
+        return lambda: next(iterator)
 
-    def get_next():
-        return next(it)
-
-    try:
-        close = it.close
-    except AttributeError:
-        pass
-    else:
-        get_next.close = close
-
-    return get_next
+    return _do_as_closeable_func(iterable, make_get_next)
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
@@ -488,19 +497,10 @@ def as_closeable_func_limited(iterable, end_sentinel):
     >>> a + [g() for _ in range(6)]
     [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
-    it = iter(iterable)
+    def make_get_next(iterator):
+        return lambda: next(iterator, end_sentinel)
 
-    def get_next():
-        return next(it, end_sentinel)
-
-    try:
-        close = it.close
-    except AttributeError:
-        pass
-    else:
-        get_next.close = close
-
-    return get_next
+    return _do_as_closeable_func(iterable, make_get_next)
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
