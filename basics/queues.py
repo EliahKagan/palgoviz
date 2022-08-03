@@ -521,11 +521,12 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         This may be called any number of times, including on copies. Operations
         on an instance do not affect any copies or originals related to it.
 
-        The time complexity to copy is [FIXME: state it]. A series of k
-        operations, each of which constructs or calls a public method on some
-        SinglyLinkedListLifoQueue instance, takes [FIXME: how long?] and uses
-        [FIXME: how much space?] in the worst case. These are the best this
-        concrete data structure can do, due to how it represents data.
+        Copying takes [FIXME: how much?] time. Any series of k operations, each
+        constructing a SinglyLinkedListLifoQueue or calling a public method
+        (other than draw) on a SinglyLinkedListLifoQueue, takes [FIXME: how
+        much?] time and uses [FIXME: how much?] space in the worst case. These
+        are the best this concrete data structure can do, due to how it
+        represents data.
         """
         dup = type(self)()
         dup._head = self._head
@@ -533,7 +534,7 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         return dup
 
     # !!FIXME: When removing implementation bodies, change "def draw(*queues):"
-    # to "def draw(replace_this_with_whatever_your_function_parameters_are):".
+    # to: "def draw():  # FIXME: Fill in your function parameters."
     def draw(*queues):
         """
         Visualize how zero or more SinglyLinkedLifoQueues are/aren't related.
@@ -544,7 +545,7 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         some may have been created by copying others.
 
         This creates and returns such a drawing as a graphviz.Digraph. This
-        function can be called with static method syntax or instance method
+        method can be called with static method syntax or instance method
         syntax. For example, SinglyLinkedListLifoQueue.draw() draws zero
         queues, SinglyLinkedListLifoQueue.draw(a, b, c) draws three queues, and
         a.draw(b, c) draws those same three queues.
