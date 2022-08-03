@@ -1,9 +1,4 @@
-"""
-Mutable collections using hashing or similar techniques.
-
-If more mappings are added in the future, this may be split into multiple
-modules, or renamed to reflect that it is less centered around hashing.
-"""
+"""Simple, BST-based, and hash-based mutable mappings."""
 
 import bisect
 from collections.abc import Mapping, MutableMapping
@@ -204,6 +199,10 @@ class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
         """Find the index and entry for a given key, or raise StopIteration."""
         return next((index, entry) for index, entry in enumerate(self._entries)
                     if entry.key is key or entry.key == key)
+
+
+# FIXME: Add a BinarySearchTree mutable mapping class here. Limit all
+#        operations except drawing to O(1) auxiliary space.
 
 
 class DirectAddressTable(MutableMapping):

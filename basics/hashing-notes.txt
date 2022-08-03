@@ -3,9 +3,9 @@ queues.CompactRingFifoQueue
 queues.SinglyLinkedListFifoQueue.copy
 queues.SinglyLinkedListLifoQueue.copy
 queues.SinglyLinkedListLifoQueue.draw
-hashing.SortedFlatTable
-hashing.UnsortedFlatTable
-hashing.DirectAddressTable
-hashing.HashTable
-hashing.make_ordered_mapping
-hashing.MyOrderedDict/hashing.OrderedHashTable metadata
+mappings.SortedFlatTable
+mappings.UnsortedFlatTable
+mappings.DirectAddressTable
+mappings.HashTable
+mappings.make_ordered_mapping
+mappings.MyOrderedDict/hashing.OrderedHashTable metadata

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Tests for hashing.py"""
+"""Tests for mappings.py."""
 
 from collections.abc import (
     ItemsView,
@@ -11,7 +11,7 @@ from collections.abc import (
 
 import pytest
 
-from hashing import IntKeyTable, HashTable
+from mappings import IntKeyTable, HashTable
 
 
 
