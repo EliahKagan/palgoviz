@@ -7,6 +7,26 @@ The postfix_calculate function directly evaluates an arithmetic expression in
 postfix notation. The other code here works with expression trees: building,
 evaluating, simplifying, serializing (to postfix notation), and drawing.
 
+An expression tree represents an expression. Subtrees represent subexpressions.
+Internal nodes hold operators; leaves hold irreducible terms. In an algebraic
+expression tree, internal nodes hold arithmetic operators and leaves hold
+variables or constants. This module uses arithmetic expression trees, which are
+algebraic expression trees but with variables prohibited. A manual drawing of
+an arithmetic expression tree appears at the top of subproblems.ipynb and helps
+show intuitively what an expression tree is. The draw function in this module
+makes drawings like that, but with some specially significant nodes colorized.
+
+In this module we regard each node to represent the entire subtree it roots,
+and we use separate node types for internal nodes and leaves: the Compound and
+Atom classes. Often one goes further than this, using a separate internal node
+type for each operator, but we don't do that here, and we allow expressions
+containing unrecognized operators to be represented (though of course we cannot
+compute their values). In general, expression trees may support operators of
+any arity, including operators of variable arity. But this module is concerned
+only with binary expression trees, where each operator has an arity of 2, and
+thus each internal node has exactly two children. Note that, unlike binary
+trees in a general setting, nodes cannot have only one of their two children.
+
 Comparing the implementations of postfix_calculate and postfix_parse reveals
 the (perhaps surprising) similarity between evaluating a postfix expression and
 transforming it into an expression tree.
@@ -39,6 +59,14 @@ Compound('+', Compound('+', Compound('+', Atom(1.0), Atom(2.0)),
 >>> _.simplify()  # doctest: +NORMALIZE_WHITESPACE
 Compound('+', Compound('+', Atom(3.0), Compound('@', Atom(3.0), Atom(4.0))),
               Atom(11.0))
+
+Nodes are "frozen" in the same sense as in tree.FrozenNode: attributes of Atom
+and Compound objects may not be changed, created, or deleted (except by those
+types' own initialization code, or by violating encapsulation). Since nodes
+represent their entire subtrees, it would make sense to implement structural
+equality comparison. But at least for now, Atom and Compound objects use
+reference-based equality comparison, comparing equal only to themselves. This
+is to avoid hiding how much (and what) work tree-processing code is doing.
 """
 
 import itertools
@@ -87,7 +115,30 @@ def postfix_calculate(expression):
 
 
 class Atom:
-    """A leaf node in a binary expression tree."""
+    """
+    A leaf node in a binary expression tree.
+
+    >>> atom = Atom(4.5)
+    >>> atom
+    Atom(4.5)
+    >>> atom.value
+    4.5
+    >>> hasattr(atom, 'symbol'), hasattr(atom, 'left'), hasattr(atom, 'right')
+    (False, False, False)
+    >>> atom.evaluate()
+    4.5
+    >>> atom.postfix_serialize()
+    '4.5'
+    >>> atom.simplify()
+    Atom(4.5)
+
+    >>> Atom(4.0)
+    Atom(4.0)
+    >>> _.postfix_serialize()
+    '4'
+
+    See the module docstring for further doctests.
+    """
 
     __slots__ = ('_value',)
 
@@ -118,7 +169,39 @@ class Atom:
 
 
 class Compound:
-    """An internal node in a binary expression tree."""
+    """
+    An internal node in a binary expression tree.
+
+    >>> compound = Compound('-', Compound('/', Atom(9), Atom(2)), Atom(0.5))
+    >>> compound
+    Compound('-', Compound('/', Atom(9), Atom(2)), Atom(0.5))
+    >>> compound.symbol, compound.left, compound.right
+    ('-', Compound('/', Atom(9), Atom(2)), Atom(0.5))
+    >>> hasattr(compound, 'value')
+    False
+    >>> compound.evaluate()
+    4.0
+    >>> compound.postfix_serialize()
+    '9 2 / 0.5 -'
+    >>> compound.simplify()
+    Atom(4.0)
+
+    >>> Compound('+', Compound('*', Compound('-', Atom(1), Atom(2)),
+    ...                             Compound('+', Atom(3), Atom(4))),
+    ...               Compound('/', Compound('+', Atom(-5), Atom(1)),
+    ...                             Compound('-', Atom(1),
+    ...                                           Compound('/', Atom(63),
+    ...                                                         Atom(64))))
+    ... ).postfix_serialize()
+    '1 2 - 3 4 + * -5 1 + 1 63 64 / - / +'
+
+    See the module docstring for further doctests.
+
+    FIXME: Ensure the postfix_serialize method's code as simple as possible,
+    even though this means it is not as fast as possible. In its docstring,
+    state its worst-case asymptotic time complexity, and mention the top-level
+    postfix_serialize_fast function in case users want something faster.
+    """
 
     __slots__ = ('_symbol', '_left', '_right')
 
@@ -188,6 +271,14 @@ def postfix_parse(expression):
     -4.5
     >>> round(postfix_parse('3 2.2 * 1 + 1 2 / -').evaluate(), 10)
     7.1
+    >>> postfix_parse('1 2 - 3 4 + * -5 1 + 1 63 64 / - / +'
+    ...     )  # doctest: +NORMALIZE_WHITESPACE
+    Compound('+', Compound('*', Compound('-', Atom(1.0), Atom(2.0)),
+                                Compound('+', Atom(3.0), Atom(4.0))),
+                  Compound('/', Compound('+', Atom(-5.0), Atom(1.0)),
+                                Compound('-', Atom(1.0),
+                                              Compound('/', Atom(63.0),
+                                                            Atom(64.0)))))
     """
     operands = []
 
@@ -214,6 +305,9 @@ def postfix_serialize_fast(root):
     '1 3 + 2 7 - /'
     >>> postfix_serialize_fast(postfix_parse('3 2.2 * 1 + 1 2 / -'))
     '3 2.2 * 1 + 1 2 / -'
+    >>> postfix_serialize_fast(
+    ...     postfix_parse('1 2 - 3 4 + * -5 1 + 1 63 64 / - / +'))
+    '1 2 - 3 4 + * -5 1 + 1 63 64 / - / +'
     """
     tokens = []
 
@@ -235,6 +329,10 @@ def draw(root):
     Draw an expression tree as a Graphviz graph.
 
     Shade leaves light green and unrecognized operators pink.
+
+    Some drawings produced by this function can be seen in [FIXME: Make the
+    drawings either in some existing notebook such as subproblems.ipynb or a
+    new notebook. Give the notebook's filename here.]
     """
     graph = graphviz.Digraph()
     graph.node_attr['style'] = 'filled'
@@ -254,7 +352,7 @@ def draw(root):
                 graph.edge(name, left_name)
                 graph.edge(name, right_name)
             case _:
-                raise TypeError(f'node must be Atom or Compound, not '
+                raise TypeError('node must be Atom or Compound, not '
                                 + type(node).__name__)
 
         return name
