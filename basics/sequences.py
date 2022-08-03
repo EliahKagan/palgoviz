@@ -1,5 +1,5 @@
 """
-Growing by "table doubling" and shrinking by analogous means.
+Mutable sequences.
 
 TODO: The initial implementation of Vec can increase and decrease in length,
 but it only grows its capacity, never shrinking it. This is to simplify the
