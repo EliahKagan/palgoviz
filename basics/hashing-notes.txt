@@ -1,5 +1,8 @@
+test_grow.TestVec completion
+grow.Vec
 queues.RingFifoQueue
 queues.CompactRingFifoQueue
+grow.Vec augmentation
 queues.SinglyLinkedListFifoQueue.copy
 queues.SinglyLinkedListLifoQueue.copy
 queues.SinglyLinkedListLifoQueue.draw
