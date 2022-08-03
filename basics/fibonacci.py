@@ -546,6 +546,83 @@ def fib_nest_by(container, n):
     return b
 
 
+def draw_naive_call_tree_1(n):
+    """
+    Draw the naive recursive call tree to compute the Fibonacci number F(n).
+
+    Nothing is displayed directly. A graphviz.Digraph object representing the
+    call tree is returned. The actual naive recursive computation is performed,
+    while recording its calls in the Digraph object. The computed Fibonacci
+    number is stored in the Digraph object's result attribute (which wouldn't
+    otherwise exist).
+
+    Nodes in the call tree are labeled by value of their n argument. Leaf nodes
+    are [FIXME: what values?]. Internal nodes have [FIXME: how many?] children,
+    which are drawn left-to-right in the order the computations are done. For
+    F(n), [FIXME: say the order you choose to compute direct subproblems].
+
+    The number of calls, and thus the number of nodes, is exponential in n.
+    """
+    # FIXME: Needs implementation.
+
+
+def draw_naive_call_tree_2(n):
+    """
+    Draw the naive recursive call tree to compute the Fibonacci number F(n).
+
+    This is like draw_naive_call_tree_1, but subcalls are made in the other
+    order: for F(n), [FIXME: list the order of direct subproblems here].
+    Children are still drawn left-to-right in the order the computations are
+    done, so this does not (except in trivial cases) draw the same trees as
+    draw_naive_call_tree_2, even though both do, and draw, naive computations.
+    """
+    # FIXME: Needs implementation.
+
+
+def draw_memoized_call_tree_1(n):
+    """
+    Draw the memoized call tree to compute the Fibonacci number F(n).
+
+    Nothing is displayed directly. A graphviz.Digraph object representing the
+    call tree is returned. The actual memoized recursive computation is
+    performed, while recording its calls in the Digraph object. The computed
+    Fibonacci number is stored in the Digraph object's result attribute (which
+    wouldn't otherwise exist). Top-level calls are independent: caching doesn't
+    carry over from one draw_memoized_call_tree_1 call to another.
+
+    Nodes in the call tree are labeled by the value of their n argument. All
+    calls are drawn, including those that find and return a memoized result
+    rather than performing further computation. For sufficiently large n,
+    leaves may hold arbitrarily large values, because [FIXME: Explain, in
+    contrast to draw_naive_call_trees_1.]
+
+    Internal nodes have [FIXME: how many?] children, which are drawn
+    left-to-right in the order the computations are done. For F(n), [FIXME: say
+    the order you choose to compute direct subproblems].
+
+    The number of calls, and thus the number of nodes, is linear in n.
+    """
+    # FIXME: Needs implementation.
+
+
+def draw_memoized_call_tree_2(n):
+    """
+    Draw the memoized call tree to compute the Fibonacci number F(n).
+
+    This is like draw_memoized_call_tree_1, but subcalls are made in the other
+    order: for F(n), [FIXME: list the order of direct subproblems here].
+    Children are still drawn from left-to-right in the order the computations
+    are done.
+
+    Memoized call trees are much more sensitive to the order in which subcalls
+    are made than unmemoized (naive) call trees, as shown in [FIXME: Say what
+    notebook you have made examples with all four of these drawing functions
+    in. You could put them in subproblems.ipynb or make a new notebook such as
+    fibonacci.ipynb.]
+    """
+    # FIXME: Needs implementation.
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
