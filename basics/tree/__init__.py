@@ -39,7 +39,7 @@ Finally, two general design notes:
    techniques. But classes and functions in this module assume finite trees.
 
 2. A tree can be so tall that RecursionError would be raised when attempting to
-   traverse it with a recursive algorithm. Unless stated otherwise, it is okay
+   traverse it with a recursive function. Unless stated otherwise, it is okay
    for recursive functions in this module to be limited in this way (even when
    their descriptions do not insist they be implemented recursively).
 """
