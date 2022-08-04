@@ -635,7 +635,12 @@ def assign_attributes(**assignments):
     >>> UniversalAdditiveIdentity() + 3, UniversalAdditiveIdentity() + [10, 20]
     (3, [10, 20])
     """
-    # FIXME: Implement this.
+    def decorator(func_or_class):
+        for key, value in assignments.items():
+            setattr(func_or_class, key, value)
+        return func_or_class
+
+    return decorator
 
 
 def suppressing(*exception_types, fallback_result=None):
