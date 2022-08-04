@@ -665,7 +665,17 @@ def suppressing(*exception_types, fallback_result=None):
     >>> suppressing(ValueError)(int)('2.5') is None
     True
     """
-    # FIXME: Implement this.
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*pargs, **kwargs):
+            try:
+                return func(*pargs, **kwargs)
+            except exception_types:
+                return fallback_result
+
+        return wrapper
+
+    return decorator
 
 
 def dict_equality(cls):
