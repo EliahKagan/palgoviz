@@ -208,6 +208,53 @@ class TestVec(unittest.TestCase):
         vec = Vec((x for x in (10, 20, 30)), get_buffer=_FixedSizeBuffer)
         self.assertEqual(repr(vec), expected_repr)
 
+    def test_repr_shows_qualname_of_get_buffer_if_class(self):
+        class Derived(_FixedSizeBuffer):
+            pass
+
+        expected_repr = (
+            "Vec(['a', 'b'], get_buffer=TestVec."
+            'test_repr_shows_qualname_of_get_buffer_if_class.<locals>.Derived)'
+        )
+
+        vec = Vec(['a', 'b'], get_buffer=Derived)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_repr_of_get_buffer_if_lambda(self):
+        expected_repr_pattern = (
+            r"Vec\(\['a', 'b'\], get_buffer=<function TestVec\."
+            r'test_repr_shows_repr_of_get_buffer_if_lambda\.<locals>\.<lambda>'
+            r' at 0x[0-9A-F]+>\)'
+        )
+
+        vec = Vec(['a', 'b'], get_buffer=lambda k, x: [x] * k)
+        self.assertRegex(repr(vec), expected_repr_pattern)
+
+    def test_repr_shows_repr_of_get_buffer_if_named_function(self):
+        def f(k, x):
+            return [x] * k
+
+        expected_repr_pattern = (
+            r"Vec\(\['a', 'b'\], get_buffer=<function TestVec\."
+            r'test_repr_shows_repr_of_get_buffer_if_named_function\.<locals>\.'
+            r'f at 0x[0-9A-F]+>\)'
+        )
+
+        vec = Vec(['a', 'b'], get_buffer=f)
+        self.assertRegex(repr(vec), expected_repr_pattern)
+
+    def test_repr_shows_repr_of_get_buffer_if_instance(self):
+        class BufferFactory:
+            def __repr__(self):
+                return f'{type(self).__name__}()'
+
+            def __call__(self, k, x):
+                return [x] * k
+
+        expected_repr = "Vec(['a', 'b'], get_buffer=BufferFactory())"
+        vec = Vec(['a', 'b'], get_buffer=BufferFactory())
+        self.assertEqual(repr(vec), expected_repr)
+
     # FIXME: Write the rest of the tests, including of inherited mixins.
 
 
