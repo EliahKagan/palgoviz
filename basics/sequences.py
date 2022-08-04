@@ -40,4 +40,119 @@ class Vec(MutableSequence):
     ones. That is, all the default implementations are sufficient. This applies
     to methods MutableSequence introduces and those it inherits from Sequence.
     """
-    # FIXME: Needs implementation.
+
+    __slots__ = ('_get_buffer', '_buffer', '_length', '_can_shrink')
+
+    _INITIAL_CAPACITY = 1
+    """The size the buffer is grown to from zero."""
+
+    _GROWTH_FACTOR = 2
+    """Multiplier by which capacity is increased."""
+
+    _SHRINK_TRIGGER = _GROWTH_FACTOR * 2
+    """Capacity may decrease when it is this many times the length in use."""
+
+    _ABSENT = object()
+    """Sentinel representing the absence of an item, so debugging is easier."""
+
+    def __init__(self, iterable=(), *, get_buffer, can_shrink=False):
+        """Create a Vec with a get_buffer function and optional elements."""
+        self._get_buffer = get_buffer
+        self._buffer = ()
+        self._length = 0
+        self._can_shrink = can_shrink
+        self.extend(iterable)
+
+    def __repr__(self):
+        """Code-like representation of this Vec, for debugging."""
+        elements_str = f'[{", ".join(map(repr, self))}]'
+
+        if isinstance(self._get_buffer, type):
+            get_buffer_str = ', get_buffer=' + self._get_buffer.__qualname__
+        else:
+            get_buffer_str = ', get_buffer=' + repr(self._get_buffer)
+
+        if self._can_shrink:  # NOTE: Must change with the default behavior.
+            can_shrink_str = f', can_shrink={self._can_shrink}'
+        else:
+            can_shrink_str = ''
+
+        typename = type(self).__name__
+        return f'{typename}({elements_str}{get_buffer_str}{can_shrink_str})'
+
+    def __len__(self):
+        """The number of elements currently stored."""
+        return self._length
+
+    def __getitem__(self, index):
+        """Get an item at an index. Slicing is not supported."""
+        return self._buffer[self._normalize_index(index)]
+
+    def __setitem__(self, index, value):
+        """Set an item at an index. Slicing is not supported."""
+        self._buffer[self._normalize_index(index)] = value
+
+    def __delitem__(self, index):
+        """Delete an item at an index. Slicing is not supported."""
+        self._do_delitem(self._normalize_index(index))
+
+    def insert(self, index, value):
+        """Insert a new item at a given index."""
+        self._do_insert(self._normalize_index(index, allow_len=True), value)
+
+    def _do_delitem(self, left):
+        """Helper for __delitem__. left is the validated nonnegative index."""
+        self._length -= 1
+        for right in range(left, self._length):
+            self._buffer[right] = self._buffer[right + 1]
+        self._buffer[self._length] = self._ABSENT
+
+        if self._can_shrink:
+            self._maybe_shrink()
+
+    def _do_insert(self, left, value):
+        """Helper for insert. left is the validated nonnegative index."""
+        if self._length == len(self._buffer):
+            self._grow()
+
+        for right in range(self._length, left, -1):
+            self._buffer[right] = self._buffer[right - 1]
+        self._buffer[left] = value
+        self._length += 1
+
+    def _normalize_index(self, index, *, allow_len=False):
+        """Check that an index is valid and normalize it to be nonnegative."""
+        if not isinstance(index, int):
+            typename = type(index).__name__
+            raise TypeError(f"index must be 'int', got {typename!r}")
+
+        ret = self._length + index if index < 0 else index
+
+        if 0 <= ret < self._length or (allow_len and ret == self._length):
+            return ret
+
+        raise IndexError(f'index {index!r} is out of range')
+
+    def _grow(self):
+        """Switch to a bigger buffer."""
+        new_capacity = max(self._length * self._GROWTH_FACTOR,
+                           self._INITIAL_CAPACITY)
+
+        self._reallocate_buffer(new_capacity)
+
+    def _maybe_shrink(self):
+        """If it looks like switching to a smaller buffer would help, do so."""
+        if (self._length * self._SHRINK_TRIGGER < len(self._buffer)
+                and self._INITIAL_CAPACITY <= self._length):
+            self._reallocate_buffer(self._length)
+
+    def _reallocate_buffer(self, new_capacity):
+        """Get and switch to a new buffer of the given capacity."""
+        assert(self._length <= new_capacity)
+
+        new_buffer = self._get_buffer(new_capacity, self._ABSENT)
+
+        for index in range(self._length):
+            new_buffer[index] = self._buffer[index]
+
+        self._buffer = new_buffer
