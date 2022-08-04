@@ -544,29 +544,39 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         Copying a SinglyLinkedListLifoQueue is more efficient than copying a
         SinglyLinkedListFifoQueue, in a way that makes it interesting to
         visualize the state of multiple SinglyLinkedListLifoQueue instances if
-        some may have been created by copying others.
+        some may have been created by copying others. This should be visualized
+        in such a way that even if the last operation before calling draw was a
+        call to copy, the effect of that call can still be seen in the drawing.
 
         This creates and returns such a drawing as a graphviz.Digraph. This
         method can be called with static method syntax or instance method
         syntax. For example, SinglyLinkedListLifoQueue.draw() draws zero
         queues, SinglyLinkedListLifoQueue.draw(a, b, c) draws three queues, and
-        a.draw(b, c) draws those same three queues.
+        a.draw(b, c) draws those same three queues. This is assuming a, b, and
+        c are separate objects; passing the same instance as more than one
+        argument has the same effect as if subsequent occurrences were omitted.
 
         Some such drawings can be seen in [FIXME: say where you put them, which
         should probably be queues.ipynb].
         """
         vis = {None}
         graph = graphviz.Digraph()
+        graph.edge_attr = dict(penwidth='0.8')
 
         for queue in queues:
-            parent = None
+            if queue in vis:  # NOTE: Must be changed if __eq__ is implemented.
+                continue
+
+            vis.add(queue)
+            graph.node(str(id(queue)), shape='point', color='blue')
+
+            parent = queue
             child = queue._head
 
             while child:
                 if child not in vis:
                     graph.node(str(id(child)), label=repr(child.value))
-                if parent:
-                    graph.edge(str(id(parent)), str(id(child)))
+                graph.edge(str(id(parent)), str(id(child)))
                 if child in vis:
                     break
                 vis.add(child)
