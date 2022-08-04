@@ -16,6 +16,8 @@ import bisect
 import collections
 import operator
 
+import graphviz
+
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
@@ -550,9 +552,27 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         queues, SinglyLinkedListLifoQueue.draw(a, b, c) draws three queues, and
         a.draw(b, c) draws those same three queues.
 
-        Some such drawings can be seen in [FIXME: say where you put them].
+        Some such drawings can be seen in [FIXME: say where you put them, which
+        should probably be queues.ipynb].
         """
-        # FIXME: Needs implementation.
+        vis = {None}
+        graph = graphviz.Digraph()
+
+        for queue in queues:
+            parent = None
+            child = queue._head
+
+            while child:
+                if child not in vis:
+                    graph.node(str(id(child)), label=repr(child.value))
+                if parent:
+                    graph.edge(str(id(parent)), str(id(child)))
+                if child in vis:
+                    break
+                vis.add(child)
+                parent, child = child, child.nextn
+
+        return graph
 
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
