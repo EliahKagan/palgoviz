@@ -1,4 +1,3 @@
-test_sequences.TestVec completion
 sequences.Vec
 queues.RingFifoQueue
 queues.CompactRingFifoQueue

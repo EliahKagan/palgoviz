@@ -198,3 +198,6 @@ class Vec(MutableSequence):
             new_buffer[index] = self._buffer[index]
 
         self._buffer = new_buffer
+
+
+__all__ = [Vec.__name__]

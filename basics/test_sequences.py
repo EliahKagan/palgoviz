@@ -5,6 +5,8 @@
 from collections.abc import Sequence
 import unittest
 
+from sequences import Vec
+
 
 class _Cell:
     """A box holding an object, supporting reassignment."""
@@ -41,9 +43,9 @@ class _FixedSizeBuffer(Sequence):
         """
         Named constructor to build a _FixedSizeBuffer from its arguments.
 
-        This allows a Python-code repr, which may make debugging easier, while
-        not allowing the class to be called this way, which could make tests
-        pass that ought to fail.
+        This facilitates an evaluable repr, to makee debugging easier, without
+        allowing the _FixedSizeBuffer class itself to be called with element
+        values, which, if allowed, might let tests pass that should fail.
         """
         instance = super().__new__(cls)
         instance._cells = tuple(_Cell(value) for value in values)
@@ -76,10 +78,137 @@ class _FixedSizeBuffer(Sequence):
 class TestVec(unittest.TestCase):
     """Tests for the Vec class."""
 
-    # !!FIXME: Write all test cases except those that are an exercise to write.
+    def test_cannot_construct_without_get_buffer_arg(self):
+        with self.assertRaises(TypeError):
+            Vec()
 
-    # FIXME: Write test cases for the functionality of all methods inherited
-    # directly or indirectly from MutableSequence, both abstract and concrete.
+    def test_cannot_construct_with_positional_get_buffer_arg(self):
+        with self.assertRaises(TypeError):
+            Vec(_FixedSizeBuffer)
+
+    def test_can_construct_with_only_get_buffer_keyword_arg(self):
+        try:
+            Vec(get_buffer=_FixedSizeBuffer)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    def test_can_construct_with_empty_list(self):
+        try:
+            Vec([], get_buffer=_FixedSizeBuffer)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    def test_can_construct_with_nonempty_list(self):
+        try:
+            Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    def test_can_construct_with_empty_generator(self):
+        try:
+            Vec((x for x in ()), get_buffer=_FixedSizeBuffer)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    def test_can_construct_with_nonempty_generator(self):
+        try:
+            Vec((x for x in (10, 20, 30)), get_buffer=_FixedSizeBuffer)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    def test_falsy_on_construction_without_iterable(self):
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+        self.assertFalse(vec)
+
+    def test_falsy_on_construction_with_empty_list(self):
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        self.assertFalse(vec)
+
+    def test_truthy_on_construction_with_singleton_list(self):
+        vec = Vec([10], get_buffer=_FixedSizeBuffer)
+        self.assertTrue(vec)
+
+    def test_truthy_on_construction_with_multiple_item_list(self):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        self.assertTrue(vec)
+
+    def test_falsy_on_construction_with_empty_generator(self):
+        vec = Vec((x for x in ()), get_buffer=_FixedSizeBuffer)
+        self.assertFalse(vec)
+
+    def test_truthy_on_construction_with_singleton_generator(self):
+        vec = Vec((x for x in (10,)), get_buffer=_FixedSizeBuffer)
+        self.assertTrue(vec)
+
+    def test_truthy_on_construction_with_multiple_item_generator(self):
+        vec = Vec((x for x in (10, 20, 30)), get_buffer=_FixedSizeBuffer)
+        self.assertTrue(vec)
+
+    def test_len_0_on_construction_without_iterable(self):
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 0)
+
+    def test_len_0_on_construction_with_empty_list(self):
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 0)
+
+    def test_len_1_on_construction_with_singleton_list(self):
+        vec = Vec([10], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 1)
+
+    def test_len_accurate_on_construction_with_multiple_item_list(self):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 3)
+
+    def test_len_0_on_construction_with_empty_generator(self):
+        vec = Vec((x for x in ()), get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 0)
+
+    def test_len_1_on_construction_with_singleton_generator(self):
+        vec = Vec((x for x in (10,)), get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 1)
+
+    def test_len_accurate_on_construction_with_multiple_item_generator(self):
+        vec = Vec((x for x in (10, 20, 30)), get_buffer=_FixedSizeBuffer)
+        self.assertEqual(len(vec), 3)
+
+    def test_repr_shows_no_elements_on_construction_without_iterable(self):
+        expected_repr = 'Vec([], get_buffer=_FixedSizeBuffer)'
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_no_elements_on_construction_with_empty_list(self):
+        expected_repr = 'Vec([], get_buffer=_FixedSizeBuffer)'
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_element_on_construction_with_singleton_list(self):
+        expected_repr = 'Vec([10], get_buffer=_FixedSizeBuffer)'
+        vec = Vec([10], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_elements_on_construction_with_multiple_item_list(self):
+        expected_repr = 'Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)'
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_no_elements_on_construction_with_empty_generator(self):
+        expected_repr = 'Vec([], get_buffer=_FixedSizeBuffer)'
+        vec = Vec((x for x in ()), get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_element_on_construction_with_singleton_generator(self):
+        expected_repr = 'Vec([10], get_buffer=_FixedSizeBuffer)'
+        vec = Vec((x for x in (10,)), get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    def test_repr_shows_elements_on_construction_with_multiple_item_generator(
+            self):
+        expected_repr = 'Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)'
+        vec = Vec((x for x in (10, 20, 30)), get_buffer=_FixedSizeBuffer)
+        self.assertEqual(repr(vec), expected_repr)
+
+    # FIXME: Write the rest of the tests, including of inherited mixins.
 
 
 if __name__ == '__main__':
