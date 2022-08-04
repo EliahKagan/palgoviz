@@ -544,9 +544,9 @@ class SinglyLinkedListLifoQueue(LifoQueue):
         Copying a SinglyLinkedListLifoQueue is more efficient than copying a
         SinglyLinkedListFifoQueue, in a way that makes it interesting to
         visualize the state of multiple SinglyLinkedListLifoQueue instances if
-        some may have been created by copying others. This should be visualized
-        in such a way that even if the last operation before calling draw was a
-        call to copy, the effect of that call can still be seen in the drawing.
+        some may have been created by copying others. This should be drawn in
+        such a way that, even if the last operation before drawing the queues
+        was a call to copy, the effect of that call can be seen in the drawing.
 
         This creates and returns such a drawing as a graphviz.Digraph. This
         method can be called with static method syntax or instance method
