@@ -1,6 +1,9 @@
 """Mutable sequences."""
 
 from collections.abc import MutableSequence
+import itertools
+
+import more_itertools
 
 
 class Vec(MutableSequence):
@@ -95,6 +98,45 @@ class Vec(MutableSequence):
     def __delitem__(self, index):
         """Delete an item at an index. Slicing is not supported."""
         self._do_delitem(self._normalize_index(index))
+
+    def __eq__(self, other):
+        """Check if two Vec objects have equal elements in the same order."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return (len(self) == len(other)
+                and all(lhs == rhs for lhs, rhs in zip(self, other)))
+
+    def __add__(self, other):
+        """Concatenate Vec objects, self then other, making a new Vec."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return type(self)(itertools.chain(self, other),
+                          get_buffer=self._get_buffer,
+                          can_shrink=self._can_shrink)
+
+    def __radd__(self, other):
+        """Concatenate Vec objects, other than self, making a new Vec."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return type(self)(itertools.chain(other, self),
+                          get_buffer=self._get_buffer,
+                          can_shrink=self._can_shrink)
+
+    def __mul__(self, count):
+        """Repeat a vec object a given number of times, making a new Vec."""
+        if not isinstance(count, int):
+            return NotImplemented
+
+        return type(self)(more_itertools.ncycles(self, count),
+                          get_buffer=self._get_buffer,
+                          can_shrink=self._can_shrink)
+
+    def __rmul__(self, count):
+        """Repeat a vec object a given number of times, making a new Vec."""
+        return self.__mul__(count)
 
     def insert(self, index, value):
         """Insert a new item at a given index."""
