@@ -2,7 +2,7 @@
 
 """Tests for sequences.py."""
 
-from collections.abc import Sequence
+from collections.abc import MutableSequence, Sequence
 import random
 import unittest
 
@@ -58,7 +58,7 @@ class _FixedSizeBuffer(Sequence):
         """
         Named constructor to build a _FixedSizeBuffer from its arguments.
 
-        This facilitates an evaluable repr, to makee debugging easier, without
+        This facilitates an evaluable repr, to make debugging easier, without
         allowing the _FixedSizeBuffer class itself to be called with element
         values, which, if allowed, might let tests pass that should fail.
         """
@@ -92,6 +92,13 @@ class _FixedSizeBuffer(Sequence):
 
 class TestVec(unittest.TestCase):
     """Tests for the Vec class."""
+
+    def test_class_is_a_mutable_sequence_type(self):
+        self.assertTrue(issubclass(Vec, MutableSequence))
+
+    def test_instance_is_mutable_sequence(self):
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+        self.assertIsInstance(vec, MutableSequence)
 
     def test_cannot_construct_without_get_buffer_arg(self):
         with self.assertRaises(TypeError):
@@ -344,6 +351,12 @@ class TestVec(unittest.TestCase):
         with self.assertRaises(IndexError):
             vec[index]
 
+    def test_cannot_get_slice(self):
+        expected_message_pattern = r"\Aindex must be 'int', got 'slice'\Z"
+        vec = Vec([10, 20, 30, 40, 50], get_buffer=_FixedSizeBuffer)
+        with self.assertRaisesRegex(TypeError, expected_message_pattern):
+            vec[1:4]
+
     @parameterized.expand([
         ('idx0', 0, [42, 20, 30]),
         ('idx1', 1, [10, 42, 30]),
@@ -390,6 +403,19 @@ class TestVec(unittest.TestCase):
         with self.assertRaises(IndexError):
             vec[index] = 42
 
+    def test_cannot_set_slice(self):
+        expected_message_pattern = r"\Aindex must be 'int', got 'slice'\Z"
+        vec = Vec([10, 20, 30, 40, 50], get_buffer=_FixedSizeBuffer)
+
+        with self.subTest(rhs_type_that_should_be_irrelevant=list):
+            with self.assertRaisesRegex(TypeError, expected_message_pattern):
+                vec[1:4] = [21, 31, 41]
+
+        with self.subTest(rhs_type_that_should_be_irrelevant=Vec):
+            rhs_vec = Vec([21, 31, 41], get_buffer=_FixedSizeBuffer)
+            with self.assertRaisesRegex(TypeError, expected_message_pattern):
+                vec[1:4] = rhs_vec
+
     @parameterized.expand([
         ('idx0', 0, [20, 30]),
         ('idx1', 1, [10, 30]),
@@ -429,6 +455,12 @@ class TestVec(unittest.TestCase):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         with self.assertRaises(IndexError):
             del vec[index]
+
+    def test_cannot_del_slice(self):
+        expected_message_pattern = r"\Aindex must be 'int', got 'slice'\Z"
+        vec = Vec([10, 20, 30, 40, 50], get_buffer=_FixedSizeBuffer)
+        with self.assertRaisesRegex(TypeError, expected_message_pattern):
+            del vec[1:4]
 
     def test_pop_without_index_pops_last_element(self):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
