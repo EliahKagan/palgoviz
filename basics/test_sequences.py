@@ -36,6 +36,18 @@ class _FixedSizeBuffer(Sequence):
     A fixed-length sequence of objects of any type. Supports __setitem__.
 
     This is meant for testing types that consume a fixed-size buffer.
+
+    The implementation technique used here, a tuple of objects each of which
+    has a single rebindable attribute used to hold an element, is probably less
+    efficient than just wrapping a list and not providing any methods that can
+    change the length. I've done it this way because:
+
+    1. It is immediately clear that no resizing happens.
+
+    2. If something like list is implemented in terms of _FizedSizeBuffer (or
+       by dependency injection, where _FixedSizeBuffer can be passed, as in
+       Vec), the whole situation is more satisfying than implementing something
+       like list using a fixed buffer that is itself implemented using list.
     """
 
     __slots__ = ('_cells',)
