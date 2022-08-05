@@ -748,7 +748,7 @@ def dict_equality(cls):
         cls.__ne__ = __ne__
 
     def __hash__(self):
-        return hash(tuple(sorted(self.__dict__.items())))
+        return hash(frozenset(self.__dict__.items()))
 
     cls.__hash__ = __hash__
 
