@@ -743,6 +743,14 @@ def dict_equality(cls):
     cls.__eq__ = __eq__
     cls.__hash__ = __hash__
 
+    if cls.__ne__ is not object.__ne__:
+        def __ne__(self, other):
+            if not isinstance(other, type(self)):
+                return NotImplemented
+            return self.__dict__ != other.__dict__
+
+        cls.__ne__ = __ne__
+
     return cls
 
 
