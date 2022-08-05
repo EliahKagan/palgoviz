@@ -738,10 +738,7 @@ def dict_equality(cls):
         return self.__dict__ == other.__dict__
 
     def dict_hash(self):
-        kvset = set()
-        for key, value in self.__dict__.items():
-            kvset.add((key, value))
-        return hash(frozenset(kvset))
+        return hash(frozenset(self.__dict__.items()))
 
     setattr(cls, '__eq__', dict_equal)
     setattr(cls, '__hash__', dict_hash)
