@@ -275,12 +275,30 @@ class TestVec(unittest.TestCase):
         vec = Vec(elements, get_buffer=_FixedSizeBuffer)
         self.assertListEqual(list(vec), elements)
 
+    def test_can_reverse_iterate_empty(self):
+        """Iterating in reverse through a Vec of no elements yields nothing."""
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        it = reversed(vec)
+        with self.assertRaises(StopIteration):
+            next(it)
+
+    @parameterized.expand([
+        ('len1', [10], [10]),
+        ('len2', [10, 20], [20, 10]),
+        ('len3', [10, 20, 30], [30, 20, 10]),
+        ('len4', [10, 20, 30, 40], [40, 30, 20, 10]),
+        ('len5', [10, 20, 30, 40, 50], [50, 40, 30, 20, 10]),
+    ])
+    def test_can_reverse_iterate(self, _name, elements, expected):
+        vec = Vec(elements, get_buffer=_FixedSizeBuffer)
+        self.assertListEqual(list(reversed(vec)), expected)
+
     @parameterized.expand([
         ('idx0', 0, 10),
         ('idx1', 1, 20),
         ('idx2', 2, 30),
     ])
-    def test_nonnegative_index_gets_item(self, _name, index, expected):
+    def test_can_get_at_nonnegative_index(self, _name, index, expected):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         self.assertEqual(vec[index], expected)
 
@@ -289,7 +307,7 @@ class TestVec(unittest.TestCase):
         ('idxneg2', -2, 20),
         ('idxneg3', -3, 10),
     ])
-    def test_negative_index_gets_item(self, _name, index, expected):
+    def test_can_get_at_negative_index(self, _name, index, expected):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         self.assertEqual(vec[index], expected)
 
@@ -298,20 +316,156 @@ class TestVec(unittest.TestCase):
         ('idx4', 4),
         ('idx100', 100),
     ])
-    def test_nonnegative_out_of_bounds_index_is_error(self, _name, index):
+    def test_cannot_get_at_nonnegative_out_of_bounds_index(self, _name, index):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         with self.assertRaises(IndexError):
             vec[index]
 
     @parameterized.expand([
         ('idxneg4', -4),
-        ('idxneg5', -5,),
-        ('idxneg100', -100,),
+        ('idxneg5', -5),
+        ('idxneg100', -100),
     ])
-    def test_negative_out_of_bounds_index_is_error(self, _name, index):
+    def test_cannot_get_at_negative_out_of_bounds_index(self, _name, index):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         with self.assertRaises(IndexError):
             vec[index]
+
+    @parameterized.expand([
+        ('idx0', 0, [42, 20, 30]),
+        ('idx1', 1, [10, 42, 30]),
+        ('idx2', 2, [10, 20, 42]),
+    ])
+    def test_can_set_at_nonnegative_index(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec[index] = 42
+        with self.subTest('get value'):
+            self.assertEqual(vec[index], 42)
+        with self.subTest('iterate'):
+            self.assertListEqual(list(vec), expected)
+
+    @parameterized.expand([
+        ('idxneg1', -1, [10, 20, 42]),
+        ('idxneg2', -2, [10, 42, 30]),
+        ('idxneg3', -3, [42, 20, 30]),
+    ])
+    def test_can_set_at_negative_index(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec[index] = 42
+        with self.subTest('get value'):
+            self.assertEqual(vec[index], 42)
+        with self.subTest('iterate'):
+            self.assertListEqual(list(vec), expected)
+
+    @parameterized.expand([
+        ('idx3', 3),
+        ('idx4', 4),
+        ('idx100', 100),
+    ])
+    def test_cannot_set_at_nonnegative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec[index] = 42
+
+    @parameterized.expand([
+        ('idxneg4', -4),
+        ('idxneg5', -5),
+        ('idxneg100', -100),
+    ])
+    def test_cannot_set_at_negative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec[index] = 42
+
+    @parameterized.expand([
+        ('idx0', 0, [20, 30]),
+        ('idx1', 1, [10, 30]),
+        ('idx2', 2, [10, 20]),
+    ])
+    def test_can_del_at_nonnegative_index(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        del vec[index]
+        self.assertListEqual(list(vec), expected)
+
+    @parameterized.expand([
+        ('idxneg1', -1, [10, 20]),
+        ('idxneg2', -2, [10, 30]),
+        ('idxneg3', -3, [20, 30]),
+    ])
+    def test_can_del_at_negative_index(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        del vec[index]
+        self.assertListEqual(list(vec), expected)
+
+    @parameterized.expand([
+        ('idx3', 3),
+        ('idx4', 4),
+        ('idx100', 100),
+    ])
+    def test_cannot_del_at_nonnegative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            del vec[index]
+
+    @parameterized.expand([
+        ('idxneg4', -4),
+        ('idxneg5', -5),
+        ('idxneg100', -100),
+    ])
+    def test_cannot_del_at_negative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            del vec[index]
+
+    @parameterized.expand([
+        ('idx0', 0, [42, 10, 20, 30]),
+        ('idx1', 1, [10, 42, 20, 30]),
+        ('idx2', 2, [10, 20, 42, 30]),
+        ('idx3', 3, [10, 20, 30, 42]),
+    ])
+    def test_can_insert_at_nonnegative_index(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec.insert(index, 42)
+        with self.subTest('get value'):
+            self.assertEqual(vec[index], 42)
+        with self.subTest('iterate'):
+            self.assertListEqual(list(vec), expected)
+
+    @parameterized.expand([
+        ('idxneg1', -1, [10, 20, 42, 30]),
+        ('idxneg2', -2, [10, 42, 20, 30]),
+        ('idxneg3', -3, [42, 10, 20, 30]),
+    ])
+    def test_can_insert_at_negative_index(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec.insert(index, 42)
+        with self.subTest('get value'):
+            self.assertEqual(vec[index - 1], 42)
+        with self.subTest('iterate'):
+            self.assertListEqual(list(vec), expected)
+
+    # FIXME: Should these raise, or insert at the end as in list.insert?
+    @parameterized.expand([
+        ('idx4', 4),  # Start at 4, because 3 is a valid insertion index.
+        ('idx5', 5),
+        ('idx100', 100),
+    ])
+    def test_cannot_insert_at_nonnegative_out_of_bounds_index(self, _name,
+                                                              index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec.insert(index, 42)
+
+    # FIXME: Should these raise, or insert at the beginning as in list.insert?
+    @parameterized.expand([
+        ('idxneg4', -4),
+        ('idxneg5', -5),
+        ('idxneg100', -100),
+    ])
+    def test_cannot_insert_at_negative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec.insert(index, 42)
 
     # FIXME: Write the rest of the tests, including of inherited mixins.
 
