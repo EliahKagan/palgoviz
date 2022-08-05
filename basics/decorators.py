@@ -792,7 +792,19 @@ def count_calls_in_attribute(*, name='count'):
 
     Hint: You might want to get it working just as a decorator factory first.
     """
-    # FIXME: Implement this.
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*pargs, **kwargs):
+            count = getattr(wrapper, name)
+            count += 1
+            setattr(wrapper, name, count)
+
+            return func(*pargs, **kwargs)
+
+        setattr(wrapper, name, 0)
+        return wrapper
+
+    return decorator
 
 
 def wrap_uncallable_args(*, kw=False):
