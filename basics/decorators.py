@@ -737,11 +737,7 @@ def dict_equality(cls):
             return NotImplemented
         return self.__dict__ == other.__dict__
 
-    def __hash__(self):
-        return hash(frozenset(self.__dict__.items()))
-
     cls.__eq__ = __eq__
-    cls.__hash__ = __hash__
 
     if cls.__ne__ is not object.__ne__:
         def __ne__(self, other):
@@ -750,6 +746,11 @@ def dict_equality(cls):
             return self.__dict__ != other.__dict__
 
         cls.__ne__ = __ne__
+
+    def __hash__(self):
+        return hash(frozenset(self.__dict__.items()))
+
+    cls.__hash__ = __hash__
 
     return cls
 
