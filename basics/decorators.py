@@ -732,16 +732,16 @@ def dict_equality(cls):
     >>> x == y, hash(x) == hash(y)
     (True, True)
     """
-    def dict_equal(self, other):
+    def __eq__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
         return self.__dict__ == other.__dict__
 
-    def dict_hash(self):
+    def __hash__(self):
         return hash(frozenset(self.__dict__.items()))
 
-    setattr(cls, '__eq__', dict_equal)
-    setattr(cls, '__hash__', dict_hash)
+    cls.__eq__ = __eq__
+    cls.__hash__ = __hash__
 
     return cls
 
