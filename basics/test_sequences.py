@@ -3,6 +3,7 @@
 """Tests for sequences.py."""
 
 from collections.abc import Sequence
+import random
 import unittest
 
 from parameterized import parameterized
@@ -429,6 +430,67 @@ class TestVec(unittest.TestCase):
         with self.assertRaises(IndexError):
             del vec[index]
 
+    def test_pop_without_index_pops_last_element(self):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        actual = vec.pop()
+        with self.subTest('popped value'):
+            self.assertEqual(actual, 30)
+        with self.subTest('remaining values'):
+            self.assertListEqual(list(vec), [10, 20])
+
+    def test_cannot_pop_without_index_if_empty(self):
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec.pop()
+
+    @parameterized.expand([
+        ('idx0', 0, 10, [20, 30]),
+        ('idx1', 1, 20, [10, 30]),
+        ('idx2', 2, 30, [10, 20]),
+    ])
+    def test_can_pop_at_nonnegative_index(self, _name,
+                                          index, expected, expected_remaining):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        actual = vec.pop(index)
+        with self.subTest('popped value'):
+            self.assertEqual(actual, expected)
+        with self.subTest('remaining values'):
+            self.assertListEqual(list(vec), expected_remaining)
+
+    @parameterized.expand([
+        ('idxneg1', -1, 30, [10, 20]),
+        ('idxneg2', -2, 20, [10, 30]),
+        ('idxneg3', -3, 10, [20, 30]),
+    ])
+    def test_can_pop_at_negative_index(self, _name,
+                                       index, expected, expected_remaining):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        actual = vec.pop(index)
+        with self.subTest('popped value'):
+            self.assertEqual(actual, expected)
+        with self.subTest('remaining values'):
+            self.assertListEqual(list(vec), expected_remaining)
+
+    @parameterized.expand([
+        ('idx3', 3),
+        ('idx4', 4),
+        ('idx100', 100),
+    ])
+    def test_cannot_pop_at_nonnegative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec.pop(index)
+
+    @parameterized.expand([
+        ('idxneg4', -4),
+        ('idxneg5', -5),
+        ('idxneg100', -100),
+    ])
+    def test_cannot_pop_at_negative_out_of_bounds_index(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec.pop(index)
+
     @parameterized.expand([
         ('idx0', 0, [42, 10, 20, 30]),
         ('idx1', 1, [10, 42, 20, 30]),
@@ -464,7 +526,7 @@ class TestVec(unittest.TestCase):
     def test_cannot_insert_at_nonnegative_out_of_bounds_index(self, _name,
                                                               index):
         """
-        In a sequence v, 0 to len(v), inclusive, make sense to insert at.
+        In a sequence v, it makes sense to insert at 0 to len(v), inclusive.
 
         Although len(v) - 1 is the highest index we can get, set, or delete at,
         we can insert there, and doing so has the same effect as appending. All
@@ -503,6 +565,59 @@ class TestVec(unittest.TestCase):
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         with self.assertRaises(IndexError):
             vec.insert(index, 42)
+
+    def test_append_adds_new_element_to_end(self):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec.append(42)
+        self.assertListEqual(list(vec), [10, 20, 30, 42])
+
+    # FIXME: Test the extend method here.
+
+    @parameterized.expand([
+        ('n10', 10),
+        ('n1000', 1000),
+        ('n50000', 50_000),
+    ])
+    def test_usable_as_stack_via_append_and_pop(self, _name, count):
+        """Items pop in reverse order of append, at any size."""
+        prng = random.Random(6183603487360711583)
+        expected = []
+        actual = []
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+
+        for _ in range(count):
+            value = prng.randrange(-10**6, 10**6)
+            expected.append(value)
+            vec.append(value)
+
+        expected.reverse()
+
+        while vec:
+            actual.append(vec.pop())
+
+        self.assertListEqual(actual, expected)
+
+    @parameterized.expand([
+        ('n10', 10),
+        ('n1000', 1000),
+        ('n50000', 50_000),
+    ])
+    def test_append_and_pop_change_len(self, _name, count):
+        """len rises and falls with append and pop operations."""
+        prng = random.Random(6183603487360711583)
+        expected = list(range(1, count + 1)) + list(range(count - 1, -1, -1))
+        actual = []
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+
+        for _ in range(count):
+            vec.append(prng.randrange(-10**6, 10**6))
+            actual.append(len(vec))
+
+        while vec:
+            vec.pop()  # del[-1] is more idiomatic here, but this tests pop.
+            actual.append(len(vec))
+
+        self.assertEqual(actual, expected)
 
     # FIXME: Write the rest of the tests, including of inherited mixins.
 
