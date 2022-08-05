@@ -444,7 +444,6 @@ class TestVec(unittest.TestCase):
         with self.subTest('iterate'):
             self.assertListEqual(list(vec), expected)
 
-    # FIXME: Should these raise, or insert at the end as in list.insert?
     @parameterized.expand([
         ('idx4', 4),  # Start at 4, because 3 is a valid insertion index.
         ('idx5', 5),
@@ -452,17 +451,43 @@ class TestVec(unittest.TestCase):
     ])
     def test_cannot_insert_at_nonnegative_out_of_bounds_index(self, _name,
                                                               index):
+        """
+        In a sequence v, 0 to len(v), inclusive, make sense to insert at.
+
+        Although len(v) - 1 is the highest index we can get, set, or delete at,
+        we can insert there, and doing so has the same effect as appending. All
+        indices from 0 to and including len(v) are distinct insertion points.
+
+        In Python it's common to allow insertion "at" higher indices, with the
+        same effect as inserting at len(v). list and collections.deque support
+        this, and it is usually best to support it in one's own types, for
+        consistency with the standard library. For now, we prohibit this, to
+        illustrate which insertion points are actually meaningful, and to show
+        that mixin methods supplied by MutableSequence don't rely on it.
+        """
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         with self.assertRaises(IndexError):
             vec.insert(index, 42)
 
-    # FIXME: Should these raise, or insert at the beginning as in list.insert?
     @parameterized.expand([
         ('idxneg4', -4),
         ('idxneg5', -5),
         ('idxneg100', -100),
     ])
     def test_cannot_insert_at_negative_out_of_bounds_index(self, _name, index):
+        """
+        In a sequence v, -len(v) to -1, inclusive, make sense to insert at.
+
+        Insertion into any position except the very end can be done by negative
+        indices; they mean the same as when used to get, set, and delete.
+
+        In Python it's common to allow insertion "at" even lower indices, with
+        the same effect as inserting at -len(v). list and collections.deque
+        support this, and it is usually best to support it in one's own types,
+        for consistency with the standard library. For now, we prohibit this,
+        to illustrate which insertion points are actually meaningful, and to
+        show that mixin methods supplied by MutableSequence don't rely on it.
+        """
         vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
         with self.assertRaises(IndexError):
             vec.insert(index, 42)
