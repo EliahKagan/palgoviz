@@ -5,6 +5,8 @@
 from collections.abc import Sequence
 import unittest
 
+from parameterized import parameterized
+
 from sequences import Vec
 
 
@@ -254,6 +256,62 @@ class TestVec(unittest.TestCase):
         expected_repr = "Vec(['a', 'b'], get_buffer=BufferFactory())"
         vec = Vec(['a', 'b'], get_buffer=BufferFactory())
         self.assertEqual(repr(vec), expected_repr)
+
+    def test_can_iterate_empty(self):
+        """Iterating through a Vec of no elements yields nothing."""
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        it = iter(vec)
+        with self.assertRaises(StopIteration):
+            next(it)
+
+    @parameterized.expand([
+        ('len1', [10]),
+        ('len2', [10, 20]),
+        ('len3', [10, 20, 30]),
+        ('len4', [10, 20, 30, 40]),
+        ('len5', [10, 20, 30, 40, 50]),
+    ])
+    def test_can_iterate(self, _name, elements):
+        vec = Vec(elements, get_buffer=_FixedSizeBuffer)
+        self.assertListEqual(list(vec), elements)
+
+    @parameterized.expand([
+        ('idx0', 0, 10),
+        ('idx1', 1, 20),
+        ('idx2', 2, 30),
+    ])
+    def test_nonnegative_index_gets_item(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(vec[index], expected)
+
+    @parameterized.expand([
+        ('idxneg1', -1, 30),
+        ('idxneg2', -2, 20),
+        ('idxneg3', -3, 10),
+    ])
+    def test_negative_index_gets_item(self, _name, index, expected):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(vec[index], expected)
+
+    @parameterized.expand([
+        ('idx3', 3),
+        ('idx4', 4),
+        ('idx100', 100),
+    ])
+    def test_nonnegative_out_of_bounds_index_is_error(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec[index]
+
+    @parameterized.expand([
+        ('idxneg4', -4),
+        ('idxneg5', -5,),
+        ('idxneg100', -100,),
+    ])
+    def test_negative_out_of_bounds_index_is_error(self, _name, index):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(IndexError):
+            vec[index]
 
     # FIXME: Write the rest of the tests, including of inherited mixins.
 
