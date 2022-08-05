@@ -732,7 +732,21 @@ def dict_equality(cls):
     >>> x == y, hash(x) == hash(y)
     (True, True)
     """
-    # FIXME: Implement this.
+    def dict_equal(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__dict__ == other.__dict__
+
+    def dict_hash(self):
+        kvset = set()
+        for key, value in self.__dict__.items():
+            kvset.add((key, value))
+        return hash(frozenset(kvset))
+
+    setattr(cls, '__eq__', dict_equal)
+    setattr(cls, '__hash__', dict_hash)
+
+    return cls
 
 
 def count_calls_in_attribute(*, name='count'):
