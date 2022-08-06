@@ -427,3 +427,22 @@ class _Node:
     def value(self):
         """The value of this node."""
         return self._value
+
+
+__all__ = [thing.__name__ for thing in (
+    Queue,
+    FifoQueue,
+    LifoQueue,
+    PriorityQueue,
+    DequeFifoQueue,
+    AltDequeFifoQueue,
+    SlowFifoQueue,
+    BiStackFifoQueue,
+    SinglyLinkedListFifoQueue,
+    ListLifoQueue,
+    DequeLifoQueue,
+    AltDequeLifoQueue,
+    SinglyLinkedListLifoQueue,
+    FastEnqueueMaxPriorityQueue,
+    FastDequeueMaxPriorityQueue,
+)]
