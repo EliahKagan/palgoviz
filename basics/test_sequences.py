@@ -719,7 +719,7 @@ class TestVec(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    # FIXME: Test that removal immediately relinquishes the element reference.
+    # FIXME: Test that pop() immediately relinquishes the element reference.
 
     _parameterize_extend_or_inplace_add = parameterized.expand([
         ('0_seq_0', [], lambda: [], []),
@@ -842,6 +842,11 @@ class TestVec(unittest.TestCase):
         result = count * vec
         self.assertListEqual(list(result), expected)
 
+    # FIXME: Test index(value), index(value, start), index(value, start, end),
+    # with absent, present, and multiple present (finds first); count(value)
+    # with absent, present, and multiple present; and remove(), with absent,
+    # present, and multiple present (deletes first).
+
     @parameterized.expand([
         ('len0', [], []),
         ('len1', [10], [10]),
@@ -881,7 +886,23 @@ class TestVec(unittest.TestCase):
         shallow = all(lhs is rhs for lhs, rhs in zip(original, duplicate))
         self.assertTrue(shallow)
 
-    # FIXME: Write the rest of the tests, including of inherited mixins.
+    @parameterized.expand([
+        ('__contains__',),
+        ('__iter__',),
+        ('__reversed__',),
+        ('index',),
+        ('count',),
+        ('append',),
+        ('reverse',),
+        ('extend',),
+        ('pop',),
+        ('remove',),
+        ('__iadd__',),
+    ])
+    def test_applicable_mixins_are_used(self, name):
+        actual = getattr(Vec, name)
+        expected = getattr(MutableSequence, name)
+        self.assertIs(actual, expected)
 
 
 if __name__ == '__main__':
