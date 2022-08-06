@@ -139,6 +139,16 @@ def curry_one(function):
 #       currying and partial function application, and functools.partial.
 
 
+__all__ = [thing.__name__ for thing in (
+    compose2,
+    repeat_compose_recursive,
+    repeat_compose_chained,
+    repeat_compose,
+    compose,
+    curry_one,
+)]
+
+
 # Can also run:  python -m doctest composers.py
 # (Pass -v after doctest for verbose output.)
 if __name__ == '__main__':

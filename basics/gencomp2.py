@@ -940,6 +940,40 @@ def my_chain(*iterables):
 my_chain.from_iterable = _from_iterable
 
 
+__all__ = [thing.__name__ for thing in (
+    empty,
+    product_two,
+    product_two_alt,
+    product_two_flexible,
+    pairs,
+    ascending_countdowns,
+    ascending_countdowns_alt,
+    three_sums,
+    three_sums_alt,
+    three_sum_indices_1,
+    three_sum_indices_2,
+    three_sum_indices_3,
+    three_sum_indices_4,
+    dot_product_slow,
+    dot_product,
+    flatten2,
+    ungroup,
+    make_mul_table,
+    compose_dicts_simple,
+    compose_dicts,
+    compose_dicts_view,
+    matrix_square_flat,
+    matrix_square_nested,
+    transpose,
+    transpose_alt,
+    affines,
+    Affine,
+    affines_alt,
+    my_cycle,
+    my_chain,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

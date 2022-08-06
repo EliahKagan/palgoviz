@@ -104,6 +104,14 @@ class MonkeyPatch:
     # FIXME: Implement this.
 
 
+__all__ = [thing.__name__ for thing in (
+    Announce,
+    Closing,
+    Suppress,
+    MonkeyPatch,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
