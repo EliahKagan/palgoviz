@@ -737,7 +737,7 @@ class TestVec(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    def test_del_immediately_relinquishes_element_reference(self):
+    def test_del_at_end_immediately_relinquishes_element_references(self):
         """
         Deleting from the end removes the reference from the container.
 
@@ -864,15 +864,13 @@ class TestVec(unittest.TestCase):
     ])
 
     @_parameterize_multiplication
-    def test_multiply_with_int_on_right_repeats(self, _name,
-                                                elements, count, expected):
+    def test_vec_times_int_repeats(self, _name, elements, count, expected):
         vec = Vec(elements, get_buffer=_FixedSizeBuffer)
         result = vec * count
         self.assertListEqual(list(result), expected)
 
     @_parameterize_multiplication
-    def test_multiply_with_int_on_left_repeats(self, _name,
-                                               elements, count, expected):
+    def test_int_times_vec_repeats(self, _name, elements, count, expected):
         vec = Vec(elements, get_buffer=_FixedSizeBuffer)
         result = count * vec
         self.assertListEqual(list(result), expected)
