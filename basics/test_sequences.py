@@ -707,6 +707,92 @@ class TestVec(unittest.TestCase):
         vec += suffix
         self.assertListEqual(list(vec), expected)
 
+    @parameterized.expand([
+        ('lhs0_rhs0', [], [], []),
+        ('lhs0_rhs1', [], [11], [11]),
+        ('lhs0_rhs2', [], [11, 21], [11, 21]),
+        ('lhs0_rhs3', [], [11, 21, 31], [11, 21, 31]),
+
+        ('lhs1_rhs0', [10], [], [10]),
+        ('lhs1_rhs1', [10], [21], [10, 21]),
+        ('lhs1_rhs2', [10], [21, 31], [10, 21, 31]),
+        ('lhs1_rhs3', [10], [21, 31, 41], [10, 21, 31, 41]),
+
+        ('lhs2_rhs0', [10, 20], [], [10, 20]),
+        ('lhs2_rhs1', [10, 20], [31], [10, 20, 31]),
+        ('lhs2_rhs2', [10, 20], [31, 41], [10, 20, 31, 41]),
+        ('lhs2_rhs3', [10, 20], [31, 41, 51], [10, 20, 31, 41, 51]),
+
+        ('lhs3_rhs0', [10, 20, 30], [], [10, 20, 30]),
+        ('lhs3_rhs1', [10, 20, 30], [41], [10, 20, 30, 41]),
+        ('lhs3_rhs2', [10, 20, 30], [41, 51], [10, 20, 30, 41, 51]),
+        ('lhs3_rhs3', [10, 20, 30], [41, 51, 61], [10, 20, 30, 41, 51, 61]),
+    ])
+    def test_add_concatenates(self, _name, lhs_elems, rhs_elems, expected):
+        lhs = Vec(lhs_elems, get_buffer=_FixedSizeBuffer)
+        rhs = Vec(rhs_elems, get_buffer=_FixedSizeBuffer)
+        result = lhs + rhs
+        self.assertListEqual(list(result), expected)
+
+    _parameterize_multiplication = parameterized.expand([
+        ('0_by_0', [], 0, []),
+        ('0_by_1', [], 1, []),
+        ('0_by_2', [], 2, []),
+        ('0_by_3', [], 3, []),
+
+        ('1_by_0', [10], 0, []),
+        ('1_by_1', [10], 1, [10]),
+        ('1_by_2', [10], 2, [10, 10]),
+        ('1_by_3', [10], 3, [10, 10, 10]),
+
+        ('2_by_0', [10, 20], 0, []),
+        ('2_by_1', [10, 20], 1, [10, 20]),
+        ('2_by_2', [10, 20], 2, [10, 20, 10, 20]),
+        ('2_by_3', [10, 20], 3, [10, 20, 10, 20, 10, 20]),
+
+        ('3_by_0', [10, 20, 30], 0, []),
+        ('3_by_1', [10, 20, 30], 1, [10, 20, 30]),
+        ('3_by_2', [10, 20, 30], 2, [10, 20, 30, 10, 20, 30]),
+        ('3_by_3', [10, 20, 30], 3, [10, 20, 30, 10, 20, 30, 10, 20, 30]),
+    ])
+
+    @_parameterize_multiplication
+    def test_multiply_with_int_on_right_repeats(self, _name,
+                                                elements, count, expected):
+        vec = Vec(elements, get_buffer=_FixedSizeBuffer)
+        result = vec * count
+        self.assertListEqual(list(result), expected)
+
+    @_parameterize_multiplication
+    def test_multiply_with_int_on_left_repeats(self, _name,
+                                               elements, count, expected):
+        vec = Vec(elements, get_buffer=_FixedSizeBuffer)
+        result = count * vec
+        self.assertListEqual(list(result), expected)
+
+    @parameterized.expand([
+        ('len0', [], []),
+        ('len1', [10], [10]),
+        ('len2', [10, 20], [20, 10]),
+        ('len3', [10, 20, 30], [30, 20, 10]),
+        ('len4', [10, 20, 30, 40], [40, 30, 20, 10]),
+        ('len5', [10, 20, 30, 40, 50], [50, 40, 30, 20, 10]),
+    ])
+    def test_reverse_reverses_in_place(self, _name, elements, expected):
+        vec = Vec(elements, get_buffer=_FixedSizeBuffer)
+        vec.reverse()
+        self.assertListEqual(list(vec), expected)
+
+    def test_clear_removes_all_elements(self):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec.clear()
+        with self.subTest('bool'):
+            self.assertFalse(vec)
+        with self.subTest('len'):
+            self.assertEqual(len(vec), 0)
+        with self.subTest('=='):
+            self.assertEqual(vec, Vec(get_buffer=_FixedSizeBuffer))
+
     # FIXME: Write the rest of the tests, including of inherited mixins.
 
 
