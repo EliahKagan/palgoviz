@@ -5,14 +5,21 @@
 from collections.abc import MutableSequence, Sequence
 import random
 import unittest
+import weakref
 
 from parameterized import parameterized
 
 from sequences import Vec
+import testing
 
 
 class _Cell:
-    """A box holding an object, supporting reassignment."""
+    """
+    A box holding an object, allowing reassignment.
+
+    This is used directly to implement _FixedSizeBuffer, and also as a
+    base class for _WRCell, which adds support for weak references.
+    """
 
     __slots__ = ('value',)
 
@@ -23,6 +30,17 @@ class _Cell:
     def __repr__(self):
         """Code-like representation, for debugging."""
         return f'{type(self).__name__}({self.value!r})'
+
+
+class _WRCell(_Cell):
+    """
+    A  _Cell that supports being referred to by weak references.
+
+    This is used to test that all (strong) references from a container under
+    test to a just-removed element have been relinquished.
+    """
+
+    __slots__ = ('__weakref__',)
 
 
 def _check_index(index):
@@ -719,7 +737,24 @@ class TestVec(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    # FIXME: Test that pop() immediately relinquishes the element reference.
+    def test_del_immediately_relinquishes_element_reference(self):
+        """
+        Deleting from the end removes the reference from the container.
+
+        No matter where an element is, removing it from the container should
+        leave no dangling reference to it, so the container doesn't needlessly
+        keep it from being garbage collected. But the case of removing from the
+        end is the easiest to test of the situations where bugs may arise.
+        """
+        elements = (_WRCell(i) for i in range(17))
+        vec = Vec(elements, get_buffer=_FixedSizeBuffer)
+        weak = [weakref.ref(x) for x in vec]
+
+        for r in reversed(weak):
+            with self.subTest(number=r().value):  # Show the "boxed" number.
+                del vec[-1]
+                testing.collect_if_not_ref_counting()
+                self.assertIsNone(r())
 
     _parameterize_extend_or_inplace_add = parameterized.expand([
         ('0_seq_0', [], lambda: [], []),
