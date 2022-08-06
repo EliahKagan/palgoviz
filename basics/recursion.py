@@ -9,7 +9,7 @@ See also object_graph.py.
 import bisect
 import collections
 
-import decorators
+import caching
 
 
 def countdown(n):
@@ -1313,12 +1313,12 @@ def leaf_sum_dec(root):
     Overlapping subproblems (the same tuple object in multiple places) are
     solved only once; the solution is cached and reused.
 
-    This is like leaf_sum (and leaf_sum_alt), but @decorators.memoize_by is
-    used for memoization, which is safe for the same reason the sums table
-    works in leaf_sum: a tuple structure (i.e., one where only leaves are
-    permitted to be non-tuples) is ineligible for garbage collection as long as
-    its root is accessible. This holds even in the presence of concurrency
-    considerations, since tuples are immutable.
+    This is like leaf_sum (and leaf_sum_alt), but @caching.memoize_by is used
+    for memoization, which is safe for the same reason the sums table works in
+    leaf_sum: a tuple structure (i.e., one where only leaves are permitted to
+    be non-tuples) is ineligible for garbage collection as long as its root is
+    accessible. This holds even in the presence of concurrency considerations,
+    since tuples are immutable.
 
     Note that it would not be safe to cache calls to the top-level function
     leaf_sum_dec by id. This must go on the helper function, since nothing can
@@ -1339,7 +1339,7 @@ def leaf_sum_dec(root):
     >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    @decorators.memoize_by(id)
+    @caching.memoize_by(id)
     def traverse(parent):
         if not isinstance(parent, tuple):
             return parent
