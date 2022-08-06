@@ -603,6 +603,52 @@ class TestVec(unittest.TestCase):
         vec.append(42)
         self.assertListEqual(list(vec), [10, 20, 30, 42])
 
+    @parameterized.expand([
+        ('n10', 10),
+        ('n1000', 1000),
+        ('n50000', 50_000),
+    ])
+    def test_usable_as_stack_via_append_and_pop(self, _name, count):
+        """Items pop in reverse order of append, at any size."""
+        prng = random.Random(6183603487360711583)
+        expected = []
+        actual = []
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+
+        for _ in range(count):
+            value = prng.randrange(-10**6, 10**6)
+            expected.append(value)
+            vec.append(value)
+
+        expected.reverse()
+
+        while vec:
+            actual.append(vec.pop())
+
+        self.assertListEqual(actual, expected)
+
+    @parameterized.expand([
+        ('n10', 10),
+        ('n1000', 1000),
+        ('n50000', 50_000),
+    ])
+    def test_append_and_pop_change_len(self, _name, count):
+        """len rises and falls with append and pop operations."""
+        prng = random.Random(6183603487360711583)
+        expected = list(range(1, count + 1)) + list(range(count - 1, -1, -1))
+        actual = []
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+
+        for _ in range(count):
+            vec.append(prng.randrange(-10**6, 10**6))
+            actual.append(len(vec))
+
+        while vec:
+            vec.pop()  # del[-1] is more idiomatic here, but this tests pop.
+            actual.append(len(vec))
+
+        self.assertEqual(actual, expected)
+
     _parameterize_extend_or_inplace_add = parameterized.expand([
         ('0_seq_0', [], lambda: [], []),
         ('0_iter_0', [], lambda: iter([]), []),
@@ -660,52 +706,6 @@ class TestVec(unittest.TestCase):
         suffix = suffix_factory()
         vec += suffix
         self.assertListEqual(list(vec), expected)
-
-    @parameterized.expand([
-        ('n10', 10),
-        ('n1000', 1000),
-        ('n50000', 50_000),
-    ])
-    def test_usable_as_stack_via_append_and_pop(self, _name, count):
-        """Items pop in reverse order of append, at any size."""
-        prng = random.Random(6183603487360711583)
-        expected = []
-        actual = []
-        vec = Vec(get_buffer=_FixedSizeBuffer)
-
-        for _ in range(count):
-            value = prng.randrange(-10**6, 10**6)
-            expected.append(value)
-            vec.append(value)
-
-        expected.reverse()
-
-        while vec:
-            actual.append(vec.pop())
-
-        self.assertListEqual(actual, expected)
-
-    @parameterized.expand([
-        ('n10', 10),
-        ('n1000', 1000),
-        ('n50000', 50_000),
-    ])
-    def test_append_and_pop_change_len(self, _name, count):
-        """len rises and falls with append and pop operations."""
-        prng = random.Random(6183603487360711583)
-        expected = list(range(1, count + 1)) + list(range(count - 1, -1, -1))
-        actual = []
-        vec = Vec(get_buffer=_FixedSizeBuffer)
-
-        for _ in range(count):
-            vec.append(prng.randrange(-10**6, 10**6))
-            actual.append(len(vec))
-
-        while vec:
-            vec.pop()  # del[-1] is more idiomatic here, but this tests pop.
-            actual.append(len(vec))
-
-        self.assertEqual(actual, expected)
 
     # FIXME: Write the rest of the tests, including of inherited mixins.
 
