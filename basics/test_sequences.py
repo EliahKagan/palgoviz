@@ -34,13 +34,33 @@ class _Cell:
 
 class _WRCell(_Cell):
     """
-    A  _Cell that supports being referred to by weak references.
+    A _Cell that supports being referred to by weak references.
 
     This is used to test that all (strong) references from a container under
     test to a just-removed element have been relinquished.
+
+    A clearer name would be _WeakReferenceableCell, but that would cause list
+    reprs to be excessively long and difficult to read when debugging or
+    examining test output.
     """
 
     __slots__ = ('__weakref__',)
+
+
+class _WeakReferenceable:
+    """
+    An otherwise uninteresting object that weak references can refer to.
+
+    A non-slotted class would also be weak-referenceable but would readily hold
+    attributes. _WeakReferenceable is for tests where creating an attribute on
+    the instance would be a bug in the test.
+    """
+
+    __slots__ = ('__weakref__',)
+
+    def __repr__(self):
+        """Representation as Python code."""
+        return f'{type(self).__name__}()'
 
 
 def _check_index(index):
@@ -755,6 +775,49 @@ class TestVec(unittest.TestCase):
                 del vec[-1]
                 testing.collect_if_not_ref_counting()
                 self.assertIsNone(r())
+
+    @parameterized.expand([
+        ('n1', 1),
+        ('n2', 2),
+        ('n3', 3),
+        ('n4', 4),
+        ('n5', 5),
+        ('n6', 6),
+        ('n7', 7),
+        ('n8', 8),
+        ('n9', 9),
+        ('n10', 10),
+        ('n11', 11),
+        ('n12', 12),
+        ('n13', 13),
+        ('n14', 14),
+        ('n15', 15),
+        ('n16', 16),
+    ])
+    def test_del_relinquishes_last_reference_to_moved_element(self, _name, n):
+        """
+        Extra references are not kept to elements moved by a previous deletion.
+
+        Deleting a non-rightmost element moves at least one element to the left
+        to fill the hole. Some ways of implementing this introduce a bug where
+        an extra reference is kept to some other element. Then, if that other
+        element is removed or replaced, the data structure may still hold that
+        extra reference to it, preventing it from being garbage collected until
+        the whole data structure itself is eligible for garbage collection.
+
+        People are often surprised to learn memory leaks are possible even in
+        languages with automatic garbage collection (e.g., Python, Java, C#).
+        Garbage collection is very useful, but it doesn't free programmers from
+        the need to avoid long-lived references from objects that are still in
+        use to objects that are intended never to be used again.
+        """
+        vec = Vec(range(17), get_buffer=_FixedSizeBuffer)
+        vec[-1] = _WeakReferenceable()
+        for _ in range(n):
+            del vec[0]
+        r = weakref.ref(vec[-1])
+        vec[-1] = 42  # We can assign anything here, besides vec[-1] itself.
+        self.assertIsNone(r())
 
     _parameterize_extend_or_inplace_add = parameterized.expand([
         ('0_seq_0', [], lambda: [], []),
