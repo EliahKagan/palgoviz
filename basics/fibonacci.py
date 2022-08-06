@@ -546,6 +546,23 @@ def fib_nest_by(container, n):
     return b
 
 
+__all__ = [thing.__name__ for thing in (
+    fibonacci,
+    fibonacci_cached_1,
+    fibonacci_cached_2,
+    fibonacci_cached_3,
+    fibonacci_cached_4,
+    fibonacci_short,
+    fibonacci_alr,
+    fibonacci_short_alr,
+    fib_n_clunk,
+    fib,
+    fib_n,
+    fib_nest,
+    fib_nest_by,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

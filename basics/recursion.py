@@ -1349,6 +1349,49 @@ def leaf_sum_dec(root):
     return traverse(root)
 
 
+__all__ = [thing.__name__ for thing in (
+    countdown,
+    add_all_iterative,
+    add_all_slow,
+    add_all,
+    linear_search_good,
+    linear_search_iterative,
+    linear_search_iterative_alt,
+    linear_search,
+    binary_search,
+    binary_search_iterative,
+    binary_search_alt,
+    binary_search_iterative_alt,
+    binary_search_good,
+    binary_insertion_sort,
+    binary_insertion_sort_recursive,
+    binary_insertion_sort_recursive_alt,
+    insort_left_linear,
+    insort_right_linear,
+    insertion_sort,
+    insertion_sort_recursive,
+    insertion_sort_recursive_alt,
+    merge_two_slow,
+    merge_two,
+    merge_two_alt,
+    merge_sort,
+    merge_sort_bottom_up_unstable,
+    merge_sort_bottom_up,
+    make_deep_tuple,
+    nest,
+    observe_edge,
+    flatten,
+    flatten_observed,
+    flatten_iterative,
+    flatten_iterative_observed,
+    flatten_levelorder,
+    flatten_levelorder_observed,
+    leaf_sum,
+    leaf_sum_alt,
+    leaf_sum_dec,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
