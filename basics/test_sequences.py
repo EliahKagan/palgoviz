@@ -90,6 +90,16 @@ class _FixedSizeBuffer(Sequence):
         self._cells[index].value = value
 
 
+class _MyInt(int):
+    """Specialized integer. For testing equal base and derived instances."""
+
+    __slots__ = ()
+
+    def __repr__(self):
+        """Python code representation."""
+        return f'{type(self).__name__}({super().__repr__()})'
+
+
 class TestVec(unittest.TestCase):
     """Tests for the Vec class."""
 
@@ -276,6 +286,66 @@ class TestVec(unittest.TestCase):
         expected_repr = "Vec(['a', 'b'], get_buffer=BufferFactory())"
         vec = Vec(['a', 'b'], get_buffer=BufferFactory())
         self.assertEqual(repr(vec), expected_repr)
+
+    _parameterize_equal = parameterized.expand([
+        ('len0', []),
+        ('len1', [10]),
+        ('len2', [10, 20]),
+        ('len3', [10, 20, 30]),
+        ('len4', [10, 20, 30, 40]),
+        ('len5', [10, 20, 30, 40, 50]),
+    ])
+
+    @_parameterize_equal
+    def test_equal_if_same_elements_in_same_order(self, _name, elements):
+        lhs = Vec(elements, get_buffer=_FixedSizeBuffer)
+        rhs = Vec(elements, get_buffer=_FixedSizeBuffer)
+        self.assertEqual(lhs, rhs)
+
+    @_parameterize_equal
+    def test_equal_if_equal_base_derived_elements_in_same_order(self, _name,
+                                                                values):
+        ints = Vec(values, get_buffer=_FixedSizeBuffer)
+        derived_ints = Vec(map(_MyInt, values), get_buffer=_FixedSizeBuffer)
+        with self.subTest(lhs_type=int, rhs_type=_MyInt):
+            self.assertEqual(ints, derived_ints)
+        with self.subTest(lhs_type=_MyInt, rhs_type=int):
+            self.assertEqual(derived_ints, ints)
+
+    @_parameterize_equal
+    def test_equal_if_equal_unrelated_typed_elements_in_same_order(self, _name,
+                                                                   values):
+        ints = Vec(values, get_buffer=_FixedSizeBuffer)
+        floats = Vec(map(float, values), get_buffer=_FixedSizeBuffer)
+        with self.subTest(lhs_type=int, rhs_type=float):
+            self.assertEqual(ints, floats)
+        with self.subTest(lhs_type=float, rhs_type=int):
+            self.assertEqual(floats, ints)
+
+    def test_get_buffer_does_not_participate_in_equality_comparison(self):
+        vec1 = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec2 = Vec([10, 20, 30], get_buffer=lambda k, x: [x] * k)
+        with self.subTest(lhs='vec1', rhs='vec2'):
+            self.assertEqual(vec1, vec2)
+        with self.subTest(lhs='vec2', rhs='vec1'):
+            self.assertEqual(vec2, vec1)
+
+    @parameterized.expand([
+        ([], [42]),
+        ([42], []),
+        ([42], [76]),
+        ([1, 7, 3, 5], [1, 7, 5, 3]),
+        ([1, 1, 1], [1, 1, 1, 1]),
+        ([1, 1, 1, 1], [1, 1, 1]),
+        ([10, 20, object(), 40], [10, 20, object(), 40]),
+        (['a', 'b', 'c'], ['c', 'b', 'a']),
+    ])
+    def test_not_equal_if_unequal_or_differently_ordered_elements(self,
+                                                                  lhs_elems,
+                                                                  rhs_elems):
+        lhs = Vec(lhs_elems, get_buffer=_FixedSizeBuffer)
+        rhs = Vec(rhs_elems, get_buffer=_FixedSizeBuffer)
+        self.assertNotEqual(lhs, rhs)
 
     def test_can_iterate_empty(self):
         """Iterating through a Vec of no elements yields nothing."""
@@ -649,6 +719,8 @@ class TestVec(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    # FIXME: Test that removal immediately relinquishes the element reference.
+
     _parameterize_extend_or_inplace_add = parameterized.expand([
         ('0_seq_0', [], lambda: [], []),
         ('0_iter_0', [], lambda: iter([]), []),
@@ -792,6 +864,22 @@ class TestVec(unittest.TestCase):
             self.assertEqual(len(vec), 0)
         with self.subTest('=='):
             self.assertEqual(vec, Vec(get_buffer=_FixedSizeBuffer))
+
+    def test_copy_returns_equal(self):
+        original = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        duplicate = original.copy()
+        self.assertEqual(duplicate, original)
+
+    def test_copy_returns_distinct_object(self):
+        original = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        duplicate = original.copy()
+        self.assertIsNot(duplicate, original)
+
+    def test_copy_makes_shallow_copy(self):
+        original = Vec([[], [], []], get_buffer=_FixedSizeBuffer)
+        duplicate = original.copy()
+        shallow = all(lhs is rhs for lhs, rhs in zip(original, duplicate))
+        self.assertTrue(shallow)
 
     # FIXME: Write the rest of the tests, including of inherited mixins.
 

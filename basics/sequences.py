@@ -142,6 +142,12 @@ class Vec(MutableSequence):
         """Insert a new item at a given index."""
         self._do_insert(self._normalize_index(index, allow_len=True), value)
 
+    def copy(self):
+        """Make a shallow copy."""
+        return type(self)(self,
+                          get_buffer=self._get_buffer,
+                          can_shrink=self._can_shrink)
+
     def _do_delitem(self, left):
         """Helper for __delitem__. left is the validated nonnegative index."""
         self._length -= 1
