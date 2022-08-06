@@ -603,7 +603,63 @@ class TestVec(unittest.TestCase):
         vec.append(42)
         self.assertListEqual(list(vec), [10, 20, 30, 42])
 
-    # FIXME: Test the extend method here.
+    _parameterize_extend_or_inplace_add = parameterized.expand([
+        ('0_seq_0', [], lambda: [], []),
+        ('0_iter_0', [], lambda: iter([]), []),
+        ('0_seq_1', [], lambda: [11], [11]),
+        ('0_iter_1', [], lambda: iter([11]), [11]),
+        ('0_seq_2', [], lambda: [11, 21], [11, 21]),
+        ('0_iter_2', [], lambda: iter([11, 21]), [11, 21]),
+        ('0_seq_3', [], lambda: [11, 21, 31], [11, 21, 31]),
+        ('0_iter_3', [], lambda: iter([11, 21, 31]), [11, 21, 31]),
+
+        ('1_seq_0', [10], lambda: [], [10]),
+        ('1_iter_0', [10], lambda: iter([]), [10]),
+        ('1_seq_1', [10], lambda: [21], [10, 21]),
+        ('1_iter_1', [10], lambda: iter([21]), [10, 21]),
+        ('1_seq_2', [10], lambda: [21, 31], [10, 21, 31]),
+        ('1_iter_2', [10], lambda: iter([21, 31]), [10, 21, 31]),
+        ('1_seq_3', [10], lambda: [21, 31, 41], [10, 21, 31, 41]),
+        ('1_iter_3', [10], lambda: iter([21, 31, 41]), [10, 21, 31, 41]),
+
+        ('2_seq_0', [10, 20], lambda: [], [10, 20]),
+        ('2_iter_0', [10, 20], lambda: iter([]), [10, 20]),
+        ('2_seq_1', [10, 20], lambda: [31], [10, 20, 31]),
+        ('2_iter_1', [10, 20], lambda: iter([31]), [10, 20, 31]),
+        ('2_seq_2', [10, 20], lambda: [31, 41], [10, 20, 31, 41]),
+        ('2_iter_2', [10, 20], lambda: iter([31, 41]), [10, 20, 31, 41]),
+        ('2_seq_3', [10, 20], lambda: [31, 41, 51], [10, 20, 31, 41, 51]),
+        ('2_iter_3', [10, 20], lambda: iter([31, 41, 51]),
+            [10, 20, 31, 41, 51]),
+
+        ('3_seq_0', [10, 20, 30], lambda: [], [10, 20, 30]),
+        ('3_iter_0', [10, 20, 30], lambda: iter([]), [10, 20, 30]),
+        ('3_seq_1', [10, 20, 30], lambda: [41], [10, 20, 30, 41]),
+        ('3_iter_1', [10, 20, 30], lambda: iter([41]), [10, 20, 30, 41]),
+        ('3_seq_2', [10, 20, 30], lambda: [41, 51], [10, 20, 30, 41, 51]),
+        ('3_iter_2', [10, 20, 30], lambda: iter([41, 51]),
+            [10, 20, 30, 41, 51]),
+        ('3_seq_3', [10, 20, 30], lambda: [41, 51, 61],
+            [10, 20, 30, 41, 51, 61]),
+        ('3_iter_3', [10, 20, 30], lambda: iter([41, 51, 61]),
+            [10, 20, 30, 41, 51, 61]),
+    ])
+
+    @_parameterize_extend_or_inplace_add
+    def test_extend_adds_new_elements_to_end(self, _name, prefix,
+                                             suffix_factory, expected):
+        vec = Vec(prefix, get_buffer=_FixedSizeBuffer)
+        suffix = suffix_factory()
+        vec.extend(suffix)
+        self.assertListEqual(list(vec), expected)
+
+    @_parameterize_extend_or_inplace_add
+    def test_inplace_add_adds_new_elements_to_end(self, _name, prefix,
+                                                  suffix_factory, expected):
+        vec = Vec(prefix, get_buffer=_FixedSizeBuffer)
+        suffix = suffix_factory()
+        vec += suffix
+        self.assertListEqual(list(vec), expected)
 
     @parameterized.expand([
         ('n10', 10),
