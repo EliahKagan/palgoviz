@@ -645,6 +645,7 @@ __all__ = [thing.__name__ for thing in (
     make_next_fibonacci_alt,
     as_func,
     as_func_limited,
+    as_func_limited_alt,
     as_iterator_limited,
     as_iterator_limited_alt,
     as_iterator,
