@@ -1,6 +1,8 @@
 Old decorators.py doctests
 ==========================
 
+    >>> import functools
+
     >>> try:
     ...     from decorators import *
     ... except ModuleNotFoundError:
@@ -156,51 +158,6 @@ Old doctests for @give_metadata_from():
     ... class C3: pass
     >>> C3.__name__
     'f'
-
-
-Old doctests for @memoize:
-
-    >>> @memoize
-    ... def f(n):
-    ...     print(n)
-    ...     return n**2
-    >>> f(2)
-    2
-    4
-    >>> f(3)
-    3
-    9
-    >>> f(2)
-    4
-    >>> f(3)
-    9
-    >>> @memoize
-    ... def g(n):
-    ...     print(n)
-    ...     return n**3
-    >>> g(2)
-    2
-    8
-    >>> f(2)
-    4
-
-
-Old doctests for @memoize_by():
-
-    >>> @memoize_by(str.casefold)
-    ... def length(text):
-    ...     print(f'Computing the length of {text!r}.')
-    ...     return len(text)
-    >>> length('hello')
-    Computing the length of 'hello'.
-    5
-    >>> length('Bye')
-    Computing the length of 'Bye'.
-    3
-    >>> length('HELLO')
-    5
-    >>> length('bye')
-    3
 
 
 Old doctests for @int_fn:

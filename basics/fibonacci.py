@@ -10,7 +10,7 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 
 import itertools
 
-from decorators import memoize
+from caching import memoize
 
 
 def fibonacci(n):
@@ -572,6 +572,23 @@ def fib_nest_by(container, n):
     for _ in range(n - 1):
         a, b = b, container((a, b))
     return b
+
+
+__all__ = [thing.__name__ for thing in (
+    fibonacci,
+    fibonacci_cached_1,
+    fibonacci_cached_2,
+    fibonacci_cached_3,
+    fibonacci_cached_4,
+    fibonacci_short,
+    fibonacci_alr,
+    fibonacci_short_alr,
+    fib_n_clunk,
+    fib,
+    fib_n,
+    fib_nest,
+    fib_nest_by,
+)]
 
 
 if __name__ == '__main__':
