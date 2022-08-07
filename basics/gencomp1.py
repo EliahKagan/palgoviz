@@ -1386,6 +1386,46 @@ def distinct_dicts_by_keys(dicts, subject_keys):
     return distinct(dicts, key=keyfunction)
 
 
+__all__ = [thing.__name__ for thing in (
+    my_enumerate,
+    my_enumerate_alt,
+    print_enumerated,
+    print_enumerated_alt,
+    my_any,
+    my_any_alt,
+    my_all,
+    my_all_alt,
+    zip_two,
+    my_zip,
+    print_zipped,
+    take_good,
+    take,
+    drop_good,
+    drop,
+    last,
+    tail,
+    tail_opt,
+    pick,
+    windowed,
+    windowed_alt,
+    map_one,
+    map_one_alt,
+    my_filter,
+    my_filter_alt,
+    length_of,
+    length_of_opt,
+    how_many,
+    invert,
+    invert_alt,
+    distinct_simple,
+    distinct,
+    distinct_dicts_by_single_key_monolithic,
+    distinct_dicts_by_single_key_alt,
+    distinct_dicts_by_single_key,
+    distinct_dicts_by_keys,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
