@@ -305,7 +305,7 @@ class CompactRingFifoQueue(RingFifoQueue):
     """
     A FIFO queue (i.e. a "queue") based on a list. O(1) operations. O(n) space.
 
-    This derives from RingFifoQueue and satisfies its documented guarantees,
+    This inherits from RingFifoQueue and satisfies its documented guarantees,
     except time complexities for enqueue and dequeue are only amortized, and
     space is linear in the current length. Amortization does cover arbitrarily
     interleaved operations: a series of any n public method calls takes
@@ -323,6 +323,12 @@ class CompactRingFifoQueue(RingFifoQueue):
     that wouldn't tend to be useful, and the protected interface can't be used
     to corrupt any data managed by the base class (without deliberate effort).
     If this doesn't hold initially, that's OK, but please revise to satisfy it.
+
+    FIXME: Consider this data structure from the perspective of an adversary
+    seeking to carry out a denial of service attack by causing enqueues and
+    dequeues to be done in a specially crafted order to degrade asymptotic
+    running time. Briefly explain in this docstring why such an attempt will
+    fail. (Or if this reveals a design bug, fix it, then explain the issue.)
     """
 
     __slots__ = ()
@@ -335,6 +341,40 @@ class CompactRingFifoQueue(RingFifoQueue):
         if len(self) * self._SHRINK_TRIGGER <= self._capacity:
             self._resize_buffer(len(self))
         return item
+
+
+# FIXME: Having implemented RingFifoQueue and CompactRingFifoQueue, now modify
+# sequences.Vec to shrink as well as grow capacity. Recognize can_shrink=False
+# on construction to specify the old behavior of growing but never shrinking;
+# if the can_shrink keyword argument is not passed, or is True, shrinking is
+# allowed. Ensure the space complexity of a Vec currently holding n elements is
+# O(n), yet no operations' amortized time complexities are asymptotically worse
+# than before. This includes the requirement that any m arbitrarily interleaved
+# append and/or pop-from-end operations takes O(m) time.
+#
+# Make the changes to the Vec class docstring called for in the fixme there.
+# Add test cases in test_sequences.TestVec to check that a Vec can be created
+# with can_shrink=True True or can_shrink=False, and that can_shrink cannot be
+# passed positionally. (Keep all existing test cases. Construction without
+# can_shrink remains allowed. Its effect is different, but that is not related
+# to tests of how Vec instances can and cannot be constructed.)
+#
+# Modify whatever automatic or manual demonstrations or tests you made about
+# the underlying representation of Vec objects and how they change capacity, to
+# correctly show the same results as before. That is, add can_shrink=False on
+# construction to get the old behavior. Then add more such demonstrations or
+# tests, in as much or more detail, showing the new (now default) behavior of
+# both growing and shrinking, and how the underlying representation changes.
+# You tested/demonstrated this in two ways; modify and expand both of them.
+#
+# This fixme is here instead of in sequences.py because of the connection
+# between the preceding queue exercises and this Vec exercise, but the only
+# change to queues.py that will be involved is removing this fixme comment when
+# done. Also, it may not be useful to copy code from here to sequences.py (even
+# if you plan to edit it). In sequences.py, new classes need not be created.
+# Also, if critical operations are very similar in both places, this is a sign
+# of poor quality code in this module, where slicing can and should be used for
+# an important operation, even though it cannot be used in sequences.Vec.
 
 
 class SinglyLinkedListFifoQueue(FifoQueue):

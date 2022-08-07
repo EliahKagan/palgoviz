@@ -18,8 +18,8 @@ class Vec(MutableSequence):
     collected). A Vec's "capacity" is the size of its current buffer; len on a
     Vec gives the number of current elements, which is at most the capacity but
     often smaller. Capacity is changed at times, and by amounts, chosen so any
-    series of n append and/or pop operations takes O(n) time. That is, append
-    and pop take amortized O(1) time, as they do on list objects.
+    series of m append and/or pop-from-end operations takes O(m) time. That is,
+    append and 0-arg pop take amortized O(1) time, as they do on list objects.
 
     In this initial Vec implementation, operations keep capacity the same or
     increase it; capacity is never decreased. A Vec object's space complexity

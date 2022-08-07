@@ -1,7 +1,8 @@
 sequences.Vec
+sequences.TestVec augmentation to test and/or visualize representation
 queues.RingFifoQueue
 queues.CompactRingFifoQueue
-sequences.Vec augmentation
+sequences.Vec/test_sequences.TestVec augmentation to ensure O(n) space
 queues.SinglyLinkedListFifoQueue.copy
 queues.SinglyLinkedListLifoQueue.copy
 queues.SinglyLinkedListLifoQueue.draw

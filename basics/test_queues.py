@@ -255,6 +255,9 @@ class _Bases:
 
             self.assertListEqual(sorted(out_items), sorted(in_items))
 
+        # FIXME: Test that a queue relinquishes its references to elements that
+        # are no longer stored in it, immediately on dequeue.
+
         def test_cannot_create_new_attributes(self):
             """Assigning to a nonexistent attribute raises AttributeError."""
             queue = self.queue_type()

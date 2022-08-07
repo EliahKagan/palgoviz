@@ -145,6 +145,53 @@ class _MyInt(int):
         return f'{type(self).__name__}({super().__repr__()})'
 
 
+# FIXME: As currently written, these tests verify no time or space complexity
+# guarantees, which would be tricky to do. It is both easier, and more helpful
+# for finding bugs, to test that capacity changes as expected, and the change
+# in underlying representation (that is, in the objects, and their arrangement,
+# that constitute the state of the data structure) is as expected across a
+# change in capacity. But neither the capacity nor the underlying
+# representation are documented, nor do the documentation and unit tests fully
+# constrain them. To test this, do any TWO of the following three things:
+#
+#   (1) Write test case methods to cover this. The specifics of what they
+#       assert will be determined by design choices you made that need not
+#       otherwise be documented and that users must not rely on. (You can still
+#       change these aspects of the design at any time; so long as you also
+#       change the tests accordingly.) They can go in this class or in another
+#       aaa class in this test module. Wherever your put them, clearly document
+#       that users must not rely on claims they make. This is important because
+#       unit tests serve a secondary purpose as documentation; users are
+#       usually justified in relying on claims they test. Except when a test is
+#       clearly specific to a private module, class, or function, unit tests
+#       that intend not to make public guarantees must state that explicitly.
+#
+#   (2) Manually test this in a notebook. Try out enough cases to give a
+#       convincing demonstration of correctness. Inspect the private state of
+#       one or more Vec objects. (The point is to check that this private state
+#       is operated on in the way you intend.) Give the notebook filename in an
+#       appropriate docstring in this module. Unless there is strong reason for
+#       it to go elsewhere instead, that should be the TestVec class docstring.
+#
+#   (3) Try out a fairly small but nontrivial series of operations on one or
+#       more Vec objects on https://pythontutor.com, to inspect and visualize
+#       the changes in underlying representation, step by step. You can paste
+#       the whole Vec class, with its docstring removed or abridged, there.
+#       Because Python Tutor uses an older version of Python and doesn't work
+#       with all language and library features, you may have to make changes to
+#       get it to work there. (Please do not deliberately limit yourself in
+#       sequences.py to features that work on Python Tutor. But there is a
+#       fairly good chance few or no modifications will be needed.) Create a
+#       permalink to the code/visualization on Python Tutor and give it in an
+#       appropriate docstring in this module. Unless there is strong reason for
+#       it to go elsewhere instead, that should be the TestVec class docstring.
+#
+# Having done two of those things to verify that the underlying representation
+# changes when, and in the specific way, that you intend, including changes in
+# capacity, delete this fixme comment, to avoid wrongly claiming that something
+# believed to be complete and correct is unfinished. But you may want to tag
+# the last commit that has this, since you may want to look at it again in a
+# future exercise in which Vec is modified to shrink as well as grow capacity.
 class TestVec(unittest.TestCase):
     """Tests for the Vec class."""
 
