@@ -552,6 +552,7 @@ __all__ = [thing.__name__ for thing in (
     fibonacci_cached_2,
     fibonacci_cached_3,
     fibonacci_cached_4,
+    fibonacci_cached_5,
     fibonacci_short,
     fibonacci_alr,
     fibonacci_short_alr,
