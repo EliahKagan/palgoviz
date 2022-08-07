@@ -7,6 +7,8 @@ This code modeled regular and extra-fierce bobcats, until most of it was lost
 in a bobcat attack. Fortunately, unit tests in test_bobcats.py were not harmed.
 """
 
+__all__ = ['Bobcat', 'FierceBobcat']
+
 from numbers import Real as _Real
 
 

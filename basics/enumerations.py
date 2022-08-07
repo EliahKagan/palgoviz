@@ -123,6 +123,15 @@ class Guests(BitsetEnum):
     FRANK_TRIAL   = BOB | CASSIDY | DEREK
 
 
+__all__ = [thing.__name__ for thing in (
+    OrderedEnum,
+    CodeReprEnum,
+    BearBowl,
+    BitsetEnum,
+    Guests,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
