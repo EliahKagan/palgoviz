@@ -1520,6 +1520,14 @@ def leaf_sum_dec(root):
 
 __all__ = [thing.__name__ for thing in (
     countdown,
+    semifactorial,
+    semifactorial_tail,
+    semifactorial_iterative,
+    semifactorial_good,
+    semifactorial_reduce,
+    digit_sum,
+    digit_sum_tail,
+    digit_sum_iterative,
     add_all_iterative,
     add_all_slow,
     add_all,
@@ -1548,6 +1556,7 @@ __all__ = [thing.__name__ for thing in (
     merge_sort_bottom_up,
     make_deep_tuple,
     nest,
+    nest_iterative,
     observe_edge,
     flatten,
     flatten_observed,

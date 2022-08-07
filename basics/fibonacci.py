@@ -583,6 +583,7 @@ __all__ = [thing.__name__ for thing in (
     fibonacci_short,
     fibonacci_alr,
     fibonacci_short_alr,
+    fibonacci_tail,
     fib_n_clunk,
     fib,
     fib_n,
