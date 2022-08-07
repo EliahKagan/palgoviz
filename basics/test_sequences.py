@@ -3,6 +3,7 @@
 """Tests for sequences.py."""
 
 from collections.abc import MutableSequence, Sequence
+import fractions
 import random
 import unittest
 import weakref
@@ -938,10 +939,174 @@ class TestVec(unittest.TestCase):
         result = count * vec
         self.assertListEqual(list(result), expected)
 
+    def test_in_operator_returns_false_if_empty(self):
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        self.assertNotIn(50, vec)
+
+    def test_in_operator_returns_false_if_absent(self):
+        vec = Vec([30, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        self.assertNotIn(42, vec)
+
+    def test_in_operator_returns_true_if_present(self):
+        vec = Vec([30, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        self.assertIn(50, vec)
+
+    def test_in_operator_returns_true_if_multiple_present(self):
+        vec = Vec([30, 50, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        self.assertIn(50, vec)
+
     # FIXME: Test index(value), index(value, start), index(value, start, end),
     # with absent, present, and multiple present (finds first); count(value)
     # with absent, present, and multiple present; and remove(), with absent,
     # present, and multiple present (deletes first).
+
+    def test_index_on_empty_raises(self):
+        """index raises ValueError if there are no values to search in."""
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.index(42)
+
+    def test_index_of_absent_raises(self):
+        """index raises ValueError if no equal value is found."""
+        vec = Vec([30, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.index(42)
+
+    def test_index_of_present_finds_index(self):
+        """index returns an index to the equal value when present."""
+        vec = Vec([30, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        result = vec.index(50)
+        self.assertEqual(result, 2)
+
+    def test_index_of_present_finds_first_index(self):
+        """index returns an index to the first of multiple equal values."""
+        values = [30, 20, 50, 10, 30, 20, 50, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        result = vec.index(50)
+        self.assertEqual(result, 2)
+
+    def test_index_with_start_skips_prefix_then_if_absent_raises(self):
+        """index raises ValueError if no equal value after start is found."""
+        vec = Vec([30, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.index(50, 3)
+
+    def test_index_with_start_skips_prefix_then_if_present_finds_index(self):
+        """index returns an index to the equal value after a skipped prefix."""
+        vec = Vec([30, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
+        result = vec.index(50, 2)
+        self.assertEqual(result, 2)
+
+    def test_index_with_start_skips_prefix_then_if_present_finds_first_index(
+            self):
+        """
+        index returns an index to the first of multiple equal values after a
+        skipped prefix.
+        """
+        values = [30, 20, 50, 10, 30, 20, 50, 10, 30, 20, 50, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        result = vec.index(50, 3)
+        self.assertEqual(result, 6)
+
+    def test_index_start_to_end_of_absent_in_slice_raises(self):
+        """
+        index raises ValueError if no equal value in vec[start:end] is found.
+
+        This notation is merely illustrative, since while most sequences should
+        and do support slicing, Vec does not.
+        """
+        values = [30, 20, 50, 10, 30, 20, 50, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.index(50, 3, 6)
+
+    def test_index_start_to_end_of_present_in_slice_finds_index(self):
+        """
+        index returns an index to the equal value in vec[start:end].
+
+        This notation is merely illustrative, since while most sequences should
+        and do support slicing, Vec does not.
+        """
+        values = [30, 20, 50, 10, 30, 20, 50, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        result = vec.index(50, 2, 6)
+        self.assertEqual(result, 2)
+
+    def test_index_start_to_end_of_present_in_slice_finds_first_index(self):
+        """
+        index returns an index to the first of multiple equal values in
+        vec[start:end].
+
+        This notation is merely illustrative, since while most sequences should
+        and do support slicing, Vec does not.
+        """
+        values = [30, 20, 50, 10, 30, 20, 50, 10,
+                  30, 20, 50, 10, 30, 20, 50, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        result = vec.index(50, 3, 12)
+        self.assertEqual(result, 6)
+
+    def test_index_finds_equal_value_of_different_type(self):
+        values = [50.0, 40.0, 30.0, 20.0, 10.0, 50, 40, 30, 20, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        result = vec.index(20)
+        self.assertEqual(result, 3)
+
+    def test_count_returns_zero_if_empty(self):
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        result = vec.count(10)
+        self.assertEqual(result, 0)
+
+    def test_count_returns_zero_if_absent(self):
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        result = vec.count(42)
+        self.assertEqual(result, 0)
+
+    def test_count_counts_equal_occurrences(self):
+        values = 'qhibxeukgmqefsjfyjwyjdzahdexuejkemjtulsfbfqawarcah'
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        if len(vec) != len(values):
+            raise Exception("incorrect construction, can't test count")
+        result = vec.count('a')
+        self.assertEqual(result, 4)
+
+    def test_count_counts_equal_occurrences_even_of_different_types(self):
+        values = [3, 2, 1, 0, fractions.Fraction(2, 1), 4.0, 2.0, 3.0, 1.0]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        result = vec.count(2.0)
+        self.assertEqual(result, 3)
+
+    def test_remove_raises_if_empty(self):
+        """remove raises ValueError if there are no values to search in."""
+        vec = Vec([], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.remove(20)
+
+    def test_remove_raises_if_absent(self):
+        """remove raises ValueError if no equal value is found."""
+        vec = Vec([30, 10, 50, 40], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.remove(20)
+
+    def test_remove_deletes_equal_value_if_present(self):
+        """remove removes the equal value if there is one."""
+        vec = Vec([30, 10, 20, 50, 40], get_buffer=_FixedSizeBuffer)
+        vec.remove(20)
+        self.assertListEqual(list(vec), [30, 10, 50, 40])
+
+    def test_remove_deletes_first_equal_value_if_present(self):
+        """remove removes the first of multiple equal values."""
+        values = [30, 20, 50, 10, 30, 20, 50, 10]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        vec.remove(50)
+        self.assertListEqual(list(vec), [30, 20, 10, 30, 20, 50, 10])
+
+    def test_remove_deletes_first_equal_value_even_if_of_different_type(self):
+        expected = [3, 1, 0, fractions.Fraction(2, 1), 4.0, 2.0, 3.0, 1.0]
+        values = [3, 2, 1, 0, fractions.Fraction(2, 1), 4.0, 2.0, 3.0, 1.0]
+        vec = Vec(values, get_buffer=_FixedSizeBuffer)
+        vec.remove(fractions.Fraction(2, 1))
+        self.assertListEqual(list(vec), expected)
 
     @parameterized.expand([
         ('len0', [], []),
@@ -963,8 +1128,12 @@ class TestVec(unittest.TestCase):
             self.assertFalse(vec)
         with self.subTest('len'):
             self.assertEqual(len(vec), 0)
-        with self.subTest('=='):
-            self.assertEqual(vec, Vec(get_buffer=_FixedSizeBuffer))
+
+    def test_cleared_equals_new_empty(self):
+        expected = Vec(get_buffer=_FixedSizeBuffer)
+        vec = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
+        vec.clear()
+        self.assertEqual(vec, expected)
 
     def test_copy_returns_equal(self):
         original = Vec([10, 20, 30], get_buffer=_FixedSizeBuffer)
@@ -981,6 +1150,8 @@ class TestVec(unittest.TestCase):
         duplicate = original.copy()
         shallow = all(lhs is rhs for lhs, rhs in zip(original, duplicate))
         self.assertTrue(shallow)
+
+    # TODO: In the future, we will add a sort method.
 
     @parameterized.expand([
         ('__contains__',),
