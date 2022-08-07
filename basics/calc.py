@@ -44,6 +44,9 @@ def postfix_calculate(expression):
     return operands.pop()
 
 
+__all__ = [postfix_calculate.__name__]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
