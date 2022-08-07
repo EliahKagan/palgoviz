@@ -673,6 +673,8 @@ __all__ = [thing.__name__ for thing in (
     AltDequeFifoQueue,
     SlowFifoQueue,
     BiStackFifoQueue,
+    RingFifoQueue,
+    CompactRingFifoQueue,
     SinglyLinkedListFifoQueue,
     ListLifoQueue,
     DequeLifoQueue,
