@@ -40,6 +40,12 @@ class _WRCell(_Cell):
     This is used to test that all (strong) references from a container under
     test to a just-removed element have been relinquished.
 
+    (A container shouldn't usually keep any weak references to former elements
+    either. But doing so wouldn't prolong the elements' lifetimes, it is
+    nontrivial to test for that, and it is very unlikely that this would be
+    done by accident, since weak reference creation is never implicit. So it's
+    neither necessary nor worthwhile to test for that.)
+
     A clearer name would be _WeakReferenceableCell, but that would cause list
     reprs to be excessively long and difficult to read when debugging or
     examining test output.
