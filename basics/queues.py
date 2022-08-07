@@ -207,6 +207,15 @@ class RingFifoQueue(FifoQueue):
     Enqueue takes amortized O(1) time, but strictly O(1) unless the queue grows
     larger than it ever has before. Dequeue and peek take strictly O(1) time.
     Space complexity is linear in the maximum length the queue has reached.
+
+    The details of a RingFifoQueue's underlying representation and how it
+    handles enqueue and dequeue operations may change at any time and must not
+    be relied on, but can be seen at [FIXME: Paste this implementation, with
+    minimal supporting code and/or minor changes, at https://pythontutor.com.
+    Show use cases that exercise all its enqueue and dequeue functionality,
+    such that any bug that ever caused either to behave wrongly would likely be
+    observed, except you need not bother attempting to dequeue when the queue
+    is empty. Make a permalink to it; paste the link in this docstring here.]
     """
 
     __slots__ = ('__buffer', '__front', '__len')
@@ -310,6 +319,16 @@ class CompactRingFifoQueue(RingFifoQueue):
     space is linear in the current length. Amortization does cover arbitrarily
     interleaved operations: a series of any n public method calls takes
     strictly O(n) time.
+
+    The details of a CompactRingFifoQueue's underlying representation and how
+    it handles enqueue and dequeue operations may change at any time and must
+    not be relied on, but can be seen at [FIXME: As in RingFifoQueue above,
+    make a PythonTutor demonstration of CompactRingFifoQueue's operations and
+    give a link to it here. Make sure the difference between RingFifoQueue and
+    CompactRingFifoQueue is readily apparent when one contrasts the two
+    demonstrations. You can do this before or after the following fixmes, but
+    any changes made due to them should be reflected in the PythonTutor
+    demonstration. You can always make a new permalink to replace the old one.]
 
     FIXME: Ensure CompactRingFifoQueue duplicates no logic from RingFifoQueue,
     and that encapsulation is never violated. You can add protected members to
