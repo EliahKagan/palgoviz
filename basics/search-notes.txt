@@ -32,3 +32,4 @@ search.min_forest_escape_stamina
 search.find_av_winner
 search.find_imd_winner
 search.count_n_queens_solutions
+search.solve_boggle
