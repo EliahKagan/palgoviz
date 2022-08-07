@@ -361,6 +361,16 @@ def draw(root):
     return graph
 
 
+__all__ = [thing.__name__ for thing in (
+    postfix_calculate,
+    Atom,
+    Compound,
+    postfix_parse,
+    postfix_serialize_fast,
+    draw,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

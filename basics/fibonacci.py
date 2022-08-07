@@ -10,7 +10,7 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 
 import itertools
 
-from decorators import memoize
+from caching import memoize
 
 
 def fibonacci(n):
@@ -621,6 +621,27 @@ def draw_memoized_call_tree_2(n):
     fibonacci.ipynb.]
     """
     # FIXME: Needs implementation.
+
+
+__all__ = [thing.__name__ for thing in (
+    fibonacci,
+    fibonacci_cached_1,
+    fibonacci_cached_2,
+    fibonacci_cached_3,
+    fibonacci_cached_4,
+    fibonacci_short,
+    fibonacci_alr,
+    fibonacci_short_alr,
+    fib_n_clunk,
+    fib,
+    fib_n,
+    fib_nest,
+    fib_nest_by,
+    draw_naive_call_tree_1,
+    draw_naive_call_tree_2,
+    draw_memoized_call_tree_1,
+    draw_memoized_call_tree_2,
+)]
 
 
 if __name__ == '__main__':
