@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Mutable sequences."""
 
 from collections.abc import MutableSequence
@@ -42,6 +44,18 @@ class Vec(MutableSequence):
     This overrides all abstract methods from MutableSequence, but no concrete
     ones. That is, all the default implementations are sufficient. This applies
     to methods MutableSequence introduces and those it inherits from Sequence.
+
+    >>> import bisect, random
+    >>> prng = random.Random(10947136274401272677)
+    >>> a = Vec(range(20), get_buffer=lambda k, x: [x] * k)
+    >>> prng.shuffle(a)
+    >>> list(a)
+    [4, 16, 18, 9, 17, 11, 12, 14, 8, 15, 1, 19, 5, 7, 13, 3, 6, 10, 2, 0]
+    >>> b = Vec(get_buffer=lambda k, x: [x] * k)
+    >>> for x in a: bisect.insort_right(b, x)
+    >>> b  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Vec([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        get_buffer=<function <lambda> at 0x...>)
     """
 
     __slots__ = ('_get_buffer', '_buffer', '_length', '_can_shrink')
@@ -207,3 +221,8 @@ class Vec(MutableSequence):
 
 
 __all__ = [Vec.__name__]
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
