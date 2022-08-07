@@ -369,7 +369,7 @@ class CompactRingFifoQueue(RingFifoQueue):
 # allowed. Ensure the space complexity of a Vec currently holding n elements is
 # O(n), yet no operations' amortized time complexities are asymptotically worse
 # than before. This includes the requirement that any m arbitrarily interleaved
-# append and/or pop-from-end operations takes O(m) time.
+# append and/or pop-from-end operations take O(m) time in total.
 #
 # Make the changes to the Vec class docstring called for in the fixme there.
 # Add test cases in test_sequences.TestVec to check that a Vec can be created
