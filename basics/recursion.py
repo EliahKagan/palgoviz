@@ -1405,6 +1405,7 @@ __all__ = [thing.__name__ for thing in (
     binary_search_iterative,
     binary_search_alt,
     binary_search_iterative_alt,
+    binary_search_slow,
     binary_search_good,
     binary_insertion_sort,
     binary_insertion_sort_recursive,
