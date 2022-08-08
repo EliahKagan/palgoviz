@@ -342,6 +342,7 @@ class CompactRingFifoQueue(RingFifoQueue):
     that wouldn't tend to be useful, and the protected interface can't be used
     to corrupt any data managed by the base class (without deliberate effort).
     If this doesn't hold initially, that's OK, but please revise to satisfy it.
+    If you change RingFifoQueue, update its PythonTutor demo and permalink.
 
     FIXME: Consider this data structure from the perspective of an adversary
     seeking to carry out a denial of service attack by causing enqueues and
