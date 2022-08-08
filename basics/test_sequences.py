@@ -14,62 +14,6 @@ from sequences import Vec
 import testing
 
 
-class _Cell:
-    """
-    A box holding an object, allowing reassignment.
-
-    This is used directly to implement _FixedSizeBuffer, and also as a
-    base class for _WRCell, which adds support for weak references.
-    """
-
-    __slots__ = ('value',)
-
-    def __init__(self, value):
-        """Create a cell with the given starting value."""
-        self.value = value
-
-    def __repr__(self):
-        """Code-like representation, for debugging."""
-        return f'{type(self).__name__}({self.value!r})'
-
-
-class _WRCell(_Cell):
-    """
-    A _Cell that supports being referred to by weak references.
-
-    This is used to test that all (strong) references from a container under
-    test to a just-removed element have been relinquished.
-
-    (A container shouldn't usually keep any weak references to former elements
-    either. But doing so wouldn't prolong the elements' lifetimes, it is
-    nontrivial to test for that, and it is very unlikely that this would be
-    done by accident, since weak reference creation is never implicit. So it's
-    neither necessary nor worthwhile to test for that.)
-
-    A clearer name would be _WeakReferenceableCell, but that would cause list
-    reprs to be excessively long and difficult to read when debugging or
-    examining test output.
-    """
-
-    __slots__ = ('__weakref__',)
-
-
-class _WeakReferenceable:
-    """
-    An otherwise uninteresting object that weak references can refer to.
-
-    A non-slotted class would also be weak-referenceable but would readily hold
-    attributes. _WeakReferenceable is for tests where creating an attribute on
-    the instance would be a bug in the test.
-    """
-
-    __slots__ = ('__weakref__',)
-
-    def __repr__(self):
-        """Representation as Python code."""
-        return f'{type(self).__name__}()'
-
-
 def _check_index(index):
     """Check that an index has a correct type."""
     if not isinstance(index, int):
@@ -108,12 +52,12 @@ class _FixedSizeBuffer(Sequence):
         values, which, if allowed, might let tests pass that should fail.
         """
         instance = super().__new__(cls)
-        instance._cells = tuple(_Cell(value) for value in values)
+        instance._cells = tuple(testing.Cell(value) for value in values)
         return instance
 
     def __init__(self, length, default):
         """Create a default value filled buffer of the given length."""
-        self._cells = tuple(_Cell(default) for _ in range(length))
+        self._cells = tuple(testing.Cell(default) for _ in range(length))
 
     def __repr__(self):
         """Python code representation of this _FixedSizeBuffer instance."""
@@ -820,7 +764,7 @@ class TestVec(unittest.TestCase):
         keep it from being garbage collected. But the case of removing from the
         end is the easiest to test of the situations where bugs may arise.
         """
-        elements = (_WRCell(i) for i in range(17))
+        elements = (testing.WRCell(i) for i in range(17))
         vec = Vec(elements, get_buffer=_FixedSizeBuffer)
         weak = [weakref.ref(x) for x in vec]
 
@@ -866,7 +810,7 @@ class TestVec(unittest.TestCase):
         use to objects that are intended never to be used again.
         """
         vec = Vec(range(17), get_buffer=_FixedSizeBuffer)
-        vec[-1] = _WeakReferenceable()
+        vec[-1] = testing.WeakReferenceable()
         for _ in range(n):
             del vec[0]
         r = weakref.ref(vec[-1])

@@ -5,11 +5,13 @@
 from abc import ABC, abstractmethod
 import inspect
 import unittest
+import weakref
 
 from parameterized import parameterized
 
 import compare
 import queues
+import testing
 
 
 def _unannotated_argspec(func):
@@ -255,8 +257,18 @@ class _Bases:
 
             self.assertListEqual(sorted(out_items), sorted(in_items))
 
-        # FIXME: Test that a queue relinquishes its references to elements that
-        # are no longer stored in it, immediately on dequeue.
+        def test_dequeue_relinquishes_element_reference(self):
+            """Queues don't delay garbage collection of former elements."""
+            queue = self.queue_type()
+            for i in range(17):
+                queue.enqueue(testing.CWRCell(i))
+
+            while queue:
+                r = weakref.ref(queue.peek())
+                with self.subTest(number=r().value):
+                    queue.dequeue()
+                    testing.collect_if_not_ref_counting()
+                    self.assertIsNone(r())
 
         def test_cannot_create_new_attributes(self):
             """Assigning to a nonexistent attribute raises AttributeError."""
