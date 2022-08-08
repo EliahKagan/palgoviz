@@ -6,9 +6,15 @@ sequences.Vec/test_sequences.TestVec augmentation to ensure O(n) space
 queues.SinglyLinkedListFifoQueue.copy
 queues.SinglyLinkedListLifoQueue.copy
 queues.SinglyLinkedListLifoQueue.draw
+test_simconda.TestSimulator
+simconda.Simulator
+simconda.OptimalSimulator/test_simconda.TestOptimalSimulator
 mappings.SortedFlatTable
 mappings.UnsortedFlatTable
+mappings.BinarySearchTree
 mappings.DirectAddressTable
 mappings.HashTable
-mappings.make_ordered_mapping
-mappings.MyOrderedDict/hashing.OrderedHashTable metadata
+test_caching.TestMemoize
+test_caching.TestMemoizeBy
+test_caching.TestLRUCache
+caching.LRUCache

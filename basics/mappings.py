@@ -432,6 +432,15 @@ class HashTable(_NiceReprMapping, MutableMapping):
                 self._rehash(new_bucket_count)
 
 
+# !!FIXME: In addition to the changes described in the fixme below, I intend to
+# omit this from the problem set that poses SortedFlatTable, UnsortedFlatTable,
+# BinarySearchTree, DirectAddressTable, HashTable in this module, and various
+# exercises in other modules. So GeneralOrderedMapping (hopefully with a better
+# name) if present, make_ordered_mapping if still present, MyOrderedDict, and
+# OrderedHashTable, will be removed for that. This should be done in a commit
+# that makes no other changes, so that commit can be reverted later to finish
+# developing these problems (or just to pose them, if already developed).
+#
 # !!FIXME: Although class factories are often good, here the design is inferior
 # to having a GeneralOrderedMapping class that, when constructed, takes the
 # underlying mutable mapping type by dependency injection, probably via a
