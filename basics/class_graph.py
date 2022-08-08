@@ -342,6 +342,17 @@ def draw(nodes, edges):
     return graph
 
 
+__all__ = [thing.__name__ for thing in (
+    preorder_ancestors,
+    preorder_descendants,
+    postorder_ancestors,
+    postorder_descendants,
+    bfs_ancestors,
+    bfs_descendants,
+    draw,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
