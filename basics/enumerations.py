@@ -5,6 +5,8 @@
 import enum
 import functools
 
+import graphviz
+
 
 @functools.total_ordering
 class OrderedEnum(enum.Enum):
@@ -123,12 +125,54 @@ class Guests(BitsetEnum):
     FRANK_TRIAL   = BOB | CASSIDY | DEREK
 
 
+class UmpireNetwork:
+    """
+    Graph for contact tracing enumerators in a BitsetEnum.
+
+    It's bad enough that the parties went too far, and the criminal justice
+    system got involved, but it turns out the Guests are also the center of an
+    epidemic of umpirism. Parties and trials both afford the opportunity for
+    any umpire in attendance to inadvertently cause anyone else to also become
+    an umpire. At this point, it's unknown who was an umpire when or for how
+    long, so we're just drawing an undirected graph with edges between each
+    guest and each event that guest attended. By inspecting the graph, one can
+    see all guests who attended any party and all parties any guest attended.
+    Guests a distance 2 apart in the graph attended at least one common event.
+
+    Guests and events are vertices in the graph. Guests' shapes and colors
+    differ from events' shapes and colors, to avoid confusion. No knowledge of
+    what guests or events exist is hard coded in this class, which should work
+    just as well for other BitsetEnums. But an UmpireNetwork instance supports
+    only one enum, determined as of the first call to the event method. Vertex
+    labels are parsed from enumerator names by splitting underscore-separated
+    words and having just the initial letter of each word capitalized. Guest
+    labels can't be customized. Custom labels can be given for events when
+    adding the event. Events without multiple attendees are completely ignored,
+    except that if the first call attempts to add such an event, the enum for
+    the UmpireNetwork instance is still set.
+    """
+
+    __slots__ = ('_vertices', '_edges')
+
+    def __init__(self):
+        """Create a new umpire contact-tracing network."""
+        self._vertices = set()
+        self._edges = set()
+
+    def event(self, guests, label=None):
+        """Add an event, passing a bitfield of its guests."""
+        if guests.value.bit_count < 2 or guests in self._vertices:
+            return
+        self._vertices
+
+
 __all__ = [thing.__name__ for thing in (
     OrderedEnum,
     CodeReprEnum,
     BearBowl,
     BitsetEnum,
     Guests,
+    UmpireNetwork,
 )]
 
 
