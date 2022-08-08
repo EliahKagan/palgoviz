@@ -125,6 +125,8 @@ class Guests(BitsetEnum):
     FRANK_TRIAL   = BOB | CASSIDY | DEREK
 
 
+# !!FIXME: Write tests, or have writing them be an exercise.
+# !!FIXME: What if a guest bit is not an explicitly defined enumerator?
 class UmpireNetwork:
     """
     Graph for contact tracing enumerators in a BitsetEnum.
@@ -136,34 +138,35 @@ class UmpireNetwork:
     an umpire. At this point, it's unknown who was an umpire when or for how
     long, so we're just drawing an undirected graph with edges between each
     guest and each event that guest attended. By inspecting the graph, one can
-    see all guests who attended any party and all parties any guest attended.
+    see all guests who attended any event and all events any guest attended.
     Guests a distance 2 apart in the graph attended at least one common event.
 
-    Guests and events are vertices in the graph. Guests' shapes and colors
-    differ from events' shapes and colors, to avoid confusion. No knowledge of
-    what guests or events exist is hard coded in this class, which should work
-    just as well for other BitsetEnums. But an UmpireNetwork instance supports
-    only one enum, determined as of the first call to the event method. Vertex
-    labels are parsed from enumerator names by splitting underscore-separated
-    words and having just the initial letter of each word capitalized. Guest
-    labels can't be customized. Custom labels can be given for events when
-    adding the event. Events without multiple attendees are completely ignored,
-    except that if the first call attempts to add such an event, the enum for
-    the UmpireNetwork instance is still set.
+    Guests and events are vertices. Guest vertices' shapes and colors differ
+    from event vertices' shapes and colors, to avoid confusion. No knowledge of
+    what guests or events exist is hard coded in this class, which should also
+    work on other BitsetEnums. Each UmpireNetwork instance supports only one
+    enum, determined on the first call to UmpireNetwork.event. If the first
+    event call does not pass a BitsetEnum instance, or subsequent calls pass
+    anything but an instance of that same BitsetEnum subclass, TypeError is
+    raised. Events without multiple attendees add nothing to the graph. Such
+    events are ignored, except that if the first call attempts to add such an
+    event, the enum type for the UmpireNetwork instance is still locked in.
+
+    Vertex labels are parsed from enumerator names by splitting at underscores
+    and having just the initial letter of each word capitalized. Guest labels
+    can't be customized. When adding an event, a custom label can be given, by
+    passing it as an optional argument. If the event is a bitwise combination
+    of guests not equal to any named enumerator, a custom label must be given,
+    or ValueError is raised. An event with all the same guests as a previous
+    one must also have a custom label, differing from all previous (automatic
+    or custom) event labels, or adding it has no effect. Adding an event with
+    different guests but the same label as a previous event raises ValueError.
+
+    The draw method creates a graphviz.Graph object. Separate calls return
+    separate Graph objects. UmpireNetwork makes no use of the graphviz module
+    outside of calls to draw. The event method does not call draw.
     """
-
-    __slots__ = ('_vertices', '_edges')
-
-    def __init__(self):
-        """Create a new umpire contact-tracing network."""
-        self._vertices = set()
-        self._edges = set()
-
-    def event(self, guests, label=None):
-        """Add an event, passing a bitfield of its guests."""
-        if guests.value.bit_count < 2 or guests in self._vertices:
-            return
-        self._vertices
+    # FIXME: Needs implementation.
 
 
 __all__ = [thing.__name__ for thing in (
