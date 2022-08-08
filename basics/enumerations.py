@@ -5,8 +5,6 @@
 import enum
 import functools
 
-import graphviz
-
 
 @functools.total_ordering
 class OrderedEnum(enum.Enum):
@@ -125,57 +123,12 @@ class Guests(BitsetEnum):
     FRANK_TRIAL   = BOB | CASSIDY | DEREK
 
 
-# !!FIXME: Write tests, or have writing them be an exercise.
-# !!FIXME: What if a guest bit is not an explicitly defined enumerator?
-class UmpireNetwork:
-    """
-    Graph for contact tracing enumerators in a BitsetEnum.
-
-    It's bad enough that the parties went too far, and the criminal justice
-    system got involved, but it turns out the Guests are also the center of an
-    epidemic of umpirism. Parties and trials both afford the opportunity for
-    any umpire in attendance to inadvertently cause anyone else to also become
-    an umpire. At this point, it's unknown who was an umpire when or for how
-    long, so we're just drawing an undirected graph with edges between each
-    guest and each event that guest attended. By inspecting the graph, one can
-    see all guests who attended any event and all events any guest attended.
-    Guests a distance 2 apart in the graph attended at least one common event.
-
-    Guests and events are vertices. Guest vertices' shapes and colors differ
-    from event vertices' shapes and colors, to avoid confusion. No knowledge of
-    what guests or events exist is hard coded in this class, which should also
-    work on other BitsetEnums. Each UmpireNetwork instance supports only one
-    enum, determined on the first call to UmpireNetwork.event. If the first
-    event call does not pass a BitsetEnum instance, or subsequent calls pass
-    anything but an instance of that same BitsetEnum subclass, TypeError is
-    raised. Events without multiple attendees add nothing to the graph. Such
-    events are ignored, except that if the first call attempts to add such an
-    event, the enum type for the UmpireNetwork instance is still locked in.
-
-    Vertex labels are parsed from enumerator names by splitting at underscores
-    and having just the initial letter of each word capitalized. Guest labels
-    can't be customized. When adding an event, a custom label can be given, by
-    passing it as an optional argument. If the event is a bitwise combination
-    of guests not equal to any named enumerator, a custom label must be given,
-    or ValueError is raised. An event with all the same guests as a previous
-    one must also have a custom label, differing from all previous (automatic
-    or custom) event labels, or adding it has no effect. Adding an event with
-    different guests but the same label as a previous event raises ValueError.
-
-    The draw method creates a graphviz.Graph object. Separate calls return
-    separate Graph objects. UmpireNetwork makes no use of the graphviz module
-    outside of calls to draw. The event method does not call draw.
-    """
-    # FIXME: Needs implementation.
-
-
 __all__ = [thing.__name__ for thing in (
     OrderedEnum,
     CodeReprEnum,
     BearBowl,
     BitsetEnum,
     Guests,
-    UmpireNetwork,
 )]
 
 
