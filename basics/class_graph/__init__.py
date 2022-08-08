@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Traversing and drawing graphs of class inheritance.
 
@@ -42,11 +40,24 @@ Compared to object_graph.py:
    if nodes have custom attributes, otherwise they are created without them).
 """
 
+__all__ = [
+    'examples',
+    'preorder_ancestors',
+    'preorder_descendants',
+    'postorder_ancestors',
+    'postorder_descendants',
+    'bfs_ancestors',
+    'bfs_descendants',
+    'draw',
+]
+
 import collections
 import html
 import operator
 
 import graphviz
+
+from . import examples
 
 
 def _get_filter_or_allow_all(node_filter):
@@ -163,7 +174,7 @@ def preorder_ancestors(*starts, node_filter=None):
     Most shared logic between this and preorder_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
 
-    >>> from class_graph_examples import D, not_object
+    >>> from .examples.simple import D, not_object
     >>> preorder_ancestors(D, node_filter=not_object)
     ([D, B, A, C], [(B, D), (A, B), (C, D), (A, C)])
     """
@@ -188,7 +199,7 @@ def preorder_descendants(*starts, node_filter=None):
     Most shared logic between this and preorder_ancestors (above) should be
     written in (or extracted to) a module-level nonpublic function.
 
-    >>> from class_graph_examples import A
+    >>> from .examples.simple import A
     >>> preorder_descendants(A)
     ([A, B, D, C], [(A, B), (B, D), (A, C), (C, D)])
     """
@@ -216,7 +227,7 @@ def postorder_ancestors(*starts, node_filter=None):
     Most shared logic between this and postorder_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
 
-    >>> from class_graph_examples import D, not_object
+    >>> from .examples.simple import D, not_object
     >>> postorder_ancestors(D, node_filter=not_object)
     ([A, B, C, D], [(A, B), (B, D), (A, C), (C, D)])
     """
@@ -242,7 +253,7 @@ def postorder_descendants(*starts, node_filter=None):
     Most shared logic between this and postorder_ancestors (above) should be
     written in (or extracted to) a module-level nonpublic function.
 
-    >>> from class_graph_examples import A
+    >>> from .examples.simple import A
     >>> postorder_descendants(A)
     ([D, B, C, A], [(B, D), (A, B), (C, D), (A, C)])
     """
@@ -270,7 +281,7 @@ def bfs_ancestors(*starts, node_filter=None):
     Most shared logic between this and bfs_descendants (below) should be
     written in (or extracted to) a module-level nonpublic function.
 
-    >>> from class_graph_examples import D, not_object
+    >>> from .examples.simple import D, not_object
     >>> bfs_ancestors(D, node_filter=not_object)
     ([D, B, C, A], [(B, D), (C, D), (A, B), (A, C)])
     """
@@ -298,7 +309,7 @@ def bfs_descendants(*starts, node_filter=None):
     Most shared logic between this and bfs_ancestors (above) should be written
     in (or extracted to) a module-level nonpublic function.
 
-    >>> from class_graph_examples import A
+    >>> from .examples.simple import A
     >>> bfs_descendants(A)
     ([A, B, C, D], [(A, B), (A, C), (B, D), (C, D)])
     """
@@ -314,7 +325,7 @@ def draw(nodes, edges):
 
     This returns a graphviz.Digraph rather than displaying anything directly.
 
-    >>> import re; import graphviz; from class_graph_examples import A
+    >>> import re; import graphviz; from .examples.simple import A
     >>> graph = draw(*preorder_descendants(A))
     >>> isinstance(graph, graphviz.Digraph)
     True
@@ -340,19 +351,3 @@ def draw(nodes, edges):
     for base, derived in edges:
         graph.edge(str(id(base)), str(id(derived)))
     return graph
-
-
-__all__ = [thing.__name__ for thing in (
-    preorder_ancestors,
-    preorder_descendants,
-    postorder_ancestors,
-    postorder_descendants,
-    bfs_ancestors,
-    bfs_descendants,
-    draw,
-)]
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
