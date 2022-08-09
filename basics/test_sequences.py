@@ -4,6 +4,7 @@
 
 from collections.abc import MutableSequence, Sequence
 import fractions
+import inspect
 import random
 import unittest
 import weakref
@@ -1167,6 +1168,26 @@ class TestVec(unittest.TestCase):
         actual = getattr(Vec, name)
         expected = getattr(MutableSequence, name)
         self.assertIs(actual, expected)
+
+    def test_cannot_create_new_attributes(self):
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(AttributeError):
+            vec.a = 10
+
+    def test_no_public_attributes_besides_instance_methods(self):
+        """
+        All attributes from dir have leading underscores or are bound methods.
+
+        Calling dir on the instance is imperfect, since it is possible for
+        attributes, particularly if they are dynamically generated without
+        corresponding dir customizations, to be omitted. But it is pretty good.
+        """
+        vec = Vec(get_buffer=_FixedSizeBuffer)
+
+        attribute_values = [getattr(vec, name) for name in dir(vec)
+                            if not name.startswith('_')]
+
+        self.assertTrue(all(inspect.ismethod(v) for v in attribute_values))
 
 
 if __name__ == '__main__':
