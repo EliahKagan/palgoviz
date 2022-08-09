@@ -2,14 +2,14 @@
 Reproduction of the structure of the collections.abc inheritance hierarchy.
 
 This submodule contains stubs corresponding to each public class defined in the
-collections.abc standard library module. They have no methods, but reproduce
-all inheritance details from the standard library implementation in CPython
-3.10. This includes the order in which base classes are listed, which is not
-documented and could potentially vary across minor versions of CPython or
-between CPython and another Python implementation. Tests of class_graph
-functions that use collections.abc may break as a result of an update, but if
-they do, it should be possible to discern the reason by noticing that
-corresponding tests using class_graph.examples.abc_stubs still work.
+collections.abc standard library module. They have no methods, but they
+reproduce all inheritance details from the _collections_abc.py implementation
+in CPython 3.10. This includes the order in which base classes are listed,
+which is not documented and could potentially vary across even minor versions
+of CPython or between CPython and another Python implementation. Tests of
+class_graph functions that use collections.abc may break as a result of an
+update; if they do, it should be possible to discern the reason by noticing
+that corresponding tests using class_graph.examples.abc_stubs still work.
 """
 
 
