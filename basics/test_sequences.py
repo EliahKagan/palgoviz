@@ -102,14 +102,14 @@ class _MyInt(int):
 #   (1) Write test case methods to cover this. The specifics of what they
 #       assert will be determined by design choices you made that need not
 #       otherwise be documented and that users must not rely on. (You can still
-#       change these aspects of the design at any time; so long as you also
+#       change these aspects of the design at any time, so long as you also
 #       change the tests accordingly.) They can go in this class or in another
-#       aaa class in this test module. Wherever your put them, clearly document
+#       class in this test module. Wherever your put them, clearly document
 #       that users must not rely on claims they make. This is important because
 #       unit tests serve a secondary purpose as documentation; users are
 #       usually justified in relying on claims they test. Except when a test is
 #       clearly specific to a private module, class, or function, unit tests
-#       that intend not to make public guarantees must state that explicitly.
+#       that intend not to make public guarantees should state that explicitly.
 #
 #   (2) Manually test this in a notebook. Try out enough cases to give a
 #       convincing demonstration of correctness. Inspect the private state of
