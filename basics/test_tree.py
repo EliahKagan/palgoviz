@@ -4076,6 +4076,60 @@ class TestNearestAncestor(unittest.TestCase):
     """Tests for functions to find nodes and their lowest shared ancestor."""
 
     @_parameterize_by_node_type
+    def test_small_itself(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 2, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_sibling(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 7, 6)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_first_cousin(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 5, 7)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_child(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 2, 4)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_parent(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 4, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_niece(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 3, 5)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_aunt(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 5, 3)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_grandchild(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 1, 6)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_grandparent(self, _name, node_type):
+        root = basic.small(node_type)
+        result = self.implementation(root, 6, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
     def test_medium_itself(self, _name, node_type):
         root = basic.medium(node_type)
         result = self.implementation(root, 9, 9)
