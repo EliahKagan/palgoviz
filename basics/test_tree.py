@@ -4130,9 +4130,77 @@ class TestNearestAncestor(unittest.TestCase):
         result = self.implementation(root, 20, 11)
         self.assertIs(result, root.left.right)
 
-    # FIXME: Add (considerably) more tests: grandparent, great aunt, cousin
-    # once removed up, cousin once removed down, cousin twice removed up,
-    # cousin twice removed down, etc.
+    @_parameterize_by_node_type
+    def test_medium_first_cousin_once_removed_down(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 10, 17)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_first_cousin_once_removed_up(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 17, 10)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_second_cousin_once_removed_down(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 15, 16)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_second_cousin_once_removed_up(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 16, 15)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_grandchild(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 5, 21)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_grandparent(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 21, 5)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_great_niece(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 4, 20)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_great_aunt(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 20, 4)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_first_cousin_twice_removed_down(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 6, 18)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_first_cousin_twice_removed_up(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 18, 6)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_great_great_niece(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 3, 19)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_great_great_aunt(self, _name, node_type):
+        root = basic.medium(node_type)
+        result = self.implementation(root, 19, 3)
+        self.assertIs(result, root)
 
 
 if __name__ == '__main__':
