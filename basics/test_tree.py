@@ -4193,13 +4193,23 @@ class TestNearestAncestor(unittest.TestCase):
     @_parameterize_by_node_type
     def test_medium_great_great_niece(self, _name, node_type):
         root = basic.medium(node_type)
-        result = self.implementation(root, 3, 19)
+
+        # Make element=3 unique.
+        right = node_type(0, root.right.left, root.right.right)
+        root = node_type(root.element, root.left, right)
+
+        result = self.implementation(root, 0, 19)
         self.assertIs(result, root)
 
     @_parameterize_by_node_type
     def test_medium_great_great_aunt(self, _name, node_type):
         root = basic.medium(node_type)
-        result = self.implementation(root, 19, 3)
+
+        # Make element=3 unique.
+        right = node_type(0, root.right.left, root.right.right)
+        root = node_type(root.element, root.left, right)
+
+        result = self.implementation(root, 19, 0)
         self.assertIs(result, root)
 
 
