@@ -17,9 +17,14 @@ def tiny(t):
 
 
 def small(t):
-    """Make a 7-node tree of minimal height."""
+    """Make a 7-node BST of minimal height."""
     return t(4, t(2, t(1), t(3)), t(6, t(5), t(7)))
 
+def small_str(t):
+    """Make a 7-node BST of minimal height whose elements are strings."""
+    # The noqa is for "continuation line over-indented for visual indent".
+    return t('salamander', t('lizard', t('iguana'), t('newt')),
+                           t('tortoise', t('snake'), t('turtle')))
 
 def small_no_left_left(t):
     """Make a 6-node balanced BST with the 1st bottom-level position empty."""

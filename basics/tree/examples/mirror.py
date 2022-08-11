@@ -29,6 +29,13 @@ def small(t):
     return t(1, t(3, t(7), t(6)), t(2, t(5), t(4)))
 
 
+def small_str(t):
+    """Make a 7-node tree of minimal height whose elements are strings."""
+    # The noqa is for "continuation line over-indented for visual indent".
+    return t('iguana', t('newt', t('turtle'), t('tortoise')),
+                       t('lizard', t('snake'), t('salamander')))  # noqa: E127
+
+
 def small_no_left_left(t):
     """
     Make a 6-node balanced tree whose reflection has the 1st bottom-level

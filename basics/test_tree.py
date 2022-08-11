@@ -16,6 +16,12 @@ import enumerations
 import tree
 from tree.examples import almost_bst, basic, bilateral, bst, mirror, trivial
 
+
+def _zip_strict(*iterables):
+    """Zip iterables, raising ValueError if any differ in length."""
+    return zip(*iterables, strict=True)
+
+
 _NODE_TYPES = (tree.Node, tree.FrozenNode)
 """The binary tree node types that most functions are to be tested with."""
 
@@ -43,7 +49,13 @@ _SMALL_TREE_FACTORIES = [
     basic.small_no_right_right,
     bst.small_no_right_right,
 ]
-"""Factories for small trees."""
+"""Factories for small trees. This omits basic.small_str and bst.small_str."""
+
+_TEXT_TREE_FACTORIES = [
+    basic.small_str,
+    bst.small_str,
+]
+"""Factories for small trees with string elements."""
 
 _CHAIN_TREE_FACTORIES = [
     basic.left_chain,
@@ -73,6 +85,7 @@ _MEDIUM_TREE_FACTORIES = [
 _TREE_FACTORIES = [
     *_VERY_SMALL_TREE_FACTORIES,
     *_SMALL_TREE_FACTORIES,
+    *_TEXT_TREE_FACTORIES,
     *_CHAIN_TREE_FACTORIES,
     *_LEANING_TREE_FACTORIES,
     *_MEDIUM_TREE_FACTORIES,
@@ -93,6 +106,7 @@ _BASIC_TREE_FACTORIES = [
     basic.right_only,
     basic.tiny,
     basic.small,
+    basic.small_str,
     basic.small_no_left_left,
     basic.small_no_left_right,
     basic.small_no_right_left,
@@ -112,6 +126,7 @@ _MIRROR_TREE_FACTORIES = [
     mirror.right_only,
     mirror.tiny,
     mirror.small,
+    mirror.small_str,
     mirror.small_no_left_left,
     mirror.small_no_left_right,
     mirror.small_no_right_left,
@@ -127,13 +142,14 @@ _MIRROR_TREE_FACTORIES = [
 """Factories from tree.example.mirror. On names, see that module docstring."""
 
 assert all(bas.__name__ == mir.__name__ for bas, mir
-           in zip(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES, strict=True))
+           in _zip_strict(_BASIC_TREE_FACTORIES, _MIRROR_TREE_FACTORIES))
 
 _BST_TREE_FACTORIES = [
     bst.left_only,
     bst.right_only,
     bst.tiny,
     bst.small,
+    bst.small_str,
     bst.small_no_left_left,
     bst.small_no_left_right,
     bst.small_no_right_left,
@@ -156,11 +172,6 @@ _BILATERALLY_SYMMETRIC_TREE_FACTORIES = [
     bilateral.medium_large_redundant,
 ]
 """Factories from tree.example.bilateral."""
-
-
-def _zip_strict(*iterables):
-    """Zip iterables, raising ValueError if any differ in length."""
-    return zip(*iterables, strict=True)
 
 
 class _TestNodeBase(ABC, unittest.TestCase):
@@ -3247,6 +3258,14 @@ class TestStructuralEqual(unittest.TestCase):
 
     @_parameterize_unequal_test(_SMALL_TREE_FACTORIES)
     def test_unequal_small(self, _name, lhs_factory, rhs_factory,
+                           lhs_node_type, rhs_node_type):
+        lhs = lhs_factory(lhs_node_type)
+        rhs = rhs_factory(rhs_node_type)
+        result = self.implementation(lhs, rhs)
+        self.assertFalse(result)
+
+    @_parameterize_unequal_test(_TEXT_TREE_FACTORIES)
+    def test_unequal_text(self, _name, lhs_factory, rhs_factory,
                            lhs_node_type, rhs_node_type):
         lhs = lhs_factory(lhs_node_type)
         rhs = rhs_factory(rhs_node_type)
