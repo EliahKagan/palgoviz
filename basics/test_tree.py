@@ -163,6 +163,14 @@ _BST_TREE_FACTORIES = [
 ]
 """Factories from example.bst."""
 
+_ALMOST_BST_TREE_FACTORIES = [
+    almost_bst.small,
+    almost_bst.small_str,
+    almost_bst.lefty,
+    almost_bst.righty,
+    almost_bst.medium,
+]
+
 _BILATERALLY_SYMMETRIC_TREE_FACTORIES = [
     bilateral.tiny,
     bilateral.small,
@@ -4294,6 +4302,13 @@ class TestNearestAncestor(unittest.TestCase):
 class TestIsBst(unittest.TestCase):
     """Test for functions to check if a binary tree is a binary search tree."""
 
+    @_parameterize_by([trivial.empty, trivial.singleton], _NODE_TYPES)
+    def test_trivial_is_bst(self, _name, factory, node_type):
+        """Binary trees without multiple nodes are binary search trees."""
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertTrue(result)
+
     @_parameterize_by(_BASIC_TREE_FACTORIES, _NODE_TYPES)
     def test_basic_is_not_bst(self, _name, factory, node_type):
         """Trees in examples.basic are found not to be binary search trees."""
@@ -4307,7 +4322,11 @@ class TestIsBst(unittest.TestCase):
         result = self.implementation(root)
         self.assertTrue(result)
 
-    # FIXME: Write the tree.examples.almost_bst factories. Test with them here.
+    @_parameterize_by(_ALMOST_BST_TREE_FACTORIES, _NODE_TYPES)
+    def test_almost_bst_is_not_bst(self, _name, factory, node_type):
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
