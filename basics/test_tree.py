@@ -3266,7 +3266,7 @@ class TestStructuralEqual(unittest.TestCase):
 
     @_parameterize_unequal_test(_TEXT_TREE_FACTORIES)
     def test_unequal_text(self, _name, lhs_factory, rhs_factory,
-                           lhs_node_type, rhs_node_type):
+                          lhs_node_type, rhs_node_type):
         lhs = lhs_factory(lhs_node_type)
         rhs = rhs_factory(rhs_node_type)
         result = self.implementation(lhs, rhs)

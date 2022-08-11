@@ -23,9 +23,9 @@ def small(t):
 
 def small_str(t):
     """Make a 7-node tree of minimal height whose elements are strings."""
-    # The noqa is for "continuation line over-indented for visual indent".
-    return t('iguana', t('lizard', t('salamander'), t('snake')),
-                       t('newt', t('tortoise'), t('turtle')))  # noqa: E127
+    return t('iguana',
+             t('lizard', t('salamander'), t('snake')),
+             t('newt', t('tortoise'), t('turtle')))
 
 
 def small_no_left_left(t):
