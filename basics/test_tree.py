@@ -477,9 +477,21 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
-def _join_names(*arguments, indices=None):
+def _get_name(thing, strict):
+    if strict:
+        return thing.__name__
+
+    try:
+        return thing.__name__
+    except AttributeError:
+        return str(thing)
+
+
+def _join_names(*arguments, indices=None, strict=True):
     """
     Join the __name__ attributes of each argument together by underscores.
+
+    If strict=False, then for any argument without __name__, its str is used.
 
     This is for use in building names of parameterized test cases. The objects
     whose names are used are typically passed as arguments to a test method.
@@ -491,11 +503,12 @@ def _join_names(*arguments, indices=None):
     order in which indices are given does not matter.
     """
     if indices is None:
-        return '_'.join(arg.__name__ for arg in arguments)
+        return '_'.join(_get_name(arg, strict) for arg in arguments)
 
     index_set = set(indices)
 
-    return '_'.join(arg.__name__ for index, arg in enumerate(arguments)
+    return '_'.join(_get_name(arg, strict)
+                    for index, arg in enumerate(arguments)
                     if index in index_set)
 
 
@@ -540,7 +553,8 @@ def _parameterize_class_by_implementation(*implementations):
 def _parameterize_by(*iterables,
                      combiner=itertools.product,
                      row_filter=None,
-                     name_indices=None):
+                     name_indices=None,
+                     strict=True):
     """
     Parameterize a test method by combining iterables and naming the results.
 
@@ -562,12 +576,17 @@ def _parameterize_by(*iterables,
     elements whose names are included in the test name. The order of indices in
     name_indices does not matter. Usually name_indices should be kept as None,
     but it can be useful if some elements always have the same name as others
-    in the same row, or if some elements lack __name__ attributes.
+    in the same row, or if some elements lack useful names.
+
+    If strict is False, then str(arg) is used as a fallback if arg.__name__
+    does not exist, for arguments whose names are used. Otherwise the absence
+    of __name__ attributes on arguments whose names are used is a hard error.
     """
     rows = combiner(*iterables)
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
-    named = [(_join_names(*row, indices=name_indices), *row) for row in rows]
+    named = [(_join_names(*row, indices=name_indices, strict=strict), *row)
+             for row in rows]
     return parameterized.expand(named)
 
 
@@ -4327,6 +4346,98 @@ class TestIsBst(unittest.TestCase):
         root = factory(node_type)
         result = self.implementation(root)
         self.assertFalse(result)
+
+
+@_parameterize_class_by_implementation(
+    tree.binary_search,
+    tree.binary_search_iterative,
+)
+class TestBinarySearch(unittest.TestCase):
+    """Tests for functions that find a node in a BST by bisection."""
+
+    def test_empty_returns_none(self):
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(root, 42)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_singleton_returns_none_if_absent(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root, 42)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_singleton_returns_node_if_present(self, _name, node_type):
+        root = trivial.singleton(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict=False)
+    def test_left_only_absent(self, _name, node_type, value):
+        root = bst.left_only(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_left_only_at_root(self, _name, node_type):
+        root = bst.left_only(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_left_only_at_child(self, _name, node_type):
+        root = bst.left_only(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict=False)
+    def test_right_only_absent(self, _name, node_type, value):
+        root = bst.right_only(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_right_only_at_root(self, _name, node_type):
+        root = bst.right_only(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_right_only_at_child(self, _name, node_type):
+        root = bst.right_only(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by(_NODE_TYPES, [0, 1.5, 2.5, 4], strict=False)
+    def test_tiny_absent(self, _name, node_type, value):
+        root = bst.tiny(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_tiny_at_root(self, _name, node_type):
+        root = bst.tiny(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_tiny_at_left(self, _name, node_type):
+        root = bst.tiny(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_tiny_at_right(self, _name, node_type):
+        root = bst.tiny(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.right)
+
+    # FIXME: Write the rest of these tests.
 
 
 if __name__ == '__main__':
