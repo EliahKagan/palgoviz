@@ -588,11 +588,14 @@ def _parameterize_by(*iterables,
     of __name__ attributes on arguments whose names are used is a hard error.
     """
     rows = combiner(*iterables)
+
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
-    named = [(_join_names(*row, indices=name_indices, strict=strict_names), *row)
-             for row in rows]
-    return parameterized.expand(named)
+
+    return parameterized.expand([
+        (_join_names(*row, indices=name_indices, strict=strict_names), *row)
+        for row in rows
+    ])
 
 
 _parameterize_by_node_type = _parameterize_by(_NODE_TYPES)
