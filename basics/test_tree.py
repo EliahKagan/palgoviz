@@ -477,10 +477,13 @@ class _Spy:
         return self._wrapped(*args, **kwargs)
 
 
-def _get_name(thing, strict):
-    if strict:
-        return thing.__name__
+def _get_name_no_fallback(thing):
+    """Get the __name__ attribute."""
+    return thing.__name__
 
+
+def _get_name_with_fallback(thing):
+    """Get the __name__ attribute, but fall back to str if not present."""
     try:
         return thing.__name__
     except AttributeError:
@@ -502,13 +505,14 @@ def _join_names(*arguments, indices=None, strict=True):
     used, and all other arguments do not contribute to the joined string. The
     order in which indices are given does not matter.
     """
+    get_name = _get_name_no_fallback if strict else _get_name_with_fallback
+
     if indices is None:
-        return '_'.join(_get_name(arg, strict) for arg in arguments)
+        return '_'.join(get_name(arg) for arg in arguments)
 
     index_set = set(indices)
 
-    return '_'.join(_get_name(arg, strict)
-                    for index, arg in enumerate(arguments)
+    return '_'.join(get_name(arg) for index, arg in enumerate(arguments)
                     if index in index_set)
 
 
@@ -550,11 +554,12 @@ def _parameterize_class_by_implementation(*implementations):
     return _parameterize_class_by(implementation=implementations)
 
 
+# TODO: This is undesirably complex. Maybe overhaul parameterization helpers.
 def _parameterize_by(*iterables,
                      combiner=itertools.product,
                      row_filter=None,
                      name_indices=None,
-                     strict=True):
+                     strict_names=True):
     """
     Parameterize a test method by combining iterables and naming the results.
 
@@ -578,14 +583,14 @@ def _parameterize_by(*iterables,
     but it can be useful if some elements always have the same name as others
     in the same row, or if some elements lack useful names.
 
-    If strict is False, then str(arg) is used as a fallback if arg.__name__
+    If strict_names is False, str(arg) is used as a fallback when arg.__name__
     does not exist, for arguments whose names are used. Otherwise the absence
     of __name__ attributes on arguments whose names are used is a hard error.
     """
     rows = combiner(*iterables)
     if row_filter is not None:
         rows = (row for row in rows if row_filter(*row))
-    named = [(_join_names(*row, indices=name_indices, strict=strict), *row)
+    named = [(_join_names(*row, indices=name_indices, strict=strict_names), *row)
              for row in rows]
     return parameterized.expand(named)
 
@@ -4377,7 +4382,7 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 1)
         self.assertIs(result, root)
 
-    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict=False)
+    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict_names=False)
     def test_left_only_absent(self, _name, node_type, value):
         root = bst.left_only(node_type)
         result = self.implementation(root, value)
@@ -4395,7 +4400,7 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 1)
         self.assertIs(result, root.left)
 
-    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict=False)
+    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict_names=False)
     def test_right_only_absent(self, _name, node_type, value):
         root = bst.right_only(node_type)
         result = self.implementation(root, value)
@@ -4413,7 +4418,7 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 2)
         self.assertIs(result, root.right)
 
-    @_parameterize_by(_NODE_TYPES, [0, 1.5, 2.5, 4], strict=False)
+    @_parameterize_by(_NODE_TYPES, [0, 1.5, 2.5, 4], strict_names=False)
     def test_tiny_absent(self, _name, node_type, value):
         root = bst.tiny(node_type)
         result = self.implementation(root, value)
