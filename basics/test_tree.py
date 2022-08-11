@@ -4286,5 +4286,29 @@ class TestNearestAncestor(unittest.TestCase):
         self.assertIs(result, root)
 
 
+@_parameterize_class_by_implementation(
+    tree.is_bst,
+    tree.is_bst_alt,
+    tree.is_bst_iterative,
+)
+class TestIsBst(unittest.TestCase):
+    """Test for functions to check if a binary tree is a binary search tree."""
+
+    @_parameterize_by(_BASIC_TREE_FACTORIES, _NODE_TYPES)
+    def test_basic_is_not_bst(self, _name, factory, node_type):
+        """Trees in examples.basic are found not to be binary search trees."""
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertFalse(result)
+
+    @_parameterize_by(_BST_TREE_FACTORIES, _NODE_TYPES)
+    def test_bst_is_bst(self, _name, factory, node_type):
+        root = factory(node_type)
+        result = self.implementation(root)
+        self.assertTrue(result)
+
+    # FIXME: Write the tree.examples.almost_bst factories. Test with them here.
+
+
 if __name__ == '__main__':
     unittest.main()
