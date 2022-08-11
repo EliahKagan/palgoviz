@@ -3230,6 +3230,30 @@ class TestCopy(unittest.TestCase):
         self.assertEqual(spy.call_count, 24)
 
 
+def _parameterize_unequal_test(tree_factory_group):
+    """
+    Parameterize a test method on tree factory pairs and node types.
+
+    This parameterizes tests that trees differing by structure or corresponding
+    elements are found to be structurally unequal. Tree factories are not
+    paired with themselves, since that would generate structurally equal trees.
+
+    TestStructuralEqual.test_unequal_* methods use this function (see below).
+    Unlike test_equal, TestStructuralEqual has several test_unequal* methods.
+    This divides factories into groups to avoid generating too many test cases.
+    Each group produces quadratically many tests; the sum of the squares of the
+    group sizes is much smaller than the square of the sum of the group sizes.
+    """
+    def factories_are_distinct(lhs_factory, rhs_factory, *_):
+        return lhs_factory is not rhs_factory
+
+    return _parameterize_by(tree_factory_group,
+                            tree_factory_group,
+                            _NODE_TYPES,
+                            _NODE_TYPES,
+                            row_filter=factories_are_distinct)
+
+
 @_parameterize_class_by_implementation(
     tree.structural_equal,
     tree.structural_equal_iterative,
@@ -3255,30 +3279,6 @@ class TestStructuralEqual(unittest.TestCase):
         rhs = factory(rhs_node_type)
         result = self.implementation(lhs, rhs)
         self.assertTrue(result)
-
-    def _parameterize_unequal_test(tree_factory_group):
-        """
-        Parameterize a test method on tree factory pairs and node types.
-
-        This is for parameterizing tests that verify that trees differing by
-        structure or corresponding elements are found to be structurally
-        unequal. As such, tree factories are not paired with themselves, which
-        would generate structurally equal trees.
-
-        The test_unequal_* methods use this function. Unlike with test_equal,
-        there are several test_unequal* methods in order to break the factories
-        up into groups, to avoid generating too many test cases. Each group
-        produces quadratically many tests; the sum of the squares of the group
-        sizes is much smaller than the square of the sum of the group sizes.
-        """
-        def factories_are_distinct(lhs_factory, rhs_factory, *_):
-            return lhs_factory is not rhs_factory
-
-        return _parameterize_by(tree_factory_group,
-                                tree_factory_group,
-                                _NODE_TYPES,
-                                _NODE_TYPES,
-                                row_filter=factories_are_distinct)
 
     @_parameterize_unequal_test(_VERY_SMALL_TREE_FACTORIES)
     def test_unequal_very_small(self, _name, lhs_factory, rhs_factory,
@@ -4353,6 +4353,15 @@ class TestIsBst(unittest.TestCase):
         self.assertFalse(result)
 
 
+def _parameterize_absent_test(*values):
+    """
+    Parameterize a test method by node type and values to search for.
+
+    This is used by tests in TestBinarySearch that search for absent values.
+    """
+    return _parameterize_by(_NODE_TYPES, values, strict_names=False)
+
+
 @_parameterize_class_by_implementation(
     tree.binary_search,
     tree.binary_search_iterative,
@@ -4382,7 +4391,7 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 1)
         self.assertIs(result, root)
 
-    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict_names=False)
+    @_parameterize_absent_test(0, 1.5, 3)
     def test_left_only_absent(self, _name, node_type, value):
         root = bst.left_only(node_type)
         result = self.implementation(root, value)
@@ -4400,7 +4409,7 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 1)
         self.assertIs(result, root.left)
 
-    @_parameterize_by(_NODE_TYPES, [0, 1.5, 3], strict_names=False)
+    @_parameterize_absent_test(0, 1.5, 3)
     def test_right_only_absent(self, _name, node_type, value):
         root = bst.right_only(node_type)
         result = self.implementation(root, value)
@@ -4418,7 +4427,7 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 2)
         self.assertIs(result, root.right)
 
-    @_parameterize_by(_NODE_TYPES, [0, 1.5, 2.5, 4], strict_names=False)
+    @_parameterize_absent_test(0, 1.5, 2.5, 4)
     def test_tiny_absent(self, _name, node_type, value):
         root = bst.tiny(node_type)
         result = self.implementation(root, value)
@@ -4442,7 +4451,276 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 3)
         self.assertIs(result, root.right)
 
-    # FIXME: Write the rest of these tests.
+    @_parameterize_absent_test(0, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 8)
+    def test_small_absent(self, _name, node_type, value):
+        root = bst.small(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_at_root(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_at_left(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_at_left_left(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_at_left_right(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_at_right(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_at_right_left(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_small_at_right_right(self, _name, node_type):
+        root = bst.small(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_absent_test('h', 'j', 'm', 'q', 'sb', 'ta', 'tp', 'v')
+    def test_small_str_absent(self, _name, node_type, value):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_root(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'salamander')
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_left(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'lizard')
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_left_left(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'iguana')
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_left_right(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'newt')
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_right(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'tortoise')
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_right_left(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'snake')
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_small_str_at_right_right(self, _name, node_type):
+        root = bst.small_str(node_type)
+        result = self.implementation(root, 'turtle')
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_absent_test(1, 2.5, 3.5, 4.5, 5.5, 6.5, 8)
+    def test_small_no_left_left_absent(self, _name, node_type, value):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_at_root(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_at_left(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_at_left_right(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_at_right(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_at_right_left(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_left_at_right_right(self, _name, node_type):
+        root = bst.small_no_left_left(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_absent_test(0, 1.5, 3, 4.5, 5.5, 6.5, 8)
+    def test_small_no_left_right_absent(self, _name, node_type, value):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_at_root(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_at_left(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_at_left_left(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_at_right(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_at_right_left(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_left_right_at_right_right(self, _name, node_type):
+        root = bst.small_no_left_right(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_absent_test(0, 1.5, 2.5, 3.5, 5, 6.5, 8)
+    def test_small_no_right_left_absent(self, _name, node_type, value):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_at_root(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_at_left(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_at_left_left(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_at_left_right(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_at_right(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_left_at_right_right(self, _name, node_type):
+        root = bst.small_no_right_left(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_absent_test(0, 1.5, 2.5, 3.5, 4.5, 5.5, 7)
+    def test_small_no_right_right_absent(self, _name, node_type, value):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_at_root(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_at_left(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_at_left_left(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, 1)
+        self.assertIs(result, root.left.left)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_at_left_right(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_at_right(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_small_no_right_right_at_right_left(self, _name, node_type):
+        root = bst.small_no_right_right(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.right.left)
+
+    # FIXME: Write the rest of the tree.example.bst test cases.
+
+    # FIXME: Test that binary search does at most 2*height comparisons.
+
+
+# FIXME: Test consistency between binary search implementations.
 
 
 if __name__ == '__main__':
