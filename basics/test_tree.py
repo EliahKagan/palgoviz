@@ -4754,7 +4754,17 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 4)
         self.assertIs(result, root.right.right.right)
 
-    # FIXME: Write the "zigzag chain" test cases.
+    @_parameterize_by_node_type
+    def test_zigzag_chain_absent(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
+        result = self.implementation(root, 3.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_zigzag_chain_present(self, _name, node_type):
+        root = bst.zigzag_chain(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.right.left.right.left)
 
     @_parameterize_by_node_type
     def test_lefty_absent(self, _name, node_type):
