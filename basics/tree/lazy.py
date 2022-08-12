@@ -42,7 +42,7 @@ class LazyNode:
         if not isinstance(high, int):
             raise TypeError(f"high must be 'int', got {type(high).__name__!r}")
         if low > high:
-            raise ValueError('low (got {low!r}) exceeds high (got {high!r})')
+            raise ValueError(f'low (got {low!r}) exceeds high (got {high!r})')
         if low == high:
             return None  # Empty branch.
 
