@@ -53,7 +53,7 @@ import types
 
 import graphviz
 
-from . import examples, green
+from . import examples, green, lazy
 
 
 class _NodeReprMixin:
@@ -1261,6 +1261,7 @@ def draw_extended(root, dag=False):
 __all__ = [thing.__name__.split('.')[-1] for thing in (
     examples,
     green,
+    lazy,
     Node,
     FrozenNode,
     preorder,
