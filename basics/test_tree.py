@@ -4790,7 +4790,143 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 7)
         self.assertIs(result, root.right.right.right.left)
 
-    # FIXME: Write the "medium" tree test cases.
+    @_parameterize_absent_test(
+        0, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5,
+        14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 22,
+    )
+    def test_medium_absent(self, _name, node_type, value):
+        root = bst.medium(node_type)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_medium_value_1(self, _name, node_type):
+        root = bst.medium(node_type)
+        expected = {root.left.left.left, root.left.left.left.left}
+        result = self.implementation(root, 1)
+        self.assertIn(result, expected)
+
+    @_parameterize_by_node_type
+    def test_medium_value_2(self, _name, node_type):
+        root = bst.medium(node_type)
+        expected = {root.left.left, root.left.left.left.right}
+        result = self.implementation(root, 2)
+        self.assertIn(result, expected)
+
+    @_parameterize_by_node_type
+    def test_medium_value_3(self, _name, node_type):
+        root = bst.medium(node_type)
+        expected = {root.left.left.right, root.left.left.right.right}
+        result = self.implementation(root, 3)
+        self.assertIn(result, expected)
+
+    @_parameterize_by_node_type
+    def test_medium_value_4(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_5(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 5)
+        self.assertIs(result, root.left.right.left.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_6(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 6)
+        self.assertIs(result, root.left.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_7(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.left.right.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_8(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 8)
+        self.assertIs(result, root.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_9(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 9)
+        self.assertIs(result, root.left.right.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_10(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 10)
+        self.assertIs(result, root.left.right.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_11(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 11)
+        self.assertIs(result, root)
+
+    @_parameterize_by_node_type
+    def test_medium_value_12(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 12)
+        self.assertIs(result, root.right.left.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_13(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 13)
+        self.assertIs(result, root.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_14(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 14)
+        self.assertIs(result, root.right.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_15(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 15)
+        self.assertIs(result, root.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_16(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 16)
+        self.assertIs(result, root.right.right.left.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_17(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 17)
+        self.assertIs(result, root.right.right.left)
+
+    @_parameterize_by_node_type
+    def test_medium_value_18(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 18)
+        self.assertIs(result, root.right.right.left.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_19(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 19)
+        self.assertIs(result, root.right.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_20(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 20)
+        self.assertIs(result, root.right.right.right)
+
+    @_parameterize_by_node_type
+    def test_medium_value_21(self, _name, node_type):
+        root = bst.medium(node_type)
+        result = self.implementation(root, 21)
+        self.assertIs(result, root.right.right.right.right)
 
     _HUGE_VALUE_LEVEL_896 = Fraction(
         '162026937765300092811580124535066267482048986570351077315406284829857'
