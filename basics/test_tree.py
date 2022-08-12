@@ -5,6 +5,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 import enum
+from fractions import Fraction
 import inspect
 import itertools
 import sys
@@ -4731,7 +4732,106 @@ class TestBinarySearch(unittest.TestCase):
 
     # FIXME: Write the rest of the test cases that use tree.example.bst trees.
 
-    # FIXME: Test that binary search doesn't access more than height + 1 nodes.
+    _HUGE_VALUE_LEVEL_896 = Fraction(
+        '162026937765300092811580124535066267482048986570351077315406284829857'
+        '646821547493233348223335871567929887608109652137465035422497105137592'
+        '036570241135202062788433909851356359960048937612632893684957873908845'
+        '434792886545138719978849537387522179513275072032036944132359120'
+    )
+
+    _HUGE_VALUE_LEVEL_900 = Fraction(
+        '380478538857754430506070565758083460906167233530297994199460081219183'
+        '141736393759468433558900401991298491832135595961179106244664788322958'
+        '701466886412976919601224257364003438716911114573942239952549026512153'
+        '6233457858649883128122272286958662272537764428784614064030004919'
+    )
+
+    @parameterized.expand([
+        ('too_small', Fraction(0)),
+        ('between_a', _HUGE_VALUE_LEVEL_896 + Fraction(1, 2)),
+        ('between_b', _HUGE_VALUE_LEVEL_900 - Fraction(1, 2)),
+        ('too_big', Fraction(2**900)),
+    ])
+    def test_huge_absent(self, _name, value):
+        root = tree.lazy.LazyNode(1, 2**900)
+        result = self.implementation(root, value)
+        self.assertIsNone(result)
+
+    def test_huge_present_level_896(self):
+        expected_low = int(
+            '16202693776530009281158012453506626748204898657035107731540628482'
+            '98576468215474932333482233358715679298876081096521374650354224971'
+            '05137592036570241135202062788433909851356359960048937612632893684'
+            '95787390884543479288654513871997884953738752217951327507203203694'
+            '4132359105'
+        )
+        expected_high = int(
+            '16202693776530009281158012453506626748204898657035107731540628482'
+            '98576468215474932333482233358715679298876081096521374650354224971'
+            '05137592036570241135202062788433909851356359960048937612632893684'
+            '95787390884543479288654513871997884953738752217951327507203203694'
+            '4132359136'
+        )
+        expected = (expected_low, expected_high)
+
+        root = tree.lazy.LazyNode(1, 2**900)
+        result = self.implementation(root, self._HUGE_VALUE_LEVEL_896)
+
+        with self.subTest('node has correct element'):
+            self.assertEqual(result.element, self._HUGE_VALUE_LEVEL_896)
+
+        with self.subTest('node roots correct subtree'):
+            actual = (result.low, result.high)
+            self.assertTupleEqual(actual, expected)
+
+    @parameterized.expand([
+        ('small', Fraction(1)),
+        ('between', _HUGE_VALUE_LEVEL_900),
+        ('big', Fraction(2**900 - 1)),
+    ])
+    def test_huge_present_level_900(self, _name, value):
+        expected = (value, value + 1)
+
+        root = tree.lazy.LazyNode(1, 2**900)
+        result = self.implementation(root, value)
+
+        with self.subTest('node has correct element'):
+            self.assertEqual(result.element, value)
+
+        with self.subTest('node roots correct subtree'):
+            actual = (result.low, result.high)
+            self.assertTupleEqual(actual, expected)
+
+    @parameterized.expand([
+        ('too_small', Fraction(0), 900),
+        ('small', Fraction(1), 900),
+        ('on_level_896', _HUGE_VALUE_LEVEL_896, 896),
+        ('between_absent_a', _HUGE_VALUE_LEVEL_896 + Fraction(1, 2), 900),
+        ('between_absent_b', _HUGE_VALUE_LEVEL_900 - Fraction(1, 2), 900),
+        ('on_level_900', _HUGE_VALUE_LEVEL_900, 900),
+        ('big_present', Fraction(2**900 - 1), 900),
+        ('too_big_absent', Fraction(2**900), 900),
+    ])
+    def test_huge_search_is_efficient(self, _name, value, min_access):
+        """
+        Binary search doesn't access more than height + 1 nodes.
+
+        We always allow that many, even when fewer are needed. Traversing all
+        the way down to the bottom or first mismatch (empty branch where the
+        value would have to be) is valid. This is like implementing sequence
+        binary search via bisect_left/bisect_right: it is a good strategy when
+        the goal is to minimize comparisons in the average or worst case.
+        """
+        root = tree.lazy.LazyNode(1, 2**900)
+        self.implementation(root, value)
+        nodes_accessed = root.get_size_computed()
+
+        if nodes_accessed < min_access:
+            raise Exception(
+                f'search not completed, {nodes_accessed=!s} < {min_access}')
+
+        # We always allow up to height + 1 (even if fewer are needed).
+        self.assertLessEqual(nodes_accessed, 900)
 
 
 # FIXME: Test consistency between binary search implementations.
