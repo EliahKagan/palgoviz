@@ -4730,7 +4730,57 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 5)
         self.assertIs(result, root.right.left)
 
-    # FIXME: Write the rest of the test cases that use tree.example.bst trees.
+    @_parameterize_by_node_type
+    def test_left_chain_absent(self, _name, node_type):
+        root = bst.left_chain(node_type)
+        result = self.implementation(root, 1.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_left_chain_present(self, _name, node_type):
+        root = bst.left_chain(node_type)
+        result = self.implementation(root, 2)
+        self.assertIs(result, root.left.left.left)
+
+    @_parameterize_by_node_type
+    def test_right_chain_absent(self, _name, node_type):
+        root = bst.right_chain(node_type)
+        result = self.implementation(root, 4.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_right_chain_present(self, _name, node_type):
+        root = bst.right_chain(node_type)
+        result = self.implementation(root, 4)
+        self.assertIs(result, root.right.right.right)
+
+    # FIXME: Write the "zigzag chain" test cases.
+
+    @_parameterize_by_node_type
+    def test_lefty_absent(self, _name, node_type):
+        root = bst.lefty(node_type)
+        result = self.implementation(root, 1.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_lefty_present(self, _name, node_type):
+        root = bst.lefty(node_type)
+        result = self.implementation(root, 3)
+        self.assertIs(result, root.left.left.left.right)
+
+    @_parameterize_by_node_type
+    def test_righty_absent(self, _name, node_type):
+        root = bst.righty(node_type)
+        result = self.implementation(root, 8.5)
+        self.assertIsNone(result)
+
+    @_parameterize_by_node_type
+    def test_righty_present(self, _name, node_type):
+        root = bst.righty(node_type)
+        result = self.implementation(root, 7)
+        self.assertIs(result, root.right.right.right.left)
+
+    # FIXME: Write the "medium" tree test cases.
 
     _HUGE_VALUE_LEVEL_896 = Fraction(
         '162026937765300092811580124535066267482048986570351077315406284829857'
