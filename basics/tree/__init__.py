@@ -908,8 +908,10 @@ def binary_search_iterative(root, value):
     """
     Nonrecursive binary search in a binary search tree (BST).
 
-    Like binary_search, this returns a node whose element is similar to value,
-    or None if there is no such node.
+    Like binary_search, this returns a node whose element is similar to
+    (neither greater nor less than) value, or None if there is no such node.
+    When called on a BST with multiple such matching nodes, this always returns
+    the same node binary_search would return.
 
     [FIXME: State time and auxiliary space for a tree of n nodes and height h.]
     """

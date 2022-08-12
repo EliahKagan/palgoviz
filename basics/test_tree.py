@@ -4370,7 +4370,18 @@ def _parameterize_absent_test(*values):
     tree.binary_search_iterative,
 )
 class TestBinarySearch(unittest.TestCase):
-    """Tests for functions that find a node in a BST by bisection."""
+    """
+    Tests for functions that find a node in a binary search tree by bisection.
+
+    These are tests for both the BST binary search functions. Those functions
+    don't guarantee which nodes they find when there are multiple matches, but
+    they do guarantee that they find the same node as each other. This class
+    does not test for that; see TestBinarySearchConsistency below.
+
+    Compared to TestLinearSearch, this class is more detailed, testing more
+    hits and misses on some of the same trees. This is because there are more
+    kinds of bugs that are likely to arise in binary search than linear search.
+    """
 
     def test_empty_returns_none(self):
         root = trivial.empty(tree.Node)
