@@ -4718,9 +4718,9 @@ class TestBinarySearch(unittest.TestCase):
         result = self.implementation(root, 5)
         self.assertIs(result, root.right.left)
 
-    # FIXME: Write the rest of the tree.example.bst test cases.
+    # FIXME: Write the rest of the test cases that use tree.example.bst trees.
 
-    # FIXME: Test that binary search does at most 2*height comparisons.
+    # FIXME: Test that binary search doesn't access more than height + 1 nodes.
 
 
 # FIXME: Test consistency between binary search implementations.
