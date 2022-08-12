@@ -3964,7 +3964,7 @@ class TestLinearSearchMinDepth(unittest.TestCase):
 ])
 class TestLinearSearchConsistency(unittest.TestCase):
     """
-    Test that pairs of alternative linear searchers find the same nodes.
+    Tests that pairs of alternative linear searchers find the same nodes.
 
     When there are zero or one possible matches, any implementation that is
     itself correct (irrespective of consistency with other code) automatically
@@ -5030,7 +5030,40 @@ class TestBinarySearch(unittest.TestCase):
         self.assertLessEqual(nodes_accessed, 900)
 
 
-# FIXME: Test consistency between binary search implementations.
+class TestBinarySearchConsistency(unittest.TestCase):
+    """
+    Tests that binary_search and binary_search_iterative find the same nodes.
+    """
+
+    @_parameterize_by_node_type
+    def test_tiny_root_or_left_or_right(self, _name, node_type):
+        """Binary searchers agree in a uniform 3-node 2-level bespoke tree."""
+        root = node_type('hello', node_type('hello'), node_type('hello'))
+        recursive_result = tree.binary_search(root, 'hi')
+        iterative_result = tree.binary_search_iterative(root, 'hi')
+        self.assertIs(recursive_result, iterative_result)
+
+    @_parameterize_by_node_type
+    def test_medium_leftmost_parent_or_left_child(self, _name, node_type):
+        root = bst.medium(node_type)
+        recursive_result = tree.binary_search(root, 1)
+        iterative_result = tree.binary_search_iterative(root, 1)
+        self.assertIs(recursive_result, iterative_result)
+
+    @_parameterize_by_node_type
+    def test_medium_leftmost_grandparent_or_left_right_grandchild(self, _name,
+                                                                  node_type):
+        root = bst.medium(node_type)
+        recursive_result = tree.binary_search(root, 2)
+        iterative_result = tree.binary_search_iterative(root, 2)
+        self.assertIs(recursive_result, iterative_result)
+
+    @_parameterize_by_node_type
+    def test_medium_leftish_parent_or_right_child(self, _name, node_type):
+        root = bst.medium(node_type)
+        recursive_result = tree.binary_search(root, 3)
+        iterative_result = tree.binary_search_iterative(root, 3)
+        self.assertIs(recursive_result, iterative_result)
 
 
 if __name__ == '__main__':
