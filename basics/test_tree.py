@@ -4809,8 +4809,8 @@ class TestBinarySearch(unittest.TestCase):
         ('between_absent_a', _HUGE_VALUE_LEVEL_896 + Fraction(1, 2), 900),
         ('between_absent_b', _HUGE_VALUE_LEVEL_900 - Fraction(1, 2), 900),
         ('on_level_900', _HUGE_VALUE_LEVEL_900, 900),
-        ('big_present', Fraction(2**900 - 1), 900),
-        ('too_big_absent', Fraction(2**900), 900),
+        ('big', Fraction(2**900 - 1), 900),
+        ('too_big', Fraction(2**900), 900),
     ])
     def test_huge_search_is_efficient(self, _name, value, min_access):
         """
