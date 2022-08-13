@@ -5039,8 +5039,9 @@ class TestBinarySearchConsistency(unittest.TestCase):
     def test_tiny_root_or_left_or_right(self, _name, node_type):
         """Binary searchers agree in a uniform 3-node 2-level bespoke tree."""
         root = node_type('hello', node_type('hello'), node_type('hello'))
-        recursive_result = tree.binary_search(root, 'hi')
-        iterative_result = tree.binary_search_iterative(root, 'hi')
+        recursive_result = tree.binary_search(root, 'hello')
+        iterative_result = tree.binary_search_iterative(root, 'hello')
+        self._check_result_types(node_type, recursive_result, iterative_result)
         self.assertIs(recursive_result, iterative_result)
 
     @_parameterize_by_node_type
@@ -5048,6 +5049,7 @@ class TestBinarySearchConsistency(unittest.TestCase):
         root = bst.medium(node_type)
         recursive_result = tree.binary_search(root, 1)
         iterative_result = tree.binary_search_iterative(root, 1)
+        self._check_result_types(node_type, recursive_result, iterative_result)
         self.assertIs(recursive_result, iterative_result)
 
     @_parameterize_by_node_type
@@ -5056,6 +5058,7 @@ class TestBinarySearchConsistency(unittest.TestCase):
         root = bst.medium(node_type)
         recursive_result = tree.binary_search(root, 2)
         iterative_result = tree.binary_search_iterative(root, 2)
+        self._check_result_types(node_type, recursive_result, iterative_result)
         self.assertIs(recursive_result, iterative_result)
 
     @_parameterize_by_node_type
@@ -5063,7 +5066,27 @@ class TestBinarySearchConsistency(unittest.TestCase):
         root = bst.medium(node_type)
         recursive_result = tree.binary_search(root, 3)
         iterative_result = tree.binary_search_iterative(root, 3)
+        self._check_result_types(node_type, recursive_result, iterative_result)
         self.assertIs(recursive_result, iterative_result)
+
+    def _check_result_types(self, node_type,
+                            recursive_result, iterative_result):
+        """Error out the test if any result is of the wrong type."""
+        if recursive_result is None:
+            raise Exception("recursive result is None, can't test consistency")
+
+        if not isinstance(recursive_result, node_type):
+            raise Exception(
+                f'recursive result is {type(recursive_result).__name__!r},'
+                f' need {node_type.__name__!r}')
+
+        if iterative_result is None:
+            raise Exception("iterative result is None, can't test consistency")
+
+        if not isinstance(iterative_result, node_type):
+            raise Exception(
+                f'iterative result is {type(iterative_result).__name__!r},'
+                f' need {node_type.__name__!r}')
 
 
 if __name__ == '__main__':
