@@ -658,6 +658,14 @@ def draw_memoized_call_tree_2(n):
     return _draw_call_tree(n, (1, 2), {})
 
 
+# FIXME: After implementing the four call-tree drawing functions above, extract
+# most or all shared logic into a single shared helper function, so each of the
+# public functions' implementations becomes a single short line of code. Ensure
+# the helper itself contains little to no logic duplication. (Once this is
+# working and committed, feel free to keep it, or to refactor again if you
+# regard some other arrangement, perhaps with two helpers, to be clearer.)
+
+
 __all__ = [thing.__name__ for thing in (
     fibonacci,
     fibonacci_cached_1,
