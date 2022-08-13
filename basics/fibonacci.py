@@ -8,7 +8,10 @@ See also the visualizations in subproblems.ipynb.
 For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
+import functools
 import itertools
+
+import graphviz
 
 from caching import memoize
 
@@ -546,6 +549,38 @@ def fib_nest_by(container, n):
     return b
 
 
+def _draw_call_tree(root_arg, deltas, memo):
+    """Shared helper for the four call tree drawing functions."""
+    graph = graphviz.Digraph()
+    names = (f'call{i}' for i in itertools.count())
+
+    def solve(parent_name, parent_arg):
+        if parent_arg < 2:
+            return parent_arg
+
+        if memo is not None and parent_arg in memo:
+            return memo[parent_arg]
+
+        result = 0
+
+        for delta in deltas:
+            child_name = next(names)
+            child_arg = parent_arg - delta
+            graph.node(child_name, label=str(child_arg))
+            graph.edge(parent_name, child_name)
+            result += solve(child_name, child_arg)
+
+        if memo is not None:
+            memo[parent_arg] = result
+
+        return result
+
+    root_name = next(names)
+    graph.node(root_name, label=str(root_arg))
+    graph.result = solve(root_name, root_arg)
+    return graph
+
+
 def draw_naive_call_tree_1(n):
     """
     Draw the naive recursive call tree to compute the Fibonacci number F(n).
@@ -563,7 +598,7 @@ def draw_naive_call_tree_1(n):
 
     The number of calls, and thus the number of nodes, is exponential in n.
     """
-    # FIXME: Needs implementation.
+    return _draw_call_tree(n, (2, 1), None)
 
 
 def draw_naive_call_tree_2(n):
@@ -576,7 +611,7 @@ def draw_naive_call_tree_2(n):
     done, so this does not (except in trivial cases) draw the same trees as
     draw_naive_call_tree_2, even though both do, and draw, naive computations.
     """
-    # FIXME: Needs implementation.
+    return _draw_call_tree(n, (1, 2), None)
 
 
 def draw_memoized_call_tree_1(n):
@@ -602,7 +637,7 @@ def draw_memoized_call_tree_1(n):
 
     The number of calls, and thus the number of nodes, is linear in n.
     """
-    # FIXME: Needs implementation.
+    return _draw_call_tree(n, (2, 1), {})
 
 
 def draw_memoized_call_tree_2(n):
@@ -620,7 +655,7 @@ def draw_memoized_call_tree_2(n):
     in. You could put them in subproblems.ipynb or make a new notebook such as
     fibonacci.ipynb.]
     """
-    # FIXME: Needs implementation.
+    return _draw_call_tree(n, (1, 2), {})
 
 
 __all__ = [thing.__name__ for thing in (
