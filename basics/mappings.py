@@ -7,6 +7,11 @@ import math
 import operator
 
 
+def _reverse_enumerate(elements):
+    """Enumerate a sized reversible iterable from high to low indexed items."""
+    return zip(range(len(elements) - 1, -1, -1), reversed(elements))
+
+
 class _Entry:
     """A key-value pair."""
 
@@ -102,7 +107,9 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
         """Iterate through the keys of this sorted flat table."""
         return (entry.key for entry in self._entries)
 
-    # FIXME: Add __reversed__, and make all three mapping views reversible too.
+    def __reversed__(self):  # FIXME: Make all 3 mapping views reversible too.
+        """Iterate in reverse through the keys of this sorted flat table."""
+        return (entry.key for entry in reversed(self._entries))
 
     def clear(self):
         """Remove all items from this sorted flat table."""
@@ -209,36 +216,29 @@ class BinarySearchTree(_NiceReprMapping, MutableMapping):
     """
     A mutable mapping implemented as a non-self-balancing binary search tree.
 
-    Search, insertion, and deletion take time linear in the height of the tree.
-    This is O(log n) on average, but O(n) in the worst case. BinarySearchTree
-    has better average-case asymptotic performance than SortedFlatTable because
-    it never needs to move elements, so the number of other stored keys less or
-    greater than a key to be inserted or deleted is typically irrelevant. As in
-    SortedFlatTable, no operators other than "<" and ">" are ever used on keys.
+    Search, insertion, and deletion take time linear in the height of the tree:
+    O(log n) on average, but O(n) in the worst case. This has better average
+    case asymptotic performance than SortedFlatTable because it doesn't have to
+    move elements; the number of keys greater or less than a key to be inserted
+    or deleted is thus typically irrelevant. Iterating through all elements
+    takes O(n) time. No operators besides "<" and ">" are used to compare keys.
 
     The same keys can be arranged in BSTs of different structures. Most such
     structures are balanced or nearly balanced, but some are not. Production
-    quality general purpose binary search tree based sets and mappings perform
-    "rotations" to rearrange the tree's structure to keep it sufficiently
-    balanced to ensure O(log n) height. For simplicity, this does not do that.
-    When all keys are distinguishable and inserted in random order, height is
-    O(log n) with high probability. Unfortunately, when keys are inserted in
-    sorted or reverse sorted order, the tree is unbalanced. In the future, one
-    or more self-balancing BST mappings may separately be added to this module.
-    The most common such data structures are AVL trees and red-black trees.
+    quality general purpose BST-based sets and mappings carry out "rotations"
+    to rearrange trees' structures to keep them sufficiently balanced to ensure
+    O(log n) height. For simplicity, this class does not. Inserting keys in
+    random order gives O(log n) height with high probability. Unfortunately,
+    when keys are inserted in sorted or reverse sorted order, which are common
+    in practice, the tree is unbalanced. Self-balancing BST (e.g., red-black
+    tree or AVL tree) mapping types may be added to this module in the future.
 
-    The draw method draws the tree, whose structure is otherwise considered a
-    private implementation detail. Public methods that do not mutate the tree
-    do not store any temporary data in the tree; a tree can be concurrently
-    iterated, and read from on any number of threads without synchronization.
-    Except the draw method, public methods use O(1) auxiliary space: only O(1)
-    local state may be used; operations that only read from the tree, such as
-    indexing and iteration, may not write any non-local state; deleting nodes
-    may write O(n) memory, all but O(1) belonging to the tree; inserting k
-    nodes may allocate O(k) memory for the nodes and write O(n) memory within
-    the tree, but otherwise uses O(1) space. This auxiliary space restriction
-    requires that [FIXME: Briefly state the specific way this affects the
-    design. Do this before writing any of the code for this class.]
+    The draw method draws the tree, whose structure is otherwise considered an
+    implementation detail. At all times, O(n) space is used, all but O(1) of
+    which is nodes. Besides draw, public methods use O(1) auxiliary space. Read
+    operations, such as indexing and iteration, write only to local variables.
+    Achieving O(1) auxiliary space requires [FIXME: Say how this must affect
+    the design. Do this before writing any code of the class.]
     """
 
     def _successor(self, node):
@@ -339,7 +339,7 @@ class DirectAddressTable(MutableMapping):
         value = self._values[key]
         if value is self._ABSENT:
             raise KeyError(key)
-        return self._values
+        return value
 
     def __setitem__(self, key, value):
         """Create or replace a value to be stored at a given key."""
@@ -361,17 +361,22 @@ class DirectAddressTable(MutableMapping):
         return (key for key, value in enumerate(self._values)
                 if value is not self._ABSENT)
 
+    def __reversed__(self):  # FIXME: Make all 3 mapping views reversible too.
+        """Iterate in reverse through the keys of this direct address table."""
+        return (key for key, value in _reverse_enumerate(self._values)
+                if value is not self._ABSENT)
+
     @property
-    def key_range(self):
-        """The range of allowed keys."""
-        return range(len(self._values))
+    def capacity(self):
+        """The number of distinct possible keys."""
+        return len(self._values)
 
     def _check_key(self, key):
         """Raise an appropriate exception if a key cannot be used."""
         if not isinstance(key, int):
             raise TypeError(f'key must be int, not {type(key).__name__}')
         if not 0 <= key < self.capacity:
-            raise ValueError(f'key must be in range({self.capacity})')
+            raise ValueError(f'key must be in range({self.capacity!r})')
 
 
 class HashTable(_NiceReprMapping, MutableMapping):
@@ -385,11 +390,17 @@ class HashTable(_NiceReprMapping, MutableMapping):
 
     This uses separate chaining (open hashing, closed addressing) to resolve
     collisions, while dict (in CPython) uses open addressing (closed hashing).
+    In separate chaining, buckets are sequences of zero or more entries, and
+    collisions are resolved by searching the bucket (typically a sequential
+    search). In open addressing, each bucket holds at most one entry, and
+    collisions are resolved by choosing another bucket by following some rule
+    that determines second, third, fourth, etc., choice bucket indices. An open
+    addressing mapping type may be added to this module in the future.
 
     Unlike dict, this doesn't preserve insertion order: iterating through a
     HashTable may yield items in any order. At a high level of abstraction,
     that distinction is unrelated to separate chaining vs. open addressing. (In
-    general, neither approach is sufficient to achieve order preservation.)
+    general, neither is sufficient to achieve order preservation.)
 
     Keys may be compared by "is", "is not", "==", and "!=", and have prehashes
     computed with the hash builtin. They need not support any other operations.
@@ -400,7 +411,8 @@ class HashTable(_NiceReprMapping, MutableMapping):
     with high probability, assuming good hash distribution. This situation is
     usually described as simply "O(1)", including elsewhere in this project.
     But the operations' non-amortized times are average O(1), worst-case O(n).
-    Iterating through all items takes O(n) time, so [FIXME: say what's needed].
+    Iterating through all items takes O(n) time, so [FIXME: Say how this must
+    affect the design. Do this before writing any code of the class.]
     """
 
     __slots__ = ('_buckets', '_len')
