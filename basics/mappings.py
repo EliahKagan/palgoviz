@@ -42,6 +42,10 @@ class _NiceReprMapping(Mapping):
         return f'{type(self).__name__}({dict_repr})'
 
 
+# FIXME: Implement _ReversibleMapping and supporting reversible mapping views,
+#        then have reversible mappings below inherit from _ReversibleMapping.
+
+
 class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
@@ -240,6 +244,7 @@ class BinarySearchTree(_NiceReprMapping, MutableMapping):
     Achieving O(1) auxiliary space requires [FIXME: Say how this must affect
     the design. Do this before writing any code of the class.]
     """
+    # FIXME: Needs implementation (slots, shown methods, and unshown methods).
 
     def _successor(self, node):
         """
