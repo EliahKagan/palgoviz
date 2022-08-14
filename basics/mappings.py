@@ -1,4 +1,13 @@
-"""Simple, BST-based, and hash-based mutable mappings."""
+"""
+Simple, BST-based, and hash-based mutable mappings.
+
+Much as sequences.Vec uses inherited MutableSequence mixins, mappings in this
+module use MutableMapping mixins where appropriate. But they override instead
+whenever it improves asymptotic time complexity, and may do so to gain constant
+factor speedup if simple and straightforward to achieve. Particular attention
+is given to the keys, items, and values methods, whose default implementations
+only perform acceptably if indexing takes O(1) or amortized O(1) time.
+"""
 
 import bisect
 from collections.abc import Mapping, MutableMapping
@@ -42,8 +51,7 @@ class _NiceReprMapping(Mapping):
         return f'{type(self).__name__}({dict_repr})'
 
 
-# FIXME: Implement _ReversibleMapping and supporting reversible mapping views,
-#        then have reversible mappings below inherit from _ReversibleMapping.
+# FIXME: Write and use infrastructure for efficient views, some reversible.
 
 
 class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
@@ -70,8 +78,8 @@ class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
     roughly where to look. dict is a hash table, as is HashTable below.
 
     NOTE: This is not "flat" in the sense of flat collections in Python. Those
-    are collections like str and bytes that aren't containers: their elements
-    aren't objects, just values stored contiguously in the collection's memory.
+    are collections like str and bytes whose elements aren't their own objects,
+    just values stored contiguously in the collection's memory.
     """
 
     __slots__ = ('_entries',)
@@ -224,8 +232,8 @@ class BinarySearchTree(_NiceReprMapping, MutableMapping):
     O(log n) on average, but O(n) in the worst case. This has better average
     case asymptotic performance than SortedFlatTable because it doesn't have to
     move elements; the number of keys greater or less than a key to be inserted
-    or deleted is thus typically irrelevant. Iterating through all elements
-    takes O(n) time. No operators besides "<" and ">" are used to compare keys.
+    or deleted is thus typically irrelevant. Iterating through all items takes
+    O(n) time. No operators besides "<" and ">" are used to compare keys.
 
     The same keys can be arranged in BSTs of different structures. Most such
     structures are balanced or nearly balanced, but some are not. Production
