@@ -126,14 +126,13 @@ class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
 
-    Keys may be compared with "is", "is not", "==", and "!=", and have their
-    prehashes computed with the hash builtin. They need not support any other
-    operations. To match the behavior of dict, keys that are the same object
-    are regarded to be the same key, even if they are pathologically unequal to
-    themselves. This is mainly to allow math.nan and other floating-point NaNs,
-    the only reasonable uses of non-reflexive equality comparison. Keys mustn't
-    exhibit other pathological equality comparison behavior. For example, "=="
-    must be symmetric and transitive, and "!=" must give the opposite result.
+    Keys may be compared by "is", "is not", "==", and "!=". They need not
+    support other operations. To match the behavior of dict, keys that are the
+    same object are regarded to be the same key, even if pathologically unequal
+    to themselves. This is mainly to allow math.nan and other floating-point
+    NaNs, the only reasonable uses of non-reflexive equality comparison. Keys
+    mustn't exhibit other pathological equality comparison behavior (e.g., "=="
+    must be symmetric and transitive, and "!=" must give the opposite result).
 
     Searching takes O(n) average and worst-case time. Inserting and deleting
     take O(n) as well, because a search is performed first, to do them. As an
@@ -392,6 +391,8 @@ class HashTable(_NiceReprMapping, MutableMapping):
     that distinction is unrelated to separate chaining vs. open addressing. (In
     general, neither approach is sufficient to achieve order preservation.)
 
+    Keys may be compared by "is", "is not", "==", and "!=", and have prehashes
+    computed with the hash builtin. They need not support any other operations.
     Like dict, this treats keys that are the same object as the same key, even
     if pathologically unequal to themselves. See UnsortedFlatTable for details.
 
