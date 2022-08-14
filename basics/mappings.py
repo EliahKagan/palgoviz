@@ -42,6 +42,89 @@ class _NiceReprMapping(Mapping):
         return f'{type(self).__name__}({dict_repr})'
 
 
+class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
+    """
+    A mutable mapping storing entries unordered in a non-nested sequence.
+
+    Keys may be compared by "is", "is not", "==", and "!=". They need not
+    support other operations. To match the behavior of dict, keys that are the
+    same object are regarded to be the same key, even if pathologically unequal
+    to themselves. This is mainly to allow math.nan and other floating-point
+    NaNs, the only reasonable uses of non-reflexive equality comparison. Keys
+    mustn't exhibit other pathological equality comparison behavior (e.g., "=="
+    must be symmetric and transitive, and "!=" must give the opposite result).
+
+    Searching takes O(n) average and worst-case time. Inserting and deleting
+    take O(n) as well, because a search is performed first, to do them. As an
+    implementation detail, they do only O(1) work in addition to that search.
+    Iterating through all items takes O(n) time.
+
+    This data structure is conceptually related to hash tables, which offer
+    amortized O(1) search, insertion, and deletion with high probability,
+    assuming good hash distribution. Hash tables overcome the need to examine
+    linearily many entries to find a match, by using keys' hashes to know
+    roughly where to look. dict is a hash table, as is HashTable below.
+
+    NOTE: This is not "flat" in the sense of flat collections in Python. Those
+    are collections like str and bytes that aren't containers: their elements
+    aren't objects, just values stored contiguously in the collection's memory.
+    """
+
+    __slots__ = ('_entries',)
+
+    def __init__(self, other=()):
+        """
+        Make an unsorted flat table, optionally from a mapping or iterable.
+        """
+        self._entries = []
+        self.update(other)
+
+    def __len__(self):
+        """How many key-value pairs are in this unsorted flat table."""
+        return len(self._entries)
+
+    def __getitem__(self, key):
+        """Get the value stored at a given key."""
+        try:
+            _, entry = self._search(key)
+        except StopIteration:
+            raise KeyError(key) from None
+
+        return entry.value
+
+    def __setitem__(self, key, value):
+        """Create or replace a value to be stored at a given key."""
+        try:
+            _, entry = self._search(key)
+        except StopIteration:
+            self._entries.append(_Entry(key, value))
+        else:
+            entry.value = value
+
+    def __delitem__(self, key):
+        """Remove a value at a given key, so the key is mapped to no value."""
+        try:
+            index, _ = self._search(key)
+        except StopIteration:
+            raise KeyError(key) from None
+
+        self._entries[index] = self._entries[-1]
+        del self._entries[-1]
+
+    def __iter__(self):
+        """Iterate through the keys of this unsorted flat table."""
+        return (entry.key for entry in self._entries)
+
+    def clear(self):
+        """Remove all items from this unsorted flat table."""
+        self._entries.clear()
+
+    def _search(self, key):
+        """Find the index and entry for a given key, or raise StopIteration."""
+        return next((index, entry) for index, entry in enumerate(self._entries)
+                    if entry.key is key or entry.key == key)
+
+
 class SortedFlatTable(_NiceReprMapping, MutableMapping):
     """
     A mutable mapping storing entries, sorted by key, in a non-nested sequence.
@@ -65,9 +148,7 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
     The Python standard library has no BST. The BinarySearchTree class below is
     a BST, but not self-balancing. This project has no self-balancing BST yet.
 
-    NOTE: This is not "flat" in the sense of flat collections in Python. Those
-    are collections like str and bytes that aren't containers: their elements
-    aren't objects, just values stored contiguously in the collection's memory.
+    NOTE: See explanation in UnsortedFlatTable on different senses of "flat".
     """
 
     __slots__ = ('_entries',)
@@ -127,87 +208,6 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
                 return index, entry
 
         return index, None
-
-
-class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
-    """
-    A mutable mapping storing entries unordered in a non-nested sequence.
-
-    Keys may be compared by "is", "is not", "==", and "!=". They need not
-    support other operations. To match the behavior of dict, keys that are the
-    same object are regarded to be the same key, even if pathologically unequal
-    to themselves. This is mainly to allow math.nan and other floating-point
-    NaNs, the only reasonable uses of non-reflexive equality comparison. Keys
-    mustn't exhibit other pathological equality comparison behavior (e.g., "=="
-    must be symmetric and transitive, and "!=" must give the opposite result).
-
-    Searching takes O(n) average and worst-case time. Inserting and deleting
-    take O(n) as well, because a search is performed first, to do them. As an
-    implementation detail, they do only O(1) work in addition to that search.
-    Iterating through all items takes O(n) time.
-
-    This data structure is conceptually related to hash tables, which offer
-    amortized O(1) search, insertion, and deletion with high probability,
-    assuming good hash distribution. Hash tables overcome the need to examine
-    linearily many entries to find a match, by using keys' hashes to know
-    roughly where to look. dict is a hash table, as is HashTable below.
-
-    NOTE: See the explanation in SortedFlatTable on different senses of "flat".
-    """
-
-    __slots__ = ('_entries',)
-
-    def __init__(self, other=()):
-        """
-        Make an unsorted flat table, optionally from a mapping or iterable.
-        """
-        self._entries = []
-        self.update(other)
-
-    def __len__(self):
-        """How many key-value pairs are in this unsorted flat table."""
-        return len(self._entries)
-
-    def __getitem__(self, key):
-        """Get the value stored at a given key."""
-        try:
-            _, entry = self._search(key)
-        except StopIteration:
-            raise KeyError(key) from None
-
-        return entry.value
-
-    def __setitem__(self, key, value):
-        """Create or replace a value to be stored at a given key."""
-        try:
-            _, entry = self._search(key)
-        except StopIteration:
-            self._entries.append(_Entry(key, value))
-        else:
-            entry.value = value
-
-    def __delitem__(self, key):
-        """Remove a value at a given key, so the key is mapped to no value."""
-        try:
-            index, _ = self._search(key)
-        except StopIteration:
-            raise KeyError(key) from None
-
-        self._entries[index] = self._entries[-1]
-        del self._entries[-1]
-
-    def __iter__(self):
-        """Iterate through the keys of this unsorted flat table."""
-        return (entry.key for entry in self._entries)
-
-    def clear(self):
-        """Remove all items from this unsorted flat table."""
-        self._entries.clear()
-
-    def _search(self, key):
-        """Find the index and entry for a given key, or raise StopIteration."""
-        return next((index, entry) for index, entry in enumerate(self._entries)
-                    if entry.key is key or entry.key == key)
 
 
 # !!FIXME: When removing implementation bodies, leave the _successor and

@@ -9,8 +9,8 @@ queues.SinglyLinkedListLifoQueue.draw
 test_simconda.TestSimulator
 simconda.Simulator
 simconda.OptimalSimulator/test_simconda.TestOptimalSimulator
-mappings.SortedFlatTable
 mappings.UnsortedFlatTable
+mappings.SortedFlatTable
 mappings.BinarySearchTree
 mappings.DirectAddressTable
 mappings.HashTable
