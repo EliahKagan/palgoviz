@@ -57,7 +57,8 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
     deletion, and to self-balancing binary search trees, which offer average
     and worst-case O(log n) time for search, insertion, and deletion. Trees
     overcome the need to perform linearily many moves to insert in the middle.
-    The Python standard library has no BST. This project doesn't either, yet.
+    The Python standard library has no BST. The BinarySearchTree class below is
+    a BST, but not self-balancing. This project has no self-balancing BST yet.
 
     NOTE: This is not "flat" in the sense of flat collections in Python. Those
     are collections like str and bytes that aren't containers: their elements
@@ -100,6 +101,8 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
     def __iter__(self):
         """Iterate through the keys of this sorted flat table."""
         return (entry.key for entry in self._entries)
+
+    # FIXME: Add __reversed__, and make all three mapping views reversible too.
 
     def clear(self):
         """Remove all items from this sorted flat table."""
@@ -201,8 +204,88 @@ class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
                     if entry.key is key or entry.key == key)
 
 
-# FIXME: Add a BinarySearchTree mutable mapping class here. Limit all
-#        operations except drawing to O(1) auxiliary space.
+# !!FIXME: When removing implementation bodies, leave the _successor and
+#          _check_ri methods' headers ("def" lines) and docstrings.
+class BinarySearchTree(_NiceReprMapping, MutableMapping):
+    """
+    A mutable mapping implemented as a non-self-balancing binary search tree.
+
+    Search, insertion, and deletion take time linear in the height of the tree.
+    This is O(log n) on average, but O(n) in the worst case. BinarySearchTree
+    has better average-case asymptotic performance than SortedFlatTable because
+    it never needs to move elements, so the number of other stored keys less or
+    greater than a key to be inserted or deleted is typically irrelevant. As in
+    SortedFlatTable, no operators other than "<" and ">" are ever used on keys.
+
+    The same keys can be arranged in BSTs of different structures. Most such
+    structures are balanced or nearly balanced, but some are not. Production
+    quality general purpose binary search tree based sets and mappings perform
+    "rotations" to rearrange the tree's structure to keep it sufficiently
+    balanced to ensure O(log n) height. For simplicity, this does not do that.
+    When all keys are distinguishable and inserted in random order, height is
+    O(log n) with high probability. Unfortunately, when keys are inserted in
+    sorted or reverse sorted order, the tree is unbalanced. In the future, one
+    or more self-balancing BST mappings may separately be added to this module.
+    The most common such data structures are AVL trees and red-black trees.
+
+    The draw method draws the tree, whose structure is otherwise considered a
+    private implementation detail. Public methods that do not mutate the tree
+    do not store any temporary data in the tree; a tree can be concurrently
+    iterated, and read from on any number of threads without synchronization.
+    Except the draw method, public methods use O(1) auxiliary space: only O(1)
+    local state may be used; operations that only read from the tree, such as
+    indexing and iteration, may not write any non-local state; deleting nodes
+    may write O(n) memory, all but O(1) belonging to the tree; inserting k
+    nodes may allocate O(k) memory for the nodes and write O(n) memory within
+    the tree, but otherwise uses O(1) space. This auxiliary space restriction
+    requires that [FIXME: Briefly state the specific way this affects the
+    design. Do this before writing any of the code for this class.]
+    """
+
+    def _successor(self, node):
+        """
+        Return the node just after node in inorder traversal, or None.
+
+        This very important private method takes time linear in the height of
+        the tree in the worst case, but its average running time over all nodes
+        of any tree of any height is O(1).
+        """
+
+    def _check_ri(self):
+        """
+        Check representation invariants, raising AssertionError on violation.
+
+        This verifies all persistent state, including all attributes public
+        methods rely on and all state accessible through them. For example, it
+        ensures that this really is a BST and that the stored size is correct.
+
+        Representation invariants are things guaranteed to be true of a data
+        structure's underlying representation, at all times except during an
+        operation that writes to the data structure. Operations that only read
+        do not cause them to be violated even temporarily; writing operations
+        may cause them to be violated temporarily but must always restore them.
+        Representation invariants are your (justified) assumptions, as you code
+        an operation. When you seek to prove a public method's implementation
+        correct, representation invariants are available to you as premises.
+
+        This supports a testing technique where mutating methods call _check_ri
+        just before they are about to return, so that if there is a bug, it is
+        most likely found quickly, unless _check_ri itself has a corresponding
+        bug. To minimize the risk of that, _check_ri should avoid calling other
+        methods (even private ones, unless they serve solely as helpers for
+        _check_ri itself), and you may want to have it use algorithms and/or
+        coding techniques that differ substantially from the rest of the class,
+        especially if this also lets you make _check_ri simpler. It must read
+        and verify all state associated with an instance, so it takes linear
+        time. This is usually too slow, so _check_ri calls must be removed once
+        the code is in good shape, but they can be restored for debugging. Or
+        you can condition _check_ri calls on the value of a _debug attribute.
+
+        Because the finished class will not (or not by default) call _check_ri,
+        it need not obey auxiliary space complexity restrictions. Sometimes you
+        can go further, including here: feel free to write _check_ri so that it
+        fails with RecursionError on very deep trees, if you choose.
+        """
 
 
 class DirectAddressTable(MutableMapping):
