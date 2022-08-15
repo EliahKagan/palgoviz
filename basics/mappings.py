@@ -391,7 +391,7 @@ class SortedFlatTable(_NiceReprMapping,
         return index, None
 
 
-# !!FIXME: When removing implementation bodies, leave the _successor and
+# !!FIXME: When removing implementation bodies, leave the _get_next and
 #          _check_ri methods' headers ("def" lines) and docstrings.
 class BinarySearchTree(_NiceReprMapping,
                        _FastIteratingReversibleMapping,
@@ -425,9 +425,9 @@ class BinarySearchTree(_NiceReprMapping,
     """
     # FIXME: Needs implementation (slots, shown methods, and unshown methods).
 
-    def _successor(self, node):
+    def _get_next(self, node):
         """
-        Return the node just after node in inorder traversal, or None.
+        Get node's successor in inorder traversal, or None if node comes last.
 
         This very important private method takes time linear in the height of
         the tree in the worst case, but its average running time over all nodes
