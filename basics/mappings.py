@@ -7,10 +7,27 @@ whenever it improves asymptotic time complexity, and may do so to gain constant
 factor speedup if simple and straightforward to achieve. Particular attention
 is given to the keys, items, and values methods, whose default implementations
 only perform acceptably if indexing takes O(1) or amortized O(1) time.
+
+NOTE: I suggest implementing some or all of the mapping types in this module
+with the default views (i.e., without overriding keys, items, or values) first,
+even though most iteration will be asymptotically too slow. You may also, and
+relatedly, want to omit reversibility (i.e., don't implement __reversed__) at
+first. Once you've figured out the other aspects of the design, you can find a
+clear and elegant approach to custom views and reversibility, with little or no
+duplicated logic. If you choose to proceed in this way, turn this note into a
+fixme. Then remove this note once the initially missing functionality is added.
 """
 
+from abc import abstractmethod
 import bisect
-from collections.abc import Mapping, MutableMapping
+from collections.abc import (
+    ItemsView,
+    KeysView,
+    Mapping,
+    MappingView,
+    MutableMapping,
+    ValuesView,
+)
 import itertools
 import math
 import operator
@@ -51,10 +68,124 @@ class _NiceReprMapping(Mapping):
         return f'{type(self).__name__}({dict_repr})'
 
 
-# FIXME: Write and use infrastructure for efficient views, some reversible.
+class _FastIteratingMapping(Mapping):
+    """
+    ABC for mappings with efficient views and forward iteration.
+
+    The items and values methods of collections.abc.Mapping return views that
+    iterate through the mapping's keys and index the mapping with each key to
+    obtain their values. In mapping types whose __getitem__ method takes O(1)
+    or amortized O(1) time, this is usually reasonable. Otherwise, it will be
+    too slow. The chief purpose of this base class is to handle those cases.
+
+    The _KeysView, _ValuesView, and _ItemsView classes and _items method are
+    protected. Only code in this and derived classes may override or use them.
+    """
+
+    __slots__ = ()
+
+    _KeysView = KeysView
+
+    class _ItemsView(ItemsView):
+        """Efficiently iterable view of the items of a mapping."""
+
+        __slots__ = ()
+
+        def __iter__(self):
+            """Iterate efficiently though the (key, value) pairs."""
+            return self._mapping._items()
+
+    @ValuesView.register  # Don't want collections.abc.ValuesView.__contains__.
+    class _ValuesView(MappingView):
+        """Efficiently iterable view of the values of a mapping."""
+
+        __slots__ = ()
+
+        # Don't need __contains__. We want the default "in" logic of iterables.
+
+        def __iter__(self):
+            """Iterate efficiently through the values."""
+            return (value for _, value in self._mapping._items())
+
+    def __iter__(self):
+        """Iterate efficiently through the keys."""
+        return (key for key, _ in self._items())
+
+    def keys(self):
+        """Get an efficiently iterable view of the keys."""
+        return self._KeysView(self)
+
+    def items(self):
+        """Get an efficiently iterable view of the (key, value) pairs."""
+        return self._ItemsView(self)
+
+    def values(self):
+        """Get an efficiently iterable view of the values."""
+        return self._ValuesView(self)
+
+    @abstractmethod
+    def _items(self):
+        """
+        Yield all (key, value) pairs, efficiently and in some acceptable order.
+
+        A derived class must override this protected method to provide the
+        iteration logic that __iter__ and all three mapping views will use.
+        """
+        raise NotImplementedError
 
 
-class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
+class _FastIteratingReversibleMapping(_FastIteratingMapping):
+    """ABC for reversible mappings with efficient views and iteration."""
+
+    __slots__ = ()
+
+    class _KeysView(KeysView):
+        """Efficiently iterable reversible view of the keys of a mapping."""
+
+        __slots__ = ()
+
+        def __reversed__(self):
+            """Iterate efficiently through the the keys in reverse order."""
+            return reversed(self._mapping)
+
+    class _ItemsView(_FastIteratingMapping._ItemsView):
+        """Efficiently iterable reversible view of the items of a mapping."""
+
+        __slots__ = ()
+
+        def __reversed__(self):
+            """
+            Iterate efficiently though the (key, value) pairs in reverse order.
+            """
+            return self._mapping._reversed_items()
+
+    class _ValuesView(_FastIteratingMapping._ValuesView):
+        """Efficiently iterable reversible view of the values of a mapping."""
+
+        __slots__ = ()
+
+        def __reversed__(self):
+            """Iterate efficiently through the values in reverse order."""
+            return (value for _, value in self._mapping._reversed_items())
+
+    def __reversed__(self):
+        """Iterate efficiently through the keys, in reverse order."""
+        return (key for key, _ in self._reversed_items())
+
+    @abstractmethod
+    def _reversed_items(self):
+        """
+        Yield all (key, value) pairs efficiently, in reverse order.
+
+        A derived class must override this protected method to provide the
+        iteration logic that __iter__ and all three mapping views will use.
+        """
+        raise NotImplementedError
+
+
+class UnsortedFlatTable(_NiceReprMapping,
+                        _FastIteratingMapping,
+                        MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
 
@@ -123,13 +254,12 @@ class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
         self._entries[index] = self._entries[-1]
         del self._entries[-1]
 
-    def __iter__(self):
-        """Iterate through the keys of this unsorted flat table."""
-        return (entry.key for entry in self._entries)
-
     def clear(self):
         """Remove all items from this unsorted flat table."""
         self._entries.clear()
+
+    def _items(self):
+        return ((entry.key, entry.value) for entry in self._entries)
 
     def _search(self, key):
         """Find the index and entry for a given key, or raise StopIteration."""
@@ -137,7 +267,9 @@ class UnsortedFlatTable(_NiceReprMapping, MutableMapping):
                     if entry.key is key or entry.key == key)
 
 
-class SortedFlatTable(_NiceReprMapping, MutableMapping):
+class SortedFlatTable(_NiceReprMapping,
+                      _FastIteratingReversibleMapping,
+                      MutableMapping):
     """
     A mutable mapping storing entries, sorted by key, in a non-nested sequence.
 
@@ -196,17 +328,15 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
             raise KeyError(key)
         del self._entries[index]
 
-    def __iter__(self):
-        """Iterate through the keys of this sorted flat table."""
-        return (entry.key for entry in self._entries)
-
-    def __reversed__(self):  # FIXME: Make all 3 mapping views reversible too.
-        """Iterate in reverse through the keys of this sorted flat table."""
-        return (entry.key for entry in reversed(self._entries))
-
     def clear(self):
         """Remove all items from this sorted flat table."""
         self._entries.clear()
+
+    def _items(self):
+        return ((entry.key, entry.value) for entry in self._entries)
+
+    def _reversed_items(self):
+        return ((entry.key, entry.value) for entry in reversed(self._entries))
 
     def _search(self, key):
         """Find the insertion point and, if any, existing entry for a key."""
@@ -224,7 +354,9 @@ class SortedFlatTable(_NiceReprMapping, MutableMapping):
 
 # !!FIXME: When removing implementation bodies, leave the _successor and
 #          _check_ri methods' headers ("def" lines) and docstrings.
-class BinarySearchTree(_NiceReprMapping, MutableMapping):
+class BinarySearchTree(_NiceReprMapping,
+                       _FastIteratingReversibleMapping,
+                       MutableMapping):
     """
     A mutable mapping implemented as a non-self-balancing binary search tree.
 
@@ -300,7 +432,7 @@ class BinarySearchTree(_NiceReprMapping, MutableMapping):
         """
 
 
-class DirectAddressTable(MutableMapping):
+class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
     """
     A direct address table. Lookups are directly achieved by sequence indexing.
 
@@ -329,9 +461,9 @@ class DirectAddressTable(MutableMapping):
         """
         if not isinstance(capacity, int):
             typename = type(capacity).__name__
-            raise TypeError(f'capacity must be int, not {typename}')
+            raise TypeError(f"capacity must be 'int', not {typename!r}")
         if capacity < 0:
-            raise ValueError(f'capacity cannot be negative')
+            raise ValueError(f'capacity cannot be negative, got {capacity!r}')
         self._values = [self._ABSENT] * capacity
         self._len = 0
         self.update(other)
@@ -369,30 +501,31 @@ class DirectAddressTable(MutableMapping):
         self._values[key] = self._ABSENT
         self._len -= 1
 
-    def __iter__(self):
-        """Iterate through the keys of this direct address table."""
-        return (key for key, value in enumerate(self._values)
-                if value is not self._ABSENT)
-
-    def __reversed__(self):  # FIXME: Make all 3 mapping views reversible too.
-        """Iterate in reverse through the keys of this direct address table."""
-        return (key for key, value in _reverse_enumerate(self._values)
-                if value is not self._ABSENT)
-
     @property
     def capacity(self):
         """The number of distinct possible keys."""
         return len(self._values)
 
+    def _items(self):
+        return self._items_by(enumerate)
+
+    def _reversed_items(self):
+        return self._items_by(_reverse_enumerate)
+
     def _check_key(self, key):
         """Raise an appropriate exception if a key cannot be used."""
         if not isinstance(key, int):
-            raise TypeError(f'key must be int, not {type(key).__name__}')
+            raise TypeError(f"key must be 'int', not {type(key).__name__!r}")
         if not 0 <= key < self.capacity:
             raise ValueError(f'key must be in range({self.capacity!r})')
 
+    def _items_by(self, enumerator):
+        """Helper function for _items and _reversed_items."""
+        return ((key, value) for key, value in enumerator(self._values)
+                if value is not self._ABSENT)
 
-class HashTable(_NiceReprMapping, MutableMapping):
+
+class HashTable(_FastIteratingMapping, _NiceReprMapping, MutableMapping):
     """
     Hash-based mutable mapping. Like dict but with no order guarantees.
 
@@ -451,7 +584,9 @@ class HashTable(_NiceReprMapping, MutableMapping):
         return cls((key, value) for key in iterable)
 
     def __init__(self, other=()):
-        """Make a hash table, optionally from a mapping or iterable of items."""
+        """
+        Make a hash table, optionally from a mapping or iterable of items.
+        """
         self.clear()
         self.update(other)
 
@@ -486,14 +621,13 @@ class HashTable(_NiceReprMapping, MutableMapping):
         self._len -= 1
         self._maybe_shrink()
 
-    def __iter__(self):
-        """Iterate through the keys of this hash table."""
-        return (entry.key for entry in self._entries)
-
     def clear(self):
         """Remove all items from this hash table."""
         self._buckets = [[] for _ in range(self._MIN_BUCKETS)]
         self._len = 0
+
+    def _items(self):
+        return ((entry.key, entry.value) for entry in self._entries)
 
     @property
     def _load_factor(self):
@@ -609,3 +743,12 @@ OrderedHashTable = make_ordered_mapping(HashTable)
 
 # FIXME: After all tests of code in this module are passing, read the code of
 # collections.OrderedDict and compare techniques with make_ordered_mapping.
+
+
+__all__ = [thing.__name__ for thing in (
+    UnsortedFlatTable,
+    SortedFlatTable,
+    BinarySearchTree,
+    DirectAddressTable,
+    HashTable,
+)]
