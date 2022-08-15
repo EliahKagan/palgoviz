@@ -4,7 +4,7 @@ Simple, BST-based, and hash-based mutable mappings.
 Much as sequences.Vec uses inherited MutableSequence mixins, mappings in this
 module use MutableMapping mixins where appropriate. But they override instead
 whenever it improves asymptotic time complexity, and may do so to gain constant
-factor speedup if simple and straightforward to achieve. Particular attention
+factor speedup when simple and straightforward to achieve. Particular attention
 is given to the keys, items, and values methods, whose default implementations
 only perform acceptably if indexing takes O(1) or amortized O(1) time.
 
@@ -17,24 +17,25 @@ the place in Python and can't always be avoided. The following uses are exempt:
   2. Graphviz drawing, behind the scenes or to set graph/node/edge attributes.
 
   3. Construction from arbitrarily named keyword arguments. No type in this
-     module requires that it be constructible in this way at all, but if you
-     want to allow it, the guideline to avoid dict shouldn't stand in your way.
-     Functions (including methods) that construct a mapping from key-value
-     pairs passed as keyword arguments may delegate to other such functions,
-     and well as to functions that don't accept arbitrary keyword arguments.
-     But no other form of construction may delegate to such a function.
+     module requires that it be constructible that way, but if you want to
+     allow it, the dict shouldn't stop you. Functions (including methods) that
+     construct a mapping from key-value pairs passed as keyword arguments may
+     delegate to other such functions, and to functions that don't accept
+     arbitrary keyword arguments. But other forms of construction may not make
+     use of such a function.
 
   4. Equality comparison, under specific circumstances. Comparing instances of
-     the same public mapping type in this module must NOT create any dict. This
+     the same public mapping type in the module must NOT create any dict. This
      includes instances of future subclasses that don't inherit from each other
      (though if a subclass author further customizes equality comparison, code
-     in this module is not responsible for that custom behavior). But comparing
-     an instance of a mapping type in this module with an instance of another
-     mapping type (here or elsewhere) should give the same result as converting
-     both objects to dict and comparing. collections.abc.Mapping.__eq__ does
-     this. Calling that implementation through a super proxy is an exempt use
-     of dict, so long as the call is only ever made if the mappings are not
-     both direct or indirect instances of the same mapping type in this module.
+     in this module is not responsible for that custom behavior).  The __eq__
+     method inherited from collections.abc.Mapping converts its operands' items
+     views to dict and compares the dicts. Calling that implementation through
+     a super proxy is an exempt use of dict, if never done with instances of
+     the same mapping type in this module. This is to allow you to fall back to
+     that method for comparisons that are conceptually outside the purpose of
+     your code, and it occasionally confers a performance advantage over direct
+     equality comparison of the items views.
 
   5. BinarySearchTree._check_ri, and any other _check_ri methods with the same
      meaning and usage if you choose to write them in other classes, are
@@ -239,7 +240,9 @@ class UnsortedFlatTable(_NiceReprMapping,
     Searching takes O(n) average and worst-case time. Inserting and deleting
     take O(n) as well, because a search is performed first, to do them. As an
     implementation detail, they do only O(1) work in addition to that search.
-    Iterating through all items takes O(n) time.
+    Iterating through all items takes O(n) time. Since keys need neither be
+    hashable nor order comparable, it takes O(n**2) time to check if
+    UnsortedFlatTable instances are equal, but O(1) when their sizes differ.
 
     This data structure is conceptually related to hash tables, which offer
     amortized O(1) search, insertion, and deletion with high probability,
@@ -293,6 +296,17 @@ class UnsortedFlatTable(_NiceReprMapping,
         self._entries[index] = self._entries[-1]
         del self._entries[-1]
 
+    # FIXME: Deduplicate the shared logic between this and HashTable.
+    def __eq__(self, other):
+        """Check if two mappings have equal keys and corresponding values."""
+        if not isinstance(other, UnsortedFlatTable):
+            return super().__eq__(other)
+
+        # Items view equality uses Set equality, which checks sizes before
+        # comparing elements (see collections.abc.Set.__eq__), so comparing
+        # items views of unequal size takes O(1) time.
+        return self.items() == other.items()
+
     def clear(self):
         """Remove all items from this unsorted flat table."""
         self._entries.clear()
@@ -317,11 +331,13 @@ class SortedFlatTable(_NiceReprMapping,
     greater than one another are regarded to be the same key, and keys must at
     least have a weak ordering. For example, using (arbitrary) sets as keys
     doesn't work, since the partial ordering of subsets is not a weak ordering.
-    No special support is provided for pathological objects like math.nan.
+    No special support is provided for pathological objects like math.nan as
+    keys. But in the few cases values are compared, such objects are supported.
 
     Searching takes O(log n) average and worst-case time. Inserting and
     deleting take O(n) average and worst-case time. Iterating through all items
-    takes O(n) time.
+    takes O(n) time. It takes O(n) time to check if SortedFlatTable instances
+    are equal, but O(1) when their sizes differ.
 
     This data structure is conceptually related to binary search trees, which
     offer average O(log n) but worst-case O(n) time for search, insertion, and
@@ -367,6 +383,22 @@ class SortedFlatTable(_NiceReprMapping,
             raise KeyError(key)
         del self._entries[index]
 
+    def __eq__(self, other):
+        """Check if two mappings have equal keys and corresponding values."""
+        if not isinstance(other, SortedFlatTable):
+            return super().__eq__(other)
+
+        # This is necessary before zipping and comparing, as one operand may
+        # have more entries than the other. Then, without this, some entries
+        # would be ignored and True could be wrongly returned. This also is
+        # needed to make it so unequal-size comparisons always take O(1) time.
+        if len(self) != len(other):
+            return False
+
+        return all(not (lhs.key < rhs.key or rhs.key < lhs.key) and
+                   (lhs.value is rhs.value or lhs.value == rhs.value)
+                   for lhs, rhs in zip(self._entries, other._entries))
+
     def clear(self):
         """Remove all items from this sorted flat table."""
         self._entries.clear()
@@ -404,7 +436,9 @@ class BinarySearchTree(_NiceReprMapping,
     case asymptotic performance than SortedFlatTable because it doesn't have to
     move elements; the number of keys greater or less than a key to be inserted
     or deleted is thus typically irrelevant. Iterating through all items takes
-    O(n) time. No operators besides "<" and ">" are used to compare keys.
+    O(n) time. It takes O(n) time to check if BinarySearchTree instances are
+    equal, but O(1) when their sizes differ. No operators besides "<" and ">"
+    are used to compare keys.
 
     The same keys can be arranged in BSTs of different structures. Most such
     structures are balanced or nearly balanced, but some are not. Production
@@ -480,6 +514,8 @@ class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
     capacity of m, keys must be nonnegative integers less than m, and space
     usage is always Θ(m). (Table creation thus also takes Ω(m) time.) Iterating
     through all n items also takes Θ(m) time, even if n is much smaller than m.
+    It takes O(n) time to check if DirectAddressTable instances are equal, but
+    O(1) when their sizes differ.
 
     This is the immediate conceptual precursor to a hash-based container, and
     technically constitutes the simplest case of perfect (i.e., collision-free)
@@ -540,6 +576,23 @@ class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
         self._values[key] = self._ABSENT
         self._len -= 1
 
+    def __eq__(self, other):
+        """Check if two mappings have equal keys and corresponding values."""
+        if not isinstance(other, DirectAddressTable):
+            return super().__eq__(other)
+
+        # This makes comparison finish in O(1) time if the sizes don't match.
+        # It is also relied on later, separately from the performance benefit.
+        if len(self) != len(other):
+            return False
+
+        # Since they have the same number of entries, now we only need to
+        # compare the intersection of the spaces of their possible keys.
+        # This could be faster by slicing and list equality, but this approach
+        # has the benefit of using O(1) auxiliary space.
+        return all(lhs is rhs or lhs == rhs
+                   for lhs, rhs in zip(self._values, other._values))
+
     @property
     def capacity(self):
         """The number of distinct possible keys."""
@@ -597,7 +650,9 @@ class HashTable(_FastIteratingMapping, _NiceReprMapping, MutableMapping):
     usually described as simply "O(1)", including elsewhere in this project.
     But the operations' non-amortized times are average O(1), worst-case O(n).
     Iterating through all items takes O(n) time, so [FIXME: Say how this must
-    affect the design. Do this before writing any code of the class.]
+    affect the design. Do this before writing any code of the class.] It takes
+    O(n) time to check if HashTable instances are equal, but O(1) when their
+    sizes differ.
     """
 
     __slots__ = ('_buckets', '_len')
@@ -659,6 +714,17 @@ class HashTable(_FastIteratingMapping, _NiceReprMapping, MutableMapping):
         del bucket[-1]
         self._len -= 1
         self._maybe_shrink()
+
+    # FIXME: Deduplicate the shared logic between this and UnsortedFlatTable.
+    def __eq__(self, other):
+        """Check if two mappings have equal keys and corresponding values."""
+        if not isinstance(other, HashTable):
+            return super().__eq__(other)
+
+        # Items view equality uses Set equality, which checks sizes before
+        # comparing elements (see collections.abc.Set.__eq__), so comparing
+        # items views of unequal size takes O(1) time.
+        return self.items() == other.items()
 
     def clear(self):
         """Remove all items from this hash table."""
