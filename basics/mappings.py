@@ -8,14 +8,53 @@ factor speedup if simple and straightforward to achieve. Particular attention
 is given to the keys, items, and values methods, whose default implementations
 only perform acceptably if indexing takes O(1) or amortized O(1) time.
 
-NOTE: I suggest implementing some or all of the mapping types in this module
-with the default views (i.e., without overriding keys, items, or values) first,
-even though most iteration will be asymptotically too slow. You may also, and
-relatedly, want to omit reversibility (i.e., don't implement __reversed__) at
-first. Once you've figured out the other aspects of the design, you can find a
-clear and elegant approach to custom views and reversibility, with little or no
-duplicated logic. If you choose to proceed in this way, turn this note into a
-fixme. Then remove this note once the initially missing functionality is added.
+The point of these mappings is to be their own data structures. So they should
+not delegate to a standard library mapping such as dict. But dict is all over
+the place in Python and can't always be avoided. The following uses are exempt:
+
+  1. Module and class dictionaries, in ordinary attribute and variable access.
+
+  2. Graphviz drawing, behind the scenes or to set graph/node/edge attributes.
+
+  3. Construction from arbitrarily named keyword arguments. No type in this
+     module requires that it be constructible in this way at all, but if you
+     want to allow it, the guideline to avoid dict shouldn't stand in your way.
+     Functions (including methods) that construct a mapping from key-value
+     pairs passed as keyword arguments may delegate to other such functions,
+     and well as to functions that don't accept arbitrary keyword arguments.
+     But no other form of construction may delegate to such a function.
+
+  4. Equality comparison, under specific circumstances. Comparing instances of
+     the same public mapping type in this module must NOT create any dict. This
+     includes instances of future subclasses that don't inherit from each other
+     (though if a subclass author further customizes equality comparison, code
+     in this module is not responsible for that custom behavior). But comparing
+     an instance of a mapping type in this module with an instance of another
+     mapping type (here or elsewhere) should give the same result as converting
+     both objects to dict and comparing. collections.abc.Mapping.__eq__ does
+     this. Calling that implementation through a super proxy is an exempt use
+     of dict, so long as the call is only ever made if the mappings are not
+     both direct or indirect instances of the same mapping type in this module.
+
+  5. BinarySearchTree._check_ri, and any other _check_ri methods with the same
+     meaning and usage if you choose to write them in other classes, are
+     completely exempt. (But it won't necessarily help to use dict in them.)
+
+It follows that mapping and mapping view instances from code in this module
+have no instance dictionaries, because instance dictionaries are not listed as
+exempt. That reprs, if evaluated, create a dict and pass it to a constructor,
+requires no exemption, since no code in this module should run a repr as code.
+
+NOTE: I suggest writing initial implementations of some or all types in this
+module with the default mapping views (i.e., without overriding keys, items, or
+values), even if asymptotically too slow; without reversibility (i.e., without
+implementing __reversed__), even though meaningfully ordered mappings and their
+views ought to be reversible; and without customizing equality comparison, even
+though the inherited collections.abc.Mapping.__eq__ converts both operands to
+dict, which shouldn't be done when they share a public mapping type in this
+module. After designing and implementing other functionality, you can devise a
+clear and elegant approach to those issues, avoiding duplicate logic. If you
+proceed this way, make this note a fixme. Remove this paragraph when all done.
 """
 
 from abc import abstractmethod
