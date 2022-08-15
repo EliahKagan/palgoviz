@@ -118,8 +118,10 @@ class Vec(MutableSequence):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return (len(self) == len(other)
-                and all(lhs == rhs for lhs, rhs in zip(self, other)))
+        if len(self) != len(other):
+            return False
+
+        return all(lhs is rhs or lhs == rhs for lhs, rhs in zip(self, other))
 
     def __add__(self, other):
         """Concatenate Vec objects, self then other, making a new Vec."""

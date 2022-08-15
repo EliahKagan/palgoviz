@@ -5,6 +5,7 @@
 from collections.abc import MutableSequence, Sequence
 import fractions
 import inspect
+import math
 import random
 import unittest
 import weakref
@@ -88,6 +89,32 @@ class _MyInt(int):
     def __repr__(self):
         """Python code representation."""
         return f'{type(self).__name__}({super().__repr__()})'
+
+
+class _NonSelfEqual:
+    """
+    Pathological object that is not even equal to itself.
+
+    This can usually be assumed not to be the case, and it is usually the
+    responsibility of someone who introduces such an object to avoid using it
+    any ways that would cause problems. But there are a few situations where it
+    makes sense to make specific guarantees about the handling of such objects,
+    since math.nan has this property as well.
+
+    This purpose of this class is to facilitate tests of behaviors that hold
+    for floating point NaN values, to ensure floating point NaNs aren't special
+    cased. Where NaN should be special-cased, don't test with this.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self):
+        """Python code representation for debugging."""
+        return f'{type(self).__name__}()'
+
+    def __eq__(self, _):
+        """A _NonSelfEqual instance is never equal to anything, even itself."""
+        return False
 
 
 # FIXME: As currently written, these tests verify no time or space complexity
@@ -382,6 +409,43 @@ class TestVec(unittest.TestCase):
         lhs = Vec(lhs_elems, get_buffer=_FixedSizeBuffer)
         rhs = Vec(rhs_elems, get_buffer=_FixedSizeBuffer)
         self.assertNotEqual(lhs, rhs)
+
+    @parameterized.expand([
+        ('math_nan', math.nan),
+        ('inf_minus_inf', math.inf - math.inf),
+    ])
+    def test_non_self_equal_nan_does_not_prevent_equality(self, _name, nan):
+        """Like list and tuple, Vec treats NaN objects as if self-equal."""
+        if nan == nan:
+            raise Exception("platform has non-pathological NaN, can't test")
+        lhs = Vec([10, 20, nan, 30], get_buffer=_FixedSizeBuffer)
+        rhs = Vec([10, 20, nan, 30], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(lhs, rhs)
+
+    def test_nonidentical_nans_are_distinguished(self):
+        """Only the same NaN object is treated as if equal to itself."""
+        lhs_nan = math.nan
+        rhs_nan = math.inf - math.inf
+        if lhs_nan == rhs_nan:
+            raise Exception('very weird (broken?) floating point NaN equality')
+        lhs = Vec([10, 20, lhs_nan, 30], get_buffer=_FixedSizeBuffer)
+        rhs = Vec([10, 20, rhs_nan, 30], get_buffer=_FixedSizeBuffer)
+        self.assertNotEqual(lhs, rhs)
+
+    def test_self_unequal_non_nan_does_not_prevent_equality(self):
+        """
+        Non-self-equal objects are treated as if self-equal, even if not NaN.
+
+        There are probably never any good use cases, other than NaN, of objects
+        unequal to themselves (besides tests like this). But Vec doesn't treat
+        NaN specially. Other such pathological objects are treated similarly.
+        """
+        element = _NonSelfEqual()
+        if element == element:
+            raise Exception('bug in test helper')
+        lhs = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
+        rhs = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
+        self.assertEqual(lhs, rhs)
 
     def test_can_iterate_empty(self):
         """Iterating through a Vec of no elements yields nothing."""
@@ -1043,6 +1107,41 @@ class TestVec(unittest.TestCase):
         vec = Vec(values, get_buffer=_FixedSizeBuffer)
         result = vec.index(20)
         self.assertEqual(result, 3)
+
+    @parameterized.expand([
+        ('math_nan', math.nan),
+        ('inf_minus_inf', math.inf - math.inf),
+    ])
+    def test_index_finds_non_self_equal_nan(self, _name, nan):
+        """Like list and tuple, Vec treats NaN objects as if self-equal."""
+        if nan == nan:
+            raise Exception("platform has non-pathological NaN, can't test")
+        vec = Vec([10, 20, nan, 30], get_buffer=_FixedSizeBuffer)
+        result = vec.index(nan)
+        self.assertEqual(result, 2)
+
+    def test_index_does_not_find_nonidentical_nan(self):
+        """Only the same NaN object is treated as if equal to itself."""
+        absent_nan = math.nan
+        present_nan = math.inf - math.inf
+        if absent_nan == present_nan:
+            raise Exception('very weird (broken?) floating point NaN equality')
+        vec = Vec([10, 20, present_nan, 30], get_buffer=_FixedSizeBuffer)
+        with self.assertRaises(ValueError):
+            vec.index(absent_nan)
+
+    def test_index_finds_self_unequal_non_nan(self):
+        """
+        Non-self-equal objects are treated as if self-equal, even if not NaN.
+
+        See test_self_unequal_non_nan_does_not_prevent_equality for details.
+        """
+        element = _NonSelfEqual()
+        if element == element:
+            raise Exception('bug in test helper')
+        vec = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
+        result = vec.index(element)
+        self.assertEqual(result, 2)
 
     def test_count_returns_zero_if_empty(self):
         vec = Vec([], get_buffer=_FixedSizeBuffer)
