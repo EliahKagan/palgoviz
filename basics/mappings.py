@@ -45,17 +45,18 @@ It follows that mapping and mapping view instances from code in this module
 have no instance dictionaries, because instance dictionaries are not listed as
 exempt. That reprs, if evaluated, create a dict and pass it to a constructor,
 requires no exemption, since no code in this module should run a repr as code.
+But these reprs must not be produced by creating a dict and calling repr on it.
 
 NOTE: I suggest writing initial implementations of some or all types in this
 module with the default mapping views (i.e., without overriding keys, items, or
 values), even if asymptotically too slow; without reversibility (i.e., without
 implementing __reversed__), even though meaningfully ordered mappings and their
 views ought to be reversible; and without customizing equality comparison, even
-though the inherited collections.abc.Mapping.__eq__ converts both operands to
-dict, which shouldn't be done when they share a public mapping type in this
-module. After designing and implementing other functionality, you can devise a
-clear and elegant approach to those issues, avoiding duplicate logic. If you
-proceed this way, make this note a fixme. Remove this paragraph when all done.
+though the inherited collections.abc.Mapping.__eq__ converts both operands'
+items views to dict even when they share a public mapping type in this module.
+After designing and implementing other functionality, you can devise a clear
+and elegant approach to those issues, avoiding duplicate logic. If you proceed
+this way, make this note a fixme. Remove this paragraph when all done.
 """
 
 from abc import abstractmethod
@@ -78,6 +79,56 @@ def _reverse_enumerate(elements):
     return zip(range(len(elements) - 1, -1, -1), reversed(elements))
 
 
+def _nice_repr(cls):
+    """Decorator defining a mapping's repr to show construction from a dict."""
+    def __repr__(self):
+        """Python code representation of this mapping."""
+        item_strings = (f'{key!r}: {value!r}' for key, value in self.items())
+        dict_repr = '{%s}' % ", ".join(item_strings)
+        return f'{type(self).__name__}({dict_repr})'
+
+    cls.__repr__ = __repr__
+    return cls
+
+
+def _unordered_equality(cls):
+    """Decorator defining unordered __eq__ for similarly typed mappings."""
+    def __eq__(self, other):
+        """Check if two mappings have equal keys and corresponding values."""
+        if not isinstance(other, cls):
+            return super(cls, self).__eq__(other)
+
+        # Items view equality uses Set equality, which checks sizes before
+        # comparing elements (see collections.abc.Set.__eq__), so comparing
+        # items views of unequal size takes O(1) time.
+        return self.items() == other.items()
+
+    cls.__eq__ = __eq__
+    return cls
+
+
+def _ordered_equality(cls):
+    """Decorator defining ordered __eq__ for similarly typed mappings."""
+    def __eq__(self, other):
+        """Check if two mappings have equal keys and corresponding values."""
+        if not isinstance(other, SortedFlatTable):
+            return super(cls, self).__eq__(other)
+
+        # This is necessary before zipping and comparing, as one operand may
+        # have more entries than the other. Then, without this, some entries
+        # would be ignored and True could be wrongly returned. This also is
+        # needed to make it so unequal-size comparisons always take O(1) time.
+        if len(self) != len(other):
+            return False
+
+        return all(not (lhs.key < rhs.key or rhs.key < lhs.key) and
+                   (lhs.value is rhs.value or lhs.value == rhs.value)
+                   for lhs, rhs in zip(self._entries, other._entries))
+
+    cls.__eq__ = __eq__
+    return cls
+
+
 class _Entry:
     """A key-value pair."""
 
@@ -89,23 +140,6 @@ class _Entry:
 
     def __repr__(self):
         return f'{type(self).__name__}({self.key!r}, {self.value!r})'
-
-
-class _NiceReprMapping(Mapping):
-    """
-    Mixin class providing a pretty, eval-able repr to a mapping.
-
-    This is only suitable for mappings that can be constructed from a dict
-    passed as the sole argument.
-    """
-
-    __slots__ = ()
-
-    def __repr__(self):
-        """Python code representation of this mapping."""
-        item_strings = (f'{key!r}: {value!r}' for key, value in self.items())
-        dict_repr = '{%s}' % ", ".join(item_strings)
-        return f'{type(self).__name__}({dict_repr})'
 
 
 class _FastIteratingMapping(Mapping):
@@ -223,9 +257,9 @@ class _FastIteratingReversibleMapping(_FastIteratingMapping):
         raise NotImplementedError
 
 
-class UnsortedFlatTable(_NiceReprMapping,
-                        _FastIteratingMapping,
-                        MutableMapping):
+@_unordered_equality
+@_nice_repr
+class UnsortedFlatTable(_FastIteratingMapping, MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
 
@@ -296,17 +330,6 @@ class UnsortedFlatTable(_NiceReprMapping,
         self._entries[index] = self._entries[-1]
         del self._entries[-1]
 
-    # FIXME: Deduplicate the shared logic between this and HashTable.
-    def __eq__(self, other):
-        """Check if two mappings have equal keys and corresponding values."""
-        if not isinstance(other, UnsortedFlatTable):
-            return super().__eq__(other)
-
-        # Items view equality uses Set equality, which checks sizes before
-        # comparing elements (see collections.abc.Set.__eq__), so comparing
-        # items views of unequal size takes O(1) time.
-        return self.items() == other.items()
-
     def clear(self):
         """Remove all items from this unsorted flat table."""
         self._entries.clear()
@@ -320,9 +343,9 @@ class UnsortedFlatTable(_NiceReprMapping,
                     if entry.key is key or entry.key == key)
 
 
-class SortedFlatTable(_NiceReprMapping,
-                      _FastIteratingReversibleMapping,
-                      MutableMapping):
+@_ordered_equality
+@_nice_repr
+class SortedFlatTable(_FastIteratingReversibleMapping, MutableMapping):
     """
     A mutable mapping storing entries, sorted by key, in a non-nested sequence.
 
@@ -383,22 +406,6 @@ class SortedFlatTable(_NiceReprMapping,
             raise KeyError(key)
         del self._entries[index]
 
-    def __eq__(self, other):
-        """Check if two mappings have equal keys and corresponding values."""
-        if not isinstance(other, SortedFlatTable):
-            return super().__eq__(other)
-
-        # This is necessary before zipping and comparing, as one operand may
-        # have more entries than the other. Then, without this, some entries
-        # would be ignored and True could be wrongly returned. This also is
-        # needed to make it so unequal-size comparisons always take O(1) time.
-        if len(self) != len(other):
-            return False
-
-        return all(not (lhs.key < rhs.key or rhs.key < lhs.key) and
-                   (lhs.value is rhs.value or lhs.value == rhs.value)
-                   for lhs, rhs in zip(self._entries, other._entries))
-
     def clear(self):
         """Remove all items from this sorted flat table."""
         self._entries.clear()
@@ -425,9 +432,9 @@ class SortedFlatTable(_NiceReprMapping,
 
 # !!FIXME: When removing implementation bodies, leave the _get_next and
 #          _check_ri methods' headers ("def" lines) and docstrings.
-class BinarySearchTree(_NiceReprMapping,
-                       _FastIteratingReversibleMapping,
-                       MutableMapping):
+@_ordered_equality
+@_nice_repr
+class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
     """
     A mutable mapping implemented as a non-self-balancing binary search tree.
 
@@ -505,6 +512,7 @@ class BinarySearchTree(_NiceReprMapping,
         """
 
 
+@_ordered_equality
 class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
     """
     A direct address table. Lookups are directly achieved by sequence indexing.
@@ -576,23 +584,6 @@ class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
         self._values[key] = self._ABSENT
         self._len -= 1
 
-    def __eq__(self, other):
-        """Check if two mappings have equal keys and corresponding values."""
-        if not isinstance(other, DirectAddressTable):
-            return super().__eq__(other)
-
-        # This makes comparison finish in O(1) time if the sizes don't match.
-        # It is also relied on later, separately from the performance benefit.
-        if len(self) != len(other):
-            return False
-
-        # Since they have the same number of entries, now we only need to
-        # compare the intersection of the spaces of their possible keys.
-        # This could be faster by slicing and list equality, but this approach
-        # has the benefit of using O(1) auxiliary space.
-        return all(lhs is rhs or lhs == rhs
-                   for lhs, rhs in zip(self._values, other._values))
-
     @property
     def capacity(self):
         """The number of distinct possible keys."""
@@ -617,7 +608,9 @@ class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
                 if value is not self._ABSENT)
 
 
-class HashTable(_FastIteratingMapping, _NiceReprMapping, MutableMapping):
+@_unordered_equality
+@_nice_repr
+class HashTable(_FastIteratingMapping, MutableMapping):
     """
     Hash-based mutable mapping. Like dict but with no order guarantees.
 
@@ -714,17 +707,6 @@ class HashTable(_FastIteratingMapping, _NiceReprMapping, MutableMapping):
         del bucket[-1]
         self._len -= 1
         self._maybe_shrink()
-
-    # FIXME: Deduplicate the shared logic between this and UnsortedFlatTable.
-    def __eq__(self, other):
-        """Check if two mappings have equal keys and corresponding values."""
-        if not isinstance(other, HashTable):
-            return super().__eq__(other)
-
-        # Items view equality uses Set equality, which checks sizes before
-        # comparing elements (see collections.abc.Set.__eq__), so comparing
-        # items views of unequal size takes O(1) time.
-        return self.items() == other.items()
 
     def clear(self):
         """Remove all items from this hash table."""
