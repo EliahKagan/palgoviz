@@ -91,13 +91,12 @@ class _MyInt(int):
 
 
 # FIXME: As currently written, these tests verify no time or space complexity
-# guarantees, which would be tricky to do. It is both easier, and more helpful
-# for finding bugs, to test that capacity changes as expected, and the change
+# guarantees, which would be tricky to do. It is easier, and more helpful for
+# finding bugs, to test that capacity changes as expected, and that the change
 # in underlying representation (that is, in the objects, and their arrangement,
 # that constitute the state of the data structure) is as expected across a
-# change in capacity. But neither the capacity nor the underlying
-# representation are documented, nor do the documentation and unit tests fully
-# constrain them. To test this, do any TWO of the following three things:
+# change in capacity. But neither capacity nor underlying representation are
+# documented. To verify correctness, do any TWO of the following three things:
 #
 #   (1) Write test case methods to cover this. The specifics of what they
 #       assert will be determined by design choices you made that need not
