@@ -952,11 +952,6 @@ class TestVec(unittest.TestCase):
         vec = Vec([30, 50, 20, 50, 10, 40], get_buffer=_FixedSizeBuffer)
         self.assertIn(50, vec)
 
-    # FIXME: Test index(value), index(value, start), index(value, start, end),
-    # with absent, present, and multiple present (finds first); count(value)
-    # with absent, present, and multiple present; and remove(), with absent,
-    # present, and multiple present (deletes first).
-
     def test_index_on_empty_raises(self):
         """index raises ValueError if there are no values to search in."""
         vec = Vec([], get_buffer=_FixedSizeBuffer)
