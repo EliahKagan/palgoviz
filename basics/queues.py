@@ -285,8 +285,9 @@ class RingFifoQueue(FifoQueue):
         end1 = min(self.__front + self.__len, self._capacity)
         end2 = max(0, self.__len - (end1 - self.__front))  # Wrap around.
 
-        self.__buffer = (self.__buffer[self.__front:end1] + self.__buffer[:end2]
-                        + [self.__ABSENT] * (new_capacity - self.__len))
+        self.__buffer = (self.__buffer[self.__front:end1]
+                         + self.__buffer[:end2]
+                         + [self.__ABSENT] * (new_capacity - self.__len))
         self.__front = 0  # TODO: Ensure tests catch if this is omitted.
 
         assert self._capacity == new_capacity

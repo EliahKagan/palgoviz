@@ -965,7 +965,6 @@ class _Bases:
             return original, duplicate
 
 
-
 class TestQueue(_Bases.TestAbstract,
                 _Bases.TestSignatures):
     """Tests for the Queue class."""

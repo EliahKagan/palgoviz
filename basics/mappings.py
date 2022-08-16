@@ -646,6 +646,8 @@ class HashTable(_FastIteratingMapping, MutableMapping):
     affect the design. Do this before writing any code of the class.] It takes
     O(n) time to check if HashTable instances are equal, but O(1) when their
     sizes differ.
+
+    [FIXME: Make a PythonTutor demo of HashTable and give the permalink here.]
     """
 
     __slots__ = ('_buckets', '_len')

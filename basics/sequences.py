@@ -212,7 +212,7 @@ class Vec(MutableSequence):
 
     def _reallocate_buffer(self, new_capacity):
         """Get and switch to a new buffer of the given capacity."""
-        assert(self._length <= new_capacity)
+        assert self._length <= new_capacity
 
         new_buffer = self._get_buffer(new_capacity, self._ABSENT)
 
