@@ -93,6 +93,7 @@ def _fromkeys_named_constructor(cls):
     cls.fromkeys = fromkeys
     return cls
 
+
 def _nice_repr(cls):
     """Decorator defining a mapping's repr to show construction from a dict."""
     def __repr__(self):
@@ -469,8 +470,8 @@ class _Node:
                 f' key={self.key!r} value={self.value!r}>')
 
 
-# !!FIXME: When removing implementation bodies, keep skeletons for _min, _next,
-#          and _check_ri, but show _min and _next as instance methods.
+# !!FIXME: When removing implementation bodies, keep skeletons for draw, _min,
+#          _next, and _check_ri, but show _min and _next as instance methods.
 @_ordered_equality
 @_nice_repr
 @_fromkeys_named_constructor
@@ -562,7 +563,19 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         self._maybe_check_ri()
 
     def draw(self, *, check_ri=True):
-        """Draw the tree as a graphviz.Digraph."""
+        """
+        Draw the tree as a graphviz.Digraph.
+
+        Drawings are similar to those by tree.draw and tree.draw_iterative, but
+        not quite the same since nodes have key and value attributes, both of
+        which are shown, rather than element attributes. Before any drawing,
+        unless check_ri is False, the entire data structure is checked to
+        ensure all representation invariants hold, and AssertionError is raised
+        if not. As an implementation detail, the check is done by calling
+        _check_ri (and the _check_ri docstring contains further explanation).
+        To best safeguard against bugs, the traversal performed for drawing is
+        carried out with different techniques from those _check_ri itself uses.
+        """
         if check_ri:
             self._check_ri()
 
@@ -589,10 +602,26 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         return graph
 
     def _items(self):
-        return ((node.key, node.value) for node in self._inorder_ascending())
+        """
+        Yield all (key, value) pairs in O(n) time, in ascending order.
+
+        This is a left-to-right inorder traversal of the tree.
+        """
+        node = self._min(self._root)
+        while node:
+            yield node.key, node.value
+            node = self._next(node)
 
     def _reversed_items(self):
-        return ((node.key, node.value) for node in self._inorder_descending())
+        """
+        Yield all (key, value) pairs in O(n) time, in descending order.
+
+        This is a right-to-left inorder traversal of the tree.
+        """
+        node = self._max(self._root)
+        while node:
+            yield node.key, node.value
+            node = self._prev(node)
 
     @staticmethod
     def _min(node):
@@ -673,20 +702,6 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
             node = node.parent
 
         return None
-
-    def _inorder_ascending(self):
-        """Left-to-right inorder traversal, yielding all nodes."""
-        node = self._min(self._root)
-        while node:
-            yield node
-            node = self._next(node)
-
-    def _inorder_descending(self):
-        """Right-to-left inorder traversal, yielding all nodes."""
-        node = self._max(self._root)
-        while node:
-            yield node
-            node = self._prev(node)
 
     def _search(self, key):
         """
