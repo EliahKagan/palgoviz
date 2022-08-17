@@ -47,16 +47,15 @@ exempt. That reprs, if evaluated, create a dict and pass it to a constructor,
 requires no exemption, since no code in this module should run a repr as code.
 But these reprs must not be produced by creating a dict and calling repr on it.
 
-NOTE: I suggest writing initial implementations of some or all types in this
-module with the default mapping views (i.e., without overriding keys, items, or
-values), even if asymptotically too slow; without reversibility (i.e., without
-implementing __reversed__), even though meaningfully ordered mappings and their
-views ought to be reversible; and without customizing equality comparison, even
-though the inherited collections.abc.Mapping.__eq__ converts both operands'
-items views to dict even when they share a public mapping type in this module.
-After designing and implementing other functionality, you can devise a clear
-and elegant approach to those issues, avoiding duplicate logic. If you proceed
-this way, make this note a fixme. Remove this paragraph when all done.
+NOTE: I suggest first implementing of some or all types in this module with the
+default mapping views (i.e., without overriding keys, items, or values), even
+if asymptotically too slow; without reversibility (i.e., without implementing
+__reversed__), even though meaningfully ordered mappings and their views ought
+to be reversible; and without customizing equality comparison, even though
+collections.abc.Mapping.__eq__ converts all items views to dict. After you
+design and implement other functionality, you can devise an elegant approach to
+these issues, avoiding duplicate logic. If you choose to proceed this way, make
+this note a fixme. Once all requirements are met, remove this note entirely.
 """
 
 from abc import abstractmethod
