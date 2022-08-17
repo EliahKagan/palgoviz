@@ -71,6 +71,7 @@ from collections.abc import (
 )
 import html
 import itertools
+import logging
 import math
 import operator
 
@@ -128,15 +129,16 @@ def _ordered_equality(cls):
             return super(cls, self).__eq__(other)
 
         # This is necessary before zipping and comparing, as one operand may
-        # have more entries than the other. Then, without this, some entries
-        # would be ignored and True could be wrongly returned. This also is
-        # needed to make it so unequal-size comparisons always take O(1) time.
+        # have more items than the other. Then, without this, some items would
+        # be ignored and True could be wrongly returned. This also is needed to
+        # make it so unequal-size comparisons always take O(1) time.
         if len(self) != len(other):
             return False
 
-        return all(not (lhs.key < rhs.key or rhs.key < lhs.key) and
-                   (lhs.value is rhs.value or lhs.value == rhs.value)
-                   for lhs, rhs in zip(self._entries, other._entries))
+        return all(not (lhs_key < rhs_key or rhs_key < lhs_key)
+                   and (lhs_value is rhs_value or lhs_value == rhs_value)
+                   for (lhs_key, lhs_value), (rhs_key, rhs_value)
+                   in zip(self.items(), other.items()))
 
     cls.__eq__ = __eq__
     return cls
@@ -464,7 +466,7 @@ class _Node:
 
         return (f'<{type(self).__name__}@0x{id(self):X} parent{parent_text}'
                 f' left={self.left!r} right={self.right!r}'
-                f' key={self.key!r}> value={self.value!r}')
+                f' key={self.key!r} value={self.value!r}>')
 
 
 # !!FIXME: When removing implementation bodies, keep skeletons for _min, _next,
@@ -512,9 +514,12 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
 
     __slots__ = ('_root', '_len', '_debug')
 
-    def __init__(self, other=()):
+    def __init__(self, other=(), *, debug=False):
         """Make a BST, optionally from a mapping or iterable of items."""
-        self._debug = True  # FIXME: Change this to False.
+        if debug:
+            logging.warn('%s@0x%X in debug mode, expect slow operations',
+                         type(self).__name__, id(self))
+        self._debug = debug
         self.clear()
         self.update(other)
 
@@ -561,29 +566,24 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         if check_ri:
             self._check_ri()
 
-        name_supplier = map(str, itertools.count())
-        node_name_table = dict(zip(self._inorder_ascending(), name_supplier))
-
         graph = graphviz.Digraph()
+        counter = itertools.count()
+        stack = [(None, self._root)]
 
-        for node, node_name in node_name_table.items():
-            key_text = html.escape(repr(node.key))
-            value_text = html.escape(repr(node.value))
-            graph.node(node_name, label=f'{key_text} &rarr; {value_text}')
+        while stack:
+            parent_name, child = stack.pop()
+            child_name = str(next(counter))
 
-        for parent, parent_name in node_name_table.items():
-            for child in parent.left, parent.right:
-                if child:
-                    child_name = node_name_table[child]
-                else:
-                    # FIXME: This approach is wrong, because if we wait until
-                    # now to create the node, then it will sometimes wrongly be
-                    # drawn to the right when it should be drawn to the left.
-                    # If this is the left branch, it needs to be added to the
-                    # graph before the right child is added.
-                    child_name = next(name_supplier)
-                    graph.node(child_name, shape='point')
+            if child:
+                key_text = html.escape(repr(child.key))
+                value_text = html.escape(repr(child.value))
+                graph.node(child_name, label=f'{key_text} &rarr; {value_text}')
+                stack.append((child_name, child.right))
+                stack.append((child_name, child.left))
+            else:
+                graph.node(child_name, shape='point')
 
+            if parent_name is not None:
                 graph.edge(parent_name, child_name)
 
         return graph
@@ -772,7 +772,8 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         # Splice the new subroot out of its original place in the right branch.
         assert replacement is replacement.parent.left
         replacement.parent.left = replacement.right
-        replacement.right.parent = replacement.parent
+        if replacement.right:
+            replacement.right.parent = replacement.parent
 
         # Attach both left and right branches to the new subroot.
         replacement.left = node.left
@@ -822,6 +823,10 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         can go further, including here: feel free to write _check_ri so that it
         fails with RecursionError on very deep trees, if you choose.
         """
+        if not __debug__:
+            logging.warn('%s@0x%X _check_ri ineffective: interpreter has -O',
+                         type(self).__name__, id(self))
+
         if not self:
             assert self._len == 0
             assert self._root is None
