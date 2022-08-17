@@ -25,17 +25,17 @@ the place in Python and can't always be avoided. The following uses are exempt:
      use of such a function.
 
   4. Equality comparison, under specific circumstances. Comparing instances of
-     the same public mapping type in the module must NOT create any dict. This
+     the same public mapping type in this module must NOT create any dict. This
      includes instances of future subclasses that don't inherit from each other
      (though if a subclass author further customizes equality comparison, code
-     in this module is not responsible for that custom behavior).  The __eq__
+     in this module is not responsible for that custom behavior). The __eq__
      method inherited from collections.abc.Mapping converts its operands' items
      views to dict and compares the dicts. Calling that implementation through
-     a super proxy is an exempt use of dict, if never done with instances of
-     the same mapping type in this module. This is to allow you to fall back to
-     that method for comparisons that are conceptually outside the purpose of
-     your code, and it occasionally confers a performance advantage over direct
-     equality comparison of the items views.
+     a super proxy is an exempt use of dict, if not done with direct or
+     indirect instances of the same public mapping type in this module. This is
+     to allow you to fall back to that method for comparisons conceptually
+     outside the purpose of your code. It also occasionally confers a
+     performance advantage over direct equality comparison of items views.
 
   5. BinarySearchTree._check_ri, and any other _check_ri methods with the same
      meaning and usage if you choose to write them in other classes, are
