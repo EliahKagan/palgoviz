@@ -69,15 +69,28 @@ from collections.abc import (
     MutableMapping,
     ValuesView,
 )
+import html
 import itertools
 import math
 import operator
+
+import graphviz
 
 
 def _reverse_enumerate(elements):
     """Enumerate a sized reversible iterable from high to low indexed items."""
     return zip(range(len(elements) - 1, -1, -1), reversed(elements))
 
+
+def _fromkeys_named_constructor(cls):
+    """Decorator defining the fromkeys named constructor for a mapping."""
+    @classmethod
+    def fromkeys(cls, iterable, value=None):
+        """Make a mapping from an iterable of keys, all mapped to value."""
+        return cls((key, value) for key in iterable)
+
+    cls.fromkeys = fromkeys
+    return cls
 
 def _nice_repr(cls):
     """Decorator defining a mapping's repr to show construction from a dict."""
@@ -259,6 +272,7 @@ class _FastIteratingReversibleMapping(_FastIteratingMapping):
 
 @_unordered_equality
 @_nice_repr
+@_fromkeys_named_constructor
 class UnsortedFlatTable(_FastIteratingMapping, MutableMapping):
     """
     A mutable mapping storing entries unordered in a non-nested sequence.
@@ -345,6 +359,7 @@ class UnsortedFlatTable(_FastIteratingMapping, MutableMapping):
 
 @_ordered_equality
 @_nice_repr
+@_fromkeys_named_constructor
 class SortedFlatTable(_FastIteratingReversibleMapping, MutableMapping):
     """
     A mutable mapping storing entries, sorted by key, in a non-nested sequence.
@@ -430,10 +445,33 @@ class SortedFlatTable(_FastIteratingReversibleMapping, MutableMapping):
         return index, None
 
 
-# !!FIXME: When removing implementation bodies, leave the _get_next and
-#          _check_ri methods' headers ("def" lines) and docstrings.
+class _Node:
+    """A node in a binary search tree with parent pointers."""
+
+    __slots__ = ('parent', 'left', 'right', 'key', 'value')
+
+    def __init__(self, parent, left, right, key, value):
+        """Create a new BST node."""
+        self.parent = parent
+        self.left = left
+        self.right = right
+        self.key = key
+        self.value = value
+
+    def __repr__(self):
+        """Representation for debugging."""
+        parent_text = f'@0x{id(self.parent):X}' if self.parent else '=None'
+
+        return (f'<{type(self).__name__}@0x{id(self):X} parent{parent_text}'
+                f' left={self.left!r} right={self.right!r}'
+                f' key={self.key!r}> value={self.value!r}')
+
+
+# !!FIXME: When removing implementation bodies, keep skeletons for _min, _next,
+#          and _check_ri, but show _min and _next as instance methods.
 @_ordered_equality
 @_nice_repr
+@_fromkeys_named_constructor
 class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
     """
     A mutable mapping implemented as a non-self-balancing binary search tree.
@@ -463,17 +501,291 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
     operations, such as indexing and iteration, write only to local variables.
     Achieving O(1) auxiliary space requires [FIXME: Say how this must affect
     the design. Do this before writing any code of the class.]
-    """
-    # FIXME: Needs implementation (slots, shown methods, and unshown methods).
 
-    def _get_next(self, node):
+    Other significant implementation details: Insertion adds leaves; paths from
+    the root to preexisting nodes are unchanged. Deleting a node must sometimes
+    alter the structure of one of its subtrees, but paths from the root of the
+    whole tree to nodes outside the subtree rooted by the deleted node are
+    unchanged. Deletion is the trickiest operation; it must be divided into
+    several cases. The private _min and _next methods are of great importance.
+    """
+
+    __slots__ = ('_root', '_len', '_debug')
+
+    def __init__(self, other=()):
+        """Make a BST, optionally from a mapping or iterable of items."""
+        self._debug = True  # FIXME: Change this to False.
+        self.clear()
+        self.update(other)
+
+    def __len__(self):
+        """How many key-value pairs are in this BST."""
+        return self._len
+
+    def __getitem__(self, key):
+        """Get the value stored at a given key."""
+        _, child = self._search(key)
+        if not child:
+            raise KeyError(key)
+        return child.value
+
+    def __setitem__(self, key, value):
+        """Create or replace a value to be stored at a given key."""
+        parent, child = self._search(key)
+
+        if child:
+            child.value = value
+        else:
+            self._insert(parent, key, value)
+            self._len += 1
+
+        self._maybe_check_ri()
+
+    def __delitem__(self, key):
+        """Remove a value at a given key, so the key maps to no value."""
+        _, child = self._search(key)
+        if not child:
+            raise KeyError(key)
+        self._delete(child)
+        self._len -= 1
+        self._maybe_check_ri()
+
+    def clear(self):
+        """Remove all items from this BST."""
+        self._root = None
+        self._len = 0
+        self._maybe_check_ri()
+
+    def draw(self, *, check_ri=True):
+        """Draw the tree as a graphviz.Digraph."""
+        if check_ri:
+            self._check_ri()
+
+        name_supplier = map(str, itertools.count())
+        node_name_table = dict(zip(self._inorder_ascending(), name_supplier))
+
+        graph = graphviz.Digraph()
+
+        for node, node_name in node_name_table.items():
+            key_text = html.escape(repr(node.key))
+            value_text = html.escape(repr(node.value))
+            graph.node(node_name, label=f'{key_text} &rarr; {value_text}')
+
+        for parent, parent_name in node_name_table.items():
+            for child in parent.left, parent.right:
+                if child:
+                    child_name = node_name_table[child]
+                else:
+                    # FIXME: This approach is wrong, because if we wait until
+                    # now to create the node, then it will sometimes wrongly be
+                    # drawn to the right when it should be drawn to the left.
+                    # If this is the left branch, it needs to be added to the
+                    # graph before the right child is added.
+                    child_name = next(name_supplier)
+                    graph.node(child_name, shape='point')
+
+                graph.edge(parent_name, child_name)
+
+        return graph
+
+    def _items(self):
+        return ((node.key, node.value) for node in self._inorder_ascending())
+
+    def _reversed_items(self):
+        return ((node.key, node.value) for node in self._inorder_descending())
+
+    @staticmethod
+    def _min(node):
+        """
+        Get the first node in inorder traversal under node, nor None if None.
+
+        For some subtrees, this is node itself.
+
+        This important private method takes time linear in the height of the
+        tree (more specifically, the height of the subtree) in the worst case.
+        """
+        if not node:
+            return None
+
+        while node.left:
+            node = node.left
+
+        return node
+
+    @staticmethod
+    def _max(node):
+        """
+        Get the last node in inorder traversal under node, or None if None.
+
+        Details in _min apply to this as well, including time complexity.
+        """
+        if not node:
+            return None
+
+        while node.right:
+            node = node.right
+
+        return node
+
+    @classmethod
+    def _next(cls, node):
         """
         Get node's successor in inorder traversal, or None if node comes last.
+
+        The successor of node may or may not be in the subtree rooted at node.
 
         This very important private method takes time linear in the height of
         the tree in the worst case, but its average running time over all nodes
         of any tree of any height is O(1).
         """
+        if not node:
+            return None
+
+        if node.right:
+            return cls._min(node.right)
+
+        while node.parent:
+            if node is node.parent.left:
+                return node.parent
+            assert node is node.parent.right
+            node = node.parent
+
+        return None
+
+    @classmethod
+    def _prev(cls, node):
+        """
+        Get node's predecessor in inorder traversal, or None if node comes
+        first.
+
+        Details in _next apply to this as well, including time complexity.
+        """
+        if not node:
+            return None
+
+        if node.left:
+            return cls._max(node.left)
+
+        while node.parent:
+            if node is node.parent.right:
+                return node.parent
+            assert node is node.parent.left
+            node = node.parent
+
+        return None
+
+    def _inorder_ascending(self):
+        """Left-to-right inorder traversal, yielding all nodes."""
+        node = self._min(self._root)
+        while node:
+            yield node
+            node = self._next(node)
+
+    def _inorder_descending(self):
+        """Right-to-left inorder traversal, yielding all nodes."""
+        node = self._max(self._root)
+        while node:
+            yield node
+            node = self._prev(node)
+
+    def _search(self, key):
+        """
+        Find an the insertion point for a key in the tree.
+
+        This returns a tuple: the parent node that has or would have a node for
+        key as one of its children, or None if there is no parent; and the
+        child node whose key is similar to key key, or None if there isn't one.
+        """
+        parent = None
+        child = self._root
+
+        while child:
+            if key < child.key:
+                parent = child
+                child = child.left
+            elif child.key < key:
+                parent = child
+                child = child.right
+            else:
+                break
+
+        return parent, child
+
+    def _insert(self, parent, key, value):
+        """Insert a new (key, value) node as a child of the given parent."""
+        child = _Node(parent, None, None, key, value)
+
+        if not parent:
+            assert not self._root
+            self._root = child
+        elif key < parent.key:
+            assert not parent.left
+            parent.left = child
+        else:
+            assert parent.key < key
+            assert not parent.right
+            parent.right = child
+
+    def _delete(self, node):
+        """Delete the given node and update the tree appropriately."""
+        parent = node.parent
+        replacement = self._do_delete(node)
+
+        if not parent:
+            assert node is self._root
+            self._root = replacement
+        elif node is parent.left:
+            parent.left = replacement
+        else:
+            assert node is parent.right
+            parent.right = replacement
+
+        if replacement:
+            replacement.parent = parent
+
+        node.parent = node.left = node.right = None
+
+    @classmethod
+    def _do_delete(cls, node):
+        """Delete the given node and return the new root of its subtree."""
+        # Case 1: No children.
+        if not (node.left or node.right):
+            return None
+
+        # Case 2: One child.
+        if not node.right:
+            return node.left
+        if not node.left:
+            return node.right
+
+        # Case 3: Two children, right child is the minimum in its subtree.
+        if not node.right.left:
+            node.left.parent = node.right
+            node.right.left = node.left
+            return node.right
+
+        # Case 4: Two children, right child is not the minimum of its subtree.
+
+        replacement = cls._min(node.right.left)
+        assert not replacement.left
+
+        # Splice the new subroot out of its original place in the right branch.
+        assert replacement is replacement.parent.left
+        replacement.parent.left = replacement.right
+        replacement.right.parent = replacement.parent
+
+        # Attach both left and right branches to the new subroot.
+        replacement.left = node.left
+        node.left.parent = replacement
+        replacement.right = node.right
+        node.right.parent = replacement
+
+        return replacement
+
+    def _maybe_check_ri(self):
+        """Check representation invariants if _debug is true."""
+        if self._debug:
+            self._check_ri()
 
     def _check_ri(self):
         """
@@ -510,6 +822,39 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         can go further, including here: feel free to write _check_ri so that it
         fails with RecursionError on very deep trees, if you choose.
         """
+        if not self:
+            assert self._len == 0
+            assert self._root is None
+            return
+
+        assert self._len > 0
+        assert self._root is not None
+        assert self._root.parent is None
+
+        unbounded = object()
+
+        def check_and_count(node, lower, upper):
+            assert isinstance(node, _Node)
+
+            if lower is not unbounded:
+                assert lower < node.key
+            if upper is not unbounded:
+                assert node.key < upper
+
+            count = 1
+
+            if node.left is not None:
+                assert node.left.parent is node
+                count += check_and_count(node.left, lower, node.key)
+
+            if node.right is not None:
+                assert node.right.parent is node
+                count += check_and_count(node.right, node.key, upper)
+
+            return count
+
+        total_count = check_and_count(self._root, unbounded, unbounded)
+        assert total_count == len(self)
 
 
 @_ordered_equality
@@ -610,6 +955,7 @@ class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
 
 @_unordered_equality
 @_nice_repr
+@_fromkeys_named_constructor
 class HashTable(_FastIteratingMapping, MutableMapping):
     """
     Hash-based mutable mapping. Like dict but with no order guarantees.
@@ -666,11 +1012,6 @@ class HashTable(_FastIteratingMapping, MutableMapping):
 
     # These should be fairly far apart, but this just checks they make sense.
     assert _SHRINK_THRESHOLD < _REHASH_LOAD_FACTOR < _GROW_THRESHOLD
-
-    @classmethod
-    def fromkeys(cls, iterable, value=None):
-        """Make a hash table from an iterable of keys, all mapped to value."""
-        return cls((key, value) for key in iterable)
 
     def __init__(self, other=()):
         """
