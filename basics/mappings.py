@@ -77,6 +77,16 @@ import operator
 import graphviz
 
 
+def _eq_equivalent(lhs, rhs):
+    """Compare objects for equivalence by "is" and "=="."""
+    return lhs is rhs or lhs == rhs
+
+
+def _le_equivalent(lhs, rhs):
+    """Compare objects for equivalence ("similarity") using only "<"."""
+    return not (lhs < rhs or rhs < lhs)
+
+
 def _reverse_enumerate(elements):
     """Enumerate a sized reversible iterable from high to low indexed items."""
     return zip(range(len(elements) - 1, -1, -1), reversed(elements))
@@ -121,27 +131,42 @@ def _unordered_equality(cls):
     return cls
 
 
-def _ordered_equality(cls):
-    """Decorator defining ordered __eq__ for similarly typed mappings."""
-    def __eq__(self, other):
-        """Check if two mappings have equal keys and corresponding values."""
-        if not isinstance(other, cls):
-            return super(cls, self).__eq__(other)
+def _ordered_equality(key_equivalence_predicate):
+    """
+    Decorator factory defining ordered __eq__ for similarly typed mappings.
 
-        # This is necessary before zipping and comparing, as one operand may
-        # have more items than the other. Then, without this, some items would
-        # be ignored and True could be wrongly returned. This also is needed to
-        # make it so unequal-size comparisons always take O(1) time.
-        if len(self) != len(other):
-            return False
+    The result of calling this function, when used to decorate the definition
+    of a mapping class, confers equality comparison between its instances that
+    respects the order in which (key, value) pairs appear. When the right-hand
+    object is not an instance of the decorated class, super().__eq__ is used.
 
-        return all(not (lhs_key < rhs_key or rhs_key < lhs_key)
-                   and (lhs_value is rhs_value or lhs_value == rhs_value)
-                   for (lhs_key, lhs_value), (rhs_key, rhs_value)
-                   in zip(self.items(), other.items()))
+    "Ordered" in the name "_ordered_equality" refers to the ordering of items
+    in the mapping instances being compared. It does not mean the equivalence
+    predicate used to compare keys uses order comparisons, which may or may not
+    be the case. Comparison of values is always done by "is" and "==".
+    """
+    def decorator(cls):
+        def __eq__(self, other):
+            """Check if two mappings items' match and are in the same order."""
+            if not isinstance(other, cls):
+                return super(cls, self).__eq__(other)
 
-    cls.__eq__ = __eq__
-    return cls
+            # This is necessary before zipping and comparing, as one operand
+            # may have more items than the other. Without it, some items would
+            # be ignored and True could be wrongly returned. This is also
+            # needed so unequal-size comparisons always take O(1) time.
+            if len(self) != len(other):
+                return False
+
+            return all(key_equivalence_predicate(lhs_key, rhs_key)
+                            and _eq_equivalent(lhs_value, rhs_value)
+                       for (lhs_key, lhs_value), (rhs_key, rhs_value)
+                       in zip(self.items(), other.items()))
+
+        cls.__eq__ = __eq__
+        return cls
+
+    return decorator
 
 
 class _Entry:
@@ -356,10 +381,10 @@ class UnsortedFlatTable(_FastIteratingMapping, MutableMapping):
     def _search(self, key):
         """Find the index and entry for a given key, or raise StopIteration."""
         return next((index, entry) for index, entry in enumerate(self._entries)
-                    if entry.key is key or entry.key == key)
+                    if _eq_equivalent(entry.key, key))
 
 
-@_ordered_equality
+@_ordered_equality(_le_equivalent)
 @_nice_repr
 @_fromkeys_named_constructor
 class SortedFlatTable(_FastIteratingReversibleMapping, MutableMapping):
@@ -471,7 +496,7 @@ class _Node:
 
 # !!FIXME: When removing implementation bodies, keep skeletons for draw, _min,
 #          _next, and _check_ri, but show _min and _next as instance methods.
-@_ordered_equality
+@_ordered_equality(_le_equivalent)
 @_nice_repr
 @_fromkeys_named_constructor
 class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
@@ -876,7 +901,7 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
         assert total_count == len(self)
 
 
-@_ordered_equality
+@_ordered_equality(_eq_equivalent)
 class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
     """
     A direct address table. Lookups are directly achieved by sequence indexing.
@@ -1098,7 +1123,7 @@ class HashTable(_FastIteratingMapping, MutableMapping):
         bucket = self._buckets[hash(key) % len(self._buckets)]
         try:
             index, entry = next((i, e) for i, e in enumerate(bucket)
-                                if e.key is key or e.key == key)
+                                if _eq_equivalent(e.key, key))
         except StopIteration:
             index = entry = None
         return bucket, index, entry
