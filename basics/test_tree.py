@@ -11,7 +11,7 @@ import itertools
 import sys
 import unittest
 
-from parameterized import parameterized, parameterized_class
+from parameterized import param, parameterized, parameterized_class
 
 import enumerations
 import tree
@@ -5087,6 +5087,66 @@ class TestBinarySearchConsistency(unittest.TestCase):
             raise Exception(
                 f'iterative result is {type(iterative_result).__name__!r},'
                 f' need {node_type.__name__!r}')
+
+
+@_parameterize_class_by_implementation(
+    tree.binary_insert,
+    tree.binary_insert_iterative,
+)
+class TestBinaryInsert(unittest.TestCase):
+    """
+    Tests for functions that insert a new node in a binary search tree.
+
+    These tests apply separately to both of the BST insertion functions, and
+    they do not rely on structural_equality/structural_equal_iterative.
+    """
+
+    _DENY_DUPLICATE_KWARGS = [
+        param('if allow_duplicate unspecified'),
+        param('if allow_duplicate false', allow_duplicate=False),
+    ]
+
+    _DENY_DUPLICATE_AND_ALLOW_DUPLICATE_KWARGS = [
+        *_DENY_DUPLICATE_KWARGS,
+        param('if allow_duplicate true', allow_duplicate=True)
+    ]
+
+    @parameterized.expand(_DENY_DUPLICATE_AND_ALLOW_DUPLICATE_KWARGS)
+    def test_insert_in_empty_returns_singleton(self, _name, **kwargs):
+        """
+        Inserting into an empty "tree" returns a one-node tree of the element.
+        """
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        result = self.implementation(root, 42, **kwargs)
+
+        with self.subTest('type'):
+            self.assertIsInstance(result, tree.Node)
+        with self.subTest('element'):
+            self.assertEqual(result.element, 42)
+        with self.subTest('left'):
+            self.assertIsNone(result.left)
+        with self.subTest('right'):
+            self.assertIsNone(result.right)
+
+    @parameterized.expand(_DENY_DUPLICATE_AND_ALLOW_DUPLICATE_KWARGS)
+    def test_insert_in_nonempty_creates_one_node(self, _name, **kwargs):
+        root = trivial.empty(tree.Node)
+
+        if root is not None:
+            raise Exception(
+                'trivial.empty is wrong, check it and other examples')
+
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 42, **kwargs)
+
+        self.assertEqual(spy.call_count, 1)
+
+    # FIXME: Refactor the above tests, and write the rest (many).
 
 
 if __name__ == '__main__':
