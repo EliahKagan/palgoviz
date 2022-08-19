@@ -125,7 +125,7 @@ def _ordered_equality(cls):
     """Decorator defining ordered __eq__ for similarly typed mappings."""
     def __eq__(self, other):
         """Check if two mappings have equal keys and corresponding values."""
-        if not isinstance(other, SortedFlatTable):
+        if not isinstance(other, cls):
             return super(cls, self).__eq__(other)
 
         # This is necessary before zipping and comparing, as one operand may
