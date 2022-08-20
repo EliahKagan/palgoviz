@@ -158,8 +158,8 @@ def _ordered_equality(key_equivalence_predicate):
             if len(self) != len(other):
                 return False
 
-            return all(key_equivalence_predicate(lhs_key, rhs_key)
-                            and _eq_equivalent(lhs_value, rhs_value)
+            return all(key_equivalence_predicate(lhs_key, rhs_key) and
+                       _eq_equivalent(lhs_value, rhs_value)
                        for (lhs_key, lhs_value), (rhs_key, rhs_value)
                        in zip(self.items(), other.items()))
 
