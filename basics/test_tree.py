@@ -5118,7 +5118,7 @@ class TestBinaryInsert(unittest.TestCase):
     Tests for functions that insert a new node in a binary search tree.
 
     These tests apply separately to both of the BST insertion functions, and
-    they do not rely on structural_equality/structural_equal_iterative.
+    they do not rely on structural_equal/structural_equal_iterative.
     """
 
     _DENY_DUP = [
