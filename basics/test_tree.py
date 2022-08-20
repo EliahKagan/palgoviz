@@ -11,7 +11,7 @@ import itertools
 import sys
 import unittest
 
-from parameterized import param, parameterized, parameterized_class
+from parameterized import parameterized, parameterized_class
 
 import enumerations
 import tree
@@ -420,6 +420,21 @@ class TestFrozenNode(_TestNodeBase):
 del _TestNodeBase
 
 
+class _NamedDict(dict):
+    """A dict subclass that carries a "name" attribute."""
+
+    __slots__ = ('name',)
+
+    def __init__(self, name, /, *args, **kwargs):
+        """Create a new named dictionary with the specified name."""
+        super().__init__(*args, **kwargs)
+        self.name = name
+
+    def __repr__(self):
+        """Python code representation, for debugging."""
+        return f'{type(self).__name__}({self.name!r}, {super().__repr__()})'
+
+
 # TODO: Consider giving _Spy a more specific name and moving it to a module of
 # testing helpers (perhaps testing.py), even if no other test modules need it.
 # If other test modules would benefit from it, then definitely do that.
@@ -479,23 +494,28 @@ class _Spy:
 
 
 def _get_name_no_fallback(thing):
-    """Get the __name__ attribute."""
-    return thing.__name__
+    """Get the "__name__" or "name" attribute."""
+    try:
+        return thing.__name__
+    except AttributeError:
+        return thing.name
 
 
 def _get_name_with_fallback(thing):
-    """Get the __name__ attribute, but fall back to str if not present."""
+    """Get the  "__name__" or "name" attribute, with the str as a fallback."""
     try:
-        return thing.__name__
+        return _get_name_no_fallback(thing)
     except AttributeError:
         return str(thing)
 
 
 def _join_names(*arguments, indices=None, strict=True):
     """
-    Join the __name__ attributes of each argument together by underscores.
+    Join the names of each argument together by underscores.
 
-    If strict=False, then for any argument without __name__, its str is used.
+    Each name is obtained by checking for a "__name__" attribute, followed by a
+    "name" attribute. If any argument has neither, AttributeError is raised,
+    unless strict=False, in which case, str is called on the argument.
 
     This is for use in building names of parameterized test cases. The objects
     whose names are used are typically passed as arguments to a test method.
@@ -5101,18 +5121,18 @@ class TestBinaryInsert(unittest.TestCase):
     they do not rely on structural_equality/structural_equal_iterative.
     """
 
-    _DENY_DUPLICATE_KWARGS = [
-        param('if allow_duplicate unspecified'),
-        param('if allow_duplicate false', allow_duplicate=False),
+    _DENY_DUP = [
+        _NamedDict('no_dup_implicit'),
+        _NamedDict('no_dup_explicit', allow_duplicate=False),
     ]
 
-    _DENY_DUPLICATE_AND_ALLOW_DUPLICATE_KWARGS = [
-        *_DENY_DUPLICATE_KWARGS,
-        param('if allow_duplicate true', allow_duplicate=True)
+    _DENY_AND_ALLOW_DUP = [
+        *_DENY_DUP,
+        _NamedDict('dup', allow_duplicate=True)
     ]
 
-    @parameterized.expand(_DENY_DUPLICATE_AND_ALLOW_DUPLICATE_KWARGS)
-    def test_insert_in_empty_returns_singleton(self, _name, **kwargs):
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_insert_in_empty_returns_singleton(self, _name, dup_kwargs):
         """
         Inserting into an empty "tree" returns a one-node tree of the element.
         """
@@ -5122,7 +5142,7 @@ class TestBinaryInsert(unittest.TestCase):
             raise Exception(
                 'trivial.empty is wrong, check it and other examples')
 
-        result = self.implementation(root, 42, **kwargs)
+        result = self.implementation(root, 42, **dup_kwargs)
 
         with self.subTest('type'):
             self.assertIsInstance(result, tree.Node)
@@ -5133,8 +5153,8 @@ class TestBinaryInsert(unittest.TestCase):
         with self.subTest('right'):
             self.assertIsNone(result.right)
 
-    @parameterized.expand(_DENY_DUPLICATE_AND_ALLOW_DUPLICATE_KWARGS)
-    def test_insert_in_nonempty_creates_one_node(self, _name, **kwargs):
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_insert_in_nonempty_creates_one_node(self, _name, dup_kwargs):
         root = trivial.empty(tree.Node)
 
         if root is not None:
@@ -5142,11 +5162,11 @@ class TestBinaryInsert(unittest.TestCase):
                 'trivial.empty is wrong, check it and other examples')
 
         with _Spy(tree.Node) as spy:
-            self.implementation(root, 42, **kwargs)
+            self.implementation(root, 42, **dup_kwargs)
 
         self.assertEqual(spy.call_count, 1)
 
-    # FIXME: Refactor the above tests, and write the rest (many).
+    # FIXME: Write the many remaining tests in this class.
 
 
 if __name__ == '__main__':
