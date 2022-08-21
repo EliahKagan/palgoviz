@@ -5122,17 +5122,17 @@ class TestBinaryInsert(unittest.TestCase):
     """
 
     _DENY_DUP = [
-        _NamedDict('no_dup_implicit'),
-        _NamedDict('no_dup_explicit', allow_duplicate=False),
+        _NamedDict('if deny dup implicit'),
+        _NamedDict('if deny dup explicit', allow_duplicate=False),
     ]
 
     _DENY_AND_ALLOW_DUP = [
         *_DENY_DUP,
-        _NamedDict('dup', allow_duplicate=True)
+        _NamedDict('if allow dup', allow_duplicate=True)
     ]
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP)
-    def test_insert_in_empty_returns_singleton(self, _name, dup_kwargs):
+    def test_in_empty_makes_singleton(self, _name, dup_kwargs):
         """
         Inserting into an empty "tree" returns a one-node tree of the element.
         """
@@ -5154,7 +5154,7 @@ class TestBinaryInsert(unittest.TestCase):
             self.assertIsNone(result.right)
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP)
-    def test_insert_in_nonempty_creates_one_node(self, _name, dup_kwargs):
+    def test_in_empty_creates_one_node(self, _name, dup_kwargs):
         root = trivial.empty(tree.Node)
 
         if root is not None:
@@ -5164,6 +5164,67 @@ class TestBinaryInsert(unittest.TestCase):
         with _Spy(tree.Node) as spy:
             self.implementation(root, 42, **dup_kwargs)
 
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 1, 2], strict_names=False)
+    def test_in_singleton_returns_root(self, _name, dup_kwargs, key):
+        root = trivial.singleton(tree.Node)
+        result = self.implementation(root, key, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_new_in_singleton_extends_as_bst_key0(self, _name, dup_kwargs):
+        """Inserting with a lesser key places the new node to the left."""
+        expected = trivial.singleton(tree.Node)
+        expected.left = tree.Node(0)
+        root = trivial.singleton(tree.Node)
+        self.implementation(root, 0, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_new_in_singleton_extends_as_bst_key2(self, _name, dup_kwargs):
+        """Inserting with a greater key places the new node to the right."""
+        expected = trivial.singleton(tree.Node)
+        expected.right = tree.Node(2)
+        root = trivial.singleton(tree.Node)
+        self.implementation(root, 2, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 2], strict_names=False)
+    def test_new_in_singleton_creates_one_node(self, _name, dup_kwargs, key):
+        root = trivial.singleton(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_DUP)
+    def test_dup_in_singleton_makes_no_change(self, _name, dup_kwargs):
+        root = trivial.singleton(tree.Node)
+        expected_repr = repr(root)
+        self.implementation(root, 1, **dup_kwargs)
+        self.assertEqual(repr(root), expected_repr)
+
+    @_parameterize_by(_DENY_DUP)
+    def test_dup_in_singleton_creates_no_nodes(self, _name, dup_kwargs):
+        root = trivial.singleton(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 1, **dup_kwargs)
+        self.assertEqual(spy.call_count, 0)
+
+    def test_dup_in_singleton_extends_as_bst_if_allow_dup(self):
+        """A duplicate node can go on either side of the existing node."""
+        expected1 = trivial.singleton(tree.Node)
+        expected1.left = tree.Node(1)
+        expected2 = trivial.singleton(tree.Node)
+        expected2.right = tree.Node(1)
+        root = trivial.singleton(tree.Node)
+        self.implementation(root, 1, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_dup_in_singleton_creates_one_node_if_allow_dup(self):
+        root = trivial.singleton(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 1, allow_duplicate=True)
         self.assertEqual(spy.call_count, 1)
 
     # FIXME: Write the many remaining tests in this class.
