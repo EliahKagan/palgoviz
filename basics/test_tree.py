@@ -5132,7 +5132,7 @@ class TestBinaryInsert(unittest.TestCase):
     ]
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP)
-    def test_in_empty_makes_singleton(self, _name, dup_kwargs):
+    def test_empty_makes_singleton(self, _name, dup_kwargs):
         """
         Inserting into an empty "tree" returns a one-node tree of the element.
         """
@@ -5154,7 +5154,7 @@ class TestBinaryInsert(unittest.TestCase):
             self.assertIsNone(result.right)
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP)
-    def test_in_empty_creates_one_node(self, _name, dup_kwargs):
+    def test_empty_creates_one_node(self, _name, dup_kwargs):
         root = trivial.empty(tree.Node)
 
         if root is not None:
@@ -5167,13 +5167,13 @@ class TestBinaryInsert(unittest.TestCase):
         self.assertEqual(spy.call_count, 1)
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 1, 2], strict_names=False)
-    def test_in_singleton_returns_root(self, _name, dup_kwargs, key):
+    def test_singleton_same_root(self, _name, dup_kwargs, key):
         root = trivial.singleton(tree.Node)
         result = self.implementation(root, key, **dup_kwargs)
         self.assertIs(result, root)
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP)
-    def test_new_in_singleton_extends_as_bst_key0(self, _name, dup_kwargs):
+    def test_singleton_new_extends_bst_left(self, _name, dup_kwargs):
         """Inserting with a lesser key places the new node to the left."""
         expected = trivial.singleton(tree.Node)
         expected.left = tree.Node(0)
@@ -5182,7 +5182,7 @@ class TestBinaryInsert(unittest.TestCase):
         self.assertEqual(repr(root), repr(expected))
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP)
-    def test_new_in_singleton_extends_as_bst_key2(self, _name, dup_kwargs):
+    def test_singleton_new_extends_bst_right(self, _name, dup_kwargs):
         """Inserting with a greater key places the new node to the right."""
         expected = trivial.singleton(tree.Node)
         expected.right = tree.Node(2)
@@ -5191,28 +5191,28 @@ class TestBinaryInsert(unittest.TestCase):
         self.assertEqual(repr(root), repr(expected))
 
     @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 2], strict_names=False)
-    def test_new_in_singleton_creates_one_node(self, _name, dup_kwargs, key):
+    def test_singleton_new_creates_one_node(self, _name, dup_kwargs, key):
         root = trivial.singleton(tree.Node)
         with _Spy(tree.Node) as spy:
             self.implementation(root, key, **dup_kwargs)
         self.assertEqual(spy.call_count, 1)
 
     @_parameterize_by(_DENY_DUP)
-    def test_dup_in_singleton_makes_no_change(self, _name, dup_kwargs):
+    def test_singleton_dup_makes_no_change(self, _name, dup_kwargs):
         root = trivial.singleton(tree.Node)
         expected_repr = repr(root)
         self.implementation(root, 1, **dup_kwargs)
         self.assertEqual(repr(root), expected_repr)
 
     @_parameterize_by(_DENY_DUP)
-    def test_dup_in_singleton_creates_no_nodes(self, _name, dup_kwargs):
+    def test_singleton_dup_creates_no_nodes(self, _name, dup_kwargs):
         root = trivial.singleton(tree.Node)
         with _Spy(tree.Node) as spy:
             self.implementation(root, 1, **dup_kwargs)
         self.assertEqual(spy.call_count, 0)
 
-    def test_dup_in_singleton_extends_as_bst_if_allow_dup(self):
-        """A duplicate node can go on either side of the existing node."""
+    def test_singleton_dup_extends_bst_if_allow_dup(self):
+        """A duplicate node can become either branch of the existing node."""
         expected1 = trivial.singleton(tree.Node)
         expected1.left = tree.Node(1)
         expected2 = trivial.singleton(tree.Node)
@@ -5221,10 +5221,87 @@ class TestBinaryInsert(unittest.TestCase):
         self.implementation(root, 1, allow_duplicate=True)
         self.assertIn(repr(root), {repr(expected1), repr(expected2)})
 
-    def test_dup_in_singleton_creates_one_node_if_allow_dup(self):
+    def test_singleton_dup_creates_one_node_if_allow_dup(self):
         root = trivial.singleton(tree.Node)
         with _Spy(tree.Node) as spy:
             self.implementation(root, 1, allow_duplicate=True)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 1, 1.5, 2, 3],
+                      strict_names=False)
+    def test_left_only_same_root(self, _name, dup_kwargs, key):
+        root = bst.left_only(tree.Node)
+        result = self.implementation(root, key, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_left_only_new_extends_bst_left_left(self, _name, dup_kwargs):
+        expected = bst.left_only(tree.Node)
+        expected.left.left = tree.Node(0)
+        root = bst.left_only(tree.Node)
+        self.implementation(root, 0, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_left_only_new_extends_bst_left_right(self, _name, dup_kwargs):
+        expected = bst.left_only(tree.Node)
+        expected.left.right = tree.Node(1.5)
+        root = bst.left_only(tree.Node)
+        self.implementation(root, 1.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_left_only_new_extends_bst_right(self, _name, dup_kwargs):
+        expected = bst.left_only(tree.Node)
+        expected.right = tree.Node(3)
+        root = bst.left_only(tree.Node)
+        self.implementation(root, 3, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 1.5, 3], strict_names=False)
+    def test_left_only_new_creates_one_node(self, _name, dup_kwargs, key):
+        root = bst.left_only(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_DUP, [1, 2], strict_names=False)
+    def test_left_only_dup_makes_no_change(self, _name, dup_kwargs, key):
+        root = bst.left_only(tree.Node)
+        expected_repr = repr(root)
+        self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(repr(root), expected_repr)
+
+    @_parameterize_by(_DENY_DUP, [1, 2], strict_names=False)
+    def test_left_only_dup_creates_no_nodes(self, _name, dup_kwargs, key):
+        root = bst.left_only(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 0)
+
+    def test_left_only_dup_extends_bst_low_if_allow_dup(self):
+        expected1 = bst.left_only(tree.Node)
+        expected1.left.left = tree.Node(1)
+        expected2 = bst.left_only(tree.Node)
+        expected2.left.right = tree.Node(1)
+        root = bst.left_only(tree.Node)
+        self.implementation(root, 1, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_left_only_dup_extends_bst_high_if_allow_dup(self):
+        expected1 = bst.left_only(tree.Node)
+        expected1.left.right = tree.Node(2)
+        expected2 = bst.left_only(tree.Node)
+        expected2.right = tree.Node(2)
+        root = bst.left_only(tree.Node)
+        self.implementation(root, 2, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    @_parameterize_by([1, 2], strict_names=False)
+    def test_left_only_dup_creates_one_node_if_allow_dup(self, _name, key):
+        root = bst.left_only(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, allow_duplicate=True)
         self.assertEqual(spy.call_count, 1)
 
     # FIXME: Write the many remaining tests in this class.
