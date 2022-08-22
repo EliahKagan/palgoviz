@@ -5642,6 +5642,199 @@ class TestBinaryInsert(unittest.TestCase):
             self.implementation(root, key, allow_duplicate=True)
         self.assertEqual(spy.call_count, 1)
 
+    @_parameterize_by(
+        _DENY_AND_ALLOW_DUP,
+        [
+            'h', 'iguana', 'j', 'lizard', 'm', 'newt', 'q', 'salamander', 'sb',
+            'snake', 'ta', 'tortoise', 'tp', 'turtle', 'v',
+        ],
+        strict_names=False)
+    def test_small_str_same_root(self, _name, dup_kwargs, key):
+        root = bst.small_str(tree.Node)
+        result = self.implementation(root, key, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_left_left_left(self, _name, dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.left.left.left = tree.Node('h')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'h', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_left_left_right(self, _name,
+                                                       dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.left.left.right = tree.Node('j')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'j', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_left_right_left(self, _name,
+                                                       dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.left.right.left = tree.Node('m')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'm', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_left_right_right(self, _name,
+                                                        dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.left.right.right = tree.Node('q')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'q', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_right_left_left(self, _name,
+                                                       dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.right.left.left = tree.Node('sb')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'sb', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_right_left_right(self, _name,
+                                                        dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.right.left.right = tree.Node('ta')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'ta', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_right_right_left(self, _name,
+                                                        dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.right.right.left = tree.Node('tp')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'tp', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_str_new_extends_bst_right_right_right(self, _name,
+                                                         dup_kwargs):
+        expected = bst.small_str(tree.Node)
+        expected.right.right.right = tree.Node('v')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'v', **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP,
+                      ['h', 'j', 'm', 'q', 'sb', 'ta', 'tp', 'v'],
+                      strict_names=False)
+    def test_small_str_new_creates_one_node(self, _name, dup_kwargs, key):
+        root = bst.small_str(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(
+        _DENY_DUP,
+        [
+            'iguana', 'lizard', 'newt', 'salamander', 'snake', 'tortoise',
+            'turtle',
+        ],
+        strict_names=False)
+    def test_small_str_dup_makes_no_change(self, _name, dup_kwargs, key):
+        root = bst.small_str(tree.Node)
+        expected_repr = repr(root)
+        self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(repr(root), expected_repr)
+
+    @_parameterize_by(
+        _DENY_DUP,
+        [
+            'iguana', 'lizard', 'newt', 'salamander', 'snake', 'tortoise',
+            'turtle',
+        ],
+        strict_names=False)
+    def test_small_str_dup_creates_no_nodes(self, _name, dup_kwargs, key):
+        root = bst.small_str(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 0)
+
+    def test_small_str_dup_extends_bst_1of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.left.left.left = tree.Node('iguana')
+        expected2 = bst.small_str(tree.Node)
+        expected2.left.left.right = tree.Node('iguana')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'iguana', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_small_str_dup_extends_bst_2of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.left.left.right = tree.Node('lizard')
+        expected2 = bst.small_str(tree.Node)
+        expected2.left.right.left = tree.Node('lizard')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'lizard', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_small_str_dup_extends_bst_3of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.left.right.left = tree.Node('newt')
+        expected2 = bst.small_str(tree.Node)
+        expected2.left.right.right = tree.Node('newt')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'newt', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_small_str_dup_extends_bst_4of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.left.right.right = tree.Node('salamander')
+        expected2 = bst.small_str(tree.Node)
+        expected2.right.left.left = tree.Node('salamander')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'salamander', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_small_str_dup_extends_bst_5of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.right.left.left = tree.Node('snake')
+        expected2 = bst.small_str(tree.Node)
+        expected2.right.left.right = tree.Node('snake')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'snake', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_small_str_dup_extends_bst_6of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.right.left.right = tree.Node('tortoise')
+        expected2 = bst.small_str(tree.Node)
+        expected2.right.right.left = tree.Node('tortoise')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'tortoise', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_small_str_dup_extends_bst_7of7_if_allow_dup(self):
+        expected1 = bst.small_str(tree.Node)
+        expected1.right.right.left = tree.Node('turtle')
+        expected2 = bst.small_str(tree.Node)
+        expected2.right.right.right = tree.Node('turtle')
+        root = bst.small_str(tree.Node)
+        self.implementation(root, 'turtle', allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    @_parameterize_by(
+        [
+            'iguana', 'lizard', 'newt', 'salamander', 'snake', 'tortoise',
+            'turtle',
+        ],
+        strict_names=False)
+    def test_small_str_dup_creates_one_node_if_allow_dup(self, _name, key):
+        root = bst.small_str(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, allow_duplicate=True)
+        self.assertEqual(spy.call_count, 1)
+
     # FIXME: Write the many remaining tests in this class.
 
 
