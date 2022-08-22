@@ -5381,6 +5381,101 @@ class TestBinaryInsert(unittest.TestCase):
             self.implementation(root, key, allow_duplicate=True)
         self.assertEqual(spy.call_count, 1)
 
+    @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 1, 1.5, 2, 2.5, 3, 4],
+                      strict_names=False)
+    def test_tiny_same_root(self, _name, dup_kwargs, key):
+        root = bst.tiny(tree.Node)
+        result = self.implementation(root, key, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_tiny_new_extends_bst_left_left(self, _name, dup_kwargs):
+        expected = bst.tiny(tree.Node)
+        expected.left.left = tree.Node(0)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 0, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_tiny_new_extends_bst_left_right(self, _name, dup_kwargs):
+        expected = bst.tiny(tree.Node)
+        expected.left.right = tree.Node(1.5)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 1.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_tiny_new_extends_bst_right_left(self, _name, dup_kwargs):
+        expected = bst.tiny(tree.Node)
+        expected.right.left = tree.Node(2.5)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 2.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_tiny_new_extends_bst_right_right(self, _name, dup_kwargs):
+        expected = bst.tiny(tree.Node)
+        expected.right.right = tree.Node(4)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 4, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP, [0, 1.5, 2.5, 4],
+                      strict_names=False)
+    def test_tiny_new_creates_one_node(self, _name, dup_kwargs, key):
+        root = bst.tiny(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_DUP, [1, 2, 3], strict_names=False)
+    def test_tiny_dup_makes_no_change(self, _name, dup_kwargs, key):
+        root = bst.tiny(tree.Node)
+        expected_repr = repr(root)
+        self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(repr(root), expected_repr)
+
+    @_parameterize_by(_DENY_DUP, [1, 2, 3], strict_names=False)
+    def test_tiny_dup_creates_no_nodes(self, _name, dup_kwargs, key):
+        root = bst.tiny(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 0)
+
+    def test_tiny_dup_extends_bst_low_if_allow_dup(self):
+        expected1 = bst.tiny(tree.Node)
+        expected1.left.left = tree.Node(1)
+        expected2 = bst.tiny(tree.Node)
+        expected2.left.right = tree.Node(1)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 1, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_tiny_dup_extends_bst_mid_if_allow_dup(self):
+        expected1 = bst.tiny(tree.Node)
+        expected1.left.right = tree.Node(2)
+        expected2 = bst.tiny(tree.Node)
+        expected2.right.left = tree.Node(2)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 2, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_tiny_dup_extends_bst_high_if_allow_dup(self):
+        expected1 = bst.tiny(tree.Node)
+        expected1.right.left = tree.Node(3)
+        expected2 = bst.tiny(tree.Node)
+        expected2.right.right = tree.Node(3)
+        root = bst.tiny(tree.Node)
+        self.implementation(root, 3, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    @_parameterize_by([1, 2, 3], strict_names=False)
+    def test_tiny_dup_creates_one_node_if_allow_dup(self, _name, key):
+        root = bst.tiny(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, allow_duplicate=True)
+        self.assertEqual(spy.call_count, 1)
+
     # FIXME: Write the many remaining tests in this class.
 
 
