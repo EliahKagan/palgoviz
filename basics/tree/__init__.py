@@ -2,9 +2,9 @@
 Binary trees.
 
 In most binary trees, including those used in this module, empty branches are
-represented as "null" sentinels. In Python this is the special None object.
-There are two conventions for how we describe these trees, which affect the
-answers to questions like, "How many nodes are in the tree?"
+represented as "null" (also called "nil") sentinels. In Python, this is the
+special None object. There are two conventions for how we describe these trees,
+which affect the answers to questions like, "How many nodes are in the tree?"
 
 The most common convention, which we use, is that these branches are truly
 empty. So None represents the absence of a node. It does not represent a leaf.
