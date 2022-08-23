@@ -5835,7 +5835,470 @@ class TestBinaryInsert(unittest.TestCase):
             self.implementation(root, key, allow_duplicate=True)
         self.assertEqual(spy.call_count, 1)
 
-    # FIXME: Write the many remaining tests in this class.
+    # TODO: Write tests inserting at the "gaps" in the bst.small_no_*_* trees.
+
+    @_parameterize_by(
+        _DENY_AND_ALLOW_DUP,
+        [
+            0, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5,
+            9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5,
+            16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5, 21, 22,
+        ],
+        strict_names=False)
+    def test_medium_same_root(self, _name, dup_kwargs, key):
+        root = bst.medium(tree.Node)
+        result = self.implementation(root, key, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_left_left_left_left(self, _name,
+                                                             dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.left.left.left.left = tree.Node(0)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 0, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_left_left_right_left(self, _name,
+                                                              dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.left.left.right.left = tree.Node(1.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 1.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_left_right_left(self, _name,
+                                                         dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.left.right.left = tree.Node(2.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 2.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_left_right_right_right(self, _name,
+                                                                dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.left.right.right.right = tree.Node(3.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 3.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_left_left_left(self, _name,
+                                                              dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.left.left.left = tree.Node(4.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 4.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_left_left_right(self, _name,
+                                                               dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.left.left.right = tree.Node(5.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 5.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_left_right_left(self, _name,
+                                                               dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.left.right.left = tree.Node(6.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 6.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_left_right_right(self, _name,
+                                                                dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.left.right.right = tree.Node(7.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 7.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_right_left_left(self, _name,
+                                                               dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.right.left.left = tree.Node(8.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 8.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_right_left_right(self, _name,
+                                                                dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.right.left.right = tree.Node(9.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 9.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_left_right_right_right(self, _name,
+                                                           dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.left.right.right.right = tree.Node(10.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 10.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_left_left_left(self, _name,
+                                                         dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.left.left.left = tree.Node(11.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 11.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_left_left_right(self, _name,
+                                                          dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.left.left.right = tree.Node(12.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 12.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_left_right_left(self, _name,
+                                                          dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.left.right.left = tree.Node(13.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 13.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_left_right_right(self, _name,
+                                                           dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.left.right.right = tree.Node(14.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 14.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_left_left_left(self, _name,
+                                                               dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.left.left.left = tree.Node(15.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 15.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_left_left_right(self, _name,
+                                                                dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.left.left.right = tree.Node(16.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 16.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_left_right_left(self, _name,
+                                                                dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.left.right.left = tree.Node(17.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 17.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_left_right_right(self, _name,
+                                                                 dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.left.right.right = tree.Node(18.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 18.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_right_left(self, _name,
+                                                           dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.right.left = tree.Node(19.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 19.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_right_right_left(self, _name,
+                                                                 dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.right.right.left = tree.Node(20.5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 20.5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_medium_new_extends_bst_right_right_right_right_right(self, _name,
+                                                                  dup_kwargs):
+        expected = bst.medium(tree.Node)
+        expected.right.right.right.right.right = tree.Node(22)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 22, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(
+        _DENY_AND_ALLOW_DUP,
+        [
+            0, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5,
+            13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 22,
+        ],
+        strict_names=False)
+    def test_medium_new_creates_one_node(self, _name, dup_kwargs, key):
+        root = bst.medium(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(
+        _DENY_DUP,
+        [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21,
+        ],
+        strict_names=False)
+    def test_medium_dup_makes_no_change(self, _name, dup_kwargs, key):
+        root = bst.medium(tree.Node)
+        expected_repr = repr(root)
+        self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(repr(root), expected_repr)
+
+    @_parameterize_by(
+        _DENY_DUP,
+        [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21,
+        ],
+        strict_names=False)
+    def test_medium_dup_creates_no_nodes(self, _name, dup_kwargs, key):
+        root = bst.medium(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, **dup_kwargs)
+        self.assertEqual(spy.call_count, 0)
+
+    def test_medium_dup_extends_bst_1of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.left.left.left.left = tree.Node(1)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.left.left.left.right = tree.Node(1)
+        expected3 = bst.medium(tree.Node)
+        expected3.left.left.left.right.left = tree.Node(1)
+        expected_reprs = {repr(expected1), repr(expected2), repr(expected3)}
+
+        root = bst.medium(tree.Node)
+        self.implementation(root, 1, allow_duplicate=True)
+        self.assertIn(repr(root), expected_reprs)
+
+    def test_medium_dup_extends_bst_2of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.left.left.right.left = tree.Node(2)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.left.left.right.right = tree.Node(2)
+        expected3 = bst.medium(tree.Node)
+        expected3.left.left.right.left = tree.Node(2)
+        expected_reprs = {repr(expected1), repr(expected2), repr(expected3)}
+
+        root = bst.medium(tree.Node)
+        self.implementation(root, 2, allow_duplicate=True)
+        self.assertIn(repr(root), expected_reprs)
+
+    def test_medium_extends_bst_3of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.left.right.left = tree.Node(3)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.left.right.right.left = tree.Node(3)
+        expected3 = bst.medium(tree.Node)
+        expected3.left.left.right.right.right = tree.Node(3)
+        expected_reprs = {repr(expected1), repr(expected2), repr(expected3)}
+
+        root = bst.medium(tree.Node)
+        self.implementation(root, 3, allow_duplicate=True)
+        self.assertIn(repr(root), expected_reprs)
+
+    def test_medium_extends_bst_4of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.left.right.right.right = tree.Node(4)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.left.left.left = tree.Node(4)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 4, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_5of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.left.left.left = tree.Node(5)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.left.left.right = tree.Node(5)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 5, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_6of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.left.left.right = tree.Node(6)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.left.right.left = tree.Node(6)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 6, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_7of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.left.right.left = tree.Node(7)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.left.right.right = tree.Node(7)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 7, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_8of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.left.right.right = tree.Node(8)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.right.left.left = tree.Node(8)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 8, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_9of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.right.left.left = tree.Node(9)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.right.left.right = tree.Node(9)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 9, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_10of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.right.left.right = tree.Node(10)
+        expected2 = bst.medium(tree.Node)
+        expected2.left.right.right.right = tree.Node(10)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 10, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_11of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.left.right.right.right = tree.Node(11)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.left.left.left = tree.Node(11)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 11, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_12of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.left.left.left = tree.Node(12)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.left.left.right = tree.Node(12)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 12, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_13of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.left.left.right = tree.Node(13)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.left.right.left = tree.Node(13)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 13, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_14of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.left.right.left = tree.Node(14)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.left.right.right = tree.Node(14)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 14, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_15of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.left.right.right = tree.Node(15)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.left.left.left = tree.Node(15)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 15, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_16of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.right.left.left.left = tree.Node(16)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.left.left.right = tree.Node(16)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 16, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_17of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.right.left.left.right = tree.Node(17)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.left.right.left = tree.Node(17)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 17, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_18of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.right.left.right.left = tree.Node(18)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.left.right.right = tree.Node(18)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 18, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_19of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.right.left.right.right = tree.Node(19)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.right.left = tree.Node(19)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 19, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_20of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.right.right.left = tree.Node(20)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.right.right.left = tree.Node(20)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 20, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    def test_medium_extends_bst_21of21_if_allow_dup(self):
+        expected1 = bst.medium(tree.Node)
+        expected1.right.right.right.right.left = tree.Node(21)
+        expected2 = bst.medium(tree.Node)
+        expected2.right.right.right.right.right = tree.Node(21)
+        root = bst.medium(tree.Node)
+        self.implementation(root, 21, allow_duplicate=True)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    @_parameterize_by(
+        [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21,
+        ],
+        strict_names=False)
+    def test_medium_dup_creates_one_node_if_allow_dup(self, _name, key):
+        root = bst.medium(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, key, allow_duplicate=True)
+        self.assertEqual(spy.call_count, 1)
 
 
 if __name__ == '__main__':
