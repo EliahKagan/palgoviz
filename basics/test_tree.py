@@ -5835,7 +5835,86 @@ class TestBinaryInsert(unittest.TestCase):
             self.implementation(root, key, allow_duplicate=True)
         self.assertEqual(spy.call_count, 1)
 
-    # TODO: Write tests inserting at the "gaps" in the bst.small_no_*_* trees.
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_left_left_same_root(self, _name, dup_kwargs):
+        root = bst.small_no_left_left(tree.Node)
+        result = self.implementation(root, 1, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_left_left_new_extends_bst(self, _name, dup_kwargs):
+        expected = bst.small(tree.Node)
+        root = bst.small_no_left_left(tree.Node)
+        self.implementation(root, 1, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_left_left_new_creates_one_node(self, _name, dup_kwargs):
+        root = bst.small_no_left_left(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 1, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_left_right_same_root(self, _name, dup_kwargs):
+        root = bst.small_no_left_right(tree.Node)
+        result = self.implementation(root, 3, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_left_right_new_extends_bst(self, _name, dup_kwargs):
+        expected = bst.small(tree.Node)
+        root = bst.small_no_left_right(tree.Node)
+        self.implementation(root, 3, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_left_right_new_creates_one_node(self, _name, dup_kwargs):
+        root = bst.small_no_left_right(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 3, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_right_left_same_root(self, _name, dup_kwargs):
+        root = bst.small_no_right_left(tree.Node)
+        result = self.implementation(root, 5, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_right_left_new_extends_bst(self, _name, dup_kwargs):
+        expected = bst.small(tree.Node)
+        root = bst.small_no_right_left(tree.Node)
+        self.implementation(root, 5, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_right_left_new_creates_one_node(self, _name, dup_kwargs):
+        root = bst.small_no_right_left(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 5, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_right_right_same_root(self, _name, dup_kwargs):
+        root = bst.small_no_right_right(tree.Node)
+        result = self.implementation(root, 7, **dup_kwargs)
+        self.assertIs(result, root)
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_right_right_new_extends_bst(self, _name, dup_kwargs):
+        expected = bst.small(tree.Node)
+        root = bst.small_no_right_right(tree.Node)
+        self.implementation(root, 7, **dup_kwargs)
+        self.assertEqual(repr(root), repr(expected))
+
+    @_parameterize_by(_DENY_AND_ALLOW_DUP)
+    def test_small_no_right_right_new_creates_one_node(self, _name,
+                                                       dup_kwargs):
+        root = bst.small_no_right_right(tree.Node)
+        with _Spy(tree.Node) as spy:
+            self.implementation(root, 7, **dup_kwargs)
+        self.assertEqual(spy.call_count, 1)
 
     @_parameterize_by(
         _DENY_AND_ALLOW_DUP,
