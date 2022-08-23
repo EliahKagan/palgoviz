@@ -6380,5 +6380,90 @@ class TestBinaryInsert(unittest.TestCase):
         self.assertEqual(spy.call_count, 1)
 
 
+class TestBinaryInsertConsistency(unittest.TestCase):
+    """
+    Tests that binary_insert and binary_insert_iterative give the same trees.
+
+    That is, this tests that the BST insertion implementations each choose the
+    same insertion points, when given the same tree and the same new key to
+    insert. Usually, there is only one correct insertion point; see the
+    binary_insert_iterative docstring about when there are more than one.
+
+    These tests always tests both the BST insertion functions together, and
+    they do not rely on structural_equal/structural_equal_iterative.
+    """
+
+    def test_singleton(self):
+        root_recursive, root_iterative = self._run_both(trivial.singleton, 1)
+        self.assertEqual(repr(root_recursive), repr(root_iterative))
+
+    @_parameterize_by([bst.left_only, bst.right_only], [1, 2],
+                      strict_names=False)
+    def test_pair(self, _name, factory, key):
+        root_recursive, root_iterative = self._run_both(factory, key)
+        self.assertEqual(repr(root_recursive), repr(root_iterative))
+
+    @_parameterize_by([1, 2, 3], strict_names=False)
+    def test_tiny(self, _name, key):
+        root_recursive, root_iterative = self._run_both(bst.tiny, key)
+        self.assertEqual(repr(root_recursive), repr(root_iterative))
+
+    @_parameterize_by([1, 2, 3, 4, 5, 6, 7], strict_names=False)
+    def test_small(self, _name, key):
+        root_recursive, root_iterative = self._run_both(bst.small, key)
+        self.assertEqual(repr(root_recursive), repr(root_iterative))
+
+    @_parameterize_by(
+        [
+            'iguana', 'lizard', 'newt', 'salamander', 'snake', 'tortoise',
+            'turtle',
+        ],
+        strict_names=False)
+    def test_small_str(self, _name, key):
+        root_recursive, root_iterative = self._run_both(bst.small_str, key)
+        self.assertEqual(repr(root_recursive), repr(root_iterative))
+
+    @_parameterize_by(
+        [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21,
+        ],
+        strict_names=False)
+    def test_medium(self, _name, key):
+        root_recursive, root_iterative = self._run_both(bst.medium, key)
+        self.assertEqual(repr(root_recursive), repr(root_iterative))
+
+    @staticmethod
+    def _run_both(factory, key):
+        """
+        Make two trees and insert the key into them with both implementations.
+
+        The insertion allows duplicates, and that it creates exactly one nodes
+        is checked. The trees, after insertions and that check, are returned.
+        """
+        root_recursive = factory(tree.Node)
+        with _Spy(tree.Node) as spy:
+            tree.binary_insert(root_recursive, key, allow_duplicate=True)
+        if spy.call_count != 1:
+            raise Exception(f"binary_insert: {spy.call_count=}, should be 1")
+
+        root_iterative = factory(tree.Node)
+        with _Spy(tree.Node) as spy:
+            tree.binary_insert_iterative(root_iterative, key,
+                                         allow_duplicate=True)
+        if spy.call_count != 1:
+            raise Exception(
+                f"binary_insert_iterative: {spy.call_count=}, should be 1")
+
+        return root_recursive, root_iterative
+
+
+# TODO: Write classes with special versions of the repr-comparing tests from
+# the above two classes (note: not all the tests in TestBinaryInsert compare
+# reprs). The new tests will use structural_equal/structural_equal_iterative
+# instead of comparing reprs. Call the classes TestBinaryInsertStructuralEqual
+# and TestBinaryInsertConsistencyStructuralEqual.
+
+
 if __name__ == '__main__':
     unittest.main()
