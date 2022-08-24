@@ -992,6 +992,7 @@ def build_bst(iterable, *, multiset=False):
     Build a binary search tree from the given elements.
 
     This uses an existing function. It makes no element comparisons directly.
+    The average tree height, over all possible length-n iterables, is O(log n).
 
     The multiset parameter specifies if multiple elements that compare similar
     (neither greater nor less than each other) are all inserted, or just one.
@@ -1006,7 +1007,7 @@ def build_bst(iterable, *, multiset=False):
     """
     root = None
     for element in iterable:
-        binary_insert(root, element, allow_duplicate=multiset)
+        root = binary_insert(root, element, allow_duplicate=multiset)
     return root
 
 

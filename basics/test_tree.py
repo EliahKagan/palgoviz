@@ -6438,14 +6438,14 @@ class TestBinaryInsertConsistency(unittest.TestCase):
         """
         Make two trees and insert the key into them with both implementations.
 
-        The insertion allows duplicates, and that it creates exactly one nodes
-        is checked. The trees, after insertions and that check, are returned.
+        The insertion allows duplicates, and that it creates exactly one node
+        is checked. The trees, after insertions and those checks, are returned.
         """
         root_recursive = factory(tree.Node)
         with _Spy(tree.Node) as spy:
             tree.binary_insert(root_recursive, key, allow_duplicate=True)
         if spy.call_count != 1:
-            raise Exception(f"binary_insert: {spy.call_count=}, should be 1")
+            raise Exception(f'binary_insert: {spy.call_count=}, should be 1')
 
         root_iterative = factory(tree.Node)
         with _Spy(tree.Node) as spy:
@@ -6453,7 +6453,7 @@ class TestBinaryInsertConsistency(unittest.TestCase):
                                          allow_duplicate=True)
         if spy.call_count != 1:
             raise Exception(
-                f"binary_insert_iterative: {spy.call_count=}, should be 1")
+                f'binary_insert_iterative: {spy.call_count=}, should be 1')
 
         return root_recursive, root_iterative
 
@@ -6463,6 +6463,24 @@ class TestBinaryInsertConsistency(unittest.TestCase):
 # reprs). The new tests will use structural_equal/structural_equal_iterative
 # instead of comparing reprs. Call the classes TestBinaryInsertStructuralEqual
 # and TestBinaryInsertConsistencyStructuralEqual.
+
+
+class TestBuildBst(unittest.TestCase):
+    """Tests for the build_bst function."""
+
+    @parameterized.expand([
+        ('low_high_seq', [1, 2]),
+        ('low_high_iter', iter([1, 2])),
+        ('high_low_seq', [2, 1]),
+        ('high_low_iter', iter([2, 1])),
+    ])
+    def test_pair(self, _name, iterable):
+        expected1 = bst.left_only(tree.Node)
+        expected2 = bst.right_only(tree.Node)
+        root = tree.build_bst(iterable)
+        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+
+    # FIXME: Reorganize the above test(s) in this class and write the rest.
 
 
 if __name__ == '__main__':
