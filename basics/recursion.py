@@ -1377,6 +1377,34 @@ def leaf_sum_dec(root):
     return traverse(root)
 
 
+def bst_count(n):
+    """
+    With n elements, recursively compute how many BSTs can be made from them.
+
+    For this problem, assume order comparisons on the elements are total: given
+    any two element x and y, exactly one of x < y, x > y, and x == y is true.
+    This counts distinct binary search trees whose nodes hold the elements (see
+    tree.structural_equal/tree.structural_equal_iterative).
+
+    The answer is the same on any n totally ordered elements, no matter their
+    values, and whether or not (and how many) duplicate values there are,
+    because [FIXME: explain why].
+
+    This implementation is recursive and top-down.
+    """
+    # FIXME: Needs implementation.
+
+
+def bst_count_iterative(n):
+    """
+    With n elements, iteratively compute how many BSTs can be made from them.
+
+    This is like bst_count above, but iterative and bottom-up rather than
+    recursive and top-down.
+    """
+    # FIXME: Needs implementation.
+
+
 __all__ = [thing.__name__ for thing in (
     countdown,
     add_all_iterative,
@@ -1417,6 +1445,8 @@ __all__ = [thing.__name__ for thing in (
     leaf_sum,
     leaf_sum_alt,
     leaf_sum_dec,
+    bst_count,
+    bst_count_iterative,
 )]
 
 
