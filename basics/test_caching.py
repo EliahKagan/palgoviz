@@ -70,7 +70,7 @@
 # @lru_di. Instead, write it in a substantially different (yet reasonable) way,
 # taking advantage of some data structure that makes the implementation simple
 # and elegant. @lru will most likely be easier and faster to implement than
-# @lru_di; you can implement them in either other, but I recommend implementing
+# @lru_di; you can implement them in either order, but I recommend implementing
 # @lru first. Either way, define @lru before @lru_di in caching.py.
 #
 # Most functionality of @lru and @lru_di overlaps. Test that functionality
