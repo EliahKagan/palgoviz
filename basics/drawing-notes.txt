@@ -44,6 +44,7 @@ tree.find_subtree
 tree.find_subtree_fast
 tree.copy_compact
 tree.draw_extended
+recursion.bst_count_simple
 recursion.bst_count
 recursion.bst_count_iterative
 calc.Atom

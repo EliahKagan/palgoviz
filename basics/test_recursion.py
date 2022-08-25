@@ -19,6 +19,7 @@ from recursion import (
     merge_two,
     merge_two_alt,
     merge_two_slow,
+    bst_count_simple,
     bst_count,
     bst_count_iterative,
 )
@@ -41,13 +42,14 @@ def _build_insort_test_parameters(expected):
             for index, item in enumerate(expected)]
 
 
-class TestInsortAbstract(ABC, unittest.TestCase):
+class _TestInsortAbstract(ABC, unittest.TestCase):
     """Shared tests for insort_left_linear and insert_right_linear."""
 
     @property
     @abstractmethod
     def implementation(self):
         """The search-and-insert function under test."""
+        raise NotImplementedError
 
     def test_item_put_into_empty_list(self):
         sorted_items = []
@@ -122,7 +124,7 @@ class TestInsortAbstract(ABC, unittest.TestCase):
         self.assertListEqual(sorted_items, expected)
 
 
-class TestInsortLeftAbstract(TestInsortAbstract):
+class _TestInsortLeftAbstract(_TestInsortAbstract):
     """Tests for leftmost-point insort functions."""
 
     def test_incomparable_put_first(self):
@@ -167,7 +169,7 @@ class TestInsortLeftAbstract(TestInsortAbstract):
         self.assertListEqual(sorted_items, expected)
 
 
-class TestInsortRightAbstract(TestInsortAbstract):
+class _TestInsortRightAbstract(_TestInsortAbstract):
     """Tests for rightmost-point insort functions."""
 
     def test_incomparable_put_last(self):
@@ -212,7 +214,7 @@ class TestInsortRightAbstract(TestInsortAbstract):
         self.assertListEqual(sorted_items, expected)
 
 
-class TestInsortLeft(TestInsortLeftAbstract):
+class TestInsortLeft(_TestInsortLeftAbstract):
     """Tests for bisect.insort_left. This is really to test our tests."""
 
     @property
@@ -220,7 +222,7 @@ class TestInsortLeft(TestInsortLeftAbstract):
         return bisect.insort_left
 
 
-class TestInsortRight(TestInsortRightAbstract):
+class TestInsortRight(_TestInsortRightAbstract):
     """Tests for bisect.insort_right. This is really to test our tests."""
 
     @property
@@ -229,7 +231,7 @@ class TestInsortRight(TestInsortRightAbstract):
 
 
 # TODO: Test which, and how many, and what kind, of comparisons are performed.
-class TestInsortLeftLinear(TestInsortLeftAbstract):
+class TestInsortLeftLinear(_TestInsortLeftAbstract):
     """Tests for the insort_left_linear function."""
 
     @property
@@ -238,7 +240,7 @@ class TestInsortLeftLinear(TestInsortLeftAbstract):
 
 
 # TODO: Test which, and how many, and what kind, of comparisons are performed.
-class TestInsortRightLinear(TestInsortRightAbstract):
+class TestInsortRightLinear(_TestInsortRightAbstract):
     """Tests for the insort_right_linear function."""
 
     @property
@@ -246,7 +248,7 @@ class TestInsortRightLinear(TestInsortRightAbstract):
         return insort_right_linear
 
 
-del TestInsortAbstract, TestInsortLeftAbstract, TestInsortRightAbstract
+del _TestInsortAbstract, _TestInsortLeftAbstract, _TestInsortRightAbstract
 
 
 @parameterized_class(('name', 'function'), [
@@ -422,12 +424,14 @@ class TestMergeSortStability(unittest.TestCase):
         self.assertListEqual(result, vals)
 
 
-@parameterized_class(('label', 'implementation'), [
-    (bst_count.__name__, staticmethod(bst_count)),
-    (bst_count_iterative.__name__, staticmethod(bst_count_iterative)),
-])
-class TestBstCount(unittest.TestCase):
-    """Tests for the bst_count and bst_count_iterative functions."""
+class _TestBstCountAbstractSmall(ABC, unittest.TestCase):
+    """Tests for the bst_count* functions, using fairly small values of n."""
+
+    @property
+    @abstractmethod
+    def implementation(self):
+        """The distinct BST counting function implementation under test."""
+        raise NotImplementedError
 
     @parameterized.expand([
         ('n0', 0, 1),
@@ -538,6 +542,10 @@ class TestBstCount(unittest.TestCase):
         result = self.implementation(n)
         self.assertEqual(result, expected)
 
+
+class _TestBstCountAbstract(_TestBstCountAbstractSmall):
+    """Tests for the bst_count* functions, using small and big values of n."""
+
     @parameterized.expand([
         ('n900', 900, int(
             '14911141601602529426043429785823803628951022911660263050730316248'
@@ -580,10 +588,37 @@ class TestBstCount(unittest.TestCase):
             '98974685863797976503268794056706521051665555661073594998380746723'
             '0034892805825293720')),
     ])
-    def test_large(self, _name, n, expected):
+    def test_big(self, _name, n, expected):
         """For larger n (about 900), the correct number of BSTs is computed."""
         result = self.implementation(n)
         self.assertEqual(result, expected)
+
+
+class TestBstCountSimple(_TestBstCountAbstractSmall):
+    """Tests for the bst_count_simple function."""
+
+    @property
+    def implementation(self):
+        return bst_count_simple
+
+
+class TestBstCount(_TestBstCountAbstract):
+    """Tests for the bst_count function."""
+
+    @property
+    def implementation(self):
+        return bst_count
+
+
+class TestBstCountIterative(_TestBstCountAbstract):
+    """Tests for the bst_count_iterative function."""
+
+    @property
+    def implementation(self):
+        return bst_count_iterative
+
+
+del _TestBstCountAbstractSmall, _TestBstCountAbstract
 
 
 if __name__ == '__main__':

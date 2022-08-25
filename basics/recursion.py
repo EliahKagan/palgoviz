@@ -36,6 +36,7 @@ by David Eppstein for further reading on that issue.
 
 import bisect
 import collections
+import functools
 
 import caching
 
@@ -1377,9 +1378,11 @@ def leaf_sum_dec(root):
     return traverse(root)
 
 
-def bst_count(n):
+# !!FIXME: When removing implementation bodies, remove this @cache decoration.
+@functools.cache
+def bst_count_simple(n):
     """
-    With n elements, recursively compute how many BSTs can be made from them.
+    Recursively compute how many BSTs n elements can make.
 
     Here, we assume order comparisons on the elements to be total: given any
     two elements x and y, exactly one of x < y, x > y, and x == y is true. Then
@@ -1396,9 +1399,38 @@ def bst_count(n):
     regardless of how many values (if any) are duplicated. This is because
     [FIXME: explain why].
 
-    This implementation is recursive and top-down.
+    This implementation is recursive and top-down. This must pass all tests
+    (see test_recursion._TestBstCountAbstractSmall.test_small), but it need not
+    support larger values. It should be as simple, readable, and short as can
+    reasonably be achieved, even if it does not handle values of n as high as
+    the other implementations (failing with an exception instead).
 
     [FIXME: State the asymptotic time and space complexities.]
+
+    >>> bst_count_simple(10)
+    16796
+    """
+    if n == 0:
+        return 1
+
+    return sum(bst_count_simple(i) * bst_count_simple(n - i - 1)
+               for i in range(n))
+
+
+def bst_count(n):
+    """
+    Recursively compute how many BSTs n elements can make (more robust).
+
+    This is like bst_count above, including the restriction about total
+    ordering, and it is likewise recursive and top-down. But this works with
+    larger values of n (see test_recursion._TestBstCountAbstract.test_big). It
+    does not mutate any globally shared state. It does not use hashing. Yet it
+    implements essentially the same algorithm as bst_count_simple.
+
+    [FIXME: State the asymptotic time and space complexities.]
+
+    >>> bst_count(10)
+    16796
     """
     memo = [None] * (n + 1)
 
@@ -1423,10 +1455,16 @@ def bst_count_iterative(n):
     """
     With n elements, iteratively compute how many BSTs can be made from them.
 
-    This is like bst_count above, but iterative and bottom-up rather than
-    recursive and top-down.
+    This is like bst_count above, including the restriction about total
+    ordering, but this is iterative and bottom-up rather than recursive and
+    top-down. This should work with all values of n that bst_count works with,
+    as well as greater values, all without any special effort (because doing it
+    bottom-up should be sufficient to allow for effectively unbounded n).
 
     [FIXME: State the asymptotic time and space complexities.]
+
+    >>> bst_count_iterative(10)
+    16796
     """
     table = [None] * (n + 1)
     table[0] = 1
@@ -1477,6 +1515,7 @@ __all__ = [thing.__name__ for thing in (
     leaf_sum,
     leaf_sum_alt,
     leaf_sum_dec,
+    bst_count_simple,
     bst_count,
     bst_count_iterative,
 )]
