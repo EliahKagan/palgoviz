@@ -1385,21 +1385,24 @@ def bst_count_simple(n):
     Recursively compute how many BSTs n elements can make.
 
     Here, we assume order comparisons on the elements to be total: given any
-    two elements x and y, exactly one of x < y, x > y, and x == y is true. Then
+    two elements x and y, exactly one of x < y, x > y, or x == y is true. Then
     this function counts how many binary search trees it is possible to have
     whose nodes hold the elements, before two of the trees must be structurally
     equal. (See tree.structural_equal/tree.structural_equal_iterative.) This
     does not use anything from the tree module; nor does it build the trees,
     which would be too slow. This should offer insight into the tree.build_bst
-    tests: unless n is very small, it is not feasible to check a binary tree
-    built from n elements explicitly against all bst_count(n) possible BSTs.
+    tests: unless n is very small, one cannot check a binary tree built from n
+    elements against all bst_count_simple(n) possible BSTs individually.
 
     The number of distinct BSTs (that is, the value this function returns) is
     the same on any n totally ordered elements, no matter their values, and
     regardless of how many values (if any) are duplicated. This is because
-    [FIXME: explain why].
+    [FIXME: explain why]. If the elements only had to be weakly ordered, then
+    the number of distinct BSTs could be greater than bst_count_simple(n) by a
+    factor of up to [FIXME: state the exact maximum factor in terms of n]. This
+    happens when [FIXME: describe the circumstances that give that maximum].
 
-    This implementation is recursive and top-down. This must pass all tests
+    This implementation is recursive and top-down. This must pass all its tests
     (see test_recursion._TestBstCountAbstractSmall.test_small), but it need not
     support larger values. It should be as simple, readable, and short as can
     reasonably be achieved, even if it does not handle values of n as high as
@@ -1425,7 +1428,7 @@ def bst_count(n):
     ordering, and it is likewise recursive and top-down. But this works with
     larger values of n (see test_recursion._TestBstCountAbstract.test_big). It
     does not mutate any globally shared state. It does not use hashing. Yet it
-    implements essentially the same algorithm as bst_count_simple.
+    manages to use what is essentially the same algorithm as bst_count_simple.
 
     [FIXME: State the asymptotic time and space complexities.]
 
@@ -1453,13 +1456,13 @@ def bst_count(n):
 
 def bst_count_iterative(n):
     """
-    With n elements, iteratively compute how many BSTs can be made from them.
+    Iteratively compute how many BSTs n elements can make.
 
     This is like bst_count above, including the restriction about total
     ordering, but this is iterative and bottom-up rather than recursive and
     top-down. This should work with all values of n that bst_count works with,
     as well as greater values, all without any special effort (because doing it
-    bottom-up should be sufficient to allow for effectively unbounded n).
+    bottom-up should be sufficient to allow for far larger n, automatically).
 
     [FIXME: State the asymptotic time and space complexities.]
 
