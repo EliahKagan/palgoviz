@@ -1381,18 +1381,42 @@ def bst_count(n):
     """
     With n elements, recursively compute how many BSTs can be made from them.
 
-    For this problem, assume order comparisons on the elements are total: given
-    any two element x and y, exactly one of x < y, x > y, and x == y is true.
-    This counts distinct binary search trees whose nodes hold the elements (see
-    tree.structural_equal/tree.structural_equal_iterative).
+    Here, we assume order comparisons on the elements to be total: given any
+    two elements x and y, exactly one of x < y, x > y, and x == y is true. Then
+    this function counts how many binary search trees it is possible to have
+    whose nodes hold the elements, before two of the trees must be structurally
+    equal. (See tree.structural_equal/tree.structural_equal_iterative.) This
+    does not use anything from the tree module; nor does it build the trees,
+    which would be too slow. This should offer insight into the tree.build_bst
+    tests: unless n is very small, it is not feasible to check a binary tree
+    built from n elements explicitly against all bst_count(n) possible BSTs.
 
-    The answer is the same on any n totally ordered elements, no matter their
-    values, and whether or not (and how many) duplicate values there are,
-    because [FIXME: explain why].
+    The number of distinct BSTs (that is, the value this function returns) is
+    the same on any n totally ordered elements, no matter their values, and
+    regardless of how many values (if any) are duplicated. This is because
+    [FIXME: explain why].
 
     This implementation is recursive and top-down.
+
+    [FIXME: State the asymptotic time and space complexities.]
     """
-    # FIXME: Needs implementation.
+    memo = [None] * (n + 1)
+
+    def solve(size):
+        if (result := memo[size]) is not None:
+            return result
+
+        if size == 0:
+            return 1
+
+        result = 0
+        for i in range(size):
+            result += solve(i) * solve(size - i - 1)
+
+        memo[size] = result
+        return result
+
+    return solve(n)
 
 
 def bst_count_iterative(n):
@@ -1401,8 +1425,16 @@ def bst_count_iterative(n):
 
     This is like bst_count above, but iterative and bottom-up rather than
     recursive and top-down.
+
+    [FIXME: State the asymptotic time and space complexities.]
     """
-    # FIXME: Needs implementation.
+    table = [None] * (n + 1)
+    table[0] = 1
+
+    for size in range(1, n + 1):
+        table[size] = sum(table[i] * table[size - i - 1] for i in range(size))
+
+    return table[n]
 
 
 __all__ = [thing.__name__ for thing in (
