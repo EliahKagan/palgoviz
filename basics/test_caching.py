@@ -43,35 +43,38 @@
 #
 #     (In contrast, @functools.lru_cache(None) is allowed. It works just like
 #     @functools.cache. It was the usual way to do decorator-based memoization
-#     in Python before Python 3.9 added @functools.cache.)
+#     in Python before Python 3.9 added @functools.cache. Note that this is not
+#     the same as omitting maxsize, which defaults to 128, not None.)
 #
 # (3) @lru and @lru_di will not support a "typed" argument, nor otherwise
 #     contain logic to support typed=True behavior.
 #
 # The "di" in @lru_di stands for "dependency injection." It, but not @lru, will
-# accept an optional keyword-only argument specifying a factory that returns an
-# initially empty mutable mapping when called with no arguments. In typical
-# use, the mapping factory argument will be a mutable mapping type. If omitted,
-# dict is used (it will be as if the dict type was passed). The cache may also
-# use other data structures, but no other mappings; any functionality natural
-# to do with a mapping shall be done by an instance returned by the mapping
+# accept an optional argument specifying a factory that, when called with no
+# arguments, returns an initially empty mutable mapping instance. In typical
+# use, the mapping factory argument will be a mutable mapping type, such as
+# dict or mappings.HashTable. This must be accepted as a keyword argument; it's
+# up to you to decide what to name it and whether it is keyword-only. If this
+# argument is not passed, the effect is the same as if dict were passed. The
+# cache may use other data structures, but no other mappings; anything natural
+# to do with a mapping must be done by an instance returned by the mapping
 # factory. Hence, the performance of @lru_di depends on the mapping type used.
 #
 # With mappings with O(1)-time operations, such as dict and mappings.HashTable,
-# all @lru_di operations shall take O(1) time. That is, decorating a function
-# definition with a caching.lru_di function-call expression increases the time
-# it takes to define the function, and the time taken by each call to the
+# all @lru_di operations shall take O(1) time. That is, applying a decoration
+# of the form @caching.lru_di(...) to a function definition increases the time
+# it takes to define the function, and the times taken by each call to the
 # function, by at most a constant; and in a cache hit (i.e., when the passed
 # argument, and thus its return value, are in the cache already), the entire
 # function call takes O(1) time. Since these times are amortized (rather than
 # "strict") for dict and mappings.HashTable, that applies to the LRU cache too.
 #
-# @lru should not use dependency injection. But it cannot be implemented using
-# @lru_di. Instead, write it in a substantially different (yet reasonable) way,
-# taking advantage of some data structure that makes the implementation simple
-# and elegant. @lru will most likely be easier and faster to implement than
-# @lru_di; you can implement them in either order, but I recommend implementing
-# @lru first. Either way, define @lru before @lru_di in caching.py.
+# @lru should not use dependency injection, nor may it delegate to @lru_di.
+# Write it in a substantially different (yet reasonable) way, taking advantage
+# of some data structure that makes the implementation simple and elegant. @lru
+# will most likely be easier and faster to implement than @lru_di. You could
+# implement them in either order, but I recommend implementing @lru first.
+# Either way, define @lru before @lru_di in caching.py.
 #
 # Most functionality of @lru and @lru_di overlaps. Test that functionality
 # without duplicating test logic. To test the tests, you may want to use them
@@ -82,22 +85,22 @@
 # behaviors of @lru and @lru_di including those not explicated here, as well as
 # everything stated here even if not of vital importance. One exception: it is
 # important that wrappers gain the metadata of the callables they wrap, but to
-# simplify the exercise, it is optional to test it (unless you anticipate a
-# bug, or one arises, in which case you should make sure tests cover that too).
+# simplify the exercise, it is optional to test this (unless you anticipate a
+# bug, or one arises, in which case you should make sure tests cover this too).
 # If you don't test this, include a to-do comment suggesting that it be done.
 #
 # Test @lru_di with no explicit mapping factory, and with at least dict and the
 # UnsortedFlatTable, SortedFlatTable, BinarySearchTree, and HashTable types
-# from our mappings module. Don't just test construction: all the tests should
-# cover them all. Do this in a way that does not duplicate any test logic.
+# from our mappings module. Don't just test construction: most or all tests
+# must cover them all. Do this in a way that does not duplicate any test logic.
 #
-# @lru and @lru_di should also have doctests. They should be far less extensive
-# than these unittest tests, serving mainly as documentation. Their docstrings
-# should describe what they do and how to use them, sufficient for readers who
-# already know what an LRU cache is. They should also either explain LRU caches
-# or refer to an .md, .rst, or .ipynb file that does so. Feel free to adapt
-# text from this comment. (Whether or not you do, still remove this comment
-# when done. You can copy its text to another file if you want to retain it.)
+# @lru and @lru_di should also have doctests, far less extensive than these
+# unittest tests and serving mainly as documentation. Their docstrings should
+# describe what they do and how to use them, sufficient for readers who already
+# know what an LRU cache is. They should also either explain LRU caches or
+# refer to an .md, .rst, or .ipynb file that does so. Feel free to adapt text
+# from this comment. (Whether or not you do, still remove this comment when
+# done. You can copy its text to another file if you want to retain it.)
 #
 # For @lru and @lru_di and their tests, I suggest using test-driven or
 # test-first development, or some hybrid of the two, unless you strongly prefer
