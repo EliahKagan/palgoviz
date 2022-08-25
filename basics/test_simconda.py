@@ -2,8 +2,8 @@
 
 # FIXME: Write unittest tests for simconda.Simulator, a class whose instances
 # simulate the effect of conda's activate and deactivate commands on what Conda
-# environment, if any, is active. This is more subtle than it may first appear,
-# so you'll to do some experiments. Make several throwaway Conda environments
+# environment, if any, is active. This is more subtle than it may first appear.
+# You'll need to do some experiments. Make several throwaway Conda environments
 # (e.g., "conda create -yn alfa", "conda create -yn bravo", and so on). Figure
 # out the rules that determine what environment is active at any point in any
 # series of "conda activate", "conda activate <name>", and "conda deactivate"
@@ -50,3 +50,22 @@
 # if it would be valuable to include such information in the documentation. If
 # so, put it in an appropriate docstring (probably the simconda module
 # docstring). But if you don't think this would be valuable, don't include it.
+
+
+# FIXME: "We will have a million Conda environments that we'll activate and
+# deactivate a billion times," the client says. "So we're going to need another
+# version of the simulator."
+#     You explain that running too slow in such usage is a feature, not a bug,
+# because the actual conda command will run too slow, too. But the client is
+# not having it. The whole point of the simulator, they insist, is to find out
+# what would happen, not how long it would take for it to happen.
+#     "Can you do it?"
+#     "Yes, there are at least three different ways to make activate and
+# deactivate take O(1) time in any series of activations and deactivations, no
+# matter how many environments exist or have been activated so far," you hear
+# yourself saying.
+#     "Excellent, we'll take all three."
+#     "You want all three?"
+#     "Yes," the client says, and you wish you had thought of at least one way
+# to make activate and deactivate take O(1) time!
+#     You think about the problem, and soon your mind wanders to other threes.
