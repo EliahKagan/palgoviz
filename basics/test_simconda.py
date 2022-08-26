@@ -24,10 +24,10 @@
 # "base" at all). Decide what to do if this happens, and write tests for it.
 # Each instance of the simulator represents a running shell configured for use
 # with Conda, so it starts with the base environment active. It's up to you how
-# one gives commands and queries which environment is currently active, but it
-# is not required that you parse actual shell commands, and I recommend against
-# doing so, since if the simulator offers a good object-oriented interface, a
-# command-line interface could easily be built atop it if needed.
+# one issues commands and how one queries for which environment is active, but
+# you need not parse or otherwise support actual shell commands, which I would
+# recommend against doing: if the simulator offers a good object-oriented
+# interface, a command-line interface could easily be built atop it if needed.
 #
 # The simulator need only perform well for realistic uses of Conda, so its
 # operations' asymptotic time complexities need not be optimal: nobody will
@@ -40,7 +40,7 @@
 # the simulator has a class docstring explaining how to use it, and doctests
 # showing example usage. The doctests need not be nearly as extensive as the
 # unittest tests here. Feel free to keep the module and class names simconda
-# and Simulator or to change them. (If you change the module name, change this
+# and Simulator, or to change them. (If you change the module name, change this
 # test module name accordingly.)
 
 
@@ -52,20 +52,33 @@
 # docstring). But if you don't think this would be valuable, don't include it.
 
 
-# FIXME: "We will have a million Conda environments that we'll activate and
-# deactivate a billion times," the client says. "So we're going to need another
-# version of the simulator."
-#     You explain that running too slow in such usage is a feature, not a bug,
+# FIXME: "We will have a million Conda environments and we will activate and
+# deactivate them a billion times," the client says. "And in who knows what
+# order. So we're going to need another version of the simulator."
+#     You explain that running too slow in such a use is a feature, not a bug,
 # because the actual conda command will run too slow, too. But the client is
-# not having it. The whole point of the simulator, they insist, is to find out
-# what would happen, not how long it would take for it to happen.
+# not having it. The whole point of the simulator, the client insists, is to
+# find out what would eventually happen, not how long it would take to happen.
 #     "Can you do it?"
-#     "Yes, there are at least three different ways to make activate and
+#     "I guess," you hear yourself say. "I know a few ways to make activate and
 # deactivate take O(1) time in any series of activations and deactivations, no
-# matter how many environments exist or have been activated so far," you hear
-# yourself saying.
-#     "Excellent, we'll take all three."
-#     "You want all three?"
-#     "Yes," the client says, and you wish you had thought of at least one way
-# to make activate and deactivate take O(1) time!
+# matter how many environments exist or have been activated and deactivated so
+# far, all while still using space linear in the number of environments."
+#     "Excellent! A few... so, that's three ways, right? We'll take all three!"
+#     "Three separate asymptotically optimal simconda.Simulator alternatives?"
+#     "Yes," the client says, and you wish you actually had thought of at least
+# one way to make activate and deactivate take O(1) time!
 #     You think about the problem, and soon your mind wanders to other threes.
+# Null, void, and of no effect. Misty, Brock, and Ash. Data structures you can
+# readily implement yourself, already available ones you use all the time, and
+# already available ones that are less often used and you may not be aware of.
+#
+# Name these three new simconda.py classes to reflect something about how each
+# works; don't keep the names ScalableSimulator1, ScalableSimulator2, and
+# ScalableSimulator3. They must pass the same unittest tests as Simulator, with
+# no duplication of test code. I recommend adapting the existing test code so
+# it is easy to add more implementations to be tested; then, for each of the
+# "scalable" simulators, add it to be tested, check that its tests fail, then
+# implement it and get all tests to pass. They should have doctests analogous
+# to those written for Simconda (and for those, test logic may be duplicated).
+# The new simulators should be able to handle
