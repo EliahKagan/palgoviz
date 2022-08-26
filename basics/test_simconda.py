@@ -89,6 +89,6 @@
 # doctests analogous to those written for Simconda (and for those, test logic
 # may be duplicated). They should be faster than Simconda for some sequences of
 # operations where n and m are sufficiently large, but this may be tricky to
-# observe. Either experiment with this in a notebook using %timeit or %%timeit,
-# or write a test case that is reasonably fast on the three new simulators but
-# very slow on Simulator. (Or both, but one is sufficient.)
+# observe. Show this in a notebook, timing with timeit.timeit(..., number=1),
+# %timeit -n1, or %%timeit -n1; or write a test case that is reasonably fast on
+# the new simulators but very slow on Simulator; or both, if you really want.

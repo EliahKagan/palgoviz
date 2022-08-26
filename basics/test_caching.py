@@ -16,11 +16,12 @@
 # instead. (Think of a web browser's cache.) Bounded caches are named for their
 # invalidation policies: the rule for what entry is removed to make room for a
 # new entry. (Invalidation is also called eviction.) Invalidation policies can
-# involve complicated heuristics. But there are two popular policies that can
-# be stated simply: least recently used (LRU), and least frequently used (LFU).
-# When a new entry must be added to the cache, an LRU cache removes the least
-# recently created/accessed entry, and it is the simplest bounded cache to
-# implement efficiently, of those that are broadly useful.
+# involve complicated heuristics. But two popular policies can be stated
+# simply: least recently used (LRU), and least frequently used (LFU). When a
+# new entry is added to an LRU cache that is already full, the least recently
+# accessed entry is removed to make room for it. (For this purpose, creating
+# the entry is also considered to be an access.) Of bounded caches that are
+# broadly useful, an LRU cache is the simplest to implement efficiently.
 #
 # Please read the documentation for @functools.lru_cache, which is an LRU
 # caching decorator, and try it out in a REPL or notebook. Such experimentation
@@ -87,12 +88,14 @@
 # important that wrappers gain the metadata of the callables they wrap, but to
 # simplify the exercise, it is optional to test this (unless you anticipate a
 # bug, or one arises, in which case you should make sure tests cover this too).
-# If you don't test this, include a to-do comment suggesting that it be done.
+# If you don't test this, include a to-do comment suggesting that it be tested.
 #
 # Test @lru_di with no explicit mapping factory, and with at least dict and the
 # UnsortedFlatTable, SortedFlatTable, BinarySearchTree, and HashTable types
 # from our mappings module. Don't just test construction: most or all tests
-# must cover them all. Do this in a way that does not duplicate any test logic.
+# must cover them all (except if you choose to make a few tests that would run
+# too slow using UnsortedFlatTable and SortedFlatTable, those should apply only
+# to the others). Do this in a way that does not duplicate any test logic.
 #
 # @lru and @lru_di should also have doctests, far less extensive than these
 # unittest tests and serving mainly as documentation. Their docstrings should
