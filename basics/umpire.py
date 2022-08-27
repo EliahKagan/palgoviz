@@ -25,8 +25,9 @@ import gencomp1
 
 def _do_draw_network(events):
     """Helper for draw_network. Assumes materialization and safe names."""
-    graph = graphviz.Graph(graph_attr=dict(overlap='voronoi'))
-    graph.engine = 'neato'
+    graph_attr = dict(overlap='voronoi')
+    graph = graphviz.Graph(graph_attr=graph_attr)
+    graph.engine = 'sfdp'
     graph.strict = True
 
     # Add each event vertex exactly once, in the order in which they appear.
@@ -72,10 +73,11 @@ def draw_network(**events):
     interest. If an event lists the same guest twice, [FIXME: decide what to do
     and state it here].
 
-    Nothing is displayed directly. A graphviz.Graph object is returned.
+    This returns a graphviz.Graph instead of displaying anything directly. See
+    umpire.ipynb.
 
-    FIXME: Experiment with different layout engines (try them all), and ways of
-    eliminating overlap (at least try "voronoi"), to see what looks best.
+    FIXME: Try out all eight layout engines, and some ways of eliminating
+    overlap (at least "prism" and "voronoi"), to see what looks best.
       - https://graphviz.org/docs/layouts/
       - https://graphviz.org/docs/attrs/overlap/
     You may also want to try out several combinations of node shapes.
