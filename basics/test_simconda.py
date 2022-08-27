@@ -44,8 +44,8 @@
 # rather than code that minimizes asymptotic time complexity. But document all
 # time complexities, including of construction, either in the class docstring
 # or in each relevant public method's docstring, in terms of the number of
-# environments; and state the worst-case asymptotic time complexity to create a
-# simulator for n environments and then perform m operations each of which is
+# environments n; and state the worst-case asymptotic time complexity to create
+# a simulator for n environments and then perform m operations each of which is
 # an activation or deactivation. Ensure the simulator's class docstring says
 # how to use it and contains doctests with example usage. Doctests need not be
 # nearly as extensive as the unittest tests here.
