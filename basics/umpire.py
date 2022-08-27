@@ -70,8 +70,8 @@ def draw_network(**events):
     This does not use enumerations.Guests, and guests and events are not
     limited to those represented in it. There is no way to specify a guest who
     attended no events of interest, since such a guest is likewise not of
-    interest. If an event lists the same guest twice, [FIXME: decide what to do
-    and state it here].
+    interest. If an event has no guests, [FIXME: decide what to do]. If an
+    event lists the same guest twice, [FIXME: decide what to do].
 
     This returns a graphviz.Graph instead of displaying anything directly. See
     umpire.ipynb.
