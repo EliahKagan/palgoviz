@@ -120,7 +120,7 @@ def semifactorial_reduce(n):
     Compute the semifactorial ("double factorial") of n, via functools.reduce.
 
     This implementation uses no recursion and no loops or comprehensions. (It
-    fits easily on one line.) This was the best way do do it prior to Python
+    fits easily on one line.) This was the best way to do it prior to Python
     3.8 when math.prod was added.
 
     >>> [semifactorial_reduce(n) for n in range(15)]
