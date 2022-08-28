@@ -37,6 +37,8 @@ by David Eppstein for further reading on that issue.
 import bisect
 import collections
 import functools
+from fractions import Fraction
+import math
 
 import caching
 
@@ -1478,6 +1480,31 @@ def bst_count_iterative(n):
     return table[n]
 
 
+def bst_count_fast(n):
+    """
+    Compute how many BSTs n elements can make (fast version).
+
+    This is like the three bst_count* functions above, including the
+    restriction about total ordering. Like bst_count_iterative, this is
+    iterative. But this uses a different algorithm: conceptually, all three of
+    the other implementations are more similar to each other than any of them
+    are to this. This uses math to get asymptotically better time and space.
+
+    NOTE: In this exercise, it is permitted and encouraged to search the web
+    for help... so long as you do not search for trees, BSTs, or any other such
+    terms. What else could you search for, to investigate a faster solution?
+
+    [FIXME: State the asymptotic time and space complexities. Also, use %timeit
+    to benchmark this and some of the other bst_count functions with n=900, and
+    include the full results here.]
+
+    >>> bst_count_fast(10)
+    16796
+    """
+    factors = (Fraction(n + k, k) for k in range(2, n + 1))
+    return int(math.prod(factors))
+
+
 __all__ = [thing.__name__ for thing in (
     countdown,
     add_all_iterative,
@@ -1521,6 +1548,7 @@ __all__ = [thing.__name__ for thing in (
     bst_count_simple,
     bst_count,
     bst_count_iterative,
+    bst_count_fast,
 )]
 
 

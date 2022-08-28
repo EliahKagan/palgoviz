@@ -22,6 +22,7 @@ from recursion import (
     bst_count_simple,
     bst_count,
     bst_count_iterative,
+    bst_count_fast,
 )
 
 _NORTH = WeakDiamond.NORTH
@@ -616,6 +617,14 @@ class TestBstCountIterative(_TestBstCountAbstract):
     @property
     def implementation(self):
         return bst_count_iterative
+
+
+class TestBstCountFast(_TestBstCountAbstract):
+    """Tests for the bst_count_fast function."""
+
+    @property
+    def implementation(self):
+        return bst_count_fast
 
 
 del _TestBstCountAbstractSmall, _TestBstCountAbstract
