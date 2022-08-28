@@ -6469,6 +6469,30 @@ class TestBuildBst(unittest.TestCase):
     """Tests for the build_bst function."""
 
     @parameterized.expand([
+        ('seq', []),
+        ('iter', iter([])),
+    ])
+    def test_empty(self, _name, iterable):
+        result = tree.build_bst(iterable)
+        self.assertIsNone(result)
+
+    @parameterized.expand([
+        ('seq', [42]),
+        ('iter', iter([42])),
+    ])
+    def test_singleton(self, _name, iterable):
+        result = tree.build_bst(iterable)
+
+        with self.subTest('type'):
+            self.assertIsInstance(result, tree.Node)
+        with self.subTest('element'):
+            self.assertEqual(result.element, 42)
+        with self.subTest('left'):
+            self.assertIsNone(result.left)
+        with self.subTest('right'):
+            self.assertIsNone(result.right)
+
+    @parameterized.expand([
         ('low_high_seq', [1, 2]),
         ('low_high_iter', iter([1, 2])),
         ('high_low_seq', [2, 1]),
@@ -6477,8 +6501,112 @@ class TestBuildBst(unittest.TestCase):
     def test_pair(self, _name, iterable):
         expected1 = bst.left_only(tree.Node)
         expected2 = bst.right_only(tree.Node)
-        root = tree.build_bst(iterable)
-        self.assertIn(repr(root), {repr(expected1), repr(expected2)})
+        result = tree.build_bst(iterable)
+        self.assertIn(repr(result), {repr(expected1), repr(expected2)})
+
+    @parameterized.expand([
+        ('123_seq', [1, 2, 3]),
+        ('123_iter', iter([1, 2, 3])),
+        ('132_seq', [1, 3, 2]),
+        ('132_iter', iter([1, 3, 2])),
+        ('213_seq', [2, 1, 3]),
+        ('213_iter', iter([2, 1, 3])),
+        ('231_seq', [2, 3, 1]),
+        ('231_iter', iter([2, 3, 1])),
+        ('312_seq', [3, 1, 2]),
+        ('312_iter', iter([3, 1, 2])),
+        ('321_seq', [3, 2, 1]),
+        ('321_iter', iter([3, 2, 1])),
+    ])
+    def test_triple(self, _name, iterable):
+        t = tree.Node
+
+        expected_reprs = {repr(expected) for expected in [
+            t(1, None, t(2, None, t(3))),
+            t(1, None, t(3, t(2), None)),
+            t(2, t(1), t(3)),
+            t(3, t(1, None, t(2)), None),
+            t(3, t(2, t(1), None), None),
+        ]}
+
+        result = tree.build_bst(iterable)
+        self.assertIn(repr(result), expected_reprs)
+
+    @parameterized.expand([
+        ('1234_seq', [1, 2, 3, 4]),
+        ('1234_iter', iter([1, 2, 3, 4])),
+        ('1243_seq', [1, 2, 4, 3]),
+        ('1243_iter', iter([1, 2, 4, 3])),
+        ('1324_seq', [1, 3, 2, 4]),
+        ('1324_iter', iter([1, 3, 2, 4])),
+        ('1342_seq', [1, 3, 4, 2]),
+        ('1342_iter', iter([1, 3, 4, 2])),
+        ('1423_seq', [1, 4, 2, 3]),
+        ('1423_iter', iter([1, 4, 2, 3])),
+        ('1432_seq', [1, 4, 3, 2]),
+        ('1432_iter', iter([1, 4, 3, 2])),
+
+        ('2134_seq', [2, 1, 3, 4]),
+        ('2134_iter', iter([2, 1, 3, 4])),
+        ('2143_seq', [2, 1, 4, 3]),
+        ('2143_iter', iter([2, 1, 4, 3])),
+        ('2314_seq', [2, 3, 1, 4]),
+        ('2314_iter', iter([2, 3, 1, 4])),
+        ('2341_seq', [2, 3, 4, 1]),
+        ('2341_iter', iter([2, 3, 4, 1])),
+        ('2413_seq', [2, 4, 1, 3]),
+        ('2413_iter', iter([2, 4, 1, 3])),
+        ('2431_seq', [2, 4, 3, 1]),
+        ('2431_iter', iter([2, 4, 3, 1])),
+
+        ('3124_seq', [3, 1, 2, 4]),
+        ('3124_iter', iter([3, 1, 2, 4])),
+        ('3142_seq', [3, 1, 4, 2]),
+        ('3142_iter', iter([3, 1, 4, 2])),
+        ('3214_seq', [3, 2, 1, 4]),
+        ('3214_iter', iter([3, 2, 1, 4])),
+        ('3241_seq', [3, 2, 4, 1]),
+        ('3241_iter', iter([3, 2, 4, 1])),
+        ('3412_seq', [3, 4, 1, 2]),
+        ('3412_iter', iter([3, 4, 1, 2])),
+        ('3421_seq', [3, 4, 2, 1]),
+        ('3421_iter', iter([3, 4, 2, 1])),
+
+        ('4123_seq', [4, 1, 2, 3]),
+        ('4123_iter', iter([4, 1, 2, 3])),
+        ('4132_seq', [4, 1, 3, 2]),
+        ('4132_iter', iter([4, 1, 3, 2])),
+        ('4213_seq', [4, 2, 1, 3]),
+        ('4213_iter', iter([4, 2, 1, 3])),
+        ('4231_seq', [4, 2, 3, 1]),
+        ('4231_iter', iter([4, 2, 3, 1])),
+        ('4312_seq', [4, 3, 1, 2]),
+        ('4312_iter', iter([4, 3, 1, 2])),
+        ('4321_seq', [4, 3, 2, 1]),
+        ('4321_iter', iter([4, 3, 2, 1])),
+    ])
+    def test_quad(self, _name, iterable):
+        t = tree.Node
+
+        expected_reprs = {repr(expected) for expected in [
+            t(1, None, t(2, None, t(3, None, t(4)))),
+            t(1, None, t(2, None, t(4, t(3), None))),
+            t(1, None, t(3, t(2), t(4))),
+            t(1, None, t(4, t(2, None, t(3)), None)),
+            t(1, None, t(4, t(3, t(2), None), None)),
+            t(2, t(1), t(3, None, t(4))),
+            t(2, t(1), t(4, t(3), None)),
+            t(3, t(1, None, t(2)), t(4)),
+            t(3, t(2, t(1), None), t(4)),
+            t(4, t(1, None, t(2, None, t(3))), None),
+            t(4, t(1, None, t(3, t(2), None)), None),
+            t(4, t(2, t(1), t(3)), None),
+            t(4, t(3, t(1, None, t(2)), None), None),
+            t(4, t(3, t(2, t(1), None), None), None),
+        ]}
+
+        result = tree.build_bst(iterable)
+        self.assertIn(repr(result), expected_reprs)
 
     # FIXME: Reorganize the above test(s) in this class and write the rest.
 

@@ -8,7 +8,6 @@ See also the visualizations in subproblems.ipynb.
 For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
-import functools
 import itertools
 
 import graphviz
