@@ -37,7 +37,6 @@ by David Eppstein for further reading on that issue.
 import bisect
 import collections
 import functools
-from fractions import Fraction
 import math
 
 import caching
@@ -1501,8 +1500,7 @@ def bst_count_fast(n):
     >>> bst_count_fast(10)
     16796
     """
-    factors = (Fraction(n + k, k) for k in range(2, n + 1))
-    return int(math.prod(factors))
+    return math.comb(n * 2, n) // (n + 1)  # Compute the Catalan number C_n.
 
 
 __all__ = [thing.__name__ for thing in (
