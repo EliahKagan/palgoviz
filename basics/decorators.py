@@ -732,7 +732,7 @@ def count_calls_in_attribute(optional_func=None, /, *, name='count'):
     return decorator
 
 
-def wrap_uncallable_args(*, kw=False):
+def wrap_uncallable_args(optional_func=None, /, *, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
     constant functions.
@@ -783,7 +783,39 @@ def wrap_uncallable_args(*, kw=False):
     >>> a[0](5, 7), a[0](7, 5), a[1](5, 7), a[1](7, 5), kw, a[1](0, x=4, w=6)
     (5, 5, 42, 42, {'f': <built-in function max>, 'g': 76}, 42)
     """
-    # FIXME: Implement this.
+    if optional_func is not None:
+        return wrap_uncallable_args(kw=kw)(optional_func)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*pargs, **kwargs):
+            pargs_new = []
+
+            def make_func(arg):
+                return lambda *args, **kws: arg
+
+            for arg in pargs:
+                if callable(arg):
+                    pargs_new.append(arg)
+                else:
+                    pargs_new.append(make_func(arg))
+
+            if not kw:
+                return func(*pargs_new, **kwargs)
+
+            kwargs_new = {}
+
+            for key in kwargs:
+                if callable(kwargs[key]):
+                    kwargs_new[key] = kwargs[key]
+                else:
+                    kwargs_new[key] = make_func(kwargs[key])
+
+            return func(*pargs_new, **kwargs_new)
+
+        return wrapper
+
+    return decorator
 
 
 def make_fmap(preimage, *, strict=False, collector=tuple):
