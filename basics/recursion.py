@@ -1385,14 +1385,16 @@ def bst_count_simple(n):
     """
     Recursively compute how many BSTs n elements can make.
 
-    Here, we assume order comparisons on the elements to be total: given any
-    two elements x and y, exactly one of x < y, x > y, or x == y is true. Then
-    this function counts how many binary search trees it is possible to have
-    whose nodes hold the elements, before two of the trees must be structurally
-    equal. (See tree.structural_equal/tree.structural_equal_iterative.) This
-    does not use anything from the tree module; nor does it build the trees,
-    which would be too slow. This should offer insight into the tree.build_bst
-    tests: unless n is very small, one cannot check a binary tree built from n
+    In this and other bst_count* functions, we assume order comparisons on the
+    elements to be total: given elements x and y, exactly one of x < y, x > y,
+    or x == y holds. Subject to that restriction, this counts how many binary
+    search trees it is possible to have whose nodes hold the elements, before
+    at least two of them must be structurally equal. (See tree.structural_equal
+    and tree.structural_equal_iterative.)
+
+    This does not use anything from the tree module. Nor does it build the
+    trees, which would be too slow. It offers insight into the tree.build_bst
+    tests: unless n is very small, we cannot check a binary tree built from n
     elements against all bst_count_simple(n) possible BSTs individually.
 
     The number of distinct BSTs (that is, the value this function returns) is
@@ -1403,7 +1405,7 @@ def bst_count_simple(n):
     factor of up to [FIXME: state the exact maximum factor in terms of n]. This
     happens when [FIXME: describe the circumstances that give that maximum].
 
-    This implementation is recursive and top-down. This must pass all its tests
+    This implementation is recursive and top-down. It must pass all its tests
     (see test_recursion._TestBstCountAbstractSmall.test_small), but it need not
     support larger values. It should be as simple, readable, and short as can
     reasonably be achieved, even if it does not handle values of n as high as
