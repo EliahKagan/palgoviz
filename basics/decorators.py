@@ -680,7 +680,7 @@ def dict_equality(cls):
     return cls
 
 
-def count_calls_in_attribute(func=None, *, name='count'):
+def count_calls_in_attribute(optional_func=None, /, *, name='count'):
     """
     Optionally parameterized decorator to count calls in a function attribute.
 
@@ -717,8 +717,8 @@ def count_calls_in_attribute(func=None, *, name='count'):
 
     Hint: You might want to get it working just as a decorator factory first.
     """
-    if func is not None:
-        return count_calls_in_attribute(name=name)(func)
+    if optional_func is not None:
+        return count_calls_in_attribute(name=name)(optional_func)
 
     def decorator(func):
         @functools.wraps(func)
