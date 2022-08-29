@@ -789,27 +789,17 @@ def wrap_uncallable_args(optional_func=None, /, *, kw=False):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*pargs, **kwargs):
-            pargs_new = []
-
-            def make_func(arg):
+            def wrap_uncallable(arg):
                 return lambda *args, **kws: arg
 
-            for arg in pargs:
-                if callable(arg):
-                    pargs_new.append(arg)
-                else:
-                    pargs_new.append(make_func(arg))
+            pargs_new = ((arg if callable(arg) else wrap_uncallable(arg))
+                         for arg in pargs)
 
             if not kw:
                 return func(*pargs_new, **kwargs)
 
-            kwargs_new = {}
-
-            for key in kwargs:
-                if callable(kwargs[key]):
-                    kwargs_new[key] = kwargs[key]
-                else:
-                    kwargs_new[key] = make_func(kwargs[key])
+            kwargs_new = {key: (kwargs[key] if callable(kwargs[key]) else wrap_uncallable(kwargs[key]))
+                          for key in kwargs}
 
             return func(*pargs_new, **kwargs_new)
 
