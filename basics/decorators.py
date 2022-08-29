@@ -680,7 +680,7 @@ def dict_equality(cls):
     return cls
 
 
-def count_calls_in_attribute(*, name='count'):
+def count_calls_in_attribute(*pargs, name='count'):
     """
     Optionally parameterized decorator to count calls in a function attribute.
 
@@ -717,6 +717,22 @@ def count_calls_in_attribute(*, name='count'):
 
     Hint: You might want to get it working just as a decorator factory first.
     """
+    if len(pargs) > 1:
+        raise TypeError('count_calls_in_attribute only accepts 1 positional arg')
+
+    if pargs:
+        func = pargs[0]
+        @functools.wraps(func)
+        def wrapper(*pargs, **kwargs):
+            count = getattr(wrapper, name)
+            count += 1
+            setattr(wrapper, name, count)
+
+            return func(*pargs, **kwargs)
+
+        setattr(wrapper, name, 0)
+        return wrapper
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*pargs, **kwargs):
