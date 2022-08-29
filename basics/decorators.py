@@ -720,8 +720,7 @@ def count_calls_in_attribute(*pargs, name='count'):
     if len(pargs) > 1:
         raise TypeError('count_calls_in_attribute only accepts 1 positional arg')
 
-    if pargs:
-        func = pargs[0]
+    def make_wrapper(func):
         @functools.wraps(func)
         def wrapper(*pargs, **kwargs):
             count = getattr(wrapper, name)
@@ -732,18 +731,12 @@ def count_calls_in_attribute(*pargs, name='count'):
 
         setattr(wrapper, name, 0)
         return wrapper
+
+    if pargs:
+        return make_wrapper(pargs[0])
 
     def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*pargs, **kwargs):
-            count = getattr(wrapper, name)
-            count += 1
-            setattr(wrapper, name, count)
-
-            return func(*pargs, **kwargs)
-
-        setattr(wrapper, name, 0)
-        return wrapper
+        return make_wrapper(func)
 
     return decorator
 
