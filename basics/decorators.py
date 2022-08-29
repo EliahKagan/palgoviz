@@ -723,10 +723,7 @@ def count_calls_in_attribute(optional_func=None, /, *, name='count'):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*pargs, **kwargs):
-            count = getattr(wrapper, name)
-            count += 1
-            setattr(wrapper, name, count)
-
+            setattr(wrapper, name, getattr(wrapper, name) + 1)
             return func(*pargs, **kwargs)
 
         setattr(wrapper, name, 0)
