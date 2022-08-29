@@ -732,6 +732,10 @@ def count_calls_in_attribute(optional_func=None, /, *, name='count'):
     return decorator
 
 
+def _wrap_uncallable(uncallable):
+    return lambda *_args, **_kwargs: uncallable
+
+
 def wrap_uncallable_args(optional_func=None, /, *, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
@@ -787,19 +791,18 @@ def wrap_uncallable_args(optional_func=None, /, *, kw=False):
         return wrap_uncallable_args(kw=kw)(optional_func)
 
     def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*pargs, **kwargs):
-            def wrap_uncallable(arg):
-                return lambda *args, **kws: arg
-
-            pargs_new = ((arg if callable(arg) else wrap_uncallable(arg))
-                         for arg in pargs)
+        @functools.wraps(func)  # FIXME: Investigate argument names.
+        def wrapper(*pargs_old, **kwargs_old):
+            pargs_new = ((arg if callable(arg) else _wrap_uncallable(arg))
+                         for arg in pargs_old)
 
             if not kw:
-                return func(*pargs_new, **kwargs)
+                return func(*pargs_new, **kwargs_old)
 
-            kwargs_new = {key: (kwargs[key] if callable(kwargs[key]) else wrap_uncallable(kwargs[key]))
-                          for key in kwargs}
+            kwargs_new = {
+                name: (value if callable(value) else _wrap_uncallable(value))
+                for name, value in kwargs_old.items()
+            }
 
             return func(*pargs_new, **kwargs_new)
 
