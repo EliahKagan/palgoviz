@@ -8,6 +8,12 @@ factor speedup when simple and straightforward to achieve. Particular attention
 is given to the keys, items, and values methods, whose default implementations
 only perform acceptably if indexing takes O(1) or amortized O(1) time.
 
+Much as sequences.Vec can be constructed with an iterable, with the same effect
+as making an empty Vec and extending it, all the mapping types in this module
+accept an optional positional argument used to populate the mapping, with the
+same effect as making an empty mapping and updating it. The argument can be
+either a mapping or a non-mapping iterable of items (tuples of key and value).
+
 The point of these mappings is to be their own data structures. So they should
 not delegate to a standard library mapping such as dict. But dict is all over
 the place in Python and can't always be avoided. The following uses are exempt:
@@ -18,14 +24,13 @@ the place in Python and can't always be avoided. The following uses are exempt:
 
   3. Construction from arbitrarily named keyword arguments. No type in this
      module requires that it be constructible that way, but if you want to
-     allow it, the dict shouldn't stop you. Functions (including methods) that
-     construct a mapping from key-value pairs passed as keyword arguments may
-     delegate to other such functions, and to functions that don't accept
-     arbitrary keyword arguments. But other forms of construction may not make
-     use of such a function.
+     allow it, you can. Functions (including methods) that construct a mapping
+     from key-value pairs passed as keyword arguments may delegate to other
+     such functions, and to functions that don't accept arbitrary keyword
+     arguments. But other forms of construction may not use such a function.
 
   4. Equality comparison, under specific circumstances. Comparing instances of
-     the same public mapping type in this module must NOT create any dict. This
+     the same mapping type in this module must NOT create any dict. This
      includes instances of future subclasses that don't inherit from each other
      (though if a subclass author further customizes equality comparison, code
      in this module is not responsible for that custom behavior). The __eq__
@@ -47,12 +52,12 @@ exempt. That reprs, if evaluated, create a dict and pass it to a constructor,
 requires no exemption, since no code in this module should run a repr as code.
 But these reprs must not be produced by creating a dict and calling repr on it.
 
-NOTE: I suggest first implementing of some or all types in this module with the
+NOTE: I suggest first implementing some or all types in this module with the
 default mapping views (i.e., without overriding keys, items, or values), even
 if asymptotically too slow; without reversibility (i.e., without implementing
 __reversed__), even though meaningfully ordered mappings and their views ought
 to be reversible; and without customizing equality comparison, even though
-collections.abc.Mapping.__eq__ converts all items views to dict. After you
+collections.abc.Mapping.__eq__ always converts items views to dict. After you
 design and implement other functionality, you can devise an elegant approach to
 these issues, avoiding duplicate logic. If you choose to proceed this way, make
 this note a fixme. Once all requirements are met, remove this note entirely.

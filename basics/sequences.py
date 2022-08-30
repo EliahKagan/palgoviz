@@ -38,8 +38,8 @@ class Vec(MutableSequence):
     attempted. (Most sequences should support slicing and do. Some, such as
     collections.deque, do not. Sequence and MutableSequence do not require it.)
     Buffers from get_buffer might not support slicing, though that is not why
-    Vec doesn't. Buffers support negative indexing, as must Vec. As detailed in
-    test_grow.py, Vec supports some operations not required by MutableSequence.
+    Vec doesn't. Buffers support negative indexing, as must Vec. Vec supports
+    some operations not required by MutableSequence; see test_sequences.py.
 
     This overrides all abstract methods from MutableSequence, but no concrete
     ones. That is, all the default implementations are sufficient. This applies
