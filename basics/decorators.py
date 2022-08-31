@@ -875,9 +875,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-
             tokens = [token(x) for x in func(*args, **kwargs)]
-
             return f'{begin}{sep.join(tokens)}{end}'
 
         return wrapper
