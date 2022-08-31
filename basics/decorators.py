@@ -867,21 +867,16 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     >>> g(7, 0.5)
     '7, 3.5, 1.75, 0.875'
     """
-    if callable(sep): # In this case, sep is the function, not a separator.
+    if callable(sep):  # In this case, sep is the function, not a separator.
         return joining()(sep)
 
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            ret = ''
+            tokens = [repr(x) if use_repr else format(x, format_spec)
+                      for x in iter(func(*args, **kwargs))]
 
-            for value in iter(func(*args, **kwargs)):
-                ret += repr(value) if use_repr else format(value, format_spec)
-                ret += sep
-
-            ret = ret.removesuffix(sep)
-
-            return f'{begin}{ret}{end}'
+            return f'{begin}{sep.join(tokens)}{end}'
 
         return wrapper
 
