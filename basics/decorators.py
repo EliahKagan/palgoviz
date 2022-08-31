@@ -792,16 +792,14 @@ def wrap_uncallable_args(optional_func=None, /, *, kw=False):
 
     def decorator(func):
         @functools.wraps(func)
-        def wrapper(*pargs_old, **kwargs_old):
-            pargs_new = (_wrap_if_uncallable(arg) for arg in pargs_old)
+        def wrapper(*args, **kwargs):
+            args = (_wrap_if_uncallable(arg) for arg in args)
 
-            if not kw:
-                return func(*pargs_new, **kwargs_old)
+            if kw:
+                kwargs = {name: _wrap_if_uncallable(value)
+                          for name, value in kwargs.items()}
 
-            kwargs_new = {name: _wrap_if_uncallable(value)
-                          for name, value in kwargs_old.items()}
-
-            return func(*pargs_new, **kwargs_new)
+            return func(*args, **kwargs)
 
         return wrapper
 
