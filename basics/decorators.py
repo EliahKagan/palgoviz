@@ -867,7 +867,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     >>> g(7, 0.5)
     '7, 3.5, 1.75, 0.875'
     """
-    if callable(sep):
+    if callable(sep): # In this case, sep is the function, not a separator.
         return joining()(sep)
 
     def decorator(func):
@@ -876,7 +876,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
             ret = ''
 
             for value in iter(func(*args, **kwargs)):
-                ret += repr(value) if use_repr else value.__format__(format_spec)
+                ret += repr(value) if use_repr else format(value, format_spec)
                 ret += sep
 
             ret = ret.removesuffix(sep)
