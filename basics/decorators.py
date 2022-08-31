@@ -874,7 +874,7 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             tokens = [repr(x) if use_repr else format(x, format_spec)
-                      for x in iter(func(*args, **kwargs))]
+                      for x in func(*args, **kwargs)]
 
             return f'{begin}{sep.join(tokens)}{end}'
 
