@@ -791,7 +791,7 @@ def wrap_uncallable_args(optional_func=None, /, *, kw=False):
         return wrap_uncallable_args(kw=kw)(optional_func)
 
     def decorator(func):
-        @functools.wraps(func)  # FIXME: Investigate argument names.
+        @functools.wraps(func)
         def wrapper(*pargs_old, **kwargs_old):
             pargs_new = (_wrap_if_uncallable(arg) for arg in pargs_old)
 
