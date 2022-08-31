@@ -867,7 +867,25 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     >>> g(7, 0.5)
     '7, 3.5, 1.75, 0.875'
     """
-    # FIXME: Implement this.
+    if callable(sep):
+        return joining()(sep)
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            ret = ''
+
+            for value in iter(func(*args, **kwargs)):
+                ret += repr(value) if use_repr else value.__format__(format_spec)
+                ret += sep
+
+            ret = ret.removesuffix(sep)
+
+            return f'{begin}{ret}{end}'
+
+        return wrapper
+
+    return decorator
 
 
 def repeat_collect(count=2):
