@@ -870,12 +870,15 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     if callable(sep):  # In this case, sep is the function, not a separator.
         return joining()(sep)
 
-    token = repr if use_repr else lambda x: format(x, format_spec)
+    if not isinstance(sep, str):
+        raise TypeError('separator must be a string')
+
+    get_token = repr if use_repr else lambda value: format(value, format_spec)
 
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            tokens = map(token, func(*args, **kwargs))
+            tokens = map(get_token, func(*args, **kwargs))
             return f'{begin}{sep.join(tokens)}{end}'
 
         return wrapper
