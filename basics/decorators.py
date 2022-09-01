@@ -8,6 +8,7 @@ Caching decorators like @memoize and @memoize_by are in the caching module.
 
 import functools
 import itertools
+import numbers
 
 
 def identity_function(arg):
@@ -947,6 +948,48 @@ def repeat_collect(count=2):
     return decorator
 
 
+class _HelperLinear:
+
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, x):
+        return self.func(x)
+
+    def __add__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return _HelperLinear(lambda x: self(x) + other(x))
+
+    def __sub__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return _HelperLinear(lambda x: self(x) - other(x))
+
+    def __mul__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+
+        return _HelperLinear(lambda x: self(x) * other)
+
+    def __rmul__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+
+        return _HelperLinear(lambda x: self(x) * other)
+
+    def __truediv__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+
+        if other == 0:
+            raise ZeroDivisionError
+
+        return _HelperLinear(lambda x: self(x) / other)
+
+
 def linear_combinable(func):
     """
     Decorator to wrap a function to support addition and scalar multiplication.
@@ -1002,7 +1045,9 @@ def linear_combinable(func):
 
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
-    # FIXME: Implement this.
+    ret = _HelperLinear(func)
+    functools.wraps(ret, func)
+    return ret
 
 
 __all__ = [thing.__name__ for thing in (
