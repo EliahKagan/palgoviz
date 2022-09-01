@@ -931,7 +931,23 @@ def repeat_collect(count=2):
     >>> repeat_collect(math.cos)(math.pi)
     (-1.0, -1.0)
     """
-    # FIXME: Implement this.
+    if callable(count):  # In this case, count is the function, not a count.
+        return repeat_collect()(count)
+
+    if not isinstance(count, int):
+        raise TypeError('count must be an int')
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            results = []
+            for _ in range(count):
+                results.append(func(*args, **kwargs))
+            return tuple(results)
+
+        return wrapper
+
+    return decorator
 
 
 def linear_combinable(func):
