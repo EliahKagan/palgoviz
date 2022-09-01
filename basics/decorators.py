@@ -940,10 +940,7 @@ def repeat_collect(count=2):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            results = []
-            for _ in range(count):
-                results.append(func(*args, **kwargs))
-            return tuple(results)
+            return tuple(func(*args, **kwargs) for _ in range(count))
 
         return wrapper
 
