@@ -57,9 +57,10 @@
 # dict or mappings.HashTable. This must be accepted as a keyword argument; it's
 # up to you to decide what to name it and whether it is keyword-only. If this
 # argument is not passed, the effect is the same as if dict were passed. The
-# cache may use other data structures, but no other mappings; anything natural
-# to do with a mapping must be done by an instance returned by the mapping
-# factory. Hence, the performance of @lru_di depends on the mapping type used.
+# cache may use other data structures, but no other mappings, and the need for
+# a mapping must not be circumvented: anything that would naturally be done
+# with a mapping must be done by an instance returned by the mapping factory.
+# Due to this, the performance of @lru_di depends on the mapping type used.
 #
 # With mappings with O(1)-time operations, such as dict and mappings.HashTable,
 # all @lru_di operations shall take O(1) time. That is, applying a decoration

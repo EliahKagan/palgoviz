@@ -79,16 +79,17 @@
 # readily implement yourself, already available ones you use all the time, and
 # already available ones that are less often used and you may not be aware of.
 #
-# Name these three new simconda.py classes to reflect something about how each
+# Name the three new classes in simconda.py to reflect something about how each
 # works; don't keep the names ScalableSimulator1, ScalableSimulator2, and
 # ScalableSimulator3. They must pass the same unittest tests as Simulator, with
 # no duplication of test code. I recommend adapting the existing test code so
 # it is easy to add more implementations to be tested; then, for each of the
-# "scalable" simulators, add it to be tested, check that its tests fail, then
-# implement it and get all tests to pass. The new simulators should also have
-# doctests analogous to those written for Simconda (and for those, test logic
-# may be duplicated). They should be faster than Simconda for some sequences of
-# operations where n and m are sufficiently large, but this may be tricky to
-# observe. Show this in a notebook, timing with timeit.timeit(..., number=1),
-# %timeit -n1, or %%timeit -n1; or write a test case that is reasonably fast on
-# the new simulators but very slow on Simulator; or both, if you really want.
+# three "scalable" simulators, add it to be tested, check that its tests fail,
+# then implement it and get all tests to pass. The new simulators should also
+# have doctests analogous to those written for Simconda (and for those, test
+# logic may be duplicated). They should be faster than Simconda for some
+# sequences of operations where n and m are sufficiently large. This is, after
+# all, the whole point. But it may be tricky to observe. Show it in a notebook,
+# timing with timeit.timeit(..., number=1), %timeit -n1, or %%timeit -n1; or
+# write a test case that is reasonably fast on the new simulators but very slow
+# on Simulator; or both, if you really want.
