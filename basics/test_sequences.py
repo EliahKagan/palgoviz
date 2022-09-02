@@ -95,15 +95,18 @@ class _NonSelfEqual:
     """
     Pathological object that is not even equal to itself.
 
-    This can usually be assumed not to be the case, and it is usually the
-    responsibility of someone who introduces such an object to avoid using it
-    any ways that would cause problems. But there are a few situations where it
-    makes sense to make specific guarantees about the handling of such objects,
-    since math.nan has this property as well.
+    Objects can, in nearly all cases, be assumed equal to themselves. When a
+    non-self-equal object, such as instances of this class, does exist, it is
+    usually the responsibility of the the code that introduces such an object
+    to ensure it is never used in any ways that would cause problems. But there
+    are a few situations where one ought to make specific guarantees about the
+    handling of such objects, because floating point NaNs have this property.
 
-    This purpose of this class is to facilitate tests of behaviors that hold
-    for floating point NaN values, to ensure floating point NaNs aren't special
-    cased. Where NaN should be special-cased, don't test with this.
+    The purpose of this class is to facilitate tests of behaviors that hold for
+    NaN values, including but not limited to math.nan, to ensure NaNs aren't
+    special-cased by accident. If you decide to special-case NaNs, don't test
+    with this. (Other than NaNs and for testing, there is probably never a good
+    justification for introducing an object that compares unequal to itself.)
     """
 
     __slots__ = ()
