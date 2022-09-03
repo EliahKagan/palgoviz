@@ -79,6 +79,11 @@ class _TestMutableMapping(ABC):
         with self.assertRaises(TypeError):
             hash(table)
 
+    def test_cannot_create_new_attributes(self):
+        table = self.instantiate()
+        with self.assertRaises(AttributeError):
+            table.hopefully_nonexistent_attribute = 42
+
     def test_no_instance_dictionary(self):
         """
         No work should be done with dict, not even as __dict__.
@@ -117,10 +122,25 @@ class TestBinarySearchTree(_TestMutableMapping, unittest.TestCase):
 class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
     """Tests for DirectAddressTable."""
 
-    _parameterize_by_capacity = parameterized.expand([
-        (f'cap{cap}', cap)
-        for cap in [*range(11), 100, 256, 1000, 1017, 5000, 50_041]
+    def _parameterize_by_capacity(*, minimum):
+        """Parameterize a test method by a capacity or capacity delta."""
+        capacities = [*range(minimum, 7), 100, 256, 1000, 1017, 5000, 50_041]
+        rows = [(f'cap{cap}', cap) for cap in capacities]
+        return parameterized.expand(rows)
+
+    _parameterize_by_negative = parameterized.expand([
+        ('neg1', -1, '-1'),
+        ('neg2', -2, '-2'),
+        ('neg100', -100, '-100'),
     ])
+    """Parameterize a test method by a negative int."""
+
+    _parameterize_by_non_int = parameterized.expand([
+        ('float', 128.0,),
+        ('Fraction', Fraction(128)),
+        ('str', '128'),
+    ])
+    """Parameterize a test method by a non-int type-name and value."""
 
     @property
     def mapping_type(self):
@@ -133,11 +153,7 @@ class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
         with self.assertRaises(TypeError):
             DirectAddressTable()
 
-    @parameterized.expand([
-        ('neg1', -1, '-1'),
-        ('neg2', -2, '-2'),
-        ('neg100', -100, '-100'),
-    ])
+    @_parameterize_by_negative
     def test_capacity_must_be_nonnegative(self, _name,
                                           capacity, capacity_text):
         expected_message = (r'\Acapacity cannot be negative, got %s\Z'
@@ -146,11 +162,7 @@ class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
         with self.assertRaisesRegex(ValueError, expected_message):
             DirectAddressTable(capacity)
 
-    @parameterized.expand([
-        ('float', 256.0,),
-        ('Fraction', Fraction(256)),
-        ('str', '256'),
-    ])
+    @_parameterize_by_non_int
     def test_capacity_must_be_int(self, type_text, capacity):
         expected_message = (r"\Acapacity must be 'int', not '%s'\Z"
                             % type_text)
@@ -158,22 +170,190 @@ class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
         with self.assertRaisesRegex(TypeError, expected_message):
             DirectAddressTable(capacity)
 
-    def test_negative_non_int_capacity_is_a_type_error(self):
+    def test_negative_non_int_capacity_is_type_error(self):
         """Whenever TypeError applies, it is raised, not ValueError."""
         expected_message = r"\Acapacity must be 'int', not 'float'\Z"
 
         with self.assertRaisesRegex(TypeError, expected_message):
             DirectAddressTable(-1.0)
 
-    @_parameterize_by_capacity
+    @_parameterize_by_capacity(minimum=0)
     def test_capacity_has_capacity(self, _name, capacity):
         table = DirectAddressTable(capacity)
         self.assertEqual(table.capacity, capacity)
 
-    @_parameterize_by_capacity
+    @_parameterize_by_capacity(minimum=0)
     def test_capacity_can_be_given_as_keyword_arg(self, _name, capacity):
         table = DirectAddressTable(capacity=capacity)
         self.assertEqual(table.capacity, capacity)
+
+    def test_cannot_change_capacity(self):
+        expected_message = r"\Acan't set attribute 'capacity'\Z"
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(AttributeError, expected_message):
+            table.capacity = 512
+
+    @_parameterize_by_capacity(minimum=0)
+    def test_getting_too_high_key_is_index_error(self, _name, delta):
+        capacity = 256
+        key = capacity + delta
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(IndexError):
+            table[key]
+
+    @_parameterize_by_capacity(minimum=0)
+    def test_setting_too_high_key_is_index_error(self, _name, delta):
+        capacity = 256
+        key = capacity + delta
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(IndexError):
+            table[key] = 'foo'
+
+    @_parameterize_by_capacity(minimum=0)
+    def test_deleting_too_high_key_is_index_error(self, _name, delta):
+        capacity = 256
+        key = capacity + delta
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(IndexError):
+            del table[key]
+
+    @_parameterize_by_negative
+    def test_getting_negative_key_is_index_error(self, _name, key, _):
+        table = DirectAddressTable(256)
+        with self.assertRaises(IndexError):
+            table[key]
+
+    @_parameterize_by_negative
+    def test_setting_negative_key_is_index_error(self, _name, key, _):
+        table = DirectAddressTable(256)
+        with self.assertRaises(IndexError):
+            table[key] = 'foo'
+
+    @_parameterize_by_negative
+    def test_deleting_negative_key_is_index_error(self, _name, key, _):
+        table = DirectAddressTable(256)
+        with self.assertRaises(IndexError):
+            del table[key]
+
+    @_parameterize_by_non_int
+    def test_getting_non_int_key_is_type_error(self, type_text, key):
+        expected_message = (r"\Akey must be 'int', not '%s'\Z" % type_text)
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(TypeError, expected_message):
+            table[key]
+
+    @_parameterize_by_non_int
+    def test_setting_non_int_key_is_type_error(self, type_text, key):
+        expected_message = (r"\Akey must be 'int', not '%s'\Z" % type_text)
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(TypeError, expected_message):
+            table[key] = 'foo'
+
+    @_parameterize_by_non_int
+    def test_deleting_non_int_key_is_type_error(self, type_text, key):
+        expected_message = (r"\Akey must be 'int', not '%s'\Z" % type_text)
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(TypeError, expected_message):
+            del table[key]
+
+    def test_getting_negative_non_int_key_is_type_error(self):
+        expected_message = r"\Akey must be 'int', not 'float'\Z"
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(TypeError, expected_message):
+            table[-1.0]
+
+    def test_setting_negative_non_int_key_is_type_error(self):
+        expected_message = r"\Akey must be 'int', not 'float'\Z"
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(TypeError, expected_message):
+            table[-1.0] = 'foo'
+
+    def test_deleting_negative_non_int_key_is_type_error(self):
+        expected_message = r"\Akey must be 'int', not 'float'\Z"
+
+        table = DirectAddressTable(256)
+        with self.assertRaisesRegex(TypeError, expected_message):
+            del table[-1.0]
+
+    @_parameterize_by_capacity(minimum=1)
+    def test_getting_unset_zero_key_is_key_error(self, _name, capacity):
+        """Getting an absent but in-range key is KeyError, not IndexError."""
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(KeyError):
+            table[0]
+
+    @_parameterize_by_capacity(minimum=1)
+    def test_deleting_unset_zero_key_is_key_error(self, _name, capacity):
+        """Deleting an absent but in-range key is KeyError, not IndexError."""
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(KeyError):
+            del table[0]
+
+    @_parameterize_by_capacity(minimum=1)
+    def test_can_set_then_get_zero_key(self, _name, capacity):
+        table = DirectAddressTable(capacity)
+        table[0] = 'foo'
+        self.assertEqual(table[0], 'foo')
+
+    @_parameterize_by_capacity(minimum=1)
+    def test_can_set_then_reset_then_get_zero_key(self, _name, capacity):
+        table = DirectAddressTable(capacity)
+        table[0] = 'foo'
+        table[0] = 'bar'
+        self.assertEqual(table[0], 'bar')
+
+    @_parameterize_by_capacity(minimum=1)
+    def test_can_set_then_delete_zero_key(self, _name, capacity):
+        """Setting and deleting at 0 works, then getting raises KeyError."""
+        table = DirectAddressTable(capacity)
+        table[0] = 'foo'
+        del table[0]
+        with self.assertRaises(KeyError):
+            table[0]
+
+    @_parameterize_by_capacity(minimum=2)
+    def test_getting_unset_max_key_is_key_error(self, _name, capacity):
+        """Getting an absent but in-range key is KeyError, not IndexError."""
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(KeyError):
+            table[capacity - 1]
+
+    @_parameterize_by_capacity(minimum=2)
+    def test_deleting_unset_max_key_is_key_error(self, _name, capacity):
+        """Deleting an absent but in-range key is KeyError, not IndexError."""
+        table = DirectAddressTable(capacity)
+        with self.assertRaises(KeyError):
+            del table[capacity - 1]
+
+    @_parameterize_by_capacity(minimum=2)
+    def test_can_set_then_get_max_key(self, _name, capacity):
+        table = DirectAddressTable(capacity)
+        table[capacity - 1] = 'foo'
+        self.assertEqual(table[capacity - 1], 'foo')
+
+    @_parameterize_by_capacity(minimum=2)
+    def test_can_set_then_reset_then_get_max_key(self, _name, capacity):
+        table = DirectAddressTable(capacity)
+        table[capacity - 1] = 'foo'
+        table[capacity - 1] = 'bar'
+        self.assertEqual(table[capacity - 1], 'bar')
+
+    @_parameterize_by_capacity(minimum=2)
+    def test_can_set_then_delete_max_key(self, _name, capacity):
+        """
+        Setting then deleting capacity - 1 works, then getting raises KeyError.
+        """
+        table = DirectAddressTable(capacity)
+        table[capacity - 1] = 'foo'
+        del table[capacity - 1]
+        with self.assertRaises(KeyError):
+            table[capacity - 1]
 
 
 class TestHashTable(_TestMutableMapping, unittest.TestCase):
