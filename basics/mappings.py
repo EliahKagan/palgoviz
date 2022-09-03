@@ -994,7 +994,7 @@ class DirectAddressTable(_FastIteratingReversibleMapping, MutableMapping):
         if not isinstance(key, int):
             raise TypeError(f"key must be 'int', not {type(key).__name__!r}")
         if not 0 <= key < self.capacity:
-            raise ValueError(f'key must be in range({self.capacity!r})')
+            raise IndexError(f'key must be in range({self.capacity!r})')
 
     def _items_by(self, enumerator):
         """Helper function for _items and _reversed_items."""
