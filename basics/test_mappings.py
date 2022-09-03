@@ -16,7 +16,12 @@ from mappings import (
 
 
 class _TestMutableMapping(ABC):
-    """Tests shared by all mutable mappings in mappings.py."""
+    """
+    Tests shared by all mutable mappings in mappings.py.
+
+    Concrete classes derived (directly or indirectly) from this abstract base
+    class should also derive (directly or indirectly) from unittest.TestCase.
+    """
 
     @property
     @abstractmethod
@@ -49,6 +54,18 @@ class _TestMutableMapping(ABC):
         table = self.instantiate()
         values = table.values()
         self.assertIsInstance(values, ValuesView)
+
+    def test_not_hashable(self):
+        """A mutable type should not be hashable."""
+        table = self.instantiate()
+        with self.assertRaises(TypeError):
+            hash(table)
+
+    def test_no_instance_dictionary(self):
+        """No work should be done with dict, not even as __dict__."""
+        table = self.instantiate()
+        with self.assertRaises(AttributeError):
+            table.__dict__
 
 
 class TestUnsortedFlatTable(_TestMutableMapping, unittest.TestCase):
