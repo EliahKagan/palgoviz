@@ -28,7 +28,6 @@ class _TestMutableMapping(ABC):
         """Construct an instance of the implementation."""
         return self.mapping_type()
 
-
     def test_type_is_a_mutable_mapping_type(self):
         self.assertTrue(issubclass(self.mapping_type, MutableMapping))
 
@@ -159,7 +158,7 @@ class OldTestIntKeyTable:
         with pytest.raises(AttributeError):
             table.stop = attempted_new_stop
 
-    @pytest.mark.parametrize('start, stop, capacity',[
+    @pytest.mark.parametrize('start, stop, capacity', [
         (1, 3, 2),
         (-1, 4, 5),
         (3, 10, 7),
@@ -168,7 +167,7 @@ class OldTestIntKeyTable:
         table = IntKeyTable(start, stop)
         assert table.capacity == capacity
 
-    @pytest.mark.parametrize('start, stop, attempted_new_capacity',[
+    @pytest.mark.parametrize('start, stop, attempted_new_capacity', [
         (1, 3, 3),
         (-1, 4, 2),
         (3, 10, 9),
@@ -229,9 +228,5 @@ class OldTestIntKeyTable:
             hash(table)
 
 
-class TestHashTable:
-    """Tests for the HashTable class."""
-
-    __slots__ = ()
-
-    # FIXME: Write the HashTable tests.
+if __name__ == '__main__':
+    unittest.main()
