@@ -4,7 +4,10 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import ItemsView, KeysView, MutableMapping, ValuesView
+from fractions import Fraction
 import unittest
+
+from parameterized import parameterized
 
 from mappings import (
     UnsortedFlatTable,
@@ -30,9 +33,20 @@ class _TestMutableMapping(ABC):
         """The implementation being tested."""
         raise NotImplementedError
 
-    def instantiate(self):
-        """Construct an instance of the implementation."""
-        return self.mapping_type()
+    def instantiate(self, *args, **kwargs):
+        """
+        Construct an instance of the implementation (the class under test).
+
+        This may be called with no arguments to create an empty instance, or
+        with positional and/or keyword arguments to pass to the implementation.
+        It is expected to return an empty instance that accepts 0, 1, ..., 255
+        as keys. It may, and in most cases will, also accept many other keys.
+        This should only be overridden if forwarding *args and **kwargs to the
+        mapping type does not achieve this. This method exists so mappings that
+        are constructed in unusual ways, particularly DirectAddressTable, can
+        share tests with mappings constructed in more ordinary ways.
+        """
+        return self.mapping_type(*args, **kwargs)
 
     def test_class_is_a_mutable_mapping_type(self):
         self.assertTrue(issubclass(self.mapping_type, MutableMapping))
@@ -103,12 +117,63 @@ class TestBinarySearchTree(_TestMutableMapping, unittest.TestCase):
 class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
     """Tests for DirectAddressTable."""
 
+    _parameterize_by_capacity = parameterized.expand([
+        (f'cap{cap}', cap)
+        for cap in [*range(11), 100, 256, 1000, 1017, 5000, 50_041]
+    ])
+
     @property
     def mapping_type(self):
         return DirectAddressTable
 
-    def instantiate(self):
-        return DirectAddressTable(capacity=256)
+    def instantiate(self, *args, **kwargs):
+        return DirectAddressTable(256, *args, **kwargs)
+
+    def test_cannot_construct_without_capacity_arg(self):
+        with self.assertRaises(TypeError):
+            DirectAddressTable()
+
+    @parameterized.expand([
+        ('neg1', -1, '-1'),
+        ('neg2', -2, '-2'),
+        ('neg100', -100, '-100'),
+    ])
+    def test_capacity_must_be_nonnegative(self, _name,
+                                          capacity, capacity_text):
+        expected_message = (r'\Acapacity cannot be negative, got %s\Z'
+                            % capacity_text)
+
+        with self.assertRaisesRegex(ValueError, expected_message):
+            DirectAddressTable(capacity)
+
+    @parameterized.expand([
+        ('float', 256.0,),
+        ('Fraction', Fraction(256)),
+        ('str', '256'),
+    ])
+    def test_capacity_must_be_int(self, type_text, capacity):
+        expected_message = (r"\Acapacity must be 'int', not '%s'\Z"
+                            % type_text)
+
+        with self.assertRaisesRegex(TypeError, expected_message):
+            DirectAddressTable(capacity)
+
+    def test_negative_non_int_capacity_is_a_type_error(self):
+        """Whenever TypeError applies, it is raised, not ValueError."""
+        expected_message = r"\Acapacity must be 'int', not 'float'\Z"
+
+        with self.assertRaisesRegex(TypeError, expected_message):
+            DirectAddressTable(-1.0)
+
+    @_parameterize_by_capacity
+    def test_capacity_has_capacity(self, _name, capacity):
+        table = DirectAddressTable(capacity)
+        self.assertEqual(table.capacity, capacity)
+
+    @_parameterize_by_capacity
+    def test_capacity_can_be_given_as_keyword_arg(self, _name, capacity):
+        table = DirectAddressTable(capacity=capacity)
+        self.assertEqual(table.capacity, capacity)
 
 
 class TestHashTable(_TestMutableMapping, unittest.TestCase):
