@@ -2,24 +2,102 @@
 
 """Tests for mappings.py."""
 
-from collections.abc import (
-    ItemsView,
-    KeysView,
-    MutableMapping,
-    ValuesView,
+from abc import ABC, abstractmethod
+from collections.abc import ItemsView, KeysView, MutableMapping, ValuesView
+import unittest
+
+from mappings import (
+    UnsortedFlatTable,
+    SortedFlatTable,
+    BinarySearchTree,
+    DirectAddressTable,
+    HashTable,
 )
 
-import pytest
 
-from mappings import IntKeyTable, HashTable
+class _TestMutableMapping(ABC):
+    """Tests shared by all mutable mappings in mappings.py."""
+
+    @property
+    @abstractmethod
+    def mapping_type(self):
+        """The implementation being tested."""
+        raise NotImplementedError
+
+    def instantiate(self):
+        """Construct an instance of the implementation."""
+        return self.mapping_type()
 
 
+    def test_type_is_a_mutable_mapping_type(self):
+        self.assertTrue(issubclass(self.mapping_type, MutableMapping))
 
-# FIXME: These tests are incomplete, overcomplicated, and buggy, and some of
-# the requirements they express are likely to change radically.
-#
-# FIXME: The use of fixtures here is not very good, and not really as intended.
-class TestIntKeyTable:
+    def test_construction_actually_gives_a_mutable_mapping(self):
+        table = self.instantiate()
+        self.assertIsInstance(table, MutableMapping)
+
+    def test_items_gives_items_view(self):
+        table = self.instantiate()
+        items = table.items()
+        self.assertIsInstance(items, ItemsView)
+
+    def test_keys_gives_keys_view(self):
+        table = self.instantiate()
+        keys = table.keys()
+        self.assertIsInstance(keys, KeysView)
+
+    def test_values_gives_values_view(self):
+        table = self.instantiate()
+        values = table.values()
+        self.assertIsInstance(values, ValuesView)
+
+
+class TestUnsortedFlatTable(_TestMutableMapping, unittest.TestCase):
+    """Tests for UnsortedFlatTable."""
+
+    @property
+    def mapping_type(self):
+        return UnsortedFlatTable
+
+
+class TestSortedFlatTable(_TestMutableMapping, unittest.TestCase):
+    """Tests for SortedFlatTable."""
+
+    @property
+    def mapping_type(self):
+        return SortedFlatTable
+
+
+class TestBinarySearchTree(_TestMutableMapping, unittest.TestCase):
+    """Tests for BinarySearchTree."""
+
+    @property
+    def mapping_type(self):
+        return BinarySearchTree
+
+
+class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
+    """Tests for DirectAddressTable."""
+
+    @property
+    def mapping_type(self):
+        return DirectAddressTable
+
+    def instantiate(self):
+        return DirectAddressTable(capacity=256)
+
+
+class TestHashTable(_TestMutableMapping, unittest.TestCase):
+    """Tests for HashTable."""
+
+    @property
+    def mapping_type(self):
+        return HashTable
+
+
+# FIXME: Salvage stuff suitable to test DirectAddressTable. Delete this class.
+import pytest  # Temporary import so the module can be loaded (going away).
+class OldTestIntKeyTable:
     """Tests for the IntKeyTable class, a direct address table."""
 
     __slots__ = ()
