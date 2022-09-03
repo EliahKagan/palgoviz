@@ -19,8 +19,9 @@ class _TestMutableMapping(ABC):
     """
     Tests shared by all mutable mappings in mappings.py.
 
-    Concrete classes derived (directly or indirectly) from this abstract base
-    class should also derive (directly or indirectly) from unittest.TestCase.
+    Concrete derived classes, in addition to overriding mapping_type and, if
+    the default implementation is unsuitable, overriding instantiate, are
+    expected to inherit (directly or indirectly) from unittest.TestCase.
     """
 
     @property
@@ -33,24 +34,27 @@ class _TestMutableMapping(ABC):
         """Construct an instance of the implementation."""
         return self.mapping_type()
 
-    def test_type_is_a_mutable_mapping_type(self):
+    def test_class_is_a_mutable_mapping_type(self):
         self.assertTrue(issubclass(self.mapping_type, MutableMapping))
 
-    def test_construction_actually_gives_a_mutable_mapping(self):
+    def test_instance_is_a_mutable_mapping(self):
         table = self.instantiate()
         self.assertIsInstance(table, MutableMapping)
 
-    def test_items_gives_items_view(self):
+    def test_items_gives_items_view_instance(self):
+        """The items method gives a direct or indirect ItemsView instance."""
         table = self.instantiate()
         items = table.items()
         self.assertIsInstance(items, ItemsView)
 
-    def test_keys_gives_keys_view(self):
+    def test_keys_gives_keys_view_instance(self):
+        """The keys method gives a direct or indirect KeysView instance."""
         table = self.instantiate()
         keys = table.keys()
         self.assertIsInstance(keys, KeysView)
 
-    def test_values_gives_values_view(self):
+    def test_values_gives_values_view_instance(self):
+        """The values method gives a direct or indirect ValuesView instance."""
         table = self.instantiate()
         values = table.values()
         self.assertIsInstance(values, ValuesView)
@@ -62,7 +66,11 @@ class _TestMutableMapping(ABC):
             hash(table)
 
     def test_no_instance_dictionary(self):
-        """No work should be done with dict, not even as __dict__."""
+        """
+        No work should be done with dict, not even as __dict__.
+
+        See the mappings module docstring for details.
+        """
         table = self.instantiate()
         with self.assertRaises(AttributeError):
             table.__dict__
