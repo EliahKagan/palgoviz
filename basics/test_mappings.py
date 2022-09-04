@@ -94,6 +94,46 @@ class _TestMutableMapping(ABC):
         with self.assertRaises(AttributeError):
             table.__dict__
 
+    def test_simplest_construction_gives_falsy_instance(self):
+        table = self.instantiate()
+        self.assertFalse(table)
+
+    def test_simplest_construction_gives_zero_size_instance(self):
+        table = self.instantiate()
+        self.assertEqual(len(table), 0)
+
+    def test_empty_has_falsy_items_view(self):
+        table = self.instantiate()
+        items = table.items()
+        self.assertFalse(items)
+
+    def test_empty_has_zero_size_items_view(self):
+        table = self.instantiate()
+        items = table.items()
+        self.assertEqual(len(items), 0)
+
+    def test_empty_has_falsy_keys_view(self):
+        table = self.instantiate()
+        keys = table.keys()
+        self.assertFalse(keys)
+
+    def test_empty_has_zero_size_keys_view(self):
+        table = self.instantiate()
+        keys = table.keys()
+        self.assertEqual(len(keys), 0)
+
+    def test_empty_has_falsy_values_view(self):
+        table = self.instantiate()
+        values = table.values()
+        self.assertFalse(values)
+
+    def test_empty_has_zero_size_values_view(self):
+        table = self.instantiate()
+        values = table.values()
+        self.assertEqual(len(values), 0)
+
+    # FIXME: Write the (many) rest of these tests.
+
 
 class TestUnsortedFlatTable(_TestMutableMapping, unittest.TestCase):
     """Tests for UnsortedFlatTable."""
