@@ -1059,8 +1059,7 @@ def linear_combinable(func):
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
     ret = _HelperLinear(func)
-    #functools.update_wrapper(ret, func)
-    functools.wraps(func)(ret)
+    functools.wraps(func)(ret)  # Or: functools.update_wrapper(ret, func)
     return ret
 
 
