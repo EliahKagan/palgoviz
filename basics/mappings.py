@@ -527,12 +527,14 @@ class BinarySearchTree(_FastIteratingReversibleMapping, MutableMapping):
     in practice, the tree is unbalanced. Self-balancing BST (e.g., red-black
     tree or AVL tree) mapping types may be added to this module in the future.
 
-    The draw method draws the tree, whose structure is otherwise considered an
-    implementation detail. At all times, O(n) space is used, all but O(1) of
-    which is nodes. Besides draw, public methods use O(1) auxiliary space. Read
-    operations, such as indexing and iteration, write only to local variables.
-    Achieving O(1) auxiliary space requires [FIXME: Say how this must affect
-    the design. Do this before writing any code of the class.]
+    At all times, an instance of BinarySearchTree uses O(n) space, all but O(1)
+    of which is nodes. The draw method draws the tree, whose structure is
+    otherwise considered an implementation detail, and may use O(n) auxiliary
+    space to do so. No other method calls draw. Except for draw, all code that
+    runs as a result of calling a public method uses O(1) auxiliary space, and
+    read operations, such as indexing and iteration, write only to local
+    variables. Achieving O(1) auxiliary space requires [FIXME: Say how this
+    must affect the design. Do this before writing any code of the class.]
 
     Other significant implementation details: Insertion adds leaves; paths from
     the root to preexisting nodes are unchanged. Deleting a node must sometimes
