@@ -948,62 +948,7 @@ def repeat_collect(count=2):
     return decorator
 
 
-class _HelperLinear:
-
-    def __init__(self, func):
-        self._func = func
-
-    def __call__(self, x):
-        return self.func(x)
-
-    def __eq__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-
-        return self.func == other.func
-
-    def __hash__(self):
-        return hash(self.func)
-
-    def __add__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-
-        return _HelperLinear(lambda x: self(x) + other(x))
-
-    def __sub__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-
-        return _HelperLinear(lambda x: self(x) - other(x))
-
-    def __mul__(self, other):
-        if not isinstance(other, numbers.Number):
-            return NotImplemented
-
-        return _HelperLinear(lambda x: self(x) * other)
-
-    def __rmul__(self, other):
-        if not isinstance(other, numbers.Number):
-            return NotImplemented
-
-        return _HelperLinear(lambda x: self(x) * other)
-
-    def __truediv__(self, other):
-        if not isinstance(other, numbers.Number):
-            return NotImplemented
-
-        if other == 0:
-            raise ZeroDivisionError("second-order division by zero")
-
-        return _HelperLinear(lambda x: self(x) / other)
-
-    @property
-    def func(self):
-        return self._func
-
-
-def linear_combinable(func):
+class linear_combinable:
     """
     Decorator to wrap a function to support addition and scalar multiplication.
 
@@ -1058,9 +1003,59 @@ def linear_combinable(func):
 
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
-    ret = _HelperLinear(func)
-    functools.wraps(func)(ret)  # Or: functools.update_wrapper(ret, func)
-    return ret
+
+    def __init__(self, func):
+        self._func = func
+        functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
+
+    def __call__(self, x):
+        return self.func(x)
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self.func == other.func
+
+    def __hash__(self):
+        return hash(self.func)
+
+    def __add__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return linear_combinable(lambda x: self(x) + other(x))
+
+    def __sub__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return linear_combinable(lambda x: self(x) - other(x))
+
+    def __mul__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+
+        return linear_combinable(lambda x: self(x) * other)
+
+    def __rmul__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+
+        return linear_combinable(lambda x: self(x) * other)
+
+    def __truediv__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+
+        if other == 0:
+            raise ZeroDivisionError("second-order division by zero")
+
+        return linear_combinable(lambda x: self(x) / other)
+
+    @property
+    def func(self):
+        return self._func
 
 
 __all__ = [thing.__name__ for thing in (
