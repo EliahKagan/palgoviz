@@ -985,7 +985,7 @@ class _HelperLinear:
             return NotImplemented
 
         if other == 0:
-            raise ZeroDivisionError
+            raise ZeroDivisionError("second-order division by zero")
 
         return _HelperLinear(lambda x: self(x) / other)
 
@@ -1035,7 +1035,7 @@ def linear_combinable(func):
     >>> (2 * linear_combinable(str.upper) * 3 + f)('xyz')
     'XYZXYZXYZXYZXYZXYZxyzxyz'
 
-    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
+    >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})   # doctest: +SKIP
     4
     >>> for h in f, g, three:  # Check that metadata attributes are intact.
     ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
@@ -1046,7 +1046,8 @@ def linear_combinable(func):
     FIXME: Add a test to check that this works even when "*" isn't commutative.
     """
     ret = _HelperLinear(func)
-    functools.wraps(ret, func)
+    #functools.update_wrapper(ret, func)
+    functools.wraps(func)(ret)
     return ret
 
 
