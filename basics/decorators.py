@@ -1001,21 +1001,16 @@ class linear_combinable:
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
     ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
 
-    >>> from sympy import Symbol
-    >>> from numbers import Number
-    >>> class MySymbol(Symbol): pass
-    >>> Number.register(MySymbol)  # Just for testing!
-    <class 'decorators.MySymbol'>
-    >>> @linear_combinable
-    ... def sx(_): return MySymbol('x', commutative=False)
+    >>> import sympy, numbers
+    >>> @numbers.Number.register  # Pretend to be a number. Just for testing!
+    ... class MySymbol(sympy.Symbol): pass
+    >>> x = MySymbol('x', commutative=False)
     >>> y = MySymbol('y', commutative=False)
-    >>> xy = sx * y
-    >>> yx = y * sx
 
-    >>> print(xy(1))
-    x*y
-    >>> print(yx(1))
-    y*x
+    >>> (f * y)(x)
+    2*x*y
+    >>> (y * f)(x)
+    2*y*x
     """
 
     def __init__(self, func):
