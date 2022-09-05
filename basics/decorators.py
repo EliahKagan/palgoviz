@@ -1001,7 +1001,33 @@ class linear_combinable:
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
     ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
 
-    FIXME: Add a test to check that this works even when "*" isn't commutative.
+    >>> from sympy import Matrix
+    >>> @linear_combinable
+    ... def m(_): return Matrix([[1, 2], [3, 4]])
+    >>> @linear_combinable
+    ... def n(_): return Matrix([[2, 2], [2, 2]])
+    >>> M = Matrix([[1, 2], [3, 4]])
+    >>> N = Matrix([[2, 2], [2, 2]])
+
+
+
+    >>> mn = m * N
+    >>> print(mn(1))
+    Matrix([[6, 6], [14, 14]])
+
+    >>> nm = N * m
+    >>> print(nm(1))
+    Matrix([[6, 6], [14, 14]])
+
+
+    >>> MN = M * N
+    >>> print(MN)
+    Matrix([[6, 6], [14, 14]])
+    >>> NM = N * M
+    >>> print(NM)
+    Matrix([[8, 12], [8, 12]])
+
+
     """
 
     def __init__(self, func):
