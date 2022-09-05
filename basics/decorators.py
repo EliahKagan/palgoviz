@@ -1001,33 +1001,20 @@ class linear_combinable:
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
     ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
 
-    >>> from sympy import Matrix
+    >>> from sympy import Symbol
+    >>> from numbers import Number
     >>> @linear_combinable
-    ... def m(_): return Matrix([[1, 2], [3, 4]])
-    >>> @linear_combinable
-    ... def n(_): return Matrix([[2, 2], [2, 2]])
-    >>> M = Matrix([[1, 2], [3, 4]])
-    >>> N = Matrix([[2, 2], [2, 2]])
+    ... def sx(_): return Symbol('x', commutative=False)
+    >>> Number.register(Symbol)  # For testting non-commutative multiplication
+    <class 'sympy.core.symbol.Symbol'>
+    >>> y = Symbol('y', commutative=False)
+    >>> xy = sx * y
+    >>> yx = y * sx
 
-
-
-    >>> mn = m * N
-    >>> print(mn(1))
-    Matrix([[6, 6], [14, 14]])
-
-    >>> nm = N * m
-    >>> print(nm(1))
-    Matrix([[6, 6], [14, 14]])
-
-
-    >>> MN = M * N
-    >>> print(MN)
-    Matrix([[6, 6], [14, 14]])
-    >>> NM = N * M
-    >>> print(NM)
-    Matrix([[8, 12], [8, 12]])
-
-
+    >>> print(xy(1))
+    x*y
+    >>> print(yx(1))
+    y*x
     """
 
     def __init__(self, func):
@@ -1068,7 +1055,7 @@ class linear_combinable:
         if not isinstance(other, numbers.Number):
             return NotImplemented
 
-        return linear_combinable(lambda x: self(x) * other)
+        return linear_combinable(lambda x: other * self(x))
 
     def __truediv__(self, other):
         if not isinstance(other, numbers.Number):
