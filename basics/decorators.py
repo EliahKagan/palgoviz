@@ -1003,11 +1003,12 @@ class linear_combinable:
 
     >>> from sympy import Symbol
     >>> from numbers import Number
+    >>> class MySymbol(Symbol): pass
+    >>> Number.register(MySymbol)  # Just for testing!
+    <class 'decorators.MySymbol'>
     >>> @linear_combinable
-    ... def sx(_): return Symbol('x', commutative=False)
-    >>> Number.register(Symbol)  # Just for testing!!
-    <class 'sympy.core.symbol.Symbol'>
-    >>> y = Symbol('y', commutative=False)
+    ... def sx(_): return MySymbol('x', commutative=False)
+    >>> y = MySymbol('y', commutative=False)
     >>> xy = sx * y
     >>> yx = y * sx
 
