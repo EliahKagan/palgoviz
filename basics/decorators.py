@@ -1005,7 +1005,7 @@ class linear_combinable:
     >>> from numbers import Number
     >>> @linear_combinable
     ... def sx(_): return Symbol('x', commutative=False)
-    >>> Number.register(Symbol)  # For testting non-commutative multiplication
+    >>> Number.register(Symbol)  # Just for testing!!
     <class 'sympy.core.symbol.Symbol'>
     >>> y = Symbol('y', commutative=False)
     >>> xy = sx * y
