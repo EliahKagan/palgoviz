@@ -1020,25 +1020,29 @@ class linear_combinable:
     """
 
     def __init__(self, func):
+        """Create a linearily combinable object wrapping a function."""
         functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
+    def __repr__(self):
+        """Representation for debugging, showing the wrapped callable."""
+        return f'{type(self).__name__}({self.__wrapped__!r})'
+
     def __call__(self, x):
+        """Call the wrapped function."""
         return self.__wrapped__(x)
 
     def __eq__(self, other):
+        """Check if two linearily combinable objects wrap equal callables."""
         if not isinstance(other, type(self)):
             return NotImplemented
 
         return self.__wrapped__ == other.__wrapped__
 
-    def __repr__(self):
-        """Representation for debugging, showing func."""
-        return f'{type(self).__name__}({self.__wrapped__!r})'
-
     def __hash__(self):
         return hash(self.__wrapped__)
 
     def __add__(self, right_addend):
+        """Add instances of linear_combinable, with the other on the right."""
         if not isinstance(right_addend, type(self)):
             return NotImplemented
 
@@ -1047,6 +1051,7 @@ class linear_combinable:
         return type(self)(lambda x: f(x) + g(x))
 
     def __radd__(self, left_addend):
+        """Add instances of linear_combinable, with the other on the left."""
         if not isinstance(left_addend, type(self)):
             return NotImplemented
 
@@ -1055,6 +1060,9 @@ class linear_combinable:
         return type(self)(lambda x: g(x) + f(x))
 
     def __sub__(self, subtrahend):
+        """
+        Subtract instances of linear_combinable, with the other on the right.
+        """
         if not isinstance(subtrahend, type(self)):
             return NotImplemented
 
@@ -1063,6 +1071,9 @@ class linear_combinable:
         return type(self)(lambda x: f(x) - g(x))
 
     def __rsub__(self, minuend):
+        """
+        Subtract instances of linear_combinable, with the other on the left.
+        """
         if not isinstance(minuend, type(self)):
             return NotImplemented
 
@@ -1071,6 +1082,7 @@ class linear_combinable:
         return type(self)(lambda x: g(x) - f(x))
 
     def __mul__(self, right_coefficent):
+        """Multiply a linear_combinable by a number on the right."""
         if not isinstance(right_coefficent, numbers.Number):
             return NotImplemented
 
@@ -1078,6 +1090,7 @@ class linear_combinable:
         return type(self)(lambda x: f(x) * right_coefficent)
 
     def __rmul__(self, left_coefficent):
+        """Multiply a linear_combinable by a number on the left."""
         if not isinstance(left_coefficent, numbers.Number):
             return NotImplemented
 
@@ -1085,6 +1098,7 @@ class linear_combinable:
         return type(self)(lambda x: left_coefficent * f(x))
 
     def __truediv__(self, divisor):
+        """Divide a linear_combinable by a number (except zero)."""
         if not isinstance(divisor, numbers.Number):
             return NotImplemented
 
