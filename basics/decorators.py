@@ -1026,6 +1026,10 @@ class linear_combinable:
 
         return self.func == other.func
 
+    def __repr__(self):
+        """Representation for debugging, showing func."""
+        return f'{type(self).__name__}({self.func!r})'
+
     def __hash__(self):
         return hash(self.func)
 
