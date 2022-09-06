@@ -1042,37 +1042,47 @@ class linear_combinable:
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return type(self)(lambda x: self(x) + other(x))
+        f = self.__wrapped__
+        g = other.__wrapped__
+        return type(self)(lambda x: f(x) + g(x))
 
     def __radd__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return type(self)(lambda x: other(x) + self(x))
+        f = self.__wrapped__
+        g = other.__wrapped__
+        return type(self)(lambda x: g(x) + f(x))
 
     def __sub__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return type(self)(lambda x: self(x) - other(x))
+        f = self.__wrapped__
+        g = other.__wrapped__
+        return type(self)(lambda x: f(x) - g(x))
 
     def __rsub__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return type(self)(lambda x: other(x) - self(x))
+        f = self.__wrapped__
+        g = other.__wrapped__
+        return type(self)(lambda x: g(x) - f(x))
 
     def __mul__(self, other):
         if not isinstance(other, numbers.Number):
             return NotImplemented
 
-        return type(self)(lambda x: self(x) * other)
+        f = self.__wrapped__
+        return type(self)(lambda x: f(x) * other)
 
     def __rmul__(self, other):
         if not isinstance(other, numbers.Number):
             return NotImplemented
 
-        return type(self)(lambda x: other * self(x))
+        f = self.__wrapped__
+        return type(self)(lambda x: other * f(x))
 
     def __truediv__(self, other):
         if not isinstance(other, numbers.Number):
@@ -1081,7 +1091,8 @@ class linear_combinable:
         if other == 0:
             raise ZeroDivisionError("second-order division by zero")
 
-        return type(self)(lambda x: self(x) / other)
+        f = self.__wrapped__
+        return type(self)(lambda x: f(x) / other)
 
 
 __all__ = [thing.__name__ for thing in (
