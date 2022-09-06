@@ -5,5 +5,9 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "cSpell.words": [
+        "parameterless",
+        "sympy"
+    ]
 }

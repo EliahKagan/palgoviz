@@ -1020,7 +1020,7 @@ class linear_combinable:
     """
 
     def __init__(self, func):
-        """Create a linearily combinable object wrapping a function."""
+        """Create a linearly combinable object wrapping a function."""
         functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
     def __repr__(self):
@@ -1032,7 +1032,7 @@ class linear_combinable:
         return self.__wrapped__(x)
 
     def __eq__(self, other):
-        """Check if two linearily combinable objects wrap equal callables."""
+        """Check if two linearly combinable objects wrap equal callables."""
         if not isinstance(other, type(self)):
             return NotImplemented
 
@@ -1081,21 +1081,21 @@ class linear_combinable:
         g = minuend.__wrapped__
         return type(self)(lambda x: g(x) - f(x))
 
-    def __mul__(self, right_coefficent):
+    def __mul__(self, right_coefficient):
         """Multiply a linear_combinable by a number on the right."""
-        if not isinstance(right_coefficent, numbers.Number):
+        if not isinstance(right_coefficient, numbers.Number):
             return NotImplemented
 
         f = self.__wrapped__
-        return type(self)(lambda x: f(x) * right_coefficent)
+        return type(self)(lambda x: f(x) * right_coefficient)
 
-    def __rmul__(self, left_coefficent):
+    def __rmul__(self, left_coefficient):
         """Multiply a linear_combinable by a number on the left."""
-        if not isinstance(left_coefficent, numbers.Number):
+        if not isinstance(left_coefficient, numbers.Number):
             return NotImplemented
 
         f = self.__wrapped__
-        return type(self)(lambda x: left_coefficent * f(x))
+        return type(self)(lambda x: left_coefficient * f(x))
 
     def __truediv__(self, divisor):
         """Divide a linear_combinable by a number (except zero)."""
