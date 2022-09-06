@@ -1037,25 +1037,37 @@ class linear_combinable:
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return linear_combinable(lambda x: self(x) + other(x))
+        return type(self)(lambda x: self(x) + other(x))
+
+    def __radd__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return type(self)(lambda x: other(x) + self(x))
 
     def __sub__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return linear_combinable(lambda x: self(x) - other(x))
+        return type(self)(lambda x: self(x) - other(x))
+
+    def __rsub__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return type(self)(lambda x: other(x) - self(x))
 
     def __mul__(self, other):
         if not isinstance(other, numbers.Number):
             return NotImplemented
 
-        return linear_combinable(lambda x: self(x) * other)
+        return type(self)(lambda x: self(x) * other)
 
     def __rmul__(self, other):
         if not isinstance(other, numbers.Number):
             return NotImplemented
 
-        return linear_combinable(lambda x: other * self(x))
+        return type(self)(lambda x: other * self(x))
 
     def __truediv__(self, other):
         if not isinstance(other, numbers.Number):
@@ -1064,7 +1076,7 @@ class linear_combinable:
         if other == 0:
             raise ZeroDivisionError("second-order division by zero")
 
-        return linear_combinable(lambda x: self(x) / other)
+        return type(self)(lambda x: self(x) / other)
 
     @property
     def func(self):
