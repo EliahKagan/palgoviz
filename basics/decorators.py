@@ -1038,61 +1038,61 @@ class linear_combinable:
     def __hash__(self):
         return hash(self.__wrapped__)
 
-    def __add__(self, other):
-        if not isinstance(other, type(self)):
+    def __add__(self, right_addend):
+        if not isinstance(right_addend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
-        g = other.__wrapped__
+        g = right_addend.__wrapped__
         return type(self)(lambda x: f(x) + g(x))
 
-    def __radd__(self, other):
-        if not isinstance(other, type(self)):
+    def __radd__(self, left_addend):
+        if not isinstance(left_addend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
-        g = other.__wrapped__
+        g = left_addend.__wrapped__
         return type(self)(lambda x: g(x) + f(x))
 
-    def __sub__(self, other):
-        if not isinstance(other, type(self)):
+    def __sub__(self, subtrahend):
+        if not isinstance(subtrahend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
-        g = other.__wrapped__
+        g = subtrahend.__wrapped__
         return type(self)(lambda x: f(x) - g(x))
 
-    def __rsub__(self, other):
-        if not isinstance(other, type(self)):
+    def __rsub__(self, minuend):
+        if not isinstance(minuend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
-        g = other.__wrapped__
+        g = minuend.__wrapped__
         return type(self)(lambda x: g(x) - f(x))
 
-    def __mul__(self, other):
-        if not isinstance(other, numbers.Number):
+    def __mul__(self, right_coefficent):
+        if not isinstance(right_coefficent, numbers.Number):
             return NotImplemented
 
         f = self.__wrapped__
-        return type(self)(lambda x: f(x) * other)
+        return type(self)(lambda x: f(x) * right_coefficent)
 
-    def __rmul__(self, other):
-        if not isinstance(other, numbers.Number):
+    def __rmul__(self, left_coefficent):
+        if not isinstance(left_coefficent, numbers.Number):
             return NotImplemented
 
         f = self.__wrapped__
-        return type(self)(lambda x: other * f(x))
+        return type(self)(lambda x: left_coefficent * f(x))
 
-    def __truediv__(self, other):
-        if not isinstance(other, numbers.Number):
+    def __truediv__(self, divisor):
+        if not isinstance(divisor, numbers.Number):
             return NotImplemented
 
-        if other == 0:
+        if divisor == 0:
             raise ZeroDivisionError("second-order division by zero")
 
         f = self.__wrapped__
-        return type(self)(lambda x: f(x) / other)
+        return type(self)(lambda x: f(x) / divisor)
 
 
 __all__ = [thing.__name__ for thing in (
