@@ -962,6 +962,12 @@ class linear_combinable:
     "def linear_combinable(func):" in any way that does not misinform the
     caller about proper usage (so no implementation-detail parameters).
 
+    NOTE: Reassigning the __wrapped__ attribute is unsupported. In particular,
+    (a) objects linear_combinable returns are considered immutable, and setting
+    a different value of __wrapped__ if the instance may be stored in a hash
+    based container is likely to cause severe problems, and (b) whether or not
+    behavior is affected to reassigning __wrapped__ may change at any time.
+
     >>> @linear_combinable
     ... def f(x): 'Double a number.'; return x * 2
     >>> @linear_combinable
@@ -1014,24 +1020,23 @@ class linear_combinable:
     """
 
     def __init__(self, func):
-        self._func = func
         functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
     def __call__(self, x):
-        return self.func(x)
+        return self.__wrapped__(x)
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return self.func == other.func
+        return self.__wrapped__ == other.__wrapped__
 
     def __repr__(self):
         """Representation for debugging, showing func."""
-        return f'{type(self).__name__}({self.func!r})'
+        return f'{type(self).__name__}({self.__wrapped__!r})'
 
     def __hash__(self):
-        return hash(self.func)
+        return hash(self.__wrapped__)
 
     def __add__(self, other):
         if not isinstance(other, type(self)):
@@ -1077,10 +1082,6 @@ class linear_combinable:
             raise ZeroDivisionError("second-order division by zero")
 
         return type(self)(lambda x: self(x) / other)
-
-    @property
-    def func(self):
-        return self._func
 
 
 __all__ = [thing.__name__ for thing in (
