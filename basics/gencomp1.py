@@ -325,7 +325,7 @@ def my_zip(*iterables):
 
     with contextlib.suppress(StopIteration):
         while True:
-            # StopIteration cannot propogate out from a generator object,
+            # StopIteration cannot propagate out from a generator object,
             # therefore, we use a list comprehension. If it could, the tuple
             # constructor would incorrectly interpret the StopIteration as
             # indicating we have exhausted the generator object, whereas what
@@ -955,7 +955,7 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
 
-    If a noninjective dictionary is passed, the last value associated with the
+    If a non-injective dictionary is passed, the last value associated with the
     key will be assigned because the first and intermediate values will be
     overwritten.
 
@@ -998,7 +998,7 @@ def invert_alt(dictionary):
     >>> invert_alt(invert_alt(d)) == d
     True
 
-    If a noninjective dictionary is passed, the last value associated with the
+    If a non-injective dictionary is passed, the last value associated with the
     key will be assigned because the first and intermediate values will be
     overwritten.
 
