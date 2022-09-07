@@ -102,5 +102,5 @@ def run(configuration):
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
-    # For exit codes in powershell, $LASTEXITCODE.
+    # For exit codes in PowerShell, $LASTEXITCODE.
     sys.exit(run(Config()))

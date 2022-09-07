@@ -13,7 +13,7 @@ techniques for suspending an iterative process across multiple function calls.
 
 See also functions.ipynb, scopes.ipynb, and scopes.py. Most material on
 higher-order functions is in composers.py or decorators.py. Most material on
-generator functions is in gencomp1.ipynp, gencomp2.ipynb, gencomp3.ipynb,
+generator functions is in gencomp1.ipynb, gencomp2.ipynb, gencomp3.ipynb,
 gencomp1.py, and gencomp2.py.
 """
 
