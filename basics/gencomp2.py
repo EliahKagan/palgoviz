@@ -312,7 +312,10 @@ def three_sum_indices_3(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    labeled_triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
+    labeled_triples = itertools.product(enumerate(a),
+                                        enumerate(b),
+                                        enumerate(c))
+
     for (i, x), (j, y), (k, z) in labeled_triples:
         if x + y + z == target and x != y and x != z and y != z:
             yield (i, j, k)
@@ -446,7 +449,8 @@ def ungroup(rows):
     (destinations). That is, when a graph has an edge from u to v, its
     adjacency list's row for u contains v.
 
-    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'], 'd': []}
+    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'],
+    ...         'c': ['a', 'd'], 'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
     ...                   ('b', 'a'), ('b', 'd'), ('c', 'a'), ('c', 'd')}
     True
@@ -702,7 +706,8 @@ def transpose(matrix):
     height = len(matrix)
     width = len(matrix[0])
 
-    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
+    return tuple(tuple(matrix[i][j] for i in range(height))
+                 for j in range(width))
 
 
 def transpose_alt(matrix):

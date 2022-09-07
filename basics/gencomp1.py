@@ -74,9 +74,12 @@ def my_enumerate_alt(iterable, start=0):
         count += 1
 
 
-def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
+def print_enumerated(*, start=0):
     """
     Show the effect of my_enumerate on a sequence of 5, ..., 9 (inclusive).
+
+    (Due to "*", "start" is now a keyword-only argument, meaning the caller
+    MUST use the form print_enumerated(start=n) to pass it.)
 
     >>> print_enumerated()
     index = 0, value = 5
@@ -92,7 +95,7 @@ def print_enumerated(*, start=0): # start is now a keyword only argument, meanin
     index = 11, value = 9
     """
     for index, value in my_enumerate(range(5, 10), start):
-        print (f'{index = }, {value = }')
+        print(f'{index = }, {value = }')
 
 
 def print_enumerated_alt(*, start=0):
@@ -318,7 +321,7 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
-    if not iterables: # check if there are no arguments
+    if not iterables:  # Check if there are no arguments.
         return
 
     iterators = [iter(arg) for arg in iterables]
@@ -631,7 +634,7 @@ def tail_opt(iterable, n):
     True
     >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
     ((20, 30, 40), (30, 40), (40,), ())
-    >>> it = itertools.chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> it = itertools.chain(a)  # "Chain" a by itself but don't call iter yet.
     >>> tail_opt(it, 3)
     Iterating.
     (20, 30, 40)
@@ -1134,7 +1137,8 @@ def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
     True
     >>> list(distinct_dicts_by_single_key_monolithic(ds, 's')) == [d1, d2]
     True
-    >>> list(distinct_dicts_by_single_key_monolithic(iter(ds), 's')) == [d1, d2]
+    >>> list(distinct_dicts_by_single_key_monolithic(iter(ds), 's')
+    ... ) == [d1, d2]
     True
     >>> it = distinct_dicts_by_single_key_monolithic(ds, 't')
     >>> next(it)
@@ -1243,7 +1247,8 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
 
-    This implementation is the shortest. It uses distinct_dicts_by_keys (below).
+    This implementation is the shortest. It uses distinct_dicts_by_keys
+    (below).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
