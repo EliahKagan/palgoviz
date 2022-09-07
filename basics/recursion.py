@@ -376,7 +376,7 @@ def binary_search_good(values, x):
     >>> binary_search_good([10, 20], 15)
     >>>
     """
-    index = bisect.bisect_left(values,x)
+    index = bisect.bisect_left(values, x)
     return index if (index < len(values)) and (values[index] == x) else None
 
 
@@ -414,7 +414,7 @@ def binary_insertion_sort(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     output = []
@@ -451,7 +451,7 @@ def binary_insertion_sort_recursive(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort_recursive(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort_recursive([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     def sort(vals):
@@ -491,7 +491,7 @@ def binary_insertion_sort_recursive_alt(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort_recursive_alt(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     output = []
