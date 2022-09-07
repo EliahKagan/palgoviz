@@ -124,7 +124,7 @@ class TestBobcat(unittest.TestCase):
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         with self.subTest('bobcat name'):
             self.assertEqual(bobcat.name, 'Ekaterina')
-        with self.subTest('bobcat remebered name'):
+        with self.subTest('bobcat remembered name'):
             self.assertEqual(bobcat.remembered_name, 'Phineas')
         with self.subTest('name mangles'):
             self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')

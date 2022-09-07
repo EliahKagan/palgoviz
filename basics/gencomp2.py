@@ -496,7 +496,8 @@ def compose_dicts_simple(back, front):
     This is the smallest possible dictionary d with the property that, if front
     associates the key x with the value y, and back associates the key y with
     the value z, then d associates the key x with the value z. Another way to
-    say this is that the result dictionary is a pipline through front and back.
+    say this is that the result dictionary is a pipeline through front and
+    back.
 
     Keys in both front and the result should appear in the same order in each.
 
@@ -610,12 +611,12 @@ def compose_dicts_view(back, front):
     >>> status_colors['OK'] = 'azure'
     >>> format(rgb_from_status('OK'), '06X')
     'F0FFFF'
-    >>> status_colors['danger'] = 'vermillion'
+    >>> status_colors['danger'] = 'vermilion'
     >>> rgb_from_status('danger')
     Traceback (most recent call last):
       ...
-    KeyError: 'vermillion'
-    >>> status_colors['danger'] = [227, 66, 52]  # RGB values for vermillion.
+    KeyError: 'vermilion'
+    >>> status_colors['danger'] = [227, 66, 52]  # RGB values for vermilion.
     >>> rgb_from_status('danger')
     Traceback (most recent call last):
       ...
@@ -684,7 +685,7 @@ def transpose(matrix):
     each row has the same width. Do not assume that width is equal to the
     the height (i.e., the number of rows need not be the number of columns).
 
-    Return the tranpose of this matrix, in the same form.
+    Return the transpose of this matrix, in the same form.
 
     >>> transpose(((1, 2, 3), (4, 5, 6), (7, 8, 9)))
     ((1, 4, 7), (2, 5, 8), (3, 6, 9))
