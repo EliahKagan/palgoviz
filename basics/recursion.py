@@ -368,8 +368,8 @@ def binary_insertion_sort(values):
 
     Search and insertion may be performed using a standard library facility.
 
-    The worst time complexity is O(N^2). Best case scenerio inserstion is just
-    an append but search is still log(N), thus O(Nlog(N)). Average time
+    The worst time complexity is O(N^2). Best case scenario insertion is just
+    an append but search is still log(N), thus O(N log(N)). Average time
     complexity over all possible inputs will be O(N^2) because on average we
     will have to move half the elements O(cN) = O(N).
 
@@ -547,7 +547,7 @@ def insertion_sort(values):
     input already is, the less work it has to do. The insertion point is found
     by sequential search: use one of insort_left_linear or insort_right_linear.
 
-    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    The worst time complexity is O(N^2). Best case scenario insertion is just
     an append thus O(1), thus O(N). Average time complexity over all possible
     inputs will be O(N^2) because on average we will have to move half the
     elements O(cN) = O(N).
@@ -1030,7 +1030,7 @@ def flatten_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    # base case: we are at a leaf
+    # Base case: we are at a leaf.
     if not isinstance(root, tuple):
         yield root
         return
