@@ -1005,7 +1005,7 @@ class linear_combinable:
     """
 
     def __init__(self, func):
-        """Create a linearily combinable object wrapping a function."""
+        """Create a linearly combinable object wrapping a function."""
         functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
 
     def __repr__(self):
