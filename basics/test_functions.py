@@ -10,6 +10,7 @@ import gc
 import inspect
 import io
 import itertools
+import os
 import platform
 import sys
 import unittest
@@ -136,7 +137,8 @@ class _CloseableIterableWithNonCloseableIterator:
 @functools.cache
 def _fib5k():
     """Return a list of the first 5000 Fibonacci numbers, read from a file."""
-    with open('fib5k.txt', encoding='utf-8') as file:
+    path = os.path.join(os.path.dirname(__file__), '..', 'data', 'fib5k.txt')
+    with open(path, encoding='utf-8') as file:
         return list(map(int, file))
 
 
@@ -1387,6 +1389,53 @@ class TestFuncFilter(unittest.TestCase):
             self.assertEqual(result_func(), 10_001)
         with self.subTest('10,002 input calls: 0, ..., 10_000, 10_001 (stop)'):
             self.assertEqual(get_number.call_count, 10_002)
+
+    def test_predicate_not_called_on_sentinel(self):
+        """
+        The predicate may only be valid on values returned before the sentinel.
+
+        This checks that it is never called on the sentinel value itself.
+        """
+        sentinel = object()
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['hello', 'glorious', 'world', sentinel]
+
+        result_func = functions.func_filter(lambda w: len(w) == 5,
+                                            get_word, sentinel)
+
+        try:
+            while result_func() != sentinel:
+                pass
+        except TypeError as error:
+            if str(error) == "object of type 'object' has no len()":
+                self.fail(f'predicate called on sentinel ({error})')
+            raise
+
+    def test_predicate_called_on_all_input_values(self):
+        """
+        The predicate is called on each input value before the sentinel.
+
+        If test_predicate_not_called_on_sentinel fails, this should fail too,
+        since this asserts the arguments and order of all predicate calls. That
+        test case is intended to clearly reveal that bug if present (and to
+        express that it is a bug), while this test case is intended to guard
+        against other possible bugs that cannot all be predicted.
+        """
+        get_word = unittest.mock.Mock()
+        get_word.side_effect = ['first', 'second', 'third', 'fourth', 'fifth']
+
+        predicate_arguments = []
+
+        def predicate(word):
+            predicate_arguments.append(word)
+            return len(word) == 5
+
+        result_func = functions.func_filter(predicate, get_word, 'fourth')
+
+        for _ in range(25):
+            result_func()
+
+        self.assertListEqual(predicate_arguments, ['first', 'second', 'third'])
 
 
 if __name__ == '__main__':

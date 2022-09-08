@@ -14,7 +14,7 @@ _FORMATS = {
 
 class MutableGreeter:
     """
-    Callable object that greets people by name in a specified language.
+    Callable object to greet people by name in a specified language. Mutable.
 
     >>> g = MutableGreeter('en')
     >>> g.lung = 'es'
@@ -88,7 +88,6 @@ class MutableGreeter:
             return NotImplemented
         return self.lang == other.lang
 
-
     def __repr__(self):
         """
         Representation of this MutableGreeter as Python code.
@@ -123,7 +122,7 @@ class MutableGreeter:
 
 class FrozenGreeter:
     """
-    Callable object that greets people by name in a specified language. Immutable.
+    Callable object to greet people by name in a specified language. Immutable.
 
     >>> g = FrozenGreeter('en')
     >>> g.lung = 'es'

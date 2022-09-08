@@ -185,3 +185,6 @@ class OrderIndistinct:
     def __repr__(self):
         """Represent this OrderIndistinct as Python code and show its value."""
         return f"{type(self).__name__}({self.value!r})"
+
+
+__all__ = [thing.__name__ for thing in (WeakDiamond, Patient, OrderIndistinct)]

@@ -9,7 +9,7 @@ See also object_graph.py.
 import bisect
 import collections
 
-import decorators
+import caching
 
 
 def countdown(n):
@@ -376,7 +376,7 @@ def binary_search_good(values, x):
     >>> binary_search_good([10, 20], 15)
     >>>
     """
-    index = bisect.bisect_left(values,x)
+    index = bisect.bisect_left(values, x)
     return index if (index < len(values)) and (values[index] == x) else None
 
 
@@ -391,8 +391,8 @@ def binary_insertion_sort(values):
 
     Search and insertion may be performed using a standard library facility.
 
-    The worst time complexity is O(N^2). Best case scenerio inserstion is just
-    an append but search is still log(N), thus O(Nlog(N)). Average time
+    The worst time complexity is O(N^2). Best case scenario insertion is just
+    an append but search is still log(N), thus O(N log(N)). Average time
     complexity over all possible inputs will be O(N^2) because on average we
     will have to move half the elements O(cN) = O(N).
 
@@ -414,7 +414,7 @@ def binary_insertion_sort(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     output = []
@@ -451,7 +451,7 @@ def binary_insertion_sort_recursive(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort_recursive(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort_recursive([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     def sort(vals):
@@ -491,7 +491,7 @@ def binary_insertion_sort_recursive_alt(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort_recursive_alt(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     output = []
@@ -570,7 +570,7 @@ def insertion_sort(values):
     input already is, the less work it has to do. The insertion point is found
     by sequential search: use one of insort_left_linear or insort_right_linear.
 
-    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    The worst time complexity is O(N^2). Best case scenario insertion is just
     an append thus O(1), thus O(N). Average time complexity over all possible
     inputs will be O(N^2) because on average we will have to move half the
     elements O(cN) = O(N).
@@ -1053,7 +1053,7 @@ def flatten_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    # base case: we are at a leaf
+    # Base case: we are at a leaf.
     if not isinstance(root, tuple):
         yield root
         return
@@ -1313,12 +1313,12 @@ def leaf_sum_dec(root):
     Overlapping subproblems (the same tuple object in multiple places) are
     solved only once; the solution is cached and reused.
 
-    This is like leaf_sum (and leaf_sum_alt), but @decorators.memoize_by is
-    used for memoization, which is safe for the same reason the sums table
-    works in leaf_sum: a tuple structure (i.e., one where only leaves are
-    permitted to be non-tuples) is ineligible for garbage collection as long as
-    its root is accessible. This holds even in the presence of concurrency
-    considerations, since tuples are immutable.
+    This is like leaf_sum (and leaf_sum_alt), but @caching.memoize_by is used
+    for memoization, which is safe for the same reason the sums table works in
+    leaf_sum: a tuple structure (i.e., one where only leaves are permitted to
+    be non-tuples) is ineligible for garbage collection as long as its root is
+    accessible. This holds even in the presence of concurrency considerations,
+    since tuples are immutable.
 
     Note that it would not be safe to cache calls to the top-level function
     leaf_sum_dec by id. This must go on the helper function, since nothing can
@@ -1339,7 +1339,7 @@ def leaf_sum_dec(root):
     >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))
     True
     """
-    @decorators.memoize_by(id)
+    @caching.memoize_by(id)
     def traverse(parent):
         if not isinstance(parent, tuple):
             return parent
@@ -1347,6 +1347,49 @@ def leaf_sum_dec(root):
         return sum(traverse(child) for child in parent)
 
     return traverse(root)
+
+
+__all__ = [thing.__name__ for thing in (
+    countdown,
+    add_all_iterative,
+    add_all_slow,
+    add_all,
+    linear_search_good,
+    linear_search_iterative,
+    linear_search_iterative_alt,
+    linear_search,
+    binary_search,
+    binary_search_iterative,
+    binary_search_alt,
+    binary_search_iterative_alt,
+    binary_search_good,
+    binary_insertion_sort,
+    binary_insertion_sort_recursive,
+    binary_insertion_sort_recursive_alt,
+    insort_left_linear,
+    insort_right_linear,
+    insertion_sort,
+    insertion_sort_recursive,
+    insertion_sort_recursive_alt,
+    merge_two_slow,
+    merge_two,
+    merge_two_alt,
+    merge_sort,
+    merge_sort_bottom_up_unstable,
+    merge_sort_bottom_up,
+    make_deep_tuple,
+    nest,
+    observe_edge,
+    flatten,
+    flatten_observed,
+    flatten_iterative,
+    flatten_iterative_observed,
+    flatten_levelorder,
+    flatten_levelorder_observed,
+    leaf_sum,
+    leaf_sum_alt,
+    leaf_sum_dec,
+)]
 
 
 if __name__ == '__main__':
