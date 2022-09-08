@@ -129,7 +129,7 @@ def semifactorial_reduce(n):
     Compute the semifactorial ("double factorial") of n, via functools.reduce.
 
     This implementation uses no recursion and no loops or comprehensions. (It
-    fits easily on one line.) This was the best way do do it prior to Python
+    fits easily on one line.) This was the best way to do it prior to Python
     3.8 when math.prod was added.
 
     >>> [semifactorial_reduce(n) for n in range(15)]
@@ -523,7 +523,7 @@ def binary_search_good(values, x):
     >>> binary_search_good([10, 20], 15)
     >>>
     """
-    index = bisect.bisect_left(values,x)
+    index = bisect.bisect_left(values, x)
     return index if (index < len(values)) and (values[index] == x) else None
 
 
@@ -538,8 +538,8 @@ def binary_insertion_sort(values):
 
     Search and insertion may be performed using a standard library facility.
 
-    The worst time complexity is O(N^2). Best case scenerio inserstion is just
-    an append but search is still log(N), thus O(Nlog(N)). Average time
+    The worst time complexity is O(N^2). Best case scenario insertion is just
+    an append but search is still log(N), thus O(N log(N)). Average time
     complexity over all possible inputs will be O(N^2) because on average we
     will have to move half the elements O(cN) = O(N).
 
@@ -561,7 +561,7 @@ def binary_insertion_sort(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     output = []
@@ -598,7 +598,7 @@ def binary_insertion_sort_recursive(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort_recursive(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort_recursive([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort_recursive([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     def sort(vals):
@@ -638,7 +638,7 @@ def binary_insertion_sort_recursive_alt(values):
     >>> b = ['foo', 'bar', 'baz', 'quux', 'foobar', 'ham', 'spam', 'eggs']
     >>> binary_insertion_sort_recursive_alt(b)
     ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
-    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # It's a stable sort.
+    >>> binary_insertion_sort_recursive_alt([0.0, 0, False])  # Stable sort.
     [0.0, 0, False]
     """
     output = []
@@ -717,7 +717,7 @@ def insertion_sort(values):
     input already is, the less work it has to do. The insertion point is found
     by sequential search: use one of insort_left_linear or insort_right_linear.
 
-    The worst time complexity is O(N^2). Best case scenerio inserstion is just
+    The worst time complexity is O(N^2). Best case scenario insertion is just
     an append thus O(1), thus O(N). Average time complexity over all possible
     inputs will be O(N^2) because on average we will have to move half the
     elements O(cN) = O(N).
@@ -3162,7 +3162,7 @@ def flatten_observed(root, observer):
     (4, (5,), (), 6)  ->  6
     [1, 2, 3, 4, 5, 6]
     """
-    # base case: we are at a leaf
+    # Base case: we are at a leaf.
     if not isinstance(root, tuple):
         yield root
         return
