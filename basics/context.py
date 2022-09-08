@@ -14,19 +14,19 @@ class Announce:
     Finished task Example Task.
     """
 
-    __slots__ = ('_name', 'out')
+    __slots__ = ('_name', '_out')
 
     def __init__(self, name, *, out=None):
         """Create an announcer for a task of a specified name."""
         self._name = name
-        self.out = out
+        self._out = out
 
     def __repr__(self):
         """Codelike representation for debugging."""
-        if self.out is None:
-            return f"{type(self).__name__}({self.name!r})"
+        if self._out is None:
+            return f'{type(self).__name__}({self.name!r})'
 
-        return f"{type(self).__name__}({self.name!r}, out={self.out!r})"
+        return f'{type(self).__name__}({self.name!r}, out={self._out!r})'
 
     def __enter__(self):
         """Announce the start of the task."""
@@ -35,6 +35,8 @@ class Announce:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Announce that the task completed or raised an exception."""
+        del exc_value, traceback
+
         if exc_type is None:
             self._print(f'Finished task {self.name}.')
         else:
@@ -47,10 +49,10 @@ class Announce:
 
     def _print(self, message):
         """Output a message to appropriate file/stream."""
-        if self.out is None:
+        if self._out is None:
             print(message)
         else:
-            print(message, file=self.out)
+            print(message, file=self._out)
 
 
 class Closing:
