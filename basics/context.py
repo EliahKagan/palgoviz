@@ -17,38 +17,40 @@ class Announce:
     __slots__ = ('_name', 'out')
 
     def __init__(self, name, *, out=None):
+        """Create an announcer for a task of a specified name."""
         self._name = name
         self.out = out
 
     def __repr__(self):
-        """Representation for debugging."""
-        has_out = f"{type(self).__name__}({self.name!r}, out={self.out!r})"
-        no_out = f"{type(self).__name__}({self.name!r})"
-        return no_out if self.out is None else has_out
+        """Codelike representation for debugging."""
+        if self.out is None:
+            return f"{type(self).__name__}({self.name!r})"
+
+        return f"{type(self).__name__}({self.name!r}, out={self.out!r})"
 
     def __enter__(self):
-        if self.out is None:
-            print(f'Starting task {self.name}.')
-            return self
-
-        print(f'Starting task {self.name}.', file=self.out)
+        """Announce the start of the task."""
+        self._print(f'Starting task {self.name}.')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Announce that the task completed or raised an exception."""
         if exc_type is None:
-            if self.out is None:
-                print(f'Finished task {self.name}.')
-            else:
-                print(f'Finished task {self.name}.', file=self.out)
+            self._print(f'Finished task {self.name}.')
         else:
-            if self.out is None:
-                print(f'{exc_type.__name__} raised in task {self.name}.')
-            else:
-                print(f'{exc_type.__name__} raised in task {self.name}.', file=self.out)
+            self._print(f'{exc_type.__name__} raised in task {self.name}.')
 
     @property
     def name(self):
+        """Name of the task."""
         return self._name
+
+    def _print(self, message):
+        """Output a message to appropriate file/stream."""
+        if self.out is None:
+            print(message)
+        else:
+            print(message, file=self.out)
 
 
 class Closing:
