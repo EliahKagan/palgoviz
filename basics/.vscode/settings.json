@@ -1,4 +1,18 @@
 {
+    "python.testing.pytestArgs": [
+        ".",
+        "--doctest-modules"
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        ".",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.unittestEnabled": false,
+    "editor.detectIndentation": false,  // FIXME: Check if we still need this.
     "cSpell.words": [
         "abstractmethod",
         "abstractmethods",
@@ -139,19 +153,5 @@
         "Willdebrandt",
         "Willdebruvft",
         "writability"
-    ],
-    "python.testing.pytestArgs": [
-        ".",
-        "--doctest-modules"
-    ],
-    "python.testing.pytestEnabled": true,
-    "python.testing.unittestArgs": [
-        "-v",
-        "-s",
-        ".",
-        "-p",
-        "test_*.py"
-    ],
-    "python.testing.unittestEnabled": false,
-    "editor.detectIndentation": false
+    ]
 }
