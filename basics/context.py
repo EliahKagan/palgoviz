@@ -13,7 +13,42 @@ class Announce:
     In task Example Task.
     Finished task Example Task.
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('_name', 'out')
+
+    def __init__(self, name, *, out=None):
+        self._name = name
+        self.out = out
+
+    def __repr__(self):
+        """Representation for debugging."""
+        has_out = f"{type(self).__name__}({self.name!r}, out={self.out!r})"
+        no_out = f"{type(self).__name__}({self.name!r})"
+        return no_out if self.out is None else has_out
+
+    def __enter__(self):
+        if self.out is None:
+            print(f'Starting task {self.name}.')
+            return self
+
+        print(f'Starting task {self.name}.', file=self.out)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            if self.out is None:
+                print(f'Finished task {self.name}.')
+            else:
+                print(f'Finished task {self.name}.', file=self.out)
+        else:
+            if self.out is None:
+                print(f'{exc_type.__name__} raised in task {self.name}.')
+            else:
+                print(f'{exc_type.__name__} raised in task {self.name}.', file=self.out)
+
+    @property
+    def name(self):
+        return self._name
 
 
 class Closing:
