@@ -1,6 +1,0 @@
-gencomp1.my_enumerate_alt
-gencomp2.empty
-gencomp2.product_two_flexible
-gencomp2.pairs
-gencomp2.my_cycle
-gencomp2.my_chain

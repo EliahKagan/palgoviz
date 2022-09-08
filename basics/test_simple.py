@@ -161,7 +161,8 @@ class TestAlert(unittest.TestCase):
         ('3609 squirrels complained', 'alert: 3609 squirrels complained\n'),
         ('boycott whalebone skis', 'alert: boycott whalebone skis\n'),
     ])
-    def test_alert_and_newline_are_printed_with_string(self, message, expected):
+    def test_alert_and_newline_are_printed_with_string(self,
+                                                       message, expected):
         alert(message)
         self.assertEqual(self._actual, expected)
 

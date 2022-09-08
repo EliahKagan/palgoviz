@@ -1,5 +1,7 @@
 """Demonstration of simple decorated function."""
 
+__all__ = ['greet', 'hello']
+
 from decorators import call, peek_arg
 
 

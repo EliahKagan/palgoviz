@@ -8,10 +8,9 @@ See also the visualizations in subproblems.ipynb.
 For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
-import functools
 import itertools
 
-from decorators import memoize
+from caching import memoize
 
 
 def fibonacci(n):
@@ -213,7 +212,8 @@ def fibonacci_short(n):
     """
     Compute Fibonacci with the simple recursive algorithm but more compactly.
 
-    This takes advantage of the coincidence that its base cases are fixed points.
+    This takes advantage of the coincidence that its base cases are fixed
+    points.
 
     >>> fibonacci_short(0)
     0
@@ -280,7 +280,8 @@ def fibonacci_alr(n):
 
 def fibonacci_short_alr(n):
     """
-    Compute the Fibonacci number F(n) with arm's length recursion more compactly.
+    Compute the Fibonacci number F(n) with arm's length recursion more
+    compactly.
 
     This is like fibonacci_short() but uses arm's length recursion. Since there
     is only one base-case condition here, this looks more like arm's length
@@ -361,7 +362,7 @@ def fib_n_clunk(n):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+        raise ValueError("can't yield negatively many Fibonacci numbers")
 
     def generate():
         if n == 0:
@@ -464,7 +465,7 @@ def fib_n(n):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+        raise ValueError("can't yield negatively many Fibonacci numbers")
 
     return itertools.islice(fib(), n)
 
@@ -545,6 +546,24 @@ def fib_nest_by(container, n):
     for _ in range(n - 1):
         a, b = b, container((a, b))
     return b
+
+
+__all__ = [thing.__name__ for thing in (
+    fibonacci,
+    fibonacci_cached_1,
+    fibonacci_cached_2,
+    fibonacci_cached_3,
+    fibonacci_cached_4,
+    fibonacci_cached_5,
+    fibonacci_short,
+    fibonacci_alr,
+    fibonacci_short_alr,
+    fib_n_clunk,
+    fib,
+    fib_n,
+    fib_nest,
+    fib_nest_by,
+)]
 
 
 if __name__ == '__main__':

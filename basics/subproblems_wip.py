@@ -198,6 +198,15 @@ def merge_sort_bottom_up_observed(values, *, merge=merge_two,
     return primary[0]
 
 
+__all__ = [thing.__name__ for thing in (
+    observe_node,
+    observe_edge_verbose,
+    merge_sort_observed,
+    merge_sort_bottom_up_unstable_observed,
+    merge_sort_bottom_up_observed,
+)]
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
