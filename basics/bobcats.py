@@ -104,7 +104,8 @@ class FierceBobcat(Bobcat):
             raise TypeError('Fierceness must be a real number.')
 
         if fierceness <= self.FIERCENESS_CUTOFF:
-            raise ValueError(f'Fiercess must be over {self.FIERCENESS_CUTOFF}')
+            raise ValueError(
+                f'Fierceness must be over {self.FIERCENESS_CUTOFF}')
 
         self._fierceness = fierceness
 
