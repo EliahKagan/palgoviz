@@ -120,6 +120,7 @@
         "subtest",
         "subtests",
         "traceback",
+        "typechecked",
         "typeguard",
         "uncallable",
         "uncubed",

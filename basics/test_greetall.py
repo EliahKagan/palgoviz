@@ -2,6 +2,7 @@
 
 """Tests for greetall.py."""
 
+import os
 import sys
 from typing import Any, NamedTuple, Protocol, runtime_checkable
 
@@ -10,6 +11,16 @@ from typeguard import typechecked
 
 import greet
 import greetall
+
+
+def _data_file_path(filename: str) -> str:
+    """Get the path to a data file."""
+    return os.path.join(os.path.dirname(__file__), '..', 'data', filename)
+
+
+_NAMES = _data_file_path('names.txt')
+
+_NAMES2 = _data_file_path('names2.txt')
 
 
 @typechecked
@@ -86,7 +97,7 @@ def test_directory_is_error(invoke: Invoker) -> None:
 @typechecked
 def test_greets_from_simple_file(invoke: Invoker) -> None:
     """Greets without duplicates and extra whitespace (implicit English)."""
-    status, out, err = invoke('names.txt')
+    status, out, err = invoke(_NAMES)
     assert status == 0
     assert out == 'Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
     assert err == ''
@@ -95,7 +106,7 @@ def test_greets_from_simple_file(invoke: Invoker) -> None:
 @typechecked
 def test_greets_from_simple_file_lang_en(invoke: Invoker) -> None:
     """Greets without duplicates and extra whitespace, in English."""
-    status, out, err = invoke('names.txt', 'en')
+    status, out, err = invoke(_NAMES, 'en')
     assert status == 0
     assert out == 'Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
     assert err == ''
@@ -104,7 +115,7 @@ def test_greets_from_simple_file_lang_en(invoke: Invoker) -> None:
 @typechecked
 def test_greets_from_simple_file_lang_es(invoke: Invoker) -> None:
     """Greets without duplicates and extra extra whitespace, in Spanish."""
-    status, out, err = invoke('names.txt', 'es')
+    status, out, err = invoke(_NAMES, 'es')
     assert status == 0
     assert out == '¡Hola, Eliah!\n¡Hola, David!\n¡Hola, Dr. Evil!\n'
     assert err == ''
@@ -113,7 +124,7 @@ def test_greets_from_simple_file_lang_es(invoke: Invoker) -> None:
 @typechecked
 def test_greets_from_file_with_dupes_and_ws(invoke: Invoker) -> None:
     """Greets, ignoring extra whitespace and duplicates (implicit English)."""
-    status, out, err = invoke('names2.txt')
+    status, out, err = invoke(_NAMES2)
     assert status == 0
     assert out == ('Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
                    'Hello, Stalin!\n')
@@ -123,7 +134,7 @@ def test_greets_from_file_with_dupes_and_ws(invoke: Invoker) -> None:
 @typechecked
 def test_greets_from_file_with_dupes_and_ws_lang_en(invoke: Invoker) -> None:
     """Greets, ignoring extra whitespace and duplicates, in English."""
-    status, out, err = invoke('names2.txt', 'en')
+    status, out, err = invoke(_NAMES2, 'en')
     assert status == 0
     assert out == ('Hello, Eliah!\nHello, David!\nHello, Dr. Evil!\n'
                    'Hello, Stalin!\n')
@@ -133,7 +144,7 @@ def test_greets_from_file_with_dupes_and_ws_lang_en(invoke: Invoker) -> None:
 @typechecked
 def test_greets_from_file_with_dupes_and_ws_lang_es(invoke: Invoker) -> None:
     """Greets, ignoring extra whitespace and duplicates, in Spanish."""
-    status, out, err = invoke('names2.txt', 'es')
+    status, out, err = invoke(_NAMES2, 'es')
     assert status == 0
     assert out == ('¡Hola, Eliah!\n¡Hola, David!\n¡Hola, Dr. Evil!\n'
                    '¡Hola, Stalin!\n')
@@ -147,7 +158,7 @@ def test_greets_from_file_with_dupes_and_ws_lang_es(invoke: Invoker) -> None:
 @typechecked
 def test_warns_on_extra_arg_without_error(invoke: Invoker) -> None:
     """Passing an extra command-line argument warns and continues."""
-    status, _, err = invoke('names.txt', 'en', 'other-arg')
+    status, _, err = invoke(_NAMES, 'en', 'other-arg')
     assert status == 0, "Extra arguments don't cause failure status."
     assert err == ('WARNING in PROGNAME: '
                    'Too many arguments, see docstring for usage\n')
@@ -156,7 +167,7 @@ def test_warns_on_extra_arg_without_error(invoke: Invoker) -> None:
 @typechecked
 def test_warns_on_multiple_extra_args_without_error(invoke: Invoker) -> None:
     """Passing multiple extra command-line arguments warns and continues."""
-    status, _, err = invoke('names.txt', 'es', 'other1', 'other2', 'other3')
+    status, _, err = invoke(_NAMES, 'es', 'other1', 'other2', 'other3')
     assert status == 0, "Extra arguments don't cause failure status."
     assert err == ('WARNING in PROGNAME: '
                    'Too many arguments, see docstring for usage\n')
