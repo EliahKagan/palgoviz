@@ -10,6 +10,7 @@ import gc
 import inspect
 import io
 import itertools
+import os
 import platform
 import sys
 import unittest
@@ -136,7 +137,8 @@ class _CloseableIterableWithNonCloseableIterator:
 @functools.cache
 def _fib5k():
     """Return a list of the first 5000 Fibonacci numbers, read from a file."""
-    with open('fib5k.txt', encoding='utf-8') as file:
+    path = os.path.join(os.path.dirname(__file__), '..', 'data', 'fib5k.txt')
+    with open(path, encoding='utf-8') as file:
         return list(map(int, file))
 
 

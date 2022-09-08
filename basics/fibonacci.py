@@ -214,7 +214,8 @@ def fibonacci_short(n):
     """
     Compute Fibonacci with the simple recursive algorithm but more compactly.
 
-    This takes advantage of the coincidence that its base cases are fixed points.
+    This takes advantage of the coincidence that its base cases are fixed
+    points.
 
     >>> fibonacci_short(0)
     0
@@ -281,7 +282,8 @@ def fibonacci_alr(n):
 
 def fibonacci_short_alr(n):
     """
-    Compute the Fibonacci number F(n) with arm's length recursion more compactly.
+    Compute the Fibonacci number F(n) with arm's length recursion more
+    compactly.
 
     This is like fibonacci_short() but uses arm's length recursion. Since there
     is only one base-case condition here, this looks more like arm's length
@@ -362,7 +364,7 @@ def fib_n_clunk(n):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+        raise ValueError("can't yield negatively many Fibonacci numbers")
 
     def generate():
         if n == 0:
@@ -465,7 +467,7 @@ def fib_n(n):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+        raise ValueError("can't yield negatively many Fibonacci numbers")
 
     return itertools.islice(fib(), n)
 

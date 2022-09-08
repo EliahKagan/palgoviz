@@ -453,7 +453,7 @@ class TestMonkeyPatch(unittest.TestCase):
         try:
             context.MonkeyPatch(target, 'numerator', 4.0, **kwargs)
         except AttributeError:
-            self.fail("shouldn't check writeability on construction")
+            self.fail("shouldn't check writability on construction")
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
     def test_construction_does_not_check_existence(self, _name, **kwargs):
@@ -663,7 +663,7 @@ class TestMonkeyPatch(unittest.TestCase):
             def _decorated_function():
                 pass
         except AttributeError:
-            self.fail("shouldn't check writeability before function is called")
+            self.fail("shouldn't check writability before function is called")
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
     def test_decoration_itself_does_not_check_existence(self, _name, **kwargs):
