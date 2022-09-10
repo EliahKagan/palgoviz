@@ -448,7 +448,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_construction_does_not_check_writeable(self, _name, **kwargs):
-        """Construction should't fail fast, since the situation may change."""
+        """Construction shouldn't fail fast, since the situation may change."""
         target = 3.0
         try:
             context.MonkeyPatch(target, 'numerator', 4.0, **kwargs)
@@ -457,7 +457,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
     def test_construction_does_not_check_existence(self, _name, **kwargs):
-        """Construction should't fail fast, since the situation may change."""
+        """Construction shouldn't fail fast, since the situation may change."""
         target = types.SimpleNamespace(a=10)
         try:
             context.MonkeyPatch(target, 'b', 15, **kwargs)
