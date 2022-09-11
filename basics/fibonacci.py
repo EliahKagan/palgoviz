@@ -651,7 +651,7 @@ def draw_memoized_call_tree_2(n):
     are done.
 
     Memoized call trees are much more sensitive to the order in which subcalls
-    are made than unmemoized (naive) call trees, as shown in [FIXME: Say what
+    are made than non-memoized (naive) call trees, as shown in [FIXME: Say what
     notebook you have made examples with all four of these drawing functions
     in. You could put them in subproblems.ipynb or make a new notebook such as
     fibonacci.ipynb.]

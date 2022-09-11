@@ -4,9 +4,9 @@ Drawing various kinds of object graphs.
 Object graphs, also called reference graphs, are graphs with vertices for
 objects and directed edges for references.
 
-See also: the objgraph PyPI package.
+For drawing class inheritance graphs, see the class_graph module (subpackage).
 
-For drawing class inheritance graphs, see class_graph.py.
+See also: the objgraph PyPI package.
 
 Documented time and space complexities are for n vertices and m edges. In this
 module we define auxiliary space as space allocated by the function (thus

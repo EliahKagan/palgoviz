@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Tests for the tree module."""
+"""Tests for the tree module (subpackage)."""
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
