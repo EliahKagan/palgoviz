@@ -327,7 +327,7 @@ class UnsortedFlatTable(_FastIteratingMapping, MutableMapping):
     This data structure is conceptually related to hash tables, which offer
     amortized O(1) search, insertion, and deletion with high probability,
     assuming good hash distribution. Hash tables overcome the need to examine
-    linearily many entries to find a match, by using keys' hashes to know
+    linearly many entries to find a match, by using keys' hashes to know
     roughly where to look. dict is a hash table, as is HashTable below.
 
     NOTE: This is not "flat" in the sense of flat collections in Python. Those
@@ -413,7 +413,7 @@ class SortedFlatTable(_FastIteratingReversibleMapping, MutableMapping):
     offer average O(log n) but worst-case O(n) time for search, insertion, and
     deletion, and to self-balancing binary search trees, which offer average
     and worst-case O(log n) time for search, insertion, and deletion. Trees
-    overcome the need to perform linearily many moves to insert in the middle.
+    overcome the need to perform linearly many moves to insert in the middle.
     The Python standard library has no BST. The BinarySearchTree class below is
     a BST, but not self-balancing. This project has no self-balancing BST yet.
 

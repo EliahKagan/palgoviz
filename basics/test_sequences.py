@@ -36,7 +36,7 @@ class _FixedSizeBuffer(Sequence):
 
     1. It is immediately clear that no resizing happens.
 
-    2. If something like list is implemented in terms of _FizedSizeBuffer (or
+    2. If something like list is implemented in terms of _FixedSizeBuffer (or
        by dependency injection, where _FixedSizeBuffer can be passed, as in
        Vec), the whole situation is more satisfying than implementing something
        like list using a fixed buffer that is itself implemented using list.
