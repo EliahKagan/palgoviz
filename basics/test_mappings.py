@@ -43,12 +43,12 @@ _parameterize_by_empty_mapping = parameterized.expand([
 """Parameterize a test method by empty mappings."""
 
 
-_parameterize_by_items = parameterized.expand([
-    ('len1', 1, MappingProxyType({42: 'A'})),
-    ('len2', 2, MappingProxyType({42: 'A', 3: 'C'})),
-    ('len3', 3, MappingProxyType({42: 'A', 3: 'C', 255: 'B'})),
-    ('len4', 4, MappingProxyType({42: 'A', 3: 'C', 255: 'B', 76: 'D'})),
-    ('len256', 256, _make_example_items(range(256), seed=3731775464805526349)),
+_parameterize_by_mapping = parameterized.expand([
+    ('len1', MappingProxyType({42: 'A'})),
+    ('len2', MappingProxyType({42: 'A', 3: 'C'})),
+    ('len3', MappingProxyType({42: 'A', 3: 'C', 255: 'B'})),
+    ('len4', MappingProxyType({42: 'A', 3: 'C', 255: 'B', 76: 'D'})),
+    ('len256', _make_example_items(range(256), seed=3731775464805526349)),
 ])
 """Parameterize a test method by different-sized mappings giving items."""
 
@@ -138,27 +138,76 @@ class _TestMutableMapping(ABC):
         self.assertEqual(len(table), 0)
 
     @_parameterize_by_empty_iterable
-    def test_construction_from_empty_iterable_gives_falsy_instance(self, _name,
-                                                                   iterable):
+    def test_can_construct_with_empty_iterable(self, _name, iterable):
+        try:
+            self.instantiate(iterable)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_empty_mapping
+    def test_can_construct_from_empty_items_view(self, _name, mapping):
+        """
+        Items views are treated like other iterables in construction.
+
+        A more illuminating way to say it is that any iterable that is not a
+        mapping is treated as if it were an items view: its elements are
+        expected to be (key, value) pairs, supplying the initial items.
+        """
+        items = mapping.items()
+        try:
+            self.instantiate(items)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_empty_mapping
+    def test_can_construct_with_empty_mapping(self, _name, mapping):
+        """
+        The iterable that we construct with is permitted to be a mapping.
+
+        Mappings are iterables, but construction from them is special. Outside
+        the empty case, constructing a mapping from an argument that is an
+        iterable but not a mapping is expected to work differently from
+        constructing a mapping from a mapping. This test ensures construction
+        from an empty mapping is not broken. (That shouldn't happen, since
+        populating initial contents is best done by delegating to a mixin
+        method that itself takes care of the distinction, but it could.)
+        """
+        try:
+            self.instantiate(mapping)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_empty_iterable
+    def test_falsy_on_construction_with_empty_iterable(self, _name, iterable):
         table = self.instantiate(iterable)
         self.assertFalse(table)
 
     @_parameterize_by_empty_iterable
-    def test_construction_from_empty_iterable_gives_zero_size_instance(
-            self, _name, iterable):
+    def test_len_zero_on_construction_with_empty_iterable(self, _name,
+                                                          iterable):
         table = self.instantiate(iterable)
         self.assertEqual(len(table), 0)
 
     @_parameterize_by_empty_mapping
-    def test_construction_from_empty_mapping_gives_falsy_instance(self, _name,
-                                                                  mapping):
+    def test_falsy_on_construction_with_empty_items_view(self, _name, mapping):
+        items = mapping.items()
+        table = self.instantiate(items)
+        self.assertFalse(table)
+
+    @_parameterize_by_empty_mapping
+    def test_len_zero_on_construction_with_empty_items_view(self, _name,
+                                                            mapping):
+        items = mapping.items()
+        table = self.instantiate(items)
+        self.assertEqual(len(table), 0)
+
+    @_parameterize_by_empty_mapping
+    def test_falsy_on_construction_with_empty_mapping(self, _name, mapping):
         table = self.instantiate(mapping)
         self.assertFalse(table)
 
     @_parameterize_by_empty_mapping
-    def test_construction_from_empty_mapping_gives_zero_size_instance(self,
-                                                                      _name,
-                                                                      mapping):
+    def test_len_zero_on_construction_with_empty_mapping(self, _name, mapping):
         table = self.instantiate(mapping)
         self.assertEqual(len(table), 0)
 
@@ -192,44 +241,99 @@ class _TestMutableMapping(ABC):
         values = table.values()
         self.assertEqual(len(values), 0)
 
-    @_parameterize_by_items
-    def test_construction_from_nonempty_sequence_gives_truthy_instance(
-            self, _name, _length, mapping):
+    @_parameterize_by_mapping
+    def test_can_construct_with_nonempty_sequence(self, _name, mapping):
+        items = list(mapping.items())
+        try:
+            self.instantiate(items)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_mapping
+    def test_can_construct_with_nonempty_iterator(self, _name, mapping):
+        items = iter(mapping.items())
+        try:
+            self.instantiate(items)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_mapping
+    def test_can_construct_with_nonempty_items_view(self, _name, mapping):
+        """
+        Items views are treated like other iterables in construction.
+
+        See the test_can_construct_from_empty_items_view docstring for details.
+        """
+        items = mapping.items()
+        try:
+            self.instantiate(items)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_mapping
+    def test_can_construct_from_nonempty_mapping(self, _name, mapping):
+        """
+        The iterable that we construct with is permitted to be a mapping.
+
+        See the test_can_construct_with_empty_mapping docstring for details.
+        """
+        try:
+            self.instantiate(mapping)
+        except TypeError as error:
+            self.fail(f'construction failed: {error}')
+
+    @_parameterize_by_mapping
+    def test_truthy_on_construction_with_nonempty_sequence(self, _name, mapping):
         items = list(mapping.items())
         table = self.instantiate(items)
         self.assertTrue(table)
 
-    @_parameterize_by_items
-    def test_construction_from_nonempty_items_view_gives_truthy_instance(
-            self, _name, _length, mapping):
+    @_parameterize_by_mapping
+    def test_truthy_on_construction_with_nonempty_iterator(self, _name,
+                                                           mapping):
+        items = iter(mapping.items())
+        table = self.instantiate(items)
+        self.assertTrue(table)
+
+    @_parameterize_by_mapping
+    def test_truthy_on_construction_with_nonempty_items_view(self, _name,
+                                                             mapping):
         items = mapping.items()
         table = self.instantiate(items)
         self.assertTrue(table)
 
-    @_parameterize_by_items
-    def test_construction_from_nonempty_mapping_gives_truthy_instance(
-            self, _name, _length, mapping):
+    @_parameterize_by_mapping
+    def test_truthy_on_construction_with_nonempty_mapping(self, _name,
+                                                          mapping):
         table = self.instantiate(mapping)
         self.assertTrue(table)
 
-    @_parameterize_by_items
-    def test_construction_from_nonempty_sequence_has_same_len(self, _name,
-                                                              length, mapping):
+    @_parameterize_by_mapping
+    def test_same_len_on_construction_with_sequence(self, _name, mapping):
+        """With distinct items, the new mapping has the same number of them."""
+        length = len(mapping)
         items = list(mapping.items())
         table = self.instantiate(items)
         self.assertEqual(len(table), length)
 
-    @_parameterize_by_items
-    def test_construction_from_nonempty_items_view_has_same_len(self, _name,
-                                                                length,
-                                                                mapping):
+    @_parameterize_by_mapping
+    def test_same_len_on_construction_with_iterator(self, _name, mapping):
+        """With distinct items, the new mapping has the same number of them."""
+        length = len(mapping)
+        items = iter(mapping.items())
+        table = self.instantiate(items)
+        self.assertEqual(len(table), length)
+
+    @_parameterize_by_mapping
+    def test_same_len_on_construction_with_items_view(self, _name, mapping):
+        length = len(mapping)
         items = mapping.items()
         table = self.instantiate(items)
         self.assertEqual(len(table), length)
 
-    @_parameterize_by_items
-    def test_construction_from_nonempty_mapping_has_same_len(self, _name,
-                                                             length, mapping):
+    @_parameterize_by_mapping
+    def test_same_len_on_construction_with_mapping(self, _name, mapping):
+        length = len(mapping)
         table = self.instantiate(mapping)
         self.assertEqual(len(table), length)
 
