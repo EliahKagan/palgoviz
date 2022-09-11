@@ -5,6 +5,8 @@
 from abc import ABC, abstractmethod
 from collections.abc import ItemsView, KeysView, MutableMapping, ValuesView
 from fractions import Fraction
+import random
+from types import MappingProxyType
 import unittest
 
 from parameterized import parameterized
@@ -16,6 +18,39 @@ from mappings import (
     DirectAddressTable,
     HashTable,
 )
+
+
+def _make_example_items(keys, *, seed):
+    """Create an example with the given keys in scrambled order."""
+    keys = list(keys)
+    random.Random(seed).shuffle(keys)
+    return MappingProxyType({key: object() for key in keys})
+
+
+_parameterize_by_empty_iterable = parameterized.expand([
+    ('tuple', ()),
+    ('list', []),
+    ('iterator', iter([])),  # Non-generator iterator.
+    ('generator', (x for x in ())),
+])
+"""Parameterize a test method by empty iterables (some of them iterators)."""
+
+
+_parameterize_by_empty_mapping = parameterized.expand([
+    ('dict', {}),
+    ('mappingproxy', MappingProxyType({})),
+])
+"""Parameterize a test method by empty mappings."""
+
+
+_parameterize_by_items = parameterized.expand([
+    ('len1', 1, MappingProxyType({42: 'A'})),
+    ('len2', 2, MappingProxyType({42: 'A', 3: 'C'})),
+    ('len3', 3, MappingProxyType({42: 'A', 3: 'C', 255: 'B'})),
+    ('len4', 4, MappingProxyType({42: 'A', 3: 'C', 255: 'B', 76: 'D'})),
+    ('len256', 256, _make_example_items(range(256), seed=3731775464805526349)),
+])
+"""Parameterize a test method by different-sized mappings giving items."""
 
 
 class _TestMutableMapping(ABC):
@@ -102,6 +137,31 @@ class _TestMutableMapping(ABC):
         table = self.instantiate()
         self.assertEqual(len(table), 0)
 
+    @_parameterize_by_empty_iterable
+    def test_construction_from_empty_iterable_gives_falsy_instance(self, _name,
+                                                                   iterable):
+        table = self.instantiate(iterable)
+        self.assertFalse(table)
+
+    @_parameterize_by_empty_iterable
+    def test_construction_from_empty_iterable_gives_zero_size_instance(
+            self, _name, iterable):
+        table = self.instantiate(iterable)
+        self.assertEqual(len(table), 0)
+
+    @_parameterize_by_empty_mapping
+    def test_construction_from_empty_mapping_gives_falsy_instance(self, _name,
+                                                                  mapping):
+        table = self.instantiate(mapping)
+        self.assertFalse(table)
+
+    @_parameterize_by_empty_mapping
+    def test_construction_from_empty_mapping_gives_zero_size_instance(self,
+                                                                      _name,
+                                                                      mapping):
+        table = self.instantiate(mapping)
+        self.assertEqual(len(table), 0)
+
     def test_empty_has_falsy_items_view(self):
         table = self.instantiate()
         items = table.items()
@@ -131,6 +191,52 @@ class _TestMutableMapping(ABC):
         table = self.instantiate()
         values = table.values()
         self.assertEqual(len(values), 0)
+
+    @_parameterize_by_items
+    def test_construction_from_nonempty_sequence_gives_truthy_instance(
+            self, _name, _length, mapping):
+        items = list(mapping.items())
+        table = self.instantiate(items)
+        self.assertTrue(table)
+
+    @_parameterize_by_items
+    def test_construction_from_nonempty_items_view_gives_truthy_instance(
+            self, _name, _length, mapping):
+        items = mapping.items()
+        table = self.instantiate(items)
+        self.assertTrue(table)
+
+    @_parameterize_by_items
+    def test_construction_from_nonempty_mapping_gives_truthy_instance(
+            self, _name, _length, mapping):
+        table = self.instantiate(mapping)
+        self.assertTrue(table)
+
+    @_parameterize_by_items
+    def test_construction_from_nonempty_sequence_has_same_len(self, _name,
+                                                              length, mapping):
+        items = list(mapping.items())
+        table = self.instantiate(items)
+        self.assertEqual(len(table), length)
+
+    @_parameterize_by_items
+    def test_construction_from_nonempty_items_view_has_same_len(self, _name,
+                                                                length,
+                                                                mapping):
+        items = mapping.items()
+        table = self.instantiate(items)
+        self.assertEqual(len(table), length)
+
+    @_parameterize_by_items
+    def test_construction_from_nonempty_mapping_has_same_len(self, _name,
+                                                             length, mapping):
+        table = self.instantiate(mapping)
+        self.assertEqual(len(table), length)
+
+    # @_parameterize_by_items
+    # def test_construction_from_nonempty_sequence_has_same_items(self, _name,
+    #                                                             _length,
+    #                                                             mapping):
 
     # FIXME: Write the (many) rest of these tests.
 
