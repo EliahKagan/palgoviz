@@ -102,11 +102,11 @@ class Suppress:
     __slots__ = ('_exc_types',)
 
     def __init__(self, *exc_types):
-        """Create a context manager that exceptions of specified types."""
+        """Create a context manager to suppress given exception types."""
         self._exc_types = exc_types
 
     def __repr__(self):
-        """Codelike representation for debugging."""
+        """Representation as Python code."""
         type_names = ', '.join(e_type.__name__ for e_type in self._exc_types)
         return f'{type(self).__name__}({type_names})'
 
@@ -115,17 +115,13 @@ class Suppress:
         pass
 
     def __exit__(self, exc_type, exc_value, traceback):
-        """Suppress all exceptions of specified types."""
+        """Suppress appropriate exception types."""
         del exc_value, traceback
 
         if exc_type is None:
             return False
 
-        for e_type in self._exc_types:
-            if issubclass(exc_type, e_type):
-                return True
-
-        return False
+        return issubclass(exc_type, self._exc_types)
 
 
 class MonkeyPatch:
