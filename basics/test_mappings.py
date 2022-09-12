@@ -183,8 +183,7 @@ class _TestMutableMapping(ABC):
         self.assertFalse(table)
 
     @_parameterize_by_empty_iterable
-    def test_len_zero_on_construction_from_empty_iterable(self, _name,
-                                                          iterable):
+    def test_len_0_on_construction_from_empty_iterable(self, _name, iterable):
         table = self.instantiate(iterable)
         self.assertEqual(len(table), 0)
 
@@ -195,8 +194,7 @@ class _TestMutableMapping(ABC):
         self.assertFalse(table)
 
     @_parameterize_by_empty_mapping
-    def test_len_zero_on_construction_from_empty_items_view(self, _name,
-                                                            mapping):
+    def test_len_0_on_construction_from_empty_items_view(self, _name, mapping):
         items = mapping.items()
         table = self.instantiate(items)
         self.assertEqual(len(table), 0)
@@ -207,7 +205,7 @@ class _TestMutableMapping(ABC):
         self.assertFalse(table)
 
     @_parameterize_by_empty_mapping
-    def test_len_zero_on_construction_from_empty_mapping(self, _name, mapping):
+    def test_len_0_on_construction_from_empty_mapping(self, _name, mapping):
         table = self.instantiate(mapping)
         self.assertEqual(len(table), 0)
 
@@ -397,6 +395,8 @@ class _TestMutableMapping(ABC):
         length = len(mapping)
         table = self.instantiate(mapping)
         self.assertEqual(len(table), length)
+
+    #@_parameterize_by_mapping
 
     # @_parameterize_by_items
     # def test_construction_from_nonempty_sequence_has_same_items(self, _name,
