@@ -99,7 +99,7 @@ class Suppress:
     30
     """
 
-    __slots__ = ('_exc_types')
+    __slots__ = ('_exc_types',)
 
     def __init__(self, *exc_types):
         """Create a context manager that exceptions of specified types."""
@@ -107,8 +107,8 @@ class Suppress:
 
     def __repr__(self):
         """Codelike representation for debugging."""
-        type_names = tuple(e_type.__name__ for e_type in self._exc_types)
-        return f'{type(self).__name__}({", ".join(type_names)})'
+        type_names = ', '.join(e_type.__name__ for e_type in self._exc_types)
+        return f'{type(self).__name__}({type_names})'
 
     def __enter__(self):
         """Do nothing."""
@@ -117,9 +117,14 @@ class Suppress:
     def __exit__(self, exc_type, exc_value, traceback):
         """Suppress all exceptions of specified types."""
         del exc_value, traceback
+
+        if exc_type is None:
+            return False
+
         for e_type in self._exc_types:
-            #  FIXME: Cover sub-exceptions
-            if exc_type is e_type: return True
+            if issubclass(exc_type, e_type):
+                return True
+
         return False
 
 
