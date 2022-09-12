@@ -65,7 +65,31 @@ class Closing:
     >>> list(gen)
     []
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('_obj',)
+
+    def __init__(self, obj):
+        """Store initializer argument in attribute."""
+        self._obj = obj
+
+    def __repr__(self):
+        """Codelike representation for debugging."""
+        return f'{type(self).__name__}({self.obj!r})'
+
+    def __enter__(self):
+        """Return the initializer argument."""
+        return self.obj
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Call the initializer argument's close if present."""
+        del exc_type, exc_value, traceback
+
+        self.obj.close()
+
+    @property
+    def obj(self):
+        """The initializer argument."""
+        return self._obj
 
 
 class Suppress:
