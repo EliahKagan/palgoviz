@@ -74,22 +74,16 @@ class Closing:
 
     def __repr__(self):
         """Codelike representation for debugging."""
-        return f'{type(self).__name__}({self.obj!r})'
+        return f'{type(self).__name__}({self._obj!r})'
 
     def __enter__(self):
         """Just return the object (that will be closed)."""
-        return self.obj
+        return self._obj
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Close the object."""
         del exc_type, exc_value, traceback
-
-        self.obj.close()
-
-    @property
-    def obj(self):
-        """The object that will be closed."""
-        return self._obj
+        self._obj.close()
 
 
 class Suppress:
