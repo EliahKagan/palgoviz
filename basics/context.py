@@ -69,7 +69,7 @@ class Closing:
     __slots__ = ('_obj',)
 
     def __init__(self, obj):
-        """Store initializer argument in attribute."""
+        """Create a context manager that will close an object."""
         self._obj = obj
 
     def __repr__(self):
@@ -77,18 +77,18 @@ class Closing:
         return f'{type(self).__name__}({self.obj!r})'
 
     def __enter__(self):
-        """Return the initializer argument."""
+        """Just return the object (that will be closed)."""
         return self.obj
 
     def __exit__(self, exc_type, exc_value, traceback):
-        """Call the initializer argument's close if present."""
+        """Close the object."""
         del exc_type, exc_value, traceback
 
         self.obj.close()
 
     @property
     def obj(self):
-        """The initializer argument."""
+        """The object that will be closed."""
         return self._obj
 
 
