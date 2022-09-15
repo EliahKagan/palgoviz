@@ -300,6 +300,19 @@ class TestContextlibSuppress(unittest.TestCase):
             with self.implementation(*to_suppress):
                 raise to_raise()
 
+    @parameterized.expand([
+        ([LookupError], KeyError),
+        ([LookupError], IndexError),
+        ([SystemExit, Exception], ValueError),
+    ])
+    def test_indirect_listed_exception_suppressed(self, to_suppress, to_raise):
+        """Indirect instances (instances of subclasses) are suppressed."""
+        try:
+            with self.implementation(*to_suppress):
+                raise to_raise()
+        except to_raise:
+            self.fail(f'{to_raise.__name__} exception was not suppressed')
+
     def test_with_no_exception_nothing_is_raised(self):
         """Fail on likely bug in __exit__; let other exceptions error out."""
         try:
@@ -448,7 +461,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_construction_does_not_check_writeable(self, _name, **kwargs):
-        """Construction should't fail fast, since the situation may change."""
+        """Construction shouldn't fail fast, since the situation may change."""
         target = 3.0
         try:
             context.MonkeyPatch(target, 'numerator', 4.0, **kwargs)
@@ -457,7 +470,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
     def test_construction_does_not_check_existence(self, _name, **kwargs):
-        """Construction should't fail fast, since the situation may change."""
+        """Construction shouldn't fail fast, since the situation may change."""
         target = types.SimpleNamespace(a=10)
         try:
             context.MonkeyPatch(target, 'b', 15, **kwargs)
