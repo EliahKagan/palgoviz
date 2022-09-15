@@ -3,6 +3,9 @@
 """Context managers."""
 
 
+import contextlib
+
+
 class Announce:
     """
     Context manager to announce starting and finishing a task, by name.
@@ -181,7 +184,50 @@ class MonkeyPatch:
 
     Hint: You might want to get it working just as a context manager first.
     """
-    # FIXME: Implement this.
+
+    __slots__ = (
+        '_target',
+        '_attr_name',
+        '_attr_value',
+        '_allow_absent',
+        '_old',
+        '_absent',
+    )
+
+    def __init__(self, target, attr_name, attr_value, *, allow_absent=False):
+        self._target = target
+        self._attr_name = attr_name
+        self._attr_value = attr_value
+        self._allow_absent = allow_absent
+        self._absent = False
+
+    def __repr__(self):
+        return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
+            type(self).__name__,
+            self._target,
+            self._attr_name,
+            self._attr_value,
+            self._allow_absent,
+        )
+
+    def __enter__(self):
+        if self._allow_absent:
+            try:
+                self._old = getattr(self._target, self._attr_name)
+            except AttributeError:
+                self._absent = True
+        else:
+            self._old = getattr(self._target, self._attr_name)
+
+        setattr(self._target, self._attr_name, self._attr_value)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        del exc_type, exc_value, traceback
+
+        if self._absent:
+            delattr(self._target, self._attr_name)
+        else:
+            setattr(self._target, self._attr_name, self._old)
 
 
 __all__ = [thing.__name__ for thing in (
