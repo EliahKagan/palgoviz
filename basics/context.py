@@ -211,13 +211,12 @@ class MonkeyPatch:
         )
 
     def __enter__(self):
-        if self._allow_absent:
-            try:
-                self._old = getattr(self._target, self._attr_name)
-            except AttributeError:
-                self._absent = True
-        else:
+        try:
             self._old = getattr(self._target, self._attr_name)
+        except AttributeError:
+            if not self._allow_absent:
+                raise
+            self._absent = True
 
         setattr(self._target, self._attr_name, self._attr_value)
 
