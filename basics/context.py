@@ -108,7 +108,7 @@ class Suppress:
 
     def __repr__(self):
         """Representation of this object, possibly runnable as Python code."""
-        arguments = ", ".join(t.__name__ for t in self._exception_types)
+        arguments = ', '.join(t.__name__ for t in self._exception_types)
         return f'{type(self).__name__}({arguments})'
 
     def __enter__(self):
