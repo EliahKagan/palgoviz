@@ -199,7 +199,6 @@ class MonkeyPatch:
         self._attr_name = attr_name
         self._attr_value = attr_value
         self._allow_absent = allow_absent
-        self._absent = False
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
@@ -217,6 +216,8 @@ class MonkeyPatch:
             if not self._allow_absent:
                 raise
             self._absent = True
+        else:
+            self._absent = False
 
         setattr(self._target, self._attr_name, self._attr_value)
 
