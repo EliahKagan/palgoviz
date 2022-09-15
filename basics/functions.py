@@ -18,8 +18,6 @@ gencomp1.py, and gencomp2.py.
 """
 
 import itertools
-from sys import builtin_module_names
-from unittest.mock import sentinel
 
 from decorators import peek_return
 from fibonacci import fib
