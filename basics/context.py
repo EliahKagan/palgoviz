@@ -186,27 +186,27 @@ class MonkeyPatch:
 
     __slots__ = (
         '_target',
-        '_attr_name',
-        '_attr_value',
+        '_name',
+        '_value',
         '_allow_absent',
         '_old_stack',
-        '_absent_stack',
+        '_absent',
     )
 
-    def __init__(self, target, attr_name, attr_value, *, allow_absent=False):
+    def __init__(self, target, name, value, *, allow_absent=False):
         self._target = target
-        self._attr_name = attr_name
-        self._attr_value = attr_value
+        self._name = name
+        self._value = value
         self._allow_absent = allow_absent
         self._old_stack = []
-        self._absent_stack = []
+        self._absent = object()
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
             type(self).__name__,
             self._target,
-            self._attr_name,
-            self._attr_value,
+            self._name,
+            self._value,
             self._allow_absent,
         )
 
@@ -220,25 +220,23 @@ class MonkeyPatch:
 
     def __enter__(self):
         try:
-            self._old_stack.append(getattr(self._target, self._attr_name))
+            self._old_stack.append(getattr(self._target, self._name))
         except AttributeError:
             if not self._allow_absent:
                 raise
-            self._absent_stack.append(True)
-            self._old_stack.append(None)
-        else:
-            self._absent_stack.append(False)
+            self._old_stack.append(self._absent)
 
-        setattr(self._target, self._attr_name, self._attr_value)
+        setattr(self._target, self._name, self._value)
 
     def __exit__(self, exc_type, exc_value, traceback):
         del exc_type, exc_value, traceback
 
-        if self._absent_stack.pop():
-            delattr(self._target, self._attr_name)
-            del self._old_stack[-1]
+        old = self._old_stack.pop()
+
+        if old is self._absent:
+            delattr(self._target, self._name)
         else:
-            setattr(self._target, self._attr_name, self._old_stack.pop())
+            setattr(self._target, self._name, old)
 
 
 __all__ = [thing.__name__ for thing in (
