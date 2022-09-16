@@ -4,6 +4,7 @@
 
 
 import contextlib
+import functools
 
 
 class Announce:
@@ -190,8 +191,8 @@ class MonkeyPatch:
         '_attr_name',
         '_attr_value',
         '_allow_absent',
-        '_old',
-        '_absent',
+        '_old_stack',
+        '_absent_stack',
     )
 
     def __init__(self, target, attr_name, attr_value, *, allow_absent=False):
@@ -199,6 +200,8 @@ class MonkeyPatch:
         self._attr_name = attr_name
         self._attr_value = attr_value
         self._allow_absent = allow_absent
+        self._old_stack = []
+        self._absent_stack = []
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
@@ -209,25 +212,34 @@ class MonkeyPatch:
             self._allow_absent,
         )
 
+    def __call__(self, optional_func=None):
+        @functools.wraps(optional_func)
+        def wrapper(*args, **kwargs):
+            with self:
+                return optional_func(*args, **kwargs)
+        return wrapper
+
     def __enter__(self):
         try:
-            self._old = getattr(self._target, self._attr_name)
+            self._old_stack.append(getattr(self._target, self._attr_name))
         except AttributeError:
             if not self._allow_absent:
                 raise
-            self._absent = True
+            self._absent_stack.append(True)
+            self._old_stack.append(None)
         else:
-            self._absent = False
+            self._absent_stack.append(False)
 
         setattr(self._target, self._attr_name, self._attr_value)
 
     def __exit__(self, exc_type, exc_value, traceback):
         del exc_type, exc_value, traceback
 
-        if self._absent:
+        if self._absent_stack.pop():
             delattr(self._target, self._attr_name)
+            self._old_stack.pop()
         else:
-            setattr(self._target, self._attr_name, self._old)
+            setattr(self._target, self._attr_name, self._old_stack.pop())
 
 
 __all__ = [thing.__name__ for thing in (
