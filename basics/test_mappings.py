@@ -281,7 +281,8 @@ class _TestMutableMapping(ABC):
             self.fail(f'construction failed: {error}')
 
     @_parameterize_by_mapping
-    def test_truthy_on_construction_from_nonempty_sequence(self, _name, mapping):
+    def test_truthy_on_construction_from_nonempty_sequence(self, _name,
+                                                           mapping):
         items = list(mapping.items())
         table = self.instantiate(items)
         self.assertTrue(table)
@@ -366,32 +367,32 @@ class _TestMutableMapping(ABC):
         self.assertTrue(table.items())
 
     @_parameterize_by_mapping
-    def test_same_len_items_view_on_construction_from_nonempty_sequence(
-            self, _name, mapping):
+    def test_same_len_items_view_on_construction_from_sequence(self, _name,
+                                                               mapping):
         length = len(mapping)
         items = list(mapping.items())
         table = self.instantiate(items)
         self.assertEqual(len(table), length)
 
     @_parameterize_by_mapping
-    def test_same_len_items_view_on_construction_from_nonempty_iterator(
-            self, _name, mapping):
+    def test_same_len_items_view_on_construction_from_iterator(self, _name,
+                                                               mapping):
         length = len(mapping)
         items = iter(mapping.items())
         table = self.instantiate(items)
         self.assertEqual(len(table), length)
 
     @_parameterize_by_mapping
-    def test_same_len_items_view_on_construction_from_nonempty_items_view(
-            self, _name, mapping):
+    def test_same_len_items_view_on_construction_from_items_view(self, _name,
+                                                                 mapping):
         length = len(mapping)
         items = mapping.items()
         table = self.instantiate(items)
         self.assertEqual(len(table), length)
 
     @_parameterize_by_mapping
-    def test_same_len_items_view_on_construction_from_nonempty_mapping(
-            self, _name, mapping):
+    def test_same_len_items_view_on_construction_from_mapping(self, _name,
+                                                              mapping):
         length = len(mapping)
         table = self.instantiate(mapping)
         self.assertEqual(len(table), length)
