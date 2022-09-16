@@ -2,8 +2,6 @@
 
 """Context managers."""
 
-
-import contextlib
 import functools
 
 
@@ -212,11 +210,12 @@ class MonkeyPatch:
             self._allow_absent,
         )
 
-    def __call__(self, optional_func=None):
-        @functools.wraps(optional_func)
+    def __call__(self, func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             with self:
-                return optional_func(*args, **kwargs)
+                return func(*args, **kwargs)
+
         return wrapper
 
     def __enter__(self):
@@ -237,7 +236,7 @@ class MonkeyPatch:
 
         if self._absent_stack.pop():
             delattr(self._target, self._attr_name)
-            self._old_stack.pop()
+            del self._old_stack[-1]
         else:
             setattr(self._target, self._attr_name, self._old_stack.pop())
 
