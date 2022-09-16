@@ -397,7 +397,37 @@ class _TestMutableMapping(ABC):
         table = self.instantiate(mapping)
         self.assertEqual(len(table), length)
 
-    #@_parameterize_by_mapping
+    @_parameterize_by_mapping
+    def test_equal_items_on_construction_from_sequence(self, _name, mapping):
+        expected = set(mapping.items())
+        items = list(mapping.items())
+        table = self.instantiate(items)
+        actual = set(table.items())
+        self.assertSetEqual(actual, expected)
+
+    @_parameterize_by_mapping
+    def test_equal_items_on_construction_from_iterator(self, _name, mapping):
+        expected = set(mapping.items())
+        items = iter(mapping.items())
+        table = self.instantiate(items)
+        actual = set(table.items())
+        self.assertSetEqual(actual, expected)
+
+    @_parameterize_by_mapping
+    def test_equal_items_on_construction_from_items_view(self, _name, mapping):
+        expected = set(mapping.items())
+        items = mapping.items()
+        table = self.instantiate(items)
+        actual = set(table.items())
+        self.assertSetEqual(actual, expected)
+
+    @_parameterize_by_mapping
+    def test_equal_items_on_construction_from_mapping(self, _name, mapping):
+        expected = set(mapping.items())
+        table = self.instantiate(mapping)
+        actual = set(table.items())
+        self.assertSetEqual(actual, expected)
+
 
     # @_parameterize_by_items
     # def test_construction_from_nonempty_sequence_has_same_items(self, _name,
