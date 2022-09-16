@@ -195,6 +195,7 @@ class MonkeyPatch:
     _absent = object()
 
     def __init__(self, target, name, value, *, allow_absent=False):
+        """Create context manager to patch and unpatch an attribute."""
         self._target = target
         self._name = name
         self._value = value
@@ -202,6 +203,7 @@ class MonkeyPatch:
         self._old_stack = []
 
     def __repr__(self):
+        """Codelike representation for debugging."""
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
             type(self).__name__,
             self._target,
@@ -211,6 +213,7 @@ class MonkeyPatch:
         )
 
     def __call__(self, func):
+        """Wrap so each call patches and unpatches the attribute."""
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             with self:
@@ -219,6 +222,7 @@ class MonkeyPatch:
         return wrapper
 
     def __enter__(self):
+        """Patch the attribute."""
         try:
             old = getattr(self._target, self._name)
         except AttributeError:
@@ -230,6 +234,7 @@ class MonkeyPatch:
         setattr(self._target, self._name, self._value)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Unpatch the attribute."""
         del exc_type, exc_value, traceback
 
         old = self._old_stack.pop()
