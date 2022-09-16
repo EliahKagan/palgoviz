@@ -190,8 +190,9 @@ class MonkeyPatch:
         '_value',
         '_allow_absent',
         '_old_stack',
-        '_absent',
     )
+
+    _absent = object()
 
     def __init__(self, target, name, value, *, allow_absent=False):
         self._target = target
@@ -199,7 +200,6 @@ class MonkeyPatch:
         self._value = value
         self._allow_absent = allow_absent
         self._old_stack = []
-        self._absent = object()
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
