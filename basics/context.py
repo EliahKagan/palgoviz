@@ -220,12 +220,13 @@ class MonkeyPatch:
 
     def __enter__(self):
         try:
-            self._old_stack.append(getattr(self._target, self._name))
+            old = getattr(self._target, self._name)
         except AttributeError:
             if not self._allow_absent:
                 raise
-            self._old_stack.append(self._absent)
+            old = self._absent
 
+        self._old_stack.append(old)
         setattr(self._target, self._name, self._value)
 
     def __exit__(self, exc_type, exc_value, traceback):
