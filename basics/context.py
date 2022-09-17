@@ -185,9 +185,11 @@ class MonkeyPatch:
         '_name',
         '_new_value',
         '_allow_absent',
-        '_has_old_value',
-        '_old_values',
+        '_history',
     )
+
+    _absent = object()
+    """Sentinel object representing the absence of an attribute value."""
 
     def __init__(self, target, name, new_value, *, allow_absent=False):
         """Create a context manager that will monkeypatch an attribute."""
@@ -195,7 +197,7 @@ class MonkeyPatch:
         self._name = name
         self._new_value = new_value
         self._allow_absent = allow_absent
-        self._old_values = []
+        self._history = []
 
     def __repr__(self):
         """Representation of this object as Python code."""
@@ -218,11 +220,9 @@ class MonkeyPatch:
         except AttributeError:
             if not self._allow_absent:
                 raise
-            self._has_old_value = False
-            self._old_values.append(None)
+            self._history.append(self._absent)
         else:
-            self._has_old_value = True
-            self._old_values.append(value)
+            self._history.append(value)
 
         setattr(self._target, self._name, self._new_value)
 
@@ -230,11 +230,12 @@ class MonkeyPatch:
         """Unpatch the attribute."""
         del exc_type, exc_value, traceback
 
-        if self._has_old_value:
-            setattr(self._target, self._name, self._old_values.pop())
-        else:
-            del self._old_values[-1]
+        old_value = self._history.pop()
+
+        if old_value is self._absent:
             delattr(self._target, self._name)
+        else:
+            setattr(self._target, self._name, old_value)
 
 
 __all__ = [thing.__name__ for thing in (
