@@ -186,7 +186,7 @@ class MonkeyPatch:
         '_new_value',
         '_allow_absent',
         '_has_old_value',
-        '_old_value',
+        '_old_values',
     )
 
     def __init__(self, target, name, new_value, *, allow_absent=False):
@@ -195,6 +195,7 @@ class MonkeyPatch:
         self._name = name
         self._new_value = new_value
         self._allow_absent = allow_absent
+        self._old_values = []
 
     def __repr__(self):
         """Representation of this object as Python code."""
@@ -205,8 +206,7 @@ class MonkeyPatch:
         """Wrap a function so each invocation patches and unpatches."""
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            with type(self)(self._target, self._name, self._new_value,
-                            allow_absent=self._allow_absent):
+            with self:
                 return func(*args, **kwargs)
 
         return wrapper
@@ -214,13 +214,15 @@ class MonkeyPatch:
     def __enter__(self):
         """Patch the attribute."""
         try:
-            self._old_value = getattr(self._target, self._name)
+            value = getattr(self._target, self._name)
         except AttributeError:
             if not self._allow_absent:
                 raise
             self._has_old_value = False
+            self._old_values.append(None)
         else:
             self._has_old_value = True
+            self._old_values.append(value)
 
         setattr(self._target, self._name, self._new_value)
 
@@ -229,8 +231,9 @@ class MonkeyPatch:
         del exc_type, exc_value, traceback
 
         if self._has_old_value:
-            setattr(self._target, self._name, self._old_value)
+            setattr(self._target, self._name, self._old_values.pop())
         else:
+            del self._old_values[-1]
             delattr(self._target, self._name)
 
 
