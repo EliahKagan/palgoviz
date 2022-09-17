@@ -18,6 +18,13 @@ import context
 import enumerations
 
 
+def _ensure_type(name, value, correct_type):
+    """Raise TypeError if an argument doesn't have the correct type."""
+    if not isinstance(value, correct_type):
+        raise TypeError(f'{name} must be {correct_type.__name__!r},'
+                        f' not {type(value).__name__!r}')
+
+
 class _FakeError(Exception):
     """Fake exception, for testing."""
 
@@ -343,12 +350,34 @@ class TestSuppress(TestContextlibSuppress):
 @enum.unique
 class _Access(enumerations.CodeReprEnum):
     """Kind of access that occurred, for _AttributeSpy history entries."""
-    SET = enum.auto()
+
+    GET_ATTEMPT = enum.auto()
+    """An attempt was made to read the attribute, raising AttributeError."""
+
     GET = enum.auto()
+    """The attribute was read with no error."""
+
+    SET_ATTEMPT = enum.auto()
+    """An attempt was made to set the attribute, raising AttributeError."""
+
+    SET = enum.auto()
+    """The attribute was set with no error."""
+
+    DELETE_ATTEMPT = enum.auto()
+    """An attempt was made to delete te attribute, raising AttributeError."""
+
     DELETE = enum.auto()
+    """The attribute was deleted with no error."""
 
 
 _attribute_spy_histories = weakref.WeakKeyDictionary()
+
+
+def _log_access(spy, access, *args):
+    """Log an access to _attribute_spy_histories. Helper for _AttributeSpy."""
+    _ensure_type('spy', spy, _AttributeSpy)
+    _ensure_type('access', access, _Access)
+    _attribute_spy_histories[spy].append((access, *args))
 
 
 class _AttributeSpy:
@@ -356,6 +385,8 @@ class _AttributeSpy:
     Class that records successful accesses to its attributes.
 
     >>> spy = _AttributeSpy(x=10, y=20)
+    >>> spy
+    _AttributeSpy(x=10, y=20)
     >>> spy.w = 30
     >>> spy.x += 5
     >>> spy.history
@@ -377,6 +408,12 @@ class _AttributeSpy:
 
         _attribute_spy_histories[self] = []
 
+    def __repr__(self):
+        """Representation as Python code."""
+        items = super().__getattribute__('__dict__').items()
+        joined = ', '.join(f'{name}={value!r}' for name, value in items)
+        return f'{type(self).__name__}({joined})'
+
     def __dir__(self):
         """List all attributes, including the dynamic 'history' attribute."""
         names = super().__dir__()
@@ -388,8 +425,13 @@ class _AttributeSpy:
         if name == 'history':
             return _attribute_spy_histories[self]
 
-        value = super().__getattribute__(name)
-        _attribute_spy_histories[self].append((_Access.GET, name, value))
+        getter = super().__getattribute__
+        try:
+            value = getter(name)
+        except AttributeError:
+            _log_access(self, _Access.GET_ATTEMPT, name)
+            raise
+        _log_access(self, _Access.GET, name, value)
         return value
 
     def __setattr__(self, name, value):
@@ -397,16 +439,26 @@ class _AttributeSpy:
         if name == 'history':
             raise RuntimeError("attempt to set 'history' indicates a bug")
 
-        super().__setattr__(name, value)
-        _attribute_spy_histories[self].append((_Access.SET, name, value))
+        setter = super().__setattr__
+        try:
+            setter(name, value)
+        except AttributeError:
+            _log_access(self, _Access.SET_ATTEMPT, name, value)
+            raise
+        _log_access(self, _Access.SET, name, value)
 
     def __delattr__(self, name):
         """Delete the named attribute, logging to history if successful."""
         if name == 'history':
             raise RuntimeError("attempt to delete 'history' indicates a bug")
 
-        super().__delattr__(name)
-        _attribute_spy_histories[self].append((_Access.DELETE, name))
+        deleter = super().__delattr__
+        try:
+            deleter(name)
+        except AttributeError:
+            _log_access(self, _Access.DELETE_ATTEMPT, name)
+            raise
+        _log_access(self, _Access.DELETE, name)
 
 
 class TestMonkeyPatch(unittest.TestCase):
