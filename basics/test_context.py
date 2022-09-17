@@ -18,13 +18,6 @@ import context
 import enumerations
 
 
-def _ensure_type(name, value, correct_type):
-    """Raise TypeError if an argument doesn't have the correct type."""
-    if not isinstance(value, correct_type):
-        raise TypeError(f'{name} must be {correct_type.__name__!r},'
-                        f' not {type(value).__name__!r}')
-
-
 class _FakeError(Exception):
     """Fake exception, for testing."""
 
@@ -375,8 +368,6 @@ _attribute_spy_histories = weakref.WeakKeyDictionary()
 
 def _log_access(spy, access, *args):
     """Log an access to _attribute_spy_histories. Helper for _AttributeSpy."""
-    _ensure_type('spy', spy, _AttributeSpy)
-    _ensure_type('access', access, _Access)
     _attribute_spy_histories[spy].append((access, *args))
 
 
