@@ -1220,6 +1220,60 @@ class TestMonkeyPatch(unittest.TestCase):
             (_Access.SET, 'x', 0),  # f (note: 0, not 2)
         ])
 
+    def test_decorated_defs_can_nest_with_nested_calls_allowing_absent(self):
+        target = _AttributeSpy()
+        patcher1 = context.MonkeyPatch(target, 'x', 1, allow_absent=True)
+        patcher2 = context.MonkeyPatch(target, 'x', 2, allow_absent=True)
+
+        @patcher1
+        def f(repeat):
+            @patcher2
+            def g():
+                @patcher1
+                def ff():
+                    @patcher2
+                    def gg():
+                        if repeat:
+                            f(False)
+
+                    gg()
+
+                del target.x
+                ff()
+
+            g()
+
+        f(True)
+
+        self.assertListEqual(target.history, [
+            (_Access.GET_ATTEMPT, 'x'),  # f
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.DELETE, 'x'),  # g (wrapped)
+            (_Access.GET_ATTEMPT, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.GET, 'x', 2),  # f
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.DELETE, 'x'),  # g (wrapped)
+            (_Access.GET_ATTEMPT, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.DELETE, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # f
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.DELETE, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.DELETE, 'x'),  # f
+        ])
+
 
 if __name__ == '__main__':
     unittest.main()
