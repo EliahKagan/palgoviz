@@ -343,12 +343,32 @@ class TestSuppress(TestContextlibSuppress):
 @enum.unique
 class _Access(enumerations.CodeReprEnum):
     """Kind of access that occurred, for _AttributeSpy history entries."""
-    SET = enum.auto()
+
+    GET_ATTEMPT = enum.auto()
+    """An attempt was made to read the attribute, raising AttributeError."""
+
     GET = enum.auto()
+    """The attribute was read with no error."""
+
+    SET_ATTEMPT = enum.auto()
+    """An attempt was made to set the attribute, raising AttributeError."""
+
+    SET = enum.auto()
+    """The attribute was set with no error."""
+
+    DELETE_ATTEMPT = enum.auto()
+    """An attempt was made to delete te attribute, raising AttributeError."""
+
     DELETE = enum.auto()
+    """The attribute was deleted with no error."""
 
 
 _attribute_spy_histories = weakref.WeakKeyDictionary()
+
+
+def _log_access(spy, access, *args):
+    """Log an access to _attribute_spy_histories. Helper for _AttributeSpy."""
+    _attribute_spy_histories[spy].append((access, *args))
 
 
 class _AttributeSpy:
@@ -356,6 +376,8 @@ class _AttributeSpy:
     Class that records successful accesses to its attributes.
 
     >>> spy = _AttributeSpy(x=10, y=20)
+    >>> spy
+    _AttributeSpy(x=10, y=20)
     >>> spy.w = 30
     >>> spy.x += 5
     >>> spy.history
@@ -377,6 +399,12 @@ class _AttributeSpy:
 
         _attribute_spy_histories[self] = []
 
+    def __repr__(self):
+        """Representation as Python code."""
+        items = super().__getattribute__('__dict__').items()
+        joined = ', '.join(f'{name}={value!r}' for name, value in items)
+        return f'{type(self).__name__}({joined})'
+
     def __dir__(self):
         """List all attributes, including the dynamic 'history' attribute."""
         names = super().__dir__()
@@ -388,8 +416,13 @@ class _AttributeSpy:
         if name == 'history':
             return _attribute_spy_histories[self]
 
-        value = super().__getattribute__(name)
-        _attribute_spy_histories[self].append((_Access.GET, name, value))
+        getter = super().__getattribute__
+        try:
+            value = getter(name)
+        except AttributeError:
+            _log_access(self, _Access.GET_ATTEMPT, name)
+            raise
+        _log_access(self, _Access.GET, name, value)
         return value
 
     def __setattr__(self, name, value):
@@ -397,16 +430,26 @@ class _AttributeSpy:
         if name == 'history':
             raise RuntimeError("attempt to set 'history' indicates a bug")
 
-        super().__setattr__(name, value)
-        _attribute_spy_histories[self].append((_Access.SET, name, value))
+        setter = super().__setattr__
+        try:
+            setter(name, value)
+        except AttributeError:
+            _log_access(self, _Access.SET_ATTEMPT, name, value)
+            raise
+        _log_access(self, _Access.SET, name, value)
 
     def __delattr__(self, name):
         """Delete the named attribute, logging to history if successful."""
         if name == 'history':
             raise RuntimeError("attempt to delete 'history' indicates a bug")
 
-        super().__delattr__(name)
-        _attribute_spy_histories[self].append((_Access.DELETE, name))
+        deleter = super().__delattr__
+        try:
+            deleter(name)
+        except AttributeError:
+            _log_access(self, _Access.DELETE_ATTEMPT, name)
+            raise
+        _log_access(self, _Access.DELETE, name)
 
 
 class TestMonkeyPatch(unittest.TestCase):
@@ -947,7 +990,10 @@ class TestMonkeyPatch(unittest.TestCase):
                 return x / serious_numbers.two
 
         with self.subTest('__module__'):
-            self.assertEqual(C.halve.__module__, 'test_context')
+            if __name__ not in ('test_context', '__main__'):
+                raise Exception(f"can't reliably test __module__: {__name__=},"
+                                " expected 'test_context' or '__main__'")
+            self.assertEqual(C.halve.__module__, __name__)
         with self.subTest('__name__'):
             self.assertEqual(C.halve.__name__, 'halve')
         with self.subTest('__qualname__'):
@@ -1166,6 +1212,60 @@ class TestMonkeyPatch(unittest.TestCase):
             (_Access.SET, 'x', 2),  # ff
             (_Access.SET, 'x', 1),  # g
             (_Access.SET, 'x', 0),  # f (note: 0, not 2)
+        ])
+
+    def test_decorated_defs_can_nest_with_nested_calls_allowing_absent(self):
+        target = _AttributeSpy()
+        patcher1 = context.MonkeyPatch(target, 'x', 1, allow_absent=True)
+        patcher2 = context.MonkeyPatch(target, 'x', 2, allow_absent=True)
+
+        @patcher1
+        def f(repeat):
+            @patcher2
+            def g():
+                @patcher1
+                def ff():
+                    @patcher2
+                    def gg():
+                        if repeat:
+                            f(False)
+
+                    gg()
+
+                del target.x
+                ff()
+
+            g()
+
+        f(True)
+
+        self.assertListEqual(target.history, [
+            (_Access.GET_ATTEMPT, 'x'),  # f
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.DELETE, 'x'),  # g (wrapped)
+            (_Access.GET_ATTEMPT, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.GET, 'x', 2),  # f
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.DELETE, 'x'),  # g (wrapped)
+            (_Access.GET_ATTEMPT, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.DELETE, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # f
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.DELETE, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.DELETE, 'x'),  # f
         ])
 
 
