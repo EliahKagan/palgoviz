@@ -234,6 +234,121 @@ class MonkeyPatch:
             delattr(self._target, self._name)
 
 
+class MonkeyPatchAlt:
+    """
+    Context manager and decorator to patch and unpatch an attribute.
+
+    This is an alternative implementation of MonkeyPatch. The implementations
+    differ in how they achieve reentrancy when used as decorators. One is also
+    reentrant when used as a context manager (though we currently consider this
+    an implementation detail that users should not rely on). As a result, it is
+    more complicated overall, but the decorator-specific code is simpler. The
+    other is reentrant only as a decorator, not as a context manager.
+
+    >>> import builtins, contextlib, math
+    >>> with MonkeyPatchAlt(builtins, 'len', lambda _: 42):
+    ...     print(len([]))
+    42
+    >>> len([])
+    0
+
+    >>> @MonkeyPatchAlt(builtins, 'len', lambda _: 42)
+    ... def mean(*values):
+    ...     return sum(values) / len(values)
+    >>> mean(1, 3, 5)
+    0.21428571428571427
+
+    >>> two_digits = MonkeyPatchAlt(math, 'pi', 3.14)
+    >>> five_digits = MonkeyPatchAlt(math, 'pi', 3.14159)
+    >>> @two_digits
+    ... def f(x):
+    ...     '''f.'''
+    ...     @five_digits
+    ...     def g(y):
+    ...         '''g.'''
+    ...         @two_digits
+    ...         def ff(p, q):
+    ...             '''ff.'''
+    ...             @five_digits
+    ...             def gg(r, s):
+    ...                 '''gg.'''
+    ...                 print(math.pi, r, s, end=' ')
+    ...                 raise ValueError
+    ...             print(math.pi, gg.__name__, gg.__doc__, end=' ')
+    ...             with contextlib.suppress(ValueError): gg(s=q+1, r=p+1)
+    ...             print(math.pi, p, q, end=' ')
+    ...         print(math.pi, ff.__name__, ff.__doc__, end=' ')
+    ...         ff(y+1, q=y+2)
+    ...         print(math.pi, y, end=' ')
+    ...     print(math.pi, g.__name__, g.__doc__, end=' ')
+    ...     g(x+1)
+    ...     print(math.pi, x)
+    ...     return x**2
+    >>> print(math.pi, f.__name__, f.__doc__); print(f(4)); print(math.pi)
+    3.141592653589793 f f.
+    3.14 g g. 3.14159 ff ff. 3.14 gg gg. 3.14159 7 8 3.14 6 7 3.14159 5 3.14 4
+    16
+    3.141592653589793
+    """
+
+    __slots__ = (
+        '_target',
+        '_name',
+        '_new_value',
+        '_allow_absent',
+        '_history',
+    )
+
+    _absent = object()
+    """Sentinel object representing the absence of an attribute value."""
+
+    def __init__(self, target, name, new_value, *, allow_absent=False):
+        """Create a context manager that will monkeypatch an attribute."""
+        self._target = target
+        self._name = name
+        self._new_value = new_value
+        self._allow_absent = allow_absent
+        self._history = []
+
+    def __repr__(self):
+        """Representation of this object as Python code."""
+        return (f'{type(self).__name__}({self._target!r}, {self._name!r}, '
+                f'{self._new_value!r}, allow_absent={self._allow_absent!r})')
+
+    def __call__(self, func):
+        """Wrap a function so each invocation patches and unpatches."""
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with self:
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    def __enter__(self):
+        """Patch the attribute."""
+        try:
+            value = getattr(self._target, self._name)
+        except AttributeError:
+            if not self._allow_absent:
+                raise
+            self._history.append(self._absent)
+        else:
+            self._history.append(value)
+
+        setattr(self._target, self._name, self._new_value)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Unpatch the attribute."""
+        del exc_type, exc_value, traceback
+
+        old_value = self._history.pop()
+
+        if old_value is self._absent:
+            delattr(self._target, self._name)
+        else:
+            setattr(self._target, self._name, old_value)
+
+
 __all__ = [thing.__name__ for thing in (
     Announce,
     Closing,
