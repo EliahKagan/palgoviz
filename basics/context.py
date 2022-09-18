@@ -126,20 +126,24 @@ class Suppress:
         return issubclass(exc_type, self._exc_types)
 
 
-def _shared_monkeypatch_repr(self):
-    """Codelike representation for debugging."""
-    return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
-        type(self).__name__,
-        self._target,
-        self._name,
-        self._value,
-        self._allow_absent,
-    )
+def _add_mp_repr(cls):
+    """Add shared repr logic to MonkeyPatch implementations."""
+    def __repr__(self):
+        """Codelike representation for debugging."""
+        return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
+            type(self).__name__,
+            self._target,
+            self._name,
+            self._value,
+            self._allow_absent,
+        )
+
+    cls.__repr__ = __repr__
+
+    return cls
 
 
-_shared_monkeypatch_repr.__name__ = '__repr__'
-
-
+@_add_mp_repr
 class MonkeyPatch:
     """
     Context manager and decorator to patch and unpatch an attribute.
@@ -225,8 +229,6 @@ class MonkeyPatch:
 
         return wrapper
 
-    __repr__ = _shared_monkeypatch_repr
-
     def __enter__(self):
         """Patch the attribute."""
         try:
@@ -251,6 +253,7 @@ class MonkeyPatch:
             setattr(self._target, self._name, old)
 
 
+@_add_mp_repr
 class MonkeyPatchAlt:
     """
     Context manager and decorator to patch and unpatch an attribute.
@@ -335,8 +338,6 @@ class MonkeyPatchAlt:
                 return func(*args, **kwargs)
 
         return wrapper
-
-    __repr__ = _shared_monkeypatch_repr
 
     def __enter__(self):
         """Patch the attribute."""
