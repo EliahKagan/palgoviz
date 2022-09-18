@@ -192,7 +192,7 @@ class MonkeyPatch:
         '_old_stack',
     )
 
-    _absent = object()
+    _absent_sentinel = object()
 
     def __init__(self, target, name, value, *, allow_absent=False):
         """Create a context manager to patch and unpatch an attribute."""
@@ -228,7 +228,7 @@ class MonkeyPatch:
         except AttributeError:
             if not self._allow_absent:
                 raise
-            old = self._absent
+            old = self._absent_sentinel
 
         self._old_stack.append(old)
         setattr(self._target, self._name, self._value)
@@ -239,7 +239,7 @@ class MonkeyPatch:
 
         old = self._old_stack.pop()
 
-        if old is self._absent:
+        if old is self._absent_sentinel:
             delattr(self._target, self._name)
         else:
             setattr(self._target, self._name, old)
