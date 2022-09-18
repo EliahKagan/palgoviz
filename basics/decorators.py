@@ -681,6 +681,9 @@ def dict_equality(cls):
     return cls
 
 
+# NOTE: To reset this exercise to be worked again, change its def line back to
+#       "def count_calls_in_attribute(*, name='count'):" in addition to the
+#       usual step of removing the body below the docstring.
 def count_calls_in_attribute(optional_func=None, /, *, name='count'):
     """
     Optionally parameterized decorator to count calls in a function attribute.
@@ -737,6 +740,9 @@ def _wrap_if_uncallable(value):
     return value if callable(value) else lambda *_args, **_kwargs: value
 
 
+# NOTE: To reset this exercise to be worked again, change its def line back to
+#       "def wrap_uncallable_args(*, kw=False):" in addition to the usual steps
+#       of removing the body below the docstring and removing any helpers.
 def wrap_uncallable_args(optional_func=None, /, *, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
@@ -948,6 +954,9 @@ def repeat_collect(count=2):
     return decorator
 
 
+# NOTE: To reset this exercise to be worked again, change what is currently its
+#       "class" line back to "def linear_combinable(func):" in addition to the
+#       the usual step of removing the body below the docstring.
 class linear_combinable:
     """
     Decorator to wrap a function to support addition and scalar multiplication.
