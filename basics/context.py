@@ -195,7 +195,7 @@ class MonkeyPatch:
     _absent = object()
 
     def __init__(self, target, name, value, *, allow_absent=False):
-        """Create context manager to patch and unpatch an attribute."""
+        """Create a context manager to patch and unpatch an attribute."""
         self._target = target
         self._name = name
         self._value = value
@@ -312,12 +312,14 @@ class MonkeyPatchAlt:
     )
 
     def __init__(self, target, name, value, *, allow_absent=False):
+        """Create a context manager to patch and unpatch an attribute."""
         self._target = target
         self._name = name
         self._value = value
         self._allow_absent = allow_absent
 
     def __repr__(self):
+        """Codelike representation for debugging."""
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
             type(self).__name__,
             self._target,
@@ -330,6 +332,7 @@ class MonkeyPatchAlt:
     # it is used as a context manager.
 
     def __enter__(self):
+        """Patch the attribute."""
         try:
             self._old = getattr(self._target, self._name)
         except AttributeError:
@@ -342,6 +345,7 @@ class MonkeyPatchAlt:
         setattr(self._target, self._name, self._value)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Unpatch the attribute."""
         del exc_type, exc_value, traceback
 
         if self._absent:
