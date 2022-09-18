@@ -304,25 +304,25 @@ class MonkeyPatchAlt:
 
     __slots__ = (
         '_target',
-        '_attr_name',
-        '_attr_value',
+        '_name',
+        '_value',
         '_allow_absent',
         '_old',
         '_absent',
     )
 
-    def __init__(self, target, attr_name, attr_value, *, allow_absent=False):
+    def __init__(self, target, name, value, *, allow_absent=False):
         self._target = target
-        self._attr_name = attr_name
-        self._attr_value = attr_value
+        self._name = name
+        self._value = value
         self._allow_absent = allow_absent
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
             type(self).__name__,
             self._target,
-            self._attr_name,
-            self._attr_value,
+            self._name,
+            self._value,
             self._allow_absent,
         )
 
@@ -331,7 +331,7 @@ class MonkeyPatchAlt:
 
     def __enter__(self):
         try:
-            self._old = getattr(self._target, self._attr_name)
+            self._old = getattr(self._target, self._name)
         except AttributeError:
             if not self._allow_absent:
                 raise
@@ -339,15 +339,15 @@ class MonkeyPatchAlt:
         else:
             self._absent = False
 
-        setattr(self._target, self._attr_name, self._attr_value)
+        setattr(self._target, self._name, self._value)
 
     def __exit__(self, exc_type, exc_value, traceback):
         del exc_type, exc_value, traceback
 
         if self._absent:
-            delattr(self._target, self._attr_name)
+            delattr(self._target, self._name)
         else:
-            setattr(self._target, self._attr_name, self._old)
+            setattr(self._target, self._name, self._old)
 
 
 __all__ = [thing.__name__ for thing in (
