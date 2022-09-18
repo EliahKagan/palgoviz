@@ -328,8 +328,17 @@ class MonkeyPatchAlt:
             self._allow_absent,
         )
 
-    # FIXME: Make this work as a decorator, without changing how it works when
-    # it is used as a context manager.
+    def __call__(self, func):
+        """Wrap so each call patches and unpatches the attribute."""
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with type(self)(self._target,
+                            self._name,
+                            self._value,
+                            allow_absent=self._allow_absent):
+                return func(*args, **kwargs)
+
+        return wrapper
 
     def __enter__(self):
         """Patch the attribute."""
