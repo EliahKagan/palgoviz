@@ -126,24 +126,6 @@ class Suppress:
         return issubclass(exc_type, self._exc_types)
 
 
-def _add_mp_repr(cls):
-    """Add shared repr logic to MonkeyPatch implementations."""
-    def __repr__(self):
-        """Codelike representation for debugging."""
-        return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
-            type(self).__name__,
-            self._target,
-            self._name,
-            self._value,
-            self._allow_absent,
-        )
-
-    cls.__repr__ = __repr__
-
-    return cls
-
-
-@_add_mp_repr
 class MonkeyPatch:
     """
     Context manager and decorator to patch and unpatch an attribute.
@@ -220,6 +202,16 @@ class MonkeyPatch:
         self._allow_absent = allow_absent
         self._old_stack = []
 
+    def __repr__(self):
+        """Codelike representation for debugging."""
+        return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
+            type(self).__name__,
+            self._target,
+            self._name,
+            self._value,
+            self._allow_absent,
+        )
+
     def __call__(self, func):
         """Wrap so each call patches and unpatches the attribute."""
         @functools.wraps(func)
@@ -253,7 +245,6 @@ class MonkeyPatch:
             setattr(self._target, self._name, old)
 
 
-@_add_mp_repr
 class MonkeyPatchAlt:
     """
     Context manager and decorator to patch and unpatch an attribute.
@@ -326,6 +317,16 @@ class MonkeyPatchAlt:
         self._name = name
         self._value = value
         self._allow_absent = allow_absent
+
+    def __repr__(self):
+        """Codelike representation for debugging."""
+        return '{}({!r}, {!r}, {!r}, allow_absent={!r})'.format(
+            type(self).__name__,
+            self._target,
+            self._name,
+            self._value,
+            self._allow_absent,
+        )
 
     def __call__(self, func):
         """Wrap so each call patches and unpatches the attribute."""
