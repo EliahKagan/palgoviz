@@ -357,6 +357,7 @@ __all__ = [thing.__name__ for thing in (
     Closing,
     Suppress,
     MonkeyPatch,
+    MonkeyPatchAlt,
 )]
 
 
