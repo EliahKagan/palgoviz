@@ -122,6 +122,18 @@ class Suppress:
                 and issubclass(exc_type, self._exception_types))
 
 
+def _mp_repr(cls):
+    """Decorator to define repr for MonkeyPatch and MonkeyPatchAlt."""
+    def __repr__(self):
+        """Representation of this object as Python code."""
+        return (f'{type(self).__name__}({self._target!r}, {self._name!r}, '
+                f'{self._new_value!r}, allow_absent={self._allow_absent!r})')
+
+    cls.__repr__ = __repr__
+    return cls
+
+
+@_mp_repr
 class MonkeyPatch:
     """
     Context manager and decorator to patch and unpatch an attribute.
@@ -196,11 +208,6 @@ class MonkeyPatch:
         self._new_value = new_value
         self._allow_absent = allow_absent
 
-    def __repr__(self):
-        """Representation of this object as Python code."""
-        return (f'{type(self).__name__}({self._target!r}, {self._name!r}, '
-                f'{self._new_value!r}, allow_absent={self._allow_absent!r})')
-
     def __call__(self, func):
         """Wrap a function so each invocation patches and unpatches."""
         @functools.wraps(func)
@@ -234,6 +241,7 @@ class MonkeyPatch:
             delattr(self._target, self._name)
 
 
+@_mp_repr
 class MonkeyPatchAlt:
     """
     Context manager and decorator to patch and unpatch an attribute.
@@ -309,11 +317,6 @@ class MonkeyPatchAlt:
         self._new_value = new_value
         self._allow_absent = allow_absent
         self._history = []
-
-    def __repr__(self):
-        """Representation of this object as Python code."""
-        return (f'{type(self).__name__}({self._target!r}, {self._name!r}, '
-                f'{self._new_value!r}, allow_absent={self._allow_absent!r})')
 
     def __call__(self, func):
         """Wrap a function so each invocation patches and unpatches."""
