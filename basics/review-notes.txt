@@ -33,3 +33,4 @@ context.Announce
 context.Closing
 context.Suppress
 context.MonkeyPatch
+context.MonkeyPatchAlt

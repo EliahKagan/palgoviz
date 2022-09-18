@@ -110,6 +110,7 @@
         "quux",
         "radd",
         "readline",
+        "reentrancy",
         "releaselevel",
         "removesuffix",
         "repr",
