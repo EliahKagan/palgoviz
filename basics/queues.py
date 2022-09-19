@@ -16,6 +16,8 @@ import bisect
 import collections
 import operator
 
+import graphviz
+
 
 class Queue(ABC):
     """Abstract class representing a generalized queue."""
@@ -78,7 +80,7 @@ class PriorityQueue(Queue):
 
 
 class DequeFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a collections.deque."""
+    """A FIFO queue (i.e. a "queue") based on a collections.deque."""
 
     __slots__ = ('_deque',)
 
@@ -104,7 +106,7 @@ class DequeFifoQueue(FifoQueue):
 
 class AltDequeFifoQueue(FifoQueue):
     """
-    A FIFO queue (i.e., a "queue") based on a collections.deque.
+    A FIFO queue (i.e. a "queue") based on a collections.deque.
 
     Like DequeFifoQueue but elements move through in the other direction.
     """
@@ -132,7 +134,7 @@ class AltDequeFifoQueue(FifoQueue):
 
 
 class SlowFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a list. Linear-time dequeue."""
+    """A FIFO queue (i.e. a "queue") based on a list. Linear-time dequeue."""
 
     __slots__ = ('_list',)
 
@@ -157,7 +159,7 @@ class SlowFifoQueue(FifoQueue):
 
 
 class BiStackFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on two lists used as stacks."""
+    """A FIFO queue (i.e. a "queue") based on two lists used as stacks."""
 
     __slots__ = ('_out', '_in')
 
@@ -192,8 +194,212 @@ class BiStackFifoQueue(FifoQueue):
         return self._out[-1] if self._out else self._in[0]
 
 
+class RingFifoQueue(FifoQueue):
+    """
+    A FIFO queue (i.e. a "queue") based on a list. All operations O(1).
+
+    This uses a single list as a buffer: at all times, except possibly while a
+    method is running, all but O(1) space belongs to a single list object.
+    Methods may sometimes replace it with a new list, but if so, the old list
+    is eligible to be garbage collected on return. (Methods may make as many
+    lists as they like, if they abandon all but one.)
+
+    Enqueue takes amortized O(1) time, but strictly O(1) unless the queue grows
+    larger than it ever has before. Dequeue and peek take strictly O(1) time.
+    Space complexity is linear in the maximum length the queue has reached.
+
+    The details of a RingFifoQueue's underlying representation and how it
+    handles enqueue and dequeue operations may change at any time and must not
+    be relied on, but can be seen at [FIXME: Paste this implementation, with
+    minimal supporting code and/or minor changes, at https://pythontutor.com.
+    Show use cases that exercise all its enqueue and dequeue functionality,
+    such that any bug that ever caused either to behave wrongly would likely be
+    observed, except you need not bother attempting to dequeue when the queue
+    is empty. Make a permalink to it; paste the link in this docstring here.]
+    """
+
+    __slots__ = ('__buffer', '__front', '__len')
+
+    _INITIAL_CAPACITY = 1
+    """The size the buffer is grown to from zero."""
+
+    _GROWTH_FACTOR = 2
+    """
+    Multiplier by which capacity is increased.
+
+    This is a protected constant: this and derived classes may read its value.
+    """
+
+    __ABSENT = object()
+    """Sentinel representing the absence of an item, so debugging is easier."""
+
+    def __init__(self):
+        """Construct a RingFifoQueue, which uses a single list as a buffer."""
+        self.__buffer = []
+        self.__front = self.__len = 0
+
+    def __bool__(self):
+        return self.__len != 0
+
+    def __len__(self):
+        return self.__len
+
+    def enqueue(self, item):
+        assert item is not self.__ABSENT
+
+        self.__ensure_capacity()
+        index = (self.__front + self.__len) % self._capacity
+        assert self.__buffer[index] is self.__ABSENT
+        self.__buffer[index] = item
+        self.__len += 1
+
+    def dequeue(self):
+        item = self.__do_peek("Can't dequeue from empty queue")
+        self.__buffer[self.__front] = self.__ABSENT
+        self.__front = (self.__front + 1) % self._capacity
+        self.__len -= 1
+        return item
+
+    def peek(self):
+        return self.__do_peek("Can't peek from empty queue")
+
+    @property
+    def _capacity(self):
+        """
+        The maximum length the current buffer can hold without being expanded.
+
+        This is a protected property: only this and derived classes may use it.
+        """
+        return len(self.__buffer)
+
+    def _resize_buffer(self, new_capacity):
+        """
+        Change the buffer capacity.
+
+        This is a protected method: only this and derived classes may use it.
+        """
+        if new_capacity < self.__len:
+            raise ValueError(
+                f'capacity {new_capacity!r} less than length {self.__len!r}')
+
+        end1 = min(self.__front + self.__len, self._capacity)
+        end2 = max(0, self.__len - (end1 - self.__front))  # Wrap around.
+
+        self.__buffer = (self.__buffer[self.__front:end1]
+                         + self.__buffer[:end2]
+                         + [self.__ABSENT] * (new_capacity - self.__len))
+        self.__front = 0  # TODO: Ensure tests catch if this is omitted.
+
+        assert self._capacity == new_capacity
+
+    def __ensure_capacity(self):
+        if self.__len < self._capacity:
+            return
+
+        assert self.__len == self._capacity
+
+        if self.__len == 0:
+            self._resize_buffer(self._INITIAL_CAPACITY)
+        else:
+            self._resize_buffer(self.__len * self._GROWTH_FACTOR)
+
+    def __do_peek(self, fail_message):
+        if not self:
+            raise LookupError(fail_message)
+        item = self.__buffer[self.__front]
+        assert item is not self.__ABSENT
+        return item
+
+
+class CompactRingFifoQueue(RingFifoQueue):
+    """
+    A FIFO queue (i.e. a "queue") based on a list. O(1) operations. O(n) space.
+
+    This inherits from RingFifoQueue and satisfies its documented guarantees,
+    except time complexities for enqueue and dequeue are only amortized, and
+    space is linear in the current length. Amortization does cover arbitrarily
+    interleaved operations: a series of any n public method calls takes
+    strictly O(n) time.
+
+    The details of a CompactRingFifoQueue's underlying representation and how
+    it handles enqueue and dequeue operations may change at any time and must
+    not be relied on, but can be seen at [FIXME: As in RingFifoQueue above,
+    make a PythonTutor demonstration of CompactRingFifoQueue's operations and
+    give a link to it here. Make sure the difference between RingFifoQueue and
+    CompactRingFifoQueue is readily apparent when one contrasts the two
+    demonstrations. You can do this before or after the following fixmes, but
+    any changes made due to them should be reflected in the PythonTutor
+    demonstration. You can always make a new permalink to replace the old one.]
+
+    FIXME: Ensure CompactRingFifoQueue duplicates no logic from RingFifoQueue,
+    and that encapsulation is never violated. You can add protected members to
+    RingFifoQueue to facilitate the operations CompactRingFifoQueue requires to
+    meet its time and space guarantees, but only if (i) they would be broadly
+    useful to derived classes, not specific to CompactRingFifoQueue, (ii) some
+    public methods of RingFifoQueue are modified to use them, and code quality
+    is preserved or improved, (iii) separation is preserved, so derived classes
+    rely minimally or not at all on implementation details of RingFifoQueue,
+    and (iv) encapsulation is preserved, so derived classes aren't given power
+    that wouldn't tend to be useful, and the protected interface can't be used
+    to corrupt any data managed by the base class (without deliberate effort).
+    If this doesn't hold initially, that's OK, but please revise to satisfy it.
+    If you change RingFifoQueue, update its PythonTutor demo and permalink.
+
+    FIXME: Consider this data structure from the perspective of an adversary
+    seeking to carry out a denial of service attack by causing enqueues and
+    dequeues to be done in a specially crafted order to degrade asymptotic
+    running time. Briefly explain in this docstring why such an attempt will
+    fail. (Or if this reveals a design bug, fix it, then explain the issue.)
+    """
+
+    __slots__ = ()
+
+    _SHRINK_TRIGGER = RingFifoQueue._GROWTH_FACTOR * 2
+    """Capacity is decreased when it is this many times the length in use."""
+
+    def dequeue(self):
+        item = super().dequeue()
+        if len(self) * self._SHRINK_TRIGGER <= self._capacity:
+            self._resize_buffer(len(self))
+        return item
+
+
+# FIXME: Having implemented RingFifoQueue and CompactRingFifoQueue, now modify
+# sequences.Vec to shrink as well as grow capacity. Recognize can_shrink=False
+# on construction to specify the old behavior of growing but never shrinking;
+# if the can_shrink keyword argument is not passed, or is True, shrinking is
+# allowed. Ensure the space complexity of a Vec currently holding n elements is
+# O(n), yet no operations' amortized time complexities are asymptotically worse
+# than before. This includes the requirement that any m arbitrarily interleaved
+# append and/or pop-from-end operations take O(m) time in total.
+#
+# Make the changes to the Vec class docstring called for in the fixme there.
+# Add test cases in test_sequences.TestVec to check that a Vec can be created
+# with can_shrink=True True or can_shrink=False, and that can_shrink cannot be
+# passed positionally. (Keep all existing test cases. Construction without
+# can_shrink remains allowed. Its effect is different, but that is not related
+# to tests of how Vec instances can and cannot be constructed.)
+#
+# Modify whatever automatic or manual demonstrations or tests you made about
+# the underlying representation of Vec objects and how they change capacity, to
+# correctly show the same results as before. That is, add can_shrink=False on
+# construction to get the old behavior. Then add more such demonstrations or
+# tests, in as much or more detail, showing the new (now default) behavior of
+# both growing and shrinking, and how the underlying representation changes.
+# You tested/demonstrated this in two ways; modify and expand both of them.
+#
+# This fixme is here instead of in sequences.py because of the connection
+# between the preceding queue exercises and this Vec exercise, but the only
+# change to queues.py that will be involved is removing this fixme comment when
+# done. Also, it may not be useful to copy code from here to sequences.py (even
+# if you plan to edit it). In sequences.py, new classes need not be created.
+# Also, if critical operations are very similar in both places, this is a sign
+# of poor quality code in this module, where slicing can and should be used for
+# an important operation, even though it cannot be used in sequences.Vec.
+
+
 class SinglyLinkedListFifoQueue(FifoQueue):
-    """A FIFO queue (i.e., a "queue") based on a singly linked list."""
+    """A FIFO queue (i.e. a "queue") based on a singly linked list."""
 
     __slots__ = ('_head', '_tail', '_len')
 
@@ -234,6 +440,28 @@ class SinglyLinkedListFifoQueue(FifoQueue):
         if not self._head:
             raise LookupError("Can't peek from empty queue")
         return self._head.value
+
+    def copy(self):
+        """
+        Create a SinglyLinkedListFifoQueue that is a copy of this one.
+
+        This may be called any number of times, including on copies. Operations
+        on an instance do not affect any copies or originals related to it.
+
+        The time complexity to copy is [FIXME: state it]. A series of k
+        operations, each of which constructs or calls a public method on some
+        SinglyLinkedListFifoQueue instance, takes [FIXME: how long?] and uses
+        [FIXME: how much space?] in the worst case. These are the best this
+        concrete data structure can do, due to how it represents data.
+        """
+        dup = type(self)()
+
+        node = self._head
+        while node:
+            dup.enqueue(node.value)
+            node = node.nextn
+
+        return dup
 
 
 class ListLifoQueue(LifoQueue):
@@ -349,6 +577,74 @@ class SinglyLinkedListLifoQueue(LifoQueue):
             raise LookupError("Can't peek from empty queue")
         return self._head.value
 
+    def copy(self):
+        """
+        Create a SinglyLinkedListLifoQueue that is a copy of this one.
+
+        This may be called any number of times, including on copies. Operations
+        on an instance do not affect any copies or originals related to it.
+
+        Copying takes [FIXME: how much?] time. Any series of k operations, each
+        constructing a SinglyLinkedListLifoQueue or calling a public method
+        (other than draw) on a SinglyLinkedListLifoQueue, takes [FIXME: how
+        much?] time and uses [FIXME: how much?] space in the worst case. These
+        are the best this concrete data structure can do, due to how it
+        represents data.
+        """
+        dup = type(self)()
+        dup._head = self._head
+        dup._len = self._len
+        return dup
+
+    # !!FIXME: When removing implementation bodies, change "def draw(*queues):"
+    # to: "def draw():  # FIXME: Fill in your function parameters."
+    def draw(*queues):
+        """
+        Visualize how zero or more SinglyLinkedLifoQueues are/aren't related.
+
+        Copying a SinglyLinkedListLifoQueue is more efficient than copying a
+        SinglyLinkedListFifoQueue, in a way that makes it interesting to
+        visualize the state of multiple SinglyLinkedListLifoQueue instances if
+        some may have been created by copying others. This should be drawn in
+        such a way that, even if the last operation before drawing the queues
+        was a call to copy, the effect of that call can be seen in the drawing.
+
+        This creates and returns such a drawing as a graphviz.Digraph. This
+        method can be called with static method syntax or instance method
+        syntax. For example, SinglyLinkedListLifoQueue.draw() draws zero
+        queues, SinglyLinkedListLifoQueue.draw(a, b, c) draws three queues, and
+        a.draw(b, c) draws those same three queues. This is assuming a, b, and
+        c are separate objects; passing the same instance as more than one
+        argument has the same effect as if subsequent occurrences were omitted.
+
+        Some such drawings can be seen in [FIXME: say where you put them, which
+        should probably be queues.ipynb].
+        """
+        vis = {None}
+        graph = graphviz.Digraph()
+        graph.edge_attr = dict(penwidth='0.8')
+
+        for queue in queues:
+            if queue in vis:  # NOTE: Must be changed if __eq__ is implemented.
+                continue
+
+            vis.add(queue)
+            graph.node(str(id(queue)), shape='point', color='blue')
+
+            parent = queue
+            child = queue._head
+
+            while child:
+                if child not in vis:
+                    graph.node(str(id(child)), label=repr(child.value))
+                graph.edge(str(id(parent)), str(id(child)))
+                if child in vis:
+                    break
+                vis.add(child)
+                parent, child = child, child.nextn
+
+        return graph
+
 
 class FastEnqueueMaxPriorityQueue(PriorityQueue):
     """A max priority queue with O(1) enqueue, O(n) dequeue, and O(n) peek."""
@@ -438,6 +734,8 @@ __all__ = [thing.__name__ for thing in (
     AltDequeFifoQueue,
     SlowFifoQueue,
     BiStackFifoQueue,
+    RingFifoQueue,
+    CompactRingFifoQueue,
     SinglyLinkedListFifoQueue,
     ListLifoQueue,
     DequeLifoQueue,

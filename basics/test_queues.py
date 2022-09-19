@@ -5,11 +5,13 @@
 from abc import ABC, abstractmethod
 import inspect
 import unittest
+import weakref
 
 from parameterized import parameterized
 
 import compare
 import queues
+import testing
 
 
 def _unannotated_argspec(func):
@@ -254,6 +256,19 @@ class _Bases:
                 out_items.append(queue.dequeue())
 
             self.assertListEqual(sorted(out_items), sorted(in_items))
+
+        def test_dequeue_relinquishes_element_reference(self):
+            """Queues don't delay garbage collection of former elements."""
+            queue = self.queue_type()
+            for i in range(17):
+                queue.enqueue(testing.CWRCell(i))
+
+            while queue:
+                r = weakref.ref(queue.peek())
+                with self.subTest(number=r().value):
+                    queue.dequeue()
+                    testing.collect_if_not_ref_counting()
+                    self.assertIsNone(r())
 
         def test_cannot_create_new_attributes(self):
             """Assigning to a nonexistent attribute raises AttributeError."""
@@ -849,10 +864,110 @@ class _Bases:
                 out = pq.dequeue()
                 self.assertEqual(out, compare.WeakDiamond.SOUTH)
 
+    class TestCopyable(_QueueTestCase):
+        """
+        Common tests for queues that support shallow copying via a copy method.
+
+        This may be expanded in the future to also test support for copy.copy
+        and copy.deepcopy, if some or all queues gain custom logic for that. If
+        all queue types are made copyable in ways tested here, then these tests
+        can go in TestSubclasses or TestConcrete and this class can be removed.
+
+        For now, these tests apply only to SinglyLinkedListFifoQueue and
+        SinglyLinkedListLifoQueue, and their FIFO/LIFO specific copy tests are
+        in the concrete classes below.
+        """
+
+        _parameterize_elements = parameterized.expand([
+            (0, []),
+            (1, [20]),
+            (2, [20, 10]),
+            (3, [20, 10, 30]),
+        ])
+
+        @_parameterize_elements
+        def test_copy_has_exact_same_type(self, _len, items):
+            original, duplicate = self._make_queues(items)
+            self.assertIs(type(duplicate), type(original))
+
+        @_parameterize_elements
+        def test_copy_has_same_length(self, _len, items):
+            original, duplicate = self._make_queues(items)
+            self.assertEqual(len(duplicate), len(original))
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_orig_then_copy(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            original_dequeued = []
+            while original:
+                original_dequeued.append(original.dequeue())
+
+            duplicate_dequeued = []
+            while duplicate:
+                duplicate_dequeued.append(duplicate.dequeue())
+
+            self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_copy_then_orig(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            duplicate_dequeued = []
+            while duplicate:
+                duplicate_dequeued.append(duplicate.dequeue())
+
+            original_dequeued = []
+            while original:
+                original_dequeued.append(original.dequeue())
+
+            self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_interleave_orig_copy(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            original_dequeued = []
+            duplicate_dequeued = []
+            while original and duplicate:
+                original_dequeued.append(original.dequeue())
+                duplicate_dequeued.append(duplicate.dequeue())
+
+            with self.subTest('no items vanish', queue='original'):
+                self.assertFalse(original)
+            with self.subTest('no items vanish', queue='duplicate'):
+                self.assertFalse(duplicate)
+            with self.subTest('same items dequeued in same order'):
+                self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        @_parameterize_elements
+        def test_copy_dequeues_same_interleave_copy_orig(self, _len, items):
+            original, duplicate = self._make_queues(items)
+
+            original_dequeued = []
+            duplicate_dequeued = []
+            while original and duplicate:
+                duplicate_dequeued.append(duplicate.dequeue())
+                original_dequeued.append(original.dequeue())
+
+            with self.subTest('no items vanish', queue='original'):
+                self.assertFalse(original)
+            with self.subTest('no items vanish', queue='duplicate'):
+                self.assertFalse(duplicate)
+            with self.subTest('same items dequeued in same order'):
+                self.assertEqual(original_dequeued, duplicate_dequeued)
+
+        def _make_queues(self, items):
+            original = self.queue_type()
+            for item in items:
+                original.enqueue(item)
+            duplicate = original.copy()
+            return original, duplicate
+
 
 class TestQueue(_Bases.TestAbstract,
                 _Bases.TestSignatures):
-    """Tests for Queue class."""
+    """Tests for the Queue class."""
 
     @property
     def queue_type(self):
@@ -862,7 +977,7 @@ class TestQueue(_Bases.TestAbstract,
 class TestFifoQueue(_Bases.TestAbstract,
                     _Bases.TestSignatures,
                     _Bases.TestSubclasses):
-    """Tests for FifoQueue class."""
+    """Tests for the FifoQueue class."""
 
     @property
     def queue_type(self):
@@ -872,7 +987,7 @@ class TestFifoQueue(_Bases.TestAbstract,
 class TestLifoQueue(_Bases.TestAbstract,
                     _Bases.TestSignatures,
                     _Bases.TestSubclasses):
-    """Tests for LifoQueue class."""
+    """Tests for the LifoQueue class."""
 
     @property
     def queue_type(self):
@@ -882,7 +997,7 @@ class TestLifoQueue(_Bases.TestAbstract,
 class TestPriorityQueue(_Bases.TestAbstract,
                         _Bases.TestSignatures,
                         _Bases.TestSubclasses):
-    """Tests for PriorityQueue class."""
+    """Tests for the PriorityQueue class."""
 
     @property
     def queue_type(self):
@@ -893,7 +1008,7 @@ class TestDequeFifoQueue(_Bases.TestSignatures,
                          _Bases.TestSubclasses,
                          _Bases.TestConcrete,
                          _Bases.TestFifos):
-    """Tests for DequeFifoQueue class."""
+    """Tests for the DequeFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -904,7 +1019,7 @@ class TestAltDequeFifoQueue(_Bases.TestSignatures,
                             _Bases.TestSubclasses,
                             _Bases.TestConcrete,
                             _Bases.TestFifos):
-    """Tests for AltDequeFifoQueue class."""
+    """Tests for the AltDequeFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -915,7 +1030,7 @@ class TestSlowFifoQueue(_Bases.TestSignatures,
                         _Bases.TestSubclasses,
                         _Bases.TestConcrete,
                         _Bases.TestFifos):
-    """Tests for SlowFifoQueue class."""
+    """Tests for the SlowFifoQueue class."""
 
     @property
     def queue_type(self):
@@ -926,29 +1041,98 @@ class TestBiStackFifoQueue(_Bases.TestSignatures,
                            _Bases.TestSubclasses,
                            _Bases.TestConcrete,
                            _Bases.TestFifos):
-    """Tests for BiStackFifoQueue class."""
+    """Tests for the BiStackFifoQueue class."""
 
     @property
     def queue_type(self):
         return queues.BiStackFifoQueue
 
 
+class TestRingFifoQueue(_Bases.TestSignatures,
+                        _Bases.TestSubclasses,
+                        _Bases.TestConcrete,
+                        _Bases.TestFifos):
+    """Tests for the RingFifoQueue class."""
+
+    @property
+    def queue_type(self):
+        return queues.RingFifoQueue
+
+
+class TestCompactRingFifoQueue(_Bases.TestSignatures,
+                               _Bases.TestSubclasses,
+                               _Bases.TestConcrete,
+                               _Bases.TestFifos):
+    """Tests for the CompactRingFifoQueue class."""
+
+    @property
+    def queue_type(self):
+        return queues.CompactRingFifoQueue
+
+
 class TestSinglyLinkedListFifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
-                                    _Bases.TestFifos):
-    """Tests for SinglyLinkedListFifoQueue class."""
+                                    _Bases.TestFifos,
+                                    _Bases.TestCopyable):
+    """Tests for the SinglyLinkedListFifoQueue class."""
 
     @property
     def queue_type(self):
         return queues.SinglyLinkedListFifoQueue
+
+    def test_original_and_copy_are_independent_fifos(self):
+        """Operations on a copy/original don't affect the original/copy."""
+        original = self.queue_type()
+        original.enqueue(10)
+        original.enqueue(20)
+        original.enqueue(30)
+        duplicate = original.copy()
+
+        original.enqueue(40)
+
+        with self.subTest(queue='duplicate', dequeue=1):
+            self.assertEqual(duplicate.dequeue(), 10)
+
+        duplicate.enqueue(50)
+
+        with self.subTest(queue='duplicate', dequeue=2):
+            self.assertEqual(duplicate.dequeue(), 20)
+
+        with self.subTest(queue='original', dequeue=1):
+            self.assertEqual(original.dequeue(), 10)
+
+        original.enqueue(60)
+
+        with self.subTest(queue='original', dequeue=2):
+            self.assertEqual(original.dequeue(), 20)
+
+        with self.subTest(queue='duplicate', dequeue=3):
+            self.assertEqual(duplicate.dequeue(), 30)
+
+        with self.subTest(queue='duplicate', dequeue=4):
+            self.assertEqual(duplicate.dequeue(), 50)
+
+        with self.subTest(queue='original', dequeue=3):
+            self.assertEqual(original.dequeue(), 30)
+
+        duplicate.enqueue(70)
+
+        with self.subTest(queue='original', dequeue=4):
+            self.assertEqual(original.dequeue(), 40)
+
+        with self.subTest(queue='duplicate', dequeue=5):
+            self.assertEqual(duplicate.dequeue(), 70)
+
+        with self.subTest(queue='original', dequeue=5):
+            self.assertEqual(original.dequeue(), 60)
 
 
 class TestListLifoQueue(_Bases.TestSignatures,
                         _Bases.TestSubclasses,
                         _Bases.TestConcrete,
                         _Bases.TestLifos):
-    """Tests for ListLifoQueue class."""
+    """Tests for the ListLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -959,7 +1143,7 @@ class TestDequeLifoQueue(_Bases.TestSignatures,
                          _Bases.TestSubclasses,
                          _Bases.TestConcrete,
                          _Bases.TestLifos):
-    """Tests for DequeLifoQueue class."""
+    """Tests for the DequeLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -970,7 +1154,7 @@ class TestAltDequeLifoQueue(_Bases.TestSignatures,
                             _Bases.TestSubclasses,
                             _Bases.TestConcrete,
                             _Bases.TestLifos):
-    """Tests for AltDequeLifoQueue class."""
+    """Tests for the AltDequeLifoQueue class."""
 
     @property
     def queue_type(self):
@@ -980,19 +1164,66 @@ class TestAltDequeLifoQueue(_Bases.TestSignatures,
 class TestSinglyLinkedListLifoQueue(_Bases.TestSignatures,
                                     _Bases.TestSubclasses,
                                     _Bases.TestConcrete,
-                                    _Bases.TestLifos):
-    """Tests for SinglyLinkedListLifoQueue class."""
+                                    _Bases.TestLifos,
+                                    _Bases.TestCopyable):
+    """Tests for the SinglyLinkedListLifoQueue class."""
 
     @property
     def queue_type(self):
         return queues.SinglyLinkedListLifoQueue
+
+    def test_original_and_copy_are_independent_lifos(self):
+        """Operations on a copy/original don't affect the original/copy."""
+        original = self.queue_type()
+        original.enqueue(10)
+        original.enqueue(20)
+        original.enqueue(30)
+        duplicate = original.copy()
+
+        original.enqueue(40)
+
+        with self.subTest(queue='duplicate', dequeue=1):
+            self.assertEqual(duplicate.dequeue(), 30)
+
+        duplicate.enqueue(50)
+
+        with self.subTest(queue='duplicate', dequeue=2):
+            self.assertEqual(duplicate.dequeue(), 50)
+
+        with self.subTest(queue='original', dequeue=1):
+            self.assertEqual(original.dequeue(), 40)
+
+        original.enqueue(60)
+
+        with self.subTest(queue='original', dequeue=2):
+            self.assertEqual(original.dequeue(), 60)
+
+        with self.subTest(queue='duplicate', dequeue=3):
+            self.assertEqual(duplicate.dequeue(), 20)
+
+        with self.subTest(queue='duplicate', dequeue=4):
+            self.assertEqual(duplicate.dequeue(), 10)
+
+        with self.subTest(queue='original', dequeue=3):
+            self.assertEqual(original.dequeue(), 30)
+
+        duplicate.enqueue(70)
+
+        with self.subTest(queue='original', dequeue=4):
+            self.assertEqual(original.dequeue(), 20)
+
+        with self.subTest(queue='duplicate', dequeue=5):
+            self.assertEqual(duplicate.dequeue(), 70)
+
+        with self.subTest(queue='original', dequeue=5):
+            self.assertEqual(original.dequeue(), 10)
 
 
 class TestFastEnqueueMaxPriorityQueue(_Bases.TestSignatures,
                                       _Bases.TestSubclasses,
                                       _Bases.TestConcrete,
                                       _Bases.TestPriorityQueues):
-    """Tests for FastEnqueueMaxPriorityQueue class."""
+    """Tests for the FastEnqueueMaxPriorityQueue class."""
 
     @property
     def queue_type(self):
@@ -1003,7 +1234,7 @@ class TestFastDequeueMaxPriorityQueue(_Bases.TestSignatures,
                                       _Bases.TestSubclasses,
                                       _Bases.TestConcrete,
                                       _Bases.TestPriorityQueues):
-    """Tests for FastDequeueMaxPriorityQueue class."""
+    """Tests for the FastDequeueMaxPriorityQueue class."""
 
     @property
     def queue_type(self):
