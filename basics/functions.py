@@ -503,7 +503,7 @@ def as_closeable_func_limited(iterable, end_sentinel):
     return get_next
 
 
-def _get_gen(func, end_sentinel): # Assume func has close()
+def _get_gen(func, end_sentinel):  # Assume func has close().
     try:
         yield  # For priming the generator to get it into the try block.
 
