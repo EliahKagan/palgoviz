@@ -4,8 +4,8 @@ x = 'outer'
 
 
 # Even though python is dynamically typed, it is statically scoped.
-# This is why the result of this is an exception,
-# f() attempts to print the "local variable x," which doesn't exist
+# That's why "print(x)" in this function raises an UnboundLocalError exception.
+# f() attempts to print the *local variable* x, which doesn't exist.
 def f():
     print(x)
     x = 'inner'
@@ -14,9 +14,11 @@ def f():
 def g():
     x = "outer"
     print(x)
+
     def inner():
         nonlocal x
         x = "OUTER"
+
     inner()
     print(x)
 
