@@ -159,7 +159,6 @@ def my_any_alt(iterable):
     for element in iterable:
         if element:
             return True
-
     return False
 
 
@@ -207,7 +206,6 @@ def my_all_alt(iterable):
     for element in iterable:
         if not element:
             return False
-
     return True
 
 
@@ -365,10 +363,11 @@ def print_zipped():
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
 
 
-def _validate_take_n_arg(n):
-    """Raise an appropriate exception if take/take_good should reject n."""
+def _validate_take(n):
+    """Shared validation logic for take and take_good functions."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
+
     if n < 0:
         raise ValueError("can't yield negatively many items")
 
@@ -378,9 +377,6 @@ def take_good(iterable, n):
     Yield the first n elements of iterable, or all if there are fewer than n.
 
     This implementation uses something in itertools to do almost all its work.
-
-    FIXME: If take_good and take (below) have similar validation logic, extract
-    it to a module-level nonpublic function called by both.
 
     >>> next(take_good(range(3), 0))
     Traceback (most recent call last):
@@ -421,7 +417,7 @@ def take_good(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    _validate_take_n_arg(n)
+    _validate_take(n)
     return itertools.islice(iterable, n)
 
 
@@ -470,14 +466,15 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    _validate_take_n_arg(n)
+    _validate_take(n)
     return (element for _, element in zip(range(n), iterable))
 
 
-def _validate_drop_n_arg(n):
-    """Raise an appropriate exception if drop/drop_good should reject n."""
+def _validate_drop(n):
+    """Shared validation logic for drop and drop_good functions."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
+
     if n < 0:
         raise ValueError("can't skip negatively many items")
 
@@ -488,9 +485,6 @@ def drop_good(iterable, n):
 
     This implementation uses something in itertools to do most of its work, and
     there are no restrictions on what or how it uses things from itertools.
-
-    FIXME: If drop_good and drop (below) have similar validation logic, extract
-    it to a module-level nonpublic function called by both.
 
     >>> list(drop_good(range(5), 0))
     [0, 1, 2, 3, 4]
@@ -526,7 +520,7 @@ def drop_good(iterable, n):
     >>> list(drop_good('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    _validate_drop_n_arg(n)
+    _validate_drop(n)
     return itertools.islice(iterable, n, None)
 
 
@@ -572,7 +566,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    _validate_drop_n_arg(n)
+    _validate_drop(n)
 
     def generate():
         it = iter(iterable)

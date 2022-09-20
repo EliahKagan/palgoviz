@@ -101,6 +101,8 @@ def compose(*functions):
 
     This supports being called with a large number of arguments.
 
+    All functions passed to compose are assumed to be unary.
+
     >>> compose()(3)
     3
     >>> def fa(x): return x + 'a'
@@ -115,12 +117,12 @@ def compose(*functions):
     >>> add_50005000(7)
     50005007
     """
-    def composed(arg):
-        for func in reversed(functions):
-            arg = func(arg)
-        return arg
+    def rvalue(x):
+        for function in reversed(functions):
+            x = function(x)
+        return x
 
-    return composed
+    return rvalue
 
 
 def curry_one(function):

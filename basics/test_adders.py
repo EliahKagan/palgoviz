@@ -2,105 +2,119 @@
 
 """Tests for the adders module."""
 
+from abc import ABC, abstractmethod
 import unittest
 
-from parameterized import parameterized, parameterized_class
+from parameterized import parameterized
 
-import adders
-
-
-class _MyStr(str):
-    """Trivially derived string type for testing nonidentical equal strings."""
-
-    __slots__ = ()
+from adders import Adder, make_adder
 
 
-@parameterized_class(('name', 'implementation'), [
-    (adders.make_adder.__name__, staticmethod(adders.make_adder)),
-    (adders.Adder.__name__, adders.Adder),
-])
-class TestSharedAdderBehavior(unittest.TestCase):
-    """Shared tests for the make_adder function and Adder class."""
+class _TestAddersAbstract(ABC, unittest.TestCase):
+    """ABC for for tests for adders."""
+    @property
+    @abstractmethod
+    def impl(self):
+        """The adder being tested."""
 
-    def test_adder_adds(self):
-        adder = self.implementation(6)
-        self.assertEqual(adder(2), 8)
+    def test_adders_are_resuable(self):
+        f = self.impl(7)
 
-    def test_adder_is_reusable(self):
-        adder = self.implementation(7)
-        with self.subTest(call=1):
-            self.assertEqual(adder(4), 11)
-        with self.subTest(call=2):
-            self.assertEqual(adder(10), 17)
+        with self.subTest(arg=4):
+            self.assertEqual(f(4), 11)
 
-    def test_adder_owned_addend_is_left_addend(self):
-        adder = self.implementation('foo')
-        self.assertEqual(adder('bar'), 'foobar')
+        with self.subTest(arg=10):
+            self.assertEqual(f(10), 17)
+
+    def test_adds(self):
+        self.assertEqual(self.impl(6)(2), 8)
+
+    def test_adds_in_order(self):
+        s = self.impl('cat')
+        self.assertEqual(s(' dog'), 'cat dog')
 
 
-class TestAdderExtensions(unittest.TestCase):
-    """Tests of extended functionality provided by Adder but not make_adder."""
+class TestMakeAdder(_TestAddersAbstract):
+    """Tests for the make_adder function."""
 
-    def test_repr_is_codelike(self):
-        adder = adders.Adder(7)
-        self.assertEqual(repr(adder), 'Adder(7)')
+    @property
+    def impl(self):
+        return make_adder
 
-    def test_repr_uses_repr_of_addend(self):
-        adder = adders.Adder('cat')
-        self.assertEqual(repr(adder), "Adder('cat')")
 
-    def test_adders_of_same_addend_are_equal(self):
-        lhs = adders.Adder(7)
-        rhs = adders.Adder(7)
+class TestAdder(_TestAddersAbstract):
+    """Tests for the Adder class."""
+
+    @property
+    def impl(self):
+        return Adder
+
+    def test_repr_shows_type_and_arg_and_looks_like_python_code(self):
+        u = self.impl('cat')
+        self.assertEqual(repr(u), "Adder('cat')")
+
+    @parameterized.expand([
+        ('int_int', 2, 2),
+        ('int_float', 2, 2.0),
+        ('float_int', 3.0, 3),
+        ('str_str', 'cat', 'cat'),
+        ('bool_int_truthy', True, 1),
+        ('int_bool_truthy', 1, True),
+        ('bool_int_falsy', False, 0),
+        ('int_bool_falsy', 0, False),
+    ])
+    def test_equal_if_addends_equal(self, _name, lhs_arg, rhs_arg):
+        lhs = self.impl(lhs_arg)
+        rhs = self.impl(rhs_arg)
         self.assertEqual(lhs, rhs)
 
-    def test_adders_of_equal_addends_of_different_type_are_equal(self):
-        lhs = adders.Adder(7)
-        rhs = adders.Adder(7.0)
-
-        with self.subTest(lhs_type=int, rhs_type=float):
-            self.assertEqual(lhs, rhs)
-
-        with self.subTest(lhs_type=float, rhs_type=int):
-            self.assertEqual(rhs, lhs)
-
-    def test_adders_of_unequal_addends_are_not_equal(self):
-        lhs = adders.Adder(6)
-        rhs = adders.Adder(7)
+    @parameterized.expand([
+        ('int_int', 2, 3),
+        ('int_float', 2, 4.0),
+        ('float_int', 3.0, 5),
+        ('str_str', 'cat', 'dog'),
+        ('bool_int', True, 0),
+        ('int_bool', 1, False),
+    ])
+    def test_not_equal_if_addends_not_equal(self, _name, lhs_arg, rhs_arg):
+        lhs = self.impl(lhs_arg)
+        rhs = self.impl(rhs_arg)
         self.assertNotEqual(lhs, rhs)
 
-    @parameterized.expand([('int', 7, 7.0), ('str', 'dog', _MyStr('dog'))])
-    def test_equal_adders_hash_the_same(self, _name, lhs_addend, rhs_addend):
-        lhs = adders.Adder(lhs_addend)
-        rhs = adders.Adder(rhs_addend)
+    @parameterized.expand([
+        ('int_int', 2, 2),
+        ('int_float', 2, 2.0),
+        ('float_int', 3.0, 3),
+        ('str_str', 'cat', 'cat'),
+        ('bool_int_truthy', True, 1),
+        ('bool_int_falsy', False, 0),
+    ])
+    def test_equal_adders_hash_equal(self, _name, lhs_arg, rhs_arg):
+        lhs = self.impl(lhs_arg)
+        rhs = self.impl(rhs_arg)
         self.assertEqual(hash(lhs), hash(rhs))
 
     def test_adders_work_in_hash_based_containers(self):
-        lhs = {adders.Adder(7), adders.Adder(7),
-               adders.Adder(6), adders.Adder(7.0)}
+        lhs = {self.impl(7), self.impl(7), self.impl(6), self.impl(7.0)}
+        rhs = {self.impl(6), self.impl(7)}
+        self.assertEqual(lhs, rhs)
 
-        rhs = {adders.Adder(6), adders.Adder(7)}
+    def test_can_access_left_addend(self):
+        a = self.impl(7)
+        self.assertEqual(a.left_addend, 7)
 
-        self.assertSetEqual(lhs, rhs)
-
-    def test_left_addend_attribute_holds_addend(self):
-        adder = adders.Adder(7)
-        self.assertEqual(adder.left_addend, 7)
-
-    def test_left_addend_attribute_is_read_only(self):
-        adder = adders.Adder(7)
+    def test_cannot_assign_left_addend(self):
+        a = self.impl(7)
         with self.assertRaises(AttributeError):
-            adder.left_addend = 8
+            a.left_addend = 8
 
-    def test_no_right_addend_attribute(self):
-        adder = adders.Adder(7)
+    def test_cannot_assign_new_attributes(self):
+        a = self.impl(7)
         with self.assertRaises(AttributeError):
-            adder.right_addend
+            a.right_addend = 5
 
-    def test_new_attributes_cannot_be_created(self):
-        adder = adders.Adder(7)
-        with self.assertRaises(AttributeError):
-            adder.right_addend = 5
+
+del _TestAddersAbstract
 
 
 if __name__ == '__main__':

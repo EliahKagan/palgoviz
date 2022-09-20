@@ -211,6 +211,7 @@ def add_all_slow(values):
     Add all the numbers recursively. Like sum(values). values is not modified.
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
+
     >>> add_all_slow(())
     0
     >>> add_all_slow([])
@@ -237,6 +238,7 @@ def add_all(values):
     Add all the numbers recursively. Like sum(values). values is not modified.
 
     Assumes values is a sequence (e.g., it can be indexed) of numbers.
+
     >>> add_all(())
     0
     >>> add_all([])
@@ -316,8 +318,8 @@ def linear_search_iterative_alt(values, x):
     >>> linear_search_iterative_alt([3, 1, 2, 8, 6, 5, 7], 8)
     3
     """
-    matches = (index for index, value in enumerate(values) if value == x)
-    return next(matches, None)
+    found = (index for index, value in enumerate(values) if value == x)
+    return next(found, None)
 
 
 def linear_search(values, x):
@@ -444,17 +446,17 @@ def binary_search_alt(values, x):
     >>> binary_search_alt([10, 20], 15)
     >>>
     """
-    def search(low, high):
-        if high <= low:
+    def help_binary(low, high):  # high is an exclusive endpoint.
+        if low >= high:
             return None
-        mid = (low + high) // 2
-        if values[mid] < x:
-            return search(mid + 1, high)
-        if values[mid] > x:
-            return search(low, mid)
-        return mid
+        halfway = (low + high) // 2
+        if x > values[halfway]:
+            return help_binary(halfway + 1, high)
+        if x < values[halfway]:
+            return help_binary(low, halfway)
+        return halfway  # values[halfway] should = x, possibly add assert.
 
-    return search(0, len(values))
+    return help_binary(0, len(values))
 
 
 def binary_search_iterative_alt(values, x):
@@ -487,15 +489,56 @@ def binary_search_iterative_alt(values, x):
     high = len(values)
 
     while low < high:
-        mid = (low + high) // 2
-        if values[mid] < x:
-            low = mid + 1
-        elif values[mid] > x:
-            high = mid
-        else:
-            return mid
+        halfway = (low + high) // 2
+        if x > values[halfway]:
+            low = halfway + 1
+        elif x < values[halfway]:
+            high = halfway
+        else:  # values[halfway] should = x, possibly add assert.
+            return halfway
 
     return None
+
+
+def binary_search_slow(values, x):
+    """
+    Binary search, but takes O(n) time due to unnecessary copying.
+
+    This is why a recursive binary search function should either accept low and
+    high indices, or delegate to a helper function that accepts them.
+
+    >>> binary_search_slow([], 9)
+    >>> binary_search_slow([2, 3], 2)
+    0
+    >>> binary_search_slow((4, 5, 6), 5)
+    1
+    >>> binary_search_slow((4, 5, 6), 7)
+    >>> binary_search_slow([1, 2, 3, 5, 6, 7, 8], 3)
+    2
+    >>> binary_search_slow([10], 10)
+    0
+    >>> binary_search_slow([10, 20], 10)
+    0
+    >>> binary_search_slow([10, 20], 20)
+    1
+    >>> binary_search_slow([10, 20], 15)
+    >>>
+    """
+    if not values:
+        return None
+
+    halfway = len(values) // 2
+
+    if x > values[halfway]:
+        ret = binary_search_slow(values[halfway + 1:], x)
+        if ret is not None:
+            ret += halfway + 1
+        return ret
+
+    if x < values[halfway]:
+        return binary_search_slow(values[:halfway], x)
+
+    return halfway
 
 
 def binary_search_good(values, x):
@@ -3479,6 +3522,7 @@ __all__ = [thing.__name__ for thing in (
     binary_search_iterative,
     binary_search_alt,
     binary_search_iterative_alt,
+    binary_search_slow,
     binary_search_good,
     binary_insertion_sort,
     binary_insertion_sort_recursive,
