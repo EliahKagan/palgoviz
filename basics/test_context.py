@@ -12,7 +12,7 @@ import types
 import unittest
 import weakref
 
-from parameterized import param, parameterized
+from parameterized import param, parameterized, parameterized_class
 
 import context
 import enumerations
@@ -343,12 +343,32 @@ class TestSuppress(TestContextlibSuppress):
 @enum.unique
 class _Access(enumerations.CodeReprEnum):
     """Kind of access that occurred, for _AttributeSpy history entries."""
-    SET = enum.auto()
+
+    GET_ATTEMPT = enum.auto()
+    """An attempt was made to read the attribute, raising AttributeError."""
+
     GET = enum.auto()
+    """The attribute was read with no error."""
+
+    SET_ATTEMPT = enum.auto()
+    """An attempt was made to set the attribute, raising AttributeError."""
+
+    SET = enum.auto()
+    """The attribute was set with no error."""
+
+    DELETE_ATTEMPT = enum.auto()
+    """An attempt was made to delete te attribute, raising AttributeError."""
+
     DELETE = enum.auto()
+    """The attribute was deleted with no error."""
 
 
 _attribute_spy_histories = weakref.WeakKeyDictionary()
+
+
+def _log_access(spy, access, *args):
+    """Log an access to _attribute_spy_histories. Helper for _AttributeSpy."""
+    _attribute_spy_histories[spy].append((access, *args))
 
 
 class _AttributeSpy:
@@ -356,6 +376,8 @@ class _AttributeSpy:
     Class that records successful accesses to its attributes.
 
     >>> spy = _AttributeSpy(x=10, y=20)
+    >>> spy
+    _AttributeSpy(x=10, y=20)
     >>> spy.w = 30
     >>> spy.x += 5
     >>> spy.history
@@ -377,6 +399,12 @@ class _AttributeSpy:
 
         _attribute_spy_histories[self] = []
 
+    def __repr__(self):
+        """Representation as Python code."""
+        items = super().__getattribute__('__dict__').items()
+        joined = ', '.join(f'{name}={value!r}' for name, value in items)
+        return f'{type(self).__name__}({joined})'
+
     def __dir__(self):
         """List all attributes, including the dynamic 'history' attribute."""
         names = super().__dir__()
@@ -388,8 +416,13 @@ class _AttributeSpy:
         if name == 'history':
             return _attribute_spy_histories[self]
 
-        value = super().__getattribute__(name)
-        _attribute_spy_histories[self].append((_Access.GET, name, value))
+        getter = super().__getattribute__
+        try:
+            value = getter(name)
+        except AttributeError:
+            _log_access(self, _Access.GET_ATTEMPT, name)
+            raise
+        _log_access(self, _Access.GET, name, value)
         return value
 
     def __setattr__(self, name, value):
@@ -397,20 +430,34 @@ class _AttributeSpy:
         if name == 'history':
             raise RuntimeError("attempt to set 'history' indicates a bug")
 
-        super().__setattr__(name, value)
-        _attribute_spy_histories[self].append((_Access.SET, name, value))
+        setter = super().__setattr__
+        try:
+            setter(name, value)
+        except AttributeError:
+            _log_access(self, _Access.SET_ATTEMPT, name, value)
+            raise
+        _log_access(self, _Access.SET, name, value)
 
     def __delattr__(self, name):
         """Delete the named attribute, logging to history if successful."""
         if name == 'history':
             raise RuntimeError("attempt to delete 'history' indicates a bug")
 
-        super().__delattr__(name)
-        _attribute_spy_histories[self].append((_Access.DELETE, name))
+        deleter = super().__delattr__
+        try:
+            deleter(name)
+        except AttributeError:
+            _log_access(self, _Access.DELETE_ATTEMPT, name)
+            raise
+        _log_access(self, _Access.DELETE, name)
 
 
+@parameterized_class(('implementation_name', 'implementation'), [
+    (context.MonkeyPatch.__name__, context.MonkeyPatch),
+    (context.MonkeyPatchAlt.__name__, context.MonkeyPatchAlt),
+])
 class TestMonkeyPatch(unittest.TestCase):
-    """Test for the context.TestMonkeyPatch context manager class."""
+    """Test for context.TestMonkeyPatch and self.TestMonkeyPatchAlt."""
 
     _DENY_ABSENT_KWARGS = [
         param('if allow_absent unspecified'),
@@ -424,31 +471,33 @@ class TestMonkeyPatch(unittest.TestCase):
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
     def test_repr_looks_like_code(self, _name, **kwargs):
-        expected = "MonkeyPatch(namespace(a=10), 'a', 20, allow_absent=False)"
+        expected = (self.implementation_name
+                    + "(namespace(a=10), 'a', 20, allow_absent=False)")
         target = types.SimpleNamespace(a=10)
-        patcher = context.MonkeyPatch(target, 'a', 20, **kwargs)
+        patcher = self.implementation(target, 'a', 20, **kwargs)
         self.assertEqual(repr(patcher), expected)
 
     def test_repr_looks_like_code_if_allow_absent_true(self):
-        expected = "MonkeyPatch(namespace(a=10), 'a', 20, allow_absent=True)"
+        expected = (self.implementation_name
+                    + "(namespace(a=10), 'a', 20, allow_absent=True)")
         target = types.SimpleNamespace(a=10)
-        patcher = context.MonkeyPatch(target, 'a', 20, allow_absent=True)
+        patcher = self.implementation(target, 'a', 20, allow_absent=True)
         self.assertEqual(repr(patcher), expected)
 
     def test_allow_absent_not_accepted_positionally(self):
-        expected_message = (r'\AMonkeyPatch\.__init__\(\) takes 4 positional'
-                            r' arguments but 5 were given\Z')
+        expected_message = (fr'\A{self.implementation_name}\.__init__\(\) '
+                            r'takes 4 positional arguments but 5 were given\Z')
 
         with self.assertRaisesRegex(TypeError, expected_message):
-            context.MonkeyPatch(10, 'a', 4, True)
+            self.implementation(10, 'a', 4, True)
 
     def test_new_attributes_cannot_be_created(self):
         # Change the example if a target attribute is added in the future.
-        expected_message = (
-            r"\A'MonkeyPatch' object has no attribute 'target'\Z")
+        expected_message = (fr"\A'{self.implementation_name}' object has no "
+                            r"attribute 'target'\Z")
 
         target = types.SimpleNamespace(a=10)
-        patcher = context.MonkeyPatch(target, 'a', 20)
+        patcher = self.implementation(target, 'a', 20)
 
         with self.assertRaisesRegex(AttributeError, expected_message):
             patcher.target = types.SimpleNamespace(c=15, d=17)
@@ -456,7 +505,7 @@ class TestMonkeyPatch(unittest.TestCase):
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_construction_does_not_patch(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
-        _ = context.MonkeyPatch(target, 'a', 20, **kwargs)  # Hold the ref.
+        _ = self.implementation(target, 'a', 20, **kwargs)  # Hold the ref.
         self.assertEqual(target.a, 10)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
@@ -464,7 +513,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """Construction shouldn't fail fast, since the situation may change."""
         target = 3.0
         try:
-            context.MonkeyPatch(target, 'numerator', 4.0, **kwargs)
+            self.implementation(target, 'numerator', 4.0, **kwargs)
         except AttributeError:
             self.fail("shouldn't check writability on construction")
 
@@ -473,21 +522,21 @@ class TestMonkeyPatch(unittest.TestCase):
         """Construction shouldn't fail fast, since the situation may change."""
         target = types.SimpleNamespace(a=10)
         try:
-            context.MonkeyPatch(target, 'b', 15, **kwargs)
+            self.implementation(target, 'b', 15, **kwargs)
         except AttributeError:
             self.fail("shouldn't check existence on construction")
 
     def test_enter_returns_none(self):
         """The __enter__ method should implicitly return None."""
         target = types.SimpleNamespace(a=10)
-        with context.MonkeyPatch(target, 'a', 20) as ctx:
+        with self.implementation(target, 'a', 20) as ctx:
             pass
         self.assertIsNone(ctx)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_patches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
-        with context.MonkeyPatch(target, 'a', 20, **kwargs):
+        with self.implementation(target, 'a', 20, **kwargs):
             self.assertEqual(target.a, 20)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
@@ -496,21 +545,21 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        with context.MonkeyPatch(Target, 'a', 20, **kwargs):
+        with self.implementation(Target, 'a', 20, **kwargs):
             self.assertEqual(Target.a, 20)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_enters_with_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
         entered = False
-        with context.MonkeyPatch(target, 'a', 20, **kwargs):
+        with self.implementation(target, 'a', 20, **kwargs):
             entered = True
         self.assertTrue(entered)
 
     @parameterized.expand(_DENY_ABSENT_AND_ALLOW_ABSENT_KWARGS)
     def test_cm_unpatches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
-        with context.MonkeyPatch(target, 'a', 20, **kwargs):
+        with self.implementation(target, 'a', 20, **kwargs):
             pass
         self.assertEqual(target.a, 10)
 
@@ -520,7 +569,7 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        with context.MonkeyPatch(Target, 'a', 20, **kwargs):
+        with self.implementation(Target, 'a', 20, **kwargs):
             pass
 
         self.assertEqual(Target.a, 10)
@@ -530,7 +579,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
 
         with contextlib.suppress(_FakeError):
-            with context.MonkeyPatch(target, 'a', 20, **kwargs):
+            with self.implementation(target, 'a', 20, **kwargs):
                 raise _FakeError
 
         self.assertEqual(target.a, 10)
@@ -543,7 +592,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
 
         with self.assertRaisesRegex(AttributeError, expected_message):
-            with context.MonkeyPatch(target, 'b', 15, **kwargs):
+            with self.implementation(target, 'b', 15, **kwargs):
                 pass
 
     @parameterized.expand(_DENY_ABSENT_KWARGS)
@@ -552,7 +601,7 @@ class TestMonkeyPatch(unittest.TestCase):
         entered = False
 
         with contextlib.suppress(AttributeError):
-            with context.MonkeyPatch(target, 'b', 15, **kwargs):
+            with self.implementation(target, 'b', 15, **kwargs):
                 entered = True
 
         self.assertFalse(entered)
@@ -562,7 +611,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
 
         with contextlib.suppress(AttributeError):
-            with context.MonkeyPatch(target, 'b', 15, **kwargs):
+            with self.implementation(target, 'b', 15, **kwargs):
                 pass
 
         with self.assertRaises(AttributeError):
@@ -570,7 +619,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     def test_cm_patches_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
-        with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+        with self.implementation(target, 'b', 15, allow_absent=True):
             self.assertEqual(target.b, 15)
 
     def test_cm_patches_nonexisting_not_via_dict_if_allow_absent_true(self):
@@ -578,19 +627,19 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        with context.MonkeyPatch(Target, 'b', 15, allow_absent=True):
+        with self.implementation(Target, 'b', 15, allow_absent=True):
             self.assertEqual(Target.b, 15)
 
     def test_cm_enters_with_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
         entered = False
-        with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+        with self.implementation(target, 'b', 15, allow_absent=True):
             entered = True
         self.assertTrue(entered)
 
     def test_cm_unpatches_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
-        with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+        with self.implementation(target, 'b', 15, allow_absent=True):
             pass
         with self.assertRaises(AttributeError):
             target.b
@@ -600,7 +649,7 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        with context.MonkeyPatch(Target, 'b', 15, allow_absent=True):
+        with self.implementation(Target, 'b', 15, allow_absent=True):
             pass
         with self.assertRaises(AttributeError):
             Target.b
@@ -609,7 +658,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
 
         with contextlib.suppress(_FakeError):
-            with context.MonkeyPatch(target, 'b', 15, allow_absent=True):
+            with self.implementation(target, 'b', 15, allow_absent=True):
                 raise _FakeError
 
         with self.assertRaises(AttributeError):
@@ -619,7 +668,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_cm_patches_just_created(self, _name, **kwargs):
         """It doesn't matter what existed when the patcher was constructed."""
         target = types.SimpleNamespace(a=10)
-        patcher = context.MonkeyPatch(target, 'c', 30, **kwargs)
+        patcher = self.implementation(target, 'c', 30, **kwargs)
         target.c = 25
         with patcher:
             self.assertEqual(target.c, 30)
@@ -631,7 +680,7 @@ class TestMonkeyPatch(unittest.TestCase):
             r"\A'types\.SimpleNamespace' object has no attribute 'c'\Z")
 
         target = types.SimpleNamespace(a=10, c=25)
-        patcher = context.MonkeyPatch(target, 'c', 30, **kwargs)
+        patcher = self.implementation(target, 'c', 30, **kwargs)
         del target.c
 
         with self.assertRaisesRegex(AttributeError, expected_message):
@@ -641,7 +690,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_cm_unpatches_just_deleted_if_allow_absent_true(self):
         """It doesn't matter what existed when the patcher was constructed."""
         target = types.SimpleNamespace(a=10, c=25)
-        patcher = context.MonkeyPatch(target, 'c', 30, allow_absent=True)
+        patcher = self.implementation(target, 'c', 30, allow_absent=True)
         del target.c
 
         with patcher:
@@ -661,7 +710,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """Patching and unpatching happens per call, not in the definition."""
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        @self.implementation(target, 'a', 20, **kwargs)
         def _decorated_function():
             pass
 
@@ -672,7 +721,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """Decoration shouldn't fail fast, since the situation may change."""
         target = 3.0
         try:
-            @context.MonkeyPatch(target, 'numerator', 4.0, **kwargs)
+            @self.implementation(target, 'numerator', 4.0, **kwargs)
             def _decorated_function():
                 pass
         except AttributeError:
@@ -683,7 +732,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """Decoration shouldn't fail fast, since the situation may change."""
         target = types.SimpleNamespace(a=10)
         try:
-            @context.MonkeyPatch(target, 'b', 15, **kwargs)
+            @self.implementation(target, 'b', 15, **kwargs)
             def _decorated_function():
                 pass
         except AttributeError:
@@ -693,7 +742,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_patches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        @self.implementation(target, 'a', 20, **kwargs)
         def decorated_function():
             self.assertEqual(target.a, 20)
 
@@ -705,7 +754,7 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        @context.MonkeyPatch(Target, 'a', 20, **kwargs)
+        @self.implementation(Target, 'a', 20, **kwargs)
         def decorated_function():
             self.assertEqual(Target.a, 20)
 
@@ -716,7 +765,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
         called = False
 
-        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        @self.implementation(target, 'a', 20, **kwargs)
         def decorated_function():
             nonlocal called
             called = True
@@ -728,7 +777,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_unpatches_existing(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        @self.implementation(target, 'a', 20, **kwargs)
         def decorated_function():
             pass
 
@@ -741,7 +790,7 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        @context.MonkeyPatch(Target, 'a', 20, **kwargs)
+        @self.implementation(Target, 'a', 20, **kwargs)
         def decorated_function():
             pass
 
@@ -752,7 +801,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_unpatches_existing_on_error(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'a', 20, **kwargs)
+        @self.implementation(target, 'a', 20, **kwargs)
         def decorated_function():
             raise _FakeError
 
@@ -768,7 +817,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'b', 15, **kwargs)
+        @self.implementation(target, 'b', 15, **kwargs)
         def decorated_function():
             pass
 
@@ -781,7 +830,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
         called = False
 
-        @context.MonkeyPatch(target, 'b', 15, **kwargs)
+        @self.implementation(target, 'b', 15, **kwargs)
         def decorated_function():
             nonlocal called
             called = True
@@ -795,7 +844,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_does_not_add_nonexisting(self, _name, **kwargs):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'b', 15, **kwargs)
+        @self.implementation(target, 'b', 15, **kwargs)
         def decorated_function():
             pass
 
@@ -808,7 +857,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_patches_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'b', 15, allow_absent=True)
+        @self.implementation(target, 'b', 15, allow_absent=True)
         def decorated_function():
             self.assertEqual(target.b, 15)
 
@@ -820,7 +869,7 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        @context.MonkeyPatch(Target, 'b', 15, allow_absent=True)
+        @self.implementation(Target, 'b', 15, allow_absent=True)
         def decorated_function():
             self.assertEqual(Target.b, 15)
 
@@ -830,7 +879,7 @@ class TestMonkeyPatch(unittest.TestCase):
         target = types.SimpleNamespace(a=10)
         called = False
 
-        @context.MonkeyPatch(target, 'b', 15, allow_absent=True)
+        @self.implementation(target, 'b', 15, allow_absent=True)
         def decorated_function():
             nonlocal called
             called = True
@@ -841,7 +890,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_unpatches_nonexisting_if_allow_absent_true(self):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'b', 15, allow_absent=True)
+        @self.implementation(target, 'b', 15, allow_absent=True)
         def decorated_function():
             pass
 
@@ -855,7 +904,7 @@ class TestMonkeyPatch(unittest.TestCase):
         class Target:  # Target.__dict__ is a mappingproxy (not writeable).
             a = 10
 
-        @context.MonkeyPatch(Target, 'b', 15, allow_absent=True)
+        @self.implementation(Target, 'b', 15, allow_absent=True)
         def decorated_function():
             pass
 
@@ -866,7 +915,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_unpatches_nonexisting_on_error_if_allow_absent_true(self):
         target = types.SimpleNamespace()
 
-        @context.MonkeyPatch(target, 'b', 15, allow_absent=True)
+        @self.implementation(target, 'b', 15, allow_absent=True)
         def decorated_function():
             raise _FakeError
 
@@ -881,7 +930,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """It doesn't matter what existed when the decorated def was run."""
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'c', 30, **kwargs)
+        @self.implementation(target, 'c', 30, **kwargs)
         def decorated_function():
             self.assertEqual(target.c, 30)
 
@@ -896,7 +945,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
         target = types.SimpleNamespace(a=10, c=25)
 
-        @context.MonkeyPatch(target, 'c', 30, **kwargs)
+        @self.implementation(target, 'c', 30, **kwargs)
         def decorated_function():
             pass
 
@@ -909,7 +958,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """It doesn't matter what existed when the decorated def was run."""
         target = types.SimpleNamespace(a=10, c=25)
 
-        @context.MonkeyPatch(target, 'c', 30, allow_absent=True)
+        @self.implementation(target, 'c', 30, allow_absent=True)
         def decorated_function():
             # Usually I don't check this, since at least one test should fail
             # whenever there is a bug. Here the situation is conceptually
@@ -927,7 +976,7 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_wrapper_forwards_arbitrary_args_and_return(self):
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'a', 20)
+        @self.implementation(target, 'a', 20)
         def decorated_function(x, y, p, q, r, *, u, v, w, **kwargs):
             return (x, y, p, q, r, u, v, w, kwargs)
 
@@ -941,13 +990,16 @@ class TestMonkeyPatch(unittest.TestCase):
 
         class C:
             @staticmethod
-            @context.MonkeyPatch(serious_numbers, 'two', 2, allow_absent=True)
+            @self.implementation(serious_numbers, 'two', 2, allow_absent=True)
             def halve(x: int) -> float:
                 """Find half x."""
                 return x / serious_numbers.two
 
         with self.subTest('__module__'):
-            self.assertEqual(C.halve.__module__, 'test_context')
+            if __name__ not in ('test_context', '__main__'):
+                raise Exception(f"can't reliably test __module__: {__name__=},"
+                                " expected 'test_context' or '__main__'")
+            self.assertEqual(C.halve.__module__, __name__)
         with self.subTest('__name__'):
             self.assertEqual(C.halve.__name__, 'halve')
         with self.subTest('__qualname__'):
@@ -967,7 +1019,7 @@ class TestMonkeyPatch(unittest.TestCase):
         """The wrapper has a __wrapped__ attribute (see the functools docs)."""
         target = types.SimpleNamespace(a=10)
 
-        @context.MonkeyPatch(target, 'a', 20)
+        @self.implementation(target, 'a', 20)
         def decorated_function():
             return target.a
 
@@ -980,11 +1032,11 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_separate_wrappers_can_nest_calls(self):
         target = types.SimpleNamespace()
 
-        @context.MonkeyPatch(target, 'x', 50, allow_absent=True)
+        @self.implementation(target, 'x', 50, allow_absent=True)
         def direct():
             return indirect() + target.x
 
-        @context.MonkeyPatch(target, 'x', 12)
+        @self.implementation(target, 'x', 12)
         def indirect():
             return target.x
 
@@ -993,14 +1045,14 @@ class TestMonkeyPatch(unittest.TestCase):
     def test_separate_wrappers_can_nest_calls_with_errors(self):
         target = types.SimpleNamespace()
 
-        @context.MonkeyPatch(target, 'x', 50, allow_absent=True)
+        @self.implementation(target, 'x', 50, allow_absent=True)
         def direct():
             try:
                 indirect()
             except _FakeError as error:
                 return error.value + target.x
 
-        @context.MonkeyPatch(target, 'x', 12)
+        @self.implementation(target, 'x', 12)
         def indirect():
             error = _FakeError()
             error.value = target.x
@@ -1010,7 +1062,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     def test_wrappers_from_same_decorator_can_nest_calls(self):
         target = _AttributeSpy(a=10)
-        patcher = context.MonkeyPatch(target, 'a', 20)
+        patcher = self.implementation(target, 'a', 20)
 
         @patcher
         def direct():
@@ -1034,7 +1086,7 @@ class TestMonkeyPatch(unittest.TestCase):
 
     def test_wrappers_from_the_same_decorator_can_nest_calls_with_errors(self):
         target = _AttributeSpy(a=10)
-        patcher = context.MonkeyPatch(target, 'a', 20)
+        patcher = self.implementation(target, 'a', 20)
 
         @patcher
         def direct():
@@ -1060,8 +1112,8 @@ class TestMonkeyPatch(unittest.TestCase):
 
     def test_decorated_defs_can_nest_with_nested_calls(self):
         target = _AttributeSpy(x=0)
-        patcher1 = context.MonkeyPatch(target, 'x', 1)
-        patcher2 = context.MonkeyPatch(target, 'x', 2)
+        patcher1 = self.implementation(target, 'x', 1)
+        patcher2 = self.implementation(target, 'x', 2)
 
         @patcher1
         def f(repeat):
@@ -1114,8 +1166,8 @@ class TestMonkeyPatch(unittest.TestCase):
 
     def test_decorated_defs_can_nest_with_nested_calls_with_errors(self):
         target = _AttributeSpy(x=0)
-        patcher1 = context.MonkeyPatch(target, 'x', 1)
-        patcher2 = context.MonkeyPatch(target, 'x', 2)
+        patcher1 = self.implementation(target, 'x', 1)
+        patcher2 = self.implementation(target, 'x', 2)
 
         @patcher1
         def f(repeat):
@@ -1166,6 +1218,60 @@ class TestMonkeyPatch(unittest.TestCase):
             (_Access.SET, 'x', 2),  # ff
             (_Access.SET, 'x', 1),  # g
             (_Access.SET, 'x', 0),  # f (note: 0, not 2)
+        ])
+
+    def test_decorated_defs_can_nest_with_nested_calls_allowing_absent(self):
+        target = _AttributeSpy()
+        patcher1 = self.implementation(target, 'x', 1, allow_absent=True)
+        patcher2 = self.implementation(target, 'x', 2, allow_absent=True)
+
+        @patcher1
+        def f(repeat):
+            @patcher2
+            def g():
+                @patcher1
+                def ff():
+                    @patcher2
+                    def gg():
+                        if repeat:
+                            f(False)
+
+                    gg()
+
+                del target.x
+                ff()
+
+            g()
+
+        f(True)
+
+        self.assertListEqual(target.history, [
+            (_Access.GET_ATTEMPT, 'x'),  # f
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.DELETE, 'x'),  # g (wrapped)
+            (_Access.GET_ATTEMPT, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.GET, 'x', 2),  # f
+            (_Access.SET, 'x', 1),  # f
+            (_Access.GET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # g
+            (_Access.DELETE, 'x'),  # g (wrapped)
+            (_Access.GET_ATTEMPT, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # ff
+            (_Access.GET, 'x', 1),  # gg
+            (_Access.SET, 'x', 2),  # gg
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.DELETE, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.SET, 'x', 2),  # f
+            (_Access.SET, 'x', 1),  # gg
+            (_Access.DELETE, 'x'),  # ff
+            (_Access.SET, 'x', 1),  # g
+            (_Access.DELETE, 'x'),  # f
         ])
 
 
