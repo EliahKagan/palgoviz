@@ -163,7 +163,14 @@ def as_func_limited(iterable, end_sentinel):
     'END'
     """
     it = iter(iterable)
-    return lambda: next(it, end_sentinel)
+
+    def get_next():
+        try:
+            return next(it)
+        except StopIteration:
+            return end_sentinel
+
+    return get_next
 
 
 def as_func_limited_alt(iterable, end_sentinel):
@@ -184,14 +191,7 @@ def as_func_limited_alt(iterable, end_sentinel):
     'END'
     """
     it = iter(iterable)
-
-    def get_next():
-        try:
-            return next(it)
-        except StopIteration:
-            return end_sentinel
-
-    return get_next
+    return lambda: next(it, end_sentinel)
 
 
 def as_iterator_limited(func, end_sentinel):
@@ -379,14 +379,6 @@ def count_tree_nodes_instrumented(root):
         count_tree_nodes = old_func
 
 
-def _get_dict_attributes(obj):
-    """Get an object's instance dictionary or, if absent, an empty mapping."""
-    try:
-        return obj.__dict__
-    except AttributeError:
-        return {}
-
-
 def report_attributes(func):
     """
     Given a function (not other callables), report its non-metadata attributes.
@@ -411,29 +403,19 @@ def report_attributes(func):
     >>> report_attributes(greet)
     greet.fmt = 'Hello, {}!'
     """
-    attributes = _get_dict_attributes(func)
+    try:
+        attributes = func.__dict__
+    except AttributeError:
+        attributes = {}
 
     if not attributes:
         print('No non-metadata attributes.')
-        return
 
     for key, value in attributes.items():
         print(f'{func.__name__}.{key} = {value!r}')
 
 
-def _do_as_closeable_func(iterable, make_get_next):
-    """Shared logic for as_closeable_func and as_closeable_func_limited."""
-    iterator = iter(iterable)
-    get_next = make_get_next(iterator)
-
-    try:
-        close = iterator.close
-    except AttributeError:
-        pass
-    else:
-        get_next.close = close
-
-    return get_next
+# FIXME: Deduplicate shared as_closeable_func/as_closeable_func_limited logic.
 
 
 def as_closeable_func(iterable):
@@ -468,10 +450,19 @@ def as_closeable_func(iterable):
     >>> list(as_iterator_alt(h))
     [10, 20, 30, 40, 50]
     """
-    def make_get_next(iterator):
-        return lambda: next(iterator)
+    it = iter(iterable)
 
-    return _do_as_closeable_func(iterable, make_get_next)
+    def get_next():
+        return next(it)
+
+    try:
+        close = it.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
+
+    return get_next
 
 
 def as_closeable_func_limited(iterable, end_sentinel):
@@ -497,10 +488,37 @@ def as_closeable_func_limited(iterable, end_sentinel):
     >>> a + [g() for _ in range(6)]
     [0, 1, 2, 11, 11, 11, 11, 11, 11]
     """
-    def make_get_next(iterator):
-        return lambda: next(iterator, end_sentinel)
+    it = iter(iterable)
 
-    return _do_as_closeable_func(iterable, make_get_next)
+    def get_next():
+        return next(it, end_sentinel)
+
+    try:
+        close = it.close
+    except AttributeError:
+        pass
+    else:
+        get_next.close = close
+
+    return get_next
+
+
+def _get_gen(func, end_sentinel):  # Assume func has close().
+    try:
+        yield  # For priming the generator to get it into the try block.
+
+        while True:
+            result = func()
+            if result == end_sentinel:
+                break
+            yield result
+    finally:
+        try:
+            close = func.close
+        except AttributeError:
+            pass
+        else:
+            close()
 
 
 def as_closeable_iterator_limited(func, end_sentinel):
@@ -533,23 +551,9 @@ def as_closeable_iterator_limited(func, end_sentinel):
     >>> it3.close()
     Done.
     """
-    def generate():
-        try:
-            yield  # For priming the generator to get it into the try block.
-
-            while (result := func()) != end_sentinel:
-                yield result
-        finally:
-            try:
-                close = func.close
-            except AttributeError:
-                pass
-            else:
-                close()
-
-    it = generate()
-    next(it)  # Enter the try block, so closing will run the finally block.
-    return it
+    generator = _get_gen(func, end_sentinel)
+    next(generator)  # Prime the generator, so closing runs finally.
+    return generator
 
 
 def as_closeable_iterator(func):
@@ -622,20 +626,24 @@ def func_filter(predicate, func, end_sentinel):
 
     done = False
 
-    def get_next_satisfier():
+    def filtered():
         nonlocal done
 
         if done:
             return end_sentinel
 
-        while (result := func()) != end_sentinel:
-            if predicate(result):
-                return result
+        while True:
+            value = func()
+            if value == end_sentinel:
+                break
+
+            if predicate(value):
+                return value
 
         done = True
         return end_sentinel
 
-    return get_next_satisfier
+    return filtered
 
 
 __all__ = [thing.__name__ for thing in (
