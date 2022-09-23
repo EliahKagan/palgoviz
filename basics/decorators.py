@@ -1026,11 +1026,24 @@ class linear_combinable:
     2*x*y
     >>> (y * f)(x)
     2*y*x
+
+    >>> linear_combinable(f) is f
+    True
+    >>> linear_combinable(h) is h
+    True
     """
 
-    def __init__(self, func):
+    def __new__(cls, func):
         """Create a linearly combinable object wrapping a function."""
-        functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
+        if isinstance(func, cls):
+            return func
+
+        instance = super().__new__(cls)
+
+        # Could alternatively use: functools.wraps(func)(instance)
+        functools.update_wrapper(instance, func)
+
+        return instance
 
     def __repr__(self):
         """Representation for debugging, showing the wrapped callable."""
