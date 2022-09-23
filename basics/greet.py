@@ -294,7 +294,25 @@ class UniqueGreeter:
       ...
     AttributeError: 'UniqueGreeter' object has no attribute 'lung'
 
-    FIXME: Move some of the above doctests into method docstrings.
+    As currently written, these tests assume reference counting, as in CPython,
+    and that no other code in the process running the doctests has created and
+    kept references to UniqueGreeter instances. (The tests could be fixed to no
+    longer assume reference counting, which may be done as a future exercise.)
+
+    >>> UniqueGreeter.count_instances()
+    1
+    >>> ug1 = UniqueGreeter('en'); UniqueGreeter.count_instances()
+    1
+    >>> ug2 = UniqueGreeter('es'); UniqueGreeter.count_instances()
+    2
+    >>> del ug; UniqueGreeter.count_instances()
+    2
+    >>> ug1 = ug2; UniqueGreeter.count_instances()
+    1
+    >>> del ug1, ug2; UniqueGreeter.count_instances()
+    0
+
+    FIXME: Move many of the above doctests into method docstrings.
     """
 
     __slots__ = ('__weakref__', '_lang',)
@@ -308,6 +326,18 @@ class UniqueGreeter:
         return tuple(_FORMATS)
 
     @classmethod
+    def count_instances(cls):
+        """Return the number of currently existing instances."""
+        # In CPython, this is OK because the GIL ensures individual basic dict
+        # operations are atomic and thread-safe, and WeakValueDictionary is
+        # documented to use an underlying dict. More broadly, I assume this is
+        # safe in any current or future Python implementation, on the grounds
+        # that a WeakValueDictionary may lose items due to a garbage collection
+        # cycle running on any thread, so it cannot be implemented correctly
+        # without its individual basic operations being thread-safe.
+        return len(cls._table)
+
+    @classmethod
     def from_greeter(cls, greeter):
         """Create or retrieve the UniqueGreeter from a greeter."""
         return cls(greeter.lang)
@@ -318,8 +348,8 @@ class UniqueGreeter:
             raise ValueError(f'{lang} is an unrecognized language code.')
 
         with cls._lock:
-            # We *must* use EAFP for this, since the instance could existing
-            # when checked but be collected before being accessed.
+            # We *must* use EAFP for this, since the instance could exist when
+            # checked, then be collected before being accessed by subscripting.
             try:
                 instance = cls._table[lang]
             except KeyError:
