@@ -311,7 +311,7 @@ class UniqueGreeter:
     >>> del ug1, ug2; coll(); UniqueGreeter.count_instances()
     0
 
-    FIXME: Move many of the above doctests into method docstrings.
+    FIXME: After all doctests tests pass, move many into method docstrings.
     """
 
     __slots__ = ('__weakref__', '_lang',)
@@ -331,9 +331,9 @@ class UniqueGreeter:
         # operations are atomic and thread-safe, and WeakValueDictionary is
         # documented to use an underlying dict. More broadly, I assume this is
         # safe in any current or future Python implementation, on the grounds
-        # that a WeakValueDictionary may lose items due to a garbage collection
-        # cycle running on any thread, so it cannot be implemented correctly
-        # without its individual basic operations being thread-safe.
+        # that a WeakValueDictionary may lose items due to a refcount decrement
+        # or GC cycle running on any thread, so it cannot be implemented
+        # correctly without its individual basic operations being thread-safe.
         return len(cls._table)
 
     @classmethod
