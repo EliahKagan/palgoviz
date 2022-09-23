@@ -10,6 +10,7 @@ import threading
 SPIN_COUNT = 1_300_000
 
 
+# TODO: Have the thread-safe Singleton implementation do it via locking.
 def make_singleton(*, safe):
     class Singleton:
         """Lazy implementation of the singleton pattern. Not thread-safe."""
