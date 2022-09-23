@@ -29,5 +29,29 @@ class Singleton:
 def main():
     """Run the test."""
 
+    a = None
+    b = None
+
+    def set_a():
+        nonlocal a
+        a = Singleton()
+
+    def set_b():
+        nonlocal b
+        b = Singleton()
+
+    t1 = threading.Thread(target=set_a)
+    t2 = threading.Thread(target=set_b)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    assert a is not None
+    assert b is not None
+
+    print(a is b)
+
+
 if __name__ == '__main__':
     main()
