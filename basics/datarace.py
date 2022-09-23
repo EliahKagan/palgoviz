@@ -10,7 +10,7 @@ import threading
 SPIN_COUNT = 1_300_000
 
 
-def make_singleton():
+def make_singleton(*, safe):
     class Singleton:
         """Lazy implementation of the singleton pattern. Not thread-safe."""
 
@@ -26,12 +26,15 @@ def make_singleton():
 
             return cls._instance
 
+    if safe:
+        Singleton()
+
     return Singleton
 
 
-def one_run():
+def one_run(*, safe):
 
-    Singleton = make_singleton()
+    Singleton = make_singleton(safe=safe)
 
     a = None
     b = None
@@ -57,15 +60,19 @@ def one_run():
     return 1 if a is b else 0
 
 
+def run_multiple(*, runs, safe):
+    x = 0
+    for _ in range(runs):
+        x += one_run(safe=safe)
+
+    print(f'{x} successful runs out of {runs}. {safe = }')
+
+
 def main():
     """Run the test."""
 
-    x = 0
-    for _ in range(100):
-        x += one_run()
-
-    print(x)
-
+    run_multiple(runs=100, safe=True)
+    run_multiple(runs=100, safe=False)
 
 if __name__ == '__main__':
     main()
