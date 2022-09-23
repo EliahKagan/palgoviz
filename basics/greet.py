@@ -332,8 +332,8 @@ class UniqueGreeter:
         # documented to use an underlying dict. More broadly, I assume this is
         # safe in any current or future Python implementation, on the grounds
         # that a WeakValueDictionary may lose items due to a refcount decrement
-        # or GC cycle running on any thread, so it cannot be implemented
-        # correctly without its individual basic operations being thread-safe.
+        # or GC cycle running at any time on any thread, so it cannot be
+        # implemented correctly unless its basic operations are thread-safe.
         return len(cls._table)
 
     @classmethod
