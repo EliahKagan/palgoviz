@@ -294,22 +294,21 @@ class UniqueGreeter:
       ...
     AttributeError: 'UniqueGreeter' object has no attribute 'lung'
 
-    As currently written, these tests assume reference counting, as in CPython,
-    and that no other code in the process running the doctests has created and
-    kept references to UniqueGreeter instances. (The tests could be fixed to no
-    longer assume reference counting, which may be done as a future exercise.)
+    These tests assume no other code in the process running the doctests has
+    created and *kept* references to UniqueGreeter instances:
 
-    >>> UniqueGreeter.count_instances()
+    >>> from testing import collect_if_not_ref_counting as coll
+    >>> coll(); UniqueGreeter.count_instances()
     1
-    >>> ug1 = UniqueGreeter('en'); UniqueGreeter.count_instances()
+    >>> ug1 = UniqueGreeter('en'); coll(); UniqueGreeter.count_instances()
     1
-    >>> ug2 = UniqueGreeter('es'); UniqueGreeter.count_instances()
+    >>> ug2 = UniqueGreeter('es'); coll(); UniqueGreeter.count_instances()
     2
-    >>> del ug; UniqueGreeter.count_instances()
+    >>> del ug; coll(); UniqueGreeter.count_instances()
     2
-    >>> ug1 = ug2; UniqueGreeter.count_instances()
+    >>> ug1 = ug2; coll(); UniqueGreeter.count_instances()
     1
-    >>> del ug1, ug2; UniqueGreeter.count_instances()
+    >>> del ug1, ug2; coll(); UniqueGreeter.count_instances()
     0
 
     FIXME: Move many of the above doctests into method docstrings.
