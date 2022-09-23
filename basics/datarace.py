@@ -75,5 +75,6 @@ def main():
     run_multiple(runs=100, safe=True)
     run_multiple(runs=100, safe=False)
 
+
 if __name__ == '__main__':
     main()
