@@ -2,6 +2,17 @@
 
 """Hello world example."""
 
+__all__ = [
+    'MutableGreeter',
+    'FrozenGreeter',
+    'UniqueGreeter',
+    'make_greeter',
+    'hello',
+]
+
+import threading
+import weakref
+
 _FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
@@ -232,6 +243,106 @@ class FrozenGreeter:
         return self._lang
 
 
+class UniqueGreeter:
+    """
+    Callable object to greet people by name. Unique per language. Thread-safe.
+
+    More than one instance of UniqueGreeter for the same language may be
+    created, but never with overlapping lifetimes. When an instance already
+    exists for a language, calling UniqueGreeter with the same language code is
+    guaranteed to return the existing instance. But instances' lifetimes are
+    not prolonged: the UniqueGreeter class does nothing to prevent any instance
+    from being collected when all outside references to it have gone away.
+
+    >>> UniqueGreeter('es')
+    UniqueGreeter('es')
+    >>> UniqueGreeter('qx')
+    Traceback (most recent call last):
+        ...
+    ValueError: qx is an unrecognized language code.
+    >>> UniqueGreeter('en')('Eve')
+    Hello, Eve!
+    >>> UniqueGreeter('es')('Eve')
+    ¡Hola, Eve!
+    >>> UniqueGreeter.get_known_langs()
+    ('en', 'es')
+
+    >>> UniqueGreeter('en') is UniqueGreeter('en')
+    True
+    >>> UniqueGreeter('es') is UniqueGreeter('es')
+    True
+    >>> UniqueGreeter('en') is UniqueGreeter('es')
+    False
+    >>> UniqueGreeter('en') is UniqueGreeter('english'[:2])
+    True
+    >>> UniqueGreeter.from_greeter(MutableGreeter('en')) is UniqueGreeter('en')
+    True
+    >>> UniqueGreeter.from_greeter(MutableGreeter('es')) is UniqueGreeter('es')
+    True
+
+    >>> len({UniqueGreeter('en'), UniqueGreeter('es'), UniqueGreeter('en')})
+    2
+    >>> ug = UniqueGreeter('en')
+    >>> ug.lang
+    'en'
+    >>> ug.lang = 'es'
+    Traceback (most recent call last):
+        ...
+    AttributeError: can't set attribute 'lang'
+    >>> ug.lung = 'es'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'UniqueGreeter' object has no attribute 'lung'
+
+    FIXME: Move some of the above doctests into method docstrings.
+    """
+
+    __slots__ = ('__weakref__', '_lang',)
+
+    _lock = threading.Lock()
+    _table = weakref.WeakValueDictionary()
+
+    @staticmethod
+    def get_known_langs():
+        """Get known language codes."""
+        return tuple(_FORMATS)
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """Create or retrieve the UniqueGreeter from a greeter."""
+        return cls(greeter.lang)
+
+    def __new__(cls, lang):
+        """Create or retrieve the UniqueGreeter from the language code."""
+        if lang not in _FORMATS:
+            raise ValueError(f'{lang} is an unrecognized language code.')
+
+        with cls._lock:
+            # We *must* use EAFP for this, since the instance could existing
+            # when checked but be collected before being accessed.
+            try:
+                instance = cls._table[lang]
+            except KeyError:
+                instance = super().__new__(cls)
+                instance._lang = lang
+                cls._table[lang] = instance
+
+        return instance
+
+    def __repr__(self):
+        """Representation of this UniqueGreeter as python code."""
+        return f"{type(self).__name__}({self.lang!r})"
+
+    def __call__(self, name):
+        """Greet a person by name."""
+        print(_FORMATS[self._lang].format(name))
+
+    @property
+    def lang(self):
+        """The language this UniqueGreeter will greet in."""
+        return self._lang
+
+
 def make_greeter(lang):
     """
     Make a function that greets by name in the language specified by lang.
@@ -280,7 +391,15 @@ def hello(name, lang='en'):
 
 
 def run():
-    """Run the doctests."""
+    """
+    Run the doctests.
+
+    This is usually called "main". But unlike in C, that is only a convention.
+    Also, when the logic to be done when the module is run as a script is as
+    simple as the body of this function, we more often put it directly under
+    the "if" check below (rather than in a function). Here, a function is used
+    to demonstrate the technique.
+    """
     import doctest
     doctest.testmod()
 
