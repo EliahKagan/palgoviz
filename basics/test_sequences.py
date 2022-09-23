@@ -322,7 +322,7 @@ class TestVec(unittest.TestCase):
         expected_repr_pattern = (
             r"\AVec\(\['a', 'b'\], get_buffer=<function TestVec\."
             r'test_repr_shows_repr_of_get_buffer_if_lambda\.<locals>\.<lambda>'
-            r' at 0x[0-9A-F]+>\)\Z'
+            r' at 0x(?:[0-9A-F]+|[0-9a-f]+)>\)\Z'
         )
 
         vec = Vec(['a', 'b'], get_buffer=lambda k, x: [x] * k)
@@ -335,7 +335,7 @@ class TestVec(unittest.TestCase):
         expected_repr_pattern = (
             r"\AVec\(\['a', 'b'\], get_buffer=<function TestVec\."
             r'test_repr_shows_repr_of_get_buffer_if_named_function\.<locals>\.'
-            r'f at 0x[0-9A-F]+>\)\Z'
+            r'f at 0x(?:[0-9A-F]+|[0-9a-f]+)>\)\Z'
         )
 
         vec = Vec(['a', 'b'], get_buffer=f)
