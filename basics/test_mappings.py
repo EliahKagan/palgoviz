@@ -428,11 +428,43 @@ class _TestMutableMapping(ABC):
         actual = set(table.items())
         self.assertSetEqual(actual, expected)
 
+    @_parameterize_by_mapping
+    def test_lhs_equal_to_items_view_from_items_view(self, _name, mapping):
+        """An items-view constructed mapping's items view is equal to it."""
+        items = mapping.items()
+        table = self.instantiate(items)
+        self.assertEqual(table.items(), items)
 
-    # @_parameterize_by_items
-    # def test_construction_from_nonempty_sequence_has_same_items(self, _name,
-    #                                                             _length,
-    #                                                             mapping):
+    @_parameterize_by_mapping
+    def test_rhs_equal_to_items_view_from_items_view(self, _name, mapping):
+        """Like test_lhs_equal_to_items_view_from_items_view but reflected."""
+        items = mapping.items()
+        table = self.instantiate(items)
+        self.assertEqual(items, table.items())
+
+    @_parameterize_by_mapping
+    def test_lhs_equal_to_items_view_from_mapping(self, _name, mapping):
+        """A mapping-constructed mapping's items view equals the original's."""
+        table = self.instantiate(mapping)
+        self.assertEqual(table.items(), mapping.items())
+
+    @_parameterize_by_mapping
+    def test_rhs_equal_to_items_view_from_mapping(self, _name, mapping):
+        """Like test_lhs_equal_items_view_from_mapping but reflected."""
+        table = self.instantiate(mapping)
+        self.assertEqual(mapping.items(), table.items())
+
+    @_parameterize_by_mapping
+    def test_lhs_equal_to_mapping_used_to_construct(self, _name, mapping):
+        """When a mapping is constructed from a mapping, they are equal."""
+        table = self.instantiate(mapping)
+        self.assertEqual(table, mapping)
+
+    @_parameterize_by_mapping
+    def test_rhs_equal_to_mapping_used_to_construct(self, _name, mapping):
+        """Like test_lhs_equal_to_mapping_used_to_construct but reflected."""
+        table = self.instantiate(mapping)
+        self.assertEqual(mapping, table)
 
     # FIXME: Write the (many) rest of these tests.
 

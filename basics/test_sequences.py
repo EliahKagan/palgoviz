@@ -97,8 +97,8 @@ class _NonSelfEqual:
 
     Objects can, in nearly all cases, be assumed equal to themselves. When a
     non-self-equal object, such as instances of this class, does exist, it is
-    usually the responsibility of the the code that introduces such an object
-    to ensure it is never used in any ways that would cause problems. But there
+    usually the responsibility of the code that introduces such an object to
+    ensure it is never used in any ways that would cause problems. But there
     are a few situations where one ought to make specific guarantees about the
     handling of such objects, because floating point NaNs have this property.
 
