@@ -2,6 +2,17 @@
 
 """Tests for mappings.py."""
 
+# TODO: Possibly change parameter and variable names in test methods. Many of
+# the test methods in this module use "mapping" to refer to a mapping instance
+# of a type outside the code under test and "table" to refer to a mapping
+# instance of a type within the code under test. This is consistent with the
+# naming convention of most of the mapping types in mappings.py, and arguably
+# even intuitive in context (where a "mapping" parameter name signifies that
+# the input is a mapping, in contrast to the weaker terms "sequence" and
+# "iterable" that appear in some other test methods' parameter names). But it
+# is not very logical, and I think it is likely to confuse readers without
+# prior familiarity with this codebase.
+
 from abc import ABC, abstractmethod
 from collections.abc import ItemsView, KeysView, MutableMapping, ValuesView
 from fractions import Fraction
