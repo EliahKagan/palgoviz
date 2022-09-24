@@ -1,4 +1,4 @@
-"""Test helpers used by multiple test modules."""
+"""Test helpers used by multiple modules."""
 
 import gc
 import platform
