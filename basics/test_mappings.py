@@ -64,6 +64,12 @@ _parameterize_by_mapping = parameterized.expand([
 """Parameterize a test method by different-sized mappings giving items."""
 
 
+# FIXME: Figure out if -- and, if so, how -- we are going to parameterize tests
+# that check to ensure that, if items with equal-comparing keys are added, only
+# one appears on inspection (such as when iterating through items views) and
+# the key is associated with the second of the two values from the input.
+
+
 class _TestMutableMapping(ABC):
     """
     Tests shared by all mutable mappings in mappings.py.
@@ -443,6 +449,10 @@ class _TestMutableMapping(ABC):
         actual = set(table.items())
         self.assertSetEqual(actual, expected)
 
+    # FIXME: Maybe rename lhs/rhs tests below to "test_equal_items_views...",
+    # where applicable, so the relationship to the tests immediately above this
+    # comment is clearer (and because the names below are not very good).
+
     @_parameterize_by_mapping
     def test_lhs_equal_to_items_view_from_items_view(self, _name, mapping):
         """An items-view constructed mapping's items view is equal to it."""
@@ -533,6 +543,16 @@ class _TestMutableMapping(ABC):
         table = self.instantiate(mapping)
         keys = table.keys()
         self.assertEqual(len(keys), length)
+
+    @_parameterize_by_mapping
+    def test_equal_keys_on_construction_from_sequence(self, _name, mapping):
+        expected = set(mapping.keys())
+        items = list(mapping.items())
+        table = self.instantiate(items)
+        actual = set(table.keys())
+        self.assertSetEqual(actual, expected)
+
+    # FIXME: Write the rest of the equal keys and equal keys views tests.
 
     @_parameterize_by_mapping
     def test_lhs_equal_to_mapping_used_to_construct(self, _name, mapping):
