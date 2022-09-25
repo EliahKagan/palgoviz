@@ -44,8 +44,8 @@ def one_run(*, safe, spin_count):
     storage1 = Storage()
     storage2 = Storage()
 
-    thread1 = threading.Thread(target=set_singleton, args=(storage1,))
-    thread2 = threading.Thread(target=set_singleton, args=(storage2,))
+    thread1 = threading.Thread(target=lambda: set_singleton(storage1))
+    thread2 = threading.Thread(target=lambda: set_singleton(storage2))
     thread1.start()
     thread2.start()
     thread1.join()
