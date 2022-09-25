@@ -30,10 +30,8 @@ def make_singleton(*, safe, spin_count):
     return Singleton
 
 
-class ThreeAttributes:
-    start_time = None
-    end_time = None
-    s_instance = None
+class Storage:
+    pass
 
 
 def one_run(*, safe, spin_count):
@@ -41,22 +39,19 @@ def one_run(*, safe, spin_count):
     Singleton = make_singleton(safe=safe, spin_count=spin_count)
 
     def set_singleton(storage):
-        storage.s_instance = Singleton()
+        storage.instance = Singleton()
 
-    thread1_storage = ThreeAttributes()
-    thread2_storage = ThreeAttributes()
+    storage1 = Storage()
+    storage2 = Storage()
 
-    t1 = threading.Thread(target=set_singleton, args=(thread1_storage,))
-    t2 = threading.Thread(target=set_singleton, args=(thread2_storage,))
-    t1.start()
-    t2.start()
-    t1.join()
-    t2.join()
+    thread1 = threading.Thread(target=set_singleton, args=(storage1,))
+    thread2 = threading.Thread(target=set_singleton, args=(storage2,))
+    thread1.start()
+    thread2.start()
+    thread1.join()
+    thread2.join()
 
-    assert thread1_storage.s_instance is not None
-    assert thread2_storage.s_instance is not None
-
-    return thread1_storage.s_instance is thread2_storage.s_instance
+    return storage1.instance is storage2.instance
 
 
 def run_multiple(*, runs, safe, spin_count):
