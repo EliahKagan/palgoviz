@@ -30,32 +30,33 @@ def make_singleton(*, safe, spin_count):
     return Singleton
 
 
+class ThreeAttributes:
+    start_time = None
+    end_time = None
+    s_instance = None
+
+
 def one_run(*, safe, spin_count):
     """Run the data race test once."""
     Singleton = make_singleton(safe=safe, spin_count=spin_count)
 
-    a = None
-    b = None
+    def set_singleton(storage):
+        storage.s_instance = Singleton()
 
-    def set_a():
-        nonlocal a
-        a = Singleton()
+    thread1_storage = ThreeAttributes()
+    thread2_storage = ThreeAttributes()
 
-    def set_b():
-        nonlocal b
-        b = Singleton()
-
-    t1 = threading.Thread(target=set_a)
-    t2 = threading.Thread(target=set_b)
+    t1 = threading.Thread(target=set_singleton, args=(thread1_storage,))
+    t2 = threading.Thread(target=set_singleton, args=(thread2_storage,))
     t1.start()
     t2.start()
     t1.join()
     t2.join()
 
-    assert a is not None
-    assert b is not None
+    assert thread1_storage.s_instance is not None
+    assert thread2_storage.s_instance is not None
 
-    return a is b
+    return thread1_storage.s_instance is thread2_storage.s_instance
 
 
 def run_multiple(*, runs, safe, spin_count):
