@@ -4,29 +4,28 @@
 
 __all__ = ['make_singleton', 'one_run', 'run_multiple', 'main']
 
+import contextlib
 import threading
 
 
-# TODO: Have the thread-safe Singleton implementation do it via locking.
 def make_singleton(*, safe, spin_count):
     """Make a singleton class, optionally thread safe."""
     class Singleton:
         """Lazy implementation of the singleton pattern."""
 
         _instance = None
+        _lock = threading.Lock() if safe else contextlib.nullcontext()
 
         def __new__(cls):
-            if cls._instance is None:
-                # Simulate nontrivial work to construct the instance.
-                for _ in range(spin_count):
-                    pass
+            with cls._lock:
+                if cls._instance is None:
+                    # Simulate nontrivial work to construct the instance.
+                    for _ in range(spin_count):
+                        pass
 
-                cls._instance = super().__new__(cls)
+                    cls._instance = super().__new__(cls)
 
-            return cls._instance
-
-    if safe:
-        Singleton()
+                return cls._instance
 
     return Singleton
 
