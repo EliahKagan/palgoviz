@@ -6,6 +6,7 @@ __all__ = ['make_singleton', 'one_run', 'run_multiple', 'main']
 
 import contextlib
 import threading
+import time
 
 
 def make_singleton(*, safe, spin_count):
@@ -39,7 +40,9 @@ def one_run(*, safe, spin_count):
     Singleton = make_singleton(safe=safe, spin_count=spin_count)
 
     def set_singleton(storage):
+        storage.start_time = time.perf_counter_ns()
         storage.instance = Singleton()
+        storage.end_time = time.perf_counter_ns()
 
     storage1 = Storage()
     storage2 = Storage()
@@ -51,14 +54,29 @@ def one_run(*, safe, spin_count):
     thread1.join()
     thread2.join()
 
-    return storage1.instance is storage2.instance
+    return storage1, storage2
 
 
 def run_multiple(*, runs, safe, spin_count):
     """Run the data race test several times."""
-    successes = sum(one_run(safe=safe, spin_count=spin_count)
-                    for _ in range(runs))
-    print(f'{successes} successful runs out of {runs}. {safe = }')
+
+    successes = 0
+    disjoints = 0
+    confirmations = 0
+
+    for _ in range(runs):
+        storage1, storage2 = one_run(safe=safe, spin_count=spin_count)
+        success = storage1.instance is storage2.instance
+        disjoint = (storage1.end_time < storage2.start_time) or (storage2.end_time < storage1.start_time)
+        confirmation = success is disjoint
+        if success:
+            successes += 1
+        if disjoint:
+            disjoints += 1
+        if confirmation:
+            confirmations += 1
+
+    print(f'{safe=} {successes=} {disjoints=} {confirmations=} ({runs} runs)')
 
 
 def main(*, runs=100, spin_count=1_500_000):
