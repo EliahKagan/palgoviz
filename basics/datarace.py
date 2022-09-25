@@ -65,10 +65,10 @@ def run_multiple(*, runs, safe, spin_count):
     print(f'{successes} successful runs out of {runs}. {safe = }')
 
 
-def main(*, runs=100, spin_count=1_300_000):
+def main(*, runs=100, spin_count=1_500_000):
     """Run the test for both thread safe and thread unsafe."""
-    run_multiple(runs=runs, safe=True, spin_count=spin_count)
     run_multiple(runs=runs, safe=False, spin_count=spin_count)
+    run_multiple(runs=runs, safe=True, spin_count=spin_count)
 
 
 if __name__ == '__main__':
