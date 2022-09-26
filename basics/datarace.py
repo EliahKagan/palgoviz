@@ -7,6 +7,7 @@ __all__ = ['make_singleton', 'one_run', 'run_multiple', 'main']
 import contextlib
 import threading
 import time
+import types
 
 
 def make_singleton(*, safe, spin_count):
@@ -31,10 +32,6 @@ def make_singleton(*, safe, spin_count):
     return Singleton
 
 
-class Storage:
-    pass
-
-
 def one_run(*, safe, spin_count):
     """Run the data race test once."""
     Singleton = make_singleton(safe=safe, spin_count=spin_count)
@@ -44,8 +41,8 @@ def one_run(*, safe, spin_count):
         storage.instance = Singleton()
         storage.end_time = time.perf_counter_ns()
 
-    storage1 = Storage()
-    storage2 = Storage()
+    storage1 = types.SimpleNamespace()
+    storage2 = types.SimpleNamespace()
 
     thread1 = threading.Thread(target=set_singleton, args=(storage1,))
     thread2 = threading.Thread(target=set_singleton, args=(storage2,))
