@@ -236,6 +236,13 @@ class FrozenGreeter:
 
 @enum.unique
 class EnumGreeter(enum.Enum):
+    """
+    Callable Enum to greet people by name in a specified language.
+
+    Enumerators of this class specify available languages. Currently only
+    English and Spanish are supported. They are not updated automatically along
+    with other greeters in this module.
+    """
 
     ENGLISH = 'en'
     SPANISH = 'es'
