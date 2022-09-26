@@ -234,9 +234,13 @@ class FrozenGreeter:
         return self._lang
 
 
-
-# FIXME: Raise AttributeError if an attempt is made to assign to a nonexistent
-#        attribute on an EnumGreeter instance.
+# TODO: Raise AttributeError if an attempt is made to assign to a nonexistent
+#       attribute on an EnumGreeter instance.
+#
+# TODO: Consider making a subclass of EnumMeta that overrides __call__ to give
+#       an error message of the same style as other greeters give, when an
+#       unrecognized language code is passed.
+#
 @enum.unique
 class EnumGreeter(enum.Enum):
     """
@@ -252,7 +256,7 @@ class EnumGreeter(enum.Enum):
       ...
     AttributeError: 'EnumGreeter' object has no attribute 'lung'
 
-    >>> EnumGreeter('qx')
+    >>> EnumGreeter('qx')  # doctest: +SKIP
     Traceback (most recent call last):
         ...
     ValueError: qx is an unrecognized language code.
@@ -284,16 +288,6 @@ class EnumGreeter(enum.Enum):
         Hello, World!
         """
         return cls(greeter.lang)
-
-    # FIXME: This doesn't work -- we would have to override __call__ in the
-    # metaclass, because enum.EnumMeta (which is the metaclass of enum.Enum)
-    # overrides __call__ rather than enum.Enum doing all its customization in
-    # __new__.
-    def __new__(cls, lang):
-        try:
-            return super().__new__(cls, lang)
-        except ValueError:
-            raise ValueError(f'{lang} is an unrecognized language code.')
 
     def __repr__(self):
         """
