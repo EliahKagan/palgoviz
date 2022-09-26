@@ -2,6 +2,8 @@
 
 """Hello world example."""
 
+import enum
+
 _FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
@@ -230,6 +232,66 @@ class FrozenGreeter:
         AttributeError: can't set attribute 'lang'
         """
         return self._lang
+
+
+@enum.unique
+class EnumGreeter(enum.Enum):
+
+    ENGLISH = 'en'
+    SPANISH = 'es'
+
+    @classmethod
+    def get_known_langs(cls):
+        """
+        Get known language codes.
+
+        >>> EnumGreeter.get_known_langs()
+        ('en', 'es')
+        >>> EnumGreeter('es').get_known_langs()
+        ('en', 'es')
+        """
+        return tuple(greeter.value for greeter in cls.__members__.values())
+
+    def __repr__(self):
+        """
+        Representation as Python code.
+
+        >>> EnumGreeter('en')
+        EnumGreeter('en')
+        >>> EnumGreeter('es')
+        EnumGreeter('es')
+        """
+        return f'{type(self).__name__}({self.value!r})'
+
+    def __call__(self, name):
+        """
+        Greet a person by name.
+
+        >>> g = EnumGreeter.SPANISH
+        >>> g('David')
+        ¡Hola, David!
+
+        >>> e = EnumGreeter.ENGLISH
+        >>> e('David')
+        Hello, David!
+        """
+        print(_FORMATS[self.value].format(name))
+
+    @property
+    def lang(self):
+        """
+        The language this EnumGreeter will greet in.
+
+        >>> e = EnumGreeter('en')
+        >>> e.lang
+        'en'
+        >>> e.lang = 'es'
+        Traceback (most recent call last):
+          ...
+        AttributeError: can't set attribute 'lang'
+        """
+        return self.value
+
 
 
 def make_greeter(lang):
