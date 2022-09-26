@@ -2,6 +2,15 @@
 
 """Hello world example."""
 
+__all__ = [
+    'MutableGreeter',
+    'FrozenGreeter',
+    'EnumGreeter',
+    'make_greeter',
+    'hello',
+    'run',
+]
+
 import enum
 
 _FORMATS = {
