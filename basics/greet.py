@@ -234,6 +234,9 @@ class FrozenGreeter:
         return self._lang
 
 
+
+# FIXME: Raise AttributeError if an attempt is made to assign to a nonexistent
+#        attribute on an EnumGreeter instance.
 @enum.unique
 class EnumGreeter(enum.Enum):
     """
@@ -242,6 +245,17 @@ class EnumGreeter(enum.Enum):
     Enumerators of this class specify available languages. Currently only
     English and Spanish are supported. They are not updated automatically along
     with other greeters in this module.
+
+    >>> g = EnumGreeter('en')
+    >>> g.lung = 'es'  # doctest: +SKIP
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'EnumGreeter' object has no attribute 'lung'
+
+    >>> EnumGreeter('qx')
+    Traceback (most recent call last):
+        ...
+    ValueError: qx is an unrecognized language code.
     """
 
     ENGLISH = 'en'
@@ -270,6 +284,16 @@ class EnumGreeter(enum.Enum):
         Hello, World!
         """
         return cls(greeter.lang)
+
+    # FIXME: This doesn't work -- we would have to override __call__ in the
+    # metaclass, because enum.EnumMeta (which is the metaclass of enum.Enum)
+    # overrides __call__ rather than enum.Enum doing all its customization in
+    # __new__.
+    def __new__(cls, lang):
+        try:
+            return super().__new__(cls, lang)
+        except ValueError:
+            raise ValueError(f'{lang} is an unrecognized language code.')
 
     def __repr__(self):
         """
