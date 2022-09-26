@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Attempting data races on thread-safe and thread-unsafe singletons."""
+"""Attempting data races on thread safe and thread unsafe singletons."""
 
 __all__ = ['make_singleton', 'one_run', 'run_multiple', 'main']
 
@@ -58,7 +58,16 @@ def one_run(*, safe, spin_count):
 
 
 def run_multiple(*, runs, safe, spin_count):
-    """Run the data race test several times."""
+    """
+    Run the data race test several times and collect the results.
+
+    This tests the hypothesis that creation of a unique singleton instance
+    succeeds if and only if the time intervals of the calls to Singleton on
+    separate threads are disjoint. This hypothesis is shown to be true (in
+    cases tested) for the thread unsafe version. It is false for the thread
+    safe version, which is good, since we want the thread safe version to
+    always succeed.
+    """
 
     successes = 0
     disjoints = 0
@@ -67,8 +76,10 @@ def run_multiple(*, runs, safe, spin_count):
     for _ in range(runs):
         storage1, storage2 = one_run(safe=safe, spin_count=spin_count)
         success = storage1.instance is storage2.instance
-        disjoint = (storage1.end_time < storage2.start_time) or (storage2.end_time < storage1.start_time)
+        disjoint = (storage1.end_time < storage2.start_time or
+                    storage2.end_time < storage1.start_time)
         confirmation = success is disjoint
+
         if success:
             successes += 1
         if disjoint:
