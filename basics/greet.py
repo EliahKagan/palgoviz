@@ -5,14 +5,16 @@
 __all__ = [
     'MutableGreeter',
     'FrozenGreeter',
+    'EnumGreeter',
     'UniqueGreeter',
     'make_greeter',
     'hello',
+    'run',
 ]
 
+import enum
 import threading
 import weakref
-import enum
 
 _FORMATS = {
     'en': 'Hello, {}!',
@@ -243,6 +245,14 @@ class FrozenGreeter:
         """
         return self._lang
 
+
+# TODO: Raise AttributeError if an attempt is made to assign to a nonexistent
+#       attribute on an EnumGreeter instance.
+#
+# TODO: Consider making a subclass of EnumMeta that overrides __call__ to give
+#       an error message of the same style as other greeters give, when an
+#       unrecognized language code is passed.
+#
 @enum.unique
 class EnumGreeter(enum.Enum):
     """
@@ -251,6 +261,17 @@ class EnumGreeter(enum.Enum):
     Enumerators of this class specify available languages. Currently only
     English and Spanish are supported. They are not updated automatically along
     with other greeters in this module.
+
+    >>> g = EnumGreeter('en')
+    >>> g.lung = 'es'  # doctest: +SKIP
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'EnumGreeter' object has no attribute 'lung'
+
+    >>> EnumGreeter('qx')  # doctest: +SKIP
+    Traceback (most recent call last):
+        ...
+    ValueError: qx is an unrecognized language code.
     """
 
     ENGLISH = 'en'
