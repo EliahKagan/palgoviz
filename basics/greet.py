@@ -252,6 +252,18 @@ class EnumGreeter(enum.Enum):
         """
         return tuple(greeter.value for greeter in cls.__members__.values())
 
+    @classmethod
+    def from_greeter(cls, greeter):
+        """
+        Construct an EnumGreeter from a greeter.
+
+        >>> m = MutableGreeter('en')
+        >>> e = EnumGreeter.from_greeter(m)
+        >>> e('World')
+        Hello, World!
+        """
+        return cls(greeter.lang)
+
     def __repr__(self):
         """
         Representation as Python code.
