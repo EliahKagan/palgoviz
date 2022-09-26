@@ -73,7 +73,7 @@ class MutableGreeter:
         >>> g('Eliah')
         Hello, Eliah!
         """
-        print(_FORMATS[self._lang].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     def __eq__(self, other):
         """
@@ -180,7 +180,7 @@ class FrozenGreeter:
         >>> g('David')
         ¡Hola, David!
         """
-        print(_FORMATS[self._lang].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     def __eq__(self, other):
         """
@@ -287,7 +287,7 @@ class EnumGreeter(enum.Enum):
         >>> e('David')
         Hello, David!
         """
-        print(_FORMATS[self.value].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     @property
     def lang(self):
@@ -303,7 +303,6 @@ class EnumGreeter(enum.Enum):
         AttributeError: can't set attribute 'lang'
         """
         return self.value
-
 
 
 def make_greeter(lang):
