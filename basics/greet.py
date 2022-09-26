@@ -12,6 +12,7 @@ __all__ = [
 
 import threading
 import weakref
+import enum
 
 _FORMATS = {
     'en': 'Hello, {}!',
@@ -82,7 +83,7 @@ class MutableGreeter:
         >>> g('Eliah')
         Hello, Eliah!
         """
-        print(_FORMATS[self._lang].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     def __eq__(self, other):
         """
@@ -189,7 +190,7 @@ class FrozenGreeter:
         >>> g('David')
         ¡Hola, David!
         """
-        print(_FORMATS[self._lang].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     def __eq__(self, other):
         """
@@ -241,6 +242,83 @@ class FrozenGreeter:
         AttributeError: can't set attribute 'lang'
         """
         return self._lang
+
+@enum.unique
+class EnumGreeter(enum.Enum):
+    """
+    Callable Enum to greet people by name in a specified language.
+
+    Enumerators of this class specify available languages. Currently only
+    English and Spanish are supported. They are not updated automatically along
+    with other greeters in this module.
+    """
+
+    ENGLISH = 'en'
+    SPANISH = 'es'
+
+    @classmethod
+    def get_known_langs(cls):
+        """
+        Get known language codes.
+
+        >>> EnumGreeter.get_known_langs()
+        ('en', 'es')
+        >>> EnumGreeter('es').get_known_langs()
+        ('en', 'es')
+        """
+        return tuple(greeter.value for greeter in cls.__members__.values())
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """
+        Construct an EnumGreeter from a greeter.
+
+        >>> m = MutableGreeter('en')
+        >>> e = EnumGreeter.from_greeter(m)
+        >>> e('World')
+        Hello, World!
+        """
+        return cls(greeter.lang)
+
+    def __repr__(self):
+        """
+        Representation as Python code.
+
+        >>> EnumGreeter('en')
+        EnumGreeter('en')
+        >>> EnumGreeter('es')
+        EnumGreeter('es')
+        """
+        return f'{type(self).__name__}({self.value!r})'
+
+    def __call__(self, name):
+        """
+        Greet a person by name.
+
+        >>> g = EnumGreeter.SPANISH
+        >>> g('David')
+        ¡Hola, David!
+
+        >>> e = EnumGreeter.ENGLISH
+        >>> e('David')
+        Hello, David!
+        """
+        print(_FORMATS[self.lang].format(name))
+
+    @property
+    def lang(self):
+        """
+        The language this EnumGreeter will greet in.
+
+        >>> e = EnumGreeter('en')
+        >>> e.lang
+        'en'
+        >>> e.lang = 'es'
+        Traceback (most recent call last):
+          ...
+        AttributeError: can't set attribute 'lang'
+        """
+        return self.value
 
 
 class UniqueGreeter:
