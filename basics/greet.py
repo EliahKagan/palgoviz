@@ -410,7 +410,7 @@ class UniqueGreeter:
     >>> del ug1, ug2; coll(); UniqueGreeter.count_instances()
     0
 
-    FIXME: After all doctests tests pass, move many into method docstrings.
+    FIXME: After all doctests pass, move many into method docstrings.
     """
 
     __slots__ = ('__weakref__', '_lang',)
