@@ -254,27 +254,16 @@ class _EnumGreeterMeta(enum.EnumMeta):
             raise ValueError(message) from error
 
 
-# FIXME: Make a subclass of EnumMeta, which could be called _EnumGreeterMeta,
-# that overrides __call__ to give an error message of the same style other
-# greeters give, when an unrecognized language code is passed. Specify it as
-# the metaclass for EnumGreeter. Syntactically, a class's metaclass is
-# specified by putting what looks like a "metaclass" keyword argument in the
-# list of direct base classes (where the positional arguments, if any, are the
-# direct base classes, listed as usual: positionally). The metaclass is the
-# only new class that needs to be created for this, and it need not define
-# anything other than __call__.
-#
-# This is a straightforward and blessedly simple use of metaclasses. The goal
-# is to facilitate conceptual familiarity with metaclasses, and with their
-# significance in enumerations. In a full presentation of metaclasses, it would
-# be important to look at documentation. But this is intentionally the smallest
-# of toe-dips into the topic. There are no restrictions on what resources, if
-# any, you use. But if you are even slightly tempted to look at documentation
-# about metaclasses, that suggests you may be going far beyond the intent of
-# this sub-exercise. Probably you won't need to look at the documentation on
-# enumerations either. Every line of code in the metaclass should be short and
-# simple, and the whole metaclass should take no more than 15 lines, including
-# blank lines. Probably you will write far less code than that.
+# FIXME: Make a subclass of EnumMeta. Call it _EnumGreeterMeta. Define __call__
+# to give a message of the same style other greeters give when an unrecognized
+# language code is passed. Have EnumGreeter use it as its metaclass, which
+# https://docs.python.org/3/reference/datamodel.html#metaclasses shows how to
+# do. Make sure EnumGreeter still inherits from enum.Enum. (Don't define any
+# additional classes besides _EnumGreeterMeta.) Besides that small section of
+# the language reference, you most likely won't need any other documentation to
+# do this very short exercise, which is intentionally the smallest of toe-dips
+# into the topic of metaclasses. The goal is basic conceptual familiarity with
+# metaclasses, and cursory awareness of their significance in enumerations.
 #
 # FIXME: Raise AttributeError if an attempt is made to assign to a nonexistent
 # attribute on an EnumGreeter instance.
