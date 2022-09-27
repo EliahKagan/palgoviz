@@ -971,12 +971,6 @@ class linear_combinable:
     "def linear_combinable(func):" in any way that does not misinform the
     caller about proper usage (so no implementation-detail parameters).
 
-    NOTE: Reassigning the __wrapped__ attribute is unsupported. In particular,
-    (a) objects linear_combinable returns are considered immutable, and setting
-    a different value of __wrapped__ if the instance may be stored in a hash
-    based container is likely to cause severe problems, and (b) whether or not
-    behavior is affected to reassigning __wrapped__ may change at any time.
-
     >>> @linear_combinable
     ... def f(x): 'Double a number.'; return x * 2
     >>> @linear_combinable
@@ -1031,7 +1025,19 @@ class linear_combinable:
     True
     >>> linear_combinable(h) is h
     True
+
+    >>> f.__wrapped__ = lambda x: x * 3
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute '__wrapped__'
+    >>> del f.__wrapped__
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't delete attribute '__wrapped__'
     """
+
+    _NO_REBIND = ('__wrapped__',)
+    """Attribute names to raise AttributeError instead of rebinding."""
 
     def __new__(cls, func):
         """Create a linearly combinable object wrapping a function."""
@@ -1048,6 +1054,18 @@ class linear_combinable:
     def __repr__(self):
         """Representation for debugging, showing the wrapped callable."""
         return f'{type(self).__name__}({self.__wrapped__!r})'
+
+    def __setattr__(self, name, value):
+        """Set an attribute, but don't allow __wrapped__ to be rebound."""
+        if name in self._NO_REBIND and hasattr(self, name):
+            raise AttributeError(f"can't set attribute {name!r}")
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name):
+        """Delete an attribute, but don't allow __wrapped__ to be deleted."""
+        if name in self._NO_REBIND:
+            raise AttributeError(f"can't delete attribute {name!r}")
+        super().__delattr__(name)
 
     def __call__(self, x):
         """Call the wrapped function."""

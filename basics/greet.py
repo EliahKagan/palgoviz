@@ -243,6 +243,17 @@ class FrozenGreeter:
         return self._lang
 
 
+class _EnumGreeterMeta(enum.EnumMeta):
+    """Metaclass to customize unrecognized language errors for EnumGreeter."""
+
+    def __call__(self, lang):
+        try:
+            return super().__call__(lang)
+        except ValueError as error:
+            message = f'{lang} is an unrecognized language code.'
+            raise ValueError(message) from error
+
+
 # TODO: Raise AttributeError if an attempt is made to assign to a nonexistent
 #       attribute on an EnumGreeter instance.
 #
@@ -251,7 +262,7 @@ class FrozenGreeter:
 #       unrecognized language code is passed.
 #
 @enum.unique
-class EnumGreeter(enum.Enum):
+class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
     """
     Callable Enum to greet people by name in a specified language.
 
@@ -260,12 +271,12 @@ class EnumGreeter(enum.Enum):
     with other greeters in this module.
 
     >>> g = EnumGreeter('en')
-    >>> g.lung = 'es'  # doctest: +SKIP
+    >>> g.lung = 'es'
     Traceback (most recent call last):
       ...
     AttributeError: 'EnumGreeter' object has no attribute 'lung'
 
-    >>> EnumGreeter('qx')  # doctest: +SKIP
+    >>> EnumGreeter('qx')
     Traceback (most recent call last):
         ...
     ValueError: qx is an unrecognized language code.
@@ -322,6 +333,14 @@ class EnumGreeter(enum.Enum):
         Hello, David!
         """
         print(_FORMATS[self.lang].format(name))
+
+    def __setattr__(self, name, value):
+        """Creation of new public attributes is suppressed."""
+        if name.startswith('_') or name == 'lang':
+            super().__setattr__(name, value)
+        else:
+            raise AttributeError(
+                f"{type(self).__name__!r} object has no attribute {name!r}")
 
     @property
     def lang(self):
