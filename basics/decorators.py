@@ -1036,9 +1036,6 @@ class linear_combinable:
     AttributeError: can't delete attribute '__wrapped__'
     """
 
-    _NO_REBIND = ('__wrapped__',)
-    """Attribute names to raise AttributeError instead of rebinding."""
-
     def __new__(cls, func):
         """Create a linearly combinable object wrapping a function."""
         if isinstance(func, cls):
@@ -1054,18 +1051,6 @@ class linear_combinable:
     def __repr__(self):
         """Representation for debugging, showing the wrapped callable."""
         return f'{type(self).__name__}({self.__wrapped__!r})'
-
-    def __setattr__(self, name, value):
-        """Set an attribute, but don't allow __wrapped__ to be rebound."""
-        if name in self._NO_REBIND and hasattr(self, name):
-            raise AttributeError(f"can't set attribute {name!r}")
-        super().__setattr__(name, value)
-
-    def __delattr__(self, name):
-        """Delete an attribute, but don't allow __wrapped__ to be deleted."""
-        if name in self._NO_REBIND:
-            raise AttributeError(f"can't delete attribute {name!r}")
-        super().__delattr__(name)
 
     def __call__(self, x):
         """Call the wrapped function."""
