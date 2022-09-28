@@ -77,7 +77,7 @@ class Node:
         """Draw the structure of all instances of Node."""
         # Nodes that are not strongly referenced may be collected, and thereby
         # removed from the table, at any time. WeakValueDictionary is in charge
-        # of ensuring that no state are corrupted as a result of this, and for
+        # of ensuring that no state gets corrupted as a result of this, and for
         # allowing iteration even though items may disappear at any time due to
         # that effect. But it is still not safe to modify the contents of the
         # WeakValueDictionary by any other mechanism during iteration. Further,
