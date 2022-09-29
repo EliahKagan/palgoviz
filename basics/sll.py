@@ -41,7 +41,7 @@ class is public, and the absence of a node is represented by the None object.
 # way, we should document the situation in the module docstring, so it is clear
 # whether major breaking changes to the structure of sll are planned.
 
-__all__ = ['Node', 'traverse']
+__all__ = ['Node', 'TypedNode', 'traverse']
 
 import abc
 import html
