@@ -385,9 +385,9 @@ class TestNode(unittest.TestCase):
 
         This doesn't check that anything about the generated graph drawing is
         correct, only that an object of the correct type is returned. The draw
-        method must be manually tested in sll.ipynb. This has the additional
-        benefit of providing a further check that nodes are properly reused and
-        to observe when they are garbage-collected.
+        method must be manually tested in sll.ipynb. Those visualizations also
+        serve as a further check that nodes are always reused (where possible),
+        and they allow the effects of garbage collection to be observed.
         """
         # Make a few nodes. Draw should return a graphviz.Digraph even if no
         # nodes exist; then the graph has no nodes or edges. But having nodes
