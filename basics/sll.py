@@ -94,7 +94,7 @@ class Node:
     named constructor instead of a top-level function, so it's clear, at the
     call site, what type is being instantiated. But its implementation uses no
     part of the Node interface, other than calling the class. It especially
-    neither uses nor otherwise depends on any implementation details of Node.
+    does not use or depend on any implementation details of Node.
 
     >>> Node.from_iterable([]) is None
     True
@@ -103,12 +103,34 @@ class Node:
     >>> head4 = Node.from_iterable(range(9000))
     >>> list(traverse(head4)) == list(range(9000))
     True
+
+    These tests assume no other code in the process running the doctests has
+    created and *kept* references to Node instances:
+
+    >>> from testing import collect_if_not_ref_counting as coll
+    >>> coll(); Node.count_instances()
+    9006
+    >>> head5 = Node.from_iterable(range(-100, 9000)); Node.count_instances()
+    9106
+    >>> del head4, head5; coll(); Node.count_instances()
+    6
+    >>> head3 = head1; coll(); Node.count_instances()
+    5
+    >>> del head1, head3; coll(); Node.count_instances()
+    4
+    >>> del head2; coll(); Node.count_instances()
+    0
     """
 
     __slots__ = ('__weakref__', '_value', '_next_node')
 
     _lock = threading.Lock()
     _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
+
+    @classmethod
+    def count_instances(cls):
+        """Return the number of currently existing instances."""
+        return len(cls._table)
 
     @classmethod
     def from_iterable(cls, values):
@@ -181,9 +203,9 @@ class Node:
         # Therefore, we materialize the table's values, synchronizing this with
         # the lock used by __new__. Nodes may be collected while this happens.
         # But materialization makes strong references, and next_node attributes
-        # hold strong references, so once materialization gets to a node, the
-        # node is protected, along with all nodes reachable from it. So we will
-        # see all nodes that follow any node we have seen in a list. Having
+        # already hold strong references. So once materialization gets a node,
+        # it and all nodes reachable from it are protected. So we will see all
+        # nodes that appear in any SLL after any node we have seen. Having
         # thereby taken strong references to a consistent set of nodes, we can
         # be confident the graph we draw makes sense, and that we don't cause
         # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
