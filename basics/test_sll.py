@@ -7,6 +7,7 @@ import unittest
 from parameterized import parameterized
 
 import sll
+import testing
 
 
 class TestNode(unittest.TestCase):
@@ -124,10 +125,20 @@ class TestNode(unittest.TestCase):
         head = sll.Node('foo')
         self.assertEqual(repr(head), "Node('foo')")
 
-    def test_repr_shows_sll_recursively(self):
+    def test_repr_shows_chain_recursively(self):
         expected = "Node('a', Node('b', Node('c', Node('d'))))"
         head = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
         self.assertEqual(repr(head), expected)
+
+    @parameterized.expand([
+        ('one', 1),
+        ('zero', 0),
+        ('obj', object()),
+        ('none', None),
+    ])
+    def test_is_truthy(self, _name, value):
+        head = sll.Node(value)
+        self.assertTrue(head)
 
     def test_nodes_holding_same_type_value_no_next_are_equal(self):
         lhs = sll.Node('foo')
@@ -205,21 +216,165 @@ class TestNode(unittest.TestCase):
         with self.subTest(lhs='longer', rhs='shorter'):
             self.assertIsNot(longer, shorter)
 
-    @parameterized.expand([
-        ('one', 1),
-        ('zero', 0),
-        ('obj', object()),
-        ('none', None),
-    ])
-    def test_is_truthy(self, _name, value):
-        head = sll.Node(value)
-        self.assertTrue(head)
+    def test_nodes_holding_cross_type_same_value_no_next_are_equal(self):
+        lhs = sll.Node(10)
+        rhs = sll.Node(10.0)
+        self.assertEqual(lhs, rhs)
+
+    def test_nodes_holding_cross_type_same_value_no_next_are_identical(self):
+        lhs = sll.Node(10)
+        rhs = sll.Node(10.0)
+        self.assertIs(lhs, rhs)
+
+    def test_nodes_heading_cross_type_same_value_chains_are_equal(self):
+        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
+        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
+        self.assertEqual(lhs, rhs)
+
+    def test_nodes_heading_cross_type_same_value_chains_are_identical(self):
+        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
+        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
+        self.assertIs(lhs, rhs)
+
+    def test_from_iterable_returns_none_from_empty_sequence(self):
+        head = sll.Node.from_iterable([])
+        self.assertIsNone(head)
+
+    def test_from_iterable_returns_none_from_empty_iterator(self):
+        head = sll.Node.from_iterable(iter([]))
+        self.assertIsNone(head)
+
+    def test_from_iterable_finds_chain_from_nonempty_sequence(self):
+        # NOTE: This test MUST be written to assign "expected" first.
+        expected = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        actual = sll.Node.from_iterable('abcd')
+        self.assertIs(actual, expected)
+
+    def test_from_iterable_builds_chain_from_nonempty_sequence(self):
+        # NOTE: This test MUST be written to assign "actual" first.
+        actual = sll.Node.from_iterable('abcd')
+        expected = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        self.assertIs(actual, expected)
+
+    def test_from_iterable_builds_long_chain(self):
+        head = sll.Node.from_iterable(range(9000))
+        self.assertIsInstance(head, sll.Node)
+
+    def test_from_iterable_long_chain_has_same_length_as_input(self):
+        head = sll.Node.from_iterable(range(9000))
+
+        length = 0
+        node = head
+        while node:
+            length += 1
+            node = node.next_node
+
+        self.assertEqual(length, 9000)
+
+    def test_from_iterable_long_chain_has_equal_values_to_input(self):
+        head = sll.Node.from_iterable(range(9000))
+
+        values = []
+        node = head
+        while node:
+            values.append(node.value)
+            node = node.next_node
+
+        self.assertListEqual(values, list(range(9000)))
+
+    def test_from_iterable_new_longer_chain_can_overlap_long_chain(self):
+        shorter = sll.Node.from_iterable(range(9000))
+        longer = sll.Node.from_iterable(range(-100, 9000))
+
+        node = longer
+        for _ in range(100):
+            node = node.next_node
+
+        self.assertIs(node, shorter)
+
+    def test_from_iterable_new_shorter_chain_can_overlap_long_chain(self):
+        longer = sll.Node.from_iterable(range(-100, 9000))
+        shorter = sll.Node.from_iterable(range(9000))
+
+        node = longer
+        for _ in range(100):
+            node = node.next_node
+
+        self.assertIs(node, shorter)
 
     @parameterized.expand(['__eq__', '__ne__', '__hash__'])
     def test_type_uses_reference_equality_comparison(self, name):
         expected = getattr(object, name)
         actual = getattr(sll.Node, name)
         self.assertIs(actual, expected)
+
+    def test_no_more_nodes_than_necessary_ever_exist(self):
+        """
+        Nodes are always shared and allowed to be collected when unreachable.
+
+        To a greater extent than other tests in this test module, these tests
+        assume no other code in the same test runner process has created and
+        *kept* references to Node instances. Unless some other code in the
+        project does so and is under test, this is unlikely to be a problem.
+
+        Note also that these tests rely on the count_instances method being
+        correctly implemented. But it is fairly unlikely that an unintentional
+        bug in that method would cause all tests to wrongly pass.
+        """
+        head1 = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        head2 = sll.Node('x', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        head3 = sll.Node(0)
+        head4 = sll.Node.from_iterable(range(9000))
+
+        with self.subTest('before any of head1-head5 are collectable'):
+            testing.collect_if_not_ref_counting()
+            self.assertEqual(sll.Node.count_instances(), 9006)
+
+        head5 = sll.Node.from_iterable(range(-100, 9000))
+
+        with self.subTest('after creating head5'):
+            # We do not need to force a collection here regardless of platform,
+            # since we have only created nodes since the last possibly forced
+            # collection. (Of course, other code could concurrently be making
+            # nodes or allowing them to be destroyed, but if so, this test is
+            # already very unreliable, as detailed in the method docstring.)
+            count = sll.Node.count_instances()
+            self.assertEqual(count, 9106)
+
+        del head4, head5
+
+        with self.subTest('after deleting local variables head4 and head5'):
+            testing.collect_if_not_ref_counting()
+            count = sll.Node.count_instances()
+            self.assertEqual(count, 6)
+
+        head3 = head1
+
+        with self.subTest('after rebinding the head3 local variable'):
+            testing.collect_if_not_ref_counting()
+            count = sll.Node.count_instances()
+            self.assertEqual(count, 5)
+
+        del head1
+
+        with self.subTest('after deleting local variable head1'):
+            testing.collect_if_not_ref_counting()  # To show no effect.
+            count = sll.Node.count_instances()
+            self.assertEqual(count, 5)
+
+        del head3
+
+        with self.subTest('after deleting local variable head3'):
+            testing.collect_if_not_ref_counting()
+            count = sll.Node.count_instances()
+            self.assertEqual(count, 4)
+
+        del head2
+
+        with self.subTest('after deleting local variable head2'):
+            testing.collect_if_not_ref_counting()
+            count = sll.Node.count_instances()
+            self.assertEqual(count, 0)
 
 
 if __name__ == '__main__':
