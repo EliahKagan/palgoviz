@@ -2,8 +2,11 @@
 
 """Tests for sll.py."""
 
+import itertools
+import types
 import unittest
 
+import graphviz
 from parameterized import parameterized
 
 import sll
@@ -308,7 +311,7 @@ class TestNode(unittest.TestCase):
         actual = getattr(sll.Node, name)
         self.assertIs(actual, expected)
 
-    def test_no_more_nodes_than_necessary_ever_exist(self):
+    def test_no_more_nodes_are_maintained_than_necessary(self):
         """
         Nodes are always shared and allowed to be collected when unreachable.
 
@@ -375,6 +378,108 @@ class TestNode(unittest.TestCase):
             testing.collect_if_not_ref_counting()
             count = sll.Node.count_instances()
             self.assertEqual(count, 0)
+
+    def test_draw_returns_graphviz_digraph(self):
+        """
+        The draw method returns a graphviz.Digraph instance.
+
+        This doesn't check that anything about the generated graph drawing is
+        correct, only that an object of the correct type is returned. The draw
+        method must be manually tested in sll.ipynb. This has the additional
+        benefit of providing a further check that nodes are properly reused and
+        to observe when they are garbage-collected.
+        """
+        # Make a few nodes. Draw should return a graphviz.Digraph even if no
+        # nodes exist; then the graph has no nodes or edges. But having nodes
+        # and edges (next_node references) make make it more efficient to find
+        # and fix simple bugs that raise exceptions even in tiny simple cases.
+        # The F841 suppressions are for flake8's "assigned to but never used."
+        _head1 = sll.Node('a', sll.Node('c'))  # noqa: F841
+        _head2 = sll.Node('b', sll.Node('c'))  # noqa: F841
+
+        graph = sll.Node.draw()
+        self.assertIsInstance(graph, graphviz.Digraph)
+
+
+def _fake(value, next_node=None):
+    """
+    Create a SimpleNamespace to use as a singly linked list node for testing.
+
+    Such an object, with appropriate attributes and used in an appropriate way,
+    as we are, really is an SLL node. This is a "fake" in the sense specific to
+    unit testing. See https://martinfowler.com/articles/mocksArentStubs.html.
+    (Though if we were to regard it as a double for a hash-consed node, rather
+    than just any singly linked list node, then it would be closer to a stub.)
+
+    >>> _fake('a', _fake('b'))
+    namespace(value='a', next_node=namespace(value='b', next_node=None))
+    >>> _fake.from_iterable('ab')
+    namespace(value='a', next_node=namespace(value='b', next_node=None))
+    """
+    return types.SimpleNamespace(value=value, next_node=next_node)
+
+
+def _from_iterable(values):
+    """
+    Create an SLL of the given values with SimpleNamespace instances as nodes.
+
+    This facilitates fake.from_iterable, and takes advantage of SimpleNamespace
+    being mutable to use an algorithm that cannot be used for immutable nodes
+    such as sll.Node. This avoids duplicating logic, and possibly bugs, across
+    both code and tests.
+    """
+    sentinel = _fake('arbitrary')
+    pre = sentinel
+
+    for value in values:
+        pre.next_node = _fake(value)
+        pre = pre.next_node
+
+    return sentinel.next_node
+
+
+_fake.from_iterable = _from_iterable
+
+
+class TestTraverse(unittest.TestCase):
+    """
+    Tests for the sll.traverse function.
+
+    This includes tests using a test double for the nodes, as well as on singly
+    linked lists formed as chains of sll.Node instances.
+    """
+
+    _parameterize_by_node_type = parameterized.expand([
+        ('SimpleNamespace', _fake),
+        (sll.Node.__name__, sll.Node),
+    ])
+    """Parameterize a test method by choice of SLL-node factory."""
+
+    def test_empty_chain_yields_nothing(self):
+        it = sll.traverse(None)
+        with self.assertRaises(StopIteration):
+            next(it)
+
+    @_parameterize_by_node_type
+    def test_nonempty_chain_yields_values_front_to_back(self, _name, factory):
+        head = factory(1, factory(5, factory(2, factory(4, factory(3)))))
+        result = sll.traverse(head)
+        self.assertListEqual(list(result), [1, 5, 2, 4, 3])
+
+    def test_traversal_is_lazy(self):
+        expected = [4, 5, 6, 7, 8, 9] * 5
+        head = _fake(4, _fake(5, _fake(6, _fake(7, _fake(8, _fake(9))))))
+        head.next_node.next_node.next_node.next_node.next_node.next_node = head
+        result = sll.traverse(head)
+        prefix = itertools.islice(result, 30)
+        self.assertListEqual(list(prefix), expected)
+
+    @_parameterize_by_node_type
+    def test_long_chains_are_supported(self, _name, factory):
+        expected = list(range(9000))
+        head = factory.from_iterable(range(9000))
+        result = sll.traverse(head)
+        self.assertListEqual(list(result), expected)
 
 
 if __name__ == '__main__':
