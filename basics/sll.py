@@ -43,11 +43,17 @@ class is public, and the absence of a node is represented by the None object.
 
 __all__ = ['Node', 'traverse']
 
+import abc
 import html
 import threading
 import weakref
 
 import graphviz
+
+
+class _NodeBase:
+    """Base class for sharing Node and TypedNode implementation details."""
+    # FIXME: Needs implementation. Move most Node code into here.
 
 
 class Node:
@@ -226,6 +232,34 @@ class Node:
             graph.edge(str(id(node)), str(id(node.next_node)))
 
         return graph
+
+
+class TypedNode:
+    """
+    Immutable singly linked list node. Like Node but type-sensitive.
+
+    Like Node, TypedNode uses thread-safe global guaranteed hash consing,
+    TypedNode instances are equal only if they are the same object, and
+    inheriting from TypedNode is not recommended. But TypedNode's equality
+    comparison is more discerning: nodes compare equal when all corresponding
+    values in the SLLs they head are not just equal but also of the same types.
+
+    This behavior is strange, because it means TypedNode SLLs constructed from
+    equal Python lists need not be equal. Node is preferable unless you have a
+    specific need for TypedNode. There is a third way that seems better until
+    considered carefully: allow heads of SLLs that can only be distinguished by
+    element types to be separate objects that compare equal. That has two
+    problems: First, equality comparison on nodes would no longer be reference
+    equality and would no longer take O(1) time in the worst case. Second, the
+    original problem would come back if nested SLLs are used, because heads of
+    SLLs whose corresponding elements can only be distinguished by type would,
+    while nonidentical, be equal and of the same type (the node type).
+
+    Besides doctests, Node and TypedNode are implemented with almost zero code
+    duplication. Neither inherits from the other, and either would continue to
+    work if the other were removed. They also behave independently at runtime.
+    """
+    # FIXME: Needs implementation.
 
 
 def traverse(head):
