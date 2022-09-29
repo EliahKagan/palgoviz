@@ -51,12 +51,126 @@ import weakref
 import graphviz
 
 
-class _NodeBase:
-    """Base class for sharing Node and TypedNode implementation details."""
-    # FIXME: Needs implementation. Move most Node code into here.
+class _NodeBase(abc.ABC):
+    """
+    Base class for sharing Node and TypedNode implementation details.
+
+    Concrete derived classes are responsible for overriding the protected _key
+    method that computes keys for the table, and for adding _lock and _table
+    class attributes (even though this ABC does not declare those attributes).
+    """
+
+    __slots__ = ('__weakref__', '_value', '_next_node')
+
+    @classmethod
+    def count_instances(cls):
+        """Return the number of currently existing instances."""
+        return len(cls._table)
+
+    @classmethod
+    def from_iterable(cls, values):
+        """Make a singly linked list of the given values. Return the head."""
+        try:
+            backwards = reversed(values)
+        except TypeError:
+            backwards = reversed(list(values))
+
+        acc = None
+        for value in backwards:
+            acc = cls(value, acc)
+        return acc
+
+    def __new__(cls, value, next_node=None):
+        """Make a node or retrieve the suitable one that already exists."""
+        # Since we are doing hash consing, the effects of allowing a next_node
+        # of the wrong type are dire: the wrong behavior is both unintuitive
+        # and global. So it is important to check the type of next_node, even
+        # if runtime type-checking is not otherwise called for.
+        if not isinstance(next_node, cls | None):
+            raise TypeError(f'next_node must be a {cls.__name__} or None, not '
+                            + type(next_node).__name__)
+
+        with cls._lock:
+            key = cls._key(value, next_node)
+            try:
+                return cls._table[key]
+            except KeyError:
+                node = super().__new__(cls)
+                node._value = value
+                node._next_node = next_node
+                cls._table[key] = node
+                return node
+
+    def __repr__(self):
+        """
+        Code representation of this node. Shows the whole list.
+
+        For simplicity, this is implemented in a straightforward recursive way,
+        even though that means it raises RecursionError when called on the head
+        node of a long singly linked list.
+        """
+        if self.next_node:
+            return f'{type(self).__name__}({self.value!r}, {self.next_node!r})'
+        return f'{type(self).__name__}({self.value!r})'
+
+    @property
+    def value(self):
+        """The value held by this node."""
+        return self._value
+
+    @property
+    def next_node(self):
+        """The next node (the head of the tail of this node)."""
+        return self._next_node
+
+    @classmethod
+    def draw(cls):
+        """Draw the structure of all instances of Node."""
+        # Nodes that are not strongly referenced may be collected, and thereby
+        # removed from the table, at any time. WeakValueDictionary is in charge
+        # of ensuring that no state gets corrupted as a result of this, and for
+        # allowing iteration even though items may disappear at any time due to
+        # that effect. But it is still not safe to modify the contents of the
+        # WeakValueDictionary by any other mechanism during iteration. Further,
+        # since weak-referenced objects may disappear at any time and their ids
+        # reused, but we're using ids as node names to build the graph drawing,
+        # we need a consistent snapshot of all nodes.
+        #
+        # Therefore, we materialize the table's values, synchronizing this with
+        # the lock used by __new__. Nodes may be collected while this happens.
+        # But materialization makes strong references, and next_node attributes
+        # already hold strong references. So once materialization gets a node,
+        # it and all nodes reachable from it are protected. So we will see all
+        # nodes that appear in any SLL after any node we have seen. Having
+        # thereby taken strong references to a consistent set of nodes, we can
+        # be confident the graph we draw makes sense, and that we don't cause
+        # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
+        with cls._lock:
+            nodes = list(cls._table.values())
+
+        graph = graphviz.Digraph()
+
+        # Add the null sentinel (the None object) to the graph.
+        graph.node(str(id(None)), shape='point')
+
+        # Add all actual singly linked list nodes to the graph.
+        for node in nodes:
+            graph.node(str(id(node)), label=html.escape(repr(node.value)))
+
+        # Add the links (edges) between singly linked list nodes to the graph.
+        for node in nodes:
+            graph.edge(str(id(node)), str(id(node.next_node)))
+
+        return graph
+
+    @staticmethod
+    @abc.abstractmethod
+    def _key(value, next_node):
+        """Select a key for subscripting _table to check if a node exists."""
+        raise NotImplementedError
 
 
-class Node:
+class Node(_NodeBase):
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
 
@@ -128,113 +242,17 @@ class Node:
     0
     """
 
-    __slots__ = ('__weakref__', '_value', '_next_node')
+    __slots__ = ()
 
     _lock = threading.Lock()
     _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
-    @classmethod
-    def count_instances(cls):
-        """Return the number of currently existing instances."""
-        return len(cls._table)
-
-    @classmethod
-    def from_iterable(cls, values):
-        """Make a singly linked list of the given values. Return the head."""
-        try:
-            backwards = reversed(values)
-        except TypeError:
-            backwards = reversed(list(values))
-
-        acc = None
-        for value in backwards:
-            acc = cls(value, acc)
-        return acc
-
-    def __new__(cls, value, next_node=None):
-        """Make a node or retrieve the suitable one that already exists."""
-        # Since we are doing hash consing, the effects of allowing a next_node
-        # of the wrong type are dire: the wrong behavior is both unintuitive
-        # and global. So it is important to check the type of next_node, even
-        # if runtime type-checking is not otherwise called for.
-        if not isinstance(next_node, cls | None):
-            raise TypeError(f'next_node must be a {cls.__name__} or None, not '
-                            + type(next_node).__name__)
-
-        with cls._lock:
-            try:
-                return cls._table[value, next_node]
-            except KeyError:
-                node = super().__new__(cls)
-                node._value = value
-                node._next_node = next_node
-                cls._table[value, next_node] = node
-                return node
-
-    def __repr__(self):
-        """
-        Code representation of this node. Shows the whole list.
-
-        For simplicity, this is implemented in a straightforward recursive way,
-        even though that means it raises RecursionError when called on the head
-        node of a long singly linked list.
-        """
-        if self.next_node:
-            return f'{type(self).__name__}({self.value!r}, {self.next_node!r})'
-        return f'{type(self).__name__}({self.value!r})'
-
-    @property
-    def value(self):
-        """The value held by this node."""
-        return self._value
-
-    @property
-    def next_node(self):
-        """The next node (the head of the tail of this node)."""
-        return self._next_node
-
-    @classmethod
-    def draw(cls):
-        """Draw the structure of all instances of Node."""
-        # Nodes that are not strongly referenced may be collected, and thereby
-        # removed from the table, at any time. WeakValueDictionary is in charge
-        # of ensuring that no state gets corrupted as a result of this, and for
-        # allowing iteration even though items may disappear at any time due to
-        # that effect. But it is still not safe to modify the contents of the
-        # WeakValueDictionary by any other mechanism during iteration. Further,
-        # since weak-referenced objects may disappear at any time and their ids
-        # reused, but we're using ids as node names to build the graph drawing,
-        # we need a consistent snapshot of all nodes.
-        #
-        # Therefore, we materialize the table's values, synchronizing this with
-        # the lock used by __new__. Nodes may be collected while this happens.
-        # But materialization makes strong references, and next_node attributes
-        # already hold strong references. So once materialization gets a node,
-        # it and all nodes reachable from it are protected. So we will see all
-        # nodes that appear in any SLL after any node we have seen. Having
-        # thereby taken strong references to a consistent set of nodes, we can
-        # be confident the graph we draw makes sense, and that we don't cause
-        # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
-        with cls._lock:
-            nodes = list(cls._table.values())
-
-        graph = graphviz.Digraph()
-
-        # Add the null sentinel (the None object) to the graph.
-        graph.node(str(id(None)), shape='point')
-
-        # Add all actual singly linked list nodes to the graph.
-        for node in nodes:
-            graph.node(str(id(node)), label=html.escape(repr(node.value)))
-
-        # Add the links (edges) between singly linked list nodes to the graph.
-        for node in nodes:
-            graph.edge(str(id(node)), str(id(node.next_node)))
-
-        return graph
+    @staticmethod
+    def _key(value, next_node):
+        return value, next_node
 
 
-class TypedNode:
+class TypedNode(_NodeBase):
     """
     Immutable singly linked list node. Like Node but type-sensitive.
 
@@ -255,11 +273,101 @@ class TypedNode:
     SLLs whose corresponding elements can only be distinguished by type would,
     while nonidentical, be equal and of the same type (the node type).
 
+    The name TypedNode is imperfect, due to its ambiguity. TypedNode is not
+    "typed" in the sense of only supporting elements of a specific type (more
+    specific than object), nor in the sense of node type varying by element
+    type, nor in the sense of being related to Python type annotations.
+
     Besides doctests, Node and TypedNode are implemented with almost zero code
     duplication. Neither inherits from the other, and either would continue to
     work if the other were removed. They also behave independently at runtime.
+
+    >>> head1 = TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d'))))
+    >>> head1
+    TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d'))))
+    >>> head1.value
+    'a'
+    >>> head1.next_node
+    TypedNode('b', TypedNode('c', TypedNode('d')))
+
+    >>> TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d')))) is head1
+    True
+    >>> head2 = TypedNode('x', TypedNode('b', TypedNode('c', TypedNode('d'))))
+    >>> len({head1, head2}), len({head1.next_node, head2.next_node})
+    (2, 1)
+    >>> head1.next_node is head2.next_node
+    True
+    >>> TypedNode('a', TypedNode('b', TypedNode('c'))) is head1
+    False
+    >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
+    False
+    >>> TypedNode('a', object())  # Validated, to avoid corrupting global state.
+    Traceback (most recent call last):
+      ...
+    TypeError: next_node must be a TypedNode or None, not object
+
+    Equal values are treated as interchangeable only when of the same type:
+
+    >>> len({TypedNode(1.0), TypedNode(1), TypedNode(True)})
+    3
+    >>> head3 = TypedNode(0)
+    >>> TypedNode(False)
+    TypedNode(False)
+    >>> head3 = TypedNode(-0.0)
+    >>> TypedNode(0.0)  # 0.0 and -0.0 are equal and both of type float.
+    TypedNode(-0.0)
+    >>> TypedNode(2, TypedNode(3)) == TypedNode(2.0, TypedNode(3))
+    False
+    >>> (TypedNode(2, TypedNode(3)).next_node
+    ...     is TypedNode(2.0, TypedNode(3)).next_node)
+    True
+
+    Node and TypedNode do not share caches. Their instances are never equal:
+
+    >>> Node('a', Node('b', Node('c', Node('d')))) == head1
+    False
+    >>> TypedNode(42) == Node(42)
+    False
+
+    TypedNode.from_iterable works analogously to Node.from_iterable:
+
+    >>> TypedNode.from_iterable([]) is None
+    True
+    >>> TypedNode.from_iterable('abcd') is head1
+    True
+    >>> TypedNode.from_iterable(iter('abcd')) is head1
+    True
+    >>> head4 = TypedNode.from_iterable(range(9000))
+    >>> list(traverse(head4)) == list(range(9000))
+    True
+
+    As does TypedNode.count_iterable. These assume no other code in the process
+    running the doctests has created and kept references to TypedNode objects:
+
+    >>> from testing import collect_if_not_ref_counting as coll
+    >>> coll(); TypedNode.count_instances()
+    9006
+    >>> head5 = TypedNode.from_iterable(range(-100, 9000))
+    >>> TypedNode.count_instances()
+    9106
+    >>> del head4, head5; coll(); TypedNode.count_instances()
+    6
+    >>> head3 = head1; coll(); TypedNode.count_instances()
+    5
+    >>> del head1, head3; coll(); TypedNode.count_instances()
+    4
+    >>> del head2; coll(); TypedNode.count_instances()
+    0
     """
-    # FIXME: Needs implementation.
+
+    __slots__ = ()
+
+    _lock = threading.Lock()
+    _table = weakref.WeakValueDictionary()  # (type, value, next_node) -> node
+
+    @staticmethod
+    def _key(value, next_node):
+        return type(value), value, next_node
 
 
 def traverse(head):
@@ -273,6 +381,9 @@ def traverse(head):
     StopIteration
     >>> list(traverse(Node(1, Node(5, Node(2, Node(4, Node(3)))))))
     [1, 5, 2, 4, 3]
+    >>> list(traverse(TypedNode(1, TypedNode(5, TypedNode(2, TypedNode(
+    ...     4, TypedNode(3)))))))
+    [1, 5, 2, 4, 3]
 
     >>> from itertools import islice
     >>> from types import SimpleNamespace as SN
@@ -281,7 +392,10 @@ def traverse(head):
     >>> list(islice(traverse(head), 24))  # Test laziness.
     [7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9]
 
-    >>> list(traverse(Node.from_iterable(range(9000)))) == list(range(9000))
+    >>> nums = list(range(9000))
+    >>> list(traverse(Node.from_iterable(range(9000)))) == nums
+    True
+    >>> list(traverse(TypedNode.from_iterable(range(9000)))) == nums
     True
     """
     while head:
