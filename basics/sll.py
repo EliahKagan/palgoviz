@@ -201,8 +201,7 @@ class Node(_NodeBase):
       ...
     TypeError: next_node must be a Node or None, not object
 
-    Equal values are treated as interchangeable even across types (which is a
-    reasonable design choice, but we may add a separate TypedNode class later):
+    Equal values are treated as interchangeable even across types:
 
     >>> Node(1.0) is Node(1) is Node(True)
     True
