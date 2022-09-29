@@ -11,9 +11,9 @@ which contains an SLL-based FIFO queue and an SLL-based LIFO queue.
 With hash consing (when global and guaranteed, as here), all singly linked
 lists that use the hash-consed node type, and that exist in memory at the same
 time, make up a single "upside-down" tree. The tree's root (here, the None
-object) represents the empty sublist. Viewed as part of this tree, nodes'
-"next" pointers are parent pointers. Calling Node.draw() illustrates this by
-building a graphviz.Digraph of the entire tree.
+object) represents the empty sublist. Viewed as part of this tree, next_node
+pointers are parent pointers. Calling Node.draw() illustrates this by building
+a graphviz.Digraph of the entire tree.
 
 The Node type in this module uses reference-based equality comparison, but
 singly linked lists that use this Node type always share the longest suffix
@@ -32,10 +32,16 @@ on collections.abc.Sequence). Alternatively, the empty singly linked list could
 be represented by a special-purpose singleton rather than None, where both the
 Node class and that singleton class implement the sequence protocol. For
 conceptual clarity and simplicity of presentation, we do neither here. Our Node
-is public, and the absence of a node is represented by the None object.
+class is public, and the absence of a node is represented by the None object.
 """
 
-__all__ = ['Node']
+# TODO: Decide if we want a module giving an introductory treatment of singly
+# linked lists. If so, consider having the sll module's top-level content be
+# that, and moving what's currently here to a submodule called hashed. Either
+# way, we should document the situation in the module docstring, so it is clear
+# whether major breaking changes to the structure of sll are planned.
+
+__all__ = ['Node', 'traverse']
 
 import html
 import threading
@@ -46,25 +52,57 @@ import graphviz
 
 class Node:
     """
-    Immutable singly linked list node, using hash consing.
+    Immutable singly linked list node, using hash consing. Thread-safe.
 
-    See the sll module docstring for an explanation of the concepts involved.
+    See the sll module docstring for information on the concepts involved. Node
+    equality implies identity. Inheriting from this class is not recommended.
 
-    Inheriting from this class is not recommended.
-
-    >>> head = Node('a', Node('b', Node('c', Node('d'))))
-    >>> head
+    >>> head1 = Node('a', Node('b', Node('c', Node('d'))))
+    >>> head1
     Node('a', Node('b', Node('c', Node('d'))))
-    >>> Node('a', Node('b', Node('c', Node('d')))) is head
+    >>> head1.value
+    'a'
+    >>> head1.next_node
+    Node('b', Node('c', Node('d')))
+
+    >>> Node('a', Node('b', Node('c', Node('d')))) is head1
     True
     >>> head2 = Node('x', Node('b', Node('c', Node('d'))))
-    >>> head3 = Node('y', Node('b', Node('c', Node('d'))))
-    >>> len({head, head2, head3})
-    3
-    >>> head.next_node is head2.next_node is head3.next_node
+    >>> len({head1, head2}), len({head1.next_node, head2.next_node})
+    (2, 1)
+    >>> head1.next_node is head2.next_node
     True
-    >>> hasattr(head, '__dict__')
+    >>> Node('a', Node('b', Node('c'))) is head1
     False
+    >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
+    False
+    >>> Node('a', object())  # Validated, to avoid corrupting global state.
+    Traceback (most recent call last):
+      ...
+    TypeError: next_node must be a Node or None, not object
+
+    Equal values are treated as interchangeable even across types (which is a
+    reasonable design choice, but we may add a separate TypedNode class later):
+
+    >>> Node(1.0) is Node(1) is Node(True)
+    True
+    >>> head3 = Node(0)
+    >>> Node(False)
+    Node(0)
+
+    To build an SLL from an iterable of values, use from_iterable. This is a
+    named constructor instead of a top-level function, so it's clear, at the
+    call site, what type is being instantiated. But its implementation uses no
+    part of the Node interface, other than calling the class. It especially
+    neither uses nor otherwise depends on any implementation details of Node.
+
+    >>> Node.from_iterable([]) is None
+    True
+    >>> Node.from_iterable('abcd') is Node.from_iterable(iter('abcd')) is head1
+    True
+    >>> head4 = Node.from_iterable(range(9000))
+    >>> list(traverse(head4)) == list(range(9000))
+    True
     """
 
     __slots__ = ('__weakref__', '_value', '_next_node')
@@ -83,9 +121,15 @@ class Node:
         # WeakValueDictionary by any other mechanism during iteration. Further,
         # since weak-referenced objects may disappear at any time and their ids
         # reused, but we're using ids as node names to build the graph drawing,
-        # we need a consistent snapshot of all nodes. Therefore, we materialize
-        # the table's values, synchronizing this with the lock used by __new__.
-        # Having taken strong references to a consistent set of nodes, we can
+        # we need a consistent snapshot of all nodes.
+        #
+        # Therefore, we materialize the table's values, synchronizing this with
+        # the lock used by __new__. Nodes may be collected while this happens.
+        # But materialization makes strong references, and next_node attributes
+        # hold strong references, so once materialization gets to a node, the
+        # node is protected, along with all nodes reachable from it. So we will
+        # see all nodes that follow any node we have seen in a list. Having
+        # thereby taken strong references to a consistent set of nodes, we can
         # be confident the graph we draw makes sense, and that we don't cause
         # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
         with cls._lock:
@@ -105,6 +149,19 @@ class Node:
             graph.edge(str(id(node)), str(id(node.next_node)))
 
         return graph
+
+    @classmethod
+    def from_iterable(cls, values):
+        """Make a singly linked list of the given values. Return the head."""
+        try:
+            backwards = reversed(values)
+        except TypeError:
+            backwards = reversed(list(values))
+
+        acc = None
+        for value in backwards:
+            acc = cls(value, acc)
+        return acc
 
     def __new__(cls, value, next_node=None):
         """Make a node or retrieve the suitable one that already exists."""
@@ -147,6 +204,33 @@ class Node:
     def next_node(self):
         """The next node (the head of the tail of this node)."""
         return self._next_node
+
+
+def traverse(head):
+    """
+    Lazily traverse a linked list. Yield values front to back.
+
+    >>> it = traverse(None)
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(traverse(Node(1, Node(5, Node(2, Node(4, Node(3)))))))
+    [1, 5, 2, 4, 3]
+
+    >>> from itertools import islice
+    >>> from types import SimpleNamespace as SN
+    >>> head = SN(value=7, next_node=SN(value=8, next_node=SN(value=9)))
+    >>> head.next_node.next_node.next_node = head  # Make a simple cycle.
+    >>> list(islice(traverse(head), 24))  # Test laziness.
+    [7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9]
+
+    >>> list(traverse(Node.from_iterable(range(9000)))) == list(range(9000))
+    True
+    """
+    while head:
+        yield head.value
+        head = head.next_node
 
 
 if __name__ == '__main__':
