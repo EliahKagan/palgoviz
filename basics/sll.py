@@ -301,7 +301,7 @@ class TypedNode(_NodeBase):
     False
     >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
     False
-    >>> TypedNode('a', object())  # Validated, to avoid corrupting global state.
+    >>> TypedNode('a', object())  # Validated, to protect shared state.
     Traceback (most recent call last):
       ...
     TypeError: next_node must be a TypedNode or None, not object
