@@ -412,6 +412,31 @@ class TestNode(_TestNodeBase, unittest.TestCase):
     def impl(self):
         return sll.Node
 
+    def test_class_is_not_TypeNode_subclass(self):
+        """The Node class is not a direct or indirect subclass of TypedNode."""
+        self.assertFalse(issubclass(sll.Node, sll.TypedNode))
+
+    def test_is_not_TypedNode(self):
+        """Node instances are not direct or indirect instances of TypedNode."""
+        head = sll.Node('foo')
+        self.assertNotIsInstance(head, sll.TypedNode)
+
+    def test_cannot_construct_with_TypedNode_as_second_arg(self):
+        """
+        It would be especially bad if a Node's next_node could be a TypedNode.
+
+        This is like test_cannot_construct_with_second_arg_not_of_node_type,
+        but testing what would be a particularly nasty case. This test does not
+        intend to specify any additional restrictions on behavior other than
+        those implied by that test taken together with test_is_not_TypedNode.
+        In particular, no special check for TypedNode is needed in Node; the
+        goal is to catch uses that are accidentally wrong, not intentionally
+        weird and broken code such as having a class inherit from (and/or be
+        registered as a virtual subclass of) both Node and TypedNode.
+        """
+        with self.assertRaises(TypeError):
+            sll.Node('foo', sll.TypedNode('bar'))
+
     def test_repr_shows_no_next_node_if_none(self):
         head = sll.Node('foo')
         self.assertEqual(repr(head), "Node('foo')")
@@ -449,6 +474,28 @@ class TestTypedNode(_TestNodeBase, unittest.TestCase):
     def impl(self):
         return sll.TypedNode
 
+    def test_class_is_not_Node_subclass(self):
+        """The TypedNode class is not a direct or indirect subclass of Node."""
+        self.assertFalse(issubclass(sll.TypedNode, sll.Node))
+
+    def test_is_not_Node(self):
+        """TypedNode instances are not direct or indirect instances of Node."""
+        head = sll.TypedNode('foo')
+        self.assertNotIsInstance(head, sll.Node)
+
+    def test_cannot_construct_with_Node_as_second_arg(self):
+        """
+        It would be especially bad if a TypedNode's next_node could be a Node.
+
+        This is like test_cannot_construct_with_second_arg_not_of_node_type,
+        but testing what would be a particularly nasty case. This test does not
+        intend to specify any additional restrictions on behavior other than
+        those implied by that test taken together with test_is_not_Node. See
+        TestNode.test_cannot_construct_with_TypedNode_as_second_arg about this.
+        """
+        with self.assertRaises(TypeError):
+            sll.TypedNode('foo', sll.Node('bar'))
+
     def test_repr_shows_no_next_node_if_none(self):
         head = sll.TypedNode('foo')
         self.assertEqual(repr(head), "TypedNode('foo')")
@@ -485,9 +532,6 @@ class TestTypedNode(_TestNodeBase, unittest.TestCase):
         rhs = sll.TypedNode(
             0, sll.TypedNode(True, sll.TypedNode(2, sll.TypedNode(3.0))))
         self.assertIsNot(lhs, rhs)
-
-
-# FIXME: Add tests of Node/TypedNode interactions to the above two classes.
 
 
 def _fake(value, next_node=None):
