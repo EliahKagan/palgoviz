@@ -111,46 +111,6 @@ class Node:
     _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
     @classmethod
-    def draw(cls):
-        """Draw the structure of all instances of Node."""
-        # Nodes that are not strongly referenced may be collected, and thereby
-        # removed from the table, at any time. WeakValueDictionary is in charge
-        # of ensuring that no state gets corrupted as a result of this, and for
-        # allowing iteration even though items may disappear at any time due to
-        # that effect. But it is still not safe to modify the contents of the
-        # WeakValueDictionary by any other mechanism during iteration. Further,
-        # since weak-referenced objects may disappear at any time and their ids
-        # reused, but we're using ids as node names to build the graph drawing,
-        # we need a consistent snapshot of all nodes.
-        #
-        # Therefore, we materialize the table's values, synchronizing this with
-        # the lock used by __new__. Nodes may be collected while this happens.
-        # But materialization makes strong references, and next_node attributes
-        # hold strong references, so once materialization gets to a node, the
-        # node is protected, along with all nodes reachable from it. So we will
-        # see all nodes that follow any node we have seen in a list. Having
-        # thereby taken strong references to a consistent set of nodes, we can
-        # be confident the graph we draw makes sense, and that we don't cause
-        # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
-        with cls._lock:
-            nodes = list(cls._table.values())
-
-        graph = graphviz.Digraph()
-
-        # Add the null sentinel (the None object) to the graph.
-        graph.node(str(id(None)), shape='point')
-
-        # Add all actual singly linked list nodes to the graph.
-        for node in nodes:
-            graph.node(str(id(node)), label=html.escape(repr(node.value)))
-
-        # Add the links (edges) between singly linked list nodes to the graph.
-        for node in nodes:
-            graph.edge(str(id(node)), str(id(node.next_node)))
-
-        return graph
-
-    @classmethod
     def from_iterable(cls, values):
         """Make a singly linked list of the given values. Return the head."""
         try:
@@ -204,6 +164,46 @@ class Node:
     def next_node(self):
         """The next node (the head of the tail of this node)."""
         return self._next_node
+
+    @classmethod
+    def draw(cls):
+        """Draw the structure of all instances of Node."""
+        # Nodes that are not strongly referenced may be collected, and thereby
+        # removed from the table, at any time. WeakValueDictionary is in charge
+        # of ensuring that no state gets corrupted as a result of this, and for
+        # allowing iteration even though items may disappear at any time due to
+        # that effect. But it is still not safe to modify the contents of the
+        # WeakValueDictionary by any other mechanism during iteration. Further,
+        # since weak-referenced objects may disappear at any time and their ids
+        # reused, but we're using ids as node names to build the graph drawing,
+        # we need a consistent snapshot of all nodes.
+        #
+        # Therefore, we materialize the table's values, synchronizing this with
+        # the lock used by __new__. Nodes may be collected while this happens.
+        # But materialization makes strong references, and next_node attributes
+        # hold strong references, so once materialization gets to a node, the
+        # node is protected, along with all nodes reachable from it. So we will
+        # see all nodes that follow any node we have seen in a list. Having
+        # thereby taken strong references to a consistent set of nodes, we can
+        # be confident the graph we draw makes sense, and that we don't cause
+        # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
+        with cls._lock:
+            nodes = list(cls._table.values())
+
+        graph = graphviz.Digraph()
+
+        # Add the null sentinel (the None object) to the graph.
+        graph.node(str(id(None)), shape='point')
+
+        # Add all actual singly linked list nodes to the graph.
+        for node in nodes:
+            graph.node(str(id(node)), label=html.escape(repr(node.value)))
+
+        # Add the links (edges) between singly linked list nodes to the graph.
+        for node in nodes:
+            graph.edge(str(id(node)), str(id(node.next_node)))
+
+        return graph
 
 
 def traverse(head):
