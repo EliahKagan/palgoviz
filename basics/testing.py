@@ -12,3 +12,8 @@ else:
     def collect_if_not_ref_counting():
         """Force a collection if we might not be using reference counting."""
         gc.collect()
+
+
+__all__ = [thing.__name__ for thing in (
+    collect_if_not_ref_counting,
+)]
