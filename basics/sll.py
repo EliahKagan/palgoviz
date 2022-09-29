@@ -76,7 +76,7 @@ class Node:
     False
     >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
     False
-    >>> Node('a', object())  # Validated, to avoid corrupting global state.
+    >>> Node('a', object())  # Validated, to protect shared state.
     Traceback (most recent call last):
       ...
     TypeError: next_node must be a Node or None, not object
