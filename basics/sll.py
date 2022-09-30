@@ -90,8 +90,9 @@ class _NodeBase(abc.ABC):
             raise TypeError(f'next_node must be a {cls.__name__} or None, not '
                             + type(next_node).__name__)
 
+        key = cls._key(value, next_node)
+
         with cls._lock:
-            key = cls._key(value, next_node)
             try:
                 return cls._table[key]
             except KeyError:
