@@ -179,8 +179,9 @@ class _NodeBase(abc.ABC):
         raise NotImplementedError
 
 
-def _populate_derived_class_attributes(cls):
+def _populate_node_class_attributes(cls):
     """Decorator to give a _NodeBase subclass its unshared class attributes."""
+
     assert issubclass(cls, _NodeBase)
 
     cls._lock = threading.RLock()
@@ -190,7 +191,7 @@ def _populate_derived_class_attributes(cls):
     return cls
 
 
-@_populate_derived_class_attributes
+@_populate_node_class_attributes
 class Node(_NodeBase):
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
@@ -269,7 +270,7 @@ class Node(_NodeBase):
         return value, next_node
 
 
-@_populate_derived_class_attributes
+@_populate_node_class_attributes
 class TypedNode(_NodeBase):
     """
     Immutable singly linked list node. Like Node but type-sensitive.
