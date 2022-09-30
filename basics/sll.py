@@ -124,7 +124,7 @@ class Node:
 
     __slots__ = ('__weakref__', '_value', '_next_node')
 
-    _lock = threading.Lock()
+    _lock = threading.RLock()
     _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
     @classmethod

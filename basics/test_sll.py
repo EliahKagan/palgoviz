@@ -482,5 +482,65 @@ class TestTraverse(unittest.TestCase):
         self.assertListEqual(list(result), expected)
 
 
+class CachedEq:
+    """
+    Class to make sll.Node deadlock if its lock is non-reentrant. For testing.
+
+    CachedEq equality comparison and hashing uses the global caching supplied
+    by sll.Node to speed up subsequent comparisons. This just works:
+
+    >>> rh1 = CachedEq('reentrant')
+    >>> rh1
+    CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't'])
+    >>> hash(rh1) == hash(rh1)
+    True
+    >>> rh1 == CachedEq('abecedarian')
+    False
+    >>> rh1 == CachedEq('reentrant')
+    True
+
+    Our CachedEq is instance is hashable, so it can be a value in an sll.Node:
+
+    >>> sll.Node(rh1)
+    Node(CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't']))
+
+    But if a CachedEq instance whose SLL is not yet created is stored in an
+    sll.Node, the sll.Node class's act of hashing the CachedEq instance causes
+    another sll.Node object to be constructed while that "first" sll.Node
+    object is being constructed. This deadlocks if the lock is non-reentrant:
+
+    >>> sll.Node(CachedEq('sabotage'))
+    Node(CachedEq(['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']))
+    """
+
+    __slots__ = ('_elements', '_lazy_head')
+
+    _not_computed = object()
+
+    def __init__(self, iterable):
+        self._elements = list(iterable)
+        self._lazy_head = self._not_computed
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self._elements!r})'
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self._head is other._head
+        return NotImplemented
+
+    def __hash__(self):
+        return hash(self._head)
+
+    def __iter__(self):
+        return iter(self._elements)
+
+    @property
+    def _head(self):
+        if self._lazy_head is self._not_computed:
+            self._lazy_head = sll.Node.from_iterable(self)
+        return self._lazy_head
+
+
 if __name__ == '__main__':
     unittest.main()
