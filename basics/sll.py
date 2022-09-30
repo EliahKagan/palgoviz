@@ -41,8 +41,9 @@ class is public, and the absence of a node is represented by the None object.
 # way, we should document the situation in the module docstring, so it is clear
 # whether major breaking changes to the structure of sll are planned.
 
-__all__ = ['Node', 'traverse']
+__all__ = ['Node', 'TypedNode', 'traverse']
 
+import abc
 import html
 import threading
 import weakref
@@ -50,83 +51,16 @@ import weakref
 import graphviz
 
 
-class Node:
+class _NodeBase(abc.ABC):
     """
-    Immutable singly linked list node, using hash consing. Thread-safe.
+    Base class for sharing Node and TypedNode implementation details.
 
-    See the sll module docstring for information on the concepts involved. Node
-    equality implies identity. Inheriting from this class is not recommended.
-
-    >>> head1 = Node('a', Node('b', Node('c', Node('d'))))
-    >>> head1
-    Node('a', Node('b', Node('c', Node('d'))))
-    >>> head1.value
-    'a'
-    >>> head1.next_node
-    Node('b', Node('c', Node('d')))
-
-    >>> Node('a', Node('b', Node('c', Node('d')))) is head1
-    True
-    >>> head2 = Node('x', Node('b', Node('c', Node('d'))))
-    >>> len({head1, head2}), len({head1.next_node, head2.next_node})
-    (2, 1)
-    >>> head1.next_node is head2.next_node
-    True
-    >>> Node('a', Node('b', Node('c'))) is head1
-    False
-    >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
-    False
-    >>> Node('a', object())  # Validated, to protect shared state.
-    Traceback (most recent call last):
-      ...
-    TypeError: next_node must be a Node or None, not object
-
-    Equal values are treated as interchangeable even across types (which is a
-    reasonable design choice, but we may add a separate TypedNode class later):
-
-    >>> Node(1.0) is Node(1) is Node(True)
-    True
-    >>> head3 = Node(0)
-    >>> Node(False)
-    Node(0)
-
-    To build an SLL from an iterable of values, use from_iterable. This is a
-    named constructor instead of a top-level function, so it's clear, at the
-    call site, what type is being instantiated. But its implementation uses no
-    part of the Node interface, other than calling the class. It especially
-    does not use or depend on any implementation details of Node.
-
-    >>> Node.from_iterable([]) is None
-    True
-    >>> Node.from_iterable('abcd') is Node.from_iterable(iter('abcd')) is head1
-    True
-    >>> head4 = Node.from_iterable(range(9000))
-    >>> list(traverse(head4)) == list(range(9000))
-    True
-
-    These tests assume no other code in the process running the doctests has
-    created and *kept* references to Node instances:
-
-    >>> from testing import collect_if_not_ref_counting as coll
-    >>> coll(); Node.count_instances()
-    9006
-    >>> head5 = Node.from_iterable(range(-100, 9000)); Node.count_instances()
-    9106
-    >>> del head4, head5; coll(); Node.count_instances()
-    6
-    >>> head3 = head1; coll(); Node.count_instances()
-    5
-    >>> del head1, head3; coll(); Node.count_instances()
-    4
-    >>> del head2; coll(); Node.count_instances()
-    0
+    Concrete derived classes must override the protected _key method that
+    computes keys for the table, and set its _lock, _already_locked, and _table
+    class attributes (even though this ABC does not declare those attributes).
     """
 
     __slots__ = ('__weakref__', '_value', '_next_node')
-
-    _lock = threading.RLock()
-    _already_locked = False
-    _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
     @classmethod
     def count_instances(cls):
@@ -156,6 +90,8 @@ class Node:
             raise TypeError(f'next_node must be a {cls.__name__} or None, not '
                             + type(next_node).__name__)
 
+        key = cls._key(value, next_node)
+
         with cls._lock:
             if cls._already_locked:
                 name = f'{cls.__name__}.__new__'
@@ -164,12 +100,12 @@ class Node:
 
             cls._already_locked = True
             try:
-                return cls._table[value, next_node]
+                return cls._table[key]
             except KeyError:
                 node = super().__new__(cls)
                 node._value = value
                 node._next_node = next_node
-                cls._table[value, next_node] = node
+                cls._table[key] = node
                 return node
             finally:
                 cls._already_locked = False
@@ -236,6 +172,218 @@ class Node:
 
         return graph
 
+    @staticmethod
+    @abc.abstractmethod
+    def _key(value, next_node):
+        """Select a key for subscripting _table to check if a node exists."""
+        raise NotImplementedError
+
+
+def _populate_derived_class_attributes(cls):
+    """Decorator to give a _NodeBase subclass its unshared class attributes."""
+    assert issubclass(cls, _NodeBase)
+
+    cls._lock = threading.RLock()
+    cls._already_locked = False
+    cls._table = weakref.WeakValueDictionary()  # key -> node
+
+    return cls
+
+
+@_populate_derived_class_attributes
+class Node(_NodeBase):
+    """
+    Immutable singly linked list node, using hash consing. Thread-safe.
+
+    See the sll module docstring for information on the concepts involved. Node
+    equality implies identity. Inheriting from this class is not recommended.
+
+    >>> head1 = Node('a', Node('b', Node('c', Node('d'))))
+    >>> head1
+    Node('a', Node('b', Node('c', Node('d'))))
+    >>> head1.value
+    'a'
+    >>> head1.next_node
+    Node('b', Node('c', Node('d')))
+
+    >>> Node('a', Node('b', Node('c', Node('d')))) is head1
+    True
+    >>> head2 = Node('x', Node('b', Node('c', Node('d'))))
+    >>> len({head1, head2}), len({head1.next_node, head2.next_node})
+    (2, 1)
+    >>> head1.next_node is head2.next_node
+    True
+    >>> Node('a', Node('b', Node('c'))) is head1
+    False
+    >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
+    False
+    >>> Node('a', object())  # Validated, to protect shared state.
+    Traceback (most recent call last):
+      ...
+    TypeError: next_node must be a Node or None, not object
+
+    Equal values are treated as interchangeable even across types:
+
+    >>> Node(1.0) is Node(1) is Node(True)
+    True
+    >>> head3 = Node(0)
+    >>> Node(False)
+    Node(0)
+
+    To build an SLL from an iterable of values, use from_iterable. This is a
+    named constructor instead of a top-level function, so it's clear, at the
+    call site, what type is being instantiated. But its implementation uses no
+    part of the Node interface, other than calling the class. It especially
+    does not use or depend on any implementation details of Node.
+
+    >>> Node.from_iterable([]) is None
+    True
+    >>> Node.from_iterable('abcd') is Node.from_iterable(iter('abcd')) is head1
+    True
+    >>> head4 = Node.from_iterable(range(9000))
+    >>> list(traverse(head4)) == list(range(9000))
+    True
+
+    These tests assume no other code in the process running the doctests has
+    created and *kept* references to Node instances:
+
+    >>> from testing import collect_if_not_ref_counting as coll
+    >>> coll(); Node.count_instances()
+    9006
+    >>> head5 = Node.from_iterable(range(-100, 9000)); Node.count_instances()
+    9106
+    >>> del head4, head5; coll(); Node.count_instances()
+    6
+    >>> head3 = head1; coll(); Node.count_instances()
+    5
+    >>> del head1, head3; coll(); Node.count_instances()
+    4
+    >>> del head2; coll(); Node.count_instances()
+    0
+    """
+
+    __slots__ = ()
+
+    @staticmethod
+    def _key(value, next_node):
+        return value, next_node
+
+
+@_populate_derived_class_attributes
+class TypedNode(_NodeBase):
+    """
+    Immutable singly linked list node. Like Node but type-sensitive.
+
+    Like Node, TypedNode uses thread-safe global guaranteed hash consing,
+    TypedNode instances are equal only if they are the same object, and
+    inheriting from TypedNode is not recommended. But TypedNode's equality
+    comparison is more discerning: nodes compare equal when all corresponding
+    values in the SLLs they head are not just equal but also of the same types.
+
+    This behavior is strange, because it means TypedNode SLLs constructed from
+    equal Python lists need not be equal. Node is preferable unless you have a
+    specific need for TypedNode. There is a third way that seems better until
+    considered carefully: allow heads of SLLs that can only be distinguished by
+    element types to be separate objects that compare equal. That has two
+    problems: First, equality comparison on nodes would no longer be reference
+    equality and would no longer take O(1) time in the worst case. Second, the
+    original problem would come back if nested SLLs are used, because heads of
+    SLLs whose corresponding elements can only be distinguished by type would,
+    while nonidentical, be equal and of the same type (the node type).
+
+    The name TypedNode is imperfect, due to its ambiguity. TypedNode is not
+    "typed" in the sense of only supporting elements of a specific type (more
+    specific than object), nor in the sense of node type varying by element
+    type, nor in the sense of being related to Python type annotations.
+
+    Besides doctests, Node and TypedNode are implemented with almost zero code
+    duplication. Neither inherits from the other, and either would continue to
+    work if the other were removed. They also behave independently at runtime.
+
+    >>> head1 = TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d'))))
+    >>> head1
+    TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d'))))
+    >>> head1.value
+    'a'
+    >>> head1.next_node
+    TypedNode('b', TypedNode('c', TypedNode('d')))
+
+    >>> TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d')))) is head1
+    True
+    >>> head2 = TypedNode('x', TypedNode('b', TypedNode('c', TypedNode('d'))))
+    >>> len({head1, head2}), len({head1.next_node, head2.next_node})
+    (2, 1)
+    >>> head1.next_node is head2.next_node
+    True
+    >>> TypedNode('a', TypedNode('b', TypedNode('c'))) is head1
+    False
+    >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
+    False
+    >>> TypedNode('a', object())  # Validated, to protect shared state.
+    Traceback (most recent call last):
+      ...
+    TypeError: next_node must be a TypedNode or None, not object
+
+    Equal values are treated as interchangeable only when of the same type:
+
+    >>> len({TypedNode(1.0), TypedNode(1), TypedNode(True)})
+    3
+    >>> head3 = TypedNode(0)
+    >>> TypedNode(False)
+    TypedNode(False)
+    >>> head3 = TypedNode(-0.0)
+    >>> TypedNode(0.0)  # 0.0 and -0.0 are equal and both of type float.
+    TypedNode(-0.0)
+    >>> TypedNode(2, TypedNode(3)) == TypedNode(2.0, TypedNode(3))
+    False
+    >>> (TypedNode(2, TypedNode(3)).next_node
+    ...     is TypedNode(2.0, TypedNode(3)).next_node)
+    True
+
+    Node and TypedNode do not share caches. Their instances are never equal:
+
+    >>> Node('a', Node('b', Node('c', Node('d')))) == head1
+    False
+    >>> TypedNode(42) == Node(42)
+    False
+
+    TypedNode.from_iterable works analogously to Node.from_iterable:
+
+    >>> TypedNode.from_iterable([]) is None
+    True
+    >>> TypedNode.from_iterable('abcd') is head1
+    True
+    >>> TypedNode.from_iterable(iter('abcd')) is head1
+    True
+    >>> head4 = TypedNode.from_iterable(range(9000))
+    >>> list(traverse(head4)) == list(range(9000))
+    True
+
+    As does TypedNode.count_iterable. These assume no other code in the process
+    running the doctests has created and kept references to TypedNode objects:
+
+    >>> from testing import collect_if_not_ref_counting as coll
+    >>> coll(); TypedNode.count_instances()
+    9006
+    >>> head5 = TypedNode.from_iterable(range(-100, 9000))
+    >>> TypedNode.count_instances()
+    9106
+    >>> del head4, head5; coll(); TypedNode.count_instances()
+    6
+    >>> head3 = head1; coll(); TypedNode.count_instances()
+    5
+    >>> del head1, head3; coll(); TypedNode.count_instances()
+    4
+    >>> del head2; coll(); TypedNode.count_instances()
+    0
+    """
+
+    __slots__ = ()
+
+    @staticmethod
+    def _key(value, next_node):
+        return type(value), value, next_node
+
 
 def traverse(head):
     """
@@ -248,6 +396,9 @@ def traverse(head):
     StopIteration
     >>> list(traverse(Node(1, Node(5, Node(2, Node(4, Node(3)))))))
     [1, 5, 2, 4, 3]
+    >>> list(traverse(TypedNode(1, TypedNode(5, TypedNode(2, TypedNode(
+    ...     4, TypedNode(3)))))))
+    [1, 5, 2, 4, 3]
 
     >>> from itertools import islice
     >>> from types import SimpleNamespace as SN
@@ -256,7 +407,10 @@ def traverse(head):
     >>> list(islice(traverse(head), 24))  # Test laziness.
     [7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9]
 
-    >>> list(traverse(Node.from_iterable(range(9000)))) == list(range(9000))
+    >>> nums = list(range(9000))
+    >>> list(traverse(Node.from_iterable(range(9000)))) == nums
+    True
+    >>> list(traverse(TypedNode.from_iterable(range(9000)))) == nums
     True
     """
     while head:
