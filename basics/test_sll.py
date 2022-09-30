@@ -484,7 +484,7 @@ class TestTraverse(unittest.TestCase):
 
 class CachedEq:
     """
-    Class to make sll.Node deadlock if its lock is non-reentrant. For testing.
+    Class to try to deadlock sll.Node if its lock isn't reentrant. For testing.
 
     CachedEq equality comparison and hashing use the global caching supplied by
     sll.Node to speed up subsequent comparisons. This just works:
@@ -548,7 +548,7 @@ class CachedEq:
     prevented it. I don't know of a way to make reentering sll.Node through
     __eq__ safe in Python without considerably increasing code complexity.
     Instead, we can detect it and raise RuntimeError instead of deadlocking. We
-    could support reentrancy via __hash__ but not __eq__, thereby allowing
+    could support reentrance via __hash__ but not __eq__, thereby allowing
     types like CachedEq to work. But unless that is a specific design goal, I
     recommend against it, for simplicity. sll.Node doesn't need to work with
     CachedEq; the error just needs to be represented by a reasonable exception.
@@ -594,7 +594,7 @@ class Devious:
 
     See CachedEq above for background. In case you want to support types like
     CachedEq whose __hash__ calls sll.Node, this facilitates checking that
-    reentrancy through __eq__ still raises RuntimeError, or that a simple
+    reentrance through __eq__ still raises RuntimeError, or that a simple
     attempt to exploit it to get two equivalent nodes is successfully stymied.
 
     >>> class DerivedDevious(Devious): __slots__ = ()
