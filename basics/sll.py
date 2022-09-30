@@ -171,6 +171,17 @@ class _NodeBase(abc.ABC):
         raise NotImplementedError
 
 
+def _populate_derived_class_attributes(cls):
+    """Decorator to give a _NodeBase subclass its _lock and _table."""
+    assert issubclass(cls, _NodeBase)
+
+    cls._lock = threading.Lock()
+    cls._table = weakref.WeakValueDictionary()  # key -> node
+
+    return cls
+
+
+@_populate_derived_class_attributes
 class Node(_NodeBase):
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
@@ -244,14 +255,12 @@ class Node(_NodeBase):
 
     __slots__ = ()
 
-    _lock = threading.Lock()
-    _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
-
     @staticmethod
     def _key(value, next_node):
         return value, next_node
 
 
+@_populate_derived_class_attributes
 class TypedNode(_NodeBase):
     """
     Immutable singly linked list node. Like Node but type-sensitive.
@@ -361,9 +370,6 @@ class TypedNode(_NodeBase):
     """
 
     __slots__ = ()
-
-    _lock = threading.Lock()
-    _table = weakref.WeakValueDictionary()  # (type, value, next_node) -> node
 
     @staticmethod
     def _key(value, next_node):
