@@ -486,31 +486,77 @@ class CachedEq:
     """
     Class to make sll.Node deadlock if its lock is non-reentrant. For testing.
 
-    CachedEq equality comparison and hashing uses the global caching supplied
-    by sll.Node to speed up subsequent comparisons. This just works:
+    CachedEq equality comparison and hashing use the global caching supplied by
+    sll.Node to speed up subsequent comparisons. This just works:
 
-    >>> rh1 = CachedEq('reentrant')
-    >>> rh1
-    CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't'])
-    >>> hash(rh1) == hash(rh1)
+    >>> x = CachedEq('reentrant?')
+    >>> x
+    CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?'])
+    >>> hash(x) == hash(x)
     True
-    >>> rh1 == CachedEq('abecedarian')
+    >>> x == CachedEq('other')
     False
-    >>> rh1 == CachedEq('reentrant')
+    >>> x == CachedEq('reentrant?')
     True
 
     Our CachedEq is instance is hashable, so it can be a value in an sll.Node:
 
-    >>> sll.Node(rh1)
-    Node(CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't']))
+    >>> sll.Node(x)
+    Node(CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']))
 
     But if a CachedEq instance whose SLL is not yet created is stored in an
     sll.Node, the sll.Node class's act of hashing the CachedEq instance causes
     another sll.Node object to be constructed while that "first" sll.Node
     object is being constructed. This deadlocks if the lock is non-reentrant:
 
-    >>> sll.Node(CachedEq('sabotage'))
+    >>> sll.Node(CachedEq('sabotage'))  # doctest: +SKIP
     Node(CachedEq(['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']))
+
+    Making the lock reentrant is attractive. On a single thread, the code
+    (being synchronous, and pairing acquisition and release) behaves as it
+    would without locking. If we didn't need to worry about multiple threads,
+    we would likely have written the same code, but without a lock. But would
+    that have been right? Do reentrant sll.Node calls always behave correctly?
+
+    Let's consider an approach that makes CachedEq work without a reentrant
+    lock. sll.Node(x, n) looks up a key in a table. Calling __hash__ on that
+    key causes x.__hash__ to be called. Now suppose _Key is the key type. If
+    _Key were to precompute its __hash__ result in _Key.__init__, and if
+    sll.Node.__new__ were to call _Key exactly once and before taking the lock,
+    then sll.Node would work with CachedEq, even if the lock is non-reentrant.
+
+    Implementing _Key reveals the problem with BOTH approaches. The result of
+    __hash__ can be precomputed, because it really returns a prehash: a value
+    depending only on the key, and not on hash table size. But looking up a key
+    uses both __hash__ and __eq__. We can't usually precompute all possible
+    results of __eq__. We could effectively achieve the goal of precomputing
+    all possible results of __eq__ by ensuring the each value is represented by
+    only one object at a time and doing identity comparison -- but that's hash
+    consing, which is what we're trying to implement!
+
+    It's feasible for sll.Node to support types like CachedEq, because after
+    __hash__ is called successfully on a CachedEq instance, __eq__ on the same
+    instance never calls sll.Node. Other types, intentionally or due to bugs,
+    may call sll.Node from their __eq__ methods. This is tricky to make safe.
+    After sll.Node.__new__(x, n) subscripts a table with a key whose __eq__
+    method calls x.__eq__, doesn't find the key, and creates a new node, it
+    subscripts the table again to insert the new node. This is a critical time:
+    a node exists that isn't yet in the table. The operation of adding it to
+    the table calls x.__eq__ before adding it, which could call sll.Node(x, n).
+
+    Even though this problem is unrelated to threading, a non-reentrant lock
+    prevented it. I don't know of a way to make reentering sll.Node through
+    __eq__ safe in Python without considerably increasing code complexity.
+    Instead, we can detect it and raise RuntimeError instead of deadlocking. We
+    could support reentrancy via __hash__ but not __eq__, thereby allowing
+    types like CachedEq to work. But unless that is a specific design goal, I
+    recommend against it, for simplicity. sll.Node doesn't need to work with
+    CachedEq; the error just needs to be represented by a reasonable exception.
+
+    >>> sll.Node(CachedEq('sabotage'))
+    Traceback (most recent call last):
+      ...
+    RuntimeError: Node.__new__ reentered through __hash__ or __eq__
     """
 
     __slots__ = ('_elements', '_lazy_head')
@@ -540,6 +586,139 @@ class CachedEq:
         if self._lazy_head is self._not_computed:
             self._lazy_head = sll.Node.from_iterable(self)
         return self._lazy_head
+
+
+class Devious:
+    """
+    "Correct" class that tries to get sll.Node to make duplicates. For testing.
+
+    See CachedEq above for background. In case you want to support types like
+    CachedEq whose __hash__ calls sll.Node, this facilitates checking that
+    reentrancy through __eq__ still raises RuntimeError, or that a simple
+    attempt to exploit it to get two equivalent nodes is successfully stymied.
+
+    >>> class DerivedDevious(Devious): __slots__ = ()
+    >>> node1 = sll.Node(DerivedDevious())  # Hold this strong reference.
+    >>> node2 = sll.Node(Devious())
+    >>> node3 = node2.value.node
+    >>> node2.value == node3.value and node2.next_node is node3.next_node
+    True
+    >>> node2 is node3  # Test that sll.Node somehow stymies this deviousness.
+    True
+    """
+
+    __slots__ = ('_calls', 'node')
+
+    def __init__(self):
+        """Create a devious object that tries to make a duplicate sll.Node."""
+        self._calls = 0
+        self.node = None
+
+    def __repr__(self):
+        """Representation for debugging showing the obtained node, if any."""
+        node_info = f'node at 0x{id(self.node):X}' if self.node else 'no node'
+        return f'<{type(self).__name__}: _calls={self._calls}, {node_info}>'
+
+    def __eq__(self, other):
+        """
+        Check if this is the same Devious as another Devious, deviously.
+
+        It is trivial to implement __eq__ in a way that fools sll.Node into
+        making duplicate nodes. The challenge is to do it in a way that reveals
+        a bug in sll.Node. If x == y is sometimes True and sometimes False, on
+        the same objects x and y, then at least one of x and y is mutable (by
+        definition). Like most Python code that uses hashing, the code of
+        sll.Node relies on hashable objects it interacts with being immutable.
+        See also ImportantPoint below for more ways to "fool" sll.Node in ways
+        that sll.Node should not, and cannot reasonably, handle.
+
+        What is significant about this __eq__ implementation is that it is
+        consistent: when called multiple times with the same operands, it
+        always returns the same result. It also does not violate encapsulation.
+        """
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        # At this point, with Devious and a subclass, self is a base instance.
+        # The second time we get here may be the table insertion. See doctests.
+        self._calls += 1
+        if self.node is None and self._calls == 2:
+            self.node = sll.Node(self)
+
+        return self is other
+
+    def __hash__(self):
+        """Bad but consistent hashing. Guarantee a collision for simplicity."""
+        return 42
+
+
+class ImportantPoint:
+    """
+    Demonstration that sll.Node can be "fooled" in ways that are not its fault.
+
+    Here, we use objects we reasonably consider immutable, except we break the
+    rules and mutate them by assigning to non-public attributes that make up
+    part of the objects' values. Here, the bug is in the code that uses the
+    ImportantPoint class incorrectly. Neither ImportantPoint nor sll.Node
+    should, or reasonably could, be changed to work with or even catch this.
+
+    >>> node1 = sll.Node(ImportantPoint(30, 40, 50))
+    >>> node2 = sll.Node(ImportantPoint(30, 41, 50))
+    >>> node2.value._y -= 1  # The bug is here and nowhere else.
+
+    >>> node1 is node2, node1 == node2
+    (False, False)
+    >>> node1.value == node2.value and node1.next_node is node2.next_node
+    True
+
+    >>> head1 = sll.Node('a', sll.Node('b', sll.Node('c', node1)))
+    >>> head2 = sll.Node('a', sll.Node('b', sll.Node('c', node2)))
+    >>> head1 is head2, head1 == head2
+    (False, False)
+    >>> list(sll.traverse(head1)) == list(sll.traverse(head2))
+    True
+
+    Other variations on that bug include writing to the private backing
+    attribute used to provide the value attribute on an sll.Node instance,
+    accessing and modifying the private table sll.Node uses to track its
+    instances, or assigning a different function to sll.Node.__new__.
+    """
+
+    __slots__ = ('_x', '_y', '_z')
+
+    def __init__(self, x, y, z):
+        """Make an important point."""
+        self._x = x
+        self._y = y
+        self._z = z
+
+    def __repr__(self):
+        """Python code representation."""
+        return f'{type(self).__name__}({self.x!r}, {self.y!r}, {self.z!r})'
+
+    def __eq__(self, other):
+        """Check for equal corresponding coordinates."""
+        if isinstance(other, type(self)):
+            return (self.x, self.y, self.z) == (other.x, other.y, other.z)
+        return NotImplemented
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.z))
+
+    @property
+    def x(self):
+        """The x-coordinate."""
+        return self._x
+
+    @property
+    def y(self):
+        """The y-coordinate."""
+        return self._y
+
+    @property
+    def z(self):
+        """The z-coordinate."""
+        return self._z
 
 
 if __name__ == '__main__':

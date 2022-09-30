@@ -125,6 +125,7 @@ class Node:
     __slots__ = ('__weakref__', '_value', '_next_node')
 
     _lock = threading.RLock()
+    _already_locked = False
     _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
     @classmethod
@@ -156,6 +157,12 @@ class Node:
                             + type(next_node).__name__)
 
         with cls._lock:
+            if cls._already_locked:
+                name = f'{cls.__name__}.__new__'
+                message = f'{name} reentered through __hash__ or __eq__'
+                raise RuntimeError(message)
+
+            cls._already_locked = True
             try:
                 return cls._table[value, next_node]
             except KeyError:
@@ -164,6 +171,8 @@ class Node:
                 node._next_node = next_node
                 cls._table[value, next_node] = node
                 return node
+            finally:
+                cls._already_locked = False
 
     def __repr__(self):
         """

@@ -104,6 +104,8 @@
         "partygoers",
         "penwidth",
         "popleft",
+        "precompute",
+        "prehash",
         "preimage",
         "pytest",
         "qualname",
