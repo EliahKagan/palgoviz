@@ -81,12 +81,13 @@ class _Box:
 class _Key:
     """Key for the WeakValueTable used by Node. Its _Box reference is weak."""
 
-    __slots__ = ('_box_ref', '_next_node')
+    __slots__ = ('_box_ref', '_next_node', '_hash_code')
 
     def __init__(self, box, next_node):
         """Create a key for a given box (holding an element) and next node."""
         self._box_ref = weakref.ref(box)
         self._next_node = next_node
+        self._hash_code = hash((box.value, next_node))
 
     def __repr__(self):
         """Representation for debugging. Not runnable as code."""
@@ -97,22 +98,16 @@ class _Key:
 
     def __eq__(self, other):
         """Keys are equal when their weak-referenced boxed values are equal."""
+        if self is other:
+            return True
         if isinstance(other, type(self)):
             return self._get_value() == other._get_value()
         return NotImplemented
 
     def __hash__(self):
-        """Compute hash code, delegating to the weak-referenced boxed value."""
-        return hash(self._get_value())
+        """Return a precomputed hash code."""
+        return self._hash_code
 
-    # FIXME: This doesn't work. It appears that, when WeakValueTable removes an
-    # entry in response to a weak reference callback (when the entry's value is
-    # destroyed), the way it removes the entry from its underlying dict is by
-    # looking it up by key. So, if the general technique I am applying here is
-    # to work, both _Key.__eq__ and _Key.__hash__ will need to work even when
-    # _get_value cannot succeed (yet still somehow behave consistently). Since
-    # the circumstances under which they would be called are limited, I think
-    # it should be possible, but this is rather thorny.
     def _get_value(self):
         """Follow the weak reference to the box and the box to the value."""
         box = self._box_ref()
