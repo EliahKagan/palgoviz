@@ -2,9 +2,11 @@
 
 """Tests for sll.py."""
 
+import gc
 import itertools
 import types
 import unittest
+import weakref
 
 import graphviz
 from parameterized import parameterized
@@ -378,6 +380,18 @@ class TestNode(unittest.TestCase):
             testing.collect_if_not_ref_counting()
             count = sll.Node.count_instances()
             self.assertEqual(count, 0)
+
+    @unittest.skip("WIP")
+    def test_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            pass
+
+        element = Element()
+        element.node = sll.Node(element)
+        observer = weakref.ref(element)
+        del element
+        gc.collect()
+        self.assertIsNone(observer())
 
     def test_draw_returns_graphviz_digraph(self):
         """

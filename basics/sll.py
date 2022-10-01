@@ -50,6 +50,76 @@ import weakref
 import graphviz
 
 
+class _Box:
+    """
+    Immutable weak-referenceable wrapper for the value held by a node.
+
+    This is needed because nodes need to support elements without __weakref__,
+    but we need element references from keys in the WeakValueTable to be weak
+    to avoid leaking heterogeneous cycles.
+
+    Boxes are kept alive by strong references in nodes, and WeakValueTable keys
+    hold weak references to boxes so that heterogenous cycles are broken.
+    """
+
+    __slots__ = ('__weakref__', '_value')
+
+    def __init__(self, value):
+        """Create a box holding the given element value."""
+        self._value = value
+
+    def __repr__(self):
+        """Python code representation for debugging."""
+        return f'{type(self).__name__}({self.value!r})'
+
+    @property
+    def value(self):
+        """The element value held by this wrapper."""
+        return self._value
+
+
+class _Key:
+    """Key for the WeakValueTable used by Node. Its _Box reference is weak."""
+
+    __slots__ = ('_box_ref', '_next_node')
+
+    def __init__(self, box, next_node):
+        """Create a key for a given box (holding an element) and next node."""
+        self._box_ref = weakref.ref(box)
+        self._next_node = next_node
+
+    def __repr__(self):
+        """Representation for debugging. Not runnable as code."""
+        where = f'at 0x{id(self):X}'
+        value = self._get_value()
+        next_node = self._next_node
+        return f'<{type(self).__name__} {where} {value=} {next_node=}>'
+
+    def __eq__(self, other):
+        """Keys are equal when their weak-referenced boxed values are equal."""
+        if isinstance(other, type(self)):
+            return self._get_value() == other._get_value()
+        return NotImplemented
+
+    def __hash__(self):
+        """Compute hash code, delegating to the weak-referenced boxed value."""
+        return hash(self._get_value())
+
+    # FIXME: This doesn't work. It appears that, when WeakValueTable removes an
+    # entry in response to a weak reference callback (when the entry's value is
+    # destroyed), the way it removes the entry from its underlying dict is by
+    # looking it up by key. So, if the general technique I am applying here is
+    # to work, both _Key.__eq__ and _Key.__hash__ will need to work even when
+    # _get_value cannot succeed (yet still somehow behave consistently). Since
+    # the circumstances under which they would be called are limited, I think
+    # it should be possible, but this is rather thorny.
+    def _get_value(self):
+        """Follow the weak reference to the box and the box to the value."""
+        box = self._box_ref()
+        assert box is not None, 'The client code failed to keep the box alive.'
+        return box.value
+
+
 class Node:
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
@@ -122,10 +192,10 @@ class Node:
     0
     """
 
-    __slots__ = ('__weakref__', '_value', '_next_node')
+    __slots__ = ('__weakref__', '_box', '_next_node')
 
     _lock = threading.Lock()
-    _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
+    _table = weakref.WeakValueDictionary()  # (data, next node) -> node
 
     @classmethod
     def count_instances(cls):
@@ -155,14 +225,17 @@ class Node:
             raise TypeError(f'next_node must be a {cls.__name__} or None, not '
                             + type(next_node).__name__)
 
+        box = _Box(value)
+        key = _Key(box, next_node)
+
         with cls._lock:
             try:
-                return cls._table[value, next_node]
+                return cls._table[key]
             except KeyError:
                 node = super().__new__(cls)
-                node._value = value
+                node._box = box
                 node._next_node = next_node
-                cls._table[value, next_node] = node
+                cls._table[key] = node
                 return node
 
     def __repr__(self):
@@ -180,7 +253,7 @@ class Node:
     @property
     def value(self):
         """The value held by this node."""
-        return self._value
+        return self._box.value
 
     @property
     def next_node(self):
