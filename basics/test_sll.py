@@ -722,7 +722,64 @@ class CachedEq:
         return self._lazy_head
 
 
-class Devious:
+_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH = False
+"""Set this according to the design decision made. See CachedEq above."""
+
+
+class TestCachedEq(unittest.TestCase):
+    """
+    Tests for sll.Node with CachedEq values.
+
+    These tests are equivalent to the CachedEq doctests above, but as unittest
+    tests. This is (1) so the unittest test runner, and by the pytest test
+    runner even without --doctest-modules, runs them, (2) to clarify the
+    relationship between design decisions and what test to skip, (3) to
+    facilitate comparison to the TestDevious tests, below.
+
+    It is not a goal to thoroughly test the public interface of CachedEq
+    itself. These are really sll.Node tests, using CachedEq.
+    """
+
+    def test_can_create_node_of_cached_eq_if_its_node_is_precomputed(self):
+        """If reentrance is prevented, the node can always be created."""
+        expected = ['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']
+        cached_eq = CachedEq('reentrant?')
+        hash(cached_eq)  # Precompute x.node, to avoid reentrance.
+        node = sll.Node(cached_eq)  # Reentrance averted, so this works.
+        actual = list(node.value)
+        self.assertListEqual(actual, expected)
+
+    @unittest.skipUnless(_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH,
+        'Only run if impl.__new__ permits calling itself through __hash__.')
+    def test_can_create_node_of_cached_eq_if_its_node_is_not_precomputed(self):
+        """
+        Reentering sll.Node through __hash__ is permitted, returning the node.
+
+        That is, it completes rather than deadlocking or raising an exception.
+        """
+        expected = ['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']
+        cached_eq = CachedEq('sabotage')
+        node = sll.Node(cached_eq)  # Reenters Node through CachedEq.__hash__.
+        actual = list(node.value)
+        self.assertListEqual(actual, expected)
+
+    @unittest.skipIf(_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH,
+        'Only run if impl.__new__ prohibits calling itself through __hash__.')
+    def test_creating_node_of_cached_eq_without_precomputed_node_raises(self):
+        """
+        Reentering sll.Node through __hash__ raises a useful RuntimeError.
+
+        That is, it raises RuntimeError and the message is as expected. This is
+        in contrast to deadlocking or permitting the operation.
+        """
+        expected_message = (
+            r'\ANode.__new__ reentered through __hash__ or __eq__\Z')
+        cached_eq = CachedEq('sabotage')
+        with self.assertRaisesRegex(RuntimeError, expected_message):
+            sll.Node(cached_eq)
+
+
+class DeviousBase:
     """
     "Correct" class that tries to get sll.Node to make duplicates. For testing.
 
@@ -731,9 +788,14 @@ class Devious:
     reentrance through __eq__ still raises RuntimeError, or that a simple
     attempt to exploit it to get two equivalent nodes is successfully stymied.
 
-    >>> class DerivedDevious(Devious): __slots__ = ()
-    >>> node1 = sll.Node(DerivedDevious())  # Hold this strong reference.
-    >>> node2 = sll.Node(Devious())
+    The actual tests are in TestDevious below. They are not replicated in
+    doctests, because there is no reliable way to break the cycle between
+    the DeviousDerived object's node attribute and the node that holds a
+    reference to the
+
+    >>> class DeviousDerived(DeviousBase): __slots__ = ()
+    >>> node1 = sll.Node(DeviousDerived())  # Hold this strong reference.
+    >>> node2 = sll.Node(DeviousBase())
     >>> node3 = node2.value.node
     >>> node2.value == node3.value and node2.next_node is node3.next_node
     True
@@ -755,7 +817,7 @@ class Devious:
 
     def __eq__(self, other):
         """
-        Check if this is the same Devious as another Devious, deviously.
+        Check if this is devious object is the same as another devious object.
 
         It is trivial to implement __eq__ in a way that fools sll.Node into
         making duplicate nodes. The challenge is to do it in a way that reveals
@@ -773,8 +835,8 @@ class Devious:
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        # At this point, with Devious and a subclass, self is a base instance.
-        # The second time we get here may be the table insertion. See doctests.
+        # By now, with DeviousBase and DeviousDerived, self is DeviousBase.
+        # Assume the second time we get here is table insertion. See doctests.
         self._calls += 1
         if self.node is None and self._calls == 2:
             self.node = sll.Node(self)
@@ -796,8 +858,14 @@ class ImportantPoint:
     ImportantPoint class incorrectly. Neither ImportantPoint nor sll.Node
     should, or reasonably could, be changed to work with or even catch this.
 
-    >>> node1 = sll.Node(ImportantPoint(30, 40, 50))
-    >>> node2 = sll.Node(ImportantPoint(30, 41, 50))
+    We will be corrupting shared state, at least temporarily. To limit the bad
+    effect, we ensure the chains we form won't be reused, due to all containing
+    an inaccessible object not equal to values in any future unrelated SLLs:
+
+    >>> last = sll.Node(object())
+
+    >>> node1 = sll.Node(ImportantPoint(30, 40, 50), last)
+    >>> node2 = sll.Node(ImportantPoint(30, 41, 50), last)
     >>> node2.value._y -= 1  # The bug is here and nowhere else.
 
     >>> node1 is node2, node1 == node2
