@@ -3,9 +3,11 @@
 """Tests for sll.py."""
 
 import abc
+import gc
 import itertools
 import types
 import unittest
+import weakref
 
 import graphviz
 from parameterized import parameterized
@@ -383,6 +385,50 @@ class _TestNodeBase(abc.ABC):
             count = self.impl.count_instances()
             self.assertEqual(count, 0)
 
+    @unittest.skip("The implementation does not break heterogeneous cycles.")
+    def test_single_simple_heterogeneous_cycle_does_not_leak(self):
+        """
+
+        """
+        class Element:
+            pass
+
+        element = Element()
+        element.node = sll.Node(element)
+        observer = weakref.ref(element)
+        del element
+        gc.collect()
+        self.assertIsNone(observer())
+
+    @unittest.skip("The implementation does not break heterogeneous cycles.")
+    def test_nontrivial_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            pass
+
+        e1 = Element()
+        e2 = Element()
+        e3 = Element()
+        e4 = Element()
+
+        head = sll.Node.from_iterable([e1, e2, e3, e4])
+
+        e1.n1 = e2.n1 = e3.n1 = e4.n1 = head
+        e1.n2 = e2.n2 = e3.n2 = e4.n2 = head.next_node
+        e1.n3 = e2.n3 = e3.n3 = e4.n3 = head.next_node.next_node
+        e1.n4 = e2.n4 = e3.n4 = e4.n4 = head.next_node.next_node.next_node
+
+        r1 = weakref.ref(e1)
+        r2 = weakref.ref(e2)
+        r3 = weakref.ref(e3)
+        r4 = weakref.ref(e4)
+
+        del e1, e2, e3, e4, head
+        gc.collect()
+
+        for name, ref in ('r1', r1), ('r2', r2), ('r3', r3), ('r4', r4):
+            with self.subTest(observer=name):
+                self.assertIsNone(ref())
+
     def test_draw_returns_graphviz_digraph(self):
         """
         The draw method returns a graphviz.Digraph instance.
@@ -393,11 +439,11 @@ class _TestNodeBase(abc.ABC):
         serve as a further check that nodes are always reused (where possible),
         and they allow the effects of garbage collection to be observed.
         """
-        # Make a few nodes. Draw should return a graphviz.Digraph even if no
-        # nodes exist; then the graph has no nodes or edges. But having nodes
-        # and edges (next_node references) make make it more efficient to find
-        # and fix simple bugs that raise exceptions even in tiny simple cases.
-        # The F841 suppressions are for flake8's "assigned to but never used."
+        # Make a few nodes. The draw method should return a graphviz.Digraph
+        # even if no nodes exist; then the graph has no nodes or edges. But
+        # having nodes and edges (next_node references) may speed up detecting
+        # regressions that raise exceptions even in simple cases. _head1 and
+        # _head2 hold references and are deliberately never read (hence F841).
         _head1 = sll.Node('a', sll.Node('c'))  # noqa: F841
         _head2 = sll.Node('b', sll.Node('c'))  # noqa: F841
 
