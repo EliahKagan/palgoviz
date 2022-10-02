@@ -588,11 +588,11 @@ class CachedEq:
     the table calls x.__eq__ before adding it, which could call sll.Node(x, n).
 
     Even though this problem is unrelated to threading, a non-reentrant lock
-    prevented it. I don't know of a way to make reentering sll.Node through
-    __eq__ safe in Python without considerably increasing code complexity.
-    Instead, we can detect it and raise RuntimeError instead of deadlocking. We
-    could support reentrance via __hash__ but not __eq__, thereby allowing
-    types like CachedEq to work. But unless that is a specific design goal, I
+    prevented it. I don't know of a way to make reentering sll.Node.__new__
+    through an element type's __eq__ safe in Python without greatly increasing
+    code complexity. Instead, we can detect it and raise RuntimeError instead
+    of deadlocking. We could support reentrance via __hash__ but not __eq__, to
+    allow types like CachedEq to work. But unless that is a design goal, I
     recommend against it, for simplicity. sll.Node doesn't need to work with
     CachedEq; the error just needs to be represented by a reasonable exception.
 
