@@ -125,28 +125,20 @@ class HashNode:
     implies identity. Inheriting from this class is not recommended.
 
     >>> head1 = HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
-    >>> head1
-    HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1.value
     'a'
     >>> head1.next_node
     HashNode('b', HashNode('c', HashNode('d')))
 
+    Nodes are unequal if the SLLs they head are structurally unequal:
+
+    >>> HashNode('a', HashNode('b', HashNode('Q', HashNode('d')))) == head1
+    False
+
+    Heads of structurally equal SLLs are the SAME object:
+
     >>> HashNode('a', HashNode('b', HashNode('c', HashNode('d')))) is head1
     True
-    >>> head2 = HashNode('x', HashNode('b', HashNode('c', HashNode('d'))))
-    >>> len({head1, head2}), len({head1.next_node, head2.next_node})
-    (2, 1)
-    >>> head1.next_node is head2.next_node
-    True
-    >>> HashNode('a', HashNode('b', HashNode('c'))) is head1
-    False
-    >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
-    False
-    >>> HashNode('a', object())  # Validated, to protect shared state.
-    Traceback (most recent call last):
-      ...
-    TypeError: next_node must be a HashNode or None, not object
 
     Equal values are treated as interchangeable, even across types:
 
@@ -162,33 +154,16 @@ class HashNode:
     part of the HashNode interface, other than calling the class. It especially
     does not use or depend on any implementation details of HashNode.
 
-    >>> HashNode.from_iterable([]) is None
-    True
-    >>> HashNode.from_iterable('abcd') is head1
-    True
     >>> HashNode.from_iterable(iter('abcd')) is head1
     True
-    >>> head4 = HashNode.from_iterable(range(9000))
-    >>> list(traverse(head4)) == list(range(9000))
+    >>> head2 = HashNode.from_iterable(range(9000))
+    >>> list(traverse(head2)) == list(range(9000))
     True
 
-    These tests assume no other code in the process running the doctests has
-    created and *kept* references to HashNode instances:
-
-    >>> from testing import collect_if_not_ref_counting as coll
-    >>> coll(); HashNode.count_instances()
-    9006
-    >>> head5 = HashNode.from_iterable(range(-100, 9000))
-    >>> HashNode.count_instances()
-    9106
-    >>> del head4, head5; coll(); HashNode.count_instances()
-    6
-    >>> head3 = head1; coll(); HashNode.count_instances()
-    5
-    >>> del head1, head3; coll(); HashNode.count_instances()
-    4
-    >>> del head2; coll(); HashNode.count_instances()
-    0
+    The HashNode class keeps track of its instances in such a way that, once
+    unreachable from the outside, they are immediately eligible for garbage
+    collection. (Except heterogeneous cycles, detailed in the module docstring,
+    aren't properly handled.) test_sll.py and test_sll.txt have tests for this.
     """
 
     __slots__ = ('__weakref__', '_value', '_next_node')
@@ -310,21 +285,9 @@ def traverse(head):
     """
     Lazily traverse a linked list. Yield values front to back.
 
-    >>> it = traverse(None)
-    >>> next(it)
-    Traceback (most recent call last):
-      ...
-    StopIteration
     >>> short = HashNode(1, HashNode(5, HashNode(2, HashNode(4, HashNode(3)))))
     >>> list(traverse(short))
     [1, 5, 2, 4, 3]
-
-    >>> from itertools import islice
-    >>> from types import SimpleNamespace as SN
-    >>> cyclic = SN(value=7, next_node=SN(value=8, next_node=SN(value=9)))
-    >>> cyclic.next_node.next_node.next_node = cyclic  # Make a simple cycle.
-    >>> list(islice(traverse(cyclic), 24))  # Test laziness.
-    [7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9]
 
     >>> long = HashNode.from_iterable(range(9000))
     >>> list(traverse(long)) == list(range(9000))

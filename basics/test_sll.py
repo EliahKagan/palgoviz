@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-"""Tests for sll.py."""
+"""
+Tests for sll.py.
+
+See also test_sll.txt for extended versions of the doctests in sll.py.
+"""
 
 import gc
 import itertools
