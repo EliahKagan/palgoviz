@@ -525,35 +525,35 @@ class TestTraverse(unittest.TestCase):
         self.assertListEqual(list(result), expected)
 
 
-class CachedEq:
+class _CachedEq:
     """
     Class to try to deadlock sll.Node if its lock isn't reentrant. For testing.
 
-    CachedEq equality comparison and hashing use the global caching supplied by
-    sll.Node to speed up subsequent comparisons. This just works:
+    _CachedEq equality comparison and hashing use the global caching supplied
+    by sll.Node to speed up subsequent comparisons. This just works:
 
-    >>> x = CachedEq('reentrant?')
+    >>> x = _CachedEq('reentrant?')
     >>> x
-    CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?'])
+    _CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?'])
     >>> hash(x) == hash(x)
     True
-    >>> x == CachedEq('other')
+    >>> x == _CachedEq('other')
     False
-    >>> x == CachedEq('reentrant?')
+    >>> x == _CachedEq('reentrant?')
     True
 
-    Our CachedEq is instance is hashable, so it can be a value in an sll.Node:
+    Our _CachedEq is instance is hashable, so it can be a value in an sll.Node:
 
     >>> sll.Node(x)
-    Node(CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']))
+    Node(_CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']))
 
-    But if a CachedEq instance whose SLL is not yet created is stored in an
-    sll.Node, the sll.Node class's act of hashing the CachedEq instance causes
+    But if a _CachedEq instance whose SLL is not yet created is stored in an
+    sll.Node, the sll.Node class's act of hashing the _CachedEq instance causes
     another sll.Node object to be constructed while that "first" sll.Node
     object is being constructed. This deadlocks if the lock is non-reentrant:
 
-    >>> sll.Node(CachedEq('sabotage'))  # doctest: +SKIP
-    Node(CachedEq(['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']))
+    >>> sll.Node(_CachedEq('sabotage'))  # doctest: +SKIP
+    Node(_CachedEq(['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']))
 
     Making the lock reentrant is attractive. On a single thread, the code
     (being synchronous, and pairing acquisition and release) behaves as it
@@ -561,12 +561,12 @@ class CachedEq:
     we would likely have written the same code, but without a lock. But would
     that have been right? Do reentrant sll.Node calls always behave correctly?
 
-    Let's consider an approach that makes CachedEq work without a reentrant
+    Let's consider an approach that makes _CachedEq work without a reentrant
     lock. sll.Node(x, n) looks up a key in a table. Calling __hash__ on that
     key causes x.__hash__ to be called. Now suppose _Key is the key type. If
     _Key were to precompute its __hash__ result in _Key.__init__, and if
     sll.Node.__new__ were to call _Key exactly once and before taking the lock,
-    then sll.Node would work with CachedEq, even if the lock is non-reentrant.
+    then sll.Node would work with _CachedEq, even if the lock is non-reentrant.
 
     Implementing _Key reveals the problem with BOTH approaches. The result of
     __hash__ can be precomputed, because it really returns a prehash: a value
@@ -577,8 +577,8 @@ class CachedEq:
     only one object at a time and doing identity comparison -- but that's hash
     consing, which is what we're trying to implement!
 
-    It's feasible for sll.Node to support types like CachedEq, because after
-    __hash__ is called successfully on a CachedEq instance, __eq__ on the same
+    It's feasible for sll.Node to support types like _CachedEq, because after
+    __hash__ is called successfully on a _CachedEq instance, __eq__ on the same
     instance never calls sll.Node. Other types, intentionally or due to bugs,
     may call sll.Node from their __eq__ methods. This is tricky to make safe.
     After sll.Node.__new__(x, n) subscripts a table with a key whose __eq__
@@ -592,11 +592,11 @@ class CachedEq:
     through an element type's __eq__ safe in Python without greatly increasing
     code complexity. Instead, we can detect it and raise RuntimeError instead
     of deadlocking. We could support reentrance via __hash__ but not __eq__, to
-    allow types like CachedEq to work. But unless that is a design goal, I
-    recommend against it, for simplicity. sll.Node doesn't need to work with
-    CachedEq; the error just needs to be represented by a reasonable exception.
+    allow types like _CachedEq to work. Since that isn't a design goal, we
+    forgo it for simplicity. sll.Node doesn't need to work with _CachedEq; the
+    error just needs to be represented by a reasonable exception:
 
-    >>> sll.Node(CachedEq('sabotage'))
+    >>> sll.Node(_CachedEq('sabotage'))
     Traceback (most recent call last):
       ...
     RuntimeError: Node.__new__ reentered through __hash__ or __eq__
@@ -631,35 +631,30 @@ class CachedEq:
         return self._lazy_head
 
 
-_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH = False
-"""Set this according to the design decision made. See CachedEq above."""
-
-
 class TestCachedEq(unittest.TestCase):
     """
-    Tests for sll.Node with CachedEq values.
+    Tests for sll.Node with _CachedEq values.
 
-    These tests are equivalent to the CachedEq doctests above, but as unittest
+    These tests are equivalent to the _CachedEq doctests above, but as unittest
     tests. This is (1) so the unittest test runner, and by the pytest test
     runner even without --doctest-modules, runs them, (2) to clarify the
     relationship between design decisions and what test to skip, (3) to
     facilitate comparison to the TestDevious tests, below.
 
-    It is not a goal to thoroughly test the public interface of CachedEq
-    itself. These are really sll.Node tests, using CachedEq.
+    It is not a goal to thoroughly test the public interface of _CachedEq
+    itself. These are really sll.Node tests, using _CachedEq.
     """
 
     def test_can_create_node_of_cached_eq_if_its_node_is_precomputed(self):
         """If reentrance is prevented, the node can always be created."""
         expected = ['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']
-        cached_eq = CachedEq('reentrant?')
+        cached_eq = _CachedEq('reentrant?')
         hash(cached_eq)  # Precompute x.node, to avoid reentrance.
         node = sll.Node(cached_eq)  # Reentrance averted, so this works.
         actual = list(node.value)
         self.assertListEqual(actual, expected)
 
-    @unittest.skipUnless(_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH,
-        'Only run if sll.Node permits calling itself through __hash__.')
+    @unittest.skip("We don't permit sll.Node to call itself through __hash__.")
     def test_can_create_node_of_cached_eq_if_its_node_is_not_precomputed(self):
         """
         Reentering sll.Node through __hash__ is permitted, returning the node.
@@ -667,13 +662,11 @@ class TestCachedEq(unittest.TestCase):
         That is, it completes rather than deadlocking or raising an exception.
         """
         expected = ['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']
-        cached_eq = CachedEq('sabotage')
-        node = sll.Node(cached_eq)  # Reenters Node through CachedEq.__hash__.
+        cached_eq = _CachedEq('sabotage')
+        node = sll.Node(cached_eq)  # Reenters Node through _CachedEq.__hash__.
         actual = list(node.value)
         self.assertListEqual(actual, expected)
 
-    @unittest.skipIf(_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH,
-        'Only run if sll.Node prohibits calling itself through __hash__.')
     def test_creating_node_of_cached_eq_without_precomputed_node_raises(self):
         """
         Reentering sll.Node through __hash__ raises a useful RuntimeError.
@@ -683,33 +676,23 @@ class TestCachedEq(unittest.TestCase):
         """
         expected_message = (
             r'\ANode.__new__ reentered through __hash__ or __eq__\Z')
-        cached_eq = CachedEq('sabotage')
+        cached_eq = _CachedEq('sabotage')
         with self.assertRaisesRegex(RuntimeError, expected_message):
             sll.Node(cached_eq)
 
 
-class DeviousBase:
+class _DeviousBase:
     """
     "Correct" class that tries to get sll.Node to make duplicates. For testing.
 
-    See CachedEq above for background. In case you want to support types like
-    CachedEq whose __hash__ calls sll.Node, this facilitates checking that
+    See _CachedEq above for background. If one wished to support types like
+    _CachedEq whose __hash__ calls sll.Node, this facilitates checking that
     reentrance through __eq__ still raises RuntimeError, or that a simple
     attempt to exploit it to get two equivalent nodes is successfully stymied.
 
-    The actual tests are in TestDevious below. They are not replicated in
-    doctests, because there is no reliable way to break the cycle between
-    the DeviousDerived object's node attribute and the node that holds a
-    reference to the
-
-    >>> class DeviousDerived(DeviousBase): __slots__ = ()
-    >>> node1 = sll.Node(DeviousDerived())  # Hold this strong reference.
-    >>> node2 = sll.Node(DeviousBase())
-    >>> node3 = node2.value.node
-    >>> node2.value == node3.value and node2.next_node is node3.next_node
-    True
-    >>> node2 is node3  # Test that sll.Node somehow stymies this deviousness.
-    True
+    The actual tests are in TestDevious below. Doctests are omitted, as they
+    provide no convenient notation to ensure the cleanup code (to break the
+    heterogeneous cycle through "devious" objects) runs regardless of outcome.
     """
 
     __slots__ = ('_calls', 'node')
@@ -726,7 +709,7 @@ class DeviousBase:
 
     def __eq__(self, other):
         """
-        Check if this is devious object is the same as another devious object.
+        Check if this devious object is the same as another devious object.
 
         It is trivial to implement __eq__ in a way that fools sll.Node into
         making duplicate nodes. The challenge is to do it in a way that reveals
@@ -755,6 +738,76 @@ class DeviousBase:
     def __hash__(self):
         """Bad but consistent hashing. Guarantee a collision for simplicity."""
         return 42
+
+
+class _DeviousDerived(_DeviousBase):
+    """Trivial _DeviousBase subclass, to get predictable __eq__ asymmetry."""
+
+    __slots__ = ()
+
+
+class TestDevious(unittest.TestCase):
+    """
+    Test for sll.Node to try to make a duplicate node via __eq__ reentrance.
+
+    This class has one non-skipped test, using _DeviousBase and _DeviousDerived
+    to fool sll.Node into making two separate but duplicate nodes by exploiting
+    the need for sll.Node.__new__ to call _DeviousBase.__eq__ indirectly
+    (through the table implementation) while inserting a new node in the table.
+    At this time, the node exists but has not been recorded in the table, so if
+    _DeviousBase.__eq__ can reenter sll.node.__new__, it can get another node.
+
+    The sll.Node implementation should not take approaches specific to details
+    of the test, since it would still have the bug this test is trying to find.
+    In particular, adding pointless equality comparisons so _DeviousBase.__eq__
+    guesses wrong about which one is the table insertion shouldn't be done.
+    (_DeviousBase's goal is really clarity, not maximally robust deviousness.)
+    """
+
+    def setUp(self):
+        """Create the two "devious" objects use for testing."""
+        # First instance, to set things up. We must hold a reference to this.
+        self._feint = _DeviousDerived()
+
+        # Second instance, which will be self for the fateful __eq__ call.
+        self._strike = _DeviousBase()
+
+    def tearDown(self):
+        """Break any heterogeneous cycles through the "devious" objects."""
+        self._feint.node = self._strike.node = None
+
+    @unittest.skip("We don't permit sll.Node to call itself through __eq__.")
+    def test_effort_to_make_duplicate_nodes_is_defeated_without_error(self):
+        """Duplicate nodes are somehow averted without stopping reentrance."""
+        node1 = sll.Node(self._feint)
+
+        if node1.value is not self._feint:
+            raise Exception('unexpected failure to construct correct node #1')
+
+        node2 = sll.Node(self._strike)
+
+        if node2.value is not self._strike:
+            raise Exception('unexpected failure to construct correct node #2')
+
+        node3 = self._strike.node
+
+        if node2.value != node3.value:
+            raise Exception('unexpected failure to make equal elements')
+        if node2.next_node is not node3.next_node:
+            raise Exception('unexpected failure to make identical successors')
+
+        self.assertIs(node2, node3,
+            'Nodes of equal value and same next node should be the same node.')
+
+    def test_effort_to_make_duplicate_nodes_is_defeated_by_runtime_error(self):
+        """Duplicate nodes are averted by reentrance raising RuntimeError."""
+        expected_message = (
+            r'\ANode.__new__ reentered through __hash__ or __eq__\Z')
+
+        _ = sll.Node(self._feint)
+
+        with self.assertRaisesRegex(RuntimeError, expected_message):
+            sll.Node(self._strike)
 
 
 class ImportantPoint:
