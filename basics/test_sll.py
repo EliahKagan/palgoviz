@@ -22,7 +22,7 @@ _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
 
 
 class TestHashNode(unittest.TestCase):
-    """Base class providing shared tests of sll.HashNode."""
+    """Tests for the sll.HashNode class."""
 
     def test_cannot_construct_with_zero_args(self):
         with self.assertRaises(TypeError):
