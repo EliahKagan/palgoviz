@@ -443,7 +443,7 @@ class _TestNodeBase(abc.ABC):
         # even if no nodes exist; then the graph has no nodes or edges. But
         # having nodes and edges (next_node references) may speed up detecting
         # regressions that raise exceptions even in simple cases. _head1 and
-        # _head2 hold references and are deliberately never read (hence F841).
+        # _head2 keep nodes alive and are deliberately never read (hence F841).
         _head1 = sll.Node('a', sll.Node('c'))  # noqa: F841
         _head2 = sll.Node('b', sll.Node('c'))  # noqa: F841
 
