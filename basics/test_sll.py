@@ -2,7 +2,6 @@
 
 """Tests for sll.py."""
 
-import abc
 import gc
 import itertools
 import types
@@ -16,29 +15,23 @@ import sll
 import testing
 
 
-class _TestNodeBase(abc.ABC):
-    """Base class providing shared tests of sll.Node and sll.TypedNode."""
-
-    @property
-    @abc.abstractmethod
-    def impl(self):
-        """The implementation of a hash-consing SLL node class under test."""
-        raise NotImplementedError
+class TestNode(unittest.TestCase):
+    """Base class providing shared tests of sll.Node."""
 
     def test_cannot_construct_with_zero_args(self):
         with self.assertRaises(TypeError):
-            self.impl()
+            sll.Node()
 
     def test_can_construct_with_one_arg(self):
-        head = self.impl('foo')
-        self.assertIsInstance(head, self.impl)
+        head = sll.Node('foo')
+        self.assertIsInstance(head, sll.Node)
 
     def test_constructing_with_one_arg_has_value(self):
-        head = self.impl('foo')
+        head = sll.Node('foo')
         self.assertEqual(head.value, 'foo')
 
     def test_constructing_with_one_arg_has_no_next_node(self):
-        head = self.impl('foo')
+        head = sll.Node('foo')
         self.assertIsNone(head.next_node)
 
     def test_cannot_construct_with_second_arg_not_of_node_type(self):
@@ -51,68 +44,68 @@ class _TestNodeBase(abc.ABC):
         runtime type-checking is not otherwise called for.
         """
         with self.assertRaises(TypeError):
-            self.impl('foo', object())
+            sll.Node('foo', object())
 
     def test_can_construct_with_two_args_second_none(self):
-        head = self.impl('foo', None)
-        self.assertIsInstance(head, self.impl)
+        head = sll.Node('foo', None)
+        self.assertIsInstance(head, sll.Node)
 
     def test_constructing_with_two_args_second_none_has_value(self):
-        head = self.impl('foo', None)
+        head = sll.Node('foo', None)
         self.assertEqual(head.value, 'foo')
 
     def test_constructing_with_two_args_second_none_has_no_next_node(self):
-        head = self.impl('foo', None)
+        head = sll.Node('foo', None)
         self.assertIsNone(head.next_node)
 
     def test_can_construct_with_two_args_second_node(self):
-        head = self.impl('foo', self.impl('bar'))
-        self.assertIsInstance(head, self.impl)
+        head = sll.Node('foo', sll.Node('bar'))
+        self.assertIsInstance(head, sll.Node)
 
     def test_constructing_with_two_args_second_node_has_value(self):
-        head = self.impl('foo', self.impl('bar'))
+        head = sll.Node('foo', sll.Node('bar'))
         self.assertEqual(head.value, 'foo')
 
     def test_constructing_with_two_args_second_node_has_it_as_next_node(self):
-        next_node = self.impl('bar')
-        head = self.impl('foo', next_node)
+        next_node = sll.Node('bar')
+        head = sll.Node('foo', next_node)
         self.assertIs(head.next_node, next_node)
 
     def test_value_attribute_is_read_only(self):
         """The value attribute cannot be written."""
-        head = self.impl('foo')
+        head = sll.Node('foo')
         with self.assertRaises(AttributeError):
             head.value = 'bar'
 
     def test_value_attribute_cannot_be_deleted(self):
-        head = self.impl('foo')
+        head = sll.Node('foo')
         with self.assertRaises(AttributeError):
             del head.value
 
     def test_next_node_attribute_is_read_only_if_none(self):
         """The next_node attribute cannot be written."""
-        head = self.impl('foo')
+        head = sll.Node('foo')
         with self.assertRaises(AttributeError):
-            head.next_node = self.impl('baz')
+            head.next_node = sll.Node('baz')
 
     def test_next_node_attribute_is_read_only_if_not_none(self):
         """The next_node attribute cannot be written."""
-        head = self.impl('foo', self.impl('bar'))
+        head = sll.Node('foo', sll.Node('bar'))
         with self.assertRaises(AttributeError):
-            head.next_node = self.impl('baz')
+            head.next_node = sll.Node('baz')
 
     def test_next_node_attribute_cannot_be_deleted_if_none(self):
-        head = self.impl('foo')
+        head = sll.Node('foo')
         with self.assertRaises(AttributeError):
             del head.next_node
 
     def test_next_node_attribute_cannot_be_deleted_if_not_none(self):
-        head = self.impl('foo', self.impl('bar'))
+        head = sll.Node('foo', sll.Node('bar'))
         with self.assertRaises(AttributeError):
             del head.next_node
 
     def test_new_attributes_cannot_be_created(self):
-        head = self.impl('foo')
+        head = sll.Node('foo')
         with self.assertRaises(AttributeError):
             head.new_attribute_created_pursuant_to_my_whims = 'oof'
 
@@ -129,33 +122,18 @@ class _TestNodeBase(abc.ABC):
         classes in linked data structures are a case where this is desirable,
         since, in many uses, a very large number of nodes may be created.
         """
-        head = self.impl('foo')
+        head = sll.Node('foo')
         with self.assertRaises(AttributeError):
             head.__dict__
 
-    @abc.abstractmethod
     def test_repr_shows_no_next_node_if_none(self):
-        """
-        The repr is a function call expression, omitting next_node if None.
+        head = sll.Node('foo')
+        self.assertEqual(repr(head), "Node('foo')")
 
-        This test method is abstract n _TestNodeBase so it can be overridden in
-        derived classes to make assertions with hard-coded strings, to be
-        clearer what the exact expected result is, and to avoid duplicating
-        logic between the tests and the code under test.
-
-        The same applies to test_repr_shows_chain_recursively below.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def test_repr_shows_chain_recursively(self):
-        """
-        The repr is a function call expression, containing the next_node repr.
-
-        See test_repr_shows_no_next_node_if_none on why it and this method are
-        abstract in _TestNodeBase.
-        """
-        raise NotImplementedError
+        expected = "Node('a', Node('b', Node('c', Node('d'))))"
+        head = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        self.assertEqual(repr(head), expected)
 
     @parameterized.expand([
         ('one', 1),
@@ -164,113 +142,131 @@ class _TestNodeBase(abc.ABC):
         ('none', None),
     ])
     def test_is_truthy(self, _name, value):
-        head = self.impl(value)
+        head = sll.Node(value)
         self.assertTrue(head)
 
     def test_nodes_holding_same_type_value_no_next_are_equal(self):
-        lhs = self.impl('foo')
-        rhs = self.impl('foo')
+        lhs = sll.Node('foo')
+        rhs = sll.Node('foo')
         self.assertEqual(lhs, rhs)
 
     def test_nodes_holding_same_type_value_no_next_are_identical(self):
-        lhs = self.impl('foo')
-        rhs = self.impl('foo')
+        lhs = sll.Node('foo')
+        rhs = sll.Node('foo')
         self.assertIs(lhs, rhs)
 
     def test_nodes_holding_same_type_value_next_are_equal(self):
-        lhs = self.impl('foo', self.impl('bar'))
-        rhs = self.impl('foo', self.impl('bar'))
+        lhs = sll.Node('foo', sll.Node('bar'))
+        rhs = sll.Node('foo', sll.Node('bar'))
         self.assertEqual(lhs, rhs)
 
     def test_nodes_holding_same_type_value_next_are_identical(self):
-        lhs = self.impl('foo', self.impl('bar'))
-        rhs = self.impl('foo', self.impl('bar'))
+        lhs = sll.Node('foo', sll.Node('bar'))
+        rhs = sll.Node('foo', sll.Node('bar'))
         self.assertIs(lhs, rhs)
 
     def test_nodes_heading_same_type_value_chain_are_equal(self):
-        lhs = self.impl('a', self.impl('b', self.impl('c', self.impl('d'))))
-        rhs = self.impl('a', self.impl('b', self.impl('c', self.impl('d'))))
+        lhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        rhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
         self.assertEqual(lhs, rhs)
 
     def test_nodes_heading_same_type_value_chain_are_identical(self):
-        lhs = self.impl('a', self.impl('b', self.impl('c', self.impl('d'))))
-        rhs = self.impl('a', self.impl('b', self.impl('c', self.impl('d'))))
+        lhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        rhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        self.assertIs(lhs, rhs)
+
+    def test_nodes_holding_cross_type_same_value_no_next_are_equal(self):
+        lhs = sll.Node(10)
+        rhs = sll.Node(10.0)
+        self.assertEqual(lhs, rhs)
+
+    def test_nodes_holding_cross_type_same_value_no_next_are_identical(self):
+        lhs = sll.Node(10)
+        rhs = sll.Node(10.0)
+        self.assertIs(lhs, rhs)
+
+    def test_nodes_heading_cross_type_same_value_chains_are_equal(self):
+        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
+        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
+        self.assertEqual(lhs, rhs)
+
+    def test_nodes_heading_cross_type_same_value_chains_are_identical(self):
+        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
+        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
         self.assertIs(lhs, rhs)
 
     def test_nodes_heading_different_values_no_next_are_not_equal(self):
-        lhs = self.impl('foo')
-        rhs = self.impl('bar')
+        lhs = sll.Node('foo')
+        rhs = sll.Node('bar')
         self.assertNotEqual(lhs, rhs)
 
     def test_nodes_heading_different_values_no_next_are_not_identical(self):
-        lhs = self.impl('foo')
-        rhs = self.impl('bar')
+        lhs = sll.Node('foo')
+        rhs = sll.Node('bar')
         self.assertIsNot(lhs, rhs)
 
     def test_nodes_heading_different_values_same_next_are_not_equal(self):
-        lhs = self.impl('foo', self.impl('baz'))
-        rhs = self.impl('bar', self.impl('baz'))
+        lhs = sll.Node('foo', sll.Node('baz'))
+        rhs = sll.Node('bar', sll.Node('baz'))
         self.assertNotEqual(lhs, rhs)
 
     def test_nodes_heading_different_values_same_next_are_not_identical(self):
-        lhs = self.impl('foo', self.impl('baz'))
-        rhs = self.impl('bar', self.impl('baz'))
+        lhs = sll.Node('foo', sll.Node('baz'))
+        rhs = sll.Node('bar', sll.Node('baz'))
         self.assertIsNot(lhs, rhs)
 
     def test_nodes_heading_same_values_different_next_are_not_equal(self):
-        lhs = self.impl('foo', self.impl('bar'))
-        rhs = self.impl('foo', self.impl('baz'))
+        lhs = sll.Node('foo', sll.Node('bar'))
+        rhs = sll.Node('foo', sll.Node('baz'))
         self.assertNotEqual(lhs, rhs)
 
     def test_nodes_heading_same_values_different_next_are_not_identical(self):
-        lhs = self.impl('foo', self.impl('bar'))
-        rhs = self.impl('foo', self.impl('baz'))
+        lhs = sll.Node('foo', sll.Node('bar'))
+        rhs = sll.Node('foo', sll.Node('baz'))
         self.assertIsNot(lhs, rhs)
 
     def test_nodes_heading_different_length_chains_are_not_equal(self):
-        shorter = self.impl('foo')
-        longer = self.impl('foo', self.impl('bar'))
+        shorter = sll.Node('foo')
+        longer = sll.Node('foo', sll.Node('bar'))
         with self.subTest(lhs='shorter', rhs='longer'):
             self.assertNotEqual(shorter, longer)
         with self.subTest(lhs='longer', rhs='shorter'):
             self.assertNotEqual(longer, shorter)
 
     def test_nodes_heading_different_length_chains_are_not_identical(self):
-        shorter = self.impl('foo')
-        longer = self.impl('foo', self.impl('bar'))
+        shorter = sll.Node('foo')
+        longer = sll.Node('foo', sll.Node('bar'))
         with self.subTest(lhs='shorter', rhs='longer'):
             self.assertIsNot(shorter, longer)
         with self.subTest(lhs='longer', rhs='shorter'):
             self.assertIsNot(longer, shorter)
 
     def test_from_iterable_returns_none_from_empty_sequence(self):
-        head = self.impl.from_iterable([])
+        head = sll.Node.from_iterable([])
         self.assertIsNone(head)
 
     def test_from_iterable_returns_none_from_empty_iterator(self):
-        head = self.impl.from_iterable(iter([]))
+        head = sll.Node.from_iterable(iter([]))
         self.assertIsNone(head)
 
     def test_from_iterable_finds_chain_from_nonempty_sequence(self):
         # NOTE: This test MUST be written to assign "expected" first.
-        expected = self.impl(
-            'a', self.impl('b', self.impl('c', self.impl('d'))))
-        actual = self.impl.from_iterable('abcd')
+        expected = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        actual = sll.Node.from_iterable('abcd')
         self.assertIs(actual, expected)
 
     def test_from_iterable_builds_chain_from_nonempty_sequence(self):
         # NOTE: This test MUST be written to assign "actual" first.
-        actual = self.impl.from_iterable('abcd')
-        expected = self.impl(
-            'a', self.impl('b', self.impl('c', self.impl('d'))))
+        actual = sll.Node.from_iterable('abcd')
+        expected = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
         self.assertIs(actual, expected)
 
     def test_from_iterable_builds_long_chain(self):
-        head = self.impl.from_iterable(range(9000))
-        self.assertIsInstance(head, self.impl)
+        head = sll.Node.from_iterable(range(9000))
+        self.assertIsInstance(head, sll.Node)
 
     def test_from_iterable_long_chain_has_same_length_as_input(self):
-        head = self.impl.from_iterable(range(9000))
+        head = sll.Node.from_iterable(range(9000))
 
         length = 0
         node = head
@@ -281,7 +277,7 @@ class _TestNodeBase(abc.ABC):
         self.assertEqual(length, 9000)
 
     def test_from_iterable_long_chain_has_equal_values_to_input(self):
-        head = self.impl.from_iterable(range(9000))
+        head = sll.Node.from_iterable(range(9000))
 
         values = []
         node = head
@@ -292,8 +288,8 @@ class _TestNodeBase(abc.ABC):
         self.assertListEqual(values, list(range(9000)))
 
     def test_from_iterable_new_longer_chain_can_overlap_long_chain(self):
-        shorter = self.impl.from_iterable(range(9000))
-        longer = self.impl.from_iterable(range(-100, 9000))
+        shorter = sll.Node.from_iterable(range(9000))
+        longer = sll.Node.from_iterable(range(-100, 9000))
 
         node = longer
         for _ in range(100):
@@ -302,8 +298,8 @@ class _TestNodeBase(abc.ABC):
         self.assertIs(node, shorter)
 
     def test_from_iterable_new_shorter_chain_can_overlap_long_chain(self):
-        longer = self.impl.from_iterable(range(-100, 9000))
-        shorter = self.impl.from_iterable(range(9000))
+        longer = sll.Node.from_iterable(range(-100, 9000))
+        shorter = sll.Node.from_iterable(range(9000))
 
         node = longer
         for _ in range(100):
@@ -314,7 +310,7 @@ class _TestNodeBase(abc.ABC):
     @parameterized.expand(['__eq__', '__ne__', '__hash__'])
     def test_type_uses_reference_equality_comparison(self, name):
         expected = getattr(object, name)
-        actual = getattr(self.impl, name)
+        actual = getattr(sll.Node, name)
         self.assertIs(actual, expected)
 
     def test_no_more_nodes_are_maintained_than_necessary(self):
@@ -330,16 +326,16 @@ class _TestNodeBase(abc.ABC):
         correctly implemented. But it is fairly unlikely that an unintentional
         bug in that method would cause all tests to wrongly pass.
         """
-        head1 = self.impl('a', self.impl('b', self.impl('c', self.impl('d'))))
-        head2 = self.impl('x', self.impl('b', self.impl('c', self.impl('d'))))
-        head3 = self.impl(0)
-        head4 = self.impl.from_iterable(range(9000))
+        head1 = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        head2 = sll.Node('x', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        head3 = sll.Node(0)
+        head4 = sll.Node.from_iterable(range(9000))
 
         with self.subTest('before any of head1-head5 are collectable'):
             testing.collect_if_not_ref_counting()
-            self.assertEqual(self.impl.count_instances(), 9006)
+            self.assertEqual(sll.Node.count_instances(), 9006)
 
-        head5 = self.impl.from_iterable(range(-100, 9000))
+        head5 = sll.Node.from_iterable(range(-100, 9000))
 
         with self.subTest('after creating head5'):
             # We do not need to force a collection here regardless of platform,
@@ -347,49 +343,46 @@ class _TestNodeBase(abc.ABC):
             # collection. (Of course, other code could concurrently be making
             # nodes or allowing them to be destroyed, but if so, this test is
             # already very unreliable, as detailed in the method docstring.)
-            count = self.impl.count_instances()
+            count = sll.Node.count_instances()
             self.assertEqual(count, 9106)
 
         del head4, head5
 
         with self.subTest('after deleting local variables head4 and head5'):
             testing.collect_if_not_ref_counting()
-            count = self.impl.count_instances()
+            count = sll.Node.count_instances()
             self.assertEqual(count, 6)
 
         head3 = head1
 
         with self.subTest('after rebinding the head3 local variable'):
             testing.collect_if_not_ref_counting()
-            count = self.impl.count_instances()
+            count = sll.Node.count_instances()
             self.assertEqual(count, 5)
 
         del head1
 
         with self.subTest('after deleting local variable head1'):
             testing.collect_if_not_ref_counting()  # To show no effect.
-            count = self.impl.count_instances()
+            count = sll.Node.count_instances()
             self.assertEqual(count, 5)
 
         del head3
 
         with self.subTest('after deleting local variable head3'):
             testing.collect_if_not_ref_counting()
-            count = self.impl.count_instances()
+            count = sll.Node.count_instances()
             self.assertEqual(count, 4)
 
         del head2
 
         with self.subTest('after deleting local variable head2'):
             testing.collect_if_not_ref_counting()
-            count = self.impl.count_instances()
+            count = sll.Node.count_instances()
             self.assertEqual(count, 0)
 
     @unittest.skip("The implementation does not break heterogeneous cycles.")
     def test_single_simple_heterogeneous_cycle_does_not_leak(self):
-        """
-
-        """
         class Element:
             pass
 
@@ -451,135 +444,6 @@ class _TestNodeBase(abc.ABC):
         self.assertIsInstance(graph, graphviz.Digraph)
 
 
-class TestNode(_TestNodeBase, unittest.TestCase):
-    """Tests of the sll.Node class."""
-
-    @property
-    def impl(self):
-        return sll.Node
-
-    def test_class_is_not_TypeNode_subclass(self):
-        """The Node class is not a direct or indirect subclass of TypedNode."""
-        self.assertFalse(issubclass(sll.Node, sll.TypedNode))
-
-    def test_is_not_TypedNode(self):
-        """Node instances are not direct or indirect instances of TypedNode."""
-        head = sll.Node('foo')
-        self.assertNotIsInstance(head, sll.TypedNode)
-
-    def test_cannot_construct_with_TypedNode_as_second_arg(self):
-        """
-        It would be especially bad if a Node's next_node could be a TypedNode.
-
-        This is like test_cannot_construct_with_second_arg_not_of_node_type,
-        but testing what would be a particularly nasty case. This test does not
-        intend to specify any additional restrictions on behavior other than
-        those implied by that test taken together with test_is_not_TypedNode.
-        In particular, no special check for TypedNode is needed in Node; the
-        goal is to catch uses that are accidentally wrong, not intentionally
-        weird and broken code such as having a class inherit from (and/or be
-        registered as a virtual subclass of) both Node and TypedNode.
-        """
-        with self.assertRaises(TypeError):
-            sll.Node('foo', sll.TypedNode('bar'))
-
-    def test_repr_shows_no_next_node_if_none(self):
-        head = sll.Node('foo')
-        self.assertEqual(repr(head), "Node('foo')")
-
-    def test_repr_shows_chain_recursively(self):
-        expected = "Node('a', Node('b', Node('c', Node('d'))))"
-        head = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
-        self.assertEqual(repr(head), expected)
-
-    def test_nodes_holding_cross_type_same_value_no_next_are_equal(self):
-        lhs = sll.Node(10)
-        rhs = sll.Node(10.0)
-        self.assertEqual(lhs, rhs)
-
-    def test_nodes_holding_cross_type_same_value_no_next_are_identical(self):
-        lhs = sll.Node(10)
-        rhs = sll.Node(10.0)
-        self.assertIs(lhs, rhs)
-
-    def test_nodes_heading_cross_type_same_value_chains_are_equal(self):
-        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
-        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
-        self.assertEqual(lhs, rhs)
-
-    def test_nodes_heading_cross_type_same_value_chains_are_identical(self):
-        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
-        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
-        self.assertIs(lhs, rhs)
-
-
-class TestTypedNode(_TestNodeBase, unittest.TestCase):
-    """Tests of the sll.TypedNode class."""
-
-    @property
-    def impl(self):
-        return sll.TypedNode
-
-    def test_class_is_not_Node_subclass(self):
-        """The TypedNode class is not a direct or indirect subclass of Node."""
-        self.assertFalse(issubclass(sll.TypedNode, sll.Node))
-
-    def test_is_not_Node(self):
-        """TypedNode instances are not direct or indirect instances of Node."""
-        head = sll.TypedNode('foo')
-        self.assertNotIsInstance(head, sll.Node)
-
-    def test_cannot_construct_with_Node_as_second_arg(self):
-        """
-        It would be especially bad if a TypedNode's next_node could be a Node.
-
-        This is like test_cannot_construct_with_second_arg_not_of_node_type,
-        but testing what would be a particularly nasty case. This test does not
-        intend to specify any additional restrictions on behavior other than
-        those implied by that test taken together with test_is_not_Node. See
-        TestNode.test_cannot_construct_with_TypedNode_as_second_arg about this.
-        """
-        with self.assertRaises(TypeError):
-            sll.TypedNode('foo', sll.Node('bar'))
-
-    def test_repr_shows_no_next_node_if_none(self):
-        head = sll.TypedNode('foo')
-        self.assertEqual(repr(head), "TypedNode('foo')")
-
-    def test_repr_shows_chain_recursively(self):
-        expected = (
-            "TypedNode('a', TypedNode('b', TypedNode('c', TypedNode('d'))))")
-        head = sll.TypedNode(
-            'a', sll.TypedNode('b', sll.TypedNode('c', sll.TypedNode('d'))))
-        self.assertEqual(repr(head), expected)
-
-    def test_nodes_holding_cross_type_same_value_no_next_are_not_equal(self):
-        lhs = sll.TypedNode(10)
-        rhs = sll.TypedNode(10.0)
-        self.assertNotEqual(lhs, rhs)
-
-    def test_nodes_holding_cross_type_same_value_no_next_are_not_identical(
-            self):
-        lhs = sll.TypedNode(10)
-        rhs = sll.TypedNode(10.0)
-        self.assertIsNot(lhs, rhs)
-
-    def test_nodes_heading_cross_type_same_value_chains_are_not_equal(self):
-        lhs = sll.TypedNode(
-            False, sll.TypedNode(1, sll.TypedNode(2.0, sll.TypedNode(3))))
-        rhs = sll.TypedNode(
-            0, sll.TypedNode(True, sll.TypedNode(2, sll.TypedNode(3.0))))
-        self.assertNotEqual(lhs, rhs)
-
-    def test_nodes_heading_cross_type_same_value_chains_are_not_identical(
-            self):
-        lhs = sll.TypedNode(
-            False, sll.TypedNode(1, sll.TypedNode(2.0, sll.TypedNode(3))))
-        rhs = sll.TypedNode(
-            0, sll.TypedNode(True, sll.TypedNode(2, sll.TypedNode(3.0))))
-        self.assertIsNot(lhs, rhs)
-
-
 def _fake(value, next_node=None):
     """
     Create a SimpleNamespace to use as a singly linked list node for testing.
@@ -631,7 +495,6 @@ class TestTraverse(unittest.TestCase):
     _parameterize_by_node_type = parameterized.expand([
         ('SimpleNamespace', _fake),
         (sll.Node.__name__, sll.Node),
-        (sll.TypedNode.__name__, sll.TypedNode),
     ])
     """Parameterize a test method by choice of SLL-node factory."""
 
@@ -796,7 +659,7 @@ class TestCachedEq(unittest.TestCase):
         self.assertListEqual(actual, expected)
 
     @unittest.skipUnless(_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH,
-        'Only run if impl.__new__ permits calling itself through __hash__.')
+        'Only run if sll.Node permits calling itself through __hash__.')
     def test_can_create_node_of_cached_eq_if_its_node_is_not_precomputed(self):
         """
         Reentering sll.Node through __hash__ is permitted, returning the node.
@@ -810,7 +673,7 @@ class TestCachedEq(unittest.TestCase):
         self.assertListEqual(actual, expected)
 
     @unittest.skipIf(_NODE_CONSTRUCTION_IS_REENTRANT_THROUGH_HASH,
-        'Only run if impl.__new__ prohibits calling itself through __hash__.')
+        'Only run if sll.Node prohibits calling itself through __hash__.')
     def test_creating_node_of_cached_eq_without_precomputed_node_raises(self):
         """
         Reentering sll.Node through __hash__ raises a useful RuntimeError.
