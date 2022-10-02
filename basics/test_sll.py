@@ -443,6 +443,82 @@ class TestHashNode(unittest.TestCase):
             with self.subTest(observer=name):
                 self.assertIsNone(ref())
 
+    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
+                         "It may help to get some other tests passing first.")
+    def test_many_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            def __init__(self, value, aux):
+                self._value = value
+                self._aux = aux
+
+            def __repr__(self):
+                return '<{} at 0x{:X}, value={!r}, aux at 0x{:X}>'.format(
+                    type(self).__name, id(self), self._value, id(self._aux))
+
+            def __eq__(self, other):
+                if isinstance(other, type(self)):
+                    return self._value == other._value
+                return NotImplemented
+
+            def __hash__(self):
+                return hash(self._value)
+
+        N = 100
+        layers = []
+        top_layer = [None] * N
+        for _ in range(N):
+            top_layer = [sll.HashNode(Element(j, layers), tail)
+                         for j, tail in enumerate(top_layer)]
+            layers.append(top_layer)
+
+        gc.collect()
+        if sll.HashNode.count_instances() != N**2:
+            raise Exception('failed to arrange the heterogeneous cycles')
+
+        del layers, top_layer
+        gc.collect()
+        self.assertEqual(sll.HashNode.count_instances(), 0)
+
+    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
+                         "It may help to get some other tests passing first.")
+    def test_highly_redundant_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            def __init__(self, value):
+                self._value = value
+                self.aux = []
+
+            def __repr__(self):
+                return '<{} at 0x{:X}, value={!r}, len(aux)={}>'.format(
+                    type(self).__name, id(self), self._value, len(self._aux))
+
+            def __eq__(self, other):
+                if isinstance(other, type(self)):
+                    return self._value == other._value
+                return NotImplemented
+
+            def __hash__(self):
+                return hash(self._value)
+
+        N = 20
+        layers = []
+        top_layer = [None] * N
+        for _ in range(N):
+            top_layer = [sll.HashNode(Element(j), tail)
+                         for j, tail in enumerate(top_layer)]
+            layers.append(top_layer)
+
+        nodes = list(itertools.chain.from_iterable(layers))
+        for node in nodes:
+            node.value.aux.extend(nodes)
+
+        gc.collect()
+        if sll.HashNode.count_instances() != N**2:
+            raise Exception('failed to arrange the heterogeneous cycles')
+
+        del layers, top_layer, nodes, node
+        gc.collect()
+        self.assertEqual(sll.HashNode.count_instances(), 0)
+
     def test_draw_returns_graphviz_digraph(self):
         """
         The draw method returns a graphviz.Digraph instance.
