@@ -4,6 +4,19 @@
 Tests for sll.py.
 
 See also test_sll.txt for extended versions of the doctests in sll.py.
+
+One reasonable general approach for implementing sll.HashNode is to:
+
+1. In any order, get all TestHashNodeBasic and TestTraverse unittest tests to
+   pass, as well as all doctests in sll.py and test_sll.txt, and make sure
+   HashNode.draw works by testing it in sll.ipynb and carefully inspecting the
+   output. An implementation that only passes those tests is a useful starting
+   point for tackling the important but subtler issues the other tests raise.
+
+2. Get the TestHashNodeHeterogeneousCycles unittest tests to pass.
+
+3. Get the _CachedEq doctests, TestHashNodeReentrantCachedEq unittest tests,
+   and TestHashNodeReentrantDevious unittest tests to pass.
 """
 
 import gc
@@ -21,8 +34,8 @@ import testing
 _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
 
 
-class TestHashNode(unittest.TestCase):
-    """Tests for the sll.HashNode class."""
+class TestHashNodeBasic(unittest.TestCase):
+    """Tests for basic sll.HashNode functionality."""
 
     def test_cannot_construct_with_zero_args(self):
         with self.assertRaises(TypeError):
@@ -334,7 +347,7 @@ class TestHashNode(unittest.TestCase):
         """
         Nodes are always shared and allowed to be collected when unreachable.
 
-        To a greater extent than other tests in this test module, these tests
+        To a greater extent than other tests in this test class, these tests
         assume no other code in the same test runner process has created and
         *kept* references to HashNode instances. Unless some other code in the
         project does so and is under test, this is unlikely to be a problem.
@@ -342,6 +355,9 @@ class TestHashNode(unittest.TestCase):
         Note also that these tests rely on the count_instances method being
         correctly implemented. But it is fairly unlikely that an unintentional
         bug in that method would cause all tests to wrongly pass.
+
+        This method does not cover the tricky issue of heterogeneous cycles.
+        Those tests are in the TestHashNodeHeterogeneousCycles class below.
         """
         head1 = sll.HashNode(
             'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
@@ -399,125 +415,6 @@ class TestHashNode(unittest.TestCase):
             testing.collect_if_not_ref_counting()
             count = sll.HashNode.count_instances()
             self.assertEqual(count, 0)
-
-    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
-                         "It may help to get some other tests passing first.")
-    def test_single_simple_heterogeneous_cycle_does_not_leak(self):
-        class Element:
-            pass
-
-        element = Element()
-        element.node = sll.HashNode(element)
-        observer = weakref.ref(element)
-        del element
-        gc.collect()
-        self.assertIsNone(observer())
-
-    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
-                         "It may help to get some other tests passing first.")
-    def test_nontrivial_heterogeneous_cycles_do_not_leak(self):
-        class Element:
-            pass
-
-        e1 = Element()
-        e2 = Element()
-        e3 = Element()
-        e4 = Element()
-
-        head = sll.HashNode.from_iterable([e1, e2, e3, e4])
-
-        e1.n1 = e2.n1 = e3.n1 = e4.n1 = head
-        e1.n2 = e2.n2 = e3.n2 = e4.n2 = head.next_node
-        e1.n3 = e2.n3 = e3.n3 = e4.n3 = head.next_node.next_node
-        e1.n4 = e2.n4 = e3.n4 = e4.n4 = head.next_node.next_node.next_node
-
-        r1 = weakref.ref(e1)
-        r2 = weakref.ref(e2)
-        r3 = weakref.ref(e3)
-        r4 = weakref.ref(e4)
-
-        del e1, e2, e3, e4, head
-        gc.collect()
-
-        for name, ref in ('r1', r1), ('r2', r2), ('r3', r3), ('r4', r4):
-            with self.subTest(observer=name):
-                self.assertIsNone(ref())
-
-    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
-                         "It may help to get some other tests passing first.")
-    def test_many_heterogeneous_cycles_do_not_leak(self):
-        class Element:
-            def __init__(self, value, aux):
-                self._value = value
-                self._aux = aux
-
-            def __repr__(self):
-                return '<{} at 0x{:X}, value={!r}, aux at 0x{:X}>'.format(
-                    type(self).__name, id(self), self._value, id(self._aux))
-
-            def __eq__(self, other):
-                if isinstance(other, type(self)):
-                    return self._value == other._value
-                return NotImplemented
-
-            def __hash__(self):
-                return hash(self._value)
-
-        N = 100
-        layers = []
-        top_layer = [None] * N
-        for _ in range(N):
-            top_layer = [sll.HashNode(Element(j, layers), tail)
-                         for j, tail in enumerate(top_layer)]
-            layers.append(top_layer)
-
-        gc.collect()
-        if sll.HashNode.count_instances() != N**2:
-            raise Exception('failed to arrange the heterogeneous cycles')
-
-        del layers, top_layer
-        gc.collect()
-        self.assertEqual(sll.HashNode.count_instances(), 0)
-
-    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
-                         "It may help to get some other tests passing first.")
-    def test_highly_redundant_heterogeneous_cycles_do_not_leak(self):
-        class Element:
-            def __init__(self, value):
-                self._value = value
-                self.aux = []
-
-            def __repr__(self):
-                return '<{} at 0x{:X}, value={!r}, len(aux)={}>'.format(
-                    type(self).__name, id(self), self._value, len(self._aux))
-
-            def __eq__(self, other):
-                if isinstance(other, type(self)):
-                    return self._value == other._value
-                return NotImplemented
-
-            def __hash__(self):
-                return hash(self._value)
-
-        N = 20
-        layers = []
-        top_layer = [None] * N
-        for _ in range(N):
-            top_layer = [sll.HashNode(Element(j), tail)
-                         for j, tail in enumerate(top_layer)]
-            layers.append(top_layer)
-
-        nodes = list(itertools.chain.from_iterable(layers))
-        for node in nodes:
-            node.value.aux.extend(nodes)
-
-        gc.collect()
-        if sll.HashNode.count_instances() != N**2:
-            raise Exception('failed to arrange the heterogeneous cycles')
-
-        del layers, top_layer, nodes, node
-        gc.collect()
-        self.assertEqual(sll.HashNode.count_instances(), 0)
 
     def test_draw_returns_graphviz_digraph(self):
         """
@@ -620,6 +517,164 @@ class TestTraverse(unittest.TestCase):
         head = factory.from_iterable(range(9000))
         result = sll.traverse(head)
         self.assertListEqual(list(result), expected)
+
+
+@unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
+                     "It may help to get the more basic tests passing first.")
+class TestHashNodeHeterogeneousCycles(unittest.TestCase):
+    """
+    Tests to check that sll.HashNode does not leak heterogeneous cycles.
+
+    In a homogeneous cycle, following nodes' next_node (successor) and/or value
+    (element) attributes would eventually arrive back to an ancestor node.
+    sll.HashNode is immutable and requires elements to be immutable. So
+    homogeneous cycles don't occur unless the code that uses it has a severe
+    design bug, like a mutable hashable type (used as an element type) or
+    violating encapsulation. Nodes may be shared by many linked lists. Nodes
+    may also be nested: being themselves immutable and hashable, nodes may
+    appear as elements of other nodes. None of this has the potential to
+    creates cycles or leak nodes.
+
+    Heterogeneous cycles are another story. An object can be immutable in the
+    sense that its value never changes, yet still hold mutable state that
+    doesn't affect its value. It's reasonable for such an object to be
+    hashable. Most classes work this way, inheriting __eq__ and __hash__ from
+    object but allowing arbitrary attributes in their instance dictionaries. So
+    we wouldn't want to prohibit most such objects as elements. But what if a
+    node's element comes to have an attribute that doesn't participate in
+    equality comparison or hashing but refers, directly or indirectly, back to
+    the node itself?
+
+    That is a heterogenous cycle: part of the cycle is through an object of an
+    unrelated type. Our private table that looks up nodes by their elements and
+    successors holds weak references to the nodes it returns, so it doesn't
+    prevent them from being garbage collected. But the elements and successors
+    are held by strong references. That's normally no problem: as long as a
+    node exists, it keeps its element and successor alive anyway, and when a
+    node is destroyed, the table takes care of removing the entry for it (using
+    weakref callbacks). But if there is a chain of strong references from the
+    element back to the node, then the table holds a strong reference to the
+    element, which holds a strong reference to the node, so the node is
+    reachable and can't be collected. Unless the heterogeneous cycle is somehow
+    broken, the entry is never removed from the table, since it would only be
+    removed when the node it keeps reachable becomes unreachable and is
+    collected, which its presence ensures cannot happen.
+
+    Note that this is NOT related to the limitations of reference counting. We
+    assume a cyclic garbage collector is available. The problem arises when the
+    table holds a strong reference into a heterogeneous cycle.
+    """
+
+    def test_single_simple_heterogeneous_cycle_does_not_leak(self):
+        class Element:
+            pass
+
+        element = Element()
+        element.node = sll.HashNode(element)
+        observer = weakref.ref(element)
+        del element
+        gc.collect()
+        self.assertIsNone(observer())
+
+    def test_nontrivial_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            pass
+
+        e1 = Element()
+        e2 = Element()
+        e3 = Element()
+        e4 = Element()
+
+        head = sll.HashNode.from_iterable([e1, e2, e3, e4])
+
+        e1.n1 = e2.n1 = e3.n1 = e4.n1 = head
+        e1.n2 = e2.n2 = e3.n2 = e4.n2 = head.next_node
+        e1.n3 = e2.n3 = e3.n3 = e4.n3 = head.next_node.next_node
+        e1.n4 = e2.n4 = e3.n4 = e4.n4 = head.next_node.next_node.next_node
+
+        r1 = weakref.ref(e1)
+        r2 = weakref.ref(e2)
+        r3 = weakref.ref(e3)
+        r4 = weakref.ref(e4)
+
+        del e1, e2, e3, e4, head
+        gc.collect()
+
+        for name, ref in ('r1', r1), ('r2', r2), ('r3', r3), ('r4', r4):
+            with self.subTest(observer=name):
+                self.assertIsNone(ref())
+
+    def test_many_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            def __init__(self, value, aux):
+                self._value = value
+                self._aux = aux
+
+            def __repr__(self):
+                return '<{} at 0x{:X}, value={!r}, aux at 0x{:X}>'.format(
+                    type(self).__name, id(self), self._value, id(self._aux))
+
+            def __eq__(self, other):
+                if isinstance(other, type(self)):
+                    return self._value == other._value
+                return NotImplemented
+
+            def __hash__(self):
+                return hash(self._value)
+
+        N = 100
+        layers = []
+        top_layer = [None] * N
+        for _ in range(N):
+            top_layer = [sll.HashNode(Element(j, layers), tail)
+                         for j, tail in enumerate(top_layer)]
+            layers.append(top_layer)
+
+        gc.collect()
+        if sll.HashNode.count_instances() != N**2:
+            raise Exception('failed to arrange the heterogeneous cycles')
+
+        del layers, top_layer
+        gc.collect()
+        self.assertEqual(sll.HashNode.count_instances(), 0)
+
+    def test_highly_redundant_heterogeneous_cycles_do_not_leak(self):
+        class Element:
+            def __init__(self, value):
+                self._value = value
+                self.aux = []
+
+            def __repr__(self):
+                return '<{} at 0x{:X}, value={!r}, len(aux)={}>'.format(
+                    type(self).__name, id(self), self._value, len(self._aux))
+
+            def __eq__(self, other):
+                if isinstance(other, type(self)):
+                    return self._value == other._value
+                return NotImplemented
+
+            def __hash__(self):
+                return hash(self._value)
+
+        N = 20
+        layers = []
+        top_layer = [None] * N
+        for _ in range(N):
+            top_layer = [sll.HashNode(Element(j), tail)
+                         for j, tail in enumerate(top_layer)]
+            layers.append(top_layer)
+
+        nodes = list(itertools.chain.from_iterable(layers))
+        for node in nodes:
+            node.value.aux.extend(nodes)
+
+        gc.collect()
+        if sll.HashNode.count_instances() != N**2:
+            raise Exception('failed to arrange the heterogeneous cycles')
+
+        del layers, top_layer, nodes, node
+        gc.collect()
+        self.assertEqual(sll.HashNode.count_instances(), 0)
 
 
 class _CachedEq:
@@ -730,9 +785,9 @@ class _CachedEq:
         return self._lazy_head
 
 
-class TestCachedEq(unittest.TestCase):
+class TestHashNodeReentrantCachedEq(unittest.TestCase):
     """
-    Tests for sll.HashNode with _CachedEq values.
+    Tests for __new__ reentrancy bugs in sll.HashNode, with _CachedEq elements.
 
     These tests are equivalent to the _CachedEq doctests above, but as unittest
     tests. This is (1) so the unittest test runner, and by the pytest test
@@ -848,9 +903,9 @@ class _DeviousDerived(_DeviousBase):
     __slots__ = ()
 
 
-class TestDevious(unittest.TestCase):
+class TestHashNodeReentrantDevious(unittest.TestCase):
     """
-    Test for sll.HashNode. Tries for a duplicate node, via __eq__ reentrance.
+    Tests for __new__ reentrancy bugs in sll.HashNode, via element __eq__.
 
     This class has a single (non-skipped) test. It tries to use _DeviousBase
     and _DeviousDerived to fool sll.HashNode into making duplicate nodes by

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# NOTE: If you find this code by searching for hash consing in Python, it will
-# likely NOT meet your needs, because it can leak heterogeneous cycles through
-# the data structure that tracks existing nodes. (See details below.)
-
 """
 Immutable singly linked lists using hash consing to share tails globally.
 
@@ -11,13 +7,6 @@ Hash consing is an advanced technique. This project currently has no module for
 presenting singly linked lists in an introductory fashion. But a basic use of
 singly linked lists, with no specialized techniques, appears in queues.py,
 which contains an SLL-based FIFO queue and an SLL-based LIFO queue.
-
-NOTE: Before using this module or the techniques it presents, please make sure
-to read "The problem of heterogeneous cycles" below. If you have an application
-that requires hash consing, it is likely this code will NOT do what you need!
-
-
-### Hash consing
 
 With hash consing (when global and guaranteed, as here), all singly linked
 lists that use the hash-consed node type, and that exist in memory at the same
@@ -40,72 +29,6 @@ nodes make up a directed acyclic graph. This includes, but is not limited to,
 binary and n-ary trees without parent pointers. This is analogous to the case
 of singly linked lists. (A binary tree node has two child pointers, while a
 singly linked list node has one child pointer.) Only SLLs are implemented here.
-
-
-### The problem of heterogeneous cycles
-
-This hash consing implementation can leak heterogeneous cycles and is thus
-unsuitable for general use. Two skipped tests in test_sll.py relate to this:
-
-  - TestHashNode.test_single_simple_heterogeneous_cycle_does_not_leak
-  - TestHashNode.test_nontrivial_heterogeneous_cycles_do_not_leak
-
-In a homogeneous cycle, following nodes' next_node (successor) and/or value
-(element) attributes eventually arrive back to an ancestor node. Since nodes
-are immutable, and require their elements to be immutable, homogeneous cycles
-do not occur without code that uses this module having a severe design bug,
-such a mutable hashable type (that is used as an element type), or violating
-encapsulation. Nodes may be shared by many linked lists. Nodes may also be
-nested: being themselves immutable and hashable, nodes may appear as elements
-of other nodes. None of this prevents objects from being garbage collected.
-
-Heterogeneous cycles are another story. An object can be immutable in the sense
-that its value never changes, yet still hold mutable state that doesn't affect
-its value. It's reasonable for such an object to be hashable. Most classes work
-this way, inheriting __eq__ and __hash__ from object but allowing arbitrary
-attributes in their instance dictionaries. So we wouldn't want to prohibit most
-such objects as elements. But what if a node's element, after being stored in
-the node, gains an attribute that doesn't participate in equality comparison or
-hashing but refers, directly or indirectly, back to the node itself?
-
-That is a heterogenous cycle: part of the cycle is through an object of an
-unrelated type. Our private table that looks up nodes by their elements and
-successors holds weak references to the nodes it returns, so it doesn't prevent
-them from being garbage collected. But the elements and successors are held by
-strong references. That's normally no problem: as long as a node exists, it
-keeps its element and successor alive anyway, and when a node is destroyed, the
-table takes care of removing the entry for it (using weakref callbacks). But if
-there is a chain of strong references from the element back to the node, then
-the table holds a strong reference to the element, which holds a strong
-reference to the node, so the node is reachable and can't be collected. Unless
-the heterogeneous cycle is somehow broken, the entry is never removed from the
-table, since it would only be removed when the node it keeps reachable becomes
-unreachable and is collected, which its presence ensures cannot happen.
-
-In many uses, client code can ensure no heterogeneous cycle forms. But without
-knowing the use case, this can't be ensured. So it would be good if the node
-type could prevent or break such cycles. Since a node's element and successor
-always exist as long as the node does, it seems the table could hold weak
-instead of strong references to them. But this only works if the callback the
-table registers to remove the entry removes it without looking up the entry by
-element and successor, since the element would no longer exist to be compared
-for equality to other elements in the table. The weakref.WeakValueTable class
-doesn't promise not to do that. Its implementation in CPython, which stores its
-entries in an underlying dict instance to satisfy its atomicity guarantees,
-does it. (Not all objects in Python are weak-referenceable, but if that were
-the only problem, it could be solved by having both the table and node refer to
-a weak-referenceable element wrapper and not directly to the element. The table
-would hold a weak reference to the wrapper, and the node would hold a strong
-reference to the wrapper to ensure the wrapper is not collected too early.)
-
-So the problem of heterogeneous cycles in hash consing seems tricky to solve in
-Python. Beyond verifying the above concrete claims, efforts to solve it have
-not been undertaken in this project, as of this writing. This module is thus
-limited. Note that this should probably not be considered a problem with hash
-consing itself: production quality hash consing implementations often don't
-have to deal with this at all, because they are often for languages where
-objects never hold mutable state that doesn't contribute to their values,
-and/or are implemented along with, and sometimes part of, a garbage collector.
 """
 
 __all__ = ['HashNode', 'traverse']
