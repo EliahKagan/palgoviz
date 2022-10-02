@@ -51,8 +51,8 @@ unsuitable for general use. Two skipped tests in test_sll.py related to this:
   - TestNode.test_nontrivial_heterogeneous_cycles_do_not_leak
 
 In a homogeneous cycle, following nodes' next_node (successor) and/or value
-(element) attributes would bring one back to an ancestor node. Since nodes are
-immutable, and their elements are required to be immutable, homogeneous cycles
+(element) attributes eventually arrive back to an ancestor node. Since nodes
+are immutable, and require their elements to be immutable, homogeneous cycles
 do not occur without code that uses this module having a severe design bug,
 such a mutable hashable type (that is used as an element type), or violating
 encapsulation. Nodes may be shared by many linked lists. Nodes may also be
@@ -64,9 +64,9 @@ that its value never changes, yet still hold mutable state that doesn't affect
 its value. It's reasonable for such an object to be hashable. Most classes work
 this way, inheriting __eq__ and __hash__ from object but allowing arbitrary
 attributes in their instance dictionaries. So we wouldn't want to prohibit most
-such as objects as elements. But what if a node's element, after being stored
-in the node, gains an attribute that doesn't participate in equality comparison
-or hashing but refers, directly or indirectly, back to the node itself?
+such objects as elements. But what if a node's element, after being stored in
+the node, gains an attribute that doesn't participate in equality comparison or
+hashing but refers, directly or indirectly, back to the node itself?
 
 That is a heterogenous cycle: part of the cycle is through an object of an
 unrelated type. Our private table that looks up nodes by their elements and
@@ -90,13 +90,13 @@ instead of strong references to them. But this only works if the callback the
 table registers to remove the entry removes it without looking up the entry by
 element and successor, since the element would no longer exist to be compared
 for equality to other elements in the table. The weakref.WeakValueTable class
-doesn't promise not to do that, and the CPython implementation, which stores
-its entries in an underlying dict instance in order satisfy its atomicity
-guarantees, does it. (Not all objects in Python are weak-referenceable, but if
-that were the only problem, it could be solved by having both the table and
-node refer to to a weak-referenceable wrapper object standing in front of the
-element: the table, so the element is not strongly reachable, and the node, to
-ensure the element is not collected too early.)
+doesn't promise not to do that. Its implementation in CPython, which stores its
+entries in an underlying dict instance to satisfy its atomicity guarantees,
+does it. (Not all objects in Python are weak-referenceable, but if that were
+the only problem, it could be solved by having both the table and node refer to
+a weak-referenceable element wrapper and not directly to the element. The table
+would hold a weak reference to the wrapper, and the node would hold a strong
+reference to the wrapper to ensure the wrapper is not collected too early.)
 
 So the problem of heterogeneous cycles in hash consing seems tricky to solve in
 Python. Beyond verifying the above concrete claims, efforts to solve it have
@@ -104,8 +104,8 @@ not been undertaken in this project, as of this writing. This module is thus
 limited. Note that this should probably not be considered a problem with hash
 consing itself: production quality hash consing implementations often don't
 have to deal with this at all, because they are often for languages where
-objects never hold mutable state that doesn't contribute to their values and/or
-are implemented together with, and sometimes part of, the garbage collector.
+objects never hold mutable state that doesn't contribute to their values,
+and/or are implemented along with, and sometimes part of, a garbage collector.
 """
 
 # FIXME: Put this in a submodule of sll. Probably called it "hashed". Do this
