@@ -15,23 +15,23 @@ import sll
 import testing
 
 
-class TestNode(unittest.TestCase):
-    """Base class providing shared tests of sll.Node."""
+class TestHashNode(unittest.TestCase):
+    """Base class providing shared tests of sll.HashNode."""
 
     def test_cannot_construct_with_zero_args(self):
         with self.assertRaises(TypeError):
-            sll.Node()
+            sll.HashNode()
 
     def test_can_construct_with_one_arg(self):
-        head = sll.Node('foo')
-        self.assertIsInstance(head, sll.Node)
+        head = sll.HashNode('foo')
+        self.assertIsInstance(head, sll.HashNode)
 
     def test_constructing_with_one_arg_has_value(self):
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         self.assertEqual(head.value, 'foo')
 
     def test_constructing_with_one_arg_has_no_next_node(self):
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         self.assertIsNone(head.next_node)
 
     def test_cannot_construct_with_second_arg_not_of_node_type(self):
@@ -44,68 +44,68 @@ class TestNode(unittest.TestCase):
         runtime type-checking is not otherwise called for.
         """
         with self.assertRaises(TypeError):
-            sll.Node('foo', object())
+            sll.HashNode('foo', object())
 
     def test_can_construct_with_two_args_second_none(self):
-        head = sll.Node('foo', None)
-        self.assertIsInstance(head, sll.Node)
+        head = sll.HashNode('foo', None)
+        self.assertIsInstance(head, sll.HashNode)
 
     def test_constructing_with_two_args_second_none_has_value(self):
-        head = sll.Node('foo', None)
+        head = sll.HashNode('foo', None)
         self.assertEqual(head.value, 'foo')
 
     def test_constructing_with_two_args_second_none_has_no_next_node(self):
-        head = sll.Node('foo', None)
+        head = sll.HashNode('foo', None)
         self.assertIsNone(head.next_node)
 
     def test_can_construct_with_two_args_second_node(self):
-        head = sll.Node('foo', sll.Node('bar'))
-        self.assertIsInstance(head, sll.Node)
+        head = sll.HashNode('foo', sll.HashNode('bar'))
+        self.assertIsInstance(head, sll.HashNode)
 
     def test_constructing_with_two_args_second_node_has_value(self):
-        head = sll.Node('foo', sll.Node('bar'))
+        head = sll.HashNode('foo', sll.HashNode('bar'))
         self.assertEqual(head.value, 'foo')
 
     def test_constructing_with_two_args_second_node_has_it_as_next_node(self):
-        next_node = sll.Node('bar')
-        head = sll.Node('foo', next_node)
+        next_node = sll.HashNode('bar')
+        head = sll.HashNode('foo', next_node)
         self.assertIs(head.next_node, next_node)
 
     def test_value_attribute_is_read_only(self):
         """The value attribute cannot be written."""
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
             head.value = 'bar'
 
     def test_value_attribute_cannot_be_deleted(self):
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
             del head.value
 
     def test_next_node_attribute_is_read_only_if_none(self):
         """The next_node attribute cannot be written."""
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
-            head.next_node = sll.Node('baz')
+            head.next_node = sll.HashNode('baz')
 
     def test_next_node_attribute_is_read_only_if_not_none(self):
         """The next_node attribute cannot be written."""
-        head = sll.Node('foo', sll.Node('bar'))
+        head = sll.HashNode('foo', sll.HashNode('bar'))
         with self.assertRaises(AttributeError):
-            head.next_node = sll.Node('baz')
+            head.next_node = sll.HashNode('baz')
 
     def test_next_node_attribute_cannot_be_deleted_if_none(self):
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
             del head.next_node
 
     def test_next_node_attribute_cannot_be_deleted_if_not_none(self):
-        head = sll.Node('foo', sll.Node('bar'))
+        head = sll.HashNode('foo', sll.HashNode('bar'))
         with self.assertRaises(AttributeError):
             del head.next_node
 
     def test_new_attributes_cannot_be_created(self):
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
             head.new_attribute_created_pursuant_to_my_whims = 'oof'
 
@@ -113,26 +113,27 @@ class TestNode(unittest.TestCase):
         """
         Instances should have no __dict__, for a low memory footprint.
 
-        This is a separate requirement from the requirement that new attributes
-        cannot be created. Often __slots__ are used as a way to achieve that
-        without the complexity of overriding __setattr__ and modifying the code
-        to accommodate its overridden logic. But sometimes our primary goal
-        really is to use less memory (or, occasionally, to access attributes
-        faster even aside from the speed benefits of lower memory usage). Node
-        classes in linked data structures are a case where this is desirable,
-        since, in many uses, a very large number of nodes may be created.
+        This is a separate requirement from not creating new attributes. Often
+        __slots__ is used as a way to achieve that without the complexity of
+        overriding __setattr__ and modifying the code to accommodate its
+        overridden logic. But sometimes our primary goal really is to use less
+        memory (or, occasionally, to access attributes faster even aside from
+        the speed benefits of lower memory usage). HashNode classes in linked
+        data structures are a case where this is desirable, since, in many
+        uses, a very large number of nodes may be created.
         """
-        head = sll.Node('foo')
+        head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
             head.__dict__
 
     def test_repr_shows_no_next_node_if_none(self):
-        head = sll.Node('foo')
-        self.assertEqual(repr(head), "Node('foo')")
+        head = sll.HashNode('foo')
+        self.assertEqual(repr(head), "HashNode('foo')")
 
     def test_repr_shows_chain_recursively(self):
-        expected = "Node('a', Node('b', Node('c', Node('d'))))"
-        head = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        expected = "HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))"
+        head = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
         self.assertEqual(repr(head), expected)
 
     @parameterized.expand([
@@ -142,131 +143,141 @@ class TestNode(unittest.TestCase):
         ('none', None),
     ])
     def test_is_truthy(self, _name, value):
-        head = sll.Node(value)
+        head = sll.HashNode(value)
         self.assertTrue(head)
 
     def test_nodes_holding_same_type_value_no_next_are_equal(self):
-        lhs = sll.Node('foo')
-        rhs = sll.Node('foo')
+        lhs = sll.HashNode('foo')
+        rhs = sll.HashNode('foo')
         self.assertEqual(lhs, rhs)
 
     def test_nodes_holding_same_type_value_no_next_are_identical(self):
-        lhs = sll.Node('foo')
-        rhs = sll.Node('foo')
+        lhs = sll.HashNode('foo')
+        rhs = sll.HashNode('foo')
         self.assertIs(lhs, rhs)
 
     def test_nodes_holding_same_type_value_next_are_equal(self):
-        lhs = sll.Node('foo', sll.Node('bar'))
-        rhs = sll.Node('foo', sll.Node('bar'))
+        lhs = sll.HashNode('foo', sll.HashNode('bar'))
+        rhs = sll.HashNode('foo', sll.HashNode('bar'))
         self.assertEqual(lhs, rhs)
 
     def test_nodes_holding_same_type_value_next_are_identical(self):
-        lhs = sll.Node('foo', sll.Node('bar'))
-        rhs = sll.Node('foo', sll.Node('bar'))
+        lhs = sll.HashNode('foo', sll.HashNode('bar'))
+        rhs = sll.HashNode('foo', sll.HashNode('bar'))
         self.assertIs(lhs, rhs)
 
     def test_nodes_heading_same_type_value_chain_are_equal(self):
-        lhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
-        rhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        lhs = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        rhs = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
         self.assertEqual(lhs, rhs)
 
     def test_nodes_heading_same_type_value_chain_are_identical(self):
-        lhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
-        rhs = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        lhs = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        rhs = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
         self.assertIs(lhs, rhs)
 
     def test_nodes_holding_cross_type_same_value_no_next_are_equal(self):
-        lhs = sll.Node(10)
-        rhs = sll.Node(10.0)
+        lhs = sll.HashNode(10)
+        rhs = sll.HashNode(10.0)
         self.assertEqual(lhs, rhs)
 
     def test_nodes_holding_cross_type_same_value_no_next_are_identical(self):
-        lhs = sll.Node(10)
-        rhs = sll.Node(10.0)
+        lhs = sll.HashNode(10)
+        rhs = sll.HashNode(10.0)
         self.assertIs(lhs, rhs)
 
     def test_nodes_heading_cross_type_same_value_chains_are_equal(self):
-        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
-        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
+        lhs = sll.HashNode(
+            False, sll.HashNode(1, sll.HashNode(2.0, sll.HashNode(3))))
+        rhs = sll.HashNode(
+            0, sll.HashNode(True, sll.HashNode(2, sll.HashNode(3.0))))
         self.assertEqual(lhs, rhs)
 
     def test_nodes_heading_cross_type_same_value_chains_are_identical(self):
-        lhs = sll.Node(False, sll.Node(1, sll.Node(2.0, sll.Node(3))))
-        rhs = sll.Node(0, sll.Node(True, sll.Node(2, sll.Node(3.0))))
+        lhs = sll.HashNode(
+            False, sll.HashNode(1, sll.HashNode(2.0, sll.HashNode(3))))
+        rhs = sll.HashNode(
+            0, sll.HashNode(True, sll.HashNode(2, sll.HashNode(3.0))))
         self.assertIs(lhs, rhs)
 
     def test_nodes_heading_different_values_no_next_are_not_equal(self):
-        lhs = sll.Node('foo')
-        rhs = sll.Node('bar')
+        lhs = sll.HashNode('foo')
+        rhs = sll.HashNode('bar')
         self.assertNotEqual(lhs, rhs)
 
     def test_nodes_heading_different_values_no_next_are_not_identical(self):
-        lhs = sll.Node('foo')
-        rhs = sll.Node('bar')
+        lhs = sll.HashNode('foo')
+        rhs = sll.HashNode('bar')
         self.assertIsNot(lhs, rhs)
 
     def test_nodes_heading_different_values_same_next_are_not_equal(self):
-        lhs = sll.Node('foo', sll.Node('baz'))
-        rhs = sll.Node('bar', sll.Node('baz'))
+        lhs = sll.HashNode('foo', sll.HashNode('baz'))
+        rhs = sll.HashNode('bar', sll.HashNode('baz'))
         self.assertNotEqual(lhs, rhs)
 
     def test_nodes_heading_different_values_same_next_are_not_identical(self):
-        lhs = sll.Node('foo', sll.Node('baz'))
-        rhs = sll.Node('bar', sll.Node('baz'))
+        lhs = sll.HashNode('foo', sll.HashNode('baz'))
+        rhs = sll.HashNode('bar', sll.HashNode('baz'))
         self.assertIsNot(lhs, rhs)
 
     def test_nodes_heading_same_values_different_next_are_not_equal(self):
-        lhs = sll.Node('foo', sll.Node('bar'))
-        rhs = sll.Node('foo', sll.Node('baz'))
+        lhs = sll.HashNode('foo', sll.HashNode('bar'))
+        rhs = sll.HashNode('foo', sll.HashNode('baz'))
         self.assertNotEqual(lhs, rhs)
 
     def test_nodes_heading_same_values_different_next_are_not_identical(self):
-        lhs = sll.Node('foo', sll.Node('bar'))
-        rhs = sll.Node('foo', sll.Node('baz'))
+        lhs = sll.HashNode('foo', sll.HashNode('bar'))
+        rhs = sll.HashNode('foo', sll.HashNode('baz'))
         self.assertIsNot(lhs, rhs)
 
     def test_nodes_heading_different_length_chains_are_not_equal(self):
-        shorter = sll.Node('foo')
-        longer = sll.Node('foo', sll.Node('bar'))
+        shorter = sll.HashNode('foo')
+        longer = sll.HashNode('foo', sll.HashNode('bar'))
         with self.subTest(lhs='shorter', rhs='longer'):
             self.assertNotEqual(shorter, longer)
         with self.subTest(lhs='longer', rhs='shorter'):
             self.assertNotEqual(longer, shorter)
 
     def test_nodes_heading_different_length_chains_are_not_identical(self):
-        shorter = sll.Node('foo')
-        longer = sll.Node('foo', sll.Node('bar'))
+        shorter = sll.HashNode('foo')
+        longer = sll.HashNode('foo', sll.HashNode('bar'))
         with self.subTest(lhs='shorter', rhs='longer'):
             self.assertIsNot(shorter, longer)
         with self.subTest(lhs='longer', rhs='shorter'):
             self.assertIsNot(longer, shorter)
 
     def test_from_iterable_returns_none_from_empty_sequence(self):
-        head = sll.Node.from_iterable([])
+        head = sll.HashNode.from_iterable([])
         self.assertIsNone(head)
 
     def test_from_iterable_returns_none_from_empty_iterator(self):
-        head = sll.Node.from_iterable(iter([]))
+        head = sll.HashNode.from_iterable(iter([]))
         self.assertIsNone(head)
 
     def test_from_iterable_finds_chain_from_nonempty_sequence(self):
         # NOTE: This test MUST be written to assign "expected" first.
-        expected = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
-        actual = sll.Node.from_iterable('abcd')
+        expected = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        actual = sll.HashNode.from_iterable('abcd')
         self.assertIs(actual, expected)
 
     def test_from_iterable_builds_chain_from_nonempty_sequence(self):
         # NOTE: This test MUST be written to assign "actual" first.
-        actual = sll.Node.from_iterable('abcd')
-        expected = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
+        actual = sll.HashNode.from_iterable('abcd')
+        expected = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
         self.assertIs(actual, expected)
 
     def test_from_iterable_builds_long_chain(self):
-        head = sll.Node.from_iterable(range(9000))
-        self.assertIsInstance(head, sll.Node)
+        head = sll.HashNode.from_iterable(range(9000))
+        self.assertIsInstance(head, sll.HashNode)
 
     def test_from_iterable_long_chain_has_same_length_as_input(self):
-        head = sll.Node.from_iterable(range(9000))
+        head = sll.HashNode.from_iterable(range(9000))
 
         length = 0
         node = head
@@ -277,7 +288,7 @@ class TestNode(unittest.TestCase):
         self.assertEqual(length, 9000)
 
     def test_from_iterable_long_chain_has_equal_values_to_input(self):
-        head = sll.Node.from_iterable(range(9000))
+        head = sll.HashNode.from_iterable(range(9000))
 
         values = []
         node = head
@@ -288,8 +299,8 @@ class TestNode(unittest.TestCase):
         self.assertListEqual(values, list(range(9000)))
 
     def test_from_iterable_new_longer_chain_can_overlap_long_chain(self):
-        shorter = sll.Node.from_iterable(range(9000))
-        longer = sll.Node.from_iterable(range(-100, 9000))
+        shorter = sll.HashNode.from_iterable(range(9000))
+        longer = sll.HashNode.from_iterable(range(-100, 9000))
 
         node = longer
         for _ in range(100):
@@ -298,8 +309,8 @@ class TestNode(unittest.TestCase):
         self.assertIs(node, shorter)
 
     def test_from_iterable_new_shorter_chain_can_overlap_long_chain(self):
-        longer = sll.Node.from_iterable(range(-100, 9000))
-        shorter = sll.Node.from_iterable(range(9000))
+        longer = sll.HashNode.from_iterable(range(-100, 9000))
+        shorter = sll.HashNode.from_iterable(range(9000))
 
         node = longer
         for _ in range(100):
@@ -310,7 +321,7 @@ class TestNode(unittest.TestCase):
     @parameterized.expand(['__eq__', '__ne__', '__hash__'])
     def test_type_uses_reference_equality_comparison(self, name):
         expected = getattr(object, name)
-        actual = getattr(sll.Node, name)
+        actual = getattr(sll.HashNode, name)
         self.assertIs(actual, expected)
 
     def test_no_more_nodes_are_maintained_than_necessary(self):
@@ -319,23 +330,25 @@ class TestNode(unittest.TestCase):
 
         To a greater extent than other tests in this test module, these tests
         assume no other code in the same test runner process has created and
-        *kept* references to Node instances. Unless some other code in the
+        *kept* references to HashNode instances. Unless some other code in the
         project does so and is under test, this is unlikely to be a problem.
 
         Note also that these tests rely on the count_instances method being
         correctly implemented. But it is fairly unlikely that an unintentional
         bug in that method would cause all tests to wrongly pass.
         """
-        head1 = sll.Node('a', sll.Node('b', sll.Node('c', sll.Node('d'))))
-        head2 = sll.Node('x', sll.Node('b', sll.Node('c', sll.Node('d'))))
-        head3 = sll.Node(0)
-        head4 = sll.Node.from_iterable(range(9000))
+        head1 = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        head2 = sll.HashNode(
+            'x', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        head3 = sll.HashNode(0)
+        head4 = sll.HashNode.from_iterable(range(9000))
 
         with self.subTest('before any of head1-head5 are collectable'):
             testing.collect_if_not_ref_counting()
-            self.assertEqual(sll.Node.count_instances(), 9006)
+            self.assertEqual(sll.HashNode.count_instances(), 9006)
 
-        head5 = sll.Node.from_iterable(range(-100, 9000))
+        head5 = sll.HashNode.from_iterable(range(-100, 9000))
 
         with self.subTest('after creating head5'):
             # We do not need to force a collection here regardless of platform,
@@ -343,42 +356,42 @@ class TestNode(unittest.TestCase):
             # collection. (Of course, other code could concurrently be making
             # nodes or allowing them to be destroyed, but if so, this test is
             # already very unreliable, as detailed in the method docstring.)
-            count = sll.Node.count_instances()
+            count = sll.HashNode.count_instances()
             self.assertEqual(count, 9106)
 
         del head4, head5
 
         with self.subTest('after deleting local variables head4 and head5'):
             testing.collect_if_not_ref_counting()
-            count = sll.Node.count_instances()
+            count = sll.HashNode.count_instances()
             self.assertEqual(count, 6)
 
         head3 = head1
 
         with self.subTest('after rebinding the head3 local variable'):
             testing.collect_if_not_ref_counting()
-            count = sll.Node.count_instances()
+            count = sll.HashNode.count_instances()
             self.assertEqual(count, 5)
 
         del head1
 
         with self.subTest('after deleting local variable head1'):
             testing.collect_if_not_ref_counting()  # To show no effect.
-            count = sll.Node.count_instances()
+            count = sll.HashNode.count_instances()
             self.assertEqual(count, 5)
 
         del head3
 
         with self.subTest('after deleting local variable head3'):
             testing.collect_if_not_ref_counting()
-            count = sll.Node.count_instances()
+            count = sll.HashNode.count_instances()
             self.assertEqual(count, 4)
 
         del head2
 
         with self.subTest('after deleting local variable head2'):
             testing.collect_if_not_ref_counting()
-            count = sll.Node.count_instances()
+            count = sll.HashNode.count_instances()
             self.assertEqual(count, 0)
 
     @unittest.skip("The implementation does not break heterogeneous cycles.")
@@ -387,7 +400,7 @@ class TestNode(unittest.TestCase):
             pass
 
         element = Element()
-        element.node = sll.Node(element)
+        element.node = sll.HashNode(element)
         observer = weakref.ref(element)
         del element
         gc.collect()
@@ -403,7 +416,7 @@ class TestNode(unittest.TestCase):
         e3 = Element()
         e4 = Element()
 
-        head = sll.Node.from_iterable([e1, e2, e3, e4])
+        head = sll.HashNode.from_iterable([e1, e2, e3, e4])
 
         e1.n1 = e2.n1 = e3.n1 = e4.n1 = head
         e1.n2 = e2.n2 = e3.n2 = e4.n2 = head.next_node
@@ -437,10 +450,10 @@ class TestNode(unittest.TestCase):
         # having nodes and edges (next_node references) may speed up detecting
         # regressions that raise exceptions even in simple cases. _head1 and
         # _head2 keep nodes alive and are deliberately never read (hence F841).
-        _head1 = sll.Node('a', sll.Node('c'))  # noqa: F841
-        _head2 = sll.Node('b', sll.Node('c'))  # noqa: F841
+        _head1 = sll.HashNode('a', sll.HashNode('c'))  # noqa: F841
+        _head2 = sll.HashNode('b', sll.HashNode('c'))  # noqa: F841
 
-        graph = sll.Node.draw()
+        graph = sll.HashNode.draw()
         self.assertIsInstance(graph, graphviz.Digraph)
 
 
@@ -468,8 +481,8 @@ def _from_iterable(values):
 
     This facilitates fake.from_iterable, and takes advantage of SimpleNamespace
     being mutable to use an algorithm that cannot be used for immutable nodes
-    such as sll.Node. This avoids duplicating logic, and possibly bugs, across
-    both code and tests.
+    such as sll.HashNode. This avoids duplicating logic, and possibly bugs,
+    across both code and tests.
     """
     sentinel = _fake('arbitrary')
     pre = sentinel
@@ -489,12 +502,12 @@ class TestTraverse(unittest.TestCase):
     Tests for the sll.traverse function.
 
     This includes tests using a test double for the nodes, as well as on singly
-    linked lists formed as chains of sll.Node instances.
+    linked lists formed as chains of sll.HashNode instances.
     """
 
     _parameterize_by_node_type = parameterized.expand([
         ('SimpleNamespace', _fake),
-        (sll.Node.__name__, sll.Node),
+        (sll.HashNode.__name__, sll.HashNode),
     ])
     """Parameterize a test method by choice of SLL-node factory."""
 
@@ -527,10 +540,10 @@ class TestTraverse(unittest.TestCase):
 
 class _CachedEq:
     """
-    Class to try to deadlock sll.Node if its lock isn't reentrant. For testing.
+    Class to try to deadlock a non-reentrant sll.HashNode lock. For testing.
 
     _CachedEq equality comparison and hashing use the global caching supplied
-    by sll.Node to speed up subsequent comparisons. This just works:
+    by sll.HashNode to speed up subsequent comparisons. This just works:
 
     >>> x = _CachedEq('reentrant?')
     >>> x
@@ -542,64 +555,66 @@ class _CachedEq:
     >>> x == _CachedEq('reentrant?')
     True
 
-    Our _CachedEq is instance is hashable, so it can be a value in an sll.Node:
+    Our _CachedEq instance is hashable, so it can be a sll.HashNode element:
 
-    >>> sll.Node(x)
-    Node(_CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']))
+    >>> sll.HashNode(x)
+    HashNode(_CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']))
 
     But if a _CachedEq instance whose SLL is not yet created is stored in an
-    sll.Node, the sll.Node class's act of hashing the _CachedEq instance causes
-    another sll.Node object to be constructed while that "first" sll.Node
-    object is being constructed. This deadlocks if the lock is non-reentrant:
+    sll.HashNode, sll.HashNode.__new__'s act of hashing the _CachedEq object
+    causes another sll.HashNode to be created while that "first" sll.HashNode
+    object is still being created. This deadlocks if the lock is non-reentrant:
 
-    >>> sll.Node(_CachedEq('sabotage'))  # doctest: +SKIP
-    Node(_CachedEq(['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']))
+    >>> sll.HashNode(_CachedEq('sabotage'))  # doctest: +SKIP
+    HashNode(_CachedEq(['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']))
 
-    Making the lock reentrant is attractive. On a single thread, the code
+    Just making the lock reentrant is attractive. On a single thread, the code
     (being synchronous, and pairing acquisition and release) behaves as it
     would without locking. If we didn't need to worry about multiple threads,
     we would likely have written the same code, but without a lock. But would
-    that have been right? Do reentrant sll.Node calls always behave correctly?
+    that have been right? Do reentrant sll.HashNode calls always behave well?
 
     Let's consider an approach that makes _CachedEq work without a reentrant
-    lock. sll.Node(x, n) looks up a key in a table. Calling __hash__ on that
-    key causes x.__hash__ to be called. Now suppose _Key is the key type. If
-    _Key were to precompute its __hash__ result in _Key.__init__, and if
-    sll.Node.__new__ were to call _Key exactly once and before taking the lock,
-    then sll.Node would work with _CachedEq, even if the lock is non-reentrant.
+    lock. sll.HashNode(x, n) looks up a key in a table. Calling __hash__ on
+    that key causes x.__hash__ to be called. Now suppose _Key is the key type.
+    If _Key were to precompute its __hash__ result in _Key.__init__, and if
+    sll.HashNode.__new__ were to call _Key once, before taking the lock, then
+    sll.HashNode would work with _CachedEq, even if the lock is non-reentrant.
 
     Implementing _Key reveals the problem with BOTH approaches. The result of
     __hash__ can be precomputed, because it really returns a prehash: a value
-    depending only on the key, and not on hash table size. But looking up a key
-    uses both __hash__ and __eq__. We can't usually precompute all possible
-    results of __eq__. We could effectively achieve the goal of precomputing
-    all possible results of __eq__ by ensuring the each value is represented by
-    only one object at a time and doing identity comparison -- but that's hash
-    consing, which is what we're trying to implement!
+    depending only on the key, and not on hash table implementation or bucket
+    count. (Remember, a true hash is a bucket index.) But looking up a key uses
+    both __hash__ and __eq__. We can't usually precompute all possible results
+    of __eq__. We could effectively achieve the goal of precomputing all
+    possible results of __eq__ by ensuring the each value is represented by
+    only one object at a time and doing identity comparison... except that's
+    hash consing, which is what we're trying to implement!
 
-    It's feasible for sll.Node to support types like _CachedEq, because after
-    __hash__ is called successfully on a _CachedEq instance, __eq__ on the same
-    instance never calls sll.Node. Other types, intentionally or due to bugs,
-    may call sll.Node from their __eq__ methods. This is tricky to make safe.
-    After sll.Node.__new__(x, n) subscripts a table with a key whose __eq__
-    method calls x.__eq__, doesn't find the key, and creates a new node, it
-    subscripts the table again to insert the new node. This is a critical time:
-    a node exists that isn't yet in the table. The operation of adding it to
-    the table calls x.__eq__ before adding it, which could call sll.Node(x, n).
+    It's feasible for sll.HashNode to support types like _CachedEq, because
+    after __hash__ is called successfully on a _CachedEq instance, __eq__ on
+    the same instance never calls sll.HashNode. Other types, intentionally or
+    due to bugs, may call sll.HashNode from their __eq__ methods. This is
+    tricky to make safe. After sll.HashNode.__new__(x, n) subscripts a table
+    with a key whose __eq__ method calls x.__eq__, doesn't find the key, and
+    creates a new node, it subscripts the table again to insert the new node.
+    This is a critical time: a node exists that isn't yet in the table. The
+    operation of adding it to the table calls x.__eq__ before adding it, which
+    could call sll.HashNode(x, n).
 
     Even though this problem is unrelated to threading, a non-reentrant lock
-    prevented it. I don't know of a way to make reentering sll.Node.__new__
+    prevented it. I don't know of a way to make reentering sll.HashNode.__new__
     through an element type's __eq__ safe in Python without greatly increasing
-    code complexity. Instead, we can detect it and raise RuntimeError instead
-    of deadlocking. We could support reentrance via __hash__ but not __eq__, to
-    allow types like _CachedEq to work. Since that isn't a design goal, we
-    forgo it for simplicity. sll.Node doesn't need to work with _CachedEq; the
-    error just needs to be represented by a reasonable exception:
+    code complexity. Instead, we can detect it and raise RuntimeError rather
+    than deadlocking. We could support reentrance via __hash__ but not __eq__,
+    to allow types like _CachedEq to work. Since that isn't a design goal, we
+    forgo it for simplicity. sll.HashNode doesn't need to work with _CachedEq;
+    the error just needs to be represented by a reasonable exception:
 
-    >>> sll.Node(_CachedEq('sabotage'))
+    >>> sll.HashNode(_CachedEq('sabotage'))
     Traceback (most recent call last):
       ...
-    RuntimeError: Node.__new__ reentered through __hash__ or __eq__
+    RuntimeError: HashNode.__new__ reentered through __hash__ or __eq__
     """
 
     __slots__ = ('_elements', '_lazy_head')
@@ -627,13 +642,13 @@ class _CachedEq:
     @property
     def _head(self):
         if self._lazy_head is self._not_computed:
-            self._lazy_head = sll.Node.from_iterable(self)
+            self._lazy_head = sll.HashNode.from_iterable(self)
         return self._lazy_head
 
 
 class TestCachedEq(unittest.TestCase):
     """
-    Tests for sll.Node with _CachedEq values.
+    Tests for sll.HashNode with _CachedEq values.
 
     These tests are equivalent to the _CachedEq doctests above, but as unittest
     tests. This is (1) so the unittest test runner, and by the pytest test
@@ -642,7 +657,7 @@ class TestCachedEq(unittest.TestCase):
     facilitate comparison to the TestDevious tests, below.
 
     It is not a goal to thoroughly test the public interface of _CachedEq
-    itself. These are really sll.Node tests, using _CachedEq.
+    itself. These are really sll.HashNode tests, using _CachedEq.
     """
 
     def test_can_create_node_of_cached_eq_if_its_node_is_precomputed(self):
@@ -650,43 +665,48 @@ class TestCachedEq(unittest.TestCase):
         expected = ['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']
         cached_eq = _CachedEq('reentrant?')
         hash(cached_eq)  # Precompute x.node, to avoid reentrance.
-        node = sll.Node(cached_eq)  # Reentrance averted, so this works.
+        node = sll.HashNode(cached_eq)  # Reentrance averted, so this works.
         actual = list(node.value)
         self.assertListEqual(actual, expected)
 
-    @unittest.skip("We don't permit sll.Node to call itself through __hash__.")
+    @unittest.skip("We don't let sll.HashNode call itself through __hash__.")
     def test_can_create_node_of_cached_eq_if_its_node_is_not_precomputed(self):
         """
-        Reentering sll.Node through __hash__ is permitted, returning the node.
+        Reentering sll.HashNode through __hash__ completes, returning the node.
 
         That is, it completes rather than deadlocking or raising an exception.
         """
         expected = ['s', 'a', 'b', 'o', 't', 'a', 'g', 'e']
         cached_eq = _CachedEq('sabotage')
-        node = sll.Node(cached_eq)  # Reenters Node through _CachedEq.__hash__.
+
+        # This Reenters sll.HashNode.__new__ through _CachedEq.__hash__.
+        node = sll.HashNode(cached_eq)
+
         actual = list(node.value)
         self.assertListEqual(actual, expected)
 
     def test_creating_node_of_cached_eq_without_precomputed_node_raises(self):
         """
-        Reentering sll.Node through __hash__ raises a useful RuntimeError.
+        Reentering sll.HashNode through __hash__ raises a useful RuntimeError.
 
         That is, it raises RuntimeError and the message is as expected. This is
         in contrast to deadlocking or permitting the operation.
         """
         expected_message = (
-            r'\ANode.__new__ reentered through __hash__ or __eq__\Z')
+            r'\AHashNode.__new__ reentered through __hash__ or __eq__\Z')
+
         cached_eq = _CachedEq('sabotage')
+
         with self.assertRaisesRegex(RuntimeError, expected_message):
-            sll.Node(cached_eq)
+            sll.HashNode(cached_eq)
 
 
 class _DeviousBase:
     """
-    "Correct" class that tries to get sll.Node to make duplicates. For testing.
+    "Correct" class to try to get sll.HashNode to make duplicates. For testing.
 
     See _CachedEq above for background. If one wished to support types like
-    _CachedEq whose __hash__ calls sll.Node, this facilitates checking that
+    _CachedEq whose __hash__ calls sll.HashNode, this facilitates checking that
     reentrance through __eq__ still raises RuntimeError, or that a simple
     attempt to exploit it to get two equivalent nodes is successfully stymied.
 
@@ -698,7 +718,7 @@ class _DeviousBase:
     __slots__ = ('_calls', 'node')
 
     def __init__(self):
-        """Create a devious object that tries to make a duplicate sll.Node."""
+        """Create an object that tries to make a duplicate sll.HashNode."""
         self._calls = 0
         self.node = None
 
@@ -711,14 +731,12 @@ class _DeviousBase:
         """
         Check if this devious object is the same as another devious object.
 
-        It is trivial to implement __eq__ in a way that fools sll.Node into
-        making duplicate nodes. The challenge is to do it in a way that reveals
-        a bug in sll.Node. If x == y is sometimes True and sometimes False, on
-        the same objects x and y, then at least one of x and y is mutable (by
-        definition). Like most Python code that uses hashing, the code of
-        sll.Node relies on hashable objects it interacts with being immutable.
-        See also ImportantPoint below for more ways to "fool" sll.Node in ways
-        that sll.Node should not, and cannot reasonably, handle.
+        It's trivial to implement __eq__ to fool sll.HashNode into duplicates.
+        The challenge is to do it in a way that reveals a bug in sll.HashNode.
+        If x == y is sometimes True and sometimes False (on the same x and y),
+        then at least one of x and y is, by definition, mutable. Like most
+        Python code that uses hashing, sll.HashNode assumes hashable objects it
+        interacts with are immutable, encapsulation is respected, etc.
 
         What is significant about this __eq__ implementation is that it is
         consistent: when called multiple times with the same operands, it
@@ -731,7 +749,7 @@ class _DeviousBase:
         # Assume the second time we get here is table insertion. See doctests.
         self._calls += 1
         if self.node is None and self._calls == 2:
-            self.node = sll.Node(self)
+            self.node = sll.HashNode(self)
 
         return self is other
 
@@ -748,19 +766,19 @@ class _DeviousDerived(_DeviousBase):
 
 class TestDevious(unittest.TestCase):
     """
-    Test for sll.Node to try to make a duplicate node via __eq__ reentrance.
+    Test for sll.HashNode. Tries for a duplicate node, via __eq__ reentrance.
 
-    This class has one non-skipped test, using _DeviousBase and _DeviousDerived
-    to fool sll.Node into making two separate but duplicate nodes by exploiting
-    the need for sll.Node.__new__ to call _DeviousBase.__eq__ indirectly
-    (through the table implementation) while inserting a new node in the table.
-    At this time, the node exists but has not been recorded in the table, so if
+    This class has a single (non-skipped) test. It tries to use _DeviousBase
+    and _DeviousDerived to fool sll.HashNode into making duplicate nodes by
+    exploiting the need for sll.HashNode.__new__ to call _DeviousBase.__eq__
+    indirectly (through the table implementation) while inserting a new node in
+    the table. At that time, the node exists but isn't yet in the table. So if
     _DeviousBase.__eq__ can reenter sll.node.__new__, it can get another node.
 
-    The sll.Node implementation should not take approaches specific to details
-    of the test, since it would still have the bug this test is trying to find.
-    In particular, adding pointless equality comparisons so _DeviousBase.__eq__
-    guesses wrong about which one is the table insertion shouldn't be done.
+    The code under test should not take approaches specific to details of the
+    test, since it would still have the bug the test is trying to find. In
+    particular, adding pointless equality comparisons, so _DeviousBase.__eq__
+    guesses wrong about which one is the table insertion, shouldn't be done.
     (_DeviousBase's goal is really clarity, not maximally robust deviousness.)
     """
 
@@ -776,15 +794,15 @@ class TestDevious(unittest.TestCase):
         """Break any heterogeneous cycles through the "devious" objects."""
         self._feint.node = self._strike.node = None
 
-    @unittest.skip("We don't permit sll.Node to call itself through __eq__.")
+    @unittest.skip("We don't let sll.HashNode call itself through __eq__.")
     def test_effort_to_make_duplicate_nodes_is_defeated_without_error(self):
         """Duplicate nodes are somehow averted without stopping reentrance."""
-        node1 = sll.Node(self._feint)
+        node1 = sll.HashNode(self._feint)
 
         if node1.value is not self._feint:
             raise Exception('unexpected failure to construct correct node #1')
 
-        node2 = sll.Node(self._strike)
+        node2 = sll.HashNode(self._strike)
 
         if node2.value is not self._strike:
             raise Exception('unexpected failure to construct correct node #2')
@@ -796,93 +814,19 @@ class TestDevious(unittest.TestCase):
         if node2.next_node is not node3.next_node:
             raise Exception('unexpected failure to make identical successors')
 
-        self.assertIs(node2, node3,
+        self.assertIs(
+            node2, node3,
             'Nodes of equal value and same next node should be the same node.')
 
     def test_effort_to_make_duplicate_nodes_is_defeated_by_runtime_error(self):
         """Duplicate nodes are averted by reentrance raising RuntimeError."""
         expected_message = (
-            r'\ANode.__new__ reentered through __hash__ or __eq__\Z')
+            r'\AHashNode.__new__ reentered through __hash__ or __eq__\Z')
 
-        _ = sll.Node(self._feint)
+        _ = sll.HashNode(self._feint)
 
         with self.assertRaisesRegex(RuntimeError, expected_message):
-            sll.Node(self._strike)
-
-
-class ImportantPoint:
-    """
-    Demonstration that sll.Node can be "fooled" in ways that are not its fault.
-
-    Here, we use objects we reasonably consider immutable, except we break the
-    rules and mutate them by assigning to non-public attributes that make up
-    part of the objects' values. Here, the bug is in the code that uses the
-    ImportantPoint class incorrectly. Neither ImportantPoint nor sll.Node
-    should, or reasonably could, be changed to work with or even catch this.
-
-    We will be corrupting shared state, at least temporarily. To limit the bad
-    effect, we ensure the chains we form won't be reused, due to all containing
-    an inaccessible object not equal to values in any future unrelated SLLs:
-
-    >>> last = sll.Node(object())
-
-    >>> node1 = sll.Node(ImportantPoint(30, 40, 50), last)
-    >>> node2 = sll.Node(ImportantPoint(30, 41, 50), last)
-    >>> node2.value._y -= 1  # The bug is here and nowhere else.
-
-    >>> node1 is node2, node1 == node2
-    (False, False)
-    >>> node1.value == node2.value and node1.next_node is node2.next_node
-    True
-
-    >>> head1 = sll.Node('a', sll.Node('b', sll.Node('c', node1)))
-    >>> head2 = sll.Node('a', sll.Node('b', sll.Node('c', node2)))
-    >>> head1 is head2, head1 == head2
-    (False, False)
-    >>> list(sll.traverse(head1)) == list(sll.traverse(head2))
-    True
-
-    Other variations on that bug include writing to the private backing
-    attribute used to provide the value attribute on an sll.Node instance,
-    accessing and modifying the private table sll.Node uses to track its
-    instances, or assigning a different function to sll.Node.__new__.
-    """
-
-    __slots__ = ('_x', '_y', '_z')
-
-    def __init__(self, x, y, z):
-        """Make an important point."""
-        self._x = x
-        self._y = y
-        self._z = z
-
-    def __repr__(self):
-        """Python code representation."""
-        return f'{type(self).__name__}({self.x!r}, {self.y!r}, {self.z!r})'
-
-    def __eq__(self, other):
-        """Check for equal corresponding coordinates."""
-        if isinstance(other, type(self)):
-            return (self.x, self.y, self.z) == (other.x, other.y, other.z)
-        return NotImplemented
-
-    def __hash__(self):
-        return hash((self.x, self.y, self.z))
-
-    @property
-    def x(self):
-        """The x-coordinate."""
-        return self._x
-
-    @property
-    def y(self):
-        """The y-coordinate."""
-        return self._y
-
-    @property
-    def z(self):
-        """The z-coordinate."""
-        return self._z
+            sll.HashNode(self._strike)
 
 
 if __name__ == '__main__':

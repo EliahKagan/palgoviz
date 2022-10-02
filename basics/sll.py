@@ -23,15 +23,15 @@ With hash consing (when global and guaranteed, as here), all singly linked
 lists that use the hash-consed node type, and that exist in memory at the same
 time, make up a single "upside-down" tree. The tree's root (here, the None
 object) represents the empty sublist. Viewed as part of this tree, next_node
-pointers are parent pointers. Calling Node.draw() illustrates this by building
-a graphviz.Digraph of the entire tree.
+pointers are parent pointers. Calling HashNode.draw() illustrates this by
+building a graphviz.Digraph of the entire tree.
 
-The Node type in this module uses reference-based equality comparison, but
-singly linked lists that use this Node type always share the longest suffix
+The HashNode type in this module uses reference-based equality comparison, but
+singly linked lists that use this HashNode type always share the longest suffix
 possible, including when that is the whole linked list. So if two variables
 refer to the head nodes of lists with equal values appearing in the same order,
 then it is guaranteed that those two variables refer to the same node object
-(assuming there are no bugs!). Therefore, for sll.Node objects, reference-based
+(assuming no bugs!). Therefore, for sll.HashNode objects, reference-based
 equality comparison is also structural equality comparison (for the lists they
 are the head nodes of). This is one of the benefits of hash consing.
 
@@ -45,10 +45,10 @@ singly linked list node has one child pointer.) Only SLLs are implemented here.
 ### The problem of heterogeneous cycles
 
 This hash consing implementation can leak heterogeneous cycles and is thus
-unsuitable for general use. Two skipped tests in test_sll.py related to this:
+unsuitable for general use. Two skipped tests in test_sll.py relate to this:
 
-  - TestNode.test_single_simple_heterogeneous_cycle_does_not_leak
-  - TestNode.test_nontrivial_heterogeneous_cycles_do_not_leak
+  - TestHashNode.test_single_simple_heterogeneous_cycle_does_not_leak
+  - TestHashNode.test_nontrivial_heterogeneous_cycles_do_not_leak
 
 In a homogeneous cycle, following nodes' next_node (successor) and/or value
 (element) attributes eventually arrive back to an ancestor node. Since nodes
@@ -108,14 +108,7 @@ objects never hold mutable state that doesn't contribute to their values,
 and/or are implemented along with, and sometimes part of, a garbage collector.
 """
 
-# FIXME: Put this in a submodule of sll. Probably called it "hashed". Do this
-# even if there is currently no other code to go in the sll module, so this is
-# not mistaken for being an acceptable way to teach singly linked lists (this
-# is about __new__ and weak references, not about introducing SLLs). This may
-# also help make clear that the code here is not suitable for most use cases,
-# even when global guaranteed hash consing is desired.
-
-__all__ = ['Node', 'traverse']
+__all__ = ['HashNode', 'traverse']
 
 import html
 import threading
@@ -124,74 +117,77 @@ import weakref
 import graphviz
 
 
-class Node:
+class HashNode:
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
 
-    See the sll module docstring for information on the concepts involved. Node
-    equality implies identity. Inheriting from this class is not recommended.
+    See the sll module docstring on the concepts involved. HashNode equality
+    implies identity. Inheriting from this class is not recommended.
 
-    >>> head1 = Node('a', Node('b', Node('c', Node('d'))))
+    >>> head1 = HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1
-    Node('a', Node('b', Node('c', Node('d'))))
+    HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1.value
     'a'
     >>> head1.next_node
-    Node('b', Node('c', Node('d')))
+    HashNode('b', HashNode('c', HashNode('d')))
 
-    >>> Node('a', Node('b', Node('c', Node('d')))) is head1
+    >>> HashNode('a', HashNode('b', HashNode('c', HashNode('d')))) is head1
     True
-    >>> head2 = Node('x', Node('b', Node('c', Node('d'))))
+    >>> head2 = HashNode('x', HashNode('b', HashNode('c', HashNode('d'))))
     >>> len({head1, head2}), len({head1.next_node, head2.next_node})
     (2, 1)
     >>> head1.next_node is head2.next_node
     True
-    >>> Node('a', Node('b', Node('c'))) is head1
+    >>> HashNode('a', HashNode('b', HashNode('c'))) is head1
     False
     >>> hasattr(head1, '__dict__')  # Nodes should have a low memory footprint.
     False
-    >>> Node('a', object())  # Validated, to protect shared state.
+    >>> HashNode('a', object())  # Validated, to protect shared state.
     Traceback (most recent call last):
       ...
-    TypeError: next_node must be a Node or None, not object
+    TypeError: next_node must be a HashNode or None, not object
 
     Equal values are treated as interchangeable, even across types:
 
-    >>> Node(1.0) is Node(1) is Node(True)
+    >>> HashNode(1.0) is HashNode(1) is HashNode(True)
     True
-    >>> head3 = Node(0)
-    >>> Node(False)
-    Node(0)
+    >>> head3 = HashNode(0)
+    >>> HashNode(False)
+    HashNode(0)
 
     To build an SLL from an iterable of values, use from_iterable. This is a
     named constructor instead of a top-level function, so it's clear, at the
     call site, what type is being instantiated. But its implementation uses no
-    part of the Node interface, other than calling the class. It especially
-    does not use or depend on any implementation details of Node.
+    part of the HashNode interface, other than calling the class. It especially
+    does not use or depend on any implementation details of HashNode.
 
-    >>> Node.from_iterable([]) is None
+    >>> HashNode.from_iterable([]) is None
     True
-    >>> Node.from_iterable('abcd') is Node.from_iterable(iter('abcd')) is head1
+    >>> HashNode.from_iterable('abcd') is head1
     True
-    >>> head4 = Node.from_iterable(range(9000))
+    >>> HashNode.from_iterable(iter('abcd')) is head1
+    True
+    >>> head4 = HashNode.from_iterable(range(9000))
     >>> list(traverse(head4)) == list(range(9000))
     True
 
     These tests assume no other code in the process running the doctests has
-    created and *kept* references to Node instances:
+    created and *kept* references to HashNode instances:
 
     >>> from testing import collect_if_not_ref_counting as coll
-    >>> coll(); Node.count_instances()
+    >>> coll(); HashNode.count_instances()
     9006
-    >>> head5 = Node.from_iterable(range(-100, 9000)); Node.count_instances()
+    >>> head5 = HashNode.from_iterable(range(-100, 9000))
+    >>> HashNode.count_instances()
     9106
-    >>> del head4, head5; coll(); Node.count_instances()
+    >>> del head4, head5; coll(); HashNode.count_instances()
     6
-    >>> head3 = head1; coll(); Node.count_instances()
+    >>> head3 = head1; coll(); HashNode.count_instances()
     5
-    >>> del head1, head3; coll(); Node.count_instances()
+    >>> del head1, head3; coll(); HashNode.count_instances()
     4
-    >>> del head2; coll(); Node.count_instances()
+    >>> del head2; coll(); HashNode.count_instances()
     0
     """
 
@@ -271,7 +267,7 @@ class Node:
 
     @classmethod
     def draw(cls):
-        """Draw the structure of all instances of Node."""
+        """Draw the structure of all instances of HashNode."""
         # Nodes that are not strongly referenced may be collected, and thereby
         # removed from the table, at any time. WeakValueDictionary is in charge
         # of ensuring that no state gets corrupted as a result of this, and for
@@ -319,17 +315,19 @@ def traverse(head):
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> list(traverse(Node(1, Node(5, Node(2, Node(4, Node(3)))))))
+    >>> short = HashNode(1, HashNode(5, HashNode(2, HashNode(4, HashNode(3)))))
+    >>> list(traverse(short))
     [1, 5, 2, 4, 3]
 
     >>> from itertools import islice
     >>> from types import SimpleNamespace as SN
-    >>> head = SN(value=7, next_node=SN(value=8, next_node=SN(value=9)))
-    >>> head.next_node.next_node.next_node = head  # Make a simple cycle.
-    >>> list(islice(traverse(head), 24))  # Test laziness.
+    >>> cyclic = SN(value=7, next_node=SN(value=8, next_node=SN(value=9)))
+    >>> cyclic.next_node.next_node.next_node = cyclic  # Make a simple cycle.
+    >>> list(islice(traverse(cyclic), 24))  # Test laziness.
     [7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9, 7, 8, 9]
 
-    >>> list(traverse(Node.from_iterable(range(9000)))) == list(range(9000))
+    >>> long = HashNode.from_iterable(range(9000))
+    >>> list(traverse(long)) == list(range(9000))
     True
     """
     while head:
