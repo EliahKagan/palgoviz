@@ -18,6 +18,8 @@ from parameterized import parameterized
 import sll
 import testing
 
+_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
+
 
 class TestHashNode(unittest.TestCase):
     """Base class providing shared tests of sll.HashNode."""
@@ -398,7 +400,8 @@ class TestHashNode(unittest.TestCase):
             count = sll.HashNode.count_instances()
             self.assertEqual(count, 0)
 
-    @unittest.skip("The implementation does not break heterogeneous cycles.")
+    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
+                         "It may help to get some other tests passing first.")
     def test_single_simple_heterogeneous_cycle_does_not_leak(self):
         class Element:
             pass
@@ -410,7 +413,8 @@ class TestHashNode(unittest.TestCase):
         gc.collect()
         self.assertIsNone(observer())
 
-    @unittest.skip("The implementation does not break heterogeneous cycles.")
+    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
+                         "It may help to get some other tests passing first.")
     def test_nontrivial_heterogeneous_cycles_do_not_leak(self):
         class Element:
             pass

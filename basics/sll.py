@@ -117,6 +117,44 @@ import weakref
 import graphviz
 
 
+class _Box:
+    """
+    Immutable weak-referenceable wrapper for the value held by a node.
+
+    This is needed because nodes need to support elements without __weakref__,
+    but we need element references from keys in the WeakValueTable to be weak
+    to avoid leaking heterogeneous cycles.
+
+    Boxes are kept alive by strong references in nodes, and WeakValueTable keys
+    hold weak references to boxes so that heterogenous cycles are broken.
+    """
+
+    __slots__ = ('__weakref__', '_value')
+
+    def __init__(self, value):
+        """Create a box holding the given element value."""
+        self._value = value
+
+    def __repr__(self):
+        """Python code representation for debugging."""
+        return f'{type(self).__name__}({self.value!r})'
+
+    def __eq__(self, other):
+        """Two boxes are equal when the objects they box are equal."""
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+        return NotImplemented
+
+    def __hash__(self):
+        """A box hashes the same as its boxed object."""
+        return hash(self.value)
+
+    @property
+    def value(self):
+        """The element value held by this wrapper."""
+        return self._value
+
+
 class HashNode:
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
@@ -166,7 +204,7 @@ class HashNode:
     aren't properly handled.) test_sll.py and test_sll.txt have tests for this.
     """
 
-    __slots__ = ('__weakref__', '_value', '_next_node')
+    __slots__ = ('__weakref__', '_box', '_next_node')
 
     _lock = threading.RLock()
     _already_locked = False
@@ -200,6 +238,9 @@ class HashNode:
             raise TypeError(f'next_node must be a {cls.__name__} or None, not '
                             + type(next_node).__name__)
 
+        box = _Box(value)
+        key = (weakref.ref(box), next_node and weakref.ref(next_node))
+
         with cls._lock:
             if cls._already_locked:
                 name = f'{cls.__name__}.__new__'
@@ -208,12 +249,12 @@ class HashNode:
 
             cls._already_locked = True
             try:
-                return cls._table[value, next_node]
+                return cls._table[key]
             except KeyError:
                 node = super().__new__(cls)
-                node._value = value
+                node._box = box
                 node._next_node = next_node
-                cls._table[value, next_node] = node
+                cls._table[key] = node
                 return node
             finally:
                 cls._already_locked = False
@@ -233,7 +274,7 @@ class HashNode:
     @property
     def value(self):
         """The value held by this node."""
-        return self._value
+        return self._box.value
 
     @property
     def next_node(self):
