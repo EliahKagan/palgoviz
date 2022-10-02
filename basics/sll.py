@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# NOTE: If you find this code by searching for hash consing in Python, it will
+# likely NOT meet your needs, because it can leak heterogeneous cycles through
+# the data structure that tracks existing nodes. (See details below.)
+
 """
 Immutable singly linked lists using hash consing to share tails globally.
 
@@ -7,6 +11,13 @@ Hash consing is an advanced technique. This project currently has no module for
 presenting singly linked lists in an introductory fashion. But a basic use of
 singly linked lists, with no specialized techniques, appears in queues.py,
 which contains an SLL-based FIFO queue and an SLL-based LIFO queue.
+
+NOTE: Before using this module or the techniques it presents, please make sure
+to read "The problem of heterogeneous cycles" below. If you have an application
+that requires hash consing, it is likely this code will NOT do what you need!
+
+
+### Hash consing
 
 With hash consing (when global and guaranteed, as here), all singly linked
 lists that use the hash-consed node type, and that exist in memory at the same
@@ -19,27 +30,90 @@ The Node type in this module uses reference-based equality comparison, but
 singly linked lists that use this Node type always share the longest suffix
 possible, including when that is the whole linked list. So if two variables
 refer to the head nodes of lists with equal values appearing in the same order,
-then it is guaranteed that those two variables refer to the same node object.
-Therefore, for sll.Node objects, reference-based equality comparison is also
-structural equality comparison (for the lists they are the head nodes of). This
-is one of the benefits of hash consing.
+then it is guaranteed that those two variables refer to the same node object
+(assuming there are no bugs!). Therefore, for sll.Node objects, reference-based
+equality comparison is also structural equality comparison (for the lists they
+are the head nodes of). This is one of the benefits of hash consing.
 
-Nonetheless, in practice it may still be useful for the node class to be a
-private implementation detail, and for each singly linked list taken as a whole
-to be represented by an instance of another class that implements the sequence
-protocol (providing __len__, __iter__, and other methods; see the documentation
-on collections.abc.Sequence). Alternatively, the empty singly linked list could
-be represented by a special-purpose singleton rather than None, where both the
-Node class and that singleton class implement the sequence protocol. For
-conceptual clarity and simplicity of presentation, we do neither here. Our Node
-class is public, and the absence of a node is represented by the None object.
+Hash consing is applicable to any immutable node-based data structure whose
+nodes make up a directed acyclic graph. This includes, but is not limited to,
+binary and n-ary trees without parent pointers. This is analogous to the case
+of singly linked lists. (A binary tree node has two child pointers, while a
+singly linked list node has one child pointer.) Only SLLs are implemented here.
+
+
+### The problem of heterogeneous cycles
+
+This hash consing implementation can leak heterogeneous cycles and is thus
+unsuitable for general use. Two skipped tests in test_sll.py related to this:
+
+  - TestNode.test_single_simple_heterogeneous_cycle_does_not_leak
+  - TestNode.test_nontrivial_heterogeneous_cycles_do_not_leak
+
+In a homogeneous cycle, following nodes' next_node (successor) and/or value
+(element) attributes would bring one back to an ancestor node. Since nodes are
+immutable, and their elements are required to be immutable, homogeneous cycles
+do not occur without code that uses this module having a severe design bug,
+such a mutable hashable type (that is used as an element type), or violating
+encapsulation. Nodes may be shared by many linked lists. Nodes may also be
+nested: being themselves immutable and hashable, nodes may appear as elements
+of other nodes. None of this prevents objects from being garbage collected.
+
+Heterogeneous cycles are another story. An object can be immutable in the sense
+that its value never changes, yet still hold mutable state that doesn't affect
+its value. It's reasonable for such an object to be hashable. Most classes work
+this way, inheriting __eq__ and __hash__ from object but allowing arbitrary
+attributes in their instance dictionaries. So we wouldn't want to prohibit most
+such as objects as elements. But what if a node's element, after being stored
+in the node, gains an attribute that doesn't participate in equality comparison
+or hashing but refers, directly or indirectly, back to the node itself?
+
+That is a heterogenous cycle: part of the cycle is through an object of an
+unrelated type. Our private table that looks up nodes by their elements and
+successors holds weak references to the nodes it returns, so it doesn't prevent
+them from being garbage collected. But the elements and successors are held by
+strong references. That's normally no problem: as long as a node exists, it
+keeps its element and successor alive anyway, and when a node is destroyed, the
+table takes care of removing the entry for it (using weakref callbacks). But if
+there is a chain of strong references from the element back to the node, then
+the table holds a strong reference to the element, which holds a strong
+reference to the node, so the node is reachable and can't be collected. Unless
+the heterogeneous cycle is somehow broken, the entry is never removed from the
+table, since it would only be removed when the node it keeps reachable becomes
+unreachable and is collected, which its presence ensures cannot happen.
+
+In many uses, client code can ensure no heterogeneous cycle forms. But without
+knowing the use case, this can't be ensured. So it would be good if the node
+type could prevent or break such cycles. Since a node's element and successor
+always exist as long as the node does, it seems the table could hold weak
+instead of strong references to them. But this only works if the callback the
+table registers to remove the entry removes it without looking up the entry by
+element and successor, since the element would no longer exist to be compared
+for equality to other elements in the table. The weakref.WeakValueTable class
+doesn't promise not to do that, and the CPython implementation, which stores
+its entries in an underlying dict instance in order satisfy its atomicity
+guarantees, does it. (Not all objects in Python are weak-referenceable, but if
+that were the only problem, it could be solved by having both the table and
+node refer to to a weak-referenceable wrapper object standing in front of the
+element: the table, so the element is not strongly reachable, and the node, to
+ensure the element is not collected too early.)
+
+So the problem of heterogeneous cycles in hash consing seems tricky to solve in
+Python. Beyond verifying the above concrete claims, efforts to solve it have
+not been undertaken in this project, as of this writing. This module is thus
+limited. Note that this should probably not be considered a problem with hash
+consing itself: production quality hash consing implementations often don't
+have to deal with this at all, because they are often for languages where
+objects never hold mutable state that doesn't contribute to their values and/or
+are implemented together with, and sometimes part of, the garbage collector.
 """
 
-# TODO: Decide if we want a module giving an introductory treatment of singly
-# linked lists. If so, consider having the sll module's top-level content be
-# that, and moving what's currently here to a submodule called hashed. Either
-# way, we should document the situation in the module docstring, so it is clear
-# whether major breaking changes to the structure of sll are planned.
+# FIXME: Put this in a submodule of sll. Probably called it "hashed". Do this
+# even if there is currently no other code to go in the sll module, so this is
+# not mistaken for being an acceptable way to teach singly linked lists (this
+# is about __new__ and weak references, not about introducing SLLs). This may
+# also help make clear that the code here is not suitable for most use cases,
+# even when global guaranteed hash consing is desired.
 
 __all__ = ['Node', 'traverse']
 
@@ -48,71 +122,6 @@ import threading
 import weakref
 
 import graphviz
-
-
-class _Box:
-    """
-    Immutable weak-referenceable wrapper for the value held by a node.
-
-    This is needed because nodes need to support elements without __weakref__,
-    but we need element references from keys in the WeakValueTable to be weak
-    to avoid leaking heterogeneous cycles.
-
-    Boxes are kept alive by strong references in nodes, and WeakValueTable keys
-    hold weak references to boxes so that heterogenous cycles are broken.
-    """
-
-    __slots__ = ('__weakref__', '_value')
-
-    def __init__(self, value):
-        """Create a box holding the given element value."""
-        self._value = value
-
-    def __repr__(self):
-        """Python code representation for debugging."""
-        return f'{type(self).__name__}({self.value!r})'
-
-    @property
-    def value(self):
-        """The element value held by this wrapper."""
-        return self._value
-
-
-class _Key:
-    """Key for the WeakValueTable used by Node. Its _Box reference is weak."""
-
-    __slots__ = ('_box_ref', '_next_node', '_hash_code')
-
-    def __init__(self, box, next_node):
-        """Create a key for a given box (holding an element) and next node."""
-        self._box_ref = weakref.ref(box)
-        self._next_node = next_node
-        self._hash_code = hash((box.value, next_node))
-
-    def __repr__(self):
-        """Representation for debugging. Not runnable as code."""
-        where = f'at 0x{id(self):X}'
-        value = self._get_value()
-        next_node = self._next_node
-        return f'<{type(self).__name__} {where} {value=} {next_node=}>'
-
-    def __eq__(self, other):
-        """Keys are equal when their weak-referenced boxed values are equal."""
-        if self is other:
-            return True
-        if isinstance(other, type(self)):
-            return self._get_value() == other._get_value()
-        return NotImplemented
-
-    def __hash__(self):
-        """Return a precomputed hash code."""
-        return self._hash_code
-
-    def _get_value(self):
-        """Follow the weak reference to the box and the box to the value."""
-        box = self._box_ref()
-        assert box is not None, 'The client code failed to keep the box alive.'
-        return box.value
 
 
 class Node:
@@ -187,10 +196,10 @@ class Node:
     0
     """
 
-    __slots__ = ('__weakref__', '_box', '_next_node')
+    __slots__ = ('__weakref__', '_value', '_next_node')
 
     _lock = threading.Lock()
-    _table = weakref.WeakValueDictionary()  # (data, next node) -> node
+    _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
     @classmethod
     def count_instances(cls):
@@ -220,17 +229,14 @@ class Node:
             raise TypeError(f'next_node must be a {cls.__name__} or None, not '
                             + type(next_node).__name__)
 
-        box = _Box(value)
-        key = _Key(box, next_node)
-
         with cls._lock:
             try:
-                return cls._table[key]
+                return cls._table[value, next_node]
             except KeyError:
                 node = super().__new__(cls)
-                node._box = box
+                node._value = value
                 node._next_node = next_node
-                cls._table[key] = node
+                cls._table[value, next_node] = node
                 return node
 
     def __repr__(self):
@@ -248,7 +254,7 @@ class Node:
     @property
     def value(self):
         """The value held by this node."""
-        return self._box.value
+        return self._value
 
     @property
     def next_node(self):

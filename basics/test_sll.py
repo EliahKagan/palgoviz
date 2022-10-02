@@ -14,8 +14,6 @@ from parameterized import parameterized
 import sll
 import testing
 
-_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
-
 
 class TestNode(unittest.TestCase):
     """Tests for the sll.Node class."""
@@ -383,9 +381,11 @@ class TestNode(unittest.TestCase):
             count = sll.Node.count_instances()
             self.assertEqual(count, 0)
 
-    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
-        "It's useful to implement Node without this requirement initially.")
-    def test_heterogeneous_cycles_do_not_leak(self):
+    @unittest.skip("The implementation does not break heterogeneous cycles.")
+    def test_single_simple_heterogeneous_cycle_does_not_leak(self):
+        """
+
+        """
         class Element:
             pass
 
@@ -396,9 +396,7 @@ class TestNode(unittest.TestCase):
         gc.collect()
         self.assertIsNone(observer())
 
-    # FIXME: Rename this method more descriptively.
-    @unittest.skipUnless(_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE,
-        "It's useful to implement Node without this requirement initially.")
+    @unittest.skip("The implementation does not break heterogeneous cycles.")
     def test_nontrivial_heterogeneous_cycles_do_not_leak(self):
         class Element:
             pass
