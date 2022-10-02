@@ -72,47 +72,20 @@ class _Box:
         """Python code representation for debugging."""
         return f'{type(self).__name__}({self.value!r})'
 
+    def __eq__(self, other):
+        """Two boxes are equal when the objects they box are equal."""
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+        return NotImplemented
+
+    def __hash__(self):
+        """A box hashes the same as its boxed object."""
+        return hash(self.value)
+
     @property
     def value(self):
         """The element value held by this wrapper."""
         return self._value
-
-
-class _Key:
-    """Key for the WeakValueTable used by Node. Its _Box reference is weak."""
-
-    __slots__ = ('_box_ref', '_next_node', '_hash_code')
-
-    def __init__(self, box, next_node):
-        """Create a key for a given box (holding an element) and next node."""
-        self._box_ref = weakref.ref(box)
-        self._next_node = next_node
-        self._hash_code = hash((box.value, next_node))
-
-    def __repr__(self):
-        """Representation for debugging. Not runnable as code."""
-        where = f'at 0x{id(self):X}'
-        value = self._get_value()
-        next_node = self._next_node
-        return f'<{type(self).__name__} {where} {value=} {next_node=}>'
-
-    def __eq__(self, other):
-        """Keys are equal when their weak-referenced boxed values are equal."""
-        if self is other:
-            return True
-        if isinstance(other, type(self)):
-            return self._get_value() == other._get_value()
-        return NotImplemented
-
-    def __hash__(self):
-        """Return a precomputed hash code."""
-        return self._hash_code
-
-    def _get_value(self):
-        """Follow the weak reference to the box and the box to the value."""
-        box = self._box_ref()
-        assert box is not None, 'The client code failed to keep the box alive.'
-        return box.value
 
 
 class Node:
@@ -221,7 +194,7 @@ class Node:
                             + type(next_node).__name__)
 
         box = _Box(value)
-        key = _Key(box, next_node)
+        key = (weakref.ref(box), next_node and weakref.ref(next_node))
 
         with cls._lock:
             try:
