@@ -30,68 +30,6 @@ linked list node has one "child" pointer.) Only SLLs are implemented here.
 
 __all__ = ['HashNode', 'traverse']
 
-import html
-import threading
-import weakref
-
-import graphviz
-
-
-class _Box:
-    """
-    Immutable weak-referenceable wrapper for the element value held by a node.
-
-    This is needed because:
-
-    1. Nodes need to support elements without __weakref__, but we need element
-       references from keys in the HashNode class's private WeakValueTable to
-       be weak to avoid leaking heterogeneous cycles.
-
-       Boxes are kept alive by strong references in nodes. The WeakValueTable's
-       keys use weak references so heterogenous cycles through the table are
-       never strong.
-
-    2. Floating-point NaNs are hashable but not equal even to themselves. To
-       support them, standard library containers use both "==" and "is" in
-       structural equality comparisons. HashNode does too, for consistency and
-       to avoid creating duplicate nodes when an element is non-self-equal.
-
-       But "==" between live weakref.ref objects compares referents only with
-       "==", not also "is". Wrapping each element in a _Box fixes that, too.
-    """
-
-    __slots__ = ('_value', '__weakref__')
-
-    def __init__(self, value):
-        """Create a box holding the given element value."""
-        self._value = value
-
-    def __repr__(self):
-        """Python code representation for debugging."""
-        return f'{type(self).__name__}({self.value!r})'
-
-    def __eq__(self, other):
-        """Boxes are equal when they wrap the same object or equal objects."""
-        # We're not using weakref proxies. But this isinstance check would be
-        # fine for them. self always gets unwrapped, so it really is a _Box.
-        # isinstance checks not just type(other), but also other.__class__,
-        # which a weakref proxy delegates to its referent. The only common case
-        # of special-method type-checking where weakref proxies need __class__
-        # and not type() is when comparing the types exactly (when one wants
-        # instances of different classes in the hierarchy never to be equal).
-        if isinstance(other, type(self)):
-            return self.value is other.value or self.value == other.value
-        return NotImplemented
-
-    def __hash__(self):
-        """A box hashes the same as its boxed object."""
-        return hash(self.value)
-
-    @property
-    def value(self):
-        """The element value held by this wrapper."""
-        return self._value
-
 
 class HashNode:
     """
@@ -171,131 +109,7 @@ class HashNode:
     unreachable from the outside, they are immediately eligible for garbage
     collection. (test_sll.py and test_sll.txt have tests for this.)
     """
-
-    __slots__ = ('_box', '_next_node', '__weakref__')
-
-    __match_args__ = ('value', 'next_node')
-
-    _lock = threading.RLock()
-    _already_locked = False
-    _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
-
-    @classmethod
-    def count_instances(cls):
-        """Return the number of currently existing instances."""
-        return len(cls._table)
-
-    @classmethod
-    def from_iterable(cls, values):
-        """Make a singly linked list of the given values. Return the head."""
-        try:
-            backwards = reversed(values)
-        except TypeError:
-            backwards = reversed(list(values))
-
-        acc = None
-        for value in backwards:
-            acc = cls(value, acc)
-        return acc
-
-    def __new__(cls, value, next_node=None):
-        """Make a node or retrieve the suitable one that already exists."""
-        # Since we are doing hash consing, the effects of allowing a next_node
-        # of the wrong type are dire: the wrong behavior is both unintuitive
-        # and global. So it is important to check the type of next_node, even
-        # if runtime type-checking is not otherwise called for.
-        if not isinstance(next_node, cls | None):
-            raise TypeError(f'next_node must be a {cls.__name__} or None, not '
-                            + type(next_node).__name__)
-
-        # The key for a node accesses the node's element and successor through
-        # weak references. This is important because the WeakValueDictionary
-        # holds strong references to its keys. If an element has a strong
-        # reference cycle back to the node that contains it, the cyclic garbage
-        # collector can clean it up once it is only accessible through the
-        # table, but only if the table doesn't strongly refer into the cycle.
-        box = _Box(value)
-        key = (weakref.ref(box), next_node and weakref.ref(next_node))
-
-        with cls._lock:
-            if cls._already_locked:
-                name = f'{cls.__name__}.__new__'
-                message = f'{name} reentered through __hash__ or __eq__'
-                raise RuntimeError(message)
-
-            cls._already_locked = True
-            try:
-                return cls._table[key]
-            except KeyError:
-                node = super().__new__(cls)
-                node._box = box
-                node._next_node = next_node
-                cls._table[key] = node
-                return node
-            finally:
-                cls._already_locked = False
-
-    def __repr__(self):
-        """
-        Code representation of this node. Shows the whole list.
-
-        For simplicity, this is implemented in a straightforward recursive way,
-        even though that means it raises RecursionError when called on the head
-        node of a long singly linked list.
-        """
-        if self.next_node:
-            return f'{type(self).__name__}({self.value!r}, {self.next_node!r})'
-        return f'{type(self).__name__}({self.value!r})'
-
-    @property
-    def value(self):
-        """The value held by this node."""
-        return self._box.value
-
-    @property
-    def next_node(self):
-        """The next node (the head of the tail of this node)."""
-        return self._next_node
-
-    @classmethod
-    def draw(cls):
-        """Draw the structure of all instances of HashNode."""
-        # Nodes that are not strongly referenced may be collected, and thereby
-        # removed from the table, at any time. WeakValueDictionary is in charge
-        # of ensuring that no state gets corrupted as a result of this, and for
-        # allowing iteration even though items may disappear at any time due to
-        # that effect. But it is still not safe to modify the contents of the
-        # WeakValueDictionary by any other mechanism during iteration. Further,
-        # since weak-referenced objects may disappear at any time and their ids
-        # reused, but we're using ids as node names to build the graph drawing,
-        # we need a consistent snapshot of all nodes.
-        #
-        # Therefore, we materialize the table's values, synchronizing this with
-        # the lock used by __new__. Nodes may be collected while this happens.
-        # But materialization makes strong references, and next_node attributes
-        # already hold strong references. So once materialization gets a node,
-        # it and all nodes reachable from it are protected. So we will see all
-        # nodes that appear in any SLL after any node we have seen. Having
-        # thereby taken strong references to a consistent set of nodes, we can
-        # be confident the graph we draw makes sense, and that we don't cause
-        # any invariants to be violated. (Contrast recursion.leaf_sum_dec.)
-        with cls._lock:
-            nodes = list(cls._table.values())
-
-        graph = graphviz.Digraph()
-
-        # Add the null sentinel (the None object) to the graph.
-        graph.node(str(id(None)), shape='point')
-
-        # Add all actual singly linked list nodes to the graph.
-        for node in nodes:
-            graph.node(str(id(node)), label=html.escape(repr(node.value)))
-
-        # Add the links (edges) between singly linked list nodes to the graph.
-        for node in nodes:
-            graph.edge(str(id(node)), str(id(node.next_node)))
-
-        return graph
+    # FIXME: Implement this.
 
 
 def traverse(head):
@@ -310,9 +124,7 @@ def traverse(head):
     >>> list(traverse(long)) == list(range(9000))
     True
     """
-    while head:
-        yield head.value
-        head = head.next_node
+    # FIXME: Implement this.
 
 
 if __name__ == '__main__':

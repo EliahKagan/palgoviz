@@ -13,8 +13,6 @@ __all__ = [
 ]
 
 import enum
-import threading
-import weakref
 
 _FORMATS = {
     'en': 'Hello, {}!',
@@ -430,63 +428,7 @@ class UniqueGreeter:
 
     FIXME: After all doctests pass, move many into method docstrings.
     """
-
-    __slots__ = ('__weakref__', '_lang',)
-
-    _lock = threading.Lock()
-    _table = weakref.WeakValueDictionary()
-
-    @staticmethod
-    def get_known_langs():
-        """Get known language codes."""
-        return tuple(_FORMATS)
-
-    @classmethod
-    def count_instances(cls):
-        """Return the number of currently existing instances."""
-        # In CPython, this is OK because the GIL ensures individual basic dict
-        # operations are atomic and thread-safe, and WeakValueDictionary is
-        # documented to use an underlying dict. More broadly, I assume this is
-        # safe in any current or future Python implementation, on the grounds
-        # that a WeakValueDictionary may lose items due to a refcount decrement
-        # or GC cycle running at any time on any thread, so it cannot be
-        # implemented correctly unless its basic operations are thread-safe.
-        return len(cls._table)
-
-    @classmethod
-    def from_greeter(cls, greeter):
-        """Create or retrieve the UniqueGreeter from a greeter."""
-        return cls(greeter.lang)
-
-    def __new__(cls, lang):
-        """Create or retrieve the UniqueGreeter from the language code."""
-        if lang not in _FORMATS:
-            raise ValueError(f'{lang} is an unrecognized language code.')
-
-        with cls._lock:
-            # We *must* use EAFP for this, since the instance could exist when
-            # checked, then be collected before being accessed by subscripting.
-            try:
-                instance = cls._table[lang]
-            except KeyError:
-                instance = super().__new__(cls)
-                instance._lang = lang
-                cls._table[lang] = instance
-
-        return instance
-
-    def __repr__(self):
-        """Representation of this UniqueGreeter as python code."""
-        return f"{type(self).__name__}({self.lang!r})"
-
-    def __call__(self, name):
-        """Greet a person by name."""
-        print(_FORMATS[self._lang].format(name))
-
-    @property
-    def lang(self):
-        """The language this UniqueGreeter will greet in."""
-        return self._lang
+    # FIXME: Implement this.
 
 
 def make_greeter(lang):
