@@ -435,11 +435,11 @@ class TestNode(unittest.TestCase):
         serve as a further check that nodes are always reused (where possible),
         and they allow the effects of garbage collection to be observed.
         """
-        # Make a few nodes. Draw should return a graphviz.Digraph even if no
-        # nodes exist; then the graph has no nodes or edges. But having nodes
-        # and edges (next_node references) make make it more efficient to find
-        # and fix simple bugs that raise exceptions even in tiny simple cases.
-        # The F841 suppressions are for flake8's "assigned to but never used."
+        # Make a few nodes. The draw method should return a graphviz.Digraph
+        # even if no nodes exist; then the graph has no nodes or edges. But
+        # having nodes and edges (next_node references) may speed up detecting
+        # regressions that raise exceptions even in simple cases. _head1 and
+        # _head2 hold references and are deliberately never read (hence F841).
         _head1 = sll.Node('a', sll.Node('c'))  # noqa: F841
         _head2 = sll.Node('b', sll.Node('c'))  # noqa: F841
 
