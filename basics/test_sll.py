@@ -525,25 +525,24 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
     """
     Tests to check that sll.HashNode does not leak heterogeneous cycles.
 
-    In a homogeneous cycle, following nodes' next_node (successor) and/or value
-    (element) attributes would eventually arrive back to an ancestor node.
-    sll.HashNode is immutable and requires elements to be immutable. So
-    homogeneous cycles don't occur unless the code that uses it has a severe
-    design bug, like a mutable hashable type (used as an element type) or
-    violating encapsulation. Nodes may be shared by many linked lists. Nodes
-    may also be nested: being themselves immutable and hashable, nodes may
-    appear as elements of other nodes. None of this has the potential to
-    creates cycles or leak nodes.
+    In a homogeneous cycle of sll.HashNode objects, following nodes' next_node
+    attributes, and/or value attributes in the case of nested SLLs (where
+    elements are also nodes), would lead to a node already seen. sll.HashNode
+    is immutable, and it requires its elements to be immutable. So homogeneous
+    cycles of sll.HashNode objects don't form unless client code has a severe
+    design bug, like a mutable hashable type or violating encapsulation. No
+    matter how many linked lists a node is shared between, and no matter how
+    deeply nodes are nested by appearing not just as successors but also as
+    elements, there is no potential to create cycles or leak nodes.
 
-    Heterogeneous cycles are another story. An object can be immutable in the
-    sense that its value never changes, yet still hold mutable state that
-    doesn't affect its value. It's reasonable for such an object to be
-    hashable. Most classes work this way, inheriting __eq__ and __hash__ from
-    object but allowing arbitrary attributes in their instance dictionaries. So
-    we wouldn't want to prohibit most such objects as elements. But what if a
-    node's element comes to have an attribute that doesn't participate in
-    equality comparison or hashing but refers, directly or indirectly, back to
-    the node itself?
+    Heterogeneous cycles are another story. An object can be immutable, in that
+    its value never changes, yet still hold mutable state that doesn't affect
+    its value. It's reasonable for such an object to be hashable. Most classes
+    work this way, inheriting __eq__ and __hash__ from object but allowing
+    arbitrary attributes in their instance dictionaries. So we wouldn't want to
+    prohibit most such objects as elements. But what if a node's element comes
+    to have an attribute that doesn't participate in equality comparison or
+    hashing but refers, directly or indirectly, back to the node itself?
 
     That is a heterogenous cycle: part of the cycle is through an object of an
     unrelated type. Our private table that looks up nodes by their elements and
@@ -554,10 +553,10 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
     node is destroyed, the table takes care of removing the entry for it (using
     weakref callbacks). But if there is a chain of strong references from the
     element back to the node, then the table holds a strong reference to the
-    element, which holds a strong reference to the node, so the node is
-    reachable and can't be collected. Unless the heterogeneous cycle is somehow
-    broken, the entry is never removed from the table, since it would only be
-    removed when the node it keeps reachable becomes unreachable and is
+    element, which holds a strong reference to the node. Then the node, being
+    reachable, can't be garbage collected. Unless the heterogeneous cycle is
+    somehow broken, the entry is never removed from the table, since it would
+    only be removed when the node it keeps reachable becomes unreachable and is
     collected, which its presence ensures cannot happen.
 
     Note that this is NOT related to the limitations of reference counting. We
@@ -566,6 +565,7 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
     """
 
     def test_single_simple_heterogeneous_cycle_does_not_leak(self):
+        """An element can refer to its own node, with no leak."""
         class Element:
             pass
 
@@ -577,6 +577,7 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
         self.assertIsNone(observer())
 
     def test_nontrivial_heterogeneous_cycles_do_not_leak(self):
+        """All elements of one chain can refer to all nodes, with no leak."""
         class Element:
             pass
 
@@ -605,6 +606,7 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
                 self.assertIsNone(ref())
 
     def test_many_heterogeneous_cycles_do_not_leak(self):
+        """All overlapping SLLs' elements can reach all nodes, with no leak."""
         class Element:
             def __init__(self, value, aux):
                 self._value = value
@@ -630,7 +632,7 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
                          for j, tail in enumerate(top_layer)]
             layers.append(top_layer)
 
-        gc.collect()
+        testing.collect_if_not_ref_counting()
         if sll.HashNode.count_instances() != N**2:
             raise Exception('failed to arrange the heterogeneous cycles')
 
@@ -639,6 +641,16 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
         self.assertEqual(sll.HashNode.count_instances(), 0)
 
     def test_highly_redundant_heterogeneous_cycles_do_not_leak(self):
+        """
+        All overlapping SLLs elements can refer to all nodes, with no leak.
+
+        This is like test_many_heterogeneous_cycles_do_not_leak, but with no
+        choke point: instead of all nodes referring to the same list object
+        that can reach all nodes, they refer to separate lists of all nodes.
+        This should not make an important difference--it would be strange if
+        either if one of these two tests passed and the other failed--but it
+        might confer greater confidence that leaks are prevented in general.
+        """
         class Element:
             def __init__(self, value):
                 self._value = value
@@ -668,13 +680,52 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
         for node in nodes:
             node.value.aux.extend(nodes)
 
-        gc.collect()
+        testing.collect_if_not_ref_counting()
         if sll.HashNode.count_instances() != N**2:
             raise Exception('failed to arrange the heterogeneous cycles')
 
         del layers, top_layer, nodes, node
         gc.collect()
         self.assertEqual(sll.HashNode.count_instances(), 0)
+
+    def test_homogeneous_cycles_of_elements_do_not_leak(self):
+        """
+        All elements can refer to each other, with no leak.
+
+        As detailed in this test class's docstring, we can't have cycles of all
+        sll.HashNode objects. But we may, of course, have cycles of elements,
+        where the (strong) references that form the cycle are between elements
+        rather than nodes. There is no problem with this and no reason to think
+        this wouldn't work, and this test method exists more to document the
+        distinction than to safeguard against anything. If all the tests in
+        TestHashNodeBasic pass, this test should also pass.
+        """
+        class Element:
+            pass
+
+        e1 = Element()
+        e2 = Element()
+        e3 = Element()
+        e4 = Element()
+
+        head = sll.HashNode.from_iterable([e1, e2, e3, e4])
+
+        e1.e1 = e2.e1 = e3.e1 = e4.e1 = e1
+        e1.e2 = e2.e2 = e3.e2 = e4.e2 = e2
+        e1.e3 = e2.e3 = e3.e3 = e4.e3 = e3
+        e1.e4 = e2.e4 = e3.e4 = e4.e4 = e4
+
+        r1 = weakref.ref(e1)
+        r2 = weakref.ref(e2)
+        r3 = weakref.ref(e3)
+        r4 = weakref.ref(e4)
+
+        del e1, e2, e3, e4, head
+        gc.collect()
+
+        for name, ref in ('r1', r1), ('r2', r2), ('r3', r3), ('r4', r4):
+            with self.subTest(observer=name):
+                self.assertIsNone(ref())
 
 
 class _CachedEq:
@@ -733,13 +784,13 @@ class _CachedEq:
     It's feasible for sll.HashNode to support types like _CachedEq, because
     after __hash__ is called successfully on a _CachedEq instance, __eq__ on
     the same instance never calls sll.HashNode. Other types, intentionally or
-    due to bugs, may call sll.HashNode from their __eq__ methods. This is
+    due to bugs, may call sll.HashNode from their __eq__ methods. This would be
     tricky to make safe. After sll.HashNode.__new__(x, n) subscripts a table
     with a key whose __eq__ method calls x.__eq__, doesn't find the key, and
     creates a new node, it subscripts the table again to insert the new node.
     This is a critical time: a node exists that isn't yet in the table. The
     operation of adding it to the table calls x.__eq__ before adding it, which
-    could call sll.HashNode(x, n).
+    could call sll.HashNode(x, n) again.
 
     Even though this problem is unrelated to threading, a non-reentrant lock
     prevented it. I don't know of a way to make reentering sll.HashNode.__new__
@@ -790,10 +841,10 @@ class TestHashNodeReentrantCachedEq(unittest.TestCase):
     Tests for __new__ reentrancy bugs in sll.HashNode, with _CachedEq elements.
 
     These tests are equivalent to the _CachedEq doctests above, but as unittest
-    tests. This is (1) so the unittest test runner, and by the pytest test
-    runner even without --doctest-modules, runs them, (2) to clarify the
-    relationship between design decisions and what test to skip, (3) to
-    facilitate comparison to the TestDevious tests, below.
+    tests. This is (1) so the unittest test runner, and the pytest test runner
+    even without --doctest-modules, runs them, (2) to clarify the relationship
+    between design decisions and what test to skip, (3) to facilitate
+    comparison to the TestHashNodeReentrantDevious tests below.
 
     It is not a goal to thoroughly test the public interface of _CachedEq
     itself. These are really sll.HashNode tests, using _CachedEq.
