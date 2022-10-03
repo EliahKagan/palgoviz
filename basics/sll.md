@@ -2,24 +2,26 @@
 
 ## Solution to the problem of heterogeneous cycles
 
-In many uses, client code can ensure that no heterogeneous cycle forms. But
-this can't be guaranteed, even in reasonably written code, and it can't always
-be predicted. So it would be good if the node type could prevent or break such
-cycles. Since a node's element and successor always exist as long as the node
-does--because the node holds strong references to them--it seems the references
-to them from the table could be weak instead of strong.
+In many uses, client code can ensure no heterogeneous cycle forms. But that's
+not always feasible. Furthermore, the whole point of cyclic garbage collection
+is that even arbitrary cycles do not cause leaks. So it would be good if the
+node type could avoid keeping strong references to any heterogeneous cycles no
+longer reachable except through its private table. Because a node's element and
+successor always exist for as long as the node exists--since the node holds
+strong references to them--it seems the references to them from the table could
+be weak instead of strong.
 
-Is this really okay? In an entry mapping the key like `(value, next_node)` to
-the value `node`, is it safe for the key's references to `value` and
-`next_node` to be weak references?
+Is this really okay? In an entry that maps a key `(value, next_node)` to a
+value `node`, is it safe for the key's references to `value` and `next_node` to
+be weak references?
 
-It would be easy to say yes, if the callback the table registers to remove the
-entry is guaranteed to remove it without looking up the entry by key. But
+It would be easy to say yes, *if* the callback the table registers to remove
+the entry were guaranteed to remove it without looking up the entry by key. But
 `weakref.WeakValueTable` makes no such promise. Furthermore, its implementation
-in CPython, which stores entries in an underlying dict to satisfy its atomicity
-guarantees, always subscripts that dict with the key to remove it. Subscripting
-the dict calls `hash` on the key, and also compares it for equality to one or
-more keys stored in the dict.
+in CPython stores entries in an underlying dict to satisfy its atomicity
+guarantees, and *always* subscripts that dict with the key to remove it.
+Subscripting the dict calls `hash` on the key, and also compares it for
+equality to one or more keys stored in the dict.
 
 <!-- FIXME: Finish writing the text from here to the HTML comment below. -->
 Might it *still* be safe? We have a very nice invariant on our side:
@@ -29,7 +31,7 @@ whose hashing and equality comparison behavior must delegate to the objects
 they hold weak references to, ...
 <!-- ^^^^^^ Finish writing the text from the above HTML comment to here. -->
 
-Now there is just one problem: not all objects in Python can be referred to by
+Now there is one more problem: not all objects in Python can be referred to by
 weak references! It would be bad only to support weak-referenceable element
 types. (For example, we couldn't even store `int` values.) `HashNode` instances
 have already been made weak-referenceable, or we wouldn't be able to use them
