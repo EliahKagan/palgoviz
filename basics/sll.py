@@ -82,8 +82,8 @@ class HashNode:
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
 
-    See the sll module docstring on the concepts involved. HashNode equality
-    implies identity. Inheriting from this class is not recommended.
+    See the sll module docstring regarding the concepts involved. HashNode
+    equality implies identity. Inheriting from this class is not recommended.
 
     >>> head1 = HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1.value
@@ -96,7 +96,7 @@ class HashNode:
     >>> HashNode('a', HashNode('b', HashNode('Q', HashNode('d')))) == head1
     False
 
-    Heads of structurally equal SLLs are the SAME object:
+    Heads of structurally equal SLLs are not merely equal but the same object:
 
     >>> HashNode('a', HashNode('b', HashNode('c', HashNode('d')))) is head1
     True
@@ -123,8 +123,7 @@ class HashNode:
 
     The HashNode class keeps track of its instances in such a way that, once
     unreachable from the outside, they are immediately eligible for garbage
-    collection. (Except heterogeneous cycles, detailed in the module docstring,
-    aren't properly handled.) test_sll.py and test_sll.txt have tests for this.
+    collection. (test_sll.py and test_sll.txt have tests for this.)
     """
 
     __slots__ = ('__weakref__', '_box', '_next_node')
