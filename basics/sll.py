@@ -19,10 +19,10 @@ The HashNode type in this module uses reference-based equality comparison, but
 singly linked lists that use this HashNode type always share the longest suffix
 possible, including when that is the whole linked list. So if two variables
 refer to the head nodes of lists with equal values appearing in the same order,
-then it is guaranteed that those two variables refer to the same node object
-(assuming no bugs!). Therefore, for sll.HashNode objects, reference-based
-equality comparison is also structural equality comparison (for the lists they
-are the head nodes of). This is one of the benefits of hash consing.
+then it is guaranteed that those two variables refer to the same node object.
+Therefore, for sll.HashNode objects, reference-based equality comparison is
+also structural equality comparison (for the lists they are the head nodes of).
+This is one of the benefits of hash consing.
 
 Hash consing is applicable to any immutable node-based data structure whose
 nodes make up a directed acyclic graph. This includes, but is not limited to,
@@ -48,8 +48,8 @@ class _Box:
     but we need element references from keys in the WeakValueTable to be weak
     to avoid leaking heterogeneous cycles.
 
-    Boxes are kept alive by strong references in nodes, and WeakValueTable keys
-    hold weak references to boxes so that heterogenous cycles are broken.
+    Boxes are kept alive by strong references in nodes. WeakValueTable keys use
+    weak references so heterogenous cycles through the table are never strong.
     """
 
     __slots__ = ('__weakref__', '_value')
@@ -161,6 +161,12 @@ class HashNode:
             raise TypeError(f'next_node must be a {cls.__name__} or None, not '
                             + type(next_node).__name__)
 
+        # The key for a node accesses the node's element and successor through
+        # weak references. This is important because the WeakValueTable holds
+        # strong references to its keys. If an element has a strong reference
+        # cycle back to the node that contains it, the cyclic garbage collector
+        # will be able to clean it up when it is only accessible through the
+        # table, but only if the table doesn't strongly refer into the cycle.
         box = _Box(value)
         key = (weakref.ref(box), next_node and weakref.ref(next_node))
 
