@@ -12,19 +12,13 @@ Because the attrs library fully supports being used both with and without type
 annotations and is extremely popular, a major focus here is on using that
 library to make data classes. However, the dataclasses module is shown too.
 
-Because the goal of code in this module is to show alternatives, code is freely
-duplicated across functions and across classes, any time that sharing it would
-obscure anything, or make any alternative less self contained. This is almost
-always. As an exception, pairs of classes where one supports its instances
-being unpacked by assignment to multiple targets and the other does not, and
-that are otherwise intended to be identical in their functionality, achieve
-this by inheritance when the amount of other code in the class is substantial
-(but not otherwise). This is because repeating all the code would obscure how
-the only thing that varies is the absence or presence of one special method.
+A goal of this module is to show alternatives, so code is freely duplicated
+across functions, and across classes, when sharing it would obscure anything or
+make any alternative less self contained -- except where noted otherwise.
 """
 
 import math
-from types import SimpleNamespace
+import types
 
 DEFAULT_PRECISION = 5
 """How many fractional digits summarize* functions keep when rounding means."""
@@ -44,6 +38,10 @@ def summarize_as_tuple(values, *, precision=DEFAULT_PRECISION):
     Time complexity is O(len(values)). Space complexity is O(1). These assume a
     number takes O(1) space and arithmetic operations take O(1) time, which is
     often an approximation in Python, but it is guaranteed when using floats.
+
+    Other functions in this module, when documented with the phrase "This is
+    like summarize_as_tuple," likewise make only one pass over their input and
+    have the same time and space complexities as this, if not otherwise stated.
 
     >>> summarize_as_tuple([1, 3, 2.5, 3, 4])
     (1, 4, 2.7, 2.45951, 2.15827)
@@ -179,7 +177,7 @@ def summarize_as_simple_namespace(values, *, precision=DEFAULT_PRECISION):
     False
 
     >>> match summarize_as_simple_namespace([1, 2, 16, 4, 8]):
-    ...     case SimpleNamespace(geometric_mean=4, harmonic_mean=hm):
+    ...     case types.SimpleNamespace(geometric_mean=4, harmonic_mean=hm):
     ...         print(f'Geometric mean four, harmonic mean {hm}.')
     Geometric mean four, harmonic mean 2.58065.
     """
@@ -204,7 +202,7 @@ def summarize_as_simple_namespace(values, *, precision=DEFAULT_PRECISION):
     if count == 0:
         raise ValueError('no values')
 
-    return SimpleNamespace(
+    return types.SimpleNamespace(
         minimum=minimum,
         maximum=maximum,
         arithmetic_mean=round(total / count, precision),
@@ -361,6 +359,10 @@ def summarize_as_mutable_unpack(values, *, precision=DEFAULT_PRECISION):
     as an instance of a custom mutable slotted class, capable of unpacking into
     its constituent values when assigned to multiple variables, with all needed
     special methods implemented explicitly.
+
+    MyMutableSummary and MyMutableSummaryUnpack differ only by a single method.
+    To repeat the rest of their code would obscure that. So one inherits from
+    the other. This is an exception to the usual practice in this module.
 
     >>> s = summarize_as_mutable_unpack([1, 3, 2.5, 3, 4])
 
@@ -609,6 +611,10 @@ def summarize_as_frozen_unpack(values, *, precision=DEFAULT_PRECISION):
     into its constituent values when assigned to multiple variables, with all
     needed special methods implemented explicitly.
 
+    MyFrozenSummary and MyFrozenSummaryUnpack differ only by a single method.
+    To repeat the rest of their code would obscure that. So one inherits from
+    the other. This is an exception to the usual practice in this module.
+
     >>> s = summarize_as_frozen_unpack([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
@@ -741,19 +747,19 @@ def summarize_as_manual_named_tuple(values, *, precision=DEFAULT_PRECISION):
     as an instance of a custom class that inherits from tuple, extending its
     functionality to allow the elements to be accessed as named attributes. For
     example, if summary is returned, summary.harmonic_mean accesses the same
-    element summary[4] and summary[-1] access.
+    element summary[4] and summary[-1] access. Subscripting is still permitted.
 
-    Derived classes do not, in general, commit to be constructible the same as
-    their base classes, and calling the return type of this function in any way
-    besides passing the five arguments, as separate arguments, should not be
-    allowed, since that would always be a bug.
+    Derived classes do not, as a general principle, commit to be constructible
+    in the same way as their base classes. Calling the return type of this
+    function in any way besides passing the five elements, as separate
+    arguments, should not be allowed, since that would always be a bug.
 
-    The constructed object, being an indirect instance of the tuple class,
-    really is a tuple. It must satisfy all expectations for tuples, except for
-    its customized repr that can be run as code. It also must not store any
-    extra data. Elements are not stored redundantly, and instances must not
-    have instance dictionaries, nor any slotted attributes. Storing data in a
-    data structure outside the instance is also not allowed.
+    The constructed object, being an (indirect) instance of the tuple class,
+    really is a tuple. It satisfies all expectations for tuples, except for its
+    customized repr that can be run as code to construct an instance of the
+    same (derived) type. It never holds any extra data. Elements are not stored
+    redundantly. There are no instance dictionaries, nor slotted attributes.
+    (Storing data in a data structure outside the instance is also not done.)
 
     This is manually implemented. The standard library provides two facilities
     for making named tuple types, both explored below. Neither is used here.
@@ -845,6 +851,23 @@ def summarize_as_manual_named_tuple(values, *, precision=DEFAULT_PRECISION):
         geometric_mean=round(product**(1 / count), precision),
         harmonic_mean=round(count / reciprocals_total, precision),
     )
+
+
+__all__ = [thing.__name__ for thing in (
+    summarize_as_tuple,
+    summarize_as_dict,
+    summarize_as_simple_namespace,
+    MyMutableSummary,
+    summarize_as_mutable,
+    MyMutableSummaryUnpack,
+    summarize_as_mutable_unpack,
+    MyFrozenSummary,
+    summarize_as_frozen,
+    MyFrozenSummaryUnpack,
+    summarize_as_frozen_unpack,
+    MyNamedTupleSummary,
+    summarize_as_manual_named_tuple,
+)]
 
 
 if __name__ == '__main__':
