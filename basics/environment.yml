@@ -5,6 +5,7 @@ channels:
 
 dependencies:
   - python=3.10
+  - attrs
   - more-itertools
   - sympy
 
@@ -24,3 +25,5 @@ dependencies:
 
   # For static analysis
   - flake8
+  - mypy>=0.940
+  - pyright

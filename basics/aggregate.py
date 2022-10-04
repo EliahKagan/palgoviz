@@ -18,13 +18,21 @@ make any alternative less self contained -- except where noted otherwise.
 """
 
 import collections
+from collections.abc import Iterable
 import math
 import types
+import typing
 
 DEFAULT_PRECISION = 5
 """How many fractional digits summarize* functions keep when rounding means."""
 
 
+# FIXME: After implementing this and getting all tests to pass, run flake8 on
+# the module before continuing. To facilitate side-by-side comparison, most of
+# the other functions in this module will contain very similar code to the code
+# here, most of which can and should be copied and pasted. But even though code
+# duplication is probably justified in specific situations, its disadvantages
+# still apply. It is easier to make improvements in one place than in many.
 def summarize_as_tuple(values, *, precision=DEFAULT_PRECISION):
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
@@ -879,11 +887,12 @@ def summarize_as_named_tuple(values, *, precision=DEFAULT_PRECISION):
 
     This is like summarize_as_tuple, but the five computed results are returned
     as an instance of a named tuple class. The class is made using the facility
-    in the collections module for doing so. (One often sees such classes omit a
-    docstring. But this class has one. Inheritance is not used.)
+    in the collections module for doing so. (Such classes often omit docstrings
+    because the facility doesn't directly help with them, but they need not be
+    omitted. Like all other classes in this module, the class has a docstring.)
 
-    Most named tuple types in Python code are made with that facility.
-    Requirements given in summarize_as_manual_named_tuple apply. In particular,
+    Most named tuple types in Python code are made this way. This satisfies the
+    requirements stated in summarize_as_manual_named_tuple. In particular,
     instances of named tuple types, no matter how the types are made, are equal
     to same-length tuples whose corresponding values are equal. This includes
     not just plain tuples, but instances of conceptually unrelated named tuple
@@ -982,7 +991,254 @@ def summarize_as_named_tuple(values, *, precision=DEFAULT_PRECISION):
     )
 
 
-__all__ = [thing.__name__ for thing in (
+class TypedNamedTupleSummary(typing.NamedTuple):
+    """
+    "Typed" named tuple summary returned by summarized_as_typed_named_tuple and
+    summarized_as_typed_named_tuple_typed.
+
+    This type is created using typing.NamedTuple, which is done by specifying
+    it as a base class, even though it is not really a base class, and the
+    direct base class is tuple (as it is when collections.namedtuple). This
+    class is immutable and iterable, because tuples are.
+    """
+    minimum: float
+    maximum: float
+    arithmetic_mean: float
+    geometric_mean: float
+    harmonic_mean: float
+
+
+def summarize_as_typed_named_tuple(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a named tuple class. The class is made using the facility
+    in the typing module for doing so. This named tuple type is "typed" in that
+    its attributes carry type annotations. These relate to Python's optional
+    static typing and do not confer runtime type checking. The interpreter does
+    NOT check the annotations. Static type checkers like mypy and pyright do.
+    But they won't check this function, which omits parameter and return type
+    annotations. This shows "typed" and "untyped" code can be used together.
+    The most important thing to know about type annotations, aside from how the
+    interpreter doesn't check them, is that code with and without them can mix.
+
+    NOTE: That an instance's attributes have type annotations does not change
+    that it is a tuple, supports all operations of tuples, and equals any tuple
+    with equal values in the same order, even those of unrelated named tuple
+    types. This includes unrelated "typed" named tuple types, even those whose
+    attributes' type annotations are totally different. Static type checkers do
+    not warn about this, because it is not a type error. If a type's equality
+    comparison logic should differ at all from that of tuples, the type should
+    not be any kind of named tuple. (This is one reason data classes exist.)
+
+    The facility for named tuples in the typing module can be used in a manner
+    similar to the facility in the collections module, but this is rarely done.
+    The TypedNameTupleSummary class uses it in the other, much nicer, way.
+
+    >>> s = summarize_as_typed_named_tuple([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    TypedNamedTupleSummary(minimum=1,
+                           maximum=4,
+                           arithmetic_mean=2.7,
+                           geometric_mean=2.45951,
+                           harmonic_mean=2.15827)
+    >>> isinstance(s, tuple)
+    True
+    >>> eval(repr(s)) == s
+    True
+
+    >>> len({s, summarize_as_typed_named_tuple([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_typed_named_tuple([1, 2, 16, 4, 8])})
+    2
+
+    >>> from tokenize import TokenInfo  # A highly unrelated named tuple type.
+    >>> len({s, summarize_as_tuple([1, 3, 2.5, 3, 4]),
+    ...      summarize_as_manual_named_tuple([1, 3, 2.5, 3, 4]),
+    ...      summarize_as_named_tuple([1, 3, 2.5, 3, 4]),
+    ...      TokenInfo(1, 4, 2.7, 2.45951, 2.15827)})
+    1
+
+    >>> s[:2]
+    (1, 4)
+    >>> s * 2
+    (1, 4, 2.7, 2.45951, 2.15827, 1, 4, 2.7, 2.45951, 2.15827)
+
+    >>> s.minimum = 1.5  # Subtly different message from MyNamedTupleSummary's.
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute
+
+    >>> _, _, am, _, _ = summarize_as_typed_named_tuple([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_typed_named_tuple([1, 2, 16, 4, 8]):
+    ...     case TypedNamedTupleSummary(geometric_mean=4,
+    ...                                 harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_typed_named_tuple([1, 2, 16, 4, 8]):
+    ...     case TypedNamedTupleSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_typed_named_tuple([1, 2, 16, 4, 8]):
+    ...     case _, _, _, 4, hm:
+    ...         print(f'Geometric mean four, harmonic mean {hm}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> all(getattr(TypedNamedTupleSummary, name) is getattr(tuple, name)
+    ...     for name in ('__eq__', '__hash__', '__iter__', '__getitem__'))
+    True
+    >>> hasattr(s, '__dict__')  # No instance dictionary.
+    False
+    >>> class Slotted: __slots__ = ('slot',)
+    >>> member_descriptor = type(Slotted.slot)
+    >>> any(isinstance(member, member_descriptor)  # And no slotted attributes.
+    ...     for member in TypedNamedTupleSummary.__dict__.values())
+    False
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return TypedNamedTupleSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+def summarize_as_typed_named_tuple_typed(
+        values: Iterable[float], *,
+        precision: int = DEFAULT_PRECISION) -> TypedNamedTupleSummary:
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is the same as summarize_as_typed_named_tuple above, but this function
+    has parameter and return type annotations, for static type checking. Both
+    functions are included, to emphasize that type annotations in a class don't
+    force client code to use them. (However, subsequent functions in this
+    module, if their return types' attributes have type annotations, have them
+    too. This avoids a level of repetition excessive even for this module.)
+
+    NOTE: Type checkers unfortunately do not (currently) check doctests. Also,
+    like other class and function names in this module, this function is named
+    verbosely to make it easy to distinguish from others. This module shows
+    numerous ways to achieve a similar effect. If not for that, we would write
+    one "Summary" class and one "summarize" function, with those short names.
+
+    [FIXME: Add the type annotations on this function's parameters and return
+    type. Then run both mypy and pyright on this module. If there are any
+    problems, make sure you understand them, then fix them in a suitable way.]
+
+    >>> s = summarize_as_typed_named_tuple_typed([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    TypedNamedTupleSummary(minimum=1,
+                           maximum=4,
+                           arithmetic_mean=2.7,
+                           geometric_mean=2.45951,
+                           harmonic_mean=2.15827)
+    >>> isinstance(s, tuple)
+    True
+    >>> eval(repr(s)) == s
+    True
+
+    >>> len({s, summarize_as_typed_named_tuple_typed([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_typed_named_tuple_typed([1, 2, 16, 4, 8])})
+    2
+
+    >>> from tokenize import TokenInfo  # A highly unrelated named tuple type.
+    >>> len({s, summarize_as_tuple([1, 3, 2.5, 3, 4]),
+    ...      summarize_as_manual_named_tuple([1, 3, 2.5, 3, 4]),
+    ...      summarize_as_named_tuple([1, 3, 2.5, 3, 4]),
+    ...      TokenInfo(1, 4, 2.7, 2.45951, 2.15827)})
+    1
+
+    >>> s[:2]
+    (1, 4)
+    >>> s * 2
+    (1, 4, 2.7, 2.45951, 2.15827, 1, 4, 2.7, 2.45951, 2.15827)
+
+    >>> s.minimum = 1.5  # Subtly different message from MyNamedTupleSummary's.
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute
+
+    >>> _, _, am, _, _ = summarize_as_typed_named_tuple_typed([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_typed_named_tuple_typed([1, 2, 16, 4, 8]):
+    ...     case TypedNamedTupleSummary(geometric_mean=4,
+    ...                                 harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_typed_named_tuple_typed([1, 2, 16, 4, 8]):
+    ...     case TypedNamedTupleSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_typed_named_tuple_typed([1, 2, 16, 4, 8]):
+    ...     case _, _, _, 4, hm:
+    ...         print(f'Geometric mean four, harmonic mean {hm}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0.0
+    total = 0.0
+    product = 1.0
+    reciprocals_total = 0.0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return TypedNamedTupleSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+__all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_tuple,
     summarize_as_dict,
     summarize_as_simple_namespace,
@@ -998,6 +1254,9 @@ __all__ = [thing.__name__ for thing in (
     summarize_as_manual_named_tuple,
     NamedTupleSummary,
     summarize_as_named_tuple,
+    TypedNamedTupleSummary,
+    summarize_as_typed_named_tuple,
+    summarize_as_typed_named_tuple_typed,
 )]
 
 
