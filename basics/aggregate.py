@@ -8,9 +8,18 @@ is straightforward, yet (1) an imperfect fit for preexisting built-in and other
 standard library types and (2) cumbersome to solve from scratch with explicitly
 written special (dunder) methods. Named tuples and data classes solve it well.
 
-Because the attrs library fully supports being used both with and without type
-annotations and is extremely popular, a major focus here is on using that
-library to make data classes. However, the dataclasses module is shown too.
+Both named tuples and data classes (in the general sense that is not limited to
+@dataclasses.dataclass) are presented here, with and without type annotations.
+Because the attrs library fully supports both "typed" and "untyped" usage, and
+it is a very popular and important library, a major focus here is on attrs data
+classes. However, the standard library dataclasses module is shown, too.
+
+Readers experienced in the Python data model can reimplement the functions and
+classes in this module as exercises to learn about named tuples, data classes,
+and the very basics of type annotations. However, readers with no familiarity
+with any of those three topics might be well served to learn a little about at
+least one, first. The material in this project that is intended as a first
+introduction to named tuples and data classes appears in classes3.ipynb.
 
 A goal of this module is to show alternatives, so code is freely duplicated
 across functions, and across classes, when sharing it would obscure anything or
@@ -31,7 +40,7 @@ DEFAULT_PRECISION = 5
 # the module before continuing. To facilitate side-by-side comparison, most of
 # the other functions in this module will contain very similar code to the code
 # here, most of which can and should be copied and pasted. But even though code
-# duplication is probably justified in specific situations, its disadvantages
+# duplication might be justified in this specific situation, its disadvantages
 # still apply. It is easier to make improvements in one place than in many.
 def summarize_as_tuple(values, *, precision=DEFAULT_PRECISION):
     """
