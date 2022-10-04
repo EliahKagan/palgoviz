@@ -11,6 +11,16 @@ written special (dunder) methods. Named tuples and data classes solve it well.
 Because the attrs library fully supports being used both with and without type
 annotations and is extremely popular, a major focus here is on using that
 library to make data classes. However, the dataclasses module is shown too.
+
+Because the goal of code in this module is to show alternatives, code is freely
+duplicated across functions and across classes, any time that sharing it would
+obscure anything, or make any alternative less self contained. This is almost
+always. As an exception, pairs of classes where one supports its instances
+being unpacked by assignment to multiple targets and the other does not, and
+that are otherwise intended to be identical in their functionality, achieve
+this by inheritance when the amount of other code in the class is substantial
+(but not otherwise). This is because repeating all the code would obscure how
+the only thing that varies is the absence or presence of one special method.
 """
 
 import math
@@ -165,8 +175,7 @@ def summarize_as_simple_namespace(values, *, precision=DEFAULT_PRECISION):
     True
     >>> s == summarize_as_simple_namespace([1, 2, 16, 4, 8])
     False
-    >>> s.minimum = 1.5
-    >>> s == summarize_as_mutable_instance([1, 3, 2.5, 3, 4])
+    >>> s.minimum = 1.5; s == summarize_as_simple_namespace([1, 3, 2.5, 3, 4])
     False
 
     >>> match summarize_as_simple_namespace([1, 2, 16, 4, 8]):
@@ -205,7 +214,7 @@ def summarize_as_simple_namespace(values, *, precision=DEFAULT_PRECISION):
 
 
 class MyMutableSummary:
-    """Mutable summary returned by summarize_as_mutable_instance."""
+    """Mutable summary returned by summarize_as_mutable."""
 
     __slots__ = __match_args__ = (
         'minimum',
@@ -249,7 +258,7 @@ class MyMutableSummary:
                 self.harmonic_mean == other.harmonic_mean)
 
 
-def summarize_as_mutable_instance(values, *, precision=DEFAULT_PRECISION):
+def summarize_as_mutable(values, *, precision=DEFAULT_PRECISION):
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
 
@@ -257,7 +266,7 @@ def summarize_as_mutable_instance(values, *, precision=DEFAULT_PRECISION):
     as an instance of a custom mutable slotted class, with all needed special
     methods implemented explicitly.
 
-    >>> s = summarize_as_mutable_instance([1, 3, 2.5, 3, 4])
+    >>> s = summarize_as_mutable([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
     MyMutableSummary(minimum=1,
@@ -271,25 +280,24 @@ def summarize_as_mutable_instance(values, *, precision=DEFAULT_PRECISION):
       ...
     TypeError: unhashable type: 'MyMutableSummary'
 
-    >>> s == summarize_as_mutable_instance([1, 3, 3, 2.5, 4])
+    >>> s == summarize_as_mutable([1, 3, 3, 2.5, 4])
     True
-    >>> s == summarize_as_mutable_instance([1, 2, 16, 4, 8])
+    >>> s == summarize_as_mutable([1, 2, 16, 4, 8])
     False
-    >>> s.minimum = 1.5
-    >>> s == summarize_as_mutable_instance([1, 3, 2.5, 3, 4])
+    >>> s.minimum = 1.5; s == summarize_as_mutable([1, 3, 2.5, 3, 4])
     False
 
-    >>> _, _, am, _, _ = summarize_as_mutable_instance([1, 2, 16, 4, 8])
+    >>> _, _, am, _, _ = summarize_as_mutable([1, 2, 16, 4, 8])
     Traceback (most recent call last):
       ...
     TypeError: cannot unpack non-iterable MyMutableSummary object
 
-    >>> match summarize_as_mutable_instance([1, 2, 16, 4, 8]):
+    >>> match summarize_as_mutable([1, 2, 16, 4, 8]):
     ...     case MyMutableSummary(geometric_mean=4, harmonic_mean=hm_kwd):
     ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
     Geometric mean four, harmonic mean 2.58065.
 
-    >>> match summarize_as_mutable_instance([1, 2, 16, 4, 8]):
+    >>> match summarize_as_mutable([1, 2, 16, 4, 8]):
     ...     case MyMutableSummary(_, _, _, 4, hm_pos):
     ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
     Geometric mean four, harmonic mean 2.58065.
@@ -345,8 +353,7 @@ class MyMutableSummaryUnpack(MyMutableSummary):
         yield self.harmonic_mean
 
 
-def summarize_as_mutable_instance_unpack(values, *,
-                                         precision=DEFAULT_PRECISION):
+def summarize_as_mutable_unpack(values, *, precision=DEFAULT_PRECISION):
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
 
@@ -355,7 +362,7 @@ def summarize_as_mutable_instance_unpack(values, *,
     its constituent values when assigned to multiple variables, with all needed
     special methods implemented explicitly.
 
-    >>> s = summarize_as_mutable_instance_unpack([1, 3, 2.5, 3, 4])
+    >>> s = summarize_as_mutable_unpack([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
     MyMutableSummaryUnpack(minimum=1,
@@ -369,25 +376,24 @@ def summarize_as_mutable_instance_unpack(values, *,
       ...
     TypeError: unhashable type: 'MyMutableSummaryUnpack'
 
-    >>> s == summarize_as_mutable_instance_unpack([1, 3, 3, 2.5, 4])
+    >>> s == summarize_as_mutable_unpack([1, 3, 3, 2.5, 4])
     True
-    >>> s == summarize_as_mutable_instance_unpack([1, 2, 16, 4, 8])
+    >>> s == summarize_as_mutable_unpack([1, 2, 16, 4, 8])
     False
-    >>> s.minimum = 1.5
-    >>> s == summarize_as_mutable_instance_unpack([1, 3, 2.5, 3, 4])
+    >>> s.minimum = 1.5; s == summarize_as_mutable_unpack([1, 3, 2.5, 3, 4])
     False
 
-    >>> _, _, am, _, _ = summarize_as_mutable_instance_unpack([1, 2, 16, 4, 8])
+    >>> _, _, am, _, _ = summarize_as_mutable_unpack([1, 2, 16, 4, 8])
     >>> am
     6.2
 
-    >>> match summarize_as_mutable_instance_unpack([1, 2, 16, 4, 8]):
+    >>> match summarize_as_mutable_unpack([1, 2, 16, 4, 8]):
     ...     case MyMutableSummaryUnpack(geometric_mean=4,
     ...                                 harmonic_mean=hm_kwd):
     ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
     Geometric mean four, harmonic mean 2.58065.
 
-    >>> match summarize_as_mutable_instance_unpack([1, 2, 16, 4, 8]):
+    >>> match summarize_as_mutable_unpack([1, 2, 16, 4, 8]):
     ...     case MyMutableSummaryUnpack(_, _, _, 4, hm_pos):
     ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
     Geometric mean four, harmonic mean 2.58065.
@@ -423,7 +429,7 @@ def summarize_as_mutable_instance_unpack(values, *,
 
 
 class MyFrozenSummary:
-    """Immutable summary returned by summarize_as_frozen_immutable."""
+    """Immutable summary returned by summarize_as_frozen."""
 
     __match_args__ = (
         'minimum',
@@ -502,7 +508,7 @@ class MyFrozenSummary:
         return self._harmonic_mean
 
 
-def summarize_as_frozen_instance(values, *, precision=DEFAULT_PRECISION):
+def summarize_as_frozen(values, *, precision=DEFAULT_PRECISION):
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
 
@@ -510,7 +516,7 @@ def summarize_as_frozen_instance(values, *, precision=DEFAULT_PRECISION):
     as an instance of a custom immutable slotted class, with all needed special
     methods implemented explicitly.
 
-    >>> s = summarize_as_frozen_instance([1, 3, 2.5, 3, 4])
+    >>> s = summarize_as_frozen([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
     MyFrozenSummary(minimum=1,
@@ -519,8 +525,8 @@ def summarize_as_frozen_instance(values, *, precision=DEFAULT_PRECISION):
                     geometric_mean=2.45951,
                     harmonic_mean=2.15827)
 
-    >>> len({s, summarize_as_frozen_instance([1, 3, 3, 2.5, 4]),
-    ...      summarize_as_frozen_instance([1, 2, 16, 4, 8])})
+    >>> len({s, summarize_as_frozen([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen([1, 2, 16, 4, 8])})
     2
 
     >>> s.minimum = 1.5
@@ -528,17 +534,17 @@ def summarize_as_frozen_instance(values, *, precision=DEFAULT_PRECISION):
       ...
     AttributeError: can't set attribute 'minimum'
 
-    >>> _, _, am, _, _ = summarize_as_frozen_instance([1, 2, 16, 4, 8])
+    >>> _, _, am, _, _ = summarize_as_frozen([1, 2, 16, 4, 8])
     Traceback (most recent call last):
       ...
     TypeError: cannot unpack non-iterable MyFrozenSummary object
 
-    >>> match summarize_as_frozen_instance([1, 2, 16, 4, 8]):
+    >>> match summarize_as_frozen([1, 2, 16, 4, 8]):
     ...     case MyFrozenSummary(geometric_mean=4, harmonic_mean=hm_kwd):
     ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
     Geometric mean four, harmonic mean 2.58065.
 
-    >>> match summarize_as_frozen_instance([1, 2, 16, 4, 8]):
+    >>> match summarize_as_frozen([1, 2, 16, 4, 8]):
     ...     case MyFrozenSummary(_, _, _, 4, hm_pos):
     ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
     Geometric mean four, harmonic mean 2.58065.
@@ -575,7 +581,7 @@ def summarize_as_frozen_instance(values, *, precision=DEFAULT_PRECISION):
 
 class MyFrozenSummaryUnpack(MyFrozenSummary):
     """
-    Mutable summary returned by summarize_as_mutable_instance_unpack.
+    Immutable summary returned by summarize_as_frozen_unpack.
 
     This is like MyFrozenSummary, but iterable so it can be unpacked into
     multiple variables on the left side of an assignment. Since interesting
@@ -594,8 +600,7 @@ class MyFrozenSummaryUnpack(MyFrozenSummary):
         yield self.harmonic_mean
 
 
-def summarize_as_frozen_instance_unpack(values, *,
-                                        precision=DEFAULT_PRECISION):
+def summarize_as_frozen_unpack(values, *, precision=DEFAULT_PRECISION):
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
 
@@ -604,7 +609,7 @@ def summarize_as_frozen_instance_unpack(values, *,
     into its constituent values when assigned to multiple variables, with all
     needed special methods implemented explicitly.
 
-    >>> s = summarize_as_frozen_instance_unpack([1, 3, 2.5, 3, 4])
+    >>> s = summarize_as_frozen_unpack([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
     MyFrozenSummaryUnpack(minimum=1,
@@ -613,8 +618,8 @@ def summarize_as_frozen_instance_unpack(values, *,
                           geometric_mean=2.45951,
                           harmonic_mean=2.15827)
 
-    >>> len({s, summarize_as_frozen_instance([1, 3, 3, 2.5, 4]),
-    ...      summarize_as_frozen_instance([1, 2, 16, 4, 8])})
+    >>> len({s, summarize_as_frozen_unpack([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen_unpack([1, 2, 16, 4, 8])})
     2
 
     >>> s.minimum = 1.5
@@ -622,16 +627,16 @@ def summarize_as_frozen_instance_unpack(values, *,
       ...
     AttributeError: can't set attribute 'minimum'
 
-    >>> _, _, am, _, _ = summarize_as_frozen_instance_unpack([1, 2, 16, 4, 8])
+    >>> _, _, am, _, _ = summarize_as_frozen_unpack([1, 2, 16, 4, 8])
     >>> am
     6.2
 
-    >>> match summarize_as_frozen_instance_unpack([1, 2, 16, 4, 8]):
+    >>> match summarize_as_frozen_unpack([1, 2, 16, 4, 8]):
     ...     case MyFrozenSummaryUnpack(geometric_mean=4, harmonic_mean=hm_kwd):
     ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
     Geometric mean four, harmonic mean 2.58065.
 
-    >>> match summarize_as_frozen_instance_unpack([1, 2, 16, 4, 8]):
+    >>> match summarize_as_frozen_unpack([1, 2, 16, 4, 8]):
     ...     case MyFrozenSummaryUnpack(_, _, _, 4, hm_pos):
     ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
     Geometric mean four, harmonic mean 2.58065.
