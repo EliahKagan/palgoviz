@@ -17,6 +17,7 @@ across functions, and across classes, when sharing it would obscure anything or
 make any alternative less self contained -- except where noted otherwise.
 """
 
+import collections
 import math
 import types
 
@@ -679,7 +680,7 @@ def summarize_as_frozen_unpack(values, *, precision=DEFAULT_PRECISION):
 
 class MyNamedTupleSummary(tuple):
     """
-    Manually named tuple summary returned by summarize_as_manual_named_tuple.
+    Manual named tuple summary returned by summarize_as_manual_named_tuple.
 
     This is immutable and iterable, because tuples are.
     """
@@ -744,10 +745,10 @@ def summarize_as_manual_named_tuple(values, *, precision=DEFAULT_PRECISION):
     Compute min, max, and arithmetic, geometric, and harmonic mean.
 
     This is like summarize_as_tuple, but the five computed results are returned
-    as an instance of a custom class that inherits from tuple, extending its
-    functionality to allow the elements to be accessed as named attributes. For
-    example, if summary is returned, summary.harmonic_mean accesses the same
-    element summary[4] and summary[-1] access. Subscripting is still permitted.
+    as an instance of a custom named tuple class: a class that inherits from
+    tuple and extends it so elements can also be accessed by named attributes.
+    For example, if summary is returned, summary.harmonic_mean accesses the
+    same element summary[4] and summary[-1] access. Subscripting still works.
 
     Derived classes do not, as a general principle, commit to be constructible
     in the same way as their base classes. Calling the return type of this
@@ -853,6 +854,134 @@ def summarize_as_manual_named_tuple(values, *, precision=DEFAULT_PRECISION):
     )
 
 
+# NOTE: One disadvantage of collections.namedtuple is that, if the type is
+# renamed by an automated refactoring (at least in current editors/IDEs), the
+# typename argument to collections.namedtuple must still be manually changed.
+NamedTupleSummary = collections.namedtuple('NamedTupleSummary', (
+    'minimum',
+    'maximum',
+    'arithmetic_mean',
+    'geometric_mean',
+    'harmonic_mean',
+))
+
+NamedTupleSummary.__doc__ = """
+    Named tuple summary returned by summarize_as_named_tuple.
+
+    This type is created in the usual way for a named tuple type, using
+    collections.namedtuple. It is immutable and iterable, because tuples are.
+    """
+
+
+def summarize_as_named_tuple(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a named tuple class. The class is made using the facility
+    in the collections module for doing so. (One often sees such classes omit a
+    docstring. But this class has one. Inheritance is not used.)
+
+    Most named tuple types in Python code are made with that facility.
+    Requirements given in summarize_as_manual_named_tuple apply. In particular,
+    instances of named tuple types, no matter how the types are made, are equal
+    to same-length tuples whose corresponding values are equal. This includes
+    not just plain tuples, but instances of conceptually unrelated named tuple
+    types! Named tuples should only be used when this is reasonable.
+
+    >>> s = summarize_as_named_tuple([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    NamedTupleSummary(minimum=1,
+                      maximum=4,
+                      arithmetic_mean=2.7,
+                      geometric_mean=2.45951,
+                      harmonic_mean=2.15827)
+    >>> isinstance(s, tuple)
+    True
+    >>> eval(repr(s)) == s
+    True
+
+    >>> len({s, summarize_as_named_tuple([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_named_tuple([1, 2, 16, 4, 8])})
+    2
+
+    >>> from tokenize import TokenInfo  # A highly unrelated named tuple type.
+    >>> len({s, summarize_as_tuple([1, 3, 2.5, 3, 4]),
+    ...      summarize_as_manual_named_tuple([1, 3, 2.5, 3, 4]),
+    ...      TokenInfo(1, 4, 2.7, 2.45951, 2.15827)})
+    1
+
+    >>> s[:2]
+    (1, 4)
+    >>> s * 2
+    (1, 4, 2.7, 2.45951, 2.15827, 1, 4, 2.7, 2.45951, 2.15827)
+
+    >>> s.minimum = 1.5  # Subtly different message from MyNamedTupleSummary's.
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute
+
+    >>> _, _, am, _, _ = summarize_as_named_tuple([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_named_tuple([1, 2, 16, 4, 8]):
+    ...     case NamedTupleSummary(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_named_tuple([1, 2, 16, 4, 8]):
+    ...     case NamedTupleSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_named_tuple([1, 2, 16, 4, 8]):
+    ...     case _, _, _, 4, hm:
+    ...         print(f'Geometric mean four, harmonic mean {hm}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> all(getattr(NamedTupleSummary, name) is getattr(tuple, name)
+    ...     for name in ('__eq__', '__hash__', '__iter__', '__getitem__'))
+    True
+    >>> hasattr(s, '__dict__')  # No instance dictionary.
+    False
+    >>> class Slotted: __slots__ = ('slot',)
+    >>> member_descriptor = type(Slotted.slot)
+    >>> any(isinstance(member, member_descriptor)  # And no slotted attributes.
+    ...     for member in NamedTupleSummary.__dict__.values())
+    False
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return NamedTupleSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
 __all__ = [thing.__name__ for thing in (
     summarize_as_tuple,
     summarize_as_dict,
@@ -867,6 +996,8 @@ __all__ = [thing.__name__ for thing in (
     summarize_as_frozen_unpack,
     MyNamedTupleSummary,
     summarize_as_manual_named_tuple,
+    NamedTupleSummary,
+    summarize_as_named_tuple,
 )]
 
 
