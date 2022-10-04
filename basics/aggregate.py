@@ -275,8 +275,6 @@ def summarize_as_mutable_instance(values, *, precision=DEFAULT_PRECISION):
     True
     >>> s == summarize_as_mutable_instance([1, 2, 16, 4, 8])
     False
-    >>> hasattr(s, '__dict__')
-    False
     >>> s.minimum = 1.5
     >>> s == summarize_as_mutable_instance([1, 3, 2.5, 3, 4])
     False
@@ -375,8 +373,6 @@ def summarize_as_mutable_instance_unpack(values, *,
     True
     >>> s == summarize_as_mutable_instance_unpack([1, 2, 16, 4, 8])
     False
-    >>> hasattr(s, '__dict__')
-    False
     >>> s.minimum = 1.5
     >>> s == summarize_as_mutable_instance_unpack([1, 3, 2.5, 3, 4])
     False
@@ -418,121 +414,6 @@ def summarize_as_mutable_instance_unpack(values, *,
         raise ValueError('no values')
 
     return MyMutableSummaryUnpack(
-        minimum=minimum,
-        maximum=maximum,
-        arithmetic_mean=round(total / count, precision),
-        geometric_mean=round(product**(1 / count), precision),
-        harmonic_mean=round(count / reciprocals_total, precision),
-    )
-
-
-class MyMutableSummaryAlt:
-    """Mutable summary returned by summarize_as_mutable_instance_alt."""
-
-    __match_args__ = (
-        'minimum',
-        'maximum',
-        'arithmetic_mean',
-        'geometric_mean',
-        'harmonic_mean',
-    )
-
-    def __init__(self,
-                 minimum,
-                 maximum,
-                 arithmetic_mean,
-                 geometric_mean,
-                 harmonic_mean):
-        """Create a summary to report the given extrema and means."""
-        self.minimum = minimum
-        self.maximum = maximum
-        self.arithmetic_mean = arithmetic_mean
-        self.geometric_mean = geometric_mean
-        self.harmonic_mean = harmonic_mean
-
-    def __repr__(self):
-        """Python code representation for debugging."""
-        items = self.__dict__.items()
-        arguments = ', '.join(f'{name}={value!r}' for name, value in items)
-        return f'{type(self).__name__}({arguments})'
-
-    def __eq__(self, other):
-        """Instances are equal if they hold the same corresponding values."""
-        if isinstance(other, type(self)):
-            return self.__dict__ == other.__dict__
-        return NotImplemented
-
-
-def summarize_as_mutable_instance_alt(values, *, precision=DEFAULT_PRECISION):
-    """
-    Compute min, max, and arithmetic, geometric, and harmonic mean.
-
-    This is like summarize_as_tuple, but the five computed results are returned
-    as an instance of a custom mutable non-slotted class, with all needed
-    special methods implemented explicitly. Another way to put it is that this
-    is like summarize_as_mutable_instance but with instance dictionaries.
-
-    >>> s = summarize_as_mutable_instance_alt([1, 3, 2.5, 3, 4])
-
-    >>> s  # doctest: +NORMALIZE_WHITESPACE
-    MyMutableSummaryAlt(minimum=1,
-                        maximum=4,
-                        arithmetic_mean=2.7,
-                        geometric_mean=2.45951,
-                        harmonic_mean=2.15827)
-
-    >>> hash(s)
-    Traceback (most recent call last):
-      ...
-    TypeError: unhashable type: 'MyMutableSummaryAlt'
-
-    >>> s == summarize_as_mutable_instance_alt([1, 3, 3, 2.5, 4])
-    True
-    >>> s == summarize_as_mutable_instance_alt([1, 2, 16, 4, 8])
-    False
-    >>> s.__dict__ == summarize_as_simple_namespace([1, 3, 3, 2.5, 4]).__dict__
-    True
-    >>> s.minimum = 1.5
-    >>> s == summarize_as_mutable_instance_alt([1, 3, 2.5, 3, 4])
-    False
-
-    >>> _, _, am, _, _ = summarize_as_mutable_instance_alt([1, 2, 16, 4, 8])
-    Traceback (most recent call last):
-      ...
-    TypeError: cannot unpack non-iterable MyMutableSummaryAlt object
-
-    >>> match summarize_as_mutable_instance_alt([1, 2, 16, 4, 8]):
-    ...     case MyMutableSummaryAlt(geometric_mean=4, harmonic_mean=hm_kwd):
-    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
-    Geometric mean four, harmonic mean 2.58065.
-
-    >>> match summarize_as_mutable_instance_alt([1, 2, 16, 4, 8]):
-    ...     case MyMutableSummaryAlt(_, _, _, 4, hm_pos):
-    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
-    Geometric mean four, harmonic mean 2.58065.
-    """
-    count = 0
-    minimum = math.inf
-    maximum = 0
-    total = 0
-    product = 1
-    reciprocals_total = 0
-
-    for value in values:
-        if value <= 0:
-            raise ValueError(f'nonpositive value {value!r}')
-
-        count += 1
-        minimum = min(minimum, value)
-        maximum = max(maximum, value)
-        total += value
-        product *= value
-        reciprocals_total += 1 / value
-
-    if count == 0:
-        raise ValueError('no values')
-
-    return MyMutableSummaryAlt(
         minimum=minimum,
         maximum=maximum,
         arithmetic_mean=round(total / count, precision),
@@ -638,9 +519,6 @@ def summarize_as_frozen_instance(values, *, precision=DEFAULT_PRECISION):
                     geometric_mean=2.45951,
                     harmonic_mean=2.15827)
 
-    >>> hasattr(s, '__dict__')
-    False
-
     >>> len({s, summarize_as_frozen_instance([1, 3, 3, 2.5, 4]),
     ...      summarize_as_frozen_instance([1, 2, 16, 4, 8])})
     2
@@ -734,9 +612,6 @@ def summarize_as_frozen_instance_unpack(values, *,
                           arithmetic_mean=2.7,
                           geometric_mean=2.45951,
                           harmonic_mean=2.15827)
-
-    >>> hasattr(s, '__dict__')
-    False
 
     >>> len({s, summarize_as_frozen_instance([1, 3, 3, 2.5, 4]),
     ...      summarize_as_frozen_instance([1, 2, 16, 4, 8])})
