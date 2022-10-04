@@ -431,20 +431,20 @@ def summarize_as_mutable_unpack(values, *, precision=DEFAULT_PRECISION):
 class MyFrozenSummary:
     """Immutable summary returned by summarize_as_frozen."""
 
-    __match_args__ = (
-        'minimum',
-        'maximum',
-        'arithmetic_mean',
-        'geometric_mean',
-        'harmonic_mean',
-    )
-
     __slots__ = (
         '_minimum',
         '_maximum',
         '_arithmetic_mean',
         '_geometric_mean',
         '_harmonic_mean',
+    )
+
+    __match_args__ = (
+        'minimum',
+        'maximum',
+        'arithmetic_mean',
+        'geometric_mean',
+        'harmonic_mean',
     )
 
     def __init__(self,
@@ -663,6 +663,182 @@ def summarize_as_frozen_unpack(values, *, precision=DEFAULT_PRECISION):
         raise ValueError('no values')
 
     return MyFrozenSummaryUnpack(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+class MyNamedTupleSummary(tuple):
+    """
+    Manually named tuple summary returned by summarize_as_manual_named_tuple.
+
+    This is immutable and iterable, because tuples are.
+    """
+
+    __slots__ = ()
+
+    __match_args__ = (
+        'minimum',
+        'maximum',
+        'arithmetic_mean',
+        'geometric_mean',
+        'harmonic_mean',
+    )
+
+    def __new__(cls,
+                minimum,
+                maximum,
+                arithmetic_mean,
+                geometric_mean,
+                harmonic_mean):
+        """Create a summary to report the given extrema and means."""
+        return super().__new__(cls, (
+            minimum,
+            maximum,
+            arithmetic_mean,
+            geometric_mean,
+            harmonic_mean,
+        ))
+
+    def __repr__(self):
+        """Python code representation for debugging."""
+        return (f'{type(self).__name__}('
+                f'minimum={self.minimum!r}, '
+                f'maximum={self.maximum!r}, '
+                f'arithmetic_mean={self.arithmetic_mean!r}, '
+                f'geometric_mean={self.geometric_mean!r}, '
+                f'harmonic_mean={self.harmonic_mean!r})')
+
+    @property
+    def minimum(self):
+        return self[0]
+
+    @property
+    def maximum(self):
+        return self[1]
+
+    @property
+    def arithmetic_mean(self):
+        return self[2]
+
+    @property
+    def geometric_mean(self):
+        return self[3]
+
+    @property
+    def harmonic_mean(self):
+        return self[4]
+
+
+def summarize_as_manual_named_tuple(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a custom class that inherits from tuple, extending its
+    functionality to allow the elements to be accessed as named attributes. For
+    example, if summary is returned, summary.harmonic_mean accesses the same
+    element summary[4] and summary[-1] access.
+
+    Derived classes do not, in general, commit to be constructible the same as
+    their base classes, and calling the return type of this function in any way
+    besides passing the five arguments, as separate arguments, should not be
+    allowed, since that would always be a bug.
+
+    The constructed object, being an indirect instance of the tuple class,
+    really is a tuple. It must satisfy all expectations for tuples, except for
+    its customized repr that can be run as code. It also must not store any
+    extra data. Elements are not stored redundantly, and instances must not
+    have instance dictionaries, nor any slotted attributes. Storing data in a
+    data structure outside the instance is also not allowed.
+
+    This is manually implemented. The standard library provides two facilities
+    for making named tuple types, both explored below. Neither is used here.
+
+    >>> s = summarize_as_manual_named_tuple([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MyNamedTupleSummary(minimum=1,
+                        maximum=4,
+                        arithmetic_mean=2.7,
+                        geometric_mean=2.45951,
+                        harmonic_mean=2.15827)
+    >>> isinstance(s, tuple)
+    True
+    >>> eval(repr(s)) == s
+    True
+
+    >>> len({s, summarize_as_manual_named_tuple([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_manual_named_tuple([1, 2, 16, 4, 8])})
+    2
+    >>> s == summarize_as_tuple([1, 3, 2.5, 3, 4])  # Equal to other tuples!
+    True
+
+    >>> s[:2]
+    (1, 4)
+    >>> s * 2
+    (1, 4, 2.7, 2.45951, 2.15827, 1, 4, 2.7, 2.45951, 2.15827)
+
+    >>> s.minimum = 1.5
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute 'minimum'
+
+    >>> _, _, am, _, _ = summarize_as_manual_named_tuple([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_manual_named_tuple([1, 2, 16, 4, 8]):
+    ...     case MyNamedTupleSummary(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_manual_named_tuple([1, 2, 16, 4, 8]):
+    ...     case MyNamedTupleSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_manual_named_tuple([1, 2, 16, 4, 8]):
+    ...     case _, _, _, 4, hm:
+    ...         print(f'Geometric mean four, harmonic mean {hm}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> all(getattr(MyNamedTupleSummary, name) is getattr(tuple, name)
+    ...     for name in ('__eq__', '__hash__', '__iter__', '__getitem__'))
+    True
+    >>> hasattr(s, '__dict__')  # No instance dictionary.
+    False
+    >>> class Slotted: __slots__ = ('slot',)
+    >>> member_descriptor = type(Slotted.slot)
+    >>> any(isinstance(member, member_descriptor)  # And no slotted attributes.
+    ...     for member in MyNamedTupleSummary.__dict__.values())
+    False
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return MyNamedTupleSummary(
         minimum=minimum,
         maximum=maximum,
         arithmetic_mean=round(total / count, precision),
