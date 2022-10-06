@@ -1604,6 +1604,102 @@ def summarize_as_typed_mutable_attrs(
     )
 
 
+def summarize_as_tuple_alt(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This alternative implementation of summarize_as_tuple is very short, making
+    use of summarize_as_frozen_attrs and something in the attrs module. No
+    other functions or classes are introduced for support. This calls
+    summarize_as_frozen_attrs but makes no direct or indirect use of any other
+    function in this module. This makes indirect use of FrozenSummary
+    (summarize_as_frozen_attrs returns an instance of it) but does not call it.
+
+    The purpose of this function is to show how it is quick and simple to get a
+    tuple from an attrs data class instance. This doesn't depend on whether the
+    attrs class is mutable, nor on whether it has type hints. (It also does not
+    depend on whether it was defined with the attrs library's modern API, or
+    its classic API, shown below.) Replacing summarize_as_frozen_attrs with a
+    call to any of the other functions in this module that return a "summary"
+    as an instance of an attrs data class would produce the same result.
+
+    >>> summarize_as_tuple_alt([1, 3, 2.5, 3, 4])
+    (1, 4, 2.7, 2.45951, 2.15827)
+    >>> type(_)
+    <class 'tuple'>
+
+    >>> len({summarize_as_tuple_alt([1, 3, 2.5, 3, 4]),
+    ...      summarize_as_tuple_alt([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_tuple_alt([1, 2, 16, 4, 8])})
+    2
+
+    >>> _, _, am, _, _ = summarize_as_tuple_alt([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_tuple_alt([1, 2, 16, 4, 8]):
+    ...     case _, _, _, 4, hm:
+    ...         print(f'Geometric mean four, harmonic mean {hm}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> summarize_as_tuple_alt([1, 3, 2.5, 3, 4], precision=4)
+    (1, 4, 2.7, 2.4595, 2.1583)
+    """
+    summary = summarize_as_frozen_attrs(values, precision=precision)
+    return attrs.astuple(summary)
+
+
+def summarize_as_dict_alt(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_dict, except (a) keys contain underscores instead
+    of spaces, and (b) this is very short, using summarize_as_frozen_attrs and
+    something in the attrs module. This is similar to summarize_as_tuple_alt,
+    but for dict instead of tuple. The technique likewise works for all attrs
+    classes. It does not depend on whether instance dictionaries are present.
+    (attrs classes defined with the modern API use __slots__ by default.)
+
+    >>> s = summarize_as_dict_alt([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    {'minimum': 1,
+     'maximum': 4,
+     'arithmetic_mean': 2.7,
+     'geometric_mean': 2.45951,
+     'harmonic_mean': 2.15827}
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'dict'
+
+    >>> s == summarize_as_dict_alt([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_dict_alt([1, 2, 16, 4, 8])
+    False
+
+    >>> match summarize_as_dict_alt([1, 2, 16, 4, 8]):
+    ...     case {'geometric_mean': 4, 'harmonic_mean': hm}:
+    ...         print(f'Geometric mean four, harmonic mean {hm}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> summarize_as_dict_alt([1, 3, 2.5, 3, 4], precision=4)['harmonic_mean']
+    2.1583
+
+    The reason this stipulates different key is that summarize_as_dict shows
+    show how a dictionary can be used to return aggregate results and that one
+    need not limit oneself to valid identifiers when doing so, while this shows
+    how to get a dict from a data class instance. If needed, you could do:
+
+    >>> spaced = {name.replace('_', ' '): value for name, value in s.items()}
+    >>> spaced == summarize_as_dict([1, 3, 2.5, 3, 4])
+    True
+    """
+    summary = summarize_as_frozen_attrs(values, precision=precision)
+    return attrs.asdict(summary)
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_tuple,
     summarize_as_dict,
@@ -1631,6 +1727,8 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_mutable_attrs,
     TypedMutableSummary,
     summarize_as_typed_mutable_attrs,
+    summarize_as_tuple_alt,
+    summarize_as_dict_alt,
 )]
 
 
