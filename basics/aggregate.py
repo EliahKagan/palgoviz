@@ -32,6 +32,8 @@ import math
 import types
 import typing
 
+import attrs
+
 DEFAULT_PRECISION = 5
 """How many fractional digits summarize* functions keep when rounding means."""
 
@@ -1007,8 +1009,8 @@ class TypedNamedTupleSummary(typing.NamedTuple):
 
     This type is created using typing.NamedTuple, which is done by specifying
     it as a base class, even though it is not really a base class, and the
-    direct base class is tuple (as it is when collections.namedtuple). This
-    class is immutable and iterable, because tuples are.
+    direct base class is tuple (as it is when collections.namedtuple is used).
+    This class is immutable and iterable, because tuples are.
     """
     minimum: float
     maximum: float
@@ -1148,8 +1150,8 @@ def summarize_as_typed_named_tuple_typed(
 
     This is the same as summarize_as_typed_named_tuple above, but this function
     has parameter and return type annotations, for static type checking. Both
-    functions are included, to emphasize that type annotations in a class don't
-    force client code to use them. (However, subsequent functions in this
+    functions are included, to emphasize that type annotations in a function or
+    class don't force callers to use them. (But subsequent functions in this
     module, if their return types' attributes have type annotations, have them
     too. This avoids a level of repetition excessive even for this module.)
 
@@ -1160,8 +1162,8 @@ def summarize_as_typed_named_tuple_typed(
     one "Summary" class and one "summarize" function, with those short names.
 
     [FIXME: Add the type annotations on this function's parameters and return
-    type. Then run both mypy and pyright on this module. If there are any
-    problems, make sure you understand them, then fix them in a suitable way.]
+    type. Then run mypy on this module. If there are any problems, make sure
+    you understand them, then fix them in a suitable way.]
 
     >>> s = summarize_as_typed_named_tuple_typed([1, 3, 2.5, 3, 4])
 
@@ -1247,6 +1249,361 @@ def summarize_as_typed_named_tuple_typed(
     )
 
 
+@attrs.frozen  # Or: @attrs.define(frozen=True)
+class FrozenSummary:
+    """Immutable summary returned by summarize_as_frozen_attrs."""
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+
+def summarize_as_frozen_attrs(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of an immutable data class, made with attrs, using the
+    modern API. Neither that class nor this function use type annotations.
+
+    >>> s = summarize_as_frozen_attrs([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummary(minimum=1,
+                  maximum=4,
+                  arithmetic_mean=2.7,
+                  geometric_mean=2.45951,
+                  harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_frozen_attrs([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen_attrs([1, 2, 16, 4, 8])})
+    2
+
+    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> try:
+    ...     s.minimum = 1.5
+    ... except AttributeError:
+    ...     print('FrozenInstanceError is a subclass of AttributeError.')
+    FrozenInstanceError is a subclass of AttributeError.
+
+    >>> _, _, am, _, _ = summarize_as_frozen_attrs([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummary object
+
+    >>> match summarize_as_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case FrozenSummary(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case FrozenSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.frozen  # Or: @attrs.define(frozen=True)
+class TypedFrozenSummary:
+    """
+    "Typed" immutable summary returned by summarize_as_typed_frozen_attrs.
+    """
+
+    minimum: float
+    maximum: float
+    arithmetic_mean: float
+    geometric_mean: float
+    harmonic_mean: float
+
+
+def summarize_as_typed_frozen_attrs(
+        values: Iterable[float], *,
+        precision: int = DEFAULT_PRECISION) -> TypedFrozenSummary:
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of an immutable data class, made with attrs, using the
+    modern API. Both that class and this function use type annotations.
+
+    [FIXME: Run mypy on this module. Fix any problems.]
+
+    >>> s = summarize_as_typed_frozen_attrs([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    TypedFrozenSummary(minimum=1,
+                       maximum=4,
+                       arithmetic_mean=2.7,
+                       geometric_mean=2.45951,
+                       harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_typed_frozen_attrs([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_typed_frozen_attrs([1, 2, 16, 4, 8])})
+    2
+
+    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> try:
+    ...     s.minimum = 1.5
+    ... except AttributeError:
+    ...     print('FrozenInstanceError is a subclass of AttributeError.')
+    FrozenInstanceError is a subclass of AttributeError.
+
+    >>> _, _, am, _, _ = summarize_as_typed_frozen_attrs([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable TypedFrozenSummary object
+
+    >>> match summarize_as_typed_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case TypedFrozenSummary(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_typed_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case TypedFrozenSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0.0
+    total = 0.0
+    product = 1.0
+    reciprocals_total = 0.0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return TypedFrozenSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.mutable  # Or: @attrs.define  Or: @attrs.define(frozen=False)
+class MutableSummary:
+    """Mutable summary returned by summarize_as_frozen_attrs."""
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+
+def summarize_as_mutable_attrs(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a mutable data class, made with attrs, using the modern
+    API. Neither that class nor this function use type annotations.
+
+    >>> s = summarize_as_mutable_attrs([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MutableSummary(minimum=1,
+                   maximum=4,
+                   arithmetic_mean=2.7,
+                   geometric_mean=2.45951,
+                   harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'MutableSummary'
+
+    >>> s == summarize_as_mutable_attrs([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_mutable_attrs([1, 2, 16, 4, 8])
+    False
+    >>> s.minimum = 1.5; s == summarize_as_mutable_attrs([1, 3, 2.5, 3, 4])
+    False
+
+    >>> _, _, am, _, _ = summarize_as_mutable_attrs([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable MutableSummary object
+
+    >>> match summarize_as_mutable_attrs([1, 2, 16, 4, 8]):
+    ...     case MutableSummary(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_mutable_attrs([1, 2, 16, 4, 8]):
+    ...     case MutableSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return MutableSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.mutable   # Or: @attrs.define  Or: @attrs.define(frozen=False)
+class TypedMutableSummary:
+    """"Typed" mutable summary returned by summarize_as_typed_mutable_attrs."""
+
+    minimum: float
+    maximum: float
+    arithmetic_mean: float
+    geometric_mean: float
+    harmonic_mean: float
+
+
+def summarize_as_typed_mutable_attrs(
+        values: Iterable[float], *,
+        precision: int = DEFAULT_PRECISION) -> TypedMutableSummary:
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a mutable data class, made with attrs, using the modern
+    API. Both that class and this function use type annotations.
+
+    [FIXME: Run mypy on this module. Fix any problems.]
+
+    >>> s = summarize_as_typed_mutable_attrs([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    TypedMutableSummary(minimum=1,
+                        maximum=4,
+                        arithmetic_mean=2.7,
+                        geometric_mean=2.45951,
+                        harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'TypedMutableSummary'
+
+    >>> s == summarize_as_typed_mutable_attrs([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_typed_mutable_attrs([1, 2, 16, 4, 8])
+    False
+    >>> s.minimum = 1.5
+    >>> s == summarize_as_typed_mutable_attrs([1, 3, 2.5, 3, 4])
+    False
+
+    >>> _, _, am, _, _ = summarize_as_typed_mutable_attrs([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable TypedMutableSummary object
+
+    >>> match summarize_as_typed_mutable_attrs([1, 2, 16, 4, 8]):
+    ...     case TypedMutableSummary(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_typed_mutable_attrs([1, 2, 16, 4, 8]):
+    ...     case TypedMutableSummary(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0.0
+    total = 0.0
+    product = 1.0
+    reciprocals_total = 0.0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return TypedMutableSummary(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_tuple,
     summarize_as_dict,
@@ -1266,6 +1623,14 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     TypedNamedTupleSummary,
     summarize_as_typed_named_tuple,
     summarize_as_typed_named_tuple_typed,
+    FrozenSummary,
+    summarize_as_frozen_attrs,
+    TypedFrozenSummary,
+    summarize_as_typed_frozen_attrs,
+    MutableSummary,
+    summarize_as_mutable_attrs,
+    TypedMutableSummary,
+    summarize_as_typed_mutable_attrs,
 )]
 
 
