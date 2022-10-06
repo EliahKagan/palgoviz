@@ -1866,22 +1866,22 @@ def traverse(node: StrNode | StrNodeA | StrNodeD | None) -> Iterator[str]:
     ['foo', 'bar']
     >>> list(traverse(StrNode.build('foo', 'bar')))
     ['foo', 'bar']
-    >>> ''.join(traverse(StrNode.build(string.ascii_lowercase)))
-    'abcdefghijklmnopqrstuvwxyz'
+    >>> ','.join(traverse(StrNode.build(*string.ascii_lowercase)))
+    'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z'
 
     >>> list(traverse(StrNodeA('foo', StrNodeA('bar'))))
     ['foo', 'bar']
     >>> list(traverse(StrNodeA.build('foo', 'bar')))
     ['foo', 'bar']
-    >>> ''.join(traverse(StrNodeA.build(string.ascii_lowercase)))
-    'abcdefghijklmnopqrstuvwxyz'
+    >>> ','.join(traverse(StrNodeA.build(*string.ascii_lowercase)))
+    'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z'
 
     >>> list(traverse(StrNodeD('foo', StrNodeD('bar'))))
     ['foo', 'bar']
     >>> list(traverse(StrNodeD.build('foo', 'bar')))
     ['foo', 'bar']
-    >>> ''.join(traverse(StrNodeD.build(string.ascii_lowercase)))
-    'abcdefghijklmnopqrstuvwxyz'
+    >>> ','.join(traverse(StrNodeD.build(*string.ascii_lowercase)))
+    'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z'
     """
     while node:
         yield node.value
