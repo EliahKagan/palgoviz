@@ -13,10 +13,130 @@ for, either in construction, or of the constructed instance.
 
 from __future__ import annotations
 
+import collections
 from collections.abc import Iterator
 import dataclasses
+import math
+import typing
 
 import attrs
+
+
+Coords = collections.namedtuple('Coords', ('x', 'y', 'z'))
+
+Coords.__doc__ = """
+    Named tuple of Cartesian coordinates in 3-space. Untyped. No inheritance.
+
+    This is made using the type factory function in the collections module. Its
+    intended use is as the return type for functions that will often have their
+    results unpacked into multiple variable by an assignment at the call site,
+    but may sometimes be retained in original form. Then it supports having its
+    distance from the origin taken, by calling the abs builtin on it. (Even for
+    objects that are not numbers, customizing abs is a common way to provide
+    magnitude, so long as the magnitude is a number. Whether a Coords instance
+    is being used to represent something with a magnitude varies by use case.)
+
+    This implementation does not use inheritance, besides the inheritance from
+    tuple that is taken care of by the type factory function. [FIXME: So no
+    class statement will actually be involved here. This is just a way to give
+    the docstring, which should be preserved and given to the type created by
+    the type factory, and the class statement otherwise removed form the code.]
+
+    >>> p = Coords(4, -12, 3)
+    >>> p
+    Coords(x=4, y=-12, z=3)
+    >>> abs(p)
+    13.0
+    >>> isinstance(p, tuple), p.__slots__, hasattr(p, '__dict__')
+    (True, (), False)
+"""
+
+Coords.__abs__ = lambda self: math.hypot(*self)
+Coords.__abs__.__name__ = '__abs__'
+Coords.__abs__.__qualname__ = f'{Coords.__name__}.{Coords.__abs__.__name__}'
+Coords.__abs__.__doc__ = """The distance of this point from the origin."""
+
+
+_CoordsAltBase = collections.namedtuple('_CoordsAltBase', ('x', 'y', 'z'))
+
+_CoordsAltBase.__doc__ = """Private base class for CoordsAlt."""
+
+
+class CoordsAlt(_CoordsAltBase):
+    """
+    Named tuple of Cartesian coordinates in 3-space. Untyped. By inheritance.
+
+    This is like Coords, but it uses inheritance to add support for the abs
+    builtin. Its non-public base class is created by the same factory function
+    used to create Coords directly. (Neither Coords nor CoordsAlt inherits from
+    the other and they do not depend on or use each other in any way.)
+
+    >>> p = CoordsAlt(4, -12, 3)
+    >>> p
+    CoordsAlt(x=4, y=-12, z=3)
+    >>> abs(p)
+    13.0
+    >>> isinstance(p, tuple), p.__slots__, hasattr(p, '__dict__')
+    (True, (), False)
+    """
+
+    __slots__ = ()
+
+    def __abs__(self):
+        """The distance of this point from the origin."""
+        return math.hypot(*self)
+
+
+class TypedCoords(typing.NamedTuple):
+    """
+    Named tuple of Cartesian coordinates in 3-space. Has type annotations.
+
+    This is like Coords/CoordsAlt but "typed." It is created with the facility
+    in the typing module.
+
+    >>> p = TypedCoords(4, -12, 3)
+    >>> p
+    TypedCoords(x=4, y=-12, z=3)
+    >>> abs(p)
+    13.0
+    >>> isinstance(p, tuple), p.__slots__, hasattr(p, '__dict__')
+    (True, (), False)
+    """
+
+    x: float
+    y: float
+    z: float
+
+    def __abs__(self):
+        """The distance of this point from the origin."""
+        return math.hypot(*self)
+
+
+class Point:
+    """
+    A point in 3-space, represented by its x-, y-, and z-coordinates.
+
+    This is implemented as an attrs data class, with no type annotations, using
+    the modern attrs API. Sometimes we use vectors to represent points, calling
+    them positions or, to emphasize their vector nature, displacements. That is
+    not what this is. Points have no magnitude, cannot be added to each other,
+    and cannot be multiplied by scalars. They can be subtracted, though, which
+    (geometrically speaking) is how vectors come into existence. The difference
+    of two Point objects is a Vector object representing the displacement from
+    the subtrahend to the minuend (so p - q points from q to p).
+
+    FIXME: Needs tests.
+    """
+    # FIXME: Needs implementation.
+
+
+class Vector:
+    """
+    A vector in 3-space, represented by its x-, y-, and z- components.
+
+    FIXME: Needs description and tests.
+    """
+    # FIXME: Needs implementation.
 
 
 class StrNode:
@@ -205,8 +325,18 @@ def traverse(node: StrNode | StrNodeA | StrNodeD | None) -> Iterator[str]:
 
 
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
+    Coords,
+    CoordsAlt,
+    TypedCoords,
+    Point,
+    Vector,
     StrNode,
     StrNodeA,
     StrNodeD,
     traverse,
 )]
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
