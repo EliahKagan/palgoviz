@@ -445,6 +445,122 @@ class Player:
         return f'{type(self).__name__}({self.name!r})'
 
 
+class Game:
+    """
+    A game of Grizzly-Boom Tennis amongst the guests (and their bears).
+
+    When on trial (see enumerations.py), Bob initially failed to comply with
+    discovery. Later, his attorney accidentally sent the entirety of the data
+    on his cell phone to the opposing counsel. This revealed a matter unrelated
+    to the issue at trial: the parties hosted games of Grizzly-Boom Tennis.
+    (See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.)
+
+    The All England Lawn Tennis and Croquet Club currently disallows
+    Grizzly-Boom Tennis. So it is played in underground parties with home and
+    visitors teams. A game is identified by the sets of those players. A Game
+    object can change in value throughout its lifetime, as players are dropped
+    from the roster when they wisely chicken out or are killed in other games
+    of Grizzly-Boom Tennis. Curiously, teams can also gain players.
+
+    The home and visitors attributes, and all methods, have type annotations.
+    This implementation has all special methods written manually. That is, this
+    doesn't use attrs, the dataclass module, etc. It is also not a named tuple.
+
+    >>> a = Player('Alice')
+    >>> b = Player('Bob')
+    >>> c = Player('Cassidy')
+    >>> d = Player('Derek')
+    >>> e = Player('Erin')
+    >>> f = Player('Frank')
+
+    >>> g = Game(); g
+    Game(home=set(), visitors=set())
+    >>> g.home.add(a); g.visitors.update([b, c]); g == Game({a, d, e}, {b, c})
+    False
+    >>> g.home.update([d, e]); g == Game({a, d, e}, {b, c})
+    True
+    >>> g == Game({b, c}, {a, d, e})
+    False
+
+    >>> Game(visitors={Player('Alice')})
+    Game(home=set(), visitors={Player('Alice')})
+    >>> Game(['Bob', 'Cassidy'], ['Frank', 'Erin'])  # They MUST be sets.
+    Traceback (most recent call last):
+      ...
+    TypeError: 'home' must be 'set', not 'list'
+    >>> Game({'Alice'})  # Violates annotations but is not checked at runtime.
+    Game(home={'Alice'}, visitors=set())
+
+    >>> for game in [g, Game(), Game(visitors={f}), Game({b, d}, {e, a, f})]:
+    ...     match game:
+    ...         case Game(home, visitors) if Player('Derek') in home:
+    ...             print(sorted(visitors))
+    [Player('Bob'), Player('Cassidy')]
+    [Player('Alice'), Player('Erin'), Player('Frank')]
+
+    >>> v = g.visitors
+    >>> try:
+    ...     g.visitors = set()  # Not allowed, because we want v to be updated.
+    ... except AttributeError:  # No requirements on message or other details.
+    ...     print('Caught AttributeError.')
+    Caught AttributeError.
+    >>> g.visitors.clear(); v
+    set()
+
+    FIXME: Explain, and doctest, how/why Game doesn't (re)materialize the sets.
+    """
+
+    __slots__ = ('_home', '_visitors')
+
+    __match_args__ = ('home', 'visitors')
+
+    _home: set[Player]
+    _visitors: set[Player]
+
+    def __init__(self,
+                 home: set[Player] | None = None,
+                 visitors: set[Player] | None = None) -> None:
+        """Create a new game of Grizzly-Boom Tennis with the given teams."""
+        if home is None:
+            home = set()
+        if visitors is None:
+            visitors = set()
+
+        self._check(name='home', team=home)
+        self._check(name='visitors', team=visitors)
+
+        self._home = home
+        self._visitors = visitors
+
+    def __repr__(self) -> str:
+        """Python code representation for debugging."""
+        return (type(self).__name__
+                + f'(home={self.home!r}, visitors={self.visitors!r})')
+
+    def __eq__(self, other: object) -> bool:
+        """Games with equal corresponding teams are equal."""
+        if isinstance(other, type(self)):
+            return self.home == other.home and self.visitors == other.visitors
+        return NotImplemented
+
+    @property
+    def home(self) -> set[Player]:
+        """The home team."""
+        return self._home
+
+    @property
+    def visitors(self) -> set[Player]:
+        """The visitors' team."""
+        return self._visitors
+
+    @staticmethod
+    def _check(*, name: str, team: set[Player]) -> None:
+        """Check a team argument to ensure it is really a set."""
+        if not isinstance(team, set):
+            typename = type(team).__name__
+            raise TypeError(f"{name!r} must be 'set', not {typename!r}")
+
+
 class StrNode:
     """
     A node in a mutable singly linked list of strings, manually implemented.
@@ -639,6 +755,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     Point,
     Vector,
     Player,
+    Game,
     StrNode,
     StrNodeA,
     StrNodeD,
