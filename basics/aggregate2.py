@@ -185,6 +185,11 @@ class Point:
     z = attrs.field(default=0)
 
     def __add__(self, addend):
+        """
+        Add a Point and a Vector, returning a Point.
+
+        A Point and a Vector can be added in either order with the same effect.
+        """
         match addend:
             case Vector(x, y, z):
                 return Point(self.x + x, self.y + y, self.z + z)
@@ -194,6 +199,13 @@ class Point:
     __radd__ = __add__
 
     def __sub__(self, subtrahend):
+        """
+        Subtract a Vector from this Point, or a Point from this Point.
+
+        Subtracting a Vector from this Point returns a Point.
+
+        Subtracting a Point from this Point returns a Vector.
+        """
         match subtrahend:
             case Point(x, y, z):
                 return Vector(self.x - x, self.y - y, self.z - z)
@@ -203,6 +215,11 @@ class Point:
                 return NotImplemented
 
     def __rsub__(self, minuend):
+        """
+        Subtract this Point from a Point, returning a Vector.
+
+        Subtracting this Point from a Vector makes no sense and is not allowed.
+        """
         match minuend:
             case Point(x, y, z):
                 return Vector(x - self.x, y - self.y, z - self.z)
@@ -211,6 +228,7 @@ class Point:
 
     @property
     def coords(self):
+        """The coordinates of this Point, as a Coords name tuple object."""
         return Coords(self.x, self.y, self.z)
 
 
@@ -254,6 +272,8 @@ class Vector:
     >>> {Vector(0.0), Vector(), Vector(0, 0), Vector(0.0, 0.0, 0.0)}
     {Vector(x=0.0, y=0, z=0)}
 
+    >>> -Vector(1, 2, 3) + +Vector(4, 6, 8) - Vector(z=2.0)
+    Vector(x=3, y=4, z=3.0)
     >>> 0.5 * Vector(1, 2, 3) * 0.5
     Vector(x=0.25, y=0.5, z=0.75)
     >>> round(abs(_), 5), round(abs(_ * 10), 5), round(abs(_ / 10), 5)
@@ -277,8 +297,6 @@ class Vector:
     True
     >>> hasattr(k, '__dict__'), attrs.asdict(k)
     (False, {'x': 0, 'y': 0, 'z': 1})
-
-    FIXME: Needs more doctests.
     """
 
     x = attrs.field(default=0)
@@ -286,6 +304,7 @@ class Vector:
     z = attrs.field(default=0)
 
     def __add__(self, vector):
+        """Add two Vectors, returning a Vector."""
         match vector:
             case Vector(x, y, z):
                 return Vector(self.x + x, self.y + y, self.z + z)
@@ -295,6 +314,7 @@ class Vector:
     __radd__ = __add__
 
     def __sub__(self, vector):
+        """Subtract a Vector from this Vector, returning a Vector."""
         match vector:
             case Vector(x, y, z):
                 return Vector(self.x - x, self.y - y, self.z - z)
@@ -302,6 +322,7 @@ class Vector:
                 return NotImplemented
 
     def __rsub__(self, vector):
+        """Subtract this vector from a Vector, returning a Vector."""
         match vector:
             case Vector(x, y, z):
                 return Vector(x - self.x, y - self.y, z - self.z)
@@ -309,6 +330,7 @@ class Vector:
                 return NotImplemented
 
     def __mul__(self, scalar):
+        """Multiply this Vector by a real number, returning a Vector."""
         if isinstance(scalar, numbers.Real):
             return Vector(self.x * scalar, self.y * scalar, self.z * scalar)
         return NotImplemented
@@ -316,15 +338,26 @@ class Vector:
     __rmul__ = __mul__
 
     def __truediv__(self, scalar):
+        """Divide this Vector by a nonzero scalar, returning a Vector."""
         if isinstance(scalar, numbers.Real):
             return Vector(self.x / scalar, self.y / scalar, self.z / scalar)
         return NotImplemented
 
+    def __neg__(self):
+        """Compute a Vector of the magnitude as this but opposite direction."""
+        return Vector(-self.x, -self.y, -self.z)
+
+    def __pos__(self):
+        """"Compute" a Vector with the same magnitude and direction as this."""
+        return self  # Vector is immutable, so we can return the same one.
+
     def __abs__(self):
+        """Compute this Vector's magnitude, which is a nonnegative scalar."""
         return math.hypot(self.x, self.y, self.z)
 
     @property
     def coords(self):
+        """The components of this Vector, as a Coords name tuple object."""
         return Coords(self.x, self.y, self.z)
 
 
@@ -335,11 +368,13 @@ class StrNode:
     Both attributes are mutable. Both attributes, and all methods, have type
     annotations. Element types are not validated at runtime, so this could be
     used to store any kind of values, but static type checkers will report
-    non-string values as errors. It's often better to make a generic Node type
-    and use Node[str] instead of StrNode, but that is not done here. Also, the
-    repr always shows both arguments, even if next=None, and it shows them as
-    keyword arguments. This is all to make StrNode work like StrNodeA below,
-    while still keeping the implementation of StrNodeA very straightforward.
+    non-string values as errors.
+
+    Though also not validated at runtime, it's often better to make a generic
+    Node type and use Node[str] instead of StrNode, but that is not done here.
+    Also, the repr always shows both arguments, even if next=None, and it shows
+    them as keyword arguments. This is all so StrNode works like StrNodeA
+    (below), while keeping the implementation of StrNodeA very straightforward.
 
     >>> StrNode('foo', StrNode('bar'))
     StrNode(value='foo', next=StrNode(value='bar', next=None))
