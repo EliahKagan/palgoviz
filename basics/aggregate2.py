@@ -17,10 +17,19 @@ import collections
 from collections.abc import Iterator
 import dataclasses
 import math
-import numbers
-import typing
+from numbers import Real
+from typing import Any, NamedTuple, cast
 
 import attrs
+
+
+def _coords_abs(self):
+    """The distance of this point from the origin."""
+    return math.hypot(*self)
+
+
+_coords_abs.__name__ = '__abs__'
+_coords_abs.__qualname__ = 'Coords.__abs__'
 
 
 Coords = collections.namedtuple('Coords', ('x', 'y', 'z'))
@@ -39,10 +48,12 @@ Coords.__doc__ = """
     a magnitude varies by use case.)
 
     This implementation does not use inheritance, besides the inheritance from
-    tuple that is taken care of by the type factory function. [FIXME: So no
-    class statement will actually be involved here. This is just a place to put
-    the docstring before the type is implemented. Give this docstring to the
-    type created by the type factory and remove this class statement entirely.]
+    tuple that is taken care of by the type factory function. It is still fine
+    to inherit from this type, but that is not done in this module.
+
+    [FIXME: No class statement will actually be involved here. This is just a
+    place to put the docstring before the type is implemented. Give this
+    docstring to the type the factory returns and remove this class statement.]
 
     >>> p = Coords(4, -12, 3)
     >>> p
@@ -53,10 +64,7 @@ Coords.__doc__ = """
     (True, (), False)
 """
 
-Coords.__abs__ = lambda self: math.hypot(*self)
-Coords.__abs__.__name__ = '__abs__'
-Coords.__abs__.__qualname__ = f'{Coords.__name__}.{Coords.__abs__.__name__}'
-Coords.__abs__.__doc__ = """The distance of this point from the origin."""
+cast(Any, Coords).__abs__ = _coords_abs
 
 
 _CoordsAltBase = collections.namedtuple('_CoordsAltBase', ('x', 'y', 'z'))
@@ -89,7 +97,7 @@ class CoordsAlt(_CoordsAltBase):
         return math.hypot(*self)
 
 
-class TypedCoords(typing.NamedTuple):
+class TypedCoords(NamedTuple):
     """
     Named tuple of Cartesian coordinates in 3-space. Has type annotations.
 
@@ -109,9 +117,13 @@ class TypedCoords(typing.NamedTuple):
     y: float
     z: float
 
-    def __abs__(self):
+    def __abs__(self) -> float:
         """The distance of this point from the origin."""
         return math.hypot(*self)
+
+
+_validate_real: Any = attrs.validators.instance_of(Real)
+"""Helper runtime validator for real-valued arguments, for Point and Vector."""
 
 
 @attrs.frozen
@@ -136,12 +148,26 @@ class Point:
     problems in a 1- or 2-dimensional coordinate system, by setting the other
     two or one coordinates, respectively, to zero, and ignoring them.
 
+    Mathematical operations defined in the Point and Vector classes never
+    return indirect instances of Point or Vector, even on operands that are
+    instances of derived classes. There is no obviously best approach to such
+    situations; this approach is chosen for simplicity and expressive clarity.
+    Also, mathematical operations in both these classes use match-case instead
+    of isinstance, whenever both branching by type and extracting attributes.
+
     >>> Point(1, 2, 3), Point(1, 2), Point(1)
     (Point(x=1, y=2, z=3), Point(x=1, y=2, z=0), Point(x=1, y=0, z=0))
     >>> Point(z=3), Point(1, z=3), Point(y=2, x=1)
     (Point(x=0, y=0, z=3), Point(x=1, y=0, z=3), Point(x=1, y=2, z=0))
     >>> {Point(0.0), Point(), Point(0, 0), Point(0.0, 0.0, 0.0)}
     {Point(x=0.0, y=0, z=0)}
+
+    >>> from fractions import Fraction; Point(z=Fraction(1, 2), x=Fraction())
+    Point(x=Fraction(0, 1), y=0, z=Fraction(1, 2))
+    >>> Point(0j)  # Use attrs.validators.  # doctest +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: ("'x' must be <class 'numbers.Real'> ...", ...)
 
     >>> p = Point(3.1, -7, 5.0); q = Point(3.1, 1.6, 5)
     >>> p == Point(3.1, -7.0, 5), p == q, attrs.evolve(p, y=1.6) == q, p == q
@@ -180,9 +206,9 @@ class Point:
     TypeError: unsupported operand type(s) for +: 'Point' and 'float'
     """
 
-    x = attrs.field(default=0)
-    y = attrs.field(default=0)
-    z = attrs.field(default=0)
+    x = attrs.field(default=0, validator=_validate_real)
+    y = attrs.field(default=0, validator=_validate_real)
+    z = attrs.field(default=0, validator=_validate_real)
 
     def __add__(self, addend):
         """
@@ -272,6 +298,13 @@ class Vector:
     >>> {Vector(0.0), Vector(), Vector(0, 0), Vector(0.0, 0.0, 0.0)}
     {Vector(x=0.0, y=0, z=0)}
 
+    >>> from fractions import Fraction; Vector(z=Fraction(1, 2), x=Fraction())
+    Vector(x=Fraction(0, 1), y=0, z=Fraction(1, 2))
+    >>> Vector(0j)  # Use attrs.validators.  # doctest +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: ("'x' must be <class 'numbers.Real'> ...", ...)
+
     >>> -Vector(1, 2, 3) + +Vector(4, 6, 8) - Vector(z=2.0)
     Vector(x=3, y=4, z=3.0)
     >>> 0.5 * Vector(1, 2, 3) * 0.5
@@ -299,9 +332,9 @@ class Vector:
     (False, {'x': 0, 'y': 0, 'z': 1})
     """
 
-    x = attrs.field(default=0)
-    y = attrs.field(default=0)
-    z = attrs.field(default=0)
+    x = attrs.field(default=0, validator=_validate_real)
+    y = attrs.field(default=0, validator=_validate_real)
+    z = attrs.field(default=0, validator=_validate_real)
 
     def __add__(self, vector):
         """Add two Vectors, returning a Vector."""
@@ -331,7 +364,7 @@ class Vector:
 
     def __mul__(self, scalar):
         """Multiply this Vector by a real number, returning a Vector."""
-        if isinstance(scalar, numbers.Real):
+        if isinstance(scalar, Real):
             return Vector(self.x * scalar, self.y * scalar, self.z * scalar)
         return NotImplemented
 
@@ -339,7 +372,7 @@ class Vector:
 
     def __truediv__(self, scalar):
         """Divide this Vector by a nonzero scalar, returning a Vector."""
-        if isinstance(scalar, numbers.Real):
+        if isinstance(scalar, Real):
             return Vector(self.x / scalar, self.y / scalar, self.z / scalar)
         return NotImplemented
 
@@ -349,7 +382,10 @@ class Vector:
 
     def __pos__(self):
         """"Compute" a Vector with the same magnitude and direction as this."""
-        return self  # Vector is immutable, so we can return the same one.
+        # We're immutable, so it would be safe to just return self. Instead, we
+        # return a new object, to ensure the result is always a direct instance
+        # of Vector, for consistency with the other mathematical operations.
+        return Vector(self.x, self.y, self.z)
 
     def __abs__(self):
         """Compute this Vector's magnitude, which is a nonnegative scalar."""
