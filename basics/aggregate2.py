@@ -9,6 +9,8 @@ methods, and its examples are all close variations on a theme. In contrast,
 this second module examines how named tuples and, more so, data classes, are
 reasonable to use in some situations where greater custom behavior is called
 for, either in construction, or of the constructed instance.
+
+All attrs data classes in this module are implemented using the modern API.
 """
 
 from __future__ import annotations
@@ -131,14 +133,14 @@ class Point:
     """
     A point in 3-space, represented by its x-, y-, and z-coordinates.
 
-    This is implemented as an attrs data class, with no type annotations, using
-    the modern attrs API. Sometimes we use vectors to represent points, calling
-    them positions or, to emphasize their vector nature, displacements. That is
-    not what this is. Points have no magnitude, cannot be added to each other,
-    and cannot be multiplied by scalars. They can be subtracted, though, which
-    (geometrically speaking) is how vectors come into existence. The difference
-    of two Point objects is a Vector object representing the displacement from
-    the subtrahend to the minuend (so p - q points from q to p).
+    This is implemented as an attrs data class, with no type annotations.
+    Sometimes we use vectors to represent points, calling them positions or, to
+    emphasize their vector nature, displacements. That is not what this is.
+    Points have no magnitude, cannot be added to each other, and cannot be
+    multiplied by scalars. They can be subtracted, though, which (geometrically
+    speaking) is how vectors come into existence. The difference of two Point
+    objects is a Vector object representing the displacement from the
+    subtrahend to the minuend (so p - q points from q to p).
 
     Unlike Vector, where the object all of whose coordinates are zero is very
     special, what point we choose as the origin is just a matter of convention.
@@ -264,12 +266,12 @@ class Vector:
     A vector in 3-space, represented by its x-, y-, and z- components.
 
     Like Point, this is implemented as an attrs data class, with no type
-    annotations, using the modern attrs API. Geometric vectors represent
-    translations, also called displacements. Under this conceptualization, the
-    meaning of a Vector object fundamentally relates to its ability to be added
-    to a Point object to get another Point object. Vectors can also be added
-    and subtracted from each other, multiplied by real-valued scalars, and
-    divided by nonzero real-valued scalars, all of which return a Vector.
+    annotations. Geometric vectors represent translations, also called
+    displacements. Under this conceptualization, the meaning of a Vector object
+    fundamentally relates to its ability to be added to a Point object to get
+    another Point object. Vectors can also be added and subtracted from each
+    other, multiplied by real-valued scalars, and divided by nonzero
+    real-valued scalars, all of which return a Vector.
 
     There are two conceptually interesting things about Vector. First, notice
     that, while a Vector takes its meaning from the relationship it expresses
@@ -397,6 +399,52 @@ class Vector:
         return Coords(self.x, self.y, self.z)
 
 
+_validate_nonempty_string: Any = (
+    attrs.validators.instance_of(str),
+    attrs.validators.min_len(1)
+)
+"""Validators to check that a Player name is a string and nonempty."""
+
+
+@attrs.frozen(order=True)
+class Player:
+    """
+    A named human player in a dangerous game.
+
+    This is an attrs data class with type annotations.
+
+    >>> Player(name='Alice')
+    Player('Alice')
+
+    >>> sorted({Player('Erin'), Player('Bob'), Player('Alice'), Player('Bob')})
+    [Player('Alice'), Player('Bob'), Player('Erin')]
+
+    >>> for player_or_name in Player('Alice'), 'Bob', Player('Frank'), 'Erin':
+    ...     match player_or_name:
+    ...         case Player(name) | str(name):  # Unrelated to the custom repr.
+    ...             print(name)
+    Alice
+    Bob
+    Frank
+    Erin
+
+    >>> Player(76)  # Use attrs.validators.  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: ("'name' must be <class 'str'> ...", ...)
+    >>> Player('')  # attrs.validators has something for this, too.
+    Traceback (most recent call last):
+      ...
+    ValueError: Length of 'name' must be => 1: 0
+    """
+
+    name: str = attrs.field(validator=_validate_nonempty_string)
+
+    def __repr__(self):
+        """Python code representation, showing name passed positionally."""
+        return f'{type(self).__name__}({self.name!r})'
+
+
 class StrNode:
     """
     A node in a mutable singly linked list of strings, manually implemented.
@@ -465,9 +513,9 @@ class StrNode:
 @attrs.mutable(eq=False, weakref_slot=False)
 class StrNodeA:
     """
-    A node in a mutable singly linked list of strings, as an attrs data class.
+    Node in a mutable singly linked list of strings.
 
-    This class uses the attrs library's modern API. It has type annotations.
+    This is an attrs data class with type annotations.
 
     >>> StrNodeA('foo', StrNodeA('bar'))
     StrNodeA(value='foo', next=StrNodeA(value='bar', next=None))
@@ -590,6 +638,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     TypedCoords,
     Point,
     Vector,
+    Player,
     StrNode,
     StrNodeA,
     StrNodeD,
