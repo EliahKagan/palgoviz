@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Named tuples and data classes.
+Named tuples and data classes, part 1 of 2: a tour of some popular ways.
 
 This module starts with manual approaches to a problem of data aggregation that
 is straightforward, yet (1) an imperfect fit for preexisting built-in and other
@@ -26,11 +26,8 @@ across functions, and across classes, when sharing it would obscure anything or
 make any alternative less self contained -- except where noted otherwise.
 """
 
-from __future__ import annotations
-
 import collections
-from collections.abc import Iterable, Iterator
-import dataclasses
+from collections.abc import Iterable
 import math
 import types
 import typing
@@ -1703,189 +1700,199 @@ def summarize_as_dict_alt(values, *, precision=DEFAULT_PRECISION):
     return attrs.asdict(summary)
 
 
-class StrNode:
+@attrs.frozen(slots=False)  # Or: @attrs.define(frozen=True, slots=False)
+class FrozenSummaryNoSlots:
+    """Immutable summary returned by summarize_as_frozen_attrs_no_slots."""
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+
+def summarize_as_frozen_attrs_no_slots(values, *, precision=DEFAULT_PRECISION):
     """
-    A node in a mutable singly linked list of strings, manually implemented.
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
 
-    Both attributes are mutable. Both attributes, and all methods, have type
-    annotations. Element types are not validated at runtime, so this could be
-    used to store any kind of values, but static type checkers will report
-    non-string values as errors. It's often better to make a generic Node type
-    and use Node[str] instead of StrNode, but that is not done here. Also, the
-    repr always shows both arguments, even if next=None, and it shows them as
-    keyword arguments. This is all to make StrNode work like StrNodeA below,
-    while still keeping the implementation of StrNodeA very straightforward.
+    This is summarize_as_frozen_attrs, but without __slots__. That is to say it
+    is like summarize_as_tuple, but the five computed results are returned as
+    an instance of an immutable data class, made with attrs, using the modern
+    API, where attributes are stored in instance dictionaries instead of slots.
+    Neither that class nor this function use type annotations.
 
-    >>> StrNode('foo', StrNode('bar'))
-    StrNode(value='foo', next=StrNode(value='bar', next=None))
-    >>> StrNode.build('foo', 'bar')
-    StrNode(value='foo', next=StrNode(value='bar', next=None))
-    >>> _.value, _.next, _.next.value, _.next.next
-    ('foo', StrNode(value='bar', next=None), 'bar', None)
+    The choices of whether or not to annotate types, whether to use slots or an
+    instance dictionary, and whether the class is mutable or frozen, are all
+    independent. All combinations work fine and can be reasonable choices. They
+    are not all represented in this module, to avoid excessive repetition, but
+    that is not to discourage combinations that are not presented here.
 
-    >>> head = StrNode('X')
-    >>> head == StrNode('X')  # Not doing structural equality comparison.
+    >>> s = summarize_as_frozen_attrs_no_slots([1, 3, 2.5, 3, 4])
+    >>> s.__dict__ == attrs.asdict(s), s.__dict__ is attrs.asdict(s)
+    (True, False)
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryNoSlots(minimum=1,
+                         maximum=4,
+                         arithmetic_mean=2.7,
+                         geometric_mean=2.45951,
+                         harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_frozen_attrs_no_slots([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen_attrs_no_slots([1, 2, 16, 4, 8])})
+    2
+
+    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> s.median = 3  # Overridden __setattr__ catches this even without slots.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> _, _, am, _, _ = summarize_as_frozen_attrs_no_slots([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummaryNoSlots object
+
+    >>> match summarize_as_frozen_attrs_no_slots([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryNoSlots(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_frozen_attrs_no_slots([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryNoSlots(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryNoSlots(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.mutable(slots=False)  # Or: @attrs.define([frozen=False,] slots=False)
+class MutableSummaryNoSlots:
+    """Mutable summary returned by summarize_as_frozen_attrs."""
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+
+def summarize_as_mutable_attrs_no_slots(values, *,
+                                        precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a mutable data class, made with attrs, using the modern
+    API. Neither that class nor this function use type annotations.
+
+    >>> s = summarize_as_mutable_attrs_no_slots([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MutableSummaryNoSlots(minimum=1,
+                          maximum=4,
+                          arithmetic_mean=2.7,
+                          geometric_mean=2.45951,
+                          harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'MutableSummaryNoSlots'
+
+    >>> s == summarize_as_mutable_attrs_no_slots([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_mutable_attrs_no_slots([1, 2, 16, 4, 8])
     False
-    >>> vars(head)  # No instance dictionary.
-    Traceback (most recent call last):
-      ...
-    TypeError: vars() argument must have __dict__ attribute
-    >>> import weakref; weakref.ref(head)  # No weak reference support.
-    Traceback (most recent call last):
-      ...
-    TypeError: cannot create weak reference to 'StrNode' object
 
-    >>> head.value = 'W'
-    >>> head.next = StrNode.build('Y', 'Z')
-    >>> head  # doctest: +NORMALIZE_WHITESPACE
-    StrNode(value='W',
-            next=StrNode(value='Y', next=StrNode(value='Z', next=None)))
-    """
+    attrs classes allow new attributes to be created by assignment only if
+    neither frozen nor slotted. But even though attrs requires the class to be
+    mutable to do this, the new attributes aren't part of the instance's value.
 
-    __slots__ = ('value', 'next')
+    >>> s.median = 3
+    >>> s == summarize_as_mutable_attrs_no_slots([1, 3, 3, 2.5, 4])
+    True
+    >>> s.median  # It's there, it just doesn't affect __eq__ or __hash__.
+    3
 
-    value: str
-    next: StrNode | None
-
-    @classmethod
-    def build(cls, *values: str) -> StrNode | None:
-        """Make a singly linked list of the given values. Return the head."""
-        acc = None
-        for value in reversed(values):
-            acc = cls(value, acc)
-        return acc
-
-    def __init__(self, value: str, next: StrNode | None = None) -> None:
-        """Create a node with the given element value, and next node if any."""
-        self.value = value
-        self.next = next
-
-    def __repr__(self) -> str:
-        """Python code repr for debugging, using keyword arguments."""
-        return (type(self).__name__
-                + f'(value={self.value!r}, next={self.next!r})')
-
-
-@attrs.mutable(eq=False, weakref_slot=False)
-class StrNodeA:
-    """
-    A node in a mutable singly linked list of strings, as an attrs data class.
-
-    This class uses the attrs library's modern API. It has type annotations.
-
-    >>> StrNodeA('foo', StrNodeA('bar'))
-    StrNodeA(value='foo', next=StrNodeA(value='bar', next=None))
-    >>> StrNodeA.build('foo', 'bar')
-    StrNodeA(value='foo', next=StrNodeA(value='bar', next=None))
-    >>> _.value, _.next, _.next.value, _.next.next
-    ('foo', StrNodeA(value='bar', next=None), 'bar', None)
-
-    >>> head = StrNodeA('X')
-    >>> head == StrNodeA('X')  # Not doing structural equality comparison.
+    >>> s.minimum = 1.5  # Allowed, same as any other mutable data class.
+    >>> s == summarize_as_mutable_attrs_no_slots([1, 3, 2.5, 3, 4])
     False
-    >>> vars(head)  # No instance dictionary.
+
+    >>> _, _, am, _, _ = summarize_as_mutable_attrs_no_slots([1, 2, 16, 4, 8])
     Traceback (most recent call last):
       ...
-    TypeError: vars() argument must have __dict__ attribute
-    >>> import weakref; weakref.ref(head)  # No weak reference support.
-    Traceback (most recent call last):
-      ...
-    TypeError: cannot create weak reference to 'StrNodeA' object
+    TypeError: cannot unpack non-iterable MutableSummaryNoSlots object
 
-    >>> head.value = 'W'
-    >>> head.next = StrNodeA.build('Y', 'Z')
-    >>> head  # doctest: +NORMALIZE_WHITESPACE
-    StrNodeA(value='W',
-             next=StrNodeA(value='Y', next=StrNodeA(value='Z', next=None)))
+    >>> match summarize_as_mutable_attrs_no_slots([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryNoSlots(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_mutable_attrs_no_slots([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryNoSlots(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
     """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
 
-    value: str
-    next: StrNodeA | None = None
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
 
-    @classmethod
-    def build(cls, *values: str) -> StrNodeA | None:
-        """Make a singly linked list of the given values. Return the head."""
-        acc = None
-        for value in reversed(values):
-            acc = cls(value, acc)
-        return acc
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
 
+    if count == 0:
+        raise ValueError('no values')
 
-@dataclasses.dataclass(slots=True, eq=False)
-class StrNodeD:
-    """
-    A node in a mutable singly linked list of strings, as a @dataclass.
-
-    This uses @dataclasses.dataclass, and therefore has type annotations.
-
-    >>> StrNodeD('foo', StrNodeD('bar'))
-    StrNodeD(value='foo', next=StrNodeD(value='bar', next=None))
-    >>> StrNodeD.build('foo', 'bar')
-    StrNodeD(value='foo', next=StrNodeD(value='bar', next=None))
-    >>> _.value, _.next, _.next.value, _.next.next
-    ('foo', StrNodeD(value='bar', next=None), 'bar', None)
-
-    >>> head = StrNodeD('X')
-    >>> head == StrNodeD('X')  # Not doing structural equality comparison.
-    False
-    >>> vars(head)  # No instance dictionary.
-    Traceback (most recent call last):
-      ...
-    TypeError: vars() argument must have __dict__ attribute
-    >>> import weakref; weakref.ref(head)  # No weak reference support.
-    Traceback (most recent call last):
-      ...
-    TypeError: cannot create weak reference to 'StrNodeD' object
-
-    >>> head.value = 'W'
-    >>> head.next = StrNodeD.build('Y', 'Z')
-    >>> head  # doctest: +NORMALIZE_WHITESPACE
-    StrNodeD(value='W',
-             next=StrNodeD(value='Y', next=StrNodeD(value='Z', next=None)))
-    """
-
-    value: str
-    next: StrNodeD | None = None
-
-    @classmethod
-    def build(cls, *values: str) -> StrNodeD | None:
-        """Make a singly linked list of the given values. Return the head."""
-        acc = None
-        for value in reversed(values):
-            acc = cls(value, acc)
-        return acc
-
-
-def traverse(node: StrNode | StrNodeA | StrNodeD | None) -> Iterator[str]:
-    """
-    Yield all values in a singly linked list, from front to back.
-
-    >>> import string
-
-    >>> list(traverse(StrNode('foo', StrNode('bar'))))
-    ['foo', 'bar']
-    >>> list(traverse(StrNode.build('foo', 'bar')))
-    ['foo', 'bar']
-    >>> ','.join(traverse(StrNode.build(*string.ascii_lowercase)))
-    'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z'
-
-    >>> list(traverse(StrNodeA('foo', StrNodeA('bar'))))
-    ['foo', 'bar']
-    >>> list(traverse(StrNodeA.build('foo', 'bar')))
-    ['foo', 'bar']
-    >>> ','.join(traverse(StrNodeA.build(*string.ascii_lowercase)))
-    'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z'
-
-    >>> list(traverse(StrNodeD('foo', StrNodeD('bar'))))
-    ['foo', 'bar']
-    >>> list(traverse(StrNodeD.build('foo', 'bar')))
-    ['foo', 'bar']
-    >>> ','.join(traverse(StrNodeD.build(*string.ascii_lowercase)))
-    'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z'
-    """
-    while node:
-        yield node.value
-        node = node.next
+    return MutableSummaryNoSlots(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
 
 
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
@@ -1917,10 +1924,10 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_typed_mutable_attrs,
     summarize_as_tuple_alt,
     summarize_as_dict_alt,
-
-    StrNode,
-    StrNodeA,
-    traverse,
+    FrozenSummaryNoSlots,
+    summarize_as_frozen_attrs_no_slots,
+    MutableSummaryNoSlots,
+    summarize_as_mutable_attrs_no_slots,
 )]
 
 
