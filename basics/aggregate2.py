@@ -128,20 +128,20 @@ class Point:
     of two Point objects is a Vector object representing the displacement from
     the subtrahend to the minuend (so p - q points from q to p).
 
-    Unlike Vector, where the object with all zero coordinates is especially
-    important, which point we choose as the origin is entirely a matter of
-    convention. So it is somewhat inelegant that Point allows omitting any
-    combination of coordinate arguments on construction, with the same effect
-    as passing 0. But it does, because this makes it much easier to use a Point
-    to solve problems in a 1- or 2-dimensional coordinate system, by setting
-    the other two or one coordinates, respectively, to zero, and ignoring them.
+    Unlike Vector, where the object all of whose coordinates are zero is very
+    special, what point we choose as the origin is just a matter of convention.
+    So it is somewhat inelegant that Point allows omitting any combination of
+    coordinate arguments on construction, with the same effect as passing 0.
+    But it does, because this makes it much easier to use a Point to solve
+    problems in a 1- or 2-dimensional coordinate system, by setting the other
+    two or one coordinates, respectively, to zero, and ignoring them.
 
     >>> Point(1, 2, 3), Point(1, 2), Point(1)
     (Point(x=1, y=2, z=3), Point(x=1, y=2, z=0), Point(x=1, y=0, z=0))
     >>> Point(z=3), Point(1, z=3), Point(y=2, x=1)
     (Point(x=0, y=0, z=3), Point(x=1, y=0, z=3), Point(x=1, y=2, z=0))
-    >>> {Point(), Point(0), Point(0, 0), Point(0, 0, 0)}
-    {Point(x=0, y=0, z=0)}
+    >>> {Point(0.0), Point(), Point(0, 0), Point(0.0, 0.0, 0.0)}
+    {Point(x=0.0, y=0, z=0)}
 
     >>> p = Point(3.1, -7, 5.0); q = Point(3.1, 1.6, 5)
     >>> p == Point(3.1, -7.0, 5), p == q, attrs.evolve(p, y=1.6) == q, p == q
@@ -239,16 +239,44 @@ class Vector:
     v are vectors and p is a point, gives meaning to the operation of adding
     two vectors: composition of the translation transformations they represent.
 
-    Many aspects of choice of coordinate system are arbitrary, but there is
+    Several aspects of choice of coordinate system are arbitrary, but there is
     nothing arbitrary about the zero Vector: it is the Vector that, when added
     to any Point, gives that same Point. More broadly, assuming prior choice of
-    axes, it makes sense that if we don't want to displace parallel to some
-    axis, we would omit the component along that axis when specifying a Vector
-    that does so. So, like Point, all arguments are optional when constructing
-    a Vector; unlike Point, however, it is elegant that Vector allows this.
+    axes, it makes sense that if we don't want to displace along some axis, we
+    would omit its component when constructing the Vector that represents the
+    displacement we are doing. So, like Point, all arguments to Vector are
+    optional; unlike Point, however, it is elegant that Vector allows this.
+
+    >>> Vector(1, 2, 3), Vector(1, 2), Vector(1)
+    (Vector(x=1, y=2, z=3), Vector(x=1, y=2, z=0), Vector(x=1, y=0, z=0))
+    >>> Vector(z=3), Vector(1, z=3), Vector(y=2, x=1)
+    (Vector(x=0, y=0, z=3), Vector(x=1, y=0, z=3), Vector(x=1, y=2, z=0))
+    >>> {Vector(0.0), Vector(), Vector(0, 0), Vector(0.0, 0.0, 0.0)}
+    {Vector(x=0.0, y=0, z=0)}
 
     >>> 0.5 * Vector(1, 2, 3) * 0.5
     Vector(x=0.25, y=0.5, z=0.75)
+    >>> round(abs(_), 5), round(abs(_ * 10), 5), round(abs(_ / 10), 5)
+    (0.93541, 9.35414, 0.09354)
+
+    >>> 1 / Vector(1, 2, 3)
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for /: 'int' and 'Vector'
+    >>> Vector(1, 2, 3) / Vector(4, 5, 6)
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for /: 'Vector' and 'Vector'
+
+    >>> p = Point(3.1, -7, 5.0); q = Point(3.1, 1.6, 5)
+    >>> abs(p - q), round(abs(p - Point()), 5), round(abs(q - Point()), 5)
+    (8.6, 9.14385, 6.09672)
+
+    >>> i, j, k = Vector(x=1), Vector(y=1), Vector(z=1)
+    >>> p - Point() == p.x * i + p.y * j + p.z * k
+    True
+    >>> hasattr(k, '__dict__'), attrs.asdict(k)
+    (False, {'x': 0, 'y': 0, 'z': 1})
 
     FIXME: Needs more doctests.
     """
@@ -291,6 +319,9 @@ class Vector:
         if isinstance(scalar, numbers.Real):
             return Vector(self.x / scalar, self.y / scalar, self.z / scalar)
         return NotImplemented
+
+    def __abs__(self):
+        return math.hypot(self.x, self.y, self.z)
 
     @property
     def coords(self):
