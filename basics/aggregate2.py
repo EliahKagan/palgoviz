@@ -445,7 +445,7 @@ class Player:
         return f'{type(self).__name__}({self.name!r})'
 
 
-class Game:
+class DangerousGame:
     """
     A game of G.B.T. among guests (and their bears). From-scratch version.
 
@@ -455,40 +455,40 @@ class Game:
     the issue at trial: several parties featured games of Grizzly-Boom Tennis.
     See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
 
-    The All England Lawn Tennis and Croquet Club currently disallows
-    Grizzly-Boom Tennis. It is therefore played at underground parties with
-    home and visitors' teams. Teams are considered equal when they have exactly
-    the same strategic advantages and disadvantages, which is only when they
-    have the same people as players. So we represent teams as sets of Player
-    objects (as Player objects are equal when they represent the same person).
-    Games are equal if they have equal home teams and equal visitors' teams.
+    The All England Lawn Tennis and Croquet Club and other such venues
+    currently disallow Grizzly-Boom Tennis. It is thus played at underground
+    parties with home and visiting teams. Teams are considered equal when they
+    have exactly the same strategic advantages and disadvantages, which is only
+    when they have the same people as players. So we represent teams as sets of
+    Player objects (which are equal when they represent the same person). Games
+    are equal when they have equal home teams and equal visitors' teams.
 
-    The same team may compete in multiple games. A team, and thus a Game in
+    A team may compete in multiple games. A team, and thus a DangerousGame in
     which the team is slated to play, can change throughout its lifetime, as
-    players are dropped from the roster when they wisely chicken out or are
-    killed in other games of Grizzly-Boom tennis. Teams may also gain players.
+    players are dropped from the roster when they wisely chicken out, or die in
+    other games of Grizzly-Boom tennis. Teams may also gain players.
 
     In g1, Erin visits Alice, and Alice's team and Erin's team face off in what
     we can call a singles game, if we don't count the bears:
 
-    >>> g1 = Game({Player('Alice')}, {Player('Erin')}); g1
-    Game(home={Player('Alice')}, visitors={Player('Erin')})
+    >>> g1 = DangerousGame({Player('Alice')}, {Player('Erin')}); g1
+    DangerousGame(home={Player('Alice')}, visitors={Player('Erin')})
 
     In g2, Alice's team and Erin's team face off in another singles game, which
     shouldn't be confused with the first game, even though the games are equal:
 
-    >>> g2 = Game(g1.home, g1.visitors); g1 is g2, g1 == g2
+    >>> g2 = DangerousGame(g1.home, g1.visitors); g1 is g2, g1 == g2
     (False, True)
 
     In g3, Alice and Erin face each other again, but as their OTHER one-player
     teams. These teams are merely equal to their first teams.
 
-    >>> g3 = Game({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
+    >>> g3 = DangerousGame({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
     True
 
     These shouldn't be confused with when Alice visits Erin and they play:
 
-    >>> Game({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
+    >>> DangerousGame({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
     False
 
     Things start to get interesting when Bob and Derek join the first game,
@@ -496,7 +496,7 @@ class Game:
 
     >>> g1.home.add(Player('Bob'))
     >>> g1.visitors.add(Player('Derek'))
-    >>> g1 == Game(home={Player('Alice'), Player('Bob')},
+    >>> g1 == DangerousGame(home={Player('Alice'), Player('Bob')},
     ...            visitors={Player('Erin'), Player('Derek')})
     True
 
@@ -513,8 +513,8 @@ class Game:
 
     Hmm, no one. Well, may as well create a new game and join one of the teams:
 
-    >>> g4 = Game(s, s); g4.home.add(Player('Frank')); g4
-    Game(home={Player('Frank')}, visitors={Player('Frank')})
+    >>> g4 = DangerousGame(s, s); g4.home.add(Player('Frank')); g4
+    DangerousGame(home={Player('Frank')}, visitors={Player('Frank')})
 
     Now it becomes clear how Grizzly-Boom Tennis is so dangerous. Frank meant
     to join just one team, and he did, but that one team was both teams! Now
@@ -534,56 +534,56 @@ class Game:
     He cannot. The only winning move is not to play.
 
     >>> g4.home.remove(Player('Frank')); g4
-    Game(home=set(), visitors=set())
+    DangerousGame(home=set(), visitors=set())
 
     That was a close one! What Frank should've done originally (except no one
     should play Grizzly-Boom Tennis) was to create a new game and join a team:
 
-    >>> g5 = Game(); g5
-    Game(home=set(), visitors=set())
+    >>> g5 = DangerousGame(); g5
+    DangerousGame(home=set(), visitors=set())
     >>> g5.home.add(Player('Frank')); g5
-    Game(home={Player('Frank')}, visitors=set())
+    DangerousGame(home={Player('Frank')}, visitors=set())
 
     Or creating a new game with him in it, but on a new team:
 
-    >>> g6 = Game(home={Player('Frank')}); g6
-    Game(home={Player('Frank')}, visitors=set())
+    >>> g6 = DangerousGame(home={Player('Frank')}); g6
+    DangerousGame(home={Player('Frank')}, visitors=set())
 
     When a game is created with either or both teams unspecified, a new empty
     team is created. Cassidy has the option to join just one of Frank's games:
 
     >>> g5.visitors.add(Player('Cassidy')); g5
-    Game(home={Player('Frank')}, visitors={Player('Cassidy')})
+    DangerousGame(home={Player('Frank')}, visitors={Player('Cassidy')})
     >>> g6
-    Game(home={Player('Frank')}, visitors=set())
+    DangerousGame(home={Player('Frank')}, visitors=set())
 
     Storing mutable collections passed by the caller is a dangerous game. The
     caller may not intend the high level of coupling that results. Here, it is
-    easy to assume, wrongly, that passing a set to Game and then mutating the
-    set will not affect the constructed Game object.
+    easy to assume, wrongly, that passing a set to DangerousGame and then
+    mutating the set will not affect the constructed DangerousGame object.
 
-    There are a few additional requirements of importance for the Game class:
+    There are a several other key requirements for the DangerousGame class:
 
-    >>> Game(visitors={Player('Alice')})  # We may pass visitors and not home.
-    Game(home=set(), visitors={Player('Alice')})
+    >>> DangerousGame(visitors={Player('Alice')})  # OK to pass visitors only.
+    DangerousGame(home=set(), visitors={Player('Alice')})
 
-    >>> Game(['Bob', 'Cassidy'], ['Frank', 'Erin'])  # They MUST be sets.
+    >>> DangerousGame(['Bob', 'Cassidy'], ['Frank', 'Erin'])  # MUST be sets.
     Traceback (most recent call last):
       ...
     TypeError: 'home' must be 'set', not 'list'
 
-    >>> Game({'Alice'})  # Violates annotations but is not checked at runtime.
-    Game(home={'Alice'}, visitors=set())
+    >>> DangerousGame({'Alice'})  # Flouts annotations but allowed at runtime.
+    DangerousGame(home={'Alice'}, visitors=set())
 
     >>> match g1:  # Structural pattern matching works, including positionally.
-    ...     case Game(home, visitors) if Player('Alice') in home:
+    ...     case DangerousGame(home, visitors) if Player('Alice') in home:
     ...         print(sorted(visitors))
     [Player('Derek'), Player('Erin')]
 
     >>> g1.heme = set()
     Traceback (most recent call last):
       ...
-    AttributeError: 'Game' object has no attribute 'heme'
+    AttributeError: 'DangerousGame' object has no attribute 'heme'
     """
 
     __slots__ = __match_args__ = ('home', 'visitors')
@@ -840,7 +840,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     Point,
     Vector,
     Player,
-    Game,
+    DangerousGame,
     StrNode,
     StrNodeA,
     StrNodeD,

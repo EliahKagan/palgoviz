@@ -23,9 +23,9 @@ aggregate2.CoordsAlt
 aggregate2.Point
 aggregate2.Vector
 aggregate2.Player
-aggregate2.Game
-aggregate2.GameA
-aggregate2.GameD
+aggregate2.DangerousGame
+aggregate2.DangerousGameA
+aggregate2.DangerousGameD
 aggregate2.StrNode
 aggregate2.StrNodeA
 aggregate2.StrNodeD
