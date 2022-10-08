@@ -16,7 +16,7 @@ All attrs data classes in this module are implemented using the modern API.
 from __future__ import annotations
 
 import collections
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 import dataclasses
 import math
 from numbers import Real
@@ -682,7 +682,7 @@ class DangerousGameA:
     This doesn't have DangerousGame's custom AttributeError message. The point
     of that was really to show the alternative to properties for making a
     read-only attribute, which is what frozen attrs/dataclass data classes use
-    (they don't use properties). Also, recall how except blocks for
+    (they don't use properties). Also, recall how "except" blocks for
     AttributeError will catch FrozenInstanceError, because it's a subclass.
 
     >>> g4.visitors = set()
@@ -847,6 +847,140 @@ class DangerousGameD:
             if not isinstance(team, set):
                 typename = type(team).__name__
                 raise TypeError(f"{name!r} must be 'set', not {typename!r}")
+
+
+class KickballGame:
+    """
+    A game of kickball. Manually implemented. Full type annotations.
+
+    It also came out that the party guests played kickball. Kickball may be
+    distinguished from Grizzly-Boom Tennis by the following key qualities:
+
+      1. It is a safe-haven game, like baseball. (In contrast, Grizzly-Boom
+         Tennis is a racket sport, like tennis. There are no safe havens in
+         Grizzly-Boom Tennis; although it is lit, it is not actually based.)
+
+      2. High explosives are not used. In kickball, a ball is kicked.
+
+      3. Bears are not used. Players stand and run directly on the field.
+
+      4. In informal games, as modeled here, teams are per game. When a
+         KickballGame instance is constructed, each team is created as a new
+         set of all elements of its argument, rather than keeping a reference
+         to a preexisting mutable object as the DangerousGame* classes do.
+
+    >>> g1 = KickballGame({Player('Alice')}, {Player('Erin')}); g1
+    KickballGame(home={Player('Alice')}, visitors={Player('Erin')})
+    >>> g2 = KickballGame(g1.home, g1.visitors); g1 is g2, g1 == g2
+    (False, True)
+    >>> g3 = KickballGame({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
+    True
+    >>> KickballGame({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
+    False
+
+    >>> g1.home.add(Player('Bob'))
+    >>> g1.visitors.add(Player('Derek'))
+    >>> g1 == KickballGame(home={Player('Alice'), Player('Bob')},
+    ...                    visitors={Player('Erin'), Player('Derek')})
+    True
+    >>> g1 == g2, g1 == g3  # You can know you joined just one kickball game.
+    (False, False)
+
+    >>> s = set(); g4 = KickballGame(s, s); g4.home.add(Player('Frank')); g4
+    KickballGame(home={Player('Frank')}, visitors=set())
+    >>> g4.visitors.add(Player('Cassidy')); g4
+    KickballGame(home={Player('Frank')}, visitors={Player('Cassidy')})
+    >>> g4 == KickballGame({Player('Frank')}, {Player('Cassidy')})
+    True
+
+    >>> g4.visitors = set()
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't rebind 'visitors' (but you can add/remove elements)
+    >>> del g4.visitors
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't delete 'visitors' (but you can add/remove elements)
+
+    >>> KickballGame().home == KickballGame().home  # Also true for visitors.
+    True
+    >>> KickballGame().home is KickballGame().home  # Also false for visitors.
+    False
+
+    Construction copies the content of the arguments, so they need not be sets,
+    just any iterables (and static type annotations should reflect this, too):
+
+    >>> g5 = KickballGame([Player('Bob'), Player('Cassidy')]); type(g5.home)
+    <class 'set'>
+    >>> g6 = KickballGame(map(Player, ['Bob', 'Cassidy'])); type(g6.home)
+    <class 'set'>
+    >>> KickballGame(42, 76)  # Automatically validated on materialization.
+    Traceback (most recent call last):
+      ...
+    TypeError: 'int' object is not iterable
+
+    >>> KickballGame({'Alice'})  # Flouts annotations but allowed at runtime.
+    KickballGame(home={'Alice'}, visitors=set())
+
+    >>> match g1:  # Structural pattern matching works, including positionally.
+    ...     case KickballGame(home, visitors) if Player('Alice') in home:
+    ...         print(sorted(visitors))
+    [Player('Derek'), Player('Erin')]
+
+    >>> g1.heme = set()  # Misspelled.
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'KickballGame' object has no attribute 'heme'
+    """
+
+    __slots__ = __match_args__ = ('home', 'visitors')
+
+    home: set[Player]
+    """The home team."""
+
+    visitors: set[Player]
+    """The visiting team."""
+
+    def __init__(self,
+                 home: Iterable[Player] | None = None,
+                 visitors: Iterable[Player] | None = None) -> None:
+        """Create a new game of kickball with the given teams."""
+        if home is None:
+            home = set()
+        if visitors is None:
+            visitors = set()
+
+        super().__setattr__('home', set(home))
+        super().__setattr__('visitors', set(visitors))
+
+    def __repr__(self) -> str:
+        """Python code representation for debugging."""
+        return (type(self).__name__
+                + f'(home={self.home!r}, visitors={self.visitors!r})')
+
+    def __eq__(self, other: object) -> bool:
+        """Games with equal corresponding teams are equal."""
+        if isinstance(other, type(self)):
+            return self.home == other.home and self.visitors == other.visitors
+        return NotImplemented
+
+    def __setattr__(self, name: str, value: object) -> None:
+        """Prohibit setting attributes."""
+        if name in self.__match_args__:
+            raise AttributeError(
+                f"can't rebind {name!r} (but you can add/remove elements)")
+
+        # This fails too, but let it try, to get the appropriate message.
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name: str) -> None:
+        """Prohibit deleting attributes."""
+        if name in self.__match_args__:
+            raise AttributeError(
+                f"can't delete {name!r} (but you can add/remove elements)")
+
+        # This fails too, but let it try, to get the appropriate message.
+        super().__delattr__(name)
 
 
 class StrNode:
@@ -1046,6 +1180,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     DangerousGame,
     DangerousGameA,
     DangerousGameD,
+    KickballGame,
     StrNode,
     StrNodeA,
     StrNodeD,

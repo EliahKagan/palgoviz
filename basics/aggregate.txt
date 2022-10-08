@@ -26,6 +26,9 @@ aggregate2.Player
 aggregate2.DangerousGame
 aggregate2.DangerousGameA
 aggregate2.DangerousGameD
+aggregate2.KickballGame
+aggregate2.KickballGameA
+aggregate2.KickballGameD
 aggregate2.StrNode
 aggregate2.StrNodeA
 aggregate2.StrNodeD
