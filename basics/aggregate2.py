@@ -451,7 +451,7 @@ class Player:
 
 class DangerousGame:
     """
-    A game of Grizzly-Boom Tennis. Manual class version (not attrs/dataclass).
+    A game of Grizzly-Boom Tennis. Manually implemented. Full type annotations.
 
     When on trial (see enumerations.py), Frank initially failed to comply with
     discovery. Later, his attorney accidentally sent the entirety of the data
@@ -571,7 +571,7 @@ class DangerousGame:
     >>> DangerousGame(visitors={Player('Alice')})  # OK to pass visitors only.
     DangerousGame(home=set(), visitors={Player('Alice')})
 
-    >>> DangerousGame(['Bob', 'Cassidy'], ['Frank', 'Erin'])  # MUST be sets.
+    >>> DangerousGame([Player('Bob'), Player('Cassidy')])  # MUST be sets.
     Traceback (most recent call last):
       ...
     TypeError: 'home' must be 'set', not 'list'
@@ -648,6 +648,205 @@ class DangerousGame:
         if not isinstance(team, set):
             typename = type(team).__name__
             raise TypeError(f"{name!r} must be 'set', not {typename!r}")
+
+
+@attrs.frozen
+class DangerousGameA:
+    """
+    A game of Grizzly-Boom Tennis. Uses attrs. Full type annotations.
+
+    This alternative implementation of DangerousGame is an attrs data class.
+
+    >>> g1 = DangerousGameA({Player('Alice')}, {Player('Erin')}); g1
+    DangerousGameA(home={Player('Alice')}, visitors={Player('Erin')})
+    >>> g2 = DangerousGameA(g1.home, g1.visitors); g1 is g2, g1 == g2
+    (False, True)
+    >>> g3 = DangerousGameA({Player('Alice')}, {Player('Erin')})
+    >>> g1 == g3 == g2
+    True
+    >>> DangerousGameA({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
+    False
+
+    >>> g1.home.add(Player('Bob'))
+    >>> g1.visitors.add(Player('Derek'))
+    >>> g1 == DangerousGameA(home={Player('Alice'), Player('Bob')},
+    ...                      visitors={Player('Erin'), Player('Derek')})
+    True
+    >>> g1 == g2, g1 == g3
+    (True, False)
+
+    >>> empty = g1.visitors ^ g2.visitors
+    >>> g4 = DangerousGameA(empty, empty); g4.home.add(Player('Frank')); g4
+    DangerousGameA(home={Player('Frank')}, visitors={Player('Frank')})
+
+    This doesn't have DangerousGame's custom AttributeError message. The point
+    of that was really to show the alternative to properties for making a
+    read-only attribute, which is what frozen attrs/dataclass data classes use
+    (they don't use properties). Also, recall how except blocks for
+    AttributeError will catch FrozenInstanceError, because it's a subclass.
+
+    >>> g4.visitors = set()
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> del g4.visitors
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> g5 = DangerousGameA(); g5
+    DangerousGameA(home=set(), visitors=set())
+    >>> g5.home.add(Player('Frank')); g5
+    DangerousGameA(home={Player('Frank')}, visitors=set())
+    >>> g6 = DangerousGameA(home={Player('Frank')}); g6
+    DangerousGameA(home={Player('Frank')}, visitors=set())
+    >>> g5.visitors.add(Player('Cassidy')); g5
+    DangerousGameA(home={Player('Frank')}, visitors={Player('Cassidy')})
+    >>> g6
+    DangerousGameA(home={Player('Frank')}, visitors=set())
+
+    >>> DangerousGameA(visitors={Player('Alice')})  # OK to pass visitors only.
+    DangerousGameA(home=set(), visitors={Player('Alice')})
+
+    >>> DangerousGameA([Player('Bob'),       # MUST be sets.
+    ...                 Player('Cassidy')])  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: ("'home' must be <class 'set'> ...", ...)
+
+    >>> DangerousGameA({'Alice'})  # Flouts annotations but allowed at runtime.
+    DangerousGameA(home={'Alice'}, visitors=set())
+
+    >>> match g1:  # Structural pattern matching works, including positionally.
+    ...     case DangerousGameA(home, visitors) if Player('Alice') in home:
+    ...         print(sorted(visitors))
+    [Player('Derek'), Player('Erin')]
+
+    >>> g1.heme = set()  # Misspelled. Here, the exception is MUCH less useful.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    """
+
+    home: set[Player] = attrs.field(
+        factory=set,
+        validator=attrs.validators.instance_of(set),
+    )
+    """The home team."""
+
+    visitors: set[Player] = attrs.field(
+        factory=set,
+        validator=attrs.validators.instance_of(set),
+    )
+    """The visiting team."""
+
+
+# NOTE: As of this writing, attempting to write to a nonexistent attribute on a
+# frozen slotted @dataclasses.dataclass data class in CPython 3.10.6 raises
+#
+#     TypeError: super(type, obj): obj must be an instance or subtype of type
+#
+# instead of the AttributeError it should raise. This is only if the data class
+# is both frozen and slotted. AttributeError is correctly raised in a frozen
+# non-slotted class and in a non-slotted frozen class. (A data class that is
+# neither frozen nor slotted simply permits the new attribute to be created.)
+# The bug with frozen slotted @dataclass classes appears to be a special case
+# of https://github.com/python/cpython/issues/90562, but a strange one: here,
+# the use of super that triggers it appears in code synthesized by @dataclass.
+#
+# Unlike the two other versions, DangerousGameD is non-slotted, to avoid this.
+@dataclasses.dataclass(frozen=True)
+class DangerousGameD:
+    """
+    A game of Grizzly-Boom Tennis. Uses the dataclasses module.
+
+    This alternative implementation of DangerousGame/DangerousGameA uses the
+    decorator in the standard library dataclasses module (rather than attrs).
+
+    >>> g1 = DangerousGameD({Player('Alice')}, {Player('Erin')}); g1
+    DangerousGameD(home={Player('Alice')}, visitors={Player('Erin')})
+    >>> g2 = DangerousGameD(g1.home, g1.visitors); g1 is g2, g1 == g2
+    (False, True)
+    >>> g3 = DangerousGameD({Player('Alice')}, {Player('Erin')})
+    >>> g1 == g3 == g2
+    True
+    >>> DangerousGameD({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
+    False
+
+    >>> g1.home.add(Player('Bob'))
+    >>> g1.visitors.add(Player('Derek'))
+    >>> g1 == DangerousGameD(home={Player('Alice'), Player('Bob')},
+    ...                      visitors={Player('Erin'), Player('Derek')})
+    True
+    >>> g1 == g2, g1 == g3
+    (True, False)
+
+    >>> empty = g1.visitors ^ g2.visitors
+    >>> g4 = DangerousGameD(empty, empty); g4.home.add(Player('Frank')); g4
+    DangerousGameD(home={Player('Frank')}, visitors={Player('Frank')})
+
+    dataclasses.FrozenInstanceError and attrs.exceptions.FrozenInstanceError
+    are different types, but both inherit from AttributeError. The dataclasses
+    version has a nice message explicating the attribute and prohibited action:
+
+    >>> g4.visitors = set()
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot assign to field 'visitors'
+    >>> del g4.visitors
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot delete field 'visitors'
+
+    >>> g5 = DangerousGameD(); g5
+    DangerousGameD(home=set(), visitors=set())
+    >>> g5.home.add(Player('Frank')); g5
+    DangerousGameD(home={Player('Frank')}, visitors=set())
+    >>> g6 = DangerousGameD(home={Player('Frank')}); g6
+    DangerousGameD(home={Player('Frank')}, visitors=set())
+    >>> g5.visitors.add(Player('Cassidy')); g5
+    DangerousGameD(home={Player('Frank')}, visitors={Player('Cassidy')})
+    >>> g6
+    DangerousGameD(home={Player('Frank')}, visitors=set())
+
+    >>> DangerousGameD(visitors={Player('Alice')})  # OK to pass visitors only.
+    DangerousGameD(home=set(), visitors={Player('Alice')})
+
+    DangerousGameA use a validator to check types, but standard library data
+    classes have no validation feature. This is done in a __post_init__ method:
+
+    >>> DangerousGameD([Player('Bob'), Player('Cassidy')])  # MUST be sets.
+    Traceback (most recent call last):
+      ...
+    TypeError: 'home' must be 'set', not 'list'
+
+    >>> DangerousGameD({'Alice'})  # Flouts annotations but allowed at runtime.
+    DangerousGameD(home={'Alice'}, visitors=set())
+
+    >>> match g1:  # Structural pattern matching works, including positionally.
+    ...     case DangerousGameD(home, visitors) if Player('Alice') in home:
+    ...         print(sorted(visitors))
+    [Player('Derek'), Player('Erin')]
+
+    >>> g1.heme = set()  # Like attrs, doesn't reveal the attribute's absence.
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot assign to field 'heme'
+    """
+
+    home: set[Player] = dataclasses.field(default_factory=set)
+    """The home team."""
+
+    visitors: set[Player] = dataclasses.field(default_factory=set)
+    """The visiting team."""
+
+    def __post_init__(self) -> None:
+        """Validate that the home and visiting teams are sets."""
+        for name in 'home', 'visitors':
+            team = getattr(self, name)
+            if not isinstance(team, set):
+                typename = type(team).__name__
+                raise TypeError(f"{name!r} must be 'set', not {typename!r}")
 
 
 class StrNode:
@@ -845,6 +1044,8 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     Vector,
     Player,
     DangerousGame,
+    DangerousGameA,
+    DangerousGameD,
     StrNode,
     StrNodeA,
     StrNodeD,
