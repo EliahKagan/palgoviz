@@ -908,12 +908,14 @@ class KickballGame:
     False
 
     Construction copies the content of the arguments, so they need not be sets,
-    just any iterables (and static type annotations should reflect this, too):
+    just any iterables. The static type annotations should reflect this, too.
 
     >>> g5 = KickballGame([Player('Bob'), Player('Cassidy')]); type(g5.home)
     <class 'set'>
     >>> g6 = KickballGame(map(Player, ['Bob', 'Cassidy'])); type(g6.home)
     <class 'set'>
+    >>> g5 == KickballGame({Player('Bob'), Player('Cassidy')}, set()) == g6
+    True
     >>> KickballGame(42, 76)  # Automatically validated on materialization.
     Traceback (most recent call last):
       ...
