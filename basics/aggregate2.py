@@ -447,7 +447,7 @@ class Player:
 
 class DangerousGame:
     """
-    A game of G.B.T. among guests (and their bears). From-scratch version.
+    A game of Grizzly-Boom Tennis. Manual class version (not attrs/dataclass).
 
     When on trial (see enumerations.py), Bob initially failed to comply with
     discovery. Later, his attorney accidentally sent the entirety of the data
@@ -466,7 +466,7 @@ class DangerousGame:
     A team may compete in multiple games. A team, and thus a DangerousGame in
     which the team is slated to play, can change throughout its lifetime, as
     players are dropped from the roster when they wisely chicken out, or die in
-    other games of Grizzly-Boom tennis. Teams may also gain players.
+    other games of Grizzly-Boom Tennis. Teams may also gain players.
 
     In g1, Erin visits Alice, and Alice's team and Erin's team face off in what
     we can call a singles game, if we don't count the bears:
@@ -497,7 +497,7 @@ class DangerousGame:
     >>> g1.home.add(Player('Bob'))
     >>> g1.visitors.add(Player('Derek'))
     >>> g1 == DangerousGame(home={Player('Alice'), Player('Bob')},
-    ...            visitors={Player('Erin'), Player('Derek')})
+    ...                     visitors={Player('Erin'), Player('Derek')})
     True
 
     But one does not simply join a game of Grizzly-Boom Tennis. One joins a
@@ -533,7 +533,7 @@ class DangerousGame:
 
     He cannot. The only winning move is not to play.
 
-    >>> g4.home.remove(Player('Frank')); g4
+    >>> g4.home.remove(Player('Frank')); g4  # Calling clear() would also work.
     DangerousGame(home=set(), visitors=set())
 
     That was a close one! What Frank should've done originally (except no one
@@ -544,13 +544,13 @@ class DangerousGame:
     >>> g5.home.add(Player('Frank')); g5
     DangerousGame(home={Player('Frank')}, visitors=set())
 
-    Or creating a new game with him in it, but on a new team:
+    Or create a new game with him in it, but on a new team:
 
     >>> g6 = DangerousGame(home={Player('Frank')}); g6
     DangerousGame(home={Player('Frank')}, visitors=set())
 
-    When a game is created with either or both teams unspecified, a new empty
-    team is created. Cassidy has the option to join just one of Frank's games:
+    When DangerousGame is called without both teams, it creates a new empty
+    team or teams. So Cassidy can choose to join just one of Frank's games:
 
     >>> g5.visitors.add(Player('Cassidy')); g5
     DangerousGame(home={Player('Frank')}, visitors={Player('Cassidy')})
@@ -562,7 +562,7 @@ class DangerousGame:
     easy to assume, wrongly, that passing a set to DangerousGame and then
     mutating the set will not affect the constructed DangerousGame object.
 
-    There are a several other key requirements for the DangerousGame class:
+    There are a several other requirements for the DangerousGame class:
 
     >>> DangerousGame(visitors={Player('Alice')})  # OK to pass visitors only.
     DangerousGame(home=set(), visitors={Player('Alice')})
@@ -580,7 +580,7 @@ class DangerousGame:
     ...         print(sorted(visitors))
     [Player('Derek'), Player('Erin')]
 
-    >>> g1.heme = set()
+    >>> g1.heme = set()  # Misspelled.
     Traceback (most recent call last):
       ...
     AttributeError: 'DangerousGame' object has no attribute 'heme'
