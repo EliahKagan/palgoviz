@@ -20,7 +20,7 @@ from collections.abc import Iterator
 import dataclasses
 import math
 from numbers import Real
-from typing import Any, NamedTuple, cast
+from typing import Any, NamedTuple
 
 import attrs
 
@@ -66,7 +66,11 @@ Coords.__doc__ = """
     (True, (), False)
 """
 
-cast(Any, Coords).__abs__ = _coords_abs
+# Set Coords.__abs__ without causing mypy to issue an error or warning.
+# We could alternatively do:  cast(Any, Coords).__abs__ = _coords_abs
+_Coords: Any = Coords
+_Coords.__abs__ = _coords_abs
+del _Coords
 
 
 _CoordsAltBase = collections.namedtuple('_CoordsAltBase', ('x', 'y', 'z'))
