@@ -447,75 +447,152 @@ class Player:
 
 class Game:
     """
-    A game of Grizzly-Boom Tennis amongst the guests (and their bears).
+    A game of G.B.T. among guests (and their bears). From-scratch version.
 
     When on trial (see enumerations.py), Bob initially failed to comply with
     discovery. Later, his attorney accidentally sent the entirety of the data
-    on his cell phone to the opposing counsel. This revealed a matter unrelated
-    to the issue at trial: the parties hosted games of Grizzly-Boom Tennis.
-    (See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.)
+    on his cell phone to opposing counsel. This revealed a matter unrelated to
+    the issue at trial: several parties featured games of Grizzly-Boom Tennis.
+    See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
 
     The All England Lawn Tennis and Croquet Club currently disallows
-    Grizzly-Boom Tennis. So it is played in underground parties with home and
-    visitors teams. A game is identified by the sets of those players. A Game
-    object can change in value throughout its lifetime, as players are dropped
-    from the roster when they wisely chicken out or are killed in other games
-    of Grizzly-Boom Tennis. Curiously, teams can also gain players.
+    Grizzly-Boom Tennis. It is therefore played at underground parties with
+    home and visitors' teams. Teams are considered equal when they have exactly
+    the same strategic advantages and disadvantages, which is only when they
+    have the same people as players. So we represent teams as sets of Player
+    objects (as Player objects are equal when they represent the same person).
+    Games are equal if they have equal home teams and equal visitors' teams.
 
-    The home and visitors attributes, and all methods, have type annotations.
-    This implementation has all special methods written manually. That is, this
-    doesn't use attrs, the dataclass module, etc. It is also not a named tuple.
+    The same team may compete in multiple games. A team, and thus a Game in
+    which the team is slated to play, can change throughout its lifetime, as
+    players are dropped from the roster when they wisely chicken out or are
+    killed in other games of Grizzly-Boom tennis. Teams may also gain players.
 
-    >>> a = Player('Alice')
-    >>> b = Player('Bob')
-    >>> c = Player('Cassidy')
-    >>> d = Player('Derek')
-    >>> e = Player('Erin')
-    >>> f = Player('Frank')
+    In g1, Erin visits Alice, and Alice's team and Erin's team face off in what
+    we can call a singles game, if we don't count the bears:
 
-    >>> g = Game(); g
-    Game(home=set(), visitors=set())
-    >>> g.home.add(a); g.visitors.update([b, c]); g == Game({a, d, e}, {b, c})
-    False
-    >>> g.home.update([d, e]); g == Game({a, d, e}, {b, c})
+    >>> g1 = Game({Player('Alice')}, {Player('Erin')}); g1
+    Game(home={Player('Alice')}, visitors={Player('Erin')})
+
+    In g2, Alice's team and Erin's team face off in another singles game, which
+    shouldn't be confused with the first game, even though the games are equal:
+
+    >>> g2 = Game(g1.home, g1.visitors); g1 is g2, g1 == g2
+    (False, True)
+
+    In g3, Alice and Erin face each other again, but as their OTHER one-player
+    teams. These teams are merely equal to their first teams.
+
+    >>> g3 = Game({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
     True
-    >>> g == Game({b, c}, {a, d, e})
+
+    These shouldn't be confused with when Alice visits Erin and they play:
+
+    >>> Game({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
     False
 
-    >>> Game(visitors={Player('Alice')})
+    Things start to get interesting when Bob and Derek join the first game,
+    changing it from singles to mixed doubles, if we don't count the bears:
+
+    >>> g1.home.add(Player('Bob'))
+    >>> g1.visitors.add(Player('Derek'))
+    >>> g1 == Game(home={Player('Alice'), Player('Bob')},
+    ...            visitors={Player('Erin'), Player('Derek')})
+    True
+
+    But one does not simply join a game of Grizzly-Boom Tennis. One joins a
+    team. Did Bob and Derek mean to compete in g2, too?
+
+    >>> g1 == g2, g1 == g3
+    (True, False)
+
+    Frank arrives and is curious who is on the visiting team in g1 but not g2:
+
+    >>> s = g1.visitors ^ g2.visitors; s
+    set()
+
+    Hmm, no one. Well, may as well create a new game and join one of the teams:
+
+    >>> g4 = Game(s, s); g4.home.add(Player('Frank')); g4
+    Game(home={Player('Frank')}, visitors={Player('Frank')})
+
+    Now it becomes clear how Grizzly-Boom Tennis is so dangerous. Frank meant
+    to join just one team, and he did, but that one team was both teams! Now
+    he'll be riding his grizzly bear back and forth betwixt both sides of a
+    tennis court, volleying lit dynamite back and forth with himself. He really
+    wants the visitors' team to be a separate empty team. Can he fix this game?
+
+    >>> g4.visitors = set()
+    Traceback (most recent call last):
+      ...
+    AttributeError: teams can't enter or leave a game of Grizzly-Boom Tennis
+    >>> del g4.visitors
+    Traceback (most recent call last):
+      ...
+    AttributeError: teams can't enter or leave a game of Grizzly-Boom Tennis
+
+    He cannot. The only winning move is not to play.
+
+    >>> g4.home.remove(Player('Frank')); g4
+    Game(home=set(), visitors=set())
+
+    That was a close one! What Frank should've done originally (except no one
+    should play Grizzly-Boom Tennis) was to create a new game and join a team:
+
+    >>> g5 = Game(); g5
+    Game(home=set(), visitors=set())
+    >>> g5.home.add(Player('Frank')); g5
+    Game(home={Player('Frank')}, visitors=set())
+
+    Or creating a new game with him in it, but on a new team:
+
+    >>> g6 = Game(home={Player('Frank')}); g6
+    Game(home={Player('Frank')}, visitors=set())
+
+    When a game is created with either or both teams unspecified, a new empty
+    team is created. Cassidy has the option to join just one of Frank's games:
+
+    >>> g5.visitors.add(Player('Cassidy')); g5
+    Game(home={Player('Frank')}, visitors={Player('Cassidy')})
+    >>> g6
+    Game(home={Player('Frank')}, visitors=set())
+
+    Storing mutable collections passed by the caller is a dangerous game. The
+    caller may not intend the high level of coupling that results. Here, it is
+    easy to assume, wrongly, that passing a set to Game and then mutating the
+    set will not affect the constructed Game object.
+
+    There are a few additional requirements of importance for the Game class:
+
+    >>> Game(visitors={Player('Alice')})  # We may pass visitors and not home.
     Game(home=set(), visitors={Player('Alice')})
+
     >>> Game(['Bob', 'Cassidy'], ['Frank', 'Erin'])  # They MUST be sets.
     Traceback (most recent call last):
       ...
     TypeError: 'home' must be 'set', not 'list'
+
     >>> Game({'Alice'})  # Violates annotations but is not checked at runtime.
     Game(home={'Alice'}, visitors=set())
 
-    >>> for game in [g, Game(), Game(visitors={f}), Game({b, d}, {e, a, f})]:
-    ...     match game:
-    ...         case Game(home, visitors) if Player('Derek') in home:
-    ...             print(sorted(visitors))
-    [Player('Bob'), Player('Cassidy')]
-    [Player('Alice'), Player('Erin'), Player('Frank')]
+    >>> match g1:  # Structural pattern matching works, including positionally.
+    ...     case Game(home, visitors) if Player('Alice') in home:
+    ...         print(sorted(visitors))
+    [Player('Derek'), Player('Erin')]
 
-    >>> v = g.visitors
-    >>> try:
-    ...     g.visitors = set()  # Not allowed, because we want v to be updated.
-    ... except AttributeError:  # No requirements on message or other details.
-    ...     print('Caught AttributeError.')
-    Caught AttributeError.
-    >>> g.visitors.clear(); v
-    set()
-
-    FIXME: Explain, and doctest, how/why Game doesn't (re)materialize the sets.
+    >>> g1.heme = set()
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'Game' object has no attribute 'heme'
     """
 
-    __slots__ = ('_home', '_visitors')
+    __slots__ = __match_args__ = ('home', 'visitors')
 
-    __match_args__ = ('home', 'visitors')
+    home: set[Player]
+    """The home team."""
 
-    _home: set[Player]
-    _visitors: set[Player]
+    visitors: set[Player]
+    """The visiting team."""
 
     def __init__(self,
                  home: set[Player] | None = None,
@@ -529,8 +606,8 @@ class Game:
         self._check(name='home', team=home)
         self._check(name='visitors', team=visitors)
 
-        self._home = home
-        self._visitors = visitors
+        super().__setattr__('home', home)
+        super().__setattr__('visitors', visitors)
 
     def __repr__(self) -> str:
         """Python code representation for debugging."""
@@ -543,15 +620,23 @@ class Game:
             return self.home == other.home and self.visitors == other.visitors
         return NotImplemented
 
-    @property
-    def home(self) -> set[Player]:
-        """The home team."""
-        return self._home
+    def __setattr__(self, name: str, value: object) -> None:
+        """Prohibit setting attributes."""
+        if name in self.__match_args__:
+            raise AttributeError(
+                "teams can't enter or leave a game of Grizzly-Boom Tennis")
 
-    @property
-    def visitors(self) -> set[Player]:
-        """The visitors' team."""
-        return self._visitors
+        # This fails too, but let it try, to get the appropriate message.
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name: str) -> None:
+        """Prohibit deleting attributes."""
+        if name in self.__match_args__:
+            raise AttributeError(
+                "teams can't enter or leave a game of Grizzly-Boom Tennis")
+
+        # This fails too, but let it try, to get the appropriate message.
+        super().__delattr__(name)
 
     @staticmethod
     def _check(*, name: str, team: set[Player]) -> None:
