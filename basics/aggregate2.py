@@ -449,14 +449,14 @@ class DangerousGame:
     """
     A game of Grizzly-Boom Tennis. Manual class version (not attrs/dataclass).
 
-    When on trial (see enumerations.py), Bob initially failed to comply with
+    When on trial (see enumerations.py), Frank initially failed to comply with
     discovery. Later, his attorney accidentally sent the entirety of the data
     on his cell phone to opposing counsel. This revealed a matter unrelated to
     the issue at trial: several parties featured games of Grizzly-Boom Tennis.
     See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
 
-    The All England Lawn Tennis and Croquet Club and other such venues
-    currently disallow Grizzly-Boom Tennis. It is thus played at underground
+    The All England Lawn Tennis and Croquet Club currently disallows
+    Grizzly-Boom Tennis, as do most other venues. So it's played at underground
     parties with home and visiting teams. Teams are considered equal when they
     have exactly the same strategic advantages and disadvantages, which is only
     when they have the same people as players. So we represent teams as sets of
@@ -465,8 +465,8 @@ class DangerousGame:
 
     A team may compete in multiple games. A team, and thus a DangerousGame in
     which the team is slated to play, can change throughout its lifetime, as
-    players are dropped from the roster when they wisely chicken out, or die in
-    other games of Grizzly-Boom Tennis. Teams may also gain players.
+    players are dropped from the roster when they wisely chicken out (or die in
+    other games of Grizzly-Boom Tennis). Teams may also gain players.
 
     In g1, Erin visits Alice, and Alice's team and Erin's team face off in what
     we can call a singles game, if we don't count the bears:
