@@ -67,8 +67,8 @@ Coords.__doc__ = """
 """
 
 # Set Coords.__abs__ without causing mypy to issue an error or warning.
-# We could alternatively do:  cast(Any, Coords).__abs__ = _coords_abs
-_Coords: Any = Coords
+# We could alternatively do:  cast(type[Any], Coords).__abs__ = _coords_abs
+_Coords: type[Any] = Coords
 _Coords.__abs__ = _coords_abs
 del _Coords
 
