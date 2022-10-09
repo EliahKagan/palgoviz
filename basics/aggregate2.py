@@ -19,7 +19,7 @@ import collections
 from collections.abc import Iterable, Iterator
 import dataclasses
 import math
-from numbers import Real
+import numbers
 from typing import Any, NamedTuple
 
 import attrs
@@ -128,7 +128,7 @@ class TypedCoords(NamedTuple):
         return math.hypot(*self)
 
 
-_validate_real: Any = attrs.validators.instance_of(Real)
+_validate_real: Any = attrs.validators.instance_of(numbers.Real)
 """Helper runtime validator for real-valued arguments, for Point and Vector."""
 
 
@@ -370,7 +370,7 @@ class Vector:
 
     def __mul__(self, scalar):
         """Multiply this Vector by a real number, returning a Vector."""
-        if isinstance(scalar, Real):
+        if isinstance(scalar, numbers.Real):
             return Vector(self.x * scalar, self.y * scalar, self.z * scalar)
         return NotImplemented
 
@@ -378,7 +378,7 @@ class Vector:
 
     def __truediv__(self, scalar):
         """Divide this Vector by a nonzero scalar, returning a Vector."""
-        if isinstance(scalar, Real):
+        if isinstance(scalar, numbers.Real):
             return Vector(self.x / scalar, self.y / scalar, self.z / scalar)
         return NotImplemented
 
@@ -902,9 +902,9 @@ class KickballGame:
       ...
     AttributeError: can't delete 'visitors' (but you can add/remove elements)
 
-    >>> KickballGame().home == KickballGame().home  # Also true for visitors.
+    >>> KickballGame().home == KickballGame().home  # Same for visitors.
     True
-    >>> KickballGame().home is KickballGame().home  # Also false for visitors.
+    >>> KickballGame().home is KickballGame().home  # Same for visitors.
     False
 
     Construction copies the content of the arguments, so they need not be sets,
@@ -947,13 +947,13 @@ class KickballGame:
                  home: Iterable[Player] | None = None,
                  visitors: Iterable[Player] | None = None) -> None:
         """Create a new game of kickball with the given teams."""
-        if home is None:
-            home = set()
-        if visitors is None:
-            visitors = set()
+        super().__setattr__('home', set())
+        super().__setattr__('visitors', set())
 
-        super().__setattr__('home', set(home))
-        super().__setattr__('visitors', set(visitors))
+        if home is not None:
+            self.home.update(home)
+        if visitors is not None:
+            self.visitors.update(visitors)
 
     def __repr__(self) -> str:
         """Python code representation for debugging."""
@@ -983,6 +983,185 @@ class KickballGame:
 
         # This fails too, but let it try, to get the appropriate message.
         super().__delattr__(name)
+
+
+@attrs.frozen
+class KickballGameA:
+    """
+    A game of kickball. Uses attrs. Full type annotations.
+
+    This alternative implementation of KickballGame is an attrs data class.
+
+    >>> g1 = KickballGameA({Player('Alice')}, {Player('Erin')}); g1
+    KickballGameA(home={Player('Alice')}, visitors={Player('Erin')})
+    >>> g2 = KickballGameA(g1.home, g1.visitors); g1 is g2, g1 == g2
+    (False, True)
+    >>> g3 = KickballGameA({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
+    True
+    >>> KickballGameA({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
+    False
+
+    >>> g1.home.add(Player('Bob'))
+    >>> g1.visitors.add(Player('Derek'))
+    >>> g1 == KickballGameA(home={Player('Alice'), Player('Bob')},
+    ...                    visitors={Player('Erin'), Player('Derek')})
+    True
+    >>> g1 == g2, g1 == g3  # You can know you joined just one kickball game.
+    (False, False)
+
+    >>> s = set(); g4 = KickballGameA(s, s); g4.home.add(Player('Frank')); g4
+    KickballGameA(home={Player('Frank')}, visitors=set())
+    >>> g4.visitors.add(Player('Cassidy')); g4
+    KickballGameA(home={Player('Frank')}, visitors={Player('Cassidy')})
+    >>> g4 == KickballGameA({Player('Frank')}, {Player('Cassidy')})
+    True
+
+    >>> g4.visitors = set()
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> del g4.visitors
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> KickballGameA().home == KickballGameA().home  # Same for visitors.
+    True
+    >>> KickballGameA().home is KickballGameA().home  # Same for visitors.
+    False
+
+    attrs supports validation, which DangerousGameA uses. attrs also supports
+    conversion, used here. (They can be combined, but this doesn't need that.)
+
+    >>> g5 = KickballGameA([Player('Bob'), Player('Cassidy')]); type(g5.home)
+    <class 'set'>
+    >>> g6 = KickballGameA(map(Player, ['Bob', 'Cassidy'])); type(g6.home)
+    <class 'set'>
+    >>> g5 == KickballGameA({Player('Bob'), Player('Cassidy')}, set()) == g6
+    True
+    >>> KickballGameA(42, 76)  # Automatically validated on materialization.
+    Traceback (most recent call last):
+      ...
+    TypeError: 'int' object is not iterable
+
+    >>> KickballGameA({'Alice'})  # Flouts annotations but allowed at runtime.
+    KickballGameA(home={'Alice'}, visitors=set())
+
+    >>> match g1:  # Structural pattern matching works, including positionally.
+    ...     case KickballGameA(home, visitors) if Player('Alice') in home:
+    ...         print(sorted(visitors))
+    [Player('Derek'), Player('Erin')]
+
+    >>> g1.heme = set()  # Misspelled.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    """
+
+    home: set[Player] = attrs.field(default=(), converter=set)
+    """The home team."""
+
+    visitors: set[Player] = attrs.field(default=(), converter=set)
+    """The visiting team."""
+
+
+@dataclasses.dataclass(frozen=True)  # Currently unslotted. See DangerousGameD.
+class KickballGameD:
+    """
+    A game of kickball. Uses the dataclasses module.
+
+    This alternative implementation of KickballGame/KickballGameA uses the
+    decorator in the standard library dataclasses module (rather than attrs).
+
+    >>> g1 = KickballGameD({Player('Alice')}, {Player('Erin')}); g1
+    KickballGameD(home={Player('Alice')}, visitors={Player('Erin')})
+    >>> g2 = KickballGameD(g1.home, g1.visitors); g1 is g2, g1 == g2
+    (False, True)
+    >>> g3 = KickballGameD({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
+    True
+    >>> KickballGameD({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
+    False
+
+    >>> g1.home.add(Player('Bob'))
+    >>> g1.visitors.add(Player('Derek'))
+    >>> g1 == KickballGameD(home={Player('Alice'), Player('Bob')},
+    ...                    visitors={Player('Erin'), Player('Derek')})
+    True
+    >>> g1 == g2, g1 == g3  # You can know you joined just one kickball game.
+    (False, False)
+
+    >>> s = set(); g4 = KickballGameD(s, s); g4.home.add(Player('Frank')); g4
+    KickballGameD(home={Player('Frank')}, visitors=set())
+    >>> g4.visitors.add(Player('Cassidy')); g4
+    KickballGameD(home={Player('Frank')}, visitors={Player('Cassidy')})
+    >>> g4 == KickballGameD({Player('Frank')}, {Player('Cassidy')})
+    True
+
+    >>> g4.visitors = set()
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot assign to field 'visitors'
+    >>> del g4.visitors
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot delete field 'visitors'
+
+    >>> KickballGameD().home == KickballGameD().home  # Same for visitors.
+    True
+    >>> KickballGameD().home is KickballGameD().home  # Same for visitors.
+    False
+
+    The dataclasses module supports neither validation nor conversion. This
+    class must convert its arguments to sets. This can be done in __init__ (the
+    decorator doesn't synthesize __init__ if already present) or __post_init__.
+    This is a frozen dataclass, but it is reasonable to circumvent that to give
+    the attributes what either are, or are conceptually, their initial values.
+
+    >>> g5 = KickballGameD([Player('Bob'), Player('Cassidy')]); type(g5.home)
+    <class 'set'>
+    >>> g6 = KickballGameD(map(Player, ['Bob', 'Cassidy'])); type(g6.home)
+    <class 'set'>
+    >>> g5 == KickballGameD({Player('Bob'), Player('Cassidy')}, set()) == g6
+    True
+    >>> KickballGameD(42, 76)  # Automatically validated on materialization.
+    Traceback (most recent call last):
+      ...
+    TypeError: 'int' object is not iterable
+
+    >>> KickballGameD({'Alice'})  # Flouts annotations but allowed at runtime.
+    KickballGameD(home={'Alice'}, visitors=set())
+
+    >>> match g1:  # Structural pattern matching works, including positionally.
+    ...     case KickballGameD(home, visitors) if Player('Alice') in home:
+    ...         print(sorted(visitors))
+    [Player('Derek'), Player('Erin')]
+
+    >>> g1.heme = set()  # Misspelled.
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot assign to field 'heme'
+    """
+
+    home: set[Player]
+    """The home team."""
+
+    visitors: set[Player]
+    """The visiting team."""
+
+    def __init__(self,
+                 home: Iterable[Player] | None = None,
+                 visitors: Iterable[Player] | None = None) -> None:
+        """Create a new game of kickball with the given teams."""
+        # Set the attributes without super, since the version of the __class__
+        # bug that temporarily keeps this from using slots=True may be fixed
+        # even without super() working written in the code of a dataclass body.
+        object.__setattr__(self, 'home', set())
+        object.__setattr__(self, 'visitors', set())
+
+        if home is not None:
+            self.home.update(home)
+        if visitors is not None:
+            self.visitors.update(visitors)
 
 
 class StrNode:
@@ -1183,6 +1362,8 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     DangerousGameA,
     DangerousGameD,
     KickballGame,
+    KickballGameA,
+    KickballGameD,
     StrNode,
     StrNodeA,
     StrNodeD,
