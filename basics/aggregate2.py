@@ -244,7 +244,7 @@ class Point:
 
     >>> from fractions import Fraction; Point(z=Fraction(1, 2), x=Fraction())
     Point(x=Fraction(0, 1), y=0, z=Fraction(1, 2))
-    >>> Point(0j)  # Use attrs.validators.  # doctest +ELLIPSIS
+    >>> Point(0j)  # Use attrs.validators.  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     TypeError: ("'x' must be <class 'numbers.Real'> ...", ...)
@@ -380,7 +380,7 @@ class Vector:
 
     >>> from fractions import Fraction; Vector(z=Fraction(1, 2), x=Fraction())
     Vector(x=Fraction(0, 1), y=0, z=Fraction(1, 2))
-    >>> Vector(0j)  # Use attrs.validators.  # doctest +ELLIPSIS
+    >>> Vector(0j)  # Use attrs.validators.  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     TypeError: ("'x' must be <class 'numbers.Real'> ...", ...)
