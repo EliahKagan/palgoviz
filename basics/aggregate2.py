@@ -454,10 +454,10 @@ class DangerousGame:
     A game of Grizzly-Boom Tennis. Manually implemented. Full type annotations.
 
     When on trial (see enumerations.py), Frank initially failed to comply with
-    discovery. Later, his attorney accidentally sent the entirety of the data
-    on his cell phone to opposing counsel. This revealed a matter unrelated to
-    the issue at trial: several parties featured games of Grizzly-Boom Tennis.
-    See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
+    discovery. Later, his attorney accidentally sent the full contents of his
+    cell phone to opposing counsel. This revealed a matter unrelated to the
+    trial: several parties featured games of Grizzly-Boom Tennis. See
+    https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
 
     The All England Lawn Tennis and Croquet Club currently disallows
     Grizzly-Boom Tennis, as do most other venues. So it's played at underground
@@ -485,12 +485,12 @@ class DangerousGame:
     (False, True)
 
     In g3, Alice and Erin face each other again, but as their OTHER one-player
-    teams. These teams are merely equal to their first teams.
+    teams. These teams are merely equal to their first and second teams.
 
     >>> g3 = DangerousGame({Player('Alice')}, {Player('Erin')}); g1 == g3 == g2
     True
 
-    These shouldn't be confused with when Alice visits Erin and they play:
+    None of that should be confused with when Alice visits Erin and they play:
 
     >>> DangerousGame({Player('Erin')}, {Player('Alice')}) in (g1, g2, g3)
     False
@@ -522,9 +522,9 @@ class DangerousGame:
 
     Now it becomes clear how Grizzly-Boom Tennis is so dangerous. Frank meant
     to join just one team, and he did, but that one team was both teams! Now
-    he'll be riding his grizzly bear back and forth betwixt both sides of a
-    tennis court, volleying lit dynamite back and forth with himself. He really
-    wants the visitors' team to be a separate empty team. Can he fix this game?
+    he'll be riding his grizzly bear back and forth, volleying lit dynamite
+    across the net to himself. He really wants the visitors' team to be a
+    separate empty team. Can he fix this game?
 
     >>> g4.visitors = set()
     Traceback (most recent call last):
@@ -853,16 +853,15 @@ class KickballGame:
     """
     A game of kickball. Manually implemented. Full type annotations.
 
-    It also came out that the party guests played kickball. Kickball may be
-    distinguished from Grizzly-Boom Tennis by the following key qualities:
+    It also came out that the party guests played kickball. Kickball has these
+    qualities that distinguish it from Grizzly-Boom Tennis:
 
-      1. It is a safe-haven game, like baseball. (In contrast, Grizzly-Boom
-         Tennis is a racket sport, like tennis. There are no safe havens in
-         Grizzly-Boom Tennis; although it is lit, it is not actually based.)
+      1. It is a safe-haven game, like baseball. (Grizzly-Boom Tennis is a
+         racket sport, like tennis.)
 
-      2. High explosives are not used. In kickball, a ball is kicked.
+      2. High explosives are not used. Instead, a ball is kicked.
 
-      3. Bears are not used. Players stand and run directly on the field.
+      3. Bears are not used.
 
       4. In informal games, as modeled here, teams are per game. When a
          KickballGame instance is constructed, each team is created as a new
