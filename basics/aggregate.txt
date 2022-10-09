@@ -1,4 +1,5 @@
 greetall.Config redesign
+gencomp2.AffineA
 aggregate1.summarize_as_tuple
 aggregate1.summarize_as_dict
 aggregate1.summarize_as_simple_namespace
@@ -18,6 +19,7 @@ aggregate1.summarize_as_tuple_alt
 aggregate1.summarize_as_dict_alt
 aggregate1.summarize_as_frozen_attrs_no_slots
 aggregate1.summarize_as_mutable_attrs_no_slots
+aggregate2.GiantOtter
 aggregate2.Coords
 aggregate2.CoordsAlt
 aggregate2.TypedCoords

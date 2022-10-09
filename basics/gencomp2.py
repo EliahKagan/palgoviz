@@ -13,6 +13,8 @@ from collections import deque
 from collections.abc import Iterable
 import itertools
 
+import attrs
+
 
 def empty():
     """
@@ -795,6 +797,8 @@ class Affine:
     True
     >>> Affine(1.1, 2.2)(10)
     13.2
+
+    See also the doctests for affines_alt below.
     """
 
     __slots__ = ('_weight', '_bias')
@@ -858,10 +862,70 @@ def affines_alt(weights, biases):
     [-32.0, -24.5, -23.2, -20.1, 3.0, 10.5, 11.5, 11.8, 14.9, 19.0, 20.3, 23.4]
     >>> sorted(round(f(2), 1) for f in t)
     [-16.7, -9.2, -7.9, -4.8, -2.7, 0.7, 4.8, 6.1, 8.2, 9.2, 9.5, 12.6]
-    >>> affines_alt(u, range(0)) == affines_alt((m for m in ()), v) == set()
-    True
+    >>> affines_alt(u, range(0)), affines_alt((m for m in ()), v)
+    (set(), set())
     """
     return {Affine(w, b) for w, b in itertools.product(weights, biases)}
+
+
+@attrs.frozen
+class AffineA:
+    """
+    An extensional notion of a 1-dimensional affine function, using attrs.
+
+    This alternative implementation of Affine is uses the attrs library,
+    greatly shortening its definition. This does not use type annotations.
+
+    >>> AffineA(-1.5, 6.2)
+    AffineA(weight=-1.5, bias=6.2)
+    >>> _.weight, _.bias
+    (-1.5, 6.2)
+    >>> AffineA(3, -8.2) == AffineA(weight=3.0, bias=-8.2)
+    True
+    >>> AffineA(1.1, 2.2)(10)
+    13.2
+
+    See also the doctests for affines_alt_a below.
+    """
+
+    weight = attrs.field()
+    """Weight or slope by which arguments are dilated."""
+
+    bias = attrs.field()
+    """Bias or y-intercept by which arguments are offset."""
+
+    def __call__(self, x):
+        """Transform x according to weight and bias."""
+        return self.weight*x + self.bias
+
+
+def affines_alt_a(weights, biases):
+    """
+    Make a set of all 1-dimensional real-valued AffineA objects that use a
+    weight from weights and a bias from biases.
+
+    This is like affines_alt, but with AffineA instead of Affine.
+
+    >>> u = [2.3, 1.0, 2.3, -6.5, 5.4]
+    >>> v = [1.9, 3.6, -5.1, 1.9]
+    >>> s = affines_alt_a(u, v)
+    >>> isinstance(s, set) and all(isinstance(f, AffineA) for f in s)
+    True
+    >>> sorted(f(10) for f in s)
+    [-70.1, -63.1, -61.4, 4.9, 11.9, 13.6, 17.9, 24.9, 26.6, 48.9, 55.9, 57.6]
+    >>> sorted(round(f(5), 1) for f in s)
+    [-37.6, -30.6, -28.9, -0.1, 6.4, 6.9, 8.6, 13.4, 15.1, 21.9, 28.9, 30.6]
+    >>> t = affines_alt_a(iter(v), (b for b in u))
+    >>> isinstance(t, set)
+    True
+    >>> sorted(f(5) for f in t)
+    [-32.0, -24.5, -23.2, -20.1, 3.0, 10.5, 11.5, 11.8, 14.9, 19.0, 20.3, 23.4]
+    >>> sorted(round(f(2), 1) for f in t)
+    [-16.7, -9.2, -7.9, -4.8, -2.7, 0.7, 4.8, 6.1, 8.2, 9.2, 9.5, 12.6]
+    >>> affines_alt_a(u, range(0)), affines_alt_a((m for m in ()), v)
+    (set(), set())
+    """
+    return {AffineA(w, b) for w, b in itertools.product(weights, biases)}
 
 
 def my_cycle(iterable):

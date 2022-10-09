@@ -24,9 +24,83 @@ from typing import Any, NamedTuple
 
 import attrs
 
+import bobcats
+
+
+@attrs.frozen
+class GiantOtter:
+    """
+    The fiercest of all otters.
+
+    We model giant otters like bobcats, but simpler. Both name and fierceness
+    are always present. Giant otters differing by name or fierceness are
+    different giant otters. Attributes' types are not checked at runtime, but
+    are annotated. Manually implemented methods are likewise fully annotated.
+
+    This is a named tuple, attrs data class, or standard library dataclass.
+    Based on the above description, any of the three might work. But further
+    requirements, given below, restrict how it can reasonably be implemented.
+
+    >>> otters = {GiantOtter('William', 9000), GiantOtter('Mary', 9813),
+    ...           GiantOtter('Bob', 9813), GiantOtter('William', 9001),
+    ...           GiantOtter('William', 9000), GiantOtter('Mary', 9813.0)}
+
+    >>> ' '.join(sorted(f'{name}:{fierceness}' for name, fierceness in otters))
+    'Bob:9813 Mary:9813 William:9000 William:9001'
+
+    >>> len(GiantOtter('Ed', 8))  # Up to 6 ft. Wait, that's not what len does!
+    Traceback (most recent call last):
+      ...
+    TypeError: object of type 'GiantOtter' has no len()
+    >>> sorted(otters)  # doctest: +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+      ...
+    TypeError:
+        '<' not supported between instances of 'GiantOtter' and 'GiantOtter'
+    >>> GiantOtter('Tim', 871) + GiantOtter('Mary', 9813)
+    Traceback (most recent call last):
+      ...
+    TypeError: unsupported operand type(s) for +: 'GiantOtter' and 'GiantOtter'
+
+    >>> sorted({GiantOtter('Bob', 9813), ('Bob', 9813)}, key=repr)
+    [('Bob', 9813), GiantOtter(name='Bob', fierceness=9813)]
+
+    A giant otter's pen pal is the bobcat with the same name and fierceness:
+
+    >>> GiantOtter(name='Cat', fierceness=8000).pen_pal
+    Bobcat('Cat')
+    >>> GiantOtter(name='Ekaterina', fierceness=9047.6).pen_pal
+    FierceBobcat(name='Ekaterina', fierceness=9047.6)
+
+    NB: Except these tests, GiantOtter's code doesn't access FIERCENESS_CUTOFF.
+
+    >>> from unittest.mock import patch
+    >>> w = GiantOtter('William', 9000)
+    >>> with patch('bobcats.FierceBobcat.FIERCENESS_CUTOFF', 8999): w.pen_pal
+    FierceBobcat(name='William', fierceness=9000)
+    >>> w.pen_pal
+    Bobcat('William')
+    """
+
+    name: str
+    fierceness: float
+
+    def __iter__(self) -> Iterator[str | float]:
+        """Yield name and fierceness, to support unpacking assignment."""
+        yield self.name
+        yield self.fierceness
+
+    @property
+    def pen_pal(self) -> bobcats.Bobcat:
+        """The bobcat this giant otter exchanges letters with."""
+        try:
+            return bobcats.FierceBobcat(self.name, self.fierceness)
+        except ValueError:
+            return bobcats.Bobcat(self.name)
+
 
 def _coords_abs(self):
-    """The distance of this point from the origin."""
+    """The distance of these coordinates from the origin."""
     return math.hypot(*self)
 
 
@@ -85,7 +159,7 @@ class CoordsAlt(_CoordsAltBase):
     This is like Coords, but it uses inheritance to add support for the abs
     builtin. Its non-public base class is created by the same factory function
     used to create Coords directly. (Neither Coords nor CoordsAlt inherits from
-    the other and they do not depend on or use each other in any way.)
+    the other, and they do not depend on or use each other in any way.)
 
     >>> p = CoordsAlt(4, -12, 3)
     >>> p
@@ -1351,6 +1425,7 @@ def traverse(node: StrNode | StrNodeA | StrNodeD | None) -> Iterator[str]:
 
 
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
+    GiantOtter,
     Coords,
     CoordsAlt,
     TypedCoords,

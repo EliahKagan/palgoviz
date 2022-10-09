@@ -26,3 +26,4 @@ dependencies:
   # For static analysis
   - flake8
   - mypy>=0.940
+  - pyright
