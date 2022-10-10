@@ -1,5 +1,6 @@
 greetall.Config redesign
 gencomp2.AffineA
+adders.AdderA
 aggregate1.summarize_as_tuple
 aggregate1.summarize_as_dict
 aggregate1.summarize_as_simple_namespace

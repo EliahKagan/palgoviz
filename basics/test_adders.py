@@ -5,18 +5,20 @@
 from abc import ABC, abstractmethod
 import unittest
 
+import attrs
 from parameterized import parameterized
 
-from adders import Adder, make_adder
+import adders
 
 
 class _TestAddersAbstract(ABC, unittest.TestCase):
-    """ABC for tests for adders."""
+    """ABC for unittest test classes for all adders."""
 
     @property
     @abstractmethod
     def impl(self):
         """The adder being tested."""
+        raise NotImplementedError
 
     def test_adders_are_reusable(self):
         f = self.impl(7)
@@ -35,24 +37,17 @@ class _TestAddersAbstract(ABC, unittest.TestCase):
         self.assertEqual(s(' dog'), 'cat dog')
 
 
-class TestMakeAdder(_TestAddersAbstract):
-    """Tests for the make_adder function."""
+class _TestAdderClassesAbstract(_TestAddersAbstract):
+    """ABC for unittest test classes for adders implemented as classes."""
 
-    @property
-    def impl(self):
-        return make_adder
+    @abstractmethod
+    def test_repr(self):
+        """
+        Override this to test for a class-specific correct repr.
 
-
-class TestAdder(_TestAddersAbstract):
-    """Tests for the Adder class."""
-
-    @property
-    def impl(self):
-        return Adder
-
-    def test_repr_shows_type_and_arg_and_looks_like_python_code(self):
-        u = self.impl('cat')
-        self.assertEqual(repr(u), "Adder('cat')")
+        This is abstract to avoid reproducing the logic of the code under test.
+        """
+        raise NotImplementedError
 
     @parameterized.expand([
         ('int_int', 2, 2),
@@ -114,8 +109,54 @@ class TestAdder(_TestAddersAbstract):
         with self.assertRaises(AttributeError):
             a.right_addend = 5
 
+class TestMakeAdder(_TestAddersAbstract):
+    """Tests for the make_adder function."""
 
-del _TestAddersAbstract
+    @property
+    def impl(self):
+        return adders.make_adder
+
+
+class TestAdder(_TestAdderClassesAbstract):
+    """Tests for the Adder class."""
+
+    @property
+    def impl(self):
+        return adders.Adder
+
+    def test_repr(self):
+        """repr shows type and argument, and looks like Python code."""
+        u = self.impl('cat')
+        self.assertEqual(repr(u), "Adder('cat')")
+
+
+class TestAdderA(_TestAdderClassesAbstract):
+    """Tests for the AdderA class."""
+
+    @property
+    def impl(self):
+        return adders.AdderA
+
+    def test_repr(self):
+        """
+        repr shows type and argument, and looks like Python code.
+
+        The argument is shown as a keyword argument, which the attrs-generated
+        __repr__ implementation does. When this is unsuitable, __repr__ can be
+        implemented manually, while still benefiting from the other features
+        of attrs. (The same applies to @dataclasses.dataclass data classes.)
+        In this case, this is not clearly worse than the positional version,
+        because although there is only one argument, it makes sense to ensure
+        the behavior in noncommutative "addition" is clearly communicated.
+        """
+        u = self.impl('cat')
+        self.assertEqual(repr(u), "AdderA(left_addend='cat')")
+
+    def test_class_is_attrs_class(self):
+        self.assertTrue(attrs.has(self.impl))
+
+
+del _TestAddersAbstract, _TestAdderClassesAbstract
 
 
 if __name__ == '__main__':

@@ -1,5 +1,9 @@
 """Callables that add a fixed value to their argument."""
 
+__all__ = ['make_adder', 'Adder', 'AdderA']
+
+import attrs
+
 
 def make_adder(left_addend):
     """
@@ -82,6 +86,48 @@ class Adder:
     def left_addend(self):
         """This adder's left addend."""
         return self._left_addend
+
+
+@attrs.frozen
+class AdderA:
+    """
+    Callable object that adds its argument to the addend given on construction.
+
+    This alternative implementation of Adder is much shorter, due to its use of
+    the attrs library. (It is made with the modern attrs API.)
+
+    >>> a = AdderA(7)
+    >>> a(4)
+    11
+    >>> a(10)
+    17
+    >>> AdderA(6)(2)
+    8
+    >>> AdderA('cat')
+    AdderA(left_addend='cat')
+    >>> _(' dog')
+    'cat dog'
+    >>> s = {AdderA(7), AdderA(7), AdderA(6), AdderA(7.0)}
+    >>> s == {AdderA(6), AdderA(7)}
+    True
+    >>> a.left_addend
+    7
+    >>> a.left_addend = 8  # Fairly clear, and inherits from AttributeError.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> a.right_addend = 5  # Unfortunately doesn't make clear what the bug is.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    """
+
+    left_addend = attrs.field()
+    """This adder's left addend."""
+
+    def __call__(self, right_addend):
+        """Add this adder's left addend to the argument."""
+        return self.left_addend + right_addend
 
 
 if __name__ == '__main__':
