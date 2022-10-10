@@ -6,9 +6,33 @@ Greets multiple users from a file.
 Usage:
 
     greetall FILENAME [LANG]
+
+The filename must be passed, but the language code is optional.
+
+Basic examples/tests:
+
+    >>> from subprocess import getstatusoutput as gso
+
+    >>> _, output = gso('python greetall.py ../data/names.txt en')
+    >>> print(output)
+    Hello, Eliah!
+    Hello, David!
+    Hello, Dr. Evil!
+
+    >>> _, output = gso('python greetall.py ../data/names.txt es')
+    >>> print(output)
+    ¡Hola, Eliah!
+    ¡Hola, David!
+    ¡Hola, Dr. Evil!
+
+See test_greetall.txt for more tests.
 """
 
+__all__ = ['greet_all', 'greet_all_try', 'Config', 'run']
+
 import sys
+
+import attrs
 
 import greet
 
@@ -57,17 +81,37 @@ def greet_all_try(path, greeter):
         file.close()
 
 
+@attrs.frozen
 class Config:
-    """Configuration specifying dependencies for the run() function."""
+    """
+    Configuration specifying dependencies for the run function.
 
-    __slots__ = ('names_processor', 'greeter_factory')
+    >>> Config()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Config(names_processor=<function greet_all at 0x...>,
+           greeter_factory=<class 'greet.FrozenGreeter'>)
+    >>> _ == Config(greet_all, greet.FrozenGreeter)
+    True
 
-    def __init__(self,
-                 names_processor=greet_all,
-                 greeter_factory=greet.FrozenGreeter):
-        """Create a run configuration, optionally customizing dependencies."""
-        self.names_processor = names_processor
-        self.greeter_factory = greeter_factory
+    >>> Config(greet_all_try)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Config(names_processor=<function greet_all_try at 0x...>,
+           greeter_factory=<class 'greet.FrozenGreeter'>)
+    >>> _ == Config(greet_all_try, greet.FrozenGreeter)
+    True
+
+    >>> Config(greeter_factory=greet.MutableGreeter)
+    ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    Config(names_processor=<function greet_all at 0x...>,
+           greeter_factory=<class 'greet.MutableGreeter'>)
+    >>> _ == Config(greet_all, greet.MutableGreeter)
+    True
+
+    >>> Config() == Config(names_processor=greet_all_try)
+    False
+    >>> Config() == Config(greeter_factory=greet.MutableGreeter)
+    False
+    """
+    names_processor = attrs.field(default=greet_all)
+    greeter_factory = attrs.field(default=greet.FrozenGreeter)
 
 
 def run(configuration):
