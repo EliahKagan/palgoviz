@@ -1647,7 +1647,7 @@ def summarize_as_tuple_alt(values, *, precision=DEFAULT_PRECISION):
     (1, 4, 2.7, 2.4595, 2.1583)
     """
     summary = summarize_as_frozen_attrs(values, precision=precision)
-    return attrs.astuple(summary)
+    return attrs.astuple(summary, recurse=False)
 
 
 def summarize_as_dict_alt(values, *, precision=DEFAULT_PRECISION):
@@ -1698,7 +1698,7 @@ def summarize_as_dict_alt(values, *, precision=DEFAULT_PRECISION):
     True
     """
     summary = summarize_as_frozen_attrs(values, precision=precision)
-    return attrs.asdict(summary)
+    return attrs.asdict(summary, recurse=False)
 
 
 @attrs.frozen(slots=False)  # Or: @attrs.define(frozen=True, slots=False)
@@ -1798,8 +1798,8 @@ def summarize_as_frozen_attrs_no_slots(values, *, precision=DEFAULT_PRECISION):
     )
 
 
-@attrs.mutable(slots=False)  # Or: @attrs.define([frozen=False,] slots=False)
-class MutableSummaryNoSlots:
+@attrs.mutable(slots=False)   # < Or: @attrs.define(slots=False)
+class MutableSummaryNoSlots:  # ^ Or: @attrs.define(frozen=False, slots=False)
     """Mutable summary returned by summarize_as_frozen_attrs."""
 
     minimum = attrs.field()
@@ -1896,6 +1896,207 @@ def summarize_as_mutable_attrs_no_slots(values, *,
     )
 
 
+@attrs.frozen  # Or: @attrs.define(frozen=True)
+class FrozenSummaryUnpack:
+    """
+    Immutable summary returned by summarize_as_frozen_attrs_unpack.
+
+    This is like FrozenSummary, but iterable so it can be unpacked into
+    multiple variables on the left side of an assignment.
+    """
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+    def __iter__(self):
+        """Yield values in positional-argument order to allow unpacking."""
+        # Note: recurse has no effect if no member is an attrs class instance.
+        return iter(attrs.astuple(self, recurse=False))
+
+
+def summarize_as_frozen_attrs_unpack(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of an immutable data class, made with attrs, using the
+    modern API, and customized to support unpacking into its constituent values
+    when assigned to multiple variables.
+
+    FrozenSummary and FrozenSummaryUnpack differ by only a single method. This
+    is similar to MyFrozenSummary and MyFrozenSummaryUnpack, but inheritance is
+    not used, because the rest of the code is so much shorter. Neither class
+    depends on any other class in this module.
+
+    Although it would work for FrozenSummaryUnpack to define the new method
+    exactly as MyFrozenSummaryUnpack did, it does not. Instead, its definition
+    in FrozenSummaryUnpack is shorter, taking advantage of attrs, so that its
+    function body fits easily on one line (other than the docstring).
+
+    >>> s = summarize_as_frozen_attrs_unpack([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryUnpack(minimum=1,
+                        maximum=4,
+                        arithmetic_mean=2.7,
+                        geometric_mean=2.45951,
+                        harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_frozen_attrs_unpack([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen_attrs_unpack([1, 2, 16, 4, 8])})
+    2
+
+    >>> s.minimum = 1.5
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> _, _, am, _, _ = summarize_as_frozen_attrs_unpack([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_frozen_attrs_unpack([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryUnpack(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_frozen_attrs_unpack([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryUnpack(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryUnpack(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.mutable  # Or: @attrs.define  Or: @attrs.define(frozen=False)
+class MutableSummaryUnpack:
+    """
+    Mutable summary returned by summarize_as_frozen_attrs_unpack.
+
+    This is like MutableSummary, but iterable so it can be unpacked into
+    multiple variables on the left side of an assignment.
+    """
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+    def __iter__(self):
+        """Yield values in positional-argument order to allow unpacking."""
+        # Note: recurse has no effect if no member is an attrs class instance.
+        return iter(attrs.astuple(self, recurse=False))
+
+
+def summarize_as_mutable_attrs_unpack(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a mutable data class, made with attrs, using the modern
+    API, and customized to support unpacking into its constituent values when
+    assigned to multiple variables. The difference between this function and
+    summarize_as_frozen_attrs_unpack is that this has a mutable return type:
+    MutableSummaryUnpack is the same as FrozenSummaryUnpack, except mutable.
+
+    >>> s = summarize_as_mutable_attrs_unpack([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MutableSummaryUnpack(minimum=1,
+                         maximum=4,
+                         arithmetic_mean=2.7,
+                         geometric_mean=2.45951,
+                         harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'MutableSummaryUnpack'
+
+    >>> s == summarize_as_mutable_attrs_unpack([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_mutable_attrs_unpack([1, 2, 16, 4, 8])
+    False
+    >>> s.minimum = 1.5
+    >>> s == summarize_as_mutable_attrs_unpack([1, 3, 2.5, 3, 4])
+    False
+
+    >>> _, _, am, _, _ = summarize_as_mutable_attrs_unpack([1, 2, 16, 4, 8])
+    >>> am
+    6.2
+
+    >>> match summarize_as_mutable_attrs_unpack([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryUnpack(geometric_mean=4,
+    ...                                 harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_mutable_attrs_unpack([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryUnpack(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return MutableSummaryUnpack(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_tuple,
     summarize_as_dict,
@@ -1929,6 +2130,10 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_frozen_attrs_no_slots,
     MutableSummaryNoSlots,
     summarize_as_mutable_attrs_no_slots,
+    FrozenSummaryUnpack,
+    summarize_as_frozen_attrs_unpack,
+    MutableSummaryUnpack,
+    summarize_as_mutable_attrs_unpack,
 )]
 
 
