@@ -91,20 +91,6 @@ class Config:
            greeter_factory=<class 'greet.FrozenGreeter'>)
     >>> _ == Config(greet_all, greet.FrozenGreeter)
     True
-
-    >>> Config(greet_all_try)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-    Config(names_processor=<function greet_all_try at 0x...>,
-           greeter_factory=<class 'greet.FrozenGreeter'>)
-    >>> _ == Config(greet_all_try, greet.FrozenGreeter)
-    True
-
-    >>> Config(greeter_factory=greet.MutableGreeter)
-    ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-    Config(names_processor=<function greet_all at 0x...>,
-           greeter_factory=<class 'greet.MutableGreeter'>)
-    >>> _ == Config(greet_all, greet.MutableGreeter)
-    True
-
     >>> Config() == Config(names_processor=greet_all_try)
     False
     >>> Config() == Config(greeter_factory=greet.MutableGreeter)
