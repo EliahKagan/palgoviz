@@ -100,7 +100,7 @@ class GiantOtter:
 
 
 def _coords_abs(self):
-    """The distance of these coordinates from the origin."""
+    """Compute the distance of these coordinates from the origin."""
     return math.hypot(*self)
 
 
@@ -173,7 +173,7 @@ class CoordsAlt(_CoordsAltBase):
     __slots__ = ()
 
     def __abs__(self):
-        """The distance of this point from the origin."""
+        """Compute the distance of these coordinates from the origin."""
         return math.hypot(*self)
 
 
@@ -198,7 +198,7 @@ class TypedCoords(NamedTuple):
     z: float
 
     def __abs__(self) -> float:
-        """The distance of this point from the origin."""
+        """Compute the distance of these coordinates from the origin."""
         return math.hypot(*self)
 
 
@@ -334,7 +334,7 @@ class Point:
 
     @property
     def coords(self):
-        """The coordinates of this Point, as a Coords name tuple object."""
+        """The coordinates of this Point, as a Coords named tuple object."""
         return Coords(self.x, self.y, self.z)
 
 
@@ -473,7 +473,7 @@ class Vector:
 
     @property
     def coords(self):
-        """The components of this Vector, as a Coords name tuple object."""
+        """The components of this Vector, as a Coords named tuple object."""
         return Coords(self.x, self.y, self.z)
 
 
