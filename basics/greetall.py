@@ -96,6 +96,7 @@ class Config:
     >>> Config() == Config(greeter_factory=greet.MutableGreeter)
     False
     """
+
     names_processor = attrs.field(default=greet_all)
     greeter_factory = attrs.field(default=greet.FrozenGreeter)
 

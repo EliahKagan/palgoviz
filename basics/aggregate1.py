@@ -1012,6 +1012,7 @@ class TypedNamedTupleSummary(typing.NamedTuple):
     direct base class is tuple (as it is when collections.namedtuple is used).
     This class is immutable and iterable, because tuples are.
     """
+
     minimum: float
     maximum: float
     arithmetic_mean: float

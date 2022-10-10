@@ -873,8 +873,8 @@ class AffineA:
     """
     An extensional notion of a 1-dimensional affine function, using attrs.
 
-    This alternative implementation of Affine is uses the attrs library,
-    greatly shortening its definition. This does not use type annotations.
+    This alternative implementation of Affine uses the attrs library, greatly
+    shortening its definition. This does not use type annotations.
 
     >>> AffineA(-1.5, 6.2)
     AffineA(weight=-1.5, bias=6.2)
@@ -1039,6 +1039,8 @@ __all__ = [thing.__name__ for thing in (
     affines,
     Affine,
     affines_alt,
+    AffineA,
+    affines_alt_a,
     my_cycle,
     my_chain,
 )]
