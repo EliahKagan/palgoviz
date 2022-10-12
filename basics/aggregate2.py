@@ -1487,7 +1487,7 @@ class Sentinel:
         return False
 
 
-@attrs.mutable(eq=False, on_setattr=False, weakref_slot=False)
+@attrs.mutable(eq=False, weakref_slot=False)
 class NAry:
     """
     Node in an n-ary tree of key-value pairs.
@@ -1512,6 +1512,7 @@ class NAry:
     NAry(key='A', value=10, children=[NAry(key='B', value=20, children=[]),
                                       NAry(key='C', value=30, children=[]),
                                       NAry(key='D', value=40, children=[])])
+
     >>> attrs.asdict(a) == attrs.asdict(eval(repr(a)))  # The repr round-trips.
     True
 
@@ -1519,22 +1520,29 @@ class NAry:
     NAry(key='Z', value=-1, children=[NAry(key='B', value=20, children=[]),
                                       NAry(key='C', value=30, children=[])])
 
+    >>> actual_ach = a.children  # We will make sure it is really not re-bound.
+
     >>> del a.children[:2]; a
     NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[])])
     >>> a.children = a.children + e.children
     Traceback (most recent call last):
       ...
     AttributeError: refusing to bind 'children' to another object
+
     >>> a.children.extend(e.children); a  # doctest: +NORMALIZE_WHITESPACE
     NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[]),
                                       NAry(key='B', value=20, children=[]),
                                       NAry(key='C', value=30, children=[])])
+
     >>> del a.children[1:]; a
     NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[])])
     >>> a.children += e.children; a  # doctest: +NORMALIZE_WHITESPACE
     NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[]),
                                       NAry(key='B', value=20, children=[]),
                                       NAry(key='C', value=30, children=[])])
+
+    >>> actual_ach is a.children
+    True
 
     >>> import weakref; weakref.ref(a)  # No weak reference support.
     Traceback (most recent call last):
