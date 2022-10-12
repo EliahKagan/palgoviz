@@ -27,6 +27,36 @@ import attrs
 import bobcats
 
 
+@attrs.frozen(order=True)  # Or: @attrs.define(frozen=True, order=True)
+class Edge:
+    """
+    An edge in a weighted directed graph.
+
+    When edges are sorted without supplying a key function, it is by weight:
+
+    >>> sorted([Edge('B', 'C', 8), Edge('A', 'B', 7), Edge('A', 'B', 5),
+    ...         Edge('C', 'B', 7)])  # doctest: +NORMALIZE_WHITESPACE
+    [Edge(src='A', dest='B', weight=5), Edge(src='A', dest='B', weight=7),
+     Edge(src='C', dest='B', weight=7), Edge(src='B', dest='C', weight=8)]
+
+    >>> sorted([Edge('B', 'C', 8), Edge('C', 'B', 7), Edge('A', 'B', 5),
+    ...         Edge('A', 'B', 7)])  # doctest: +NORMALIZE_WHITESPACE
+    [Edge(src='A', dest='B', weight=5), Edge(src='C', dest='B', weight=7),
+     Edge(src='A', dest='B', weight=7), Edge(src='B', dest='C', weight=8)]
+
+    Other requirements:
+
+    >>> len(set([Edge('A', 'B', 5), Edge('B', 'A', 5)] * 10))
+    2
+    >>> import inspect; inspect.get_annotations(Edge)
+    {}
+    """
+
+    src = attrs.field(order=False)
+    dest = attrs.field(order=False)
+    weight = attrs.field(order=True)  # Or: attrs.field()
+
+
 @attrs.frozen
 class GiantOtter:
     """
@@ -1424,7 +1454,43 @@ def traverse(node: StrNode | StrNodeA | StrNodeD | None) -> Iterator[str]:
         node = node.next
 
 
+@attrs.define(frozen=False, hash=True, slots=False)
+class Sentinel:
+    """
+    Non-singleton sentinel. Permits new attributes. All instances are equal.
+
+    Instances of this class represent a singular sentinel *value*, but they can
+    also hold arbitrary information in attributes that do not participate in
+    equality comparison. This allows separate Sentinel objects to be annotated
+    differently. A possible use case is to represent the end of a linked list,
+    or an empty branch of a tree, where every sublist or every subtree permits
+    adding satellite data as extra attributes; this allows an empty sublist or
+    empty branch to be annotated the same way as a nonempty sublist or branch.
+
+    >>> a, b, a.x, b.x, b.y = Sentinel(), Sentinel(), 10, 7, 12
+    >>> {a, b}
+    {Sentinel()}
+    >>> vars(a), vars(b)
+    ({'x': 10}, {'x': 7, 'y': 12})
+
+    >>> a < b
+    Traceback (most recent call last):
+      ...
+    TypeError: '<' not supported between instances of 'Sentinel' and 'Sentinel'
+    """
+
+
+
+
+
+# @attrs.define(frozen=False, hash=True)
+# class U:
+#     x = attrs.field()
+#     y = attrs.field(eq=False)
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
+    Edge,
     GiantOtter,
     Coords,
     CoordsAlt,
@@ -1442,6 +1508,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     StrNodeA,
     StrNodeD,
     traverse,
+    Sentinel,
 )]
 
 

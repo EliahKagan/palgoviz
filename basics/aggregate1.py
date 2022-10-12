@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Named tuples and data classes, part 1 of 2: a tour of some popular ways.
+Named tuples and data classes, part 1 of 2: a tour of some important ways.
 
 This module starts with manual approaches to a problem of data aggregation that
 is straightforward, yet (1) an imperfect fit for preexisting built-in and other
