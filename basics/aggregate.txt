@@ -22,6 +22,9 @@ aggregate1.summarize_as_frozen_attrs_no_slots
 aggregate1.summarize_as_mutable_attrs_no_slots
 aggregate1.summarize_as_frozen_attrs_unpack
 aggregate1.summarize_as_mutable_attrs_unpack
+aggregate1.summarize_as_classic_attrs
+aggregate1.summarize_as_classic_frozen_attrs
+aggregate1.summarize_as_classic_frozen_attrs_like_modern
 aggregate2.Edge
 aggregate2.GiantOtter
 aggregate2.Coords

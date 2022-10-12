@@ -2306,7 +2306,7 @@ def summarize_as_classic_frozen_attrs(values, *, precision=DEFAULT_PRECISION):
 @attr.s(auto_attribs=True, frozen=True, slots=True, order=False)
 class FrozenSummaryClassicLikeModern:
     """
-    Frozen summary returned by summarize_as_classic_like_modern_frozen_attrs.
+    Frozen summary returned by summarize_as_classic_frozen_attrs_like_modern.
 
     This is like TypedFrozenSummary, but implemented with @attr.s.
     """
@@ -2318,7 +2318,7 @@ class FrozenSummaryClassicLikeModern:
     harmonic_mean: float
 
 
-def summarize_as_classic_like_modern_frozen_attrs(
+def summarize_as_classic_frozen_attrs_like_modern(
         values: Iterable[float],
         precision: int = DEFAULT_PRECISION) -> FrozenSummaryClassicLikeModern:
     """
@@ -2332,7 +2332,7 @@ def summarize_as_classic_like_modern_frozen_attrs(
     and the class, FrozenSummaryClassicLikeModern, use type annotations. The
     class body is the same as in TypedFrozenSummary, except their docstrings.
 
-    >>> s = summarize_as_classic_like_modern_frozen_attrs([1, 3, 2.5, 3, 4])
+    >>> s = summarize_as_classic_frozen_attrs_like_modern([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
     FrozenSummaryClassicLikeModern(minimum=1,
@@ -2342,8 +2342,8 @@ def summarize_as_classic_like_modern_frozen_attrs(
                                    harmonic_mean=2.15827)
 
     >>> len({s,
-    ...      summarize_as_classic_like_modern_frozen_attrs([1, 3, 3, 2.5, 4]),
-    ...      summarize_as_classic_like_modern_frozen_attrs([1, 2, 16, 4, 8])})
+    ...      summarize_as_classic_frozen_attrs_like_modern([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_classic_frozen_attrs_like_modern([1, 2, 16, 4, 8])})
     2
 
     >>> s < FrozenSummaryClassicLikeModern(1, 4, 2.7, 2.4596, 2.1581)
@@ -2363,19 +2363,19 @@ def summarize_as_classic_like_modern_frozen_attrs(
     ...     print('FrozenInstanceError is a subclass of AttributeError.')
     FrozenInstanceError is a subclass of AttributeError.
 
-    >>> _, _, am, _, _ = summarize_as_classic_like_modern_frozen_attrs(
+    >>> _, _, am, _, _ = summarize_as_classic_frozen_attrs_like_modern(
     ...     [1, 2, 16, 4, 8])
     Traceback (most recent call last):
       ...
     TypeError: cannot unpack non-iterable FrozenSummaryClassicLikeModern object
 
-    >>> match summarize_as_classic_like_modern_frozen_attrs([1, 2, 16, 4, 8]):
+    >>> match summarize_as_classic_frozen_attrs_like_modern([1, 2, 16, 4, 8]):
     ...     case FrozenSummaryClassicLikeModern(geometric_mean=4,
     ...                                         harmonic_mean=hm_kwd):
     ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
     Geometric mean four, harmonic mean 2.58065.
 
-    >>> match summarize_as_classic_like_modern_frozen_attrs([1, 2, 16, 4, 8]):
+    >>> match summarize_as_classic_frozen_attrs_like_modern([1, 2, 16, 4, 8]):
     ...     case FrozenSummaryClassicLikeModern(_, _, _, 4, hm_pos):
     ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
     Geometric mean four, harmonic mean 2.58065.
@@ -2452,7 +2452,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     FrozenSummaryClassic,
     summarize_as_classic_frozen_attrs,
     FrozenSummaryClassicLikeModern,
-    summarize_as_classic_like_modern_frozen_attrs,
+    summarize_as_classic_frozen_attrs_like_modern,
 )]
 
 
