@@ -1257,7 +1257,7 @@ class KickballGameD:
         """Create a new game of kickball with the given teams."""
         # Set the attributes without super, since the version of the __class__
         # bug that temporarily keeps this from using slots=True may be fixed
-        # even without super() working written in the code of a dataclass body.
+        # even without super() working inside the code of a dataclass body.
         object.__setattr__(self, 'home', set())
         object.__setattr__(self, 'visitors', set())
 
@@ -1332,7 +1332,7 @@ class StrNode:
                 + f'(value={self.value!r}, next={self.next!r})')
 
 
-@attrs.mutable(eq=False, weakref_slot=False)
+@attrs.define(frozen=False, eq=False, weakref_slot=False)
 class StrNodeA:
     """
     Node in a mutable singly linked list of strings.
@@ -1487,7 +1487,7 @@ class Sentinel:
         return False
 
 
-@attrs.mutable(eq=False, weakref_slot=False)
+@attrs.define(frozen=False, eq=False, weakref_slot=False)
 class NAry:
     """
     Node in an n-ary tree of key-value pairs.
