@@ -2212,7 +2212,7 @@ def summarize_as_classic_attrs(values, *, precision=DEFAULT_PRECISION):
 
 @attr.s(frozen=True)  # Or: @attr.attrs(frozen=True)
 class FrozenSummaryClassic:
-    """Mutable summary returned by summarize_as_classic_attrs."""
+    """Frozen summary returned by summarize_as_classic_frozen_attrs."""
 
     minimum = attr.ib()  # Or: attr.attrib()
     maximum = attr.ib()
@@ -2303,6 +2303,101 @@ def summarize_as_classic_frozen_attrs(values, *, precision=DEFAULT_PRECISION):
     )
 
 
+@attr.s(frozen=True, slots=True)  # Or: @attr.attrs(frozen=True, slots=True)
+class FrozenSummaryClassicSlotted:
+    """Frozen summary returned by summarize_as_classic_frozen_attrs_slotted."""
+
+    minimum = attr.ib()  # Or: attr.attrib()
+    maximum = attr.ib()
+    arithmetic_mean = attr.ib()
+    geometric_mean = attr.ib()
+    harmonic_mean = attr.ib()
+
+
+def summarize_as_classic_frozen_attrs_slotted(values, *,
+                                              precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_classic_frozen_attrs but with slots. That is to
+    say that it's like summarize_as_tuple, but the five computed results are
+    returned as an instance of a data class made with attrs, using the classic
+    API, immutable and slotted but with other classic defaults, without type
+    annotations.
+
+    >>> s = summarize_as_classic_frozen_attrs_slotted([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryClassicSlotted(minimum=1,
+                                maximum=4,
+                                arithmetic_mean=2.7,
+                                geometric_mean=2.45951,
+                                harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_classic_frozen_attrs_slotted([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_classic_frozen_attrs_slotted([1, 2, 16, 4, 8])})
+    2
+
+    >>> s < FrozenSummaryClassicSlotted(1, 4, 2.7, 2.4596, 2.1581)  # What?
+    True
+
+    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> try:
+    ...     s.minimum = 1.5
+    ... except AttributeError:
+    ...     print('FrozenInstanceError is a subclass of AttributeError.')
+    FrozenInstanceError is a subclass of AttributeError.
+
+    >>> _, _, am, _, _ = summarize_as_classic_frozen_attrs_slotted(
+    ...     [1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummaryClassicSlotted object
+
+    >>> match summarize_as_classic_frozen_attrs_slotted([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryClassicSlotted(geometric_mean=4,
+    ...                                      harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_classic_frozen_attrs_slotted([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryClassicSlotted(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryClassicSlotted(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
 @attr.s(auto_attribs=True, frozen=True, slots=True, order=False)
 class FrozenSummaryClassicLikeModern:
     """
@@ -2319,7 +2414,7 @@ class FrozenSummaryClassicLikeModern:
 
 
 def summarize_as_classic_frozen_attrs_like_modern(
-        values: Iterable[float],
+        values: Iterable[float], *,
         precision: int = DEFAULT_PRECISION) -> FrozenSummaryClassicLikeModern:
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
@@ -2451,6 +2546,8 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_classic_attrs,
     FrozenSummaryClassic,
     summarize_as_classic_frozen_attrs,
+    FrozenSummaryClassicSlotted,
+    summarize_as_classic_frozen_attrs_slotted,
     FrozenSummaryClassicLikeModern,
     summarize_as_classic_frozen_attrs_like_modern,
 )]
