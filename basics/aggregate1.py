@@ -19,7 +19,7 @@ classes in this module as exercises to learn about named tuples, data classes,
 and the very basics of type annotations. However, readers with no familiarity
 with any of those three topics might be well served to learn a little about at
 least one, first. The material in this project that is intended as a first
-introduction to named tuples and data classes appears in classes3.ipynb.
+introduction to named tuples and data classes appears in aggregate.ipynb.
 
 A goal of this module is to show alternatives, so code is freely duplicated
 across functions, and across classes, when sharing it would obscure anything or
