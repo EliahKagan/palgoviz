@@ -14,12 +14,28 @@ Because the attrs library fully supports both "typed" and "untyped" usage, and
 it is a very popular and important library, a major focus here is on attrs data
 classes. However, the standard library dataclasses module is shown, too.
 
+The attrs library supports a modern ("next gen") API, recommended for new code,
+and a classic API, which most existing attrs code uses. This module focuses on
+the modern API, but also presents the classic API and the differences between
+them. The modern API uses the attrs.define/attrs.mutable and attrs.frozen class
+decorators, and attrs.field. The classic API uses the attr.s/attr.attrs class
+decorator, and attr.ib/attr.attrib. define, mutable, and frozen were also added
+to the classic attr module, which is useful for gradually updating an existing
+module that uses "from attr import attrs". But this module imports both attrs
+and attr; uses them for the modern and classic APIs, respectively; and eschews
+"from attrs", "from attr", and "from dataclasses" imports, to avoid confusion.
+Note that the modern API exists not just for its better names, but also to
+adopt better defaults without breaking backward compatibility. So attrs.define
+is not equivalent to attr.s, and attrs.field is not equivalent to attr.ib.
+
 Readers experienced in the Python data model can reimplement the functions and
 classes in this module as exercises to learn about named tuples, data classes,
-and the very basics of type annotations. However, readers with no familiarity
-with any of those three topics might be well served to learn a little about at
-least one, first. The material in this project that is intended as a first
-introduction to named tuples and data classes appears in aggregate.ipynb.
+and the very basics of type annotations. (Class requirements are in docstrings
+of functions that return their instances, so that, when worked as exercises,
+the classes can be written from scratch.) However, readers with no familiarity
+with named tuples, data classes, or type annotations may be better off learning
+a little about at least one, first. In this project, the material intended as a
+first introduction to named tuples and data classes is in aggregate.ipynb.
 
 A goal of this module is to show alternatives, so code is freely duplicated
 across functions, and across classes, when sharing it would obscure anything or
@@ -32,6 +48,7 @@ import math
 import types
 import typing
 
+import attr
 import attrs
 
 DEFAULT_PRECISION = 5
@@ -2097,6 +2114,302 @@ def summarize_as_mutable_attrs_unpack(values, *, precision=DEFAULT_PRECISION):
     )
 
 
+@attr.s  # Or: @attr.attrs
+class MutableSummaryClassic:
+    """Mutable summary returned by summarize_as_classic_attrs."""
+
+    minimum = attr.ib()  # Or: attr.attrib()
+    maximum = attr.ib()
+    arithmetic_mean = attr.ib()
+    geometric_mean = attr.ib()
+    harmonic_mean = attr.ib()
+
+
+def summarize_as_classic_attrs(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a data class made with attrs, using the classic API, with
+    all defaults kept. This is mutable, unslotted, and (for historical reasons)
+    ordered. Neither that class nor this function use type annotations.
+
+    >>> s = summarize_as_classic_attrs([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MutableSummaryClassic(minimum=1,
+                          maximum=4,
+                          arithmetic_mean=2.7,
+                          geometric_mean=2.45951,
+                          harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'MutableSummaryClassic'
+
+    >>> s == summarize_as_classic_attrs([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_classic_attrs([1, 2, 16, 4, 8])
+    False
+    >>> s < MutableSummaryClassic(1, 4, 2.7, 2.4596, 2.1581)  # What?
+    True
+
+    >>> s.median = 3
+    >>> s == summarize_as_classic_attrs([1, 3, 3, 2.5, 4])
+    True
+    >>> s.median  # It's there, it just doesn't affect __eq__ or __hash__.
+    3
+
+    >>> s.minimum = 1.5  # Allowed, same as any other mutable data class.
+    >>> s == summarize_as_classic_attrs([1, 3, 2.5, 3, 4])
+    False
+
+    >>> _, _, am, _, _ = summarize_as_classic_attrs([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable MutableSummaryClassic object
+
+    >>> match summarize_as_classic_attrs([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryClassic(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_classic_attrs([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryClassic(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return MutableSummaryClassic(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attr.s(frozen=True)  # Or: @attr.attrs(frozen=True)
+class FrozenSummaryClassic:
+    """Mutable summary returned by summarize_as_classic_attrs."""
+
+    minimum = attr.ib()  # Or: attr.attrib()
+    maximum = attr.ib()
+    arithmetic_mean = attr.ib()
+    geometric_mean = attr.ib()
+    harmonic_mean = attr.ib()
+
+
+def summarize_as_classic_frozen_attrs(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_classic_attrs but with an immutable type. That is
+    to say that it's like summarize_as_tuple, but the five computed results are
+    returned as an instance of a data class made with attrs, using the classic
+    API, immutable but with other classic defaults, without type annotations.
+
+    >>> s = summarize_as_classic_frozen_attrs([1, 3, 2.5, 3, 4])
+    >>> s.__dict__ == attrs.asdict(s), s.__dict__ is attrs.asdict(s)
+    (True, False)
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryClassic(minimum=1,
+                         maximum=4,
+                         arithmetic_mean=2.7,
+                         geometric_mean=2.45951,
+                         harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_classic_frozen_attrs([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_classic_frozen_attrs([1, 2, 16, 4, 8])})
+    2
+
+    >>> s < FrozenSummaryClassic(1, 4, 2.7, 2.4596, 2.1581)  # What?
+    True
+
+    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> s.median = 3  # Overridden __setattr__ catches this even without slots.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> _, _, am, _, _ = summarize_as_classic_frozen_attrs([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummaryClassic object
+
+    >>> match summarize_as_classic_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryClassic(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_classic_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryClassic(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryClassic(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attr.s(auto_attribs=True, frozen=True, slots=True, order=False)
+class FrozenSummaryClassicLikeModern:
+    """
+    Frozen summary returned by summarize_as_classic_like_modern_frozen_attrs.
+
+    This is like TypedFrozenSummary, but implemented with @attr.s.
+    """
+
+    minimum: float
+    maximum: float
+    arithmetic_mean: float
+    geometric_mean: float
+    harmonic_mean: float
+
+
+def summarize_as_classic_like_modern_frozen_attrs(
+        values: Iterable[float],
+        precision: int = DEFAULT_PRECISION) -> FrozenSummaryClassicLikeModern:
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of an immutable data class, made with attrs, using the
+    classic API but with arguments passed so the decorator works as if
+    @attrs.frozen were used without customization. (Only aspects of the modern
+    behavior relevant to this particular use need be specified.) This function,
+    and the class, FrozenSummaryClassicLikeModern, use type annotations. The
+    class body is the same as in TypedFrozenSummary, except their docstrings.
+
+    >>> s = summarize_as_classic_like_modern_frozen_attrs([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryClassicLikeModern(minimum=1,
+                                   maximum=4,
+                                   arithmetic_mean=2.7,
+                                   geometric_mean=2.45951,
+                                   harmonic_mean=2.15827)
+
+    >>> len({s,
+    ...      summarize_as_classic_like_modern_frozen_attrs([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_classic_like_modern_frozen_attrs([1, 2, 16, 4, 8])})
+    2
+
+    >>> s < FrozenSummaryClassicLikeModern(1, 4, 2.7, 2.4596, 2.1581)
+    ... # doctest: +NORMALIZE_WHITESPACE
+    Traceback (most recent call last):
+      ...
+    TypeError: '<' not supported between instances of
+        'FrozenSummaryClassicLikeModern' and 'FrozenSummaryClassicLikeModern'
+
+    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+    >>> try:
+    ...     s.minimum = 1.5
+    ... except AttributeError:
+    ...     print('FrozenInstanceError is a subclass of AttributeError.')
+    FrozenInstanceError is a subclass of AttributeError.
+
+    >>> _, _, am, _, _ = summarize_as_classic_like_modern_frozen_attrs(
+    ...     [1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummaryClassicLikeModern object
+
+    >>> match summarize_as_classic_like_modern_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryClassicLikeModern(geometric_mean=4,
+    ...                                         harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_classic_like_modern_frozen_attrs([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryClassicLikeModern(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0.0
+    total = 0.0
+    product = 1.0
+    reciprocals_total = 0.0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryClassicLikeModern(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_tuple,
     summarize_as_dict,
@@ -2134,6 +2447,12 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_frozen_attrs_unpack,
     MutableSummaryUnpack,
     summarize_as_mutable_attrs_unpack,
+    MutableSummaryClassic,
+    summarize_as_classic_attrs,
+    FrozenSummaryClassic,
+    summarize_as_classic_frozen_attrs,
+    FrozenSummaryClassicLikeModern,
+    summarize_as_classic_like_modern_frozen_attrs,
 )]
 
 
