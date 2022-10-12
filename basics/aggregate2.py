@@ -1487,6 +1487,75 @@ class Sentinel:
         return False
 
 
+@attrs.mutable(eq=False, on_setattr=False, weakref_slot=False)
+class NAry:
+    """
+    Node in an n-ary tree of key-value pairs.
+
+    Each node carries a key, which cannot be changed, and a value, which can.
+    Children can be changed by mutating the list of them, but not by assigning
+    a different list. This is an attrs class, by the modern API, without type
+    annotations. It involves on_setattr subtleties with converters/validators.
+
+    >>> b, c, d = NAry('B', 5), NAry('C', 30), NAry('D', 40); b
+    NAry(key='B', value=5, children=[])
+    >>> len({b, NAry('B', 5), NAry('B', 5)})  # Equality is reference equality.
+    3
+    >>> b.key = 'P'
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenAttributeError
+    >>> b.value = 20
+
+    >>> ach = [b, c, d]; a = NAry('A', 10, ach); del ach[-1]  # a still has d.
+    >>> a  # doctest: +NORMALIZE_WHITESPACE
+    NAry(key='A', value=10, children=[NAry(key='B', value=20, children=[]),
+                                      NAry(key='C', value=30, children=[]),
+                                      NAry(key='D', value=40, children=[])])
+    >>> attrs.asdict(a) == attrs.asdict(eval(repr(a)))  # The repr round-trips.
+    True
+
+    >>> e = NAry('Z', -1, iter(ach)); e  # doctest: +NORMALIZE_WHITESPACE
+    NAry(key='Z', value=-1, children=[NAry(key='B', value=20, children=[]),
+                                      NAry(key='C', value=30, children=[])])
+
+    >>> del a.children[:2]; a
+    NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[])])
+    >>> a.children = a.children + e.children
+    Traceback (most recent call last):
+      ...
+    AttributeError: refusing to bind 'children' to another object
+    >>> a.children.extend(e.children); a  # doctest: +NORMALIZE_WHITESPACE
+    NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[]),
+                                      NAry(key='B', value=20, children=[]),
+                                      NAry(key='C', value=30, children=[])])
+    >>> del a.children[1:]; a
+    NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[])])
+    >>> a.children += e.children; a  # doctest: +NORMALIZE_WHITESPACE
+    NAry(key='A', value=10, children=[NAry(key='D', value=40, children=[]),
+                                      NAry(key='B', value=20, children=[]),
+                                      NAry(key='C', value=30, children=[])])
+
+    >>> import weakref; weakref.ref(a)  # No weak reference support.
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot create weak reference to 'NAry' object
+    """
+
+    def _ensure_same_children_list(self, _, new_children):
+        if new_children is self.children:
+            return new_children
+        raise AttributeError("refusing to bind 'children' to another object")
+
+    key = attrs.field(on_setattr=attrs.setters.frozen)
+
+    value = attrs.field()
+
+    children = attrs.field(default=(),
+                           converter=list,
+                           on_setattr=_ensure_same_children_list)
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     Edge,
     GiantOtter,
@@ -1507,6 +1576,7 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     StrNodeD,
     traverse,
     Sentinel,
+    NAry,
 )]
 
 

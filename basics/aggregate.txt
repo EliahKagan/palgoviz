@@ -41,3 +41,4 @@ aggregate2.StrNodeA
 aggregate2.StrNodeD
 aggregate2.traverse
 aggregate2.Sentinel
+aggregate2.NAry
