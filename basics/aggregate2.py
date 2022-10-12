@@ -1477,16 +1477,14 @@ class Sentinel:
     Traceback (most recent call last):
       ...
     TypeError: '<' not supported between instances of 'Sentinel' and 'Sentinel'
+
+    >>> bool(a)  # An empty linked list or empty subtree should be falsy.
+    False
     """
 
-
-
-
-
-# @attrs.define(frozen=False, hash=True)
-# class U:
-#     x = attrs.field()
-#     y = attrs.field(eq=False)
+    def __bool__(self):
+        """Falsy, to represent the absence of a node in a linked structure."""
+        return False
 
 
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
