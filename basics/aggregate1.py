@@ -1392,15 +1392,10 @@ def summarize_as_typed_frozen_attrs(
     ...      summarize_as_typed_frozen_attrs([1, 2, 16, 4, 8])})
     2
 
-    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    >>> s.minimum = 1.5
     Traceback (most recent call last):
       ...
     attr.exceptions.FrozenInstanceError
-    >>> try:
-    ...     s.minimum = 1.5
-    ... except AttributeError:
-    ...     print('FrozenInstanceError is a subclass of AttributeError.')
-    FrozenInstanceError is a subclass of AttributeError.
 
     >>> _, _, am, _, _ = summarize_as_typed_frozen_attrs([1, 2, 16, 4, 8])
     Traceback (most recent call last):
@@ -1760,7 +1755,7 @@ def summarize_as_frozen_attrs_no_slots(values, *, precision=DEFAULT_PRECISION):
     ...      summarize_as_frozen_attrs_no_slots([1, 2, 16, 4, 8])})
     2
 
-    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    >>> s.minimum = 1.5
     Traceback (most recent call last):
       ...
     attr.exceptions.FrozenInstanceError
@@ -2248,7 +2243,7 @@ def summarize_as_classic_frozen_attrs(values, *, precision=DEFAULT_PRECISION):
     >>> s < FrozenSummaryClassic(1, 4, 2.7, 2.4596, 2.1581)  # What?
     True
 
-    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    >>> s.minimum = 1.5
     Traceback (most recent call last):
       ...
     attr.exceptions.FrozenInstanceError
@@ -2341,15 +2336,10 @@ def summarize_as_classic_frozen_attrs_slotted(values, *,
     >>> s < FrozenSummaryClassicSlotted(1, 4, 2.7, 2.4596, 2.1581)  # What?
     True
 
-    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    >>> s.minimum = 1.5
     Traceback (most recent call last):
       ...
     attr.exceptions.FrozenInstanceError
-    >>> try:
-    ...     s.minimum = 1.5
-    ... except AttributeError:
-    ...     print('FrozenInstanceError is a subclass of AttributeError.')
-    FrozenInstanceError is a subclass of AttributeError.
 
     >>> _, _, am, _, _ = summarize_as_classic_frozen_attrs_slotted(
     ...     [1, 2, 16, 4, 8])
@@ -2448,15 +2438,10 @@ def summarize_as_classic_frozen_attrs_like_modern(
     TypeError: '<' not supported between instances of
         'FrozenSummaryClassicLikeModern' and 'FrozenSummaryClassicLikeModern'
 
-    >>> s.minimum = 1.5  # No message, but the exception type is very specific.
+    >>> s.minimum = 1.5
     Traceback (most recent call last):
       ...
     attr.exceptions.FrozenInstanceError
-    >>> try:
-    ...     s.minimum = 1.5
-    ... except AttributeError:
-    ...     print('FrozenInstanceError is a subclass of AttributeError.')
-    FrozenInstanceError is a subclass of AttributeError.
 
     >>> _, _, am, _, _ = summarize_as_classic_frozen_attrs_like_modern(
     ...     [1, 2, 16, 4, 8])
@@ -2497,6 +2482,220 @@ def summarize_as_classic_frozen_attrs_like_modern(
         raise ValueError('no values')
 
     return FrozenSummaryClassicLikeModern(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.frozen(order=True)  # Or: @attrs.define(frozen=True, order=True)
+class FrozenSummaryOrdered:
+    """Immutable summary returned by summarize_as_frozen_attrs_ordered."""
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+
+def summarize_as_frozen_attrs_ordered(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of an immutable data class, made with attrs, using the
+    modern API. Instances of that class support order comparisons (like "<")
+    with each other, based on the five fields' values, as if the instances were
+    named tuples. Neither that class nor this function use type annotations.
+
+    Order comparisons are not inherently meaningful on most data classes with
+    two or more fields. The classic attrs API defines them by default anyway.
+    This was a reasonable design choice for attrs, given the eldritch ordering
+    semantics of Python 2 (which attrs supported). In Python 2 and 3, any two
+    objects can be compared with "=="; unrelated objects compare not equal. In
+    Python 2, arbitrary objects could also be compared with "<" and ">", with
+    consistent but arbitrary and implementation-dependent tie-breaking! This
+    tie-breaking did not, in practice, ever access attributes of the objects.
+    So classes that didn't define order comparisons would get them, but they
+    wouldn't be based on any meaningful information about the objects compared.
+
+    Order comparisons should usually be defined between objects only when there
+    is a specific meaning of operators like "<" that is intuitive and useful,
+    related to what the objects represent. Omitting order comparison operators,
+    as the modern attrs API does, is thus a better default (given that Python 2
+    is no longer supported). When enabling order comparisons, it is also often
+    important to customize them, by specifying key selector functions for one
+    or more fields or omitting some fields. This is explored in aggregate2.py.
+
+    But even when they are not conceptually meaningful, it may occasionally be
+    appropriate to enable order comparisons as the classic API does by default.
+    This lets objects be sorted without passing a key function. If "<" is total
+    on each of the fields (a.x < b.x or a.x > b.x or a.x == b.x, and a.y < b.y
+    or a.y > b.y or a.y == b.y, etc.), then searching for an equal instance
+    takes O(log n) time by binary search, checking for duplicates takes O(n) by
+    a linear pass, and so on for other algorithms on sorted sequences.
+
+    >>> s = summarize_as_frozen_attrs_ordered([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryOrdered(minimum=1,
+                         maximum=4,
+                         arithmetic_mean=2.7,
+                         geometric_mean=2.45951,
+                         harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_frozen_attrs_ordered([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen_attrs_ordered([1, 2, 16, 4, 8])})
+    2
+
+    >>> s < FrozenSummaryOrdered(1, 4, 2.7, 2.4596, 2.1581)
+    True
+
+    >>> s.minimum = 1.5
+    Traceback (most recent call last):
+      ...
+    attr.exceptions.FrozenInstanceError
+
+    >>> _, _, am, _, _ = summarize_as_frozen_attrs_ordered([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummaryOrdered object
+
+    >>> match summarize_as_frozen_attrs_ordered([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryOrdered(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_frozen_attrs_ordered([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryOrdered(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryOrdered(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@attrs.mutable(order=True)    # < Or: @attrs.define(order=True)
+class MutableSummaryOrdered:  # ^ Or: @attrs.define(frozen=False, order=True)
+    """Immutable summary returned by summarize_as_frozen_attrs_ordered."""
+
+    minimum = attrs.field()
+    maximum = attrs.field()
+    arithmetic_mean = attrs.field()
+    geometric_mean = attrs.field()
+    harmonic_mean = attrs.field()
+
+
+def summarize_as_mutable_attrs_ordered(values, *, precision=DEFAULT_PRECISION):
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a mutable data class, made with attrs, using the modern
+    API. Instances of that class support order comparisons (like "<") with each
+    other, based on the five fields' values, as if the instances were named
+    tuples. Neither that class nor this function use type annotations.
+
+    This is summarize_as_frozen_attrs_ordered, but with a mutable return type.
+    This mutable version is a more compelling demonstration of the occasional
+    benefit of "lexicographic" order comparisons on conceptually unordered
+    aggregates: return values of this function, being mutable, aren't hashable,
+    so they can't just be put in a set to achieve fast searching, duplicate
+    detection, etc. Thus the convenience of being able to sort them without
+    specifying a key function is more useful. Even so, note that instances of
+    unordered attrs classes can be sorted the same way using key=attrs.astuple.
+
+    >>> s = summarize_as_mutable_attrs_ordered([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MutableSummaryOrdered(minimum=1,
+                          maximum=4,
+                          arithmetic_mean=2.7,
+                          geometric_mean=2.45951,
+                          harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'MutableSummaryOrdered'
+
+    >>> s == summarize_as_mutable_attrs_ordered([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_mutable_attrs_ordered([1, 2, 16, 4, 8])
+    False
+    >>> s < MutableSummaryOrdered(1, 4, 2.7, 2.4596, 2.1581)
+    True
+
+    >>> s.minimum = 1.5
+    >>> s == summarize_as_mutable_attrs_ordered([1, 3, 2.5, 3, 4])
+    False
+
+    >>> _, _, am, _, _ = summarize_as_mutable_attrs_ordered([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable MutableSummaryOrdered object
+
+    >>> match summarize_as_mutable_attrs_ordered([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryOrdered(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_mutable_attrs_ordered([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryOrdered(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0
+    total = 0
+    product = 1
+    reciprocals_total = 0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return MutableSummaryOrdered(
         minimum=minimum,
         maximum=maximum,
         arithmetic_mean=round(total / count, precision),
@@ -2550,6 +2749,10 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_classic_frozen_attrs_slotted,
     FrozenSummaryClassicLikeModern,
     summarize_as_classic_frozen_attrs_like_modern,
+    FrozenSummaryOrdered,
+    summarize_as_frozen_attrs_ordered,
+    MutableSummaryOrdered,
+    summarize_as_mutable_attrs_ordered,
 )]
 
 
