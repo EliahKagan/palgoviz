@@ -11,13 +11,14 @@ from adders import Adder, make_adder
 
 
 class _TestAddersAbstract(ABC, unittest.TestCase):
-    """ABC for for tests for adders."""
+    """ABC for tests for adders."""
+
     @property
     @abstractmethod
     def impl(self):
         """The adder being tested."""
 
-    def test_adders_are_resuable(self):
+    def test_adders_are_reusable(self):
         f = self.impl(7)
 
         with self.subTest(arg=4):
