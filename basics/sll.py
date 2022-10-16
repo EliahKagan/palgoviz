@@ -3,32 +3,29 @@
 """
 Immutable singly linked lists using hash consing to share tails globally.
 
-Hash consing is an advanced technique. This project currently has no module for
-presenting singly linked lists in an introductory fashion. But a basic use of
-singly linked lists, with no specialized techniques, appears in queues.py,
-which contains an SLL-based FIFO queue and an SLL-based LIFO queue.
+Hash consing is an advanced technique. This project currently has no module
+dedicated to presenting singly linked lists in an introductory fashion. But a
+basic use of singly linked lists, with no specialized techniques, appears in
+queues.py, which contains an SLL-based FIFO queue and an SLL-based LIFO queue.
 
-With hash consing (when global and guaranteed, as here), all singly linked
-lists that use the hash-consed node type, and that exist in memory at the same
-time, make up a single "upside-down" tree. The tree's root (here, the None
-object) represents the empty sublist. Viewed as part of this tree, next_node
-pointers are parent pointers. Calling HashNode.draw() illustrates this by
-building a graphviz.Digraph of the entire tree.
+With hash consing--when global and guaranteed, as here--all SLLs that use the
+hash-consed node type, existing at memory at any given time, form a single
+"upside-down" tree. Its root (here, None) represents the empty sublist. Viewed
+as part of this tree, next_node pointers are parent pointers. HashNode.draw()
+illustrates this by building a graphviz.Digraph of the whole tree.
 
-The HashNode type in this module uses reference-based equality comparison, but
-singly linked lists that use this HashNode type always share the longest suffix
-possible, including when that is the whole linked list. So if two variables
-refer to the head nodes of lists with equal values appearing in the same order,
-then it is guaranteed that those two variables refer to the same node object.
-Therefore, for sll.HashNode objects, reference-based equality comparison is
-also structural equality comparison (for the lists they are the head nodes of).
-This is one of the benefits of hash consing.
+The HashNode type in this module uses reference-based equality comparison. But
+HashNode-based SLLs always share the longest suffix possible. So if two
+variables refer to heads of SLLs whose values are equal and in the same order,
+those variables are guaranteed refer to the same node object. That is, for
+HashNode objects, reference equality is the same as structural equality (of the
+linked lists they head). This is one of the benefits of hash consing.
 
-Hash consing is applicable to any immutable node-based data structure whose
+Hash consing can be applied to any immutable node-based data structure whose
 nodes make up a directed acyclic graph. This includes, but is not limited to,
 binary and n-ary trees without parent pointers. This is analogous to the case
-of singly linked lists. (A binary tree node has two child pointers, while a
-singly linked list node has one child pointer.) Only SLLs are implemented here.
+of singly linked lists. (A binary tree node has two child pointers; a singly
+linked list node has one "child" pointer.) Only SLLs are implemented here.
 """
 
 __all__ = ['HashNode', 'traverse']
@@ -96,7 +93,7 @@ class HashNode:
     >>> HashNode('a', HashNode('b', HashNode('Q', HashNode('d')))) == head1
     False
 
-    Heads of structurally equal SLLs are not merely equal but the same object:
+    Heads of structurally equal SLLs are not merely equal, but the same object:
 
     >>> HashNode('a', HashNode('b', HashNode('c', HashNode('d')))) is head1
     True
