@@ -49,7 +49,7 @@ class _Box:
     weak references so heterogenous cycles through the table are never strong.
     """
 
-    __slots__ = ('__weakref__', '_value')
+    __slots__ = ('_value', '__weakref__')
 
     def __init__(self, value):
         """Create a box holding the given element value."""
@@ -81,6 +81,21 @@ class HashNode:
 
     See the sll module docstring regarding the concepts involved. HashNode
     equality implies identity. Inheriting from this class is not recommended.
+    Subclasses, if any, must carefully ensure all invariants are maintained.
+
+    The uniqueness guarantee--that node equality implies identity--relies on
+    each object ever used as an element being immutable, in the sense that its
+    value never changes. Objects mutable (in that sense) shouldn't be hashable,
+    so this restriction can only lead to problems in the presence of severe
+    bugs in code outside this module: use of a hashable mutable type, or an
+    encapsulation violation mutating an object considered immutable.
+
+    Attempting to create a HashNode with a non-hashable element fails, but the
+    attempt itself is permitted. It is guaranteed that this raises TypeError,
+    does not create a HashNode instance, and does not corrupt any shared state.
+
+    HashNode is not hardened against resurrection attacks. Weak reference
+    callbacks are ideally called after the referent is [FIXME: write the rest].
 
     >>> head1 = HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1.value
@@ -107,10 +122,10 @@ class HashNode:
     HashNode(0)
 
     To build an SLL from an iterable of values, use from_iterable. This is a
-    named constructor instead of a top-level function, so it's clear, at the
-    call site, what type is being instantiated. But its implementation uses no
-    part of the HashNode interface, other than calling the class. It especially
-    does not use or depend on any implementation details of HashNode.
+    named constructor, not a top-level function. That is so it is always clear,
+    at the call site, what class is being instantiated. But from_iterable uses
+    no part of the HashNode interface, other than calling the class. It
+    especially doesn't use or depend on any implementation details of HashNode.
 
     >>> HashNode.from_iterable(iter('abcd')) is head1
     True
@@ -123,7 +138,7 @@ class HashNode:
     collection. (test_sll.py and test_sll.txt have tests for this.)
     """
 
-    __slots__ = ('__weakref__', '_box', '_next_node')
+    __slots__ = ('_box', '_next_node', '__weakref__')
 
     _lock = threading.RLock()
     _already_locked = False
