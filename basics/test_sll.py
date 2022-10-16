@@ -745,7 +745,7 @@ class _CachedEq:
     >>> x == _CachedEq('reentrant?')
     True
 
-    Our _CachedEq instance is hashable, so it can be a sll.HashNode element:
+    Our _CachedEq instance is hashable, so it can be an sll.HashNode element:
 
     >>> sll.HashNode(x)
     HashNode(_CachedEq(['r', 'e', 'e', 'n', 't', 'r', 'a', 'n', 't', '?']))
@@ -897,12 +897,13 @@ class _DeviousBase:
 
     See _CachedEq above for background. If one wished to support types like
     _CachedEq whose __hash__ calls sll.HashNode, this facilitates checking that
-    reentrance through __eq__ still raises RuntimeError, or that a simple
+    reentrance through __eq__ still raises RuntimeError, or that a *simple*
     attempt to exploit it to get two equivalent nodes is successfully stymied.
 
-    The actual tests are in TestDevious below. Doctests are omitted, as they
-    provide no convenient notation to ensure the cleanup code (to break the
-    heterogeneous cycle through "devious" objects) runs regardless of outcome.
+    The actual tests are in TestHashNodeReentrantDevious. Doctests are omitted,
+    as they provide no convenient notation to ensure cleanup code always runs.
+    (After the test, we break the heterogeneous cycle formed through "devious"
+    objects, to depend less on TestHashNodeHeterogeneousCycles tests passing.)
     """
 
     __slots__ = ('_calls', 'node')
@@ -921,10 +922,13 @@ class _DeviousBase:
         """
         Check if this devious object is the same as another devious object.
 
-        It's trivial to implement __eq__ to fool sll.HashNode into duplicates.
-        The challenge is to do it in a way that reveals a bug in sll.HashNode.
-        If x == y is sometimes True and sometimes False (on the same x and y),
-        then at least one of x and y is, by definition, mutable. Like most
+        A deliberately pathological __eq__ on an element type will always be
+        able to fool sll.HashNode into making duplicates. The useful challenge
+        is to do it in a way that reveals a bug in sll.HashNode. If x == y is
+        sometimes True and sometimes False, on the same x and y, then at least
+        one of x and y is, by definition, mutable. (Other notions of mutability
+        exist, but that's the one that applies to the expectation in Python
+        that calling hash on a mutable object raises TypeError.) Like most
         Python code that uses hashing, sll.HashNode assumes hashable objects it
         interacts with are immutable, encapsulation is respected, etc.
 
