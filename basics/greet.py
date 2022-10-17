@@ -254,8 +254,6 @@ class _EnumGreeterMeta(enum.EnumMeta):
             raise ValueError(message) from error
 
 
-# FIXME: Raise AttributeError if an attempt is made to assign to a nonexistent
-# attribute on an EnumGreeter instance.
 @enum.unique
 class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
     """
@@ -328,6 +326,14 @@ class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
         Hello, David!
         """
         print(_FORMATS[self.lang].format(name))
+
+    def __setattr__(self, name, value):
+        """Creation of new public attributes is suppressed."""
+        if not name.startswith('_') and name != 'lang':
+            raise AttributeError(
+                f'{type(self).__name__!r} object has no attribute {name!r}')
+
+        super().__setattr__(name, value)
 
     @property
     def lang(self):
