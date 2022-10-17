@@ -2,16 +2,20 @@
 
 ## Solution to the problem of heterogeneous cycles
 
+*See `test_sll.TestHashNodeHeterogeneousCycles` for how we are defining this
+problem.*
+
 In many uses, client code can ensure no heterogeneous cycle forms. But that's
 not always feasible. Furthermore, the whole point of cyclic garbage collection
 is that even arbitrary cycles do not cause leaks. So it would be good if the
 node type could avoid keeping strong references to any heterogeneous cycles no
 longer reachable except through its private table.
 
-Nodes hold strong references to their elements and successors. A node's element
-and successor thus exist as long as the node. Since the table entry for a node
-goes away when the node is collected, it seems the table's references to the
-element and successor could be weak instead of strong. Maybe this would work:
+Nodes hold strong references to their elements and successors. So a node's
+element and successor live at least as long as the node. Since the table entry
+for a node goes away when the node is collected, it seems the table's
+references to the element and successor could be weak instead of strong. Maybe
+this would work:
 
 ```python
 cls._table[weakref.ref(value), weakref.ref(next_node)] = node
@@ -22,10 +26,10 @@ comparison. So the weak references to `value` and `next_node` participate in
 calls to `__eq__` and `__hash__` on the key, when it is looked up in the table.
 
 We must attend to several issues, to determine if *any* approach like this
-could be correct and, if so, whether the simple approach of using a tuple of
-the weak references is sufficient:
+could possibly be correct and, if so, whether the simple approach of using a
+tuple of the weak references is actually sufficient:
 
-1. When a attempt to construct a node should create a new node, will a false
+1. When an attempt to construct a node should create a new node, will a false
    positive match to an existing entry in the table always be avoided?
 
 2. When an attempt to construct a node should return an existing node instead
@@ -88,44 +92,151 @@ unequal.
 > [`TypeError`](https://docs.python.org/3/library/exceptions.html#TypeError).
 
 Calling `hash` on a `weakref.ref` for the first time raises `TypeError` if its
-referent has already been collected. Otherwise, the its hash code is based on
-the referent's hash code (so it is consistent with equality comparison), and
-the weak reference also caches the hash code, never calling `hash` on the
-referent more than once. Even after the referent is collected, calling `hash`
-on the weak reference returns the same hash code.
+referent has already been collected. Otherwise, its hash code is based on the
+referent's hash code (so it is consistent with equality comparison), and the
+weak reference also caches the hash code, never calling `hash` on the referent
+more than once. Even after the referent is collected, calling `hash` on the
+weak reference returns the same hash code.
 
 ### Issue 1: False positives
 
-*When a attempt to construct a node should create a new node, will a false
+*When an attempt to construct a node should create a new node, will a false
 positive match to an existing entry in the table always be avoided?*
 
 To subscript the table, a key is constructed, holding weak references to
-`value` and `next_node`. This key may, in the worst case, have to be compared
-to every key in the table. Can it match a key it shouldn't?
+`value` and `next_node`. These weak references are live (their targets, at this
+point, are local variables of the executing function). This key may, in the
+worst case, have to be compared to every key already in the table. Can it
+compare equal to a key it shouldn't?
 
-#### Different `value`,
+Suppose the new key is compared to a key in the table whose `value` and
+`next_node` are both alive. Since all weak references being compared refer to
+live objects, the effect is the same as comparing the objects themselves. Thus,
+if the new key compares equal to the preexisting key, then the new key's
+`value` is equal to the preexisting `value`, and the new key's `next_node` is
+the same object as the preexisting `next_node` (since we ensure `next_node` is
+always a `HashNode` object, and `HashNode` does not override `__eq__`). But
+this is the situation where they *should* compare equal--`HashNode.__new__`
+should return the node in the table corresponding to that key.
 
----
+Now suppose the new key is compared to a key in the table whose `value` and
+`next_node` are not both alive. This should not actually be able to happen,
+because the node such a key looks up holds strong references to the same
+`value` and `next_node`, so they can't be dead unless that node is also dead.
+But then the entry that maps that key to the node would have been removed. The
+`WeakValueTable` is responsible for ensuring this happens before any new keys
+are looked up in the table, even in a multithreaded scenario.
 
-Is this really okay? In an entry that maps a key `(value, next_node)` to a
-value `node`, is it safe for the key's references to `value` and `next_node` to
-be weak references?
+Still, even if that somehow did happen, there would be no false positive,
+because the new key cannot compare equal to that key. Its `value` weakref would
+have to be equal to the preexisting key's `value` weakref and its `next_node`
+weakref would have to be equal to the preexisting key's `next_node` weakref.
+But this is the scenario where at least one of the preexisting key's `value` or
+`next_node` is dead. A dead weak reference never compares equal to a live weak
+reference.
 
-It would be easy to say yes, *if* the callback the table registers to remove
-the entry were guaranteed to remove it without looking up the entry by key. But
-`weakref.WeakValueTable` makes no such promise. Furthermore, its implementation
-in CPython stores entries in an underlying dict to satisfy its atomicity
-guarantees, and *always* subscripts that dict with the key to remove it.
-Subscripting the dict calls `hash` on the key, and also compares it for
-equality to one or more keys stored in the dict.
+### Issue 2: False negatives
 
-<!-- FIXME: Finish writing the text from here to the HTML comment below. -->
-Might it *still* be safe? We have a very nice invariant on our side:
-...
-So we must reason about the hashing and equality comparison behavior of keys,
-whose hashing and equality comparison behavior must delegate to the objects
-they hold weak references to, ...
-<!-- ^^^^^^ Finish writing the text from the above HTML comment to here. -->
+*When an attempt to construct a node should return an existing node instead of
+making a new one, will the existing node actually be found in the table?*
+
+We again have a new key, but this time there is a preexisting key it *should*
+match. One way it could fail to match the preexisting key is if it wrongly
+matches some other key in the table instead. But we saw in "Issue 1" that this
+cannot happen. So all that remains to show is that it cannot fail to match the
+correct key.
+
+There are two ways keys could, in principle, not match. They could have
+different hash codes, and therefore not even be compared. Or they could have
+the same hash code but compare unequal.
+
+A preexisting key that should be matched is one that maps an equal `value` and
+identical `next_node` to a live preexisting node. The node it looks up is
+alive, so the `value` and `next_node` it holds strong references to are, too.
+So the new key has a weak reference to a live `value`, which is equal to the
+`value` the preexisting key holds a weak reference to. Likewise, the new key
+has a weak reference to a live `next_node`, which is equal to the `next_node`
+the preexisting key holds a weak reference to.
+
+Therefore, due to the behavior discussed above in "Weak reference equality
+comparison semantics," the new and preexisting keys' `value` weakrefs are equal
+and have equal hash code, and their `next_node` weakrefs are equal and have
+equal hash codes. Since the keys are tuples of those (and tuples use structural
+equality comparison and hash accordingly), the keys themselves are equal and
+have equal hash codes.
+
+### Issue 3: Can `__eq__`/`__hash__` behavior make automatic deletion fail?
+
+Entries that look up dead nodes are removed automatically from the table. The
+`WeakValueTable` logic takes care of this automatically, and ensures the
+underlying state of the table is not corrupted, even if multiple threads are
+involved. But *how* are they removed?
+
+#### Does the table look up keys with `==` and `hash` to remove them?
+
+If you manually remove a key from a `WeakValueTable` with `del`, then of course
+this will happen. But that is not the case at issue here.
+
+When a weak reference callback for the node a key looks up is called, it seems
+intuitive that this would not require its key to be looked up. After all, we
+are already at the entry, and more importantly, the looked up node is a *value*
+in the table, so the table has to have access to the whole entry in order to
+remove the key. If this intuition is correct, then there is nothing more to
+worry about. We don't have to reason out how comparisons to keys with dead weak
+references work, if those comparison are never made, even to remove the keys.
+
+Unfortunately, this intuition is *not* correct. `WeakValueTable` does not
+promise not to do this. Furthermore, its implementation in CPython stores
+entries in an underlying `dict`, to satisfy its atomicity guarantees.
+Accordingly, it *always* subscripts that `dict` with the key to remove it!
+Subscripting the `dict` calls `hash` on the key, and also compares it for
+equality to one or more keys in the `dict`.
+
+Therefore, we must reason about the hashing and equality comparison behavior of
+our keys when one or both of their `value` and `next_node` weakrefs are dead.
+
+#### Do our keys hash the same as themselves?
+
+There are two bad hashing behaviors we need to make sure do not happen: failing
+and raising `TypeError`, and returning different hash codes on different calls
+to `hash`.
+
+A key is a tuple of weak references to `value` and `next_node`, so its hash
+code is based on the hash codes of those weak references. We're talking about a
+key that is being deleted from the table, so that very same key object was
+previously inserted into the table. When it was, the `WeakValueTable` called
+`hash` on it, which called `hash` on the two weak references. Calling `hash` on
+a weak reference to a non-hashable `value` raises `TypeError`, but we know the
+`value` was hashable, and that both it and `next_node` were successfully
+hashed, or the attempt to insert the would have failed.
+
+As detailed in "Weak reference equality comparison semantics" above, a
+`ref.weakref` object that has ever has `hash` called on it remembers its hash
+code and returns it on all future calls to `hash`, even if its referent has be
+collected. So when the `WeakValueTable`'s underlying `dict` calls `hash` on the
+key, the result is the same as before.
+
+#### Do our keys compare equal to themselves?
+
+This is not actually required, because so long as an object's `hash` is
+consistent, `dict` actually support finding the same object, even if the object
+is not equal to itself! That is, it checks with `is` as well as with `==`. It's
+designed this way to support the one defensible case of non-self-equality:
+floating-point [NaN](https://en.wikipedia.org/wiki/NaN) objects, such as
+`math.nan`.
+
+Also, our keys do compare equal to themselves. This happens when the `value`
+weakref equals itself and he `next_node` weakref equals itself. As stated in
+"Weak reference equality comparison semantics," a `weakref.ref` object is
+always equal to itself, even if its referent has been collected.
+
+#### Do our keys compare *un*equal to all other keys?
+
+***FIXME: Write this subsection.***
+
+### Issue 4: Elements that can't be weakly referenced
+
+***FIXME: The material below might require heavy editing.***
 
 Now there is one more problem: not all objects in Python can be referred to by
 weak references! It would be bad only to support weak-referenceable element

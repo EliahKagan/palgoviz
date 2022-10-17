@@ -94,8 +94,8 @@ class HashNode:
     attempt itself is permitted. It is guaranteed that this raises TypeError,
     does not create a HashNode instance, and does not corrupt any shared state.
 
-    HashNode is not hardened against resurrection attacks. Weak reference
-    callbacks are ideally called after the referent is [FIXME: write the rest].
+    HashNode is not hardened against resurrection. Weak reference callbacks are
+    ideally called after the referent is [FIXME: write the rest].
 
     >>> head1 = HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1.value
