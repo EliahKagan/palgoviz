@@ -165,7 +165,7 @@ equal hash codes. Since the keys are tuples of those (and tuples use structural
 equality comparison and hash accordingly), the keys themselves are equal and
 have equal hash codes.
 
-### Issue 3: Can `__eq__`/`__hash__` behavior make automatic deletion fail?
+### Issue 3: Can weakrefs' `__eq__`/`__hash__` make automatic deletion fail?
 
 Entries that look up dead nodes are removed automatically from the table. The
 `WeakValueTable` logic takes care of this automatically, and ensures the
@@ -180,17 +180,18 @@ this will happen. But that is not the case at issue here.
 When a weak reference callback for the node a key looks up is called, it seems
 intuitive that this would not require its key to be looked up. After all, we
 are already at the entry, and more importantly, the looked up node is a *value*
-in the table, so the table has to have access to the whole entry in order to
-remove the key. If this intuition is correct, then there is nothing more to
-worry about. We don't have to reason out how comparisons to keys with dead weak
+in the table, which does not facilitate looking up its key--so the table has to
+have already access to the whole entry in order to remove the entry
+efficiently. If this intuition is correct, then there is nothing more to worry
+about. We don't have to reason out how comparisons to keys with dead weak
 references work, if those comparison are never made, even to remove the keys.
 
 Unfortunately, this intuition is *not* correct. `WeakValueTable` does not
-promise not to do this. Furthermore, its implementation in CPython stores
-entries in an underlying `dict`, to satisfy its atomicity guarantees.
-Accordingly, it *always* subscripts that `dict` with the key to remove it!
-Subscripting the `dict` calls `hash` on the key, and also compares it for
-equality to one or more keys in the `dict`.
+promise not to search for the key of the entry it is removing. Furthermore, its
+implementation in CPython stores entries in an underlying `dict`, to satisfy
+its atomicity guarantees. Accordingly, it *always* subscripts that `dict` with
+the key to remove it! Subscripting the `dict` calls `hash` on the key, and also
+compares it for equality to one or more keys in the `dict`.
 
 Therefore, we must reason about the hashing and equality comparison behavior of
 our keys when one or both of their `value` and `next_node` weakrefs are dead.
@@ -227,9 +228,27 @@ to itself.
 
 #### Do our keys compare *un*equal to all other keys?
 
-***FIXME: Write this subsection.***
+When a key is removed, the weak references it holds may or may not still be
+alive.
 
-### Issue 4: Elements that can't be weakly referenced
+If the key's `value` and `next_node` are both alive:
+
+- The key compares unequal to other keys in the table that hold only live weak
+  references. Otherwise, the table would've had to have held duplicate keys
+  (equal keys in separate entries) immediately before the removal. But
+  duplicate keys are not allowed.
+
+- Suppose the table has other keys that hold at least one dead weak reference.
+  This can only happen if the nodes those keys look up are dead (since the
+  nodes have strong references to the same `value` and `next_node` objects,
+  keeping them alive at least as long as the node). Strictly speaking, it is
+  the `WeakValueTable`'s underlying `dict` that can contain multiple such keys,
+  if multiple entries are pending removal from it. ***[FIXME: Rework.]***
+
+***FIXME: Finish this subsection.***
+
+
+### Issue 4: Objects that can't be weakly referenced
 
 ***FIXME: The material below might require heavy editing.***
 
