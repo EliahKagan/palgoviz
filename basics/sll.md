@@ -228,24 +228,30 @@ to itself.
 
 #### Do our keys compare *un*equal to all other keys?
 
+***FIXME: These are notes; I need to (re)write the material of this subsection.***
+
+Suppose `r1` and `r2` are `weakref.ref` objects with immutable referents (that
+is, the objects they refer to do not change in value) and `wr1 != wr2`. Then
+
 When a key is removed, the weak references it holds may or may not still be
-alive.
+alive. (This is because, when a node becomes unreachable, its element and next
+node may or may not still be reachable from other objects.)
 
-If the key's `value` and `next_node` are both alive:
+If the weak references held by the key being removed are both still alive, then
+they compare unequal to dead weak references, and because the table is never
+allowed to have duplicate keys, they must compare unequal to any other keys in
+the table whose weak references are both live. (See "Issue 1: False positives"
+above for details.)
 
-- The key compares unequal to other keys in the table that hold only live weak
-  references. Otherwise, the table would've had to have held duplicate keys
-  (equal keys in separate entries) immediately before the removal. But
-  duplicate keys are not allowed.
+If the weak references held by the key being removed are both dead, then they
+compare equal only to weak references to the same dead objects. In that case,
+before the objects died, there had to have been duplicate keys. So this
+possibility is excluded for the same reason.
 
-- Suppose the table has other keys that hold at least one dead weak reference.
-  This can only happen if the nodes those keys look up are dead (since the
-  nodes have strong references to the same `value` and `next_node` objects,
-  keeping them alive at least as long as the node). Strictly speaking, it is
-  the `WeakValueTable`'s underlying `dict` that can contain multiple such keys,
-  if multiple entries are pending removal from it. ***[FIXME: Rework.]***
+If the key's `value` is dead and its `next_node` is alive,
 
-***FIXME: Finish this subsection.***
+[FIXME: rework] If one of the weak references held by the key being removed is
+alive and the other is dead,
 
 
 ### Issue 4: Objects that can't be weakly referenced
