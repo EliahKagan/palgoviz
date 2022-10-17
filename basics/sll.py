@@ -41,9 +41,19 @@ class _Box:
     """
     Immutable weak-referenceable wrapper for the value held by a node.
 
-    This is needed because nodes need to support elements without __weakref__,
-    but we need element references from keys in the WeakValueTable to be weak
-    to avoid leaking heterogeneous cycles.
+    This is needed because:
+
+    1. Nodes need to support elements without __weakref__, but we need element
+       references from keys in the WeakValueTable to be weak to avoid leaking
+       heterogeneous cycles.
+
+    2. Floating-point NaNs are hashable but not equal to anything, not even
+       themselves. To support them, both sequence and hash-based containers in
+       the standard library do both "==" and "is" checks in their structural
+       equality comparisons. HashNode also behaves this way, for consistency
+       and so duplicate nodes holding identical non-self-equal objects are not
+       created. But weakref.ref objects with live referents delegate to "=="
+       only (not "is"). So wrapping the values takes care of that, too.
 
     Boxes are kept alive by strong references in nodes. WeakValueTable keys use
     weak references so heterogenous cycles through the table are never strong.
@@ -60,9 +70,9 @@ class _Box:
         return f'{type(self).__name__}({self.value!r})'
 
     def __eq__(self, other):
-        """Two boxes are equal when the objects they box are equal."""
+        """Boxes are equal when the objects they box are the same or equal."""
         if isinstance(other, self.__class__):
-            return self.value == other.value
+            return self.value is other.value or self.value == other.value
         return NotImplemented
 
     def __hash__(self):
