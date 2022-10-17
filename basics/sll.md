@@ -225,15 +225,6 @@ it refers to. So it is equal to itself. Thus a key's `value` weakref is equal
 to itself, and its `next_node` weakref is equal to itself. So the key is equal
 to itself.
 
-(Furthermore, as a key in a `dict`, it's actually sufficient for the searching
-key to be the same object as the stored key. So long as the `hash` selects the
-correct bucket, a `dict` always finds a key that is the same object as the key
-being searched for, even in the pathological situation that it is not equal to
-itself! That is, it checks with `is` as well as `==`. The `dict` type is
-designed that way to support the one defensible usage of non-self-equality:
-floating-point [NaN](https://en.wikipedia.org/wiki/NaN) objects, such as
-`math.nan`.)
-
 #### Do our keys compare *un*equal to all other keys?
 
 ***FIXME: Write this subsection.***
