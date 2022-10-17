@@ -244,28 +244,18 @@ class FrozenGreeter:
 
 
 class _EnumGreeterMeta(enum.EnumMeta):
+    """Metaclass to customize unrecognized language errors for EnumGreeter."""
 
     def __call__(self, lang):
         try:
-            return super(_EnumGreeterMeta, self).__call__(lang)
-        except ValueError:
-            raise ValueError(f'{lang} is an unrecognized language code.')
+            return super().__call__(lang)
+        except ValueError as error:
+            message = f'{lang} is an unrecognized language code.'
+            raise ValueError(message) from error
 
 
-# FIXME: Make a subclass of EnumMeta. Call it _EnumGreeterMeta. Define __call__
-# to give a message of the same style other greeters give when an unrecognized
-# language code is passed. Have EnumGreeter use it as its metaclass, which
-# https://docs.python.org/3/reference/datamodel.html#metaclasses shows how to
-# do. Make sure EnumGreeter still inherits from enum.Enum. (Don't define any
-# additional classes besides _EnumGreeterMeta.) Besides that small section of
-# the language reference, you most likely won't need any other documentation to
-# do this very short exercise, which is intentionally the smallest of toe-dips
-# into the topic of metaclasses. The goal is basic conceptual familiarity with
-# metaclasses, and cursory awareness of their significance in enumerations.
-#
 # FIXME: Raise AttributeError if an attempt is made to assign to a nonexistent
 # attribute on an EnumGreeter instance.
-#
 @enum.unique
 class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
     """
