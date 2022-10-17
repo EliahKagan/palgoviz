@@ -243,6 +243,15 @@ class FrozenGreeter:
         return self._lang
 
 
+class _EnumGreeterMeta(enum.EnumMeta):
+
+    def __call__(self, lang):
+        try:
+            return super(_EnumGreeterMeta, self).__call__(lang)
+        except ValueError:
+            raise ValueError(f'{lang} is an unrecognized language code.')
+
+
 # FIXME: Make a subclass of EnumMeta. Call it _EnumGreeterMeta. Define __call__
 # to give a message of the same style other greeters give when an unrecognized
 # language code is passed. Have EnumGreeter use it as its metaclass, which
@@ -258,7 +267,7 @@ class FrozenGreeter:
 # attribute on an EnumGreeter instance.
 #
 @enum.unique
-class EnumGreeter(enum.Enum):
+class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
     """
     Callable Enum to greet people by name in a specified language.
 
