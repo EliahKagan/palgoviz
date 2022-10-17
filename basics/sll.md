@@ -211,24 +211,28 @@ a weak reference to a non-hashable `value` raises `TypeError`, but we know the
 hashed, or the attempt to insert the would have failed.
 
 As detailed in "Weak reference equality comparison semantics" above, a
-`ref.weakref` object that has ever has `hash` called on it remembers its hash
-code and returns it on all future calls to `hash`, even if its referent has be
+`ref.weakref` object that has ever had `hash` called on it remembers its hash
+code and returns it on all future `hash` calls, even if its referent has been
 collected. So when the `WeakValueTable`'s underlying `dict` calls `hash` on the
 key, the result is the same as before.
 
 #### Do our keys compare equal to themselves?
 
-This is not actually required, because so long as an object's `hash` is
-consistent, `dict` actually support finding the same object, even if the object
-is not equal to itself! That is, it checks with `is` as well as with `==`. It's
-designed this way to support the one defensible case of non-self-equality:
-floating-point [NaN](https://en.wikipedia.org/wiki/NaN) objects, such as
-`math.nan`.
+As stated above in "Weak reference equality comparison semantics," weak
+references that refer to the same object are always equal, even after the
+object has been collected. A weak reference certainly refers to the same object
+it refers to. So it is equal to itself. Thus a key's `value` weakref is equal
+to itself, and its `next_node` weakref is equal to itself. So the key is equal
+to itself.
 
-Also, our keys do compare equal to themselves. This happens when the `value`
-weakref equals itself and he `next_node` weakref equals itself. As stated in
-"Weak reference equality comparison semantics," a `weakref.ref` object is
-always equal to itself, even if its referent has been collected.
+(Furthermore, as a key in a `dict`, it's actually sufficient for the searching
+key to be the same object as the stored key. So long as the `hash` selects the
+correct bucket, a `dict` always finds a key that is the same object as the key
+being searched for, even in the pathological situation that it is not equal to
+itself! That is, it checks with `is` as well as `==`. The `dict` type is
+designed that way to support the one defensible usage of non-self-equality:
+floating-point [NaN](https://en.wikipedia.org/wiki/NaN) objects, such as
+`math.nan`.)
 
 #### Do our keys compare *un*equal to all other keys?
 
