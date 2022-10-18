@@ -47,13 +47,12 @@ class _Box:
        references from keys in the WeakValueTable to be weak to avoid leaking
        heterogeneous cycles.
 
-    2. Floating-point NaNs are hashable but not equal to anything, not even
-       themselves. To support them, both sequence and hash-based containers in
-       the standard library do both "==" and "is" checks in their structural
-       equality comparisons. HashNode also behaves this way, for consistency
-       and so duplicate nodes holding identical non-self-equal objects are not
-       created. But weakref.ref objects with live referents delegate to "=="
-       only (not "is"). So wrapping the values takes care of that, too.
+    2. Floating-point NaNs are hashable but not equal even to themselves. To
+       support them, standard library containers use both "==" and "is" in
+       structural equality comparisons. HashNode does too, for consistency and
+       to avoid creating duplicate nodes when an element is non-self-equal. But
+       "==" between live weakref.ref objects compares the referents only with
+       "==", not also "is". Wrapping each element in a _Box fixes that, too.
 
     Boxes are kept alive by strong references in nodes. WeakValueTable keys use
     weak references so heterogenous cycles through the table are never strong.
@@ -100,9 +99,8 @@ class HashNode:
     bugs in code outside this module: use of a hashable mutable type, or an
     encapsulation violation mutating an object considered immutable.
 
-    Attempting to create a HashNode with a non-hashable element fails, but the
-    attempt itself is permitted. It is guaranteed that this raises TypeError,
-    does not create a HashNode instance, and does not corrupt any shared state.
+    Attempting to make a HashNode with a non-hashable element fails safely with
+    TypeError, neither creating a HashNode nor corrupting shared state.
 
     HashNode is not hardened against resurrection. Weak reference callbacks are
     ideally called after the referent is [FIXME: write the rest].
