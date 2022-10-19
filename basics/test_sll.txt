@@ -46,6 +46,12 @@ Extended doctests for sll.HashNode:
     >>> HashNode(False)
     HashNode(0)
 
+    Values that don't equal themselves still don't bring about duplicate nodes:
+
+    >>> import math
+    >>> HashNode(math.nan) is HashNode(math.nan) == HashNode(math.nan)
+    True
+
     To build an SLL from an iterable of values, use from_iterable:
 
     >>> HashNode.from_iterable([]) is None

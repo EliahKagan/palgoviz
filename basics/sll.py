@@ -17,7 +17,7 @@ illustrates this by building a graphviz.Digraph of the whole tree.
 The HashNode type in this module uses reference-based equality comparison. But
 HashNode-based SLLs always share the longest suffix possible. So if two
 variables refer to heads of SLLs whose values are equal and in the same order,
-those variables are guaranteed refer to the same node object. That is, for
+those variables are guaranteed to refer to the same node object. That is, for
 HashNode objects, reference equality is the same as structural equality (of the
 linked lists they head). This is one of the benefits of hash consing.
 
@@ -128,6 +128,13 @@ class HashNode:
     >>> head3 = HashNode(0)
     >>> HashNode(False)
     HashNode(0)
+
+    Like standard library containers, to handle NaNs, a node is always equal to
+    itself even if its value isn't. Such values do NOT create duplicate nodes:
+
+    >>> import math
+    >>> HashNode(math.nan) is HashNode(math.nan) == HashNode(math.nan)
+    True
 
     To build an SLL from an iterable of values, use from_iterable. This is a
     named constructor, not a top-level function. That is so it is always clear,
