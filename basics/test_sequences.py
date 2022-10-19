@@ -91,35 +91,6 @@ class _MyInt(int):
         return f'{type(self).__name__}({super().__repr__()})'
 
 
-class _NonSelfEqual:
-    """
-    Pathological object that is not even equal to itself.
-
-    Objects can, in nearly all cases, be assumed equal to themselves. When a
-    non-self-equal object, such as instances of this class, does exist, it is
-    usually the responsibility of the code that introduces such an object to
-    ensure it is never used in any ways that would cause problems. But there
-    are a few situations where one ought to make specific guarantees about the
-    handling of such objects, because floating point NaNs have this property.
-
-    The purpose of this class is to facilitate tests of behaviors that hold for
-    NaN values, including but not limited to math.nan, to ensure NaNs aren't
-    special-cased by accident. If you decide to special-case NaNs, don't test
-    with this. (Other than NaNs and for testing, there is probably never a good
-    justification for introducing an object that compares unequal to itself.)
-    """
-
-    __slots__ = ()
-
-    def __repr__(self):
-        """Python code representation for debugging."""
-        return f'{type(self).__name__}()'
-
-    def __eq__(self, _):
-        """A _NonSelfEqual instance is never equal to anything, even itself."""
-        return False
-
-
 # FIXME: As currently written, these tests verify no time or space complexity
 # guarantees, which would be tricky to do. It is easier, and more helpful for
 # finding bugs, to test that capacity changes as expected, and that the change
@@ -443,7 +414,7 @@ class TestVec(unittest.TestCase):
         unequal to themselves (besides tests like this). But Vec doesn't treat
         NaN specially. Other such pathological objects are treated similarly.
         """
-        element = _NonSelfEqual()
+        element = testing.NonSelfEqual()
         if element == element:
             raise Exception('bug in test helper')
         lhs = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
@@ -1139,7 +1110,7 @@ class TestVec(unittest.TestCase):
 
         See test_self_unequal_non_nan_does_not_prevent_equality for details.
         """
-        element = _NonSelfEqual()
+        element = testing.NonSelfEqual()
         if element == element:
             raise Exception('bug in test helper')
         vec = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
