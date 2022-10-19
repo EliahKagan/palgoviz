@@ -13,7 +13,8 @@ One reasonable general approach for implementing sll.HashNode is to:
    output. An implementation that only passes those tests is a useful starting
    point for tackling the important but subtler issues the other tests raise.
 
-2. Get the TestHashNodeHeterogeneousCycles unittest tests to pass.
+2. Get the TestHashNodeHeterogeneousCycles unittest tests to pass. Ensure that
+   this does not cause any previous passing tests, mentioned above, to fail.
 
 3. Get the _CachedEq doctests, TestHashNodeReentrantCachedEq unittest tests,
    and TestHashNodeReentrantDevious unittest tests to pass.
@@ -32,6 +33,12 @@ import sll
 import testing
 
 _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
+"""
+Whether the tests in the TestHashNodeHeterogeneousCycles class will be run.
+
+Heterogeneous cycles should not leak, so this should be set to True. But it may
+sometimes be useful to suppress these tests temporarily, during development.
+"""
 
 
 class TestHashNodeBasic(unittest.TestCase):
