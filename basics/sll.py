@@ -116,6 +116,13 @@ class HashNode:
     >>> HashNode(False)
     HashNode(0)
 
+    Like standard library containers, to handle NaNs, a node is always equal to
+    itself even if its value isn't. Such values do NOT create duplicate nodes:
+
+    >>> import math
+    >>> HashNode(math.nan) is HashNode(math.nan) == HashNode(math.nan)
+    True
+
     To build an SLL from an iterable of values, use from_iterable. This is a
     named constructor instead of a top-level function, so it's clear, at the
     call site, what type is being instantiated. But its implementation uses no
