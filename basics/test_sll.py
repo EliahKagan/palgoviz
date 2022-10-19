@@ -144,9 +144,9 @@ class TestHashNodeBasic(unittest.TestCase):
         overriding __setattr__ and modifying the code to accommodate its
         overridden logic. But sometimes our primary goal really is to use less
         memory (or, occasionally, to access attributes faster even aside from
-        the speed benefits of lower memory usage). HashNode classes in linked
-        data structures are a case where this is desirable, since, in many
-        uses, a very large number of nodes may be created.
+        the speed benefits of lower memory usage). Node classes in linked data
+        structures are a case where this is desirable, since, in many uses, a
+        very large number of nodes may be created.
         """
         head = sll.HashNode('foo')
         with self.assertRaises(AttributeError):
