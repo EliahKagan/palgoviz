@@ -17,7 +17,7 @@ illustrates this by building a graphviz.Digraph of the whole tree.
 The HashNode type in this module uses reference-based equality comparison. But
 HashNode-based SLLs always share the longest suffix possible. So if two
 variables refer to heads of SLLs whose values are equal and in the same order,
-those variables are guaranteed refer to the same node object. That is, for
+those variables are guaranteed to refer to the same node object. That is, for
 HashNode objects, reference equality is the same as structural equality (of the
 linked lists they head). This is one of the benefits of hash consing.
 
