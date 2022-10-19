@@ -1133,6 +1133,20 @@ class linear_combinable:
         f = self.__wrapped__
         return type(self)(lambda x: f(x) / divisor)
 
+    def __setattr__(self, name, value):
+        """Setting __wrapped__ after initial setting is suppressed."""
+        if name == '__wrapped__' and hasattr(self, name):
+            raise AttributeError(f"can't set attribute {name!r}")
+
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name):
+        """Deleting __wrapped__ is suppressed."""
+        if name == '__wrapped__':
+            raise AttributeError(f"can't delete attribute {name!r}")
+
+        super().__delattr__(name)
+
 
 __all__ = [thing.__name__ for thing in (
     identity_function,
