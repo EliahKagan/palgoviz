@@ -14,7 +14,7 @@ One reasonable general approach for implementing sll.HashNode is to:
    point for tackling the important but subtler issues the other tests raise.
 
 2. Get the TestHashNodeHeterogeneousCycles unittest tests to pass. Ensure that
-   this does not cause any previous passing tests, mentioned above, to fail.
+   this does not cause any previously passing tests, mentioned above, to fail.
 
 3. Get the _CachedEq doctests, TestHashNodeReentrantCachedEq unittest tests,
    and TestHashNodeReentrantDevious unittest tests to pass.
@@ -45,7 +45,7 @@ sometimes be useful to suppress these tests temporarily, during development.
 
 
 def _subtest_by_nanlike(func):
-    """Parameterize a test method by separate NaN or NaN-like objects."""
+    """Sub-test separate NaN or NaN-like objects."""
     @functools.wraps(func)
     def wrapped(self):
         nan_parameters = [
@@ -63,7 +63,7 @@ def _subtest_by_nanlike(func):
                         "platform has non-pathological NaN, can't test")
 
                 # Run the actual test, with this NaN object.
-                func(self, obj=nan)
+                func(self, nan)
 
         with self.subTest('testing.NonSelfEqual()'):
             pathological_non_nan = testing.NonSelfEqual()
@@ -72,7 +72,35 @@ def _subtest_by_nanlike(func):
                 raise Exception('bug in testing.NonSelfEqual test helper')
 
             # Run the actual test, with this similarly pathological object.
-            func(self, obj=pathological_non_nan)
+            func(self, pathological_non_nan)
+
+    return wrapped
+
+
+def _subtest_by_nonidentical_nanlike_pair(func):
+    """Sub-test separate pairs of related nonidentical NaN/NaN-like objects."""
+    @functools.wraps(func)
+    def wrapped(self):
+        parameters = [
+            ('NaN',
+                math.nan,
+                math.inf - math.inf,
+                'very weird (broken?) floating point NaN equality'),
+
+            ('non-NaN pathological',
+                testing.NonSelfEqual(),
+                testing.NonSelfEqual(),
+                'bug in testing.NonSelfEqual test helper'),
+        ]
+
+        for name, lhs_obj, rhs_obj, error_message in parameters:
+            with self.subTest(name):
+                # Check that they are not equal, erroring out if they are.
+                if lhs_obj == rhs_obj:
+                    raise Exception(error_message)
+
+                # Proceed with the core test logic.
+                func(self, lhs_obj, rhs_obj)
 
     return wrapped
 
@@ -338,26 +366,19 @@ class TestHashNodeBasic(unittest.TestCase):
         rhs = sll.HashNode(obj, sll.HashNode('bar'))
         self.assertIsNot(lhs, rhs)
 
-    def test_nodes_holding_different_nanlike_no_next_are_not_equal(self):
-        parameters = [
-            ('NaN',
-                math.nan,
-                math.inf - math.inf,
-                'very weird (broken?) floating point NaN equality'),
+    @_subtest_by_nonidentical_nanlike_pair
+    def test_nodes_holding_different_nanlike_no_next_are_not_equal(
+            self, lhs_obj, rhs_obj):
+        lhs = sll.HashNode(lhs_obj)
+        rhs = sll.HashNode(rhs_obj)
+        self.assertNotEqual(lhs, rhs)
 
-            ('non-NaN pathological',
-                testing.NonSelfEqual(),
-                testing.NonSelfEqual(),
-                'bug in testing.NonSelfEqual test helper'),
-        ]
-
-        for name, lhs_element, rhs_element, error_message in parameters:
-            with self.subTest(name):
-                if lhs_element == rhs_element:
-                    raise Exception(error_message)
-                lhs = sll.HashNode(lhs_element)
-                rhs = sll.HashNode(rhs_element)
-                self.assertNotEqual(lhs, rhs)
+    @_subtest_by_nonidentical_nanlike_pair
+    def test_nodes_holding_different_nanlike_no_next_are_not_identical(
+            self, lhs_obj, rhs_obj):
+        lhs = sll.HashNode(lhs_obj)
+        rhs = sll.HashNode(rhs_obj)
+        self.assertIsNot(lhs, rhs)
 
     def test_from_iterable_returns_none_from_empty_sequence(self):
         head = sll.HashNode.from_iterable([])
