@@ -1,5 +1,8 @@
 # `sll.HashNode` subtleties
 
+***WARNING*: This file contains spoilers, if you are implementing anything in
+`sll.py` as an exercise!**
+
 ## Solution to the problem of heterogeneous cycles
 
 *See `test_sll.TestHashNodeHeterogeneousCycles` for how we are defining this

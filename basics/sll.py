@@ -90,20 +90,6 @@ class HashNode:
 
     See the sll module docstring regarding the concepts involved. HashNode
     equality implies identity. Inheriting from this class is not recommended.
-    Subclasses, if any, must carefully ensure all invariants are maintained.
-
-    The uniqueness guarantee--that node equality implies identity--relies on
-    each object ever used as an element being immutable, in the sense that its
-    value never changes. Objects mutable (in that sense) shouldn't be hashable,
-    so this restriction can only lead to problems in the presence of severe
-    bugs in code outside this module: use of a hashable mutable type, or an
-    encapsulation violation mutating an object considered immutable.
-
-    Attempting to make a HashNode with a non-hashable element fails safely with
-    TypeError, neither creating a HashNode nor corrupting shared state.
-
-    HashNode is not hardened against resurrection. Weak reference callbacks are
-    ideally called after the referent is [FIXME: write the rest].
 
     >>> head1 = HashNode('a', HashNode('b', HashNode('c', HashNode('d'))))
     >>> head1.value
@@ -136,10 +122,34 @@ class HashNode:
     >>> HashNode(math.nan) is HashNode(math.nan) == HashNode(math.nan)
     True
 
+    The uniqueness guarantee--that node equality implies identity--relies on
+    each object ever used as an element being immutable, in the sense that its
+    value never changes. Objects mutable (in that sense) shouldn't be hashable,
+    so this restriction can only lead to problems in the presence of severe
+    bugs in code outside this module: use of a hashable mutable type, or an
+    encapsulation violation mutating an object considered immutable.
+
+    Calling HashNode with a non-hashable element fails, but it is guaranteed to
+    be safe. No HashNode is created, and shared state is not corrupted.
+
+    >>> HashNode([])
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'list'
+
+    However, HashNode uniqueness is not guaranteed if nodes may be resurrected.
+    Weak reference callbacks are ideally called after the referent is already
+    collected--after even other objects' __del__ methods that could resurrect
+    it have run. But this is not guaranteed. Resurrecting a node after its
+    weakref callbacks are called will preserve it after HashNode forgets about
+    it. A duplicate node could then be created (and will compare unequal). The
+    usual practice of rarely writing __del__ methods and, when one really must,
+    trying hard to avoid resurrecting anything, should avoid this in practice.
+
     To build an SLL from an iterable of values, use from_iterable. This is a
     named constructor, not a top-level function. That is so it is always clear,
-    at the call site, what class is being instantiated. But from_iterable uses
-    no part of the HashNode interface, other than calling the class. It
+    looking at the call site, which class gets instantiated. But from_iterable
+    uses no part of the HashNode interface, other than calling the class. It
     especially doesn't use or depend on any implementation details of HashNode.
 
     >>> HashNode.from_iterable(iter('abcd')) is head1
