@@ -20,8 +20,8 @@ One reasonable general approach for implementing sll.HashNode is to:
    and TestHashNodeReentrantDevious unittest tests to pass.
 """
 
-import gc
 import functools
+import gc
 import itertools
 import math
 import types
@@ -33,7 +33,6 @@ from parameterized import parameterized
 
 import sll
 import testing
-
 
 _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
 """
