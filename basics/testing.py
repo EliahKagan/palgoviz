@@ -41,6 +41,17 @@ class NonSelfEqual:
         """A NonSelfEqual instance is never equal to anything, even itself."""
         return False
 
+    def __hash__(self):
+        """
+        Provide consistent but deliberately poor quality hashing.
+
+        For performance, we should just use __hash__ = object.__hash__, or
+        otherwise hash based on the id. But it is more important to test that
+        separate instances will not wrongly match, so force a hash collision
+        every time by every instance having the same arbitrary hash code.
+        """
+        return -9977361389391351282
+
 
 __all__ = [thing.__name__ for thing in (
     collect_if_not_ref_counting,
