@@ -39,23 +39,25 @@ import graphviz
 
 class _Box:
     """
-    Immutable weak-referenceable wrapper for the value held by a node.
+    Immutable weak-referenceable wrapper for the element value held by a node.
 
     This is needed because:
 
     1. Nodes need to support elements without __weakref__, but we need element
-       references from keys in the WeakValueTable to be weak to avoid leaking
-       heterogeneous cycles.
+       references from keys in the HashNode class's private WeakValueTable to
+       be weak to avoid leaking heterogeneous cycles.
+
+       Boxes are kept alive by strong references in nodes. The WeakValueTable's
+       keys use weak references so heterogenous cycles through the table are
+       never strong.
 
     2. Floating-point NaNs are hashable but not equal even to themselves. To
        support them, standard library containers use both "==" and "is" in
        structural equality comparisons. HashNode does too, for consistency and
-       to avoid creating duplicate nodes when an element is non-self-equal. But
-       "==" between live weakref.ref objects compares the referents only with
-       "==", not also "is". Wrapping each element in a _Box fixes that, too.
+       to avoid creating duplicate nodes when an element is non-self-equal.
 
-    Boxes are kept alive by strong references in nodes. WeakValueTable keys use
-    weak references so heterogenous cycles through the table are never strong.
+       But "==" between live weakref.ref objects compares referents only with
+       "==", not also "is". Wrapping each element in a _Box fixes that, too.
     """
 
     __slots__ = ('_value', '__weakref__')
@@ -69,8 +71,15 @@ class _Box:
         return f'{type(self).__name__}({self.value!r})'
 
     def __eq__(self, other):
-        """Boxes are equal when the objects they box are the same or equal."""
-        if isinstance(other, self.__class__):
+        """Boxes are equal when they wrap the same object or equal objects."""
+        # We're not using weakref proxies. But this isinstance check would be
+        # fine for them. self always gets unwrapped, so it really is a _Box.
+        # isinstance checks not just type(other), but also other.__class__,
+        # which a weakref proxy delegates to its referent. The only common case
+        # of special-method type-checking where weakref proxies need __class__
+        # and not type() is when comparing the types exactly (when one wants
+        # instances of different classes in the hierarchy never to be equal).
+        if isinstance(other, type(self)):
             return self.value is other.value or self.value == other.value
         return NotImplemented
 
