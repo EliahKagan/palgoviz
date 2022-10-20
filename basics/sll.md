@@ -14,7 +14,7 @@ is that even arbitrary cycles do not cause leaks. So it would be good if the
 node type could avoid keeping strong references to any heterogeneous cycles no
 longer reachable except through its private table.
 
-In the old design, correct except for the problems of heterogeneous cycles,
+In a design that does not aim to avoid the problem of heterogeneous cycles,
 nodes hold strong references to their elements and successors. So a node's
 element and successor live at least as long as the node.
 
@@ -46,10 +46,10 @@ tuple of the weak references is actually sufficient:
    existing node instead of creating a new one, will the existing node actually
    be found in the table?
 
-3. **Can weakrefs' `__eq__`/`__hash__` break deletion?** When a node becomes
+3. **Can weakrefs' `__eq__`/`__hash__` break removal?** When a node becomes
    unreachable and is removed from the table, what happens? Do we need to worry
-   about the deletion operation, behind the scenes, looking up the key by
-   calling `__hash__` and `__eq__` on *dead* weak references?
+   about the removal operation, behind the scenes, looking up the key by
+   calling `__hash__` and `__eq__` weak references to dead objects?
 
 4. **Objects that can't be weakly referenced.** Is it a problem that not all
    objects in Python are weak-referenceable?
@@ -119,7 +119,7 @@ to).
 > *object* is hashable. They will maintain their hash value even after the
 > *object* was deleted. If
 > [`hash()`](https://docs.python.org/3/library/functions.html#hash) is called
-> the first time only after the object was deleted, the call will raise
+> the first time only after the *object* was deleted, the call will raise
 > [`TypeError`](https://docs.python.org/3/library/exceptions.html#TypeError).
 
 Calling `hash` on a `weakref.ref` for the first time raises `TypeError` if its
@@ -136,9 +136,10 @@ positive match to an existing entry in the table always be avoided?*
 
 To subscript the table, a key is constructed, holding weak references to
 `value` and `next_node`. These are weak references to live objects—their
-referents, at this point, are local variables of the executing function. This
-new key may, in the worst case, have to be compared to every key already in the
-table. Can it compare equal to a key it shouldn't?
+referents, at this point, are local variables of the executing function. (More
+precisely, they are the local variables' strong referents.) This new key may,
+in the worst case, have to be compared to every key already in the table. Can
+it compare equal to a key it shouldn't?
 
 Suppose the new key is compared to a key in the table whose `value` and
 `next_node` are both live. Since all weak references being compared refer to
@@ -177,7 +178,7 @@ wrongly compares equal to some other key in the table first. But we saw in
 *Issue #1: False positives* that this cannot happen. So all that remains to
 show is that *(a)* it and the correct key will hash the same, so they will
 eventually be compared, and *(b)* when they are actually compared, they will
-come out.
+come out equal.
 
 A preexisting key that should be matched is one that maps an equal `value` and
 identical `next_node` to a live preexisting node. The node it looks up is live,
@@ -194,11 +195,11 @@ equal hash codes. Since the keys are tuples of those (and tuples use structural
 equality comparison and hash accordingly), the keys themselves are equal and
 have equal hash codes.
 
-### Issue #3: **Can weakrefs' `__eq__`/`__hash__` break deletion?**
+### Issue #3: Can weakrefs' `__eq__`/`__hash__` break removal?
 
 *When a node becomes unreachable and is removed from the table, what happens?
-Do we need to worry about the deletion operation, behind the scenes, looking up
-the key by calling `__hash__` and `__eq__` on *dead* weak references?*
+Do we need to worry about the removal operation, behind the scenes, looking up
+the key by calling `__hash__` and `__eq__` on weak references to dead objects?*
 
 Entries that look up dead nodes are removed from the table. The
 `WeakValueTable` logic takes care of this automatically, and ensures the
@@ -215,8 +216,8 @@ it seems intuitive to think this callback does not need to subscript the table.
 The callback must already contain information on the entry, and why would the
 table need to look something up in itself? If this intuition were correct,
 there would be nothing more to worry about. We wouldn't have to reason out how
-comparisons to keys with dead weak references work, if those comparison are
-never made, even to remove the keys.
+comparisons to keys with weak references to dead objects work, if those
+comparisons are never made, even to remove the keys.
 
 Unfortunately, this intuition is *not* correct. `WeakValueTable` does not
 promise not to search for the key of the entry it is removing. Furthermore, its
@@ -270,18 +271,18 @@ When a key is removed:
   may or may not have live referents. The usual reason they must—that a node
   keeps its `value` and `next_node` alive, so if they are dead, then the node
   is dead and its entry in the table has been automatically removed from the
-  table—does not apply here. The `WeakValueTable` guarantees that not entry
-  that would look up a dead object is ever observed, from the outside, to be in
-  the table. But multiple nodes can die at the same time. They have to be
-  removed in some order.
+  table—does not apply here. The `WeakValueTable` guarantees no entry that
+  would look up a dead object is ever observed, from the outside, to be in the
+  table. But multiple nodes can effectively die at the same time. They have to
+  be removed in some order.
 
-  (There another situation a `WeakValueTable`'s underlying `dict` may
-  temporarily hold multiple stale entries. Removing an entry from `dict` while
-  iterating through the `dict` behaves unpredictably. But if the
-  `WeakValueTable` is not being explicitly mutated, then iterating through *it*
-  is permitted. In such a situation, it avoids yielding stale entries, but it
-  waits to remove them from its `dict` until iteration finishes or becomes
-  invalid by explicit mutation of the table.)
+  (There another situation when a `WeakValueTable`'s underlying `dict` may
+  temporarily hold multiple stale entries. To remove an entry from a `dict`
+  while iterating through the `dict` is a bug and behaves unpredictably. But if
+  the `WeakValueTable` is not being explicitly mutated, then iterating through
+  *it* is permitted. In such a situation, it avoids yielding stale entries, but
+  it waits to remove them from its `dict` until iteration either finishes or
+  becomes invalid by explicit mutation of the table.)
 
 Entries are automatically removed from the table, but they are never
 automatically added. Adding an entry is explicit, and any stale entries in the
@@ -291,7 +292,8 @@ only compared against keys that have *existed in the table at the same time it
 did*. This is fantastic news, because duplicate keys are not allowed in the
 table.
 
-It is therefore sufficient to show that keys that unequal never become equal.
+It is therefore sufficient to show that keys that were once unequal never
+become equal.
 
 Suppose keys `(vr1, nnr1)` and `(vr2, nnr2)` are unequal. Then `vr1 != vr2` or
 `nnr1 != nnr2`. For the keys to become equal in the future would require that,
@@ -300,7 +302,7 @@ references `vr1` and `vr2` to the elements must start out unequal and become
 equal, or the weak references `nnr1` and `nnr2` to the successors must start
 out unequal and become equal.
 
-Th elements and the successors are immutable. As stated above in *Weak
+The elements and the successors are immutable. As stated above in *Weak
 reference equality comparison semantics*, because we are assuming no referent
 is unequal to itself, `weakref.ref` objects that compare unequal and whose
 referents are immutable will never compare equal. Therefore, element weakrefs
@@ -332,7 +334,7 @@ this. If we hadn't, we could not have used them as values in a
 
 The `None` object, however, is not weak-referenceable. We can solve this by
 using our own singleton instead. But that may be overkill, since we can just
-use `None` directly instead:
+use `None` *directly*:
 
 ```python
 weak_next_node = None if next_node is None else weakref.ref(next_node)
