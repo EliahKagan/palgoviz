@@ -49,7 +49,7 @@ tuple of the weak references is actually sufficient:
 3. **Can weakrefs' `__eq__`/`__hash__` break removal?** When a node becomes
    unreachable and is removed from the table, what happens? Do we need to worry
    about the removal operation, behind the scenes, looking up the key by
-   calling `__hash__` and `__eq__` weak references to dead objects?
+   calling `__hash__` and `__eq__` on weak references to dead objects?
 
 4. **Objects that can't be weakly referenced.** Is it a problem that not all
    objects in Python are weak-referenceable?
@@ -355,9 +355,9 @@ It would be bad to support only weak-referenceable elements—for example, we
 couldn't even store `int` values.
 
 The insight to solve this is that a chain is only as strong as its weakest
-link. We don't actually need to refer directly any element with a weak
-references. We can instead refer to a *wrapper* object with a weak reference,
-where the wrapper refers to the element with a strong reference.
+link. We don't actually need to refer directly any element by a weak
+references. We can instead refer to a *wrapper* object by a weak reference,
+where the wrapper refers to the element by a strong reference.
 
 Suppose our custom wrapper type is called `_Box`. Then we will have:
 
@@ -373,12 +373,89 @@ The `_Box` instance itself must be kept alive somehow. Currently it is only
 referred to by a weak reference in a key, and by a strong reference in a local
 variable that goes away when `HashNode.__new__` returns.
 
-`value` and `next_node` are themselves kept alive as long as `node`, because
-`node` itself holds strong references to them. We likewise can keep `_Box`
-alive as long as `node` by having the node hold a strong reference to it in a
-non-public attribute. This could be in addition to the node's `value` and
-`next_node`. Or the redundancy could be avoided by having the node holds its
-`value` only indirectly through the box: the box would be a non-public
-attribute, which the `value` property would "dereference."
+`value` and `next_node` stay alive as long as the node, which itself holds
+strong references to them. We likewise can keep the box alive by having the
+node hold a strong reference to it in a non-public attribute. This *could* be
+separate from the node's `value` and `next_node`. But the redundancy can be
+avoided by having the node contain its `value` only indirectly through the box.
+
+(Note that this kind of "box" is only tangentially related to *boxing* in
+languages like Java and C#, where some types are value types, some types are
+reference types, and a value type instance can be boxed in a reference type
+object to allow it to be accessed through a reference and stored on a managed
+heap. In Python, all types are reference types, "box" has no formal meaning,
+and our `_Box` class is merely a wrapper that conceptually "contains" the
+object it stands in front of. Arguably `_Box` should be named something else.)
 
 ### Issue #5: NaN-like objects
+
+*Are pathological elements, like floating-point NaNs, that are not equal even
+to themselves—yet are hashable!—still handled properly?*
+
+Recall the old approach, from before the heterogeneous cycle problem was
+solved, where each node's key held strong references to the node's element and
+successor:
+
+```python
+cls._table[value, next_node] = node
+```
+
+That worked with NaNs (and other objects not equal to themselves). Attempting
+to construct a second node with the same `value` object and the same
+`next_node` returned the original node, rather than creating a duplicate.
+
+It worked automatically when `value` was an element of a `tuple`, because
+sequence and hash-based containers in the Python standard library use both `==`
+and `is` checks in their structural equality comparisons. `math.nan !=
+math.nan`, but `(math.nan,) == (math.nan,)`, and likewise, `(value, next_node)
+== (value, next_node)` even when `value != value`.
+
+Standard library containers do this to accommodate NaNs. This behavior is
+particularly important in `dict` and `set`, where otherwise the same NaN object
+could be inserted many different times as a key, would be stored that many
+times, and would never be found. The same considerations apply to
+`HashNode`—but more so, because all code in the whole program that uses
+`HashNode` shares a single, global table of nodes, behind the scenes.
+
+Unlike structural equality comparison of standard library containers,
+`weakref.ref` equality comparison with live referents does *not* include an
+`is` check. So the changes described above that solve the heterogenous cycle
+problem break handling of NaN and NaN-like objects.
+
+Furthermore, the reasoning given in preceding sections about correctness
+explicitly assumed no non-self-equal object will ever be used as an element.
+That assumption is unreasonable. If necessary, we could check that `value ==
+value` and raise `ValueError` in `HashNode.__new__` otherwise, prohibiting such
+elements while safeguarding shared state. But it would be better to support
+them.
+
+This is another problem that can be solved by wrapping the element in a "box"
+that has the desired behavior. That's not the only way to solve it. Another
+approach is for keys to be instances of a custom class that provides the
+desired equality comparison behavior, rather than tuples. That might be the
+better approach, if we weren't *already* wrapping.
+
+`_Box.__eq__` checks the type of `other`, like most `__eq__` implementations,
+but when `other` is a `_Box`, it returns:
+
+```python
+self.value == other.value
+```
+
+To make it so `_Box` instances are also equal when their values are the same
+object, regardless of whether that object is equal to itself, that can be
+changed to:
+
+```python
+self.value is other.value or self.value == other.value
+```
+
+With that change, `_Box` solves both the problem of elements that are not
+weakly referenceable and the problem of elements that compare unequal to
+themselves.
+
+<!--
+    FIXME: Add a section about how solving the problem of heterogeneous cycles
+    unfortunately makes it much more feasible than before to produce duplicate
+    nodes by resurrecting a node after it is removed from the WeakValueTable.
+-->
