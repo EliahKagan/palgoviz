@@ -400,6 +400,23 @@ class TestHashNodeBasic(unittest.TestCase):
         rhs = sll.HashNode(rhs_obj)
         self.assertIsNot(lhs, rhs)
 
+    def test_matches_keyword_class_pattern(self):
+        match sll.HashNode(10, sll.HashNode(20, sll.HashNode(30))):
+            case sll.HashNode(next_node=sll.HashNode(
+                    value=20,
+                    next_node=sll.HashNode(next_node=None) as node)):
+                self.assertIs(node, sll.HashNode(30))
+            case _:
+                self.fail('head did not match the keyword pattern')
+
+    def test_matches_positional_class_pattern(self):
+        match sll.HashNode(10, sll.HashNode(20, sll.HashNode(30))):
+            case sll.HashNode(
+                    _, sll.HashNode(20, sll.HashNode(_, None) as node)):
+                self.assertIs(node, sll.HashNode(30))
+            case _:
+                self.fail('head did not match the positional pattern')
+
     def test_from_iterable_returns_none_from_empty_sequence(self):
         head = sll.HashNode.from_iterable([])
         self.assertIsNone(head)

@@ -174,6 +174,8 @@ class HashNode:
 
     __slots__ = ('_box', '_next_node', '__weakref__')
 
+    __match_args__ = ('value', 'next_node')
+
     _lock = threading.RLock()
     _already_locked = False
     _table = weakref.WeakValueDictionary()  # (value, next_node) -> node
