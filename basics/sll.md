@@ -270,11 +270,11 @@ When a key is removed:
 - Surprisingly, the weak references held by the *other* keys it is compared to
   may or may not have live referents. The usual reason they must—that a node
   keeps its `value` and `next_node` alive, so if they are dead, then the node
-  is dead and its entry in the table has been automatically removed from the
-  table—does not apply here. The `WeakValueTable` guarantees no entry that
-  would look up a dead object is ever observed, from the outside, to be in the
-  table. But multiple nodes can effectively die at the same time. They have to
-  be removed in some order.
+  is dead and its entry in the table has been automatically removed—does not
+  apply here. The `WeakValueTable` guarantees no entry that would look up a
+  dead object is ever observed, from the outside, to be in the table. But
+  multiple nodes can effectively die at the same time. They have to be removed
+  in some order.
 
   (There another situation when a `WeakValueTable`'s underlying `dict` may
   temporarily hold multiple stale entries. To remove an entry from a `dict`
@@ -355,9 +355,9 @@ It would be bad to support only weak-referenceable elements—for example, we
 couldn't even store `int` values.
 
 The insight to solve this is that a chain is only as strong as its weakest
-link. We don't actually need to refer directly any element by a weak
-references. We can instead refer to a *wrapper* object by a weak reference,
-where the wrapper refers to the element by a strong reference.
+link. We don't actually need to refer directly any element by a weak reference.
+We can instead refer to a *wrapper* object by a weak reference, where the
+wrapper refers to the element by a strong reference.
 
 Suppose our custom wrapper type is called `_Box`. Then we will have:
 
