@@ -14,17 +14,18 @@ is that even arbitrary cycles do not cause leaks. So it would be good if the
 node type could avoid keeping strong references to any heterogeneous cycles no
 longer reachable except through its private table.
 
-In a design that does not aim to avoid the problem of heterogeneous cycles,
-nodes hold strong references to their elements and successors. So a node's
-element and successor live at least as long as the node.
+In a design that does not aim to avoid the problem of heterogeneous cycles, the
+table is indexed this way, or in some equivalent way:
 
 ```python
 cls._table[value, next_node] = node
 ```
 
-The table entry for a node goes away when the node is collected, so it seems
-the table's references to the element and successor could be weak instead of
-strong. Maybe this would work:
+Nodes hold strong references to their elements and successors. So a node's
+element and successor live at least as long as the node. Because the table is a
+`WeakValueDictionary` that maps keys to nodes, the table entry for a node goes
+away when the node dies. So it seems the key's references to the element and
+successor could be weak instead of strong. Maybe this would work:
 
 ```python
 cls._table[weakref.ref(value), weakref.ref(next_node)] = node
@@ -156,8 +157,8 @@ Now suppose the new key is compared to a key in the table whose `value` and
 because the node such a key looks up holds strong references to the same
 `value` and `next_node`, so they can't be dead unless that node is also dead.
 But then the entry that maps that key to the node would have been removed. The
-`WeakValueTable` is responsible for ensuring this happens before any new keys
-are looked up in the table, even in a multithreaded scenario.
+`WeakValueDictionary` is responsible for ensuring this happens before any new
+keys are looked up in the table, even in a multithreaded scenario.
 
 Still, even if that somehow did happen, there would be no false positive,
 because the new key cannot compare equal to that key. Its `value` weakref would
@@ -202,14 +203,14 @@ Do we need to worry about the removal operation, behind the scenes, looking up
 the key by calling `__hash__` and `__eq__` on weak references to dead objects?*
 
 Entries that look up dead nodes are removed from the table. The
-`WeakValueTable` logic takes care of this automatically, and ensures the
+`WeakValueDictionary` logic takes care of this automatically, and ensures the
 underlying state of the table is not corrupted, even if multiple threads are
 involved. But *how* are they removed?
 
 #### Does the table look up keys with `==` and `hash` to remove them?
 
-If you manually remove a key from a `WeakValueTable` with `del`, then of course
-this will happen. But that is not the case at issue here.
+If you manually remove a key from a `WeakValueDictionary` with `del`, then of
+course this will happen. But that is not the case at issue here.
 
 When the weak reference callback the table has registered for a node is called,
 it seems intuitive to think this callback does not need to subscript the table.
@@ -219,7 +220,7 @@ there would be nothing more to worry about. We wouldn't have to reason out how
 comparisons to keys with weak references to dead objects work, if those
 comparisons are never made, even to remove the keys.
 
-Unfortunately, this intuition is *not* correct. `WeakValueTable` does not
+Unfortunately, this intuition is *not* correct. `WeakValueDictionary` does not
 promise not to search for the key of the entry it is removing. Furthermore, its
 implementation in CPython stores entries in an underlying `dict`, to satisfy
 its atomicity guarantees. Accordingly, it *always* subscripts that `dict` with
@@ -247,8 +248,8 @@ attempt to insert the key would have failed.
 As detailed in *Weak reference equality comparison semantics* above, a
 `ref.weakref` object that has ever had `hash` called on it remembers its hash
 code and returns it on all future `hash` calls, even after its referent is
-dead. So when the `WeakValueTable`'s underlying `dict` calls `hash` on the key,
-the result is the same as before.
+dead. So when the `WeakValueDictionary`'s underlying `dict` calls `hash` on the
+key, the result is the same as before.
 
 #### Do our keys compare equal to themselves?
 
@@ -271,18 +272,18 @@ When a key is removed:
   may or may not have live referents. The usual reason they must—that a node
   keeps its `value` and `next_node` alive, so if they are dead, then the node
   is dead and its entry in the table has been automatically removed—does not
-  apply here. The `WeakValueTable` guarantees no entry that would look up a
-  dead object is ever observed, from the outside, to be in the table. But
+  apply here. The `WeakValueDictionary` guarantees no entry that would look up
+  a dead object is ever observed, from the outside, to be in the table. But
   multiple nodes can effectively die at the same time. They have to be removed
   in some order.
 
-  (There another situation when a `WeakValueTable`'s underlying `dict` may
-  temporarily hold multiple stale entries. To remove an entry from a `dict`
+  (There is another situation when a `WeakValueDictionary`'s underlying `dict`
+  may temporarily hold multiple stale entries. To remove an entry from a `dict`
   while iterating through the `dict` is a bug and behaves unpredictably. But if
-  the `WeakValueTable` is not being explicitly mutated, then iterating through
-  *it* is permitted. In such a situation, it avoids yielding stale entries, but
-  it waits to remove them from its `dict` until iteration either finishes or
-  becomes invalid by explicit mutation of the table.)
+  the `WeakValueDictionary` is not being explicitly mutated, then iterating
+  through *it* is permitted. In such a situation, it avoids yielding stale
+  entries, but it waits to remove them from its `dict` until iteration either
+  finishes or becomes invalid by explicit mutation of the table.)
 
 Entries are automatically removed from the table, but they are never
 automatically added. Adding an entry is explicit, and any stale entries in the
@@ -355,9 +356,9 @@ It would be bad to support only weak-referenceable elements—for example, we
 couldn't even store `int` values.
 
 The insight to solve this is that a chain is only as strong as its weakest
-link. We don't actually need to refer directly any element by a weak reference.
-We can instead refer to a *wrapper* object by a weak reference, where the
-wrapper refers to the element by a strong reference.
+link. We don't actually need to refer directly to any element by a weak
+reference. We can instead refer to a *wrapper* object by a weak reference,
+where the wrapper refers to the element by a strong reference.
 
 Suppose our custom wrapper type is called `_Box`. Then we will have:
 
@@ -457,5 +458,6 @@ themselves.
 <!--
     FIXME: Add a section about how solving the problem of heterogeneous cycles
     unfortunately makes it much more feasible than before to produce duplicate
-    nodes by resurrecting a node after it is removed from the WeakValueTable.
+    nodes by resurrecting a node after it has is removed from the
+    WeakValueDictionary.
 -->

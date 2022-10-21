@@ -209,10 +209,10 @@ class HashNode:
                             + type(next_node).__name__)
 
         # The key for a node accesses the node's element and successor through
-        # weak references. This is important because the WeakValueTable holds
-        # strong references to its keys. If an element has a strong reference
-        # cycle back to the node that contains it, the cyclic garbage collector
-        # will be able to clean it up when it is only accessible through the
+        # weak references. This is important because the WeakValueDictionary
+        # holds strong references to its keys. If an element has a strong
+        # reference cycle back to the node that contains it, the cyclic garbage
+        # collector can clean it up once it is only accessible through the
         # table, but only if the table doesn't strongly refer into the cycle.
         box = _Box(value)
         key = (weakref.ref(box), next_node and weakref.ref(next_node))
