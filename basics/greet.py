@@ -243,15 +243,19 @@ class FrozenGreeter:
         return self._lang
 
 
-# TODO: Raise AttributeError if an attempt is made to assign to a nonexistent
-#       attribute on an EnumGreeter instance.
-#
-# TODO: Consider making a subclass of EnumMeta that overrides __call__ to give
-#       an error message of the same style as other greeters give, when an
-#       unrecognized language code is passed.
-#
+class _EnumGreeterMeta(enum.EnumMeta):
+    """Metaclass to customize unrecognized language errors for EnumGreeter."""
+
+    def __call__(self, lang):
+        try:
+            return super().__call__(lang)
+        except ValueError as error:
+            message = f'{lang} is an unrecognized language code.'
+            raise ValueError(message) from error
+
+
 @enum.unique
-class EnumGreeter(enum.Enum):
+class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
     """
     Callable Enum to greet people by name in a specified language.
 
@@ -259,16 +263,16 @@ class EnumGreeter(enum.Enum):
     English and Spanish are supported. They are not updated automatically along
     with other greeters in this module.
 
-    >>> g = EnumGreeter('en')
-    >>> g.lung = 'es'  # doctest: +SKIP
-    Traceback (most recent call last):
-      ...
-    AttributeError: 'EnumGreeter' object has no attribute 'lung'
-
-    >>> EnumGreeter('qx')  # doctest: +SKIP
+    >>> EnumGreeter('qx')
     Traceback (most recent call last):
         ...
     ValueError: qx is an unrecognized language code.
+
+    >>> g = EnumGreeter('en')
+    >>> g.lung = 'es'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'EnumGreeter' object has no attribute 'lung'
     """
 
     ENGLISH = 'en'
@@ -322,6 +326,14 @@ class EnumGreeter(enum.Enum):
         Hello, David!
         """
         print(_FORMATS[self.lang].format(name))
+
+    def __setattr__(self, name, value):
+        """Creation of new public attributes is suppressed."""
+        if not name.startswith('_') and name != 'lang':
+            raise AttributeError(
+                f'{type(self).__name__!r} object has no attribute {name!r}')
+
+        super().__setattr__(name, value)
 
     @property
     def lang(self):
