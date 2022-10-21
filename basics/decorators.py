@@ -971,12 +971,6 @@ class linear_combinable:
     "def linear_combinable(func):" in any way that does not misinform the
     caller about proper usage (so no implementation-detail parameters).
 
-    NOTE: Reassigning the __wrapped__ attribute is unsupported. In particular,
-    (a) objects linear_combinable returns are considered immutable, and setting
-    a different value of __wrapped__ if the instance may be stored in a hash
-    based container is likely to cause severe problems, and (b) whether or not
-    behavior is affected to reassigning __wrapped__ may change at any time.
-
     >>> @linear_combinable
     ... def f(x): 'Double a number.'; return x * 2
     >>> @linear_combinable
@@ -1031,6 +1025,15 @@ class linear_combinable:
     True
     >>> linear_combinable(h) is h
     True
+
+    >>> f.__wrapped__ = lambda x: x * 3
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute '__wrapped__'
+    >>> del f.__wrapped__
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't delete attribute '__wrapped__'
     """
 
     def __new__(cls, func):
@@ -1129,6 +1132,20 @@ class linear_combinable:
 
         f = self.__wrapped__
         return type(self)(lambda x: f(x) / divisor)
+
+    def __setattr__(self, name, value):
+        """Setting __wrapped__ after initial setting is suppressed."""
+        if name == '__wrapped__' and hasattr(self, name):
+            raise AttributeError(f"can't set attribute {name!r}")
+
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name):
+        """Deleting __wrapped__ is suppressed."""
+        if name == '__wrapped__':
+            raise AttributeError(f"can't delete attribute {name!r}")
+
+        super().__delattr__(name)
 
 
 __all__ = [thing.__name__ for thing in (

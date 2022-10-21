@@ -6,12 +6,10 @@ import collections
 from collections.abc import Iterator
 import contextlib
 import functools
-import gc
 import inspect
 import io
 import itertools
 import os
-import platform
 import sys
 import unittest
 import unittest.mock
@@ -22,18 +20,9 @@ from parameterized import parameterized, parameterized_class
 import fibonacci
 import functions
 import recursion
+import testing
 
 _original_count_tree_nodes = functions.count_tree_nodes
-
-
-if platform.python_implementation() == 'CPython':
-    def _collect_if_not_ref_counting():
-        """Force a collection if we might not be using reference counting."""
-        # CPython always refcounts as its primary GC strategy, so do nothing.
-else:
-    def _collect_if_not_ref_counting():
-        """Force a collection if we might not be using reference counting."""
-        gc.collect()
 
 
 class _IterableWithGeneratorIterator:
@@ -608,7 +597,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -632,7 +621,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -707,7 +696,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -746,7 +735,7 @@ class TestAsCloseableIteratorLimited(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -897,7 +886,7 @@ class TestAsCloseableIterator(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -921,7 +910,7 @@ class TestAsCloseableIterator(unittest.TestCase):
         r = weakref.ref(it)
         try:
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -977,7 +966,7 @@ class TestAsCloseableIterator(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
@@ -1016,7 +1005,7 @@ class TestAsCloseableIterator(unittest.TestCase):
         with self.subTest('close called on finalization'):
             r = weakref.ref(it)
             del it
-            _collect_if_not_ref_counting()
+            testing.collect_if_not_ref_counting()
             if r() is not None:
                 raise Exception(
                     "unreferenced result exists, can't test implicit close")
