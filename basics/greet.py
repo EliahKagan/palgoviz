@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Hello world example."""
+"""Hello world examples."""
 
 __all__ = [
     'MutableGreeter',
@@ -21,9 +21,13 @@ _FORMATS = {
     'es': '¡Hola, {}!',
 }
 
+# FIXME: After all four greeter classes pass their doctests, and any other
+# reorganization of the doctests is done, give each class doctests for
+# positional class patterns in match-case, then get them to pass.
 
-# TODO: Extract shared parts of MutableGreeter and FrozenGreeter to an abstract
-#       base class, which might be called AbstractGreeter, or just Greeter.
+# TODO: After writing unittest tests, extract shared parts of MutableGreeter
+# and FrozenGreeter, and maybe EnumGreeter and UniqueGreeter, to an abstract
+# base class. This ABC could be called AbstractGreeter, or just Greeter.
 
 
 class MutableGreeter:
@@ -364,6 +368,8 @@ class UniqueGreeter:
     guaranteed to return the existing instance. But instances' lifetimes are
     not prolonged: the UniqueGreeter class does nothing to prevent any instance
     from being collected when all outside references to it have gone away.
+
+    (Like MutableGreeter/FrozenGreeter, this can use any language in _FORMATS.)
 
     >>> UniqueGreeter('es')
     UniqueGreeter('es')
