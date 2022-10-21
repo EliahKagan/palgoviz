@@ -2,6 +2,17 @@
 
 """Hello world example."""
 
+__all__ = [
+    'MutableGreeter',
+    'FrozenGreeter',
+    'EnumGreeter',
+    'make_greeter',
+    'hello',
+    'run',
+]
+
+import enum
+
 _FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
@@ -71,7 +82,7 @@ class MutableGreeter:
         >>> g('Eliah')
         Hello, Eliah!
         """
-        print(_FORMATS[self._lang].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     def __eq__(self, other):
         """
@@ -178,7 +189,7 @@ class FrozenGreeter:
         >>> g('David')
         ¡Hola, David!
         """
-        print(_FORMATS[self._lang].format(name))
+        print(_FORMATS[self.lang].format(name))
 
     def __eq__(self, other):
         """
@@ -230,6 +241,114 @@ class FrozenGreeter:
         AttributeError: can't set attribute 'lang'
         """
         return self._lang
+
+
+class _EnumGreeterMeta(enum.EnumMeta):
+    """Metaclass to customize unrecognized language errors for EnumGreeter."""
+
+    def __call__(self, lang):
+        try:
+            return super().__call__(lang)
+        except ValueError as error:
+            message = f'{lang} is an unrecognized language code.'
+            raise ValueError(message) from error
+
+
+@enum.unique
+class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
+    """
+    Callable Enum to greet people by name in a specified language.
+
+    Enumerators of this class specify available languages. Currently only
+    English and Spanish are supported. They are not updated automatically along
+    with other greeters in this module.
+
+    >>> EnumGreeter('qx')
+    Traceback (most recent call last):
+        ...
+    ValueError: qx is an unrecognized language code.
+
+    >>> g = EnumGreeter('en')
+    >>> g.lung = 'es'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'EnumGreeter' object has no attribute 'lung'
+    """
+
+    ENGLISH = 'en'
+    SPANISH = 'es'
+
+    @classmethod
+    def get_known_langs(cls):
+        """
+        Get known language codes.
+
+        >>> EnumGreeter.get_known_langs()
+        ('en', 'es')
+        >>> EnumGreeter('es').get_known_langs()
+        ('en', 'es')
+        """
+        return tuple(greeter.value for greeter in cls.__members__.values())
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """
+        Construct an EnumGreeter from a greeter.
+
+        >>> m = MutableGreeter('en')
+        >>> e = EnumGreeter.from_greeter(m)
+        >>> e('World')
+        Hello, World!
+        """
+        return cls(greeter.lang)
+
+    def __repr__(self):
+        """
+        Representation as Python code.
+
+        >>> EnumGreeter('en')
+        EnumGreeter('en')
+        >>> EnumGreeter('es')
+        EnumGreeter('es')
+        """
+        return f'{type(self).__name__}({self.value!r})'
+
+    def __call__(self, name):
+        """
+        Greet a person by name.
+
+        >>> g = EnumGreeter.SPANISH
+        >>> g('David')
+        ¡Hola, David!
+
+        >>> e = EnumGreeter.ENGLISH
+        >>> e('David')
+        Hello, David!
+        """
+        print(_FORMATS[self.lang].format(name))
+
+    def __setattr__(self, name, value):
+        """Creation of new public attributes is suppressed."""
+        if not name.startswith('_') and name != 'lang':
+            raise AttributeError(
+                f'{type(self).__name__!r} object has no attribute {name!r}')
+
+        super().__setattr__(name, value)
+
+    @property
+    def lang(self):
+        """
+        The language this EnumGreeter will greet in.
+
+        >>> e = EnumGreeter('en')
+        >>> e.lang
+        'en'
+        >>> e.lang = 'es'
+        Traceback (most recent call last):
+          ...
+        AttributeError: can't set attribute 'lang'
+        """
+        return self.value
 
 
 def make_greeter(lang):
