@@ -215,6 +215,27 @@ class TestHashNodeBasic(unittest.TestCase):
         with self.assertRaises(AttributeError):
             head.__dict__
 
+    def test_no_finalizer(self):
+        """
+        The class should have no __del__ method.
+
+        The vast majority of classes should have no __del__ method, but for a
+        node class, the performance implications make it even less likely that
+        it could be reasonable to have one: __del__ can resurrect objects, so a
+        garbage collector will (at least sometimes) need to defer collecting
+        them until it has traversed the object graph *again* to check for this.
+
+        The requirement in this test shouldn't be relaxed without benchmarking
+        (including of peak memory usage with and without __del__). But also, it
+        is very unlikely that __del__ would be helpful here. The real reason
+        for this test is to avert confusion about how nondeterministic cleanup
+        should be done. Weak reference callbacks, including weakref.finalize,
+        are not prohibited. However, if at all possible, any use of them in
+        connection with sll.HashNode should be through higher-level facilities.
+        """
+        with self.assertRaises(AttributeError):
+            sll.HashNode.__del__
+
     def test_repr_shows_no_next_node_if_none(self):
         head = sll.HashNode('foo')
         self.assertEqual(repr(head), "HashNode('foo')")
