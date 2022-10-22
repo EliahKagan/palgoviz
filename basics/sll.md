@@ -92,9 +92,9 @@ explains how `__eq__` and `__hash__` work on `weakref.ref` objects.
 
 #### Equality
 
-`weakref.ref` objects are equal if the objects they refer to are *(a)* both
-live and equal to each other or *(b)* the same object and dead. Otherwise they
-are not equal.
+`weakref.ref` objects are equal if *(a)* their referents are live and equal, or
+*(b)* they are the same weak reference object, whose referent is dead.
+Otherwise they are not equal.
 
 > Weak references support tests for equality, but not ordering. If the
 > referents are still alive, two references have the same equality relationship
@@ -102,18 +102,33 @@ are not equal.
 > been deleted, the references are equal only if the reference objects are the
 > same object.
 
-We defer consideration of objects that are not equal to themselves until *Issue
-#5: NaN-like objects* below. Under this assumption of no non-self-equal
-referents, `weakref.ref` objects are equal when *(α)* they reference the same
-object, even if that object has been collected, or *(β)* they reference
-different objects, both of which are still live, that are equal to each other.
-Weak references to immutable objects may thus go from being equal to unequal,
-but never from being unequal to equal.
+Note that separate calls to `weakref.ref(obj)` may or may not return the same
+weak reference to `obj`. The language makes no guarantees about this. So while
+it is tempting to assume that weak references to the same referent without
+callbacks will be the same reference and thus remain equal, we should not rely
+on this.
+
+We are working only with weak references to immutable objects (in the sense
+that the objects' values, on which their equality comparison and hashing is
+based, do not change). We defer consideration of objects that are not equal to
+themselves until *Issue #5: NaN-like objects* below. **Under the assumption
+that all referents are immutable and equal to themselves, if weak references
+`r1` and `r2` were ever unequal, they can never *become* equal.** We will use
+this result to demonstrate correctness, so it is worth showing that it is
+justified.
+
+Suppose `r1` refers to `x1`, `r2` refers to `x2`, and `r1 != r2` initially.
+`r1` and `r2` start out live and `r1 != r2`, so `x1 != x2`. Since `x1 == x1`
+and `x2 == x2`, it follows from `x1 != x2` that `x1 is not x2`. But since `x1`
+and `x2` are immutable and unequal, they will always be unequal, so `r1` and
+`r2` cannot become equal by mutation of `x1` or `x2`. Furthermore, since `x1`
+and `x2` are different objects, `r1` and `r2` cannot be the same `weakref.ref`
+instance. So `r1` and `r2` cannot become equal as a result of one or both of
+`x1` an `x2` dying, either.
 
 #### Hashing
 
-`weakref.ref` objects hash based on their referents (the objects they refer
-to).
+`weakref.ref` objects hash based on their referents.
 
 > Weak references are
 > [hashable](https://docs.python.org/3/glossary.html#term-hashable) if the
@@ -180,6 +195,8 @@ wrongly compares equal to some other key in the table first. But we saw in
 show is that *(a)* it and the correct key will hash the same, so they will
 eventually be compared, and *(b)* when they are actually compared, they will
 come out equal.
+
+<!-- FIXME: Improve the wording in the paragraph immediately below. -->
 
 A preexisting key that should be matched is one that maps an equal `value` and
 identical `next_node` to a live preexisting node. The node it looks up is live,
@@ -253,12 +270,15 @@ key, the result is the same as before.
 
 #### Do our keys compare equal to themselves?
 
-As stated above in *Weak reference equality comparison semantics*, because we
-are assuming self-equality, weak references that refer to the same object are
-always equal, both before and after the object dies. A weak reference certainly
-refers to the same object it refers to. So it is equal to itself. Thus a key's
-`value` weakref is equal to itself, and its `next_node` weakref is equal to
-itself. So the key is equal to itself.
+Comparing a key to itself compares its `value` weakref to itself and its
+`next_node` weakref to itself. The key is self-equal if and only if each of
+those weak references is self-equal.
+
+As detailed above in *Weak reference equality comparison semantics*, a dead
+weak reference compares equal to itself, and a live weak reference delegates
+equality comparison to the referent, which we assume is self-equal.
+
+So the key is equal to itself.
 
 #### Do our keys compare *un*equal to all other keys?
 
