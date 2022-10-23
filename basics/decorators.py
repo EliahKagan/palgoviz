@@ -10,10 +10,7 @@ import functools
 import itertools
 import numbers
 
-
-def _identity_function(arg):
-    """Return the argument unchanged."""
-    return arg
+from util import identity_function
 
 
 def peek_arg(func):
@@ -833,9 +830,9 @@ def make_fmap(preimage, *, strict=False, collector=tuple):
     TypeError: 'int' object is not callable
     """
     if collector is None:
-        collector = _identity_function
+        collector = identity_function
 
-    @(_identity_function if strict else wrap_uncallable_args)
+    @(identity_function if strict else wrap_uncallable_args)
     def fmap(*functions):
         return collector(f(preimage) for f in functions)
 
