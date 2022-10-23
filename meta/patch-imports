@@ -10,16 +10,17 @@ module_filenames=(*)
 cd - >/dev/null
 
 modules="$(IFS='|'; printf '%s' "${module_filenames[*]%.py}")"
+front='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?'  # NOTE: This has two capture groups.
 
-from_regexp='^([ ]{4}>>>[ ]+)?from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
-from_replacement='\1from algoviz.\2 import'
+from_regexp="$front"'from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
+from_replacement='\1from algoviz.\3 import'
 
-import_regexp='^([ ]{4}>>>[ ]+)?import[ ]+('"$modules"')[ ]*(\r?)$'
-import_replacement='\1from algoviz import \2\3'
+import_regexp="$front"'import[ ]+('"$modules"')[ ]*(\r?)$'
+import_replacement='\1from algoviz import \3\4'
 
 sed_script="
     s/$from_regexp/$from_replacement/
     s/$import_regexp/$import_replacement/
 "
 
-sed -bri "$sed_script" {algoviz,tests}/**/*.py
+sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}

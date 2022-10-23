@@ -973,7 +973,7 @@ class linear_combinable:
     >>> @linear_combinable
     ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
     >>> @linear_combinable
-    ... def three(_): 'Return 3, no matter the argument.'; return 3
+    ... def three(_): 'Return 3, for any argument.'; return 3
 
     >>> g(10)
     99
@@ -1005,7 +1005,7 @@ class linear_combinable:
     ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
     ['decorators', 'f', 'f', 'Double a number.', {}]
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
-    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
+    ['decorators', 'three', 'three', 'Return 3, for any argument.', {}]
 
     >>> import sympy, numbers
     >>> @numbers.Number.register  # Pretend to be a number. Just for testing!

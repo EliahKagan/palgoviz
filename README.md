@@ -12,24 +12,30 @@ as demos or exercises that produce visualizations, and probably some never
 will have them (since they may sometimes not be necessary or helpful), but it
 is likely that most topics will have them.
 
-This is a rough work in progress. In particular, project structure is not yet
-established. (Relatedly, the project is not yet in good shape to have wheels
-built from it, and it is not yet decided how many packages, if any, should be
-generated from it.)
+---
 
-Currently most of the content is in `basics/`, including both basic and more
-advanced topics. Material is being gradually pulled out of `basics/` to
-top-level directories, but right now the only one that exists is `math/`.
-Eventually, either much of what is currently in `basics/` will go in other
-top-level directories, or `basics/` will be renamed, or the project structure
-will change altogether so nothing corresponding to it even exists (maybe even
-basic topics will be split out into multiple top-level directories, or maybe
-the directory structure will become flatter or markedly more nested).
+This is a work in progress. In particular, project structure is not yet
+established, but the structure will be improved to be less flat. Most likely
+it will not be useful to have wheels or conda packages built from it.
 
-**This README file is itself a work in progress, may contain inaccuracies, and
-does not necessarily represent a consensus or plan of project contributors.**
-Also, top-level directories should have their own README files, but those are
-not yet written, even in draft.
+- The `conda-build` dependency is not needed yet, but the `conda develop`
+  command it provides is likely to help during and after the project
+  restructuring.
+
+- Currently, most content is in `basics/`, including both basic and more
+  advanced topics. Some notebooks have has been pulled out of `basics/` into
+  `math/`. The `basics/` directory will likely go away when the project
+  structure is changed, splitting into other directories, likely `algoviz/`
+  for the `*.py` files other than test modules (so that the principal
+  top-level package will be called `algoviz`), `tests/` for the tests,
+  `notebooks/` for the `.ipynb` files, and some more minor directories. But
+  this is not yet decided.
+
+A license must still be added. This README file requires further revision, so
+that it explains how to use the project. Most subdirectories should also have
+README files, which is largely not yet done.
+
+---
 
 This project is somewhat related, though not closely tied to, a previous, less
 ambitious project: https://github.com/EliahKagan/algorithms-suggestions

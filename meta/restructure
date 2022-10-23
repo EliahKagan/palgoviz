@@ -4,26 +4,42 @@ set -e
 
 . "$(dirname -- "$0")/shared.sh"
 
-# We will be renaming algoviz/basics to algoviz/algoviz. Check if that is safe.
-[ ! -d algoviz ] || die 'a directory called "algoviz" already exists'
-[ ! -e algoviz ] || die 'a non-directory called "algoviz" already exists'
+# We will be renaming algoviz/basics to algoviz/algoviz. Check if that's safe.
+# This avoids moving basics INTO algoviz, and gives a clear error message.
+if [ -e algoviz ]; then
+    if [ -d algoviz ]; then
+        err 'a subdirectory "algoviz" already exists'
+    else
+        err 'a non-directory "algoviz" already exists'
+    fi
+    msg "DANGER: it's algoviz/algoviz - don't delete the wrong algoviz!"
+    exit 1
+fi
 
-git mv basics/{.flake8,.isort.cfg,.vscode,environment.yml,requirements.txt} .
-mkdir notes notebooks tests
-git mv basics/{*-notes.txt,*.md} notes/
-git mv basics/*.ipynb notebooks/
-git mv basics/test_* tests/
 git mv basics algoviz
-touch algoviz/__init__.py
-sed -bri 's/name: algoviz-basics\b/name: algoviz/' environment.yml
-git add environment.yml algoviz/__init__.py
+git mv algoviz/{.flake8,.isort.cfg,.vscode,environment.yml,requirements.txt} .
+mkdir notes notebooks tests
+git mv algoviz/{*-notes.txt,*.md} notes/
+git mv algoviz/*.ipynb notebooks/
+git mv algoviz/test_* tests/
+touch {algoviz,tests}/__init__.py
+
+sed -bri 's/^name:[ ]+algoviz-basics\b/name: algoviz/' environment.yml
+sed -bri "s/'decorators'/'algoviz.decorators'/" algoviz/decorators.py
+sed -bri "s/'test_context'/'tests.test_context'/" tests/test_context.py
+sed -bri 's@\bgreetall.py\b@algoviz/greetall.py@; s@[ ][.][.]/data/@ data/@' \
+    tests/test_greetall.txt
+
+git add environment.yml {algoviz,tests}/__init__.py
+git rm --quiet math/environment.yml
+git add algoviz/decorators.py tests/test_{context.py,greetall.txt}
 
 "$(dirname -- "$0")/patch-imports"
 
 cat <<EOF
 All automated steps appear to have completed successfully.
 
-Large scale changes were staged. Run "git diff --staged" to see them.
+Most changes were staged. Run "git diff --staged" to see them.
 
 Patches to imports were not staged. Run "git diff" to see them.
 
@@ -34,7 +50,7 @@ checkers, and jupyter (including for JupyterLab) should be run from there.
 Remember to:
 
 1. Inspect the changes.
-2. Create and use the new conda environment.
+2. Make/use the new conda environment. Do "conda develop ." in the repo root.
 3. Run all tests. Ensure the pytest, unittest, and doctest test runners work.
 4. Stage. Run isort (it will consoldate new "from" imports) and flake8.
 5. Manually update, run, and inspect every notebook. Do this carefully.
