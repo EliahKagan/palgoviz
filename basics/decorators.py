@@ -11,7 +11,7 @@ import itertools
 import numbers
 
 
-def identity_function(arg):
+def _identity_function(arg):
     """Return the argument unchanged."""
     return arg
 
@@ -833,9 +833,9 @@ def make_fmap(preimage, *, strict=False, collector=tuple):
     TypeError: 'int' object is not callable
     """
     if collector is None:
-        collector = identity_function
+        collector = _identity_function
 
-    @(identity_function if strict else wrap_uncallable_args)
+    @(_identity_function if strict else wrap_uncallable_args)
     def fmap(*functions):
         return collector(f(preimage) for f in functions)
 
@@ -1149,7 +1149,6 @@ class linear_combinable:
 
 
 __all__ = [thing.__name__ for thing in (
-    identity_function,
     peek_arg,
     peek_return,
     call,
