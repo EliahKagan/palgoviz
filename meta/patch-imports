@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e
+shopt -s globstar
+
+. "$(dirname -- "$0")/shared.sh"
+
+cd algoviz
+modules=(*)
+cd - >/dev/null
+pattern="$(IFS='|'; printf '%s' "${modules[*]%.py}")"
+
+sed -bri '
+    s/^from[ ]+('"$pattern"'([.][\w.]+)?)[ ]+import\b/from algoviz.\1 import/
+    s/^import[ ]+('"$pattern"')[ ]*(\r?)$/from algoviz import \1\2/
+' {algoviz,tests}/**/*.py

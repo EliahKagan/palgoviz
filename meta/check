@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+shopt -s extglob
+
+cd -- "$(dirname -- "$0")" || exit
+
+for f in !(*.sh); do
+    printf 'Checking %s.\n' "$f"
+    shellcheck -x -- "$f"
+done
