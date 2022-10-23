@@ -73,6 +73,7 @@
         "injective",
         "ipynb",
         "ipython",
+        "isort",
         "itertools",
         "jupyterlab",
         "Kagan",

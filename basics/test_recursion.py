@@ -9,7 +9,6 @@ import unittest
 from parameterized import parameterized, parameterized_class
 
 from compare import OrderIndistinct, Patient, WeakDiamond
-
 from recursion import (
     insort_left_linear,
     insort_right_linear,
