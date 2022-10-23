@@ -6,11 +6,20 @@ shopt -s globstar
 . "$(dirname -- "$0")/shared.sh"
 
 cd algoviz
-modules=(*)
+module_filenames=(*)
 cd - >/dev/null
-pattern="$(IFS='|'; printf '%s' "${modules[*]%.py}")"
 
-sed -bri '
-    s/^from[ ]+('"$pattern"'([.][\w.]+)?)[ ]+import\b/from algoviz.\1 import/
-    s/^import[ ]+('"$pattern"')[ ]*(\r?)$/from algoviz import \1\2/
-' {algoviz,tests}/**/*.py
+modules="$(IFS='|'; printf '%s' "${module_filenames[*]%.py}")"
+
+from_regexp='^([ ]{4}>>>[ ]+)?from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
+from_replacement='\1from algoviz.\2 import'
+
+import_regexp='^([ ]{4}>>>[ ]+)?import[ ]+('"$modules"')[ ]*(\r?)$'
+import_replacement='\1from algoviz import \2\3'
+
+sed_script="
+    s/$from_regexp/$from_replacement/
+    s/$import_regexp/$import_replacement/
+"
+
+sed -bri "$sed_script" {algoviz,tests}/**/*.py
