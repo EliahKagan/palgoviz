@@ -28,7 +28,7 @@ established. This subdirectory readme is just, like, my opinion.
 
 ## Contents
 
-Right now, the only thing here is:
+Right now, the only things here, besides this readme, are:
 
 ### `restructure`
 
@@ -37,3 +37,8 @@ restructuring/reorganization of the project's contents.
 
 See the top-level project `README.md` for broad context on this, and the code
 and comments in `restructure` for details of that particular proposal.
+
+### `restructure.md`
+
+These are instructions for using the `restructure` script. Note that the script
+itself is documentation of *what* changes are proposed.
