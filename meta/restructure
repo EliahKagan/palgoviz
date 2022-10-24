@@ -1,89 +1,245 @@
 #!/usr/bin/env bash
 
+# This script proposes, and also can be used to perform much of, a particular
+# restructuring of the project. Besides documenting and making "trunk" changes,
+# it should help in patching multiple feature branches. This is important
+# because we have many branches, and some changes may be hard to apply just by
+# merging and solving merge conflicts. The effects of this script must always
+# be inspected before being committed, and some changes must be done manually.
+#
+# Once the project is restructured on a stable branch, to do it on a feature
+# branch: (1) switch to the feature branch, (2) run this script, (3) inspect
+# the result, making minimal fixes so all tests pass, (4) merge from the stable
+# branch, (5) re-run tests and make all remaining fixes on the feature branch.
+
+# FIXME: Experiment to see if patching notebooks really causes merge conflicts.
+
 set -e
-shopt -s failglob
+shopt -s failglob globstar
 
-# Define helpers, check we are in the right place, and validate arguments.
-. "$(dirname -- "$0")/shared.sh" "$@"
+show_usage() {
+    cat <<EOF
+Usage:  $0 ACTION   where action is one of:
 
-# Remove all cached Python bytecode directories, to avoid confusion and avoid
-# insisting the user do manual and error-prone deletions in trivial cases.
-# Bytecode files are regenerated automatically, so this should always be safe.
-find . -path '*/__pycache__/*.pyc' -type f -delete
-find . -name __pycache__ -type d -delete
+  full-with-nb     Reorganize project. Update imports, even in notebooks.
+  full-no-nb       Reorganize project. Update imports, but not in notebooks.
+  imports-with-nb  Just update imports. Do this even in in noteboooks.
+  imports-no-nb    Just update imports. But do not update them in notebooks.
+  help             Print this message.
 
-# If the directories we insist on making anew are empty, delete them first.
-rmdir algoviz notebooks notes tests 2>/dev/null || :
+Suggested strategy (but it's just a suggestion):
 
-# We will be renaming algoviz/basics to algoviz/algoviz. Check if that's safe.
-# This avoids later moving basics INTO algoviz, gives a clear error message,
-# and warns about the risk of mistakenly deleting the entire repository.
-if [ -e algoviz ]; then
-    if [ -d algoviz ]; then
-        err 'a subdirectory "algoviz" already exists'
-    else
-        err 'a non-directory "algoviz" already exists'
-    fi
-    msg "DANGER: it's algoviz/algoviz - don't delete the wrong algoviz!"
+  Use full-with-nb on the first branch to be restructured. On other branches,
+  use full-no-nb, then merge the first restructured branch and manually fix up
+  other notebooks. This should avoid unnecessary merge conflcits in notebooks.
+EOF
+}
+
+msg() {
+    printf '%s: %s\n' "$0" "$1" >&2
+}
+
+err() {
+    msg "error: $1"
+}
+
+die() {
+    err "$1"
     exit 1
-fi
+}
 
-# Check if we should be able to create the other directories.
-for d in notebooks notes tests; do
-    if [ -e "$d" ]; then
-        if [ -d "$d" ]; then
-            die "a subdirectory \"$d\" already exists"
+argdie() {
+    die "$1 (try \"$0 help\")"
+}
+
+check_tooling() {
+    # If sed might not support "-b", bail out as early as possible.
+    sed --version | grep -qF '(GNU sed)' || die 'need sed to be GNU sed'
+}
+
+check_shared_preconditions() {
+    # For all actions, we must be in the top-level repository directory.
+    [ -d .git ] || die 'not in repository root'
+
+    # And this directory must be called algoviz.
+    [ "$(basename -- "$PWD")" = algoviz ] ||
+        die 'current directory is not called algoviz'
+
+    # And its parent directory must NOT be called algoviz. If the user is in
+    # algoviz/algoviz by mistake, there should be no .git directory, but this
+    # is simple and easy and protects against mistakes involving re-cloning.
+    [ "$(basename -- "$(dirname -- "$PWD")")" != algoviz ] ||
+        die 'current directory is algoviz/algoviz but we want the parent'
+}
+
+clean_for_coarse_reorganize() {
+    # Remove cached Python bytecode to avoid confusion and spare the user from
+    # having to do manual and error-prone deletions in trivial cases. Bytecode
+    # files are regenerated automatically, so this should always be safe.
+    find . -path '*/__pycache__/*.pyc' -type f -delete
+    find . -name __pycache__ -type d -delete
+
+    # If the directories we insist on making anew are empty, delete them first.
+    rmdir algoviz notebooks notes tests 2>/dev/null || :
+}
+
+check_coarse_reorganize_preconditions() {
+    # We will be renaming algoviz/basics to algoviz/algoviz. Check if that's
+    # safe. This avoids later moving basics INTO algoviz, gives clear errors,
+    # and warns about the risk of mistakenly deleting the entire repository.
+    if [ -e algoviz ]; then
+        if [ -d algoviz ]; then
+            err 'a subdirectory "algoviz" already exists'
         else
-            die "a non-directory \"$d\" already exists"
+            err 'a non-directory "algoviz" already exists'
         fi
+        msg "DANGER: it's algoviz/algoviz - don't delete the wrong algoviz!"
+        exit 1
     fi
-done
 
-# Split basics/ as multiple directories, handling __init__.py and config files.
-git mv basics algoviz
-git mv algoviz/{.flake8,.isort.cfg,.vscode,environment.yml,requirements.txt} .
-mkdir notes notebooks tests
-git mv algoviz/{*-notes.txt,*.md} notes/
-git mv algoviz/*.ipynb notebooks/
-git mv algoviz/test_* tests/
-touch {algoviz,tests}/__init__.py
+    # Check if we should be able to create the other directories.
+    for d in notebooks notes tests; do
+        if [ -e "$d" ]; then
+            if [ -d "$d" ]; then
+                die "a subdirectory \"$d\" already exists"
+            else
+                die "a non-directory \"$d\" already exists"
+            fi
+        fi
+    done
+}
 
-# Patch config files and newly broken module code except for imports.
-sed -bri 's/^name:[ ]+algoviz-basics\b/name: algoviz/' environment.yml
-sed -bri "s/'decorators'/'algoviz.decorators'/" algoviz/decorators.py
-sed -bri "s/'test_context'/'tests.test_context'/" tests/test_context.py
-sed -bri 's@\bgreetall.py\b@algoviz/greetall.py@; s@[ ][.][.]/data/@ data/@' \
-    tests/test_greetall.txt
+do_coarse_reorganize() {
+    # Split basics/ into multiple dirs, with configs and __init__.py in place.
+    git mv basics algoviz
+    git mv \
+        algoviz/{.flake8,.isort.cfg,.vscode,environment.yml,requirements.txt} .
+    mkdir notes notebooks tests
+    git mv algoviz/{*-notes.txt,*.md} notes/
+    git mv algoviz/*.ipynb notebooks/
+    git mv algoviz/test_* tests/
+    touch {algoviz,tests}/__init__.py
 
-# Stage the fixed files and remove a config file that is no longer needed.
-git add environment.yml {algoviz,tests}/__init__.py
-git rm --quiet math/environment.yml
-git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
+    # Patch config files and newly broken module code except for imports.
+    sed -bri 's/^name:[ ]+algoviz-basics\b/name: algoviz/' environment.yml
+    sed -bri "s/'decorators'/'algoviz.decorators'/" algoviz/decorators.py
+    sed -bri "s/'test_context'/'tests.test_context'/" tests/test_context.py
+    sed -bri '
+        s@\bgreetall.py\b@algoviz/greetall.py@
+        s@[ ][.][.]/data/@ data/@
+    ' tests/test_greetall.txt
 
-# Patch "import" and "from" statements in modules (at top level) and doctests.
-"$(dirname -- "$0")/patch-imports"
+    # Stage the fixed files and remove a config file that is no longer needed.
+    git add environment.yml {algoviz,tests}/__init__.py
+    git rm --quiet math/environment.yml
+    git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
+}
 
-cat <<EOF
+patch_most_imports() {
+    cd algoviz
+    local -a module_filenames=(*)
+    cd - >/dev/null
+
+    local modules
+    modules="$(IFS='|'; printf '%s' "${module_filenames[*]%.py}")"
+    local front='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?'  # Two capture groups.
+
+    local from_re="$front"'from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
+    local from_sub='\1from algoviz.\3 import'
+
+    local import_re="$front"'import[ ]+('"$modules"')[ ]*(\r?)$'
+    local import_sub='\1from algoviz import \3\4'
+
+    local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
+    sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
+}
+
+patch_notebook_imports() {
+    msg 'warning: patching notebook imports is not yet implemented'
+}
+
+show_success() {
+    cat <<EOF
 All automated steps appear to have completed successfully.
 
 Most changes were staged. Run "git diff --staged" to see them.
 
 Patches to imports were not staged. Run "git diff" to see them.
 
-From this point forward, almost all use of the project should be from the root
-of the repository. Editors/IDEs should open that directory. Test runners, style
+From here on out, almost all use of the project should be from the root of
+the repository. Editors/IDEs should open that folder. Test runners, style
 checkers, and jupyter (including for JupyterLab) should be run from there.
 
 Remember to:
 
 1. Inspect the changes.
-2. Make/use the new conda environment. Do "conda develop ." in the repo root.
+2. Make/use the new conda environment. Run "conda develop ." in the repo root.
 3. Run all tests. Ensure the pytest, unittest, and doctest test runners work.
 4. Stage. Run isort (it will consoldate new "from" imports) and flake8.
 5. Manually update, run, and inspect every notebook. Do this carefully.
-6. Manually inspect all docstrings and comments, fixing outdated references.
+6. Manually inspect docstrings and comments to update outdated references.
 7. Update /README.md. Include how to: open project, run tests, use notebooks.
 8. Merge to other branches. Manually check and fix them, even if no conflicts.
 
 To reread this message, look inside the script file: $0
 EOF
+}
+
+check_tooling
+
+(( $# >= 1 )) || argdie "too few arguments"
+(( $# <= 1 )) || argdie "too many arguments"
+
+declare -i full nb
+
+case "$1" in
+full-with-nb)
+    full=1
+    nb=1
+    tasks='Organize project. Fix module/doctest imports. Fix notebook imports.'
+    ;;
+full-no-nb)
+    full=1
+    nb=0
+    tasks='Organize project. Fix module/doctest imports.'
+    ;;
+imports-with-nb)
+    full=0
+    nb=1
+    tasks='Fix module/doctest imports. Fix notebook imports.'
+    ;;
+imports-no-nb)
+    full=0
+    nb=0
+    tasks='Fix module/doctest imports.'
+    ;;
+help|--help|-h)
+    show_usage
+    exit
+    ;;
+*)
+    argdie "unknown action \"$1\""
+    ;;
+esac
+
+printf 'TASKS: %s\n\n' "$tasks"
+
+check_shared_preconditions
+
+if ((full)); then
+    clean_for_coarse_reorganize
+    check_coarse_reorganize_preconditions
+    do_coarse_reorganize
+fi
+
+patch_most_imports
+
+if ((nb)); then
+    patch_notebook_imports
+fi
+
+if ((full)); then
+    show_success
+else
+    printf 'Patching imports appears to have completed successfully.\n'
+fi
