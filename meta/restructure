@@ -7,19 +7,87 @@
 # merging and solving merge conflicts. The effects of this script must always
 # be inspected before being committed, and some changes must be done manually.
 #
-# Once the project is restructured on a stable branch, to do it on a feature
-# branch: (1) switch to the feature branch, (2) run this script, (3) inspect
-# the result, making minimal fixes so all tests pass, (4) merge from the stable
-# branch, (5) re-run tests and make all remaining fixes on the feature branch.
-
-# FIXME: Experiment to see if patching notebooks really causes merge conflicts.
+# To restructure a "stable" branch -- one that is not a feature branch off a
+# "trunk" that instead has been, or ought to be, restructured -- do this:
+#
+#  (1) Switch to the branch.
+#
+#  (2) Run isort, flake8, and all tests. There should be no problems yet.
+#
+#  (3) Run "meta/restructure full-with-nb" and inspect the results.
+#
+#  (4) If the "algoviz" conda environment for the restructured project is not
+#      set up yet on your machine, do that. The script's output explains how.
+#
+#  (5) Run all tests. Ensure all three test runners we use are working.
+#
+#  (6) Stage the changes.
+#
+#  (7) Run isort (it will consoldate new "from" imports) and flake8.
+#
+#  (8) Inspect and run all notebooks. Fix anything broken. Though full-with-nb
+#      was used, there may be manual work to do. Save notebooks if they have
+#      input (code) or Markdown cell changes or important output changes.
+#
+#  (9) Go through all *.py files. Examine all docstrings and comments. Fix
+#      outdated references and any other inaccuracies. (This and step 8 can be
+#      done in either order or interleaved.)
+#
+# (10) If not already done, update README.md to reflect the new structure and
+#      say how to open the project, run tests, and use notebooks.
+#
+# Then, given a "stable" branch that was restructured, and a feature branch:
+#
+#  (1) Switch to the feature branch.
+#
+#  (2) If not already done, merge from the last commit in the history of the
+#      stable branch from *before* that branch was restructured.
+#
+#  (3) Run isort, flake8, and all tests. There should be no problems yet.
+#
+#  (4) Run "meta/restructure full-no-nb" and inspect the results.
+#
+#  (5) Inspect the results. Run all tests. Fix anything that is broken.
+#
+#  (6) Run isort to normalize imports. Re-run tests. All should still pass.
+#
+#  (7) Commit these changes (but don't push). This prepares for the merge.
+#
+#  (8) Merge from the stable branch.
+#
+#  (9) Re-run tests. Fix any problems, updating any *.py that are no longer
+#      correct, due to the change in project structure. This is mainly
+#      docstrings and comments in code introduced on the feature branch.
+#
+# (10) Commit these changes (but don't push).
+#
+# (11) Update *.ipynb files that weren't updated in the merge. It may help to
+#      run "meta/restructure imports-with-nb" at this point. But at minimum,
+#      all notebooks, even if unchanged, be re-run and inspected. Notebooks
+#      have changed should be saved. Those that have not shouldn't, to avoid
+#      merge conflicts when multiple feature branches are merged back in.
+#
+# (12) Commit and push.
+#
+# This script is compatible with Windows, but only if it is run from Git Bash.
+#
+# Before committing or even testing ANY changes to this script, it should be
+# checked with ShellCheck. Running "shellcheck meta/restructure" will do this.
 
 set -e
 shopt -s failglob globstar
 
+if [ -t 1 ]; then
+    bright=$'\e[01;37m'
+    reset=$'\e[0m'
+else
+    bright=''
+    reset=''
+fi
+
 show_usage() {
     cat <<EOF
-Usage:  $0 ACTION   where action is one of:
+Usage:  $0 ACTION   ...where ACTION is one of:
 
   full-with-nb     Reorganize project. Update imports, even in notebooks.
   full-no-nb       Reorganize project. Update imports, but not in notebooks.
@@ -30,13 +98,14 @@ Usage:  $0 ACTION   where action is one of:
 Suggested strategy (but it's just a suggestion):
 
   Use full-with-nb on the first branch to be restructured. On other branches,
-  use full-no-nb, then merge the first restructured branch and manually fix up
-  other notebooks. This should avoid unnecessary merge conflcits in notebooks.
+  use full-no-nb; then merge the first restructured branch; then fix up the
+  other notebooks, which re-running with the imports-with-nb may help with.
+  Splitting up the process this way should help avoid conflicts in notebooks.
 EOF
 }
 
 msg() {
-    printf '%s: %s\n' "$0" "$1" >&2
+    printf '%s%s: %s%s\n' "$bright" "$0" "$1" "$reset" >&2
 }
 
 err() {
@@ -142,7 +211,7 @@ patch_most_imports() {
 
     local modules
     modules="$(IFS='|'; printf '%s' "${module_filenames[*]%.py}")"
-    local front='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?'  # Two capture groups.
+    local front='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # This has 2 capture groups.
 
     local from_re="$front"'from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
     local from_sub='\1from algoviz.\3 import'
@@ -154,12 +223,13 @@ patch_most_imports() {
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
 }
 
+# FIXME: Needs implementation.
 patch_notebook_imports() {
     msg 'warning: patching notebook imports is not yet implemented'
 }
 
 show_success() {
-    cat <<EOF
+    cat <<'EOF'
 All automated steps appear to have completed successfully.
 
 Most changes were staged. Run "git diff --staged" to see them.
@@ -176,12 +246,10 @@ Remember to:
 2. Make/use the new conda environment. Run "conda develop ." in the repo root.
 3. Run all tests. Ensure the pytest, unittest, and doctest test runners work.
 4. Stage. Run isort (it will consoldate new "from" imports) and flake8.
-5. Manually update, run, and inspect every notebook. Do this carefully.
-6. Manually inspect docstrings and comments to update outdated references.
+5. Check, fix up, and re-run all notebooks. Save any important changes.
+6. Inspect docstrings and comments to update outdated references.
 7. Update /README.md. Include how to: open project, run tests, use notebooks.
 8. Merge to other branches. Manually check and fix them, even if no conflicts.
-
-To reread this message, look inside the script file: $0
 EOF
 }
 
