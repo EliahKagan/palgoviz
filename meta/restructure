@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 
 set -e
+shopt -s failglob
 
-. "$(dirname -- "$0")/shared.sh"
+# Define helpers, check we are in the right place, and validate arguments.
+. "$(dirname -- "$0")/shared.sh" "$@"
+
+# Remove all cached Python bytecode directories, to avoid confusion and avoid
+# insisting the user do manual and error-prone deletions in trivial cases.
+# Bytecode files are regenerated automatically, so this should always be safe.
+find . -path '*/__pycache__/*.pyc' -type f -delete
+find . -name __pycache__ -type d -delete
+
+# If the directories we insist on making anew are empty, delete them first.
+rmdir algoviz notebooks notes tests 2>/dev/null || :
 
 # We will be renaming algoviz/basics to algoviz/algoviz. Check if that's safe.
-# This avoids moving basics INTO algoviz, and gives a clear error message.
+# This avoids later moving basics INTO algoviz, gives a clear error message,
+# and warns about the risk of mistakenly deleting the entire repository.
 if [ -e algoviz ]; then
     if [ -d algoviz ]; then
         err 'a subdirectory "algoviz" already exists'
@@ -16,6 +28,18 @@ if [ -e algoviz ]; then
     exit 1
 fi
 
+# Check if we should be able to create the other directories.
+for d in notebooks notes tests; do
+    if [ -e "$d" ]; then
+        if [ -d "$d" ]; then
+            die "a subdirectory \"$d\" already exists"
+        else
+            die "a non-directory \"$d\" already exists"
+        fi
+    fi
+done
+
+# Split basics/ as multiple directories, handling __init__.py and config files.
 git mv basics algoviz
 git mv algoviz/{.flake8,.isort.cfg,.vscode,environment.yml,requirements.txt} .
 mkdir notes notebooks tests
@@ -24,16 +48,19 @@ git mv algoviz/*.ipynb notebooks/
 git mv algoviz/test_* tests/
 touch {algoviz,tests}/__init__.py
 
+# Patch config files and newly broken module code except for imports.
 sed -bri 's/^name:[ ]+algoviz-basics\b/name: algoviz/' environment.yml
 sed -bri "s/'decorators'/'algoviz.decorators'/" algoviz/decorators.py
 sed -bri "s/'test_context'/'tests.test_context'/" tests/test_context.py
 sed -bri 's@\bgreetall.py\b@algoviz/greetall.py@; s@[ ][.][.]/data/@ data/@' \
     tests/test_greetall.txt
 
+# Stage the fixed files and remove a config file that is no longer needed.
 git add environment.yml {algoviz,tests}/__init__.py
 git rm --quiet math/environment.yml
-git add algoviz/decorators.py tests/test_{context.py,greetall.txt}
+git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
 
+# Patch "import" and "from" statements in modules (at top level) and doctests.
 "$(dirname -- "$0")/patch-imports"
 
 cat <<EOF

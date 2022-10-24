@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
-shopt -s globstar
+shopt -s failglob globstar
 
-. "$(dirname -- "$0")/shared.sh"
+. "$(dirname -- "$0")/shared.sh" "$@"
 
 cd algoviz
 module_filenames=(*)
