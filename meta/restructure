@@ -16,15 +16,7 @@
 # checked with ShellCheck. Running "shellcheck meta/restructure" will do this.
 
 set -e
-shopt -s failglob globstar
-
-if [ -t 1 ]; then
-    bright=$'\e[01;37m'
-    reset=$'\e[0m'
-else
-    bright=''
-    reset=''
-fi
+shopt -s extglob failglob globstar
 
 show_usage() {
     cat <<EOF
@@ -38,17 +30,33 @@ Usage:  $0 ACTION   ...where ACTION is one of:
 
 Suggested strategy (but it's just a suggestion):
 
-  Use full-with-nb on the first branch to be restructured. On other branches,
-  use full-no-nb; then merge the first restructured branch; then fix up the
-  other notebooks, which re-running with the imports-with-nb may help with.
-  Splitting up the process this way should help avoid conflicts in notebooks.
+  Use full-with-nb on the first branch you restructure. On other branches: use
+  full-no-nb, merge from the first branch, rerun with imports-with-nb, and fix
+  comments and docstrings in *.ipynb and *.py files not covered by the merge.
+  Splitting the process this way may help avoid merge conflicts in notebooks.
 
 See $(dirname -- "$0")/restructure.md for more detailed suggestions.
 EOF
 }
 
+if [ -t 1 ]; then
+    out_bold='\e[1m'
+    out_normal='\e[0m'
+else
+    out_bold=''
+    out_normal=''
+fi
+
+if [ -t 2 ]; then
+    err_bold='\e[1m'
+    err_normal='\e[0m'
+else
+    err_bold=''
+    err_normal=''
+fi
+
 msg() {
-    printf '%s%s: %s%s\n' "$bright" "$0" "$1" "$reset" >&2
+    printf '%b%s: %s%b\n' "$err_bold" "$0" "$1" "$err_normal" >&2
 }
 
 err() {
@@ -147,13 +155,15 @@ do_coarse_reorganize() {
     git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
 }
 
-patch_most_imports() {
-    cd algoviz
-    local -a module_filenames=(*)
-    cd - >/dev/null
+build_modules_regex() (
+    cd -- "$1"
+    module_filenames=(+([^.])?(.py)) # Extended glob like [^.]+(.py)? in regex.
+    IFS='|'
+    printf '%s' "${module_filenames[*]%.py}"
+)
 
-    local modules
-    modules="$(IFS='|'; printf '%s' "${module_filenames[*]%.py}")"
+patch_most_imports() {
+    local modules; modules="$(build_modules_regex algoviz)"
     local front='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # This has 2 capture groups.
 
     local from_re="$front"'from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
@@ -233,7 +243,7 @@ help|usage|--help|-h)
     ;;
 esac
 
-printf 'TASKS: %s\n\n' "$tasks"
+printf '%bTASKS: %s%b\n\n' "$out_bold" "$tasks" "$out_normal"
 
 check_shared_preconditions
 
