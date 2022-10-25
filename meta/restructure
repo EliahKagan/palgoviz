@@ -155,22 +155,22 @@ do_coarse_reorganize() {
     git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
 }
 
-build_modules_regex() (
+build_module_regex() {
     cd -- "$1"
-    module_filenames=(+([^.])?(.py)) # Extended glob like [^.]+(.py)? in regex.
+    module_filenames=(+([^.])?(.py)) # Extended glob. As a regex: [^.]+(.py)?
     IFS='|'
-    printf '%s' "${module_filenames[*]%.py}"
-)
+    printf '((%s)([.][[:alnum:]_.]+)?)' "${module_filenames[*]%.py}" # 3 groups
+}
 
 patch_most_imports() {
-    local modules; modules="$(build_modules_regex algoviz)"
-    local front='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # This has 2 capture groups.
+    local front_re='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # 2 groups
+    local module_re; module_re="$(build_module_regex algoviz)" # 3 groups
 
-    local from_re="$front"'from[ ]+('"$modules"'([.][\w.]+)?)[ ]+import\b'
+    local from_re="${front_re}from[ ]+${module_re}[ ]+import\b" # 5 groups
     local from_sub='\1from algoviz.\3 import'
 
-    local import_re="$front"'import[ ]+('"$modules"')[ ]*(\r?)$'
-    local import_sub='\1from algoviz import \3\4'
+    local import_re="${front_re}import[ ]+${module_re}[ ]*(\r?)$" # 6 groups
+    local import_sub='\1from algoviz import \3\6'
 
     local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
