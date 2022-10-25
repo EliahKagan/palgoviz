@@ -11,10 +11,10 @@ facilities from the inspect and collections.abc modules novices may not know.
 
 Besides review, the primary purpose of this module is to present the __iter__
 and __next__ special methods that the iter and next builtins use behind the
-scenes. This reveals the nature of generator objects as state machines, and
-shows why it is sometimes, but not always, okay for an attempt to construct an
-iterable object to give an already-existing object, yet an attempt to construct
-an iterator (generator or otherwise) must always give a newly created object.
+scenes. This reveals the nature of generator objects as state machines. That,
+in turn, shows why attempts to construct some kinds of iterable objects can
+reasonably return an existing object, but attempts to construct iterators
+(including generator objects) must always return a newly created object.
 
 On generators, see also the modules gencomp1.py and gencomp2.py, and the
 notebooks gencomp1.ipynb, gencomp2.ipynb, and gencomp3.ipynb. Some techniques
@@ -115,8 +115,12 @@ def gen_rgb():
     >>> getgeneratorstate(it2), list(it2), list(it2)
     ('GEN_CLOSED', [], [])
 
-    Closing a suspended generator raises GeneratorExit in it, so any context
-    managers are exited and any finally blocks are run. See gencomp3.ipynb.
+    Closing a suspended generator object raises GeneratorExit in it, to exit
+    context managers and run finally blocks. See gencomp3.ipynb.
+
+    Generator objects do not have instance dictionaries, but they are weakly
+    referenceable. This is even though no __slots__ or __weakref__ attributes
+    are present. (This is possible as the generator type is implemented in C.)
     """
     yield 'red'
     yield 'green'

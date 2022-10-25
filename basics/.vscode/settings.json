@@ -114,6 +114,7 @@
         "radd",
         "readline",
         "reentrancy",
+        "referenceable",
         "releaselevel",
         "removesuffix",
         "repr",
