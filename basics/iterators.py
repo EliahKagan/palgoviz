@@ -25,7 +25,7 @@ appear in functions.py. On customizing object construction, see classes3.ipynb.
 
 # Several imports are just for doctests. We don't usually do this, but it seems
 # to improve clarity in this module. (We suppress flake8's "unused" warning.)
-from collections.abc import Iterable, Iterator  # noqa: F401
+from collections.abc import Iterable, Iterator, Sequence  # noqa: F401
 import enum
 from inspect import (  # noqa: F401
     getgeneratorstate,
@@ -308,7 +308,7 @@ class PaletteIterator:
         self._state = _State.RED
 
     def __repr__(self):
-        """Representation for debugging. Not runnable as code."""
+        """Debugging representation. Shows state. Not runnable as code."""
         typename = type(self).__name__
         return f'<{typename} at 0x{id(self):X}, state={self._state!r}>'
 
@@ -395,11 +395,146 @@ class Palette:
 Palette()  # Eagerly create the singleton to prevent data races later.
 
 
+def collatz(n):
+    """
+    Yield values of the Collatz sequence starting at n. Stop after yielding 1.
+
+    https://en.wikipedia.org/wiki/Collatz_conjecture
+
+    >>> list(collatz(6))
+    [6, 3, 10, 5, 16, 8, 4, 2, 1]
+
+    It would make sense to model the Collatz sequence as a sequence. It is not
+    obvious how we would support efficient indexing through, so we don't do so.
+
+    >>> it = collatz(6)
+    >>> isinstance(it, Iterable), isinstance(it, Iterator), isgenerator(it)
+    (True, True, True)
+    >>> isinstance(it, Sequence)
+    False
+
+    >>> list(collatz(27))  # doctest: +NORMALIZE_WHITESPACE
+    [27, 82, 41, 124, 62, 31, 94, 47, 142, 71, 214, 107, 322, 161, 484, 242,
+     121, 364, 182, 91, 274, 137, 412, 206, 103, 310, 155, 466, 233, 700, 350,
+     175, 526, 263, 790, 395, 1186, 593, 1780, 890, 445, 1336, 668, 334, 167,
+     502, 251, 754, 377, 1132, 566, 283, 850, 425, 1276, 638, 319, 958, 479,
+     1438, 719, 2158, 1079, 3238, 1619, 4858, 2429, 7288, 3644, 1822, 911,
+     2734, 1367, 4102, 2051, 6154, 3077, 9232, 4616, 2308, 1154, 577, 1732,
+     866, 433, 1300, 650, 325, 976, 488, 244, 122, 61, 184, 92, 46, 23, 70, 35,
+     106, 53, 160, 80, 40, 20, 10, 5, 16, 8, 4, 2, 1]
+    """
+    while True:
+        yield n
+        if n == 1:
+            break
+        n = (n // 2 if n % 2 == 0 else 3 * n + 1)
+
+
+class Collatz:
+    """
+    Iterator over values of the Collatz sequence starting at n. Stops after 1.
+
+    Like the collatz function, this class is an iterator factory. Its instances
+    are non-generator iterators that behave like the objects collatz returns.
+    This class never makes any use of a generator, not even indirectly.
+
+    >>> list(Collatz(6))
+    [6, 3, 10, 5, 16, 8, 4, 2, 1]
+
+    >>> it = Collatz(6)
+    >>> isinstance(it, Iterable), isinstance(it, Iterator), isgenerator(it)
+    (True, True, False)
+    >>> isinstance(it, Sequence)
+    False
+
+    >>> list(Collatz(27))  # doctest: +NORMALIZE_WHITESPACE
+    [27, 82, 41, 124, 62, 31, 94, 47, 142, 71, 214, 107, 322, 161, 484, 242,
+     121, 364, 182, 91, 274, 137, 412, 206, 103, 310, 155, 466, 233, 700, 350,
+     175, 526, 263, 790, 395, 1186, 593, 1780, 890, 445, 1336, 668, 334, 167,
+     502, 251, 754, 377, 1132, 566, 283, 850, 425, 1276, 638, 319, 958, 479,
+     1438, 719, 2158, 1079, 3238, 1619, 4858, 2429, 7288, 3644, 1822, 911,
+     2734, 1367, 4102, 2051, 6154, 3077, 9232, 4616, 2308, 1154, 577, 1732,
+     866, 433, 1300, 650, 325, 976, 488, 244, 122, 61, 184, 92, 46, 23, 70, 35,
+     106, 53, 160, 80, 40, 20, 10, 5, 16, 8, 4, 2, 1]
+
+    Sometimes an iterator class is written because a generator function can't
+    do the job. File objects couldn't be generators, as they are also context
+    managers and support numerous file-specific methods. When a generator would
+    work, it should usually be preferred. But this shows a reason one might
+    occasionally choose to write a class even when a generator function is
+    viable: classes can have a custom repr and extra methods for inspection:
+
+    >>> it = Collatz(5)
+    >>> it
+    <Collatz at 0x..., value=5>
+    >>> next(it)
+    5
+    >>> it
+    <Collatz at 0x..., value=16>
+    >>> it.peek()
+    16
+    >>> it.peek()  # Peeking does not advance the iterator.
+    16
+    >>> next(it)
+    16
+    >>> it
+    <Collatz at 0x..., value=8>
+    >>> list(it)
+    [8, 4, 2, 1]
+    >>> it
+    <Collatz at 0x..., done>
+    >>> list(it)
+    []
+    >>> it.peek() is None
+    True
+    """
+
+    __slots__ = ('_value',)
+
+    def __init__(self, n):
+        """Create a new Collatz iterator for the sequence starting at n."""
+        self._value = n
+
+    def __repr__(self):
+        """Debugging representation. Shows next value. Not runnable as code."""
+        stable_part = f'{type(self).__name__} at 0x{id(self):X}'
+
+        if self._value is None:
+            return f'<{stable_part}, done>'
+
+        return f'<{stable_part}, value={self._value!r}>'
+
+    def __iter__(self):
+        """Return the same object, since this is an iterator."""
+        return self
+
+    def __next__(self):
+        """Get the next number, but raise StopIteration if we are past 1."""
+        value = self._value
+        if value is None:
+            raise StopIteration
+
+        if value == 1:
+            self._value = None
+        elif value % 2 == 0:
+            self._value = value // 2
+        else:
+            self._value = 3 * value + 1
+
+        return value
+
+    def peek(self):
+        """Get the next value, without advancing the iterator."""
+        return self._value
+
+
 __all__ = [thing.__name__ for thing in (
     gen_rgb,
     PaletteG,
     PaletteIterator,
     Palette,
+    collatz,
+    Collatz,
 )]
 
 
