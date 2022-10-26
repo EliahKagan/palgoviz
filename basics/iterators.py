@@ -11,9 +11,9 @@ facilities from the inspect and collections.abc modules novices may not know.
 
 Besides review, the primary purpose of this module is to present the __iter__
 and __next__ special methods that the iter and next builtins use behind the
-scenes. This reveals the nature of generator objects as state machines. That,
-in turn, shows why attempts to construct some kinds of iterable objects can
-reasonably return an existing object, but attempts to construct iterators
+scenes. This reveals the nature of generator objects as state machines. That
+deepens insight into why attempts to construct some kinds of iterable objects
+can reasonably return an existing object, while attempts to construct iterators
 (including generator objects) must always† return a newly created object.
 
 On generators, see also the modules gencomp1.py and gencomp2.py, and the
@@ -108,7 +108,7 @@ def gen_rgb():
     ('green', 'GEN_SUSPENDED', 'blue', 'GEN_SUSPENDED')
 
     If the code returns instead of yielding, StopIteration is raised, and the
-    generator state changes to GEN_CLOSE:
+    generator state changes to GEN_CLOSED:
 
     >>> next(it)
     Traceback (most recent call last):
@@ -174,8 +174,8 @@ class PaletteG:
     >>> list(itertools.chain(palette, palette))
     ['red', 'green', 'blue', 'red', 'green', 'blue']
 
-    Iterators are all independent. Being generator objects, they have generator
-    specific features, as well as satisfying all requirements for iterators:
+    The iterators are all independent. Being generator objects, they have the
+    generator-specific features, and satisfy all requirements for iterators:
 
     >>> it, it2 = iter(palette), iter(palette)
     >>> iter(it) is it, it is it2, it == it2
@@ -191,7 +191,7 @@ class PaletteG:
     >>> list(it2)
     ['green', 'blue']
 
-    Iterators hold state. Iterables that are not iterators often do too. For
+    Iterators hold state. Iterables that are not iterators often do, too. For
     example, range(2) is an iterable but not an iterator, and its state differs
     from that of range(3). Those ranges are accordingly unequal. Other examples
     include tuples and lists; their state is their elements. An interesting
@@ -230,8 +230,8 @@ class PaletteG:
 PaletteG()  # Eagerly create the singleton to prevent data races later.
 
 
-# FIXME: Define a nonpublic enumeration, _State, to represent states that
-# a PaletteIterator instance can be in.
+# FIXME: Define a non-public enumeration, _State, to represent states that
+# a PaletteIterator instance can be in. PaletteIterator will use this enum.
 @enum.unique
 class _State(enum.Enum):
     """State for PaletteIteratorSimple and PaletteIterator."""
@@ -268,7 +268,7 @@ class PaletteIterator:
     These iterators are all independent. But they are not generator objects, so
     their state cannot be inspected by inspect.getgeneratorstate. Non-generator
     iterators do not usually supply close methods, but it is sometimes useful
-    for them to have such a method, and this class implements such a method.
+    for them to have such a method, and this class implements a close method.
 
     Note that the presence of a close method is not part of what it means to be
     an iterator. Nor does this class implement all other parts of the protocol
@@ -289,10 +289,10 @@ class PaletteIterator:
     >>> list(it2)
     ['green', 'blue']
 
-    Iterators can have instance dictionaries, but it usually makes sense to
-    omit them for performance (iterators are used heavily in loops). It may not
-    be necessary to support weak references. Most non-generator iterators in
-    the standard library (e.g., zip, itertools.count) don't. To show how that
+    Iterators can have instance dictionaries. But may be best to avoid them for
+    performance (iterators are used heavily in loops). It's often unnecessary
+    to support weak references; most non-generator iterators in the standard
+    library (e.g., zip, enumerate, itertools.count) don't. But to show how that
     feature of generator objects can be achieved, PaletteIterator allows them.
 
     >>> hasattr(it, '__dict__')
