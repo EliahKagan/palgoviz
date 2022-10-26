@@ -367,7 +367,7 @@ _attribute_spy_histories = weakref.WeakKeyDictionary()
 
 
 def _log_access(spy, access, *args):
-    """Log an access to _attribute_spy_histories. Helper for _AttributeSpy."""
+    """Log an access in _attribute_spy_histories. Helper for _AttributeSpy."""
     _attribute_spy_histories[spy].append((access, *args))
 
 
