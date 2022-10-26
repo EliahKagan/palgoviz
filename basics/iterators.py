@@ -136,9 +136,7 @@ def gen_rgb():
     referenceable. This is even though no __slots__ or __weakref__ attributes
     are present. (This is possible as the generator type is implemented in C.)
     """
-    yield 'red'
-    yield 'green'
-    yield 'blue'
+    # FIXME: Implement this.
 
 
 class PaletteG:
@@ -205,41 +203,11 @@ class PaletteG:
     >>> PaletteG() is PaletteG()
     True
     """
-
-    __slots__ = ()
-
-    _instance = None
-
-    def __new__(cls):
-        """Get the PaletteG instance."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __repr__(self):
-        """Python code representation for debugging."""
-        return f'{type(self).__name__}()'
-
-    def __iter__(self):
-        """"Yield" the color words."""
-        yield 'red'
-        yield 'green'
-        yield 'blue'
-
-
-PaletteG()  # Eagerly create the singleton to prevent data races later.
+    # FIXME: Implement this.
 
 
 # FIXME: Define a non-public enumeration, _State, to represent states that
 # a PaletteIterator instance can be in. PaletteIterator will use this enum.
-@enum.unique
-class _State(enum.Enum):
-    """State for PaletteIteratorSimple and PaletteIterator."""
-
-    RED = enum.auto()
-    GREEN = enum.auto()
-    BLUE = enum.auto()
-    FINISHED = enum.auto()
 
 
 class PaletteIterator:
@@ -300,42 +268,7 @@ class PaletteIterator:
     >>> import weakref; weakref.ref(it)  # doctest: +ELLIPSIS
     <weakref at 0x...; to 'PaletteIterator' at 0x...>
     """
-
-    __slots__ = ('_state', '__weakref__')
-
-    def __init__(self):
-        """Create a new iterator, associated with the PaletteS instance."""
-        self._state = _State.RED
-
-    def __repr__(self):
-        """Debugging representation. Shows state. Not runnable as code."""
-        typename = type(self).__name__
-        return f'<{typename} at 0x{id(self):X}, state={self._state!r}>'
-
-    def __iter__(self):
-        """Return the same object, since this is an iterator."""
-        return self
-
-    def __next__(self):
-        """Get the next color word, or raise StopIteration if exhausted."""
-        match self._state:
-            case _State.RED:
-                self._state = _State.GREEN
-                return 'red'
-            case _State.GREEN:
-                self._state = _State.BLUE
-                return 'green'
-            case _State.BLUE:
-                self._state = _State.FINISHED
-                return 'blue'
-            case _State.FINISHED:
-                raise StopIteration
-
-        raise AssertionError(f'invalid state {self._state!r}')
-
-    def close(self):
-        """Close this iterator, so it does not yield any more color words."""
-        self._state = _State.FINISHED
+    # FIXME: Implement this.
 
 
 class Palette:
@@ -372,40 +305,20 @@ class Palette:
     >>> Palette() is PaletteG()  # That would be bad.
     False
     """
-
-    __slots__ = ()
-
-    _instance = None
-
-    def __new__(cls):
-        """Get the Palette instance."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __repr__(self):
-        """Python code representation for debugging."""
-        return f'{type(self).__name__}()'
-
-    def __iter__(self):
-        """"Yield" the color words."""
-        return PaletteIterator()
-
-
-Palette()  # Eagerly create the singleton to prevent data races later.
+    # FIXME: Implement this.
 
 
 def collatz(n):
     """
-    Yield values of the Collatz sequence that starts at n. Stop after 1.
+    Yield values of the Collatz sequence starting at n. Stop after yielding 1.
 
     https://en.wikipedia.org/wiki/Collatz_conjecture
 
     >>> list(collatz(6))
     [6, 3, 10, 5, 16, 8, 4, 2, 1]
 
-    It would make sense to model Collatz sequences as Python sequences. But it
-    is not obvious how we would support efficient indexing. So we don't do so.
+    It would make sense to model the Collatz sequence as a sequence. It is not
+    obvious how we would support efficient indexing, though, so we don't do so.
 
     >>> it = collatz(6)
     >>> isinstance(it, Iterable), isinstance(it, Iterator), isgenerator(it)
@@ -423,16 +336,12 @@ def collatz(n):
      866, 433, 1300, 650, 325, 976, 488, 244, 122, 61, 184, 92, 46, 23, 70, 35,
      106, 53, 160, 80, 40, 20, 10, 5, 16, 8, 4, 2, 1]
     """
-    while True:
-        yield n
-        if n == 1:
-            break
-        n = (n // 2 if n % 2 == 0 else 3 * n + 1)
+    # FIXME: Implement this.
 
 
 class Collatz:
     """
-    Iterator for the Collatz sequence that starts at a given n. Stops after 1.
+    Iterator over values of the Collatz sequence starting at n. Stops after 1.
 
     Like the collatz function, this class is an iterator factory. Its instances
     are non-generator iterators that behave like the objects collatz returns.
@@ -488,44 +397,7 @@ class Collatz:
     >>> it.peek() is None
     True
     """
-
-    __slots__ = ('_value',)
-
-    def __init__(self, n):
-        """Create a new Collatz iterator for the sequence starting at n."""
-        self._value = n
-
-    def __repr__(self):
-        """Debugging representation. Shows next value. Not runnable as code."""
-        stable_part = f'{type(self).__name__} at 0x{id(self):X}'
-
-        if self._value is None:
-            return f'<{stable_part}, done>'
-
-        return f'<{stable_part}, value={self._value!r}>'
-
-    def __iter__(self):
-        """Return the same object, since this is an iterator."""
-        return self
-
-    def __next__(self):
-        """Get the next number, but raise StopIteration if we are past 1."""
-        value = self._value
-        if value is None:
-            raise StopIteration
-
-        if value == 1:
-            self._value = None
-        elif value % 2 == 0:
-            self._value = value // 2
-        else:
-            self._value = 3 * value + 1
-
-        return value
-
-    def peek(self):
-        """Get the next value, without advancing the iterator."""
-        return self._value
+    # FIXME: Implement this.
 
 
 __all__ = [thing.__name__ for thing in (
