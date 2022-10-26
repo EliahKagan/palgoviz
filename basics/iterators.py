@@ -178,8 +178,8 @@ class PaletteG:
     specific features, as well as satisfying all requirements for iterators:
 
     >>> it, it2 = iter(palette), iter(palette)
-    >>> it is it2, it == it2
-    (False, False)
+    >>> iter(it) is it, it is it2, it == it2
+    (True, False, False)
     >>> getgeneratorstate(it), next(it), getgeneratorstate(it), next(it)
     ('GEN_CREATED', 'red', 'GEN_SUSPENDED', 'green')
     >>> getgeneratorstate(it2), next(it2), getgeneratorstate(it2)
@@ -231,8 +231,7 @@ PaletteG()  # Eagerly create the singleton to prevent data races later.
 
 
 # FIXME: Define a nonpublic enumeration, _State, to represent states that
-# PaletteIteratorSimple instances can be in. This will also be used, without
-# modification, to represent states of PaletteIterator instances.
+# a PaletteIterator instance can be in.
 @enum.unique
 class _State(enum.Enum):
     """State for PaletteIteratorSimple and PaletteIterator."""
@@ -243,22 +242,22 @@ class _State(enum.Enum):
     FINISHED = enum.auto()
 
 
-class PaletteIteratorSimple:
+class PaletteIterator:
     """
-    Custom iterator class for PaletteS. This can also be used on its own.
+    Custom iterator class for Palette. This can also be used on its own.
 
-    This class is a factory for non-generator iterators. See PaletteS below;
+    This class is a factory for non-generator iterators. See Palette below;
     calling iter on its instances returns an instance of this class.
 
-    Note that, although attempting to construct a new instance of PaletteS can
-    safely return an existing object--and in fact that class is a singleton--it
-    would never be safe for that happen with this class. If a preexisting
-    iterator were ever returned, then separate attempts to iterate through
-    PaletteS colors would interfere with each other.
+    Note that, although attempting to construct a new instance of Palette can
+    safely return an existing object--and in fact Palette, like PaletteG, is a
+    singleton--it would never be safe for that happen with PaletteIterator. If
+    a preexisting PaletteIterator instance were ever returned, then separate
+    attempts to iterate through Palette colors would interfere with each other.
 
     The class is of course not iterable. Instances are, and they are iterators:
 
-    >>> cls = PaletteIteratorSimple
+    >>> cls = PaletteIterator
     >>> isinstance(cls, Iterable), isinstance(cls, Iterator)
     (False, False)
     >>> issubclass(cls, Iterable), issubclass(cls, Iterator)
@@ -266,10 +265,40 @@ class PaletteIteratorSimple:
     >>> isinstance(cls(), Iterable), isinstance(cls(), Iterator)
     (True, True)
 
-    Iterators are all independent. They are not generator objects, so their
-    state cannot be inspected using inspect.getgeneratorstate.
+    These iterators are all independent. But they are not generator objects, so
+    their state cannot be inspected by inspect.getgeneratorstate. Non-generator
+    iterators do not usually supply close methods, but it is sometimes useful
+    for them to have such a method, and this class implements such a method.
 
-    FIXME: Write the rest of these tests.
+    Note that the presence of a close method is not part of what it means to be
+    an iterator. Nor does this class implement all other parts of the protocol
+    generators use. (Generators have send and throw methods, which this project
+    does not currently cover, and which wouldn't be useful in PaletteIterator.)
+
+    >>> it, it2 = PaletteIterator(), PaletteIterator()
+    >>> iter(it) is it, it is it2, it == it2
+    (True, False, False)
+    >>> next(it), next(it)
+    ('red', 'green')
+    >>> next(it2)
+    'red'
+
+    >>> it.close()
+    >>> list(it)
+    []
+    >>> list(it2)
+    ['green', 'blue']
+
+    Iterators can have instance dictionaries, but it usually makes sense to
+    omit them for performance (iterators are used heavily in loops). It may not
+    be necessary to support weak references. Most non-generator iterators in
+    the standard library (e.g., zip, itertools.count) don't. To show how that
+    feature of generator objects can be achieved, PaletteIterator allows them.
+
+    >>> hasattr(it, '__dict__')
+    False
+    >>> import weakref; weakref.ref(it)  # doctest: +ELLIPSIS
+    <weakref at 0x...; to 'PaletteIterator' at 0x...>
     """
 
     __slots__ = ('_state', '__weakref__')
@@ -304,23 +333,73 @@ class PaletteIteratorSimple:
 
         raise AssertionError(f'invalid state {self._state!r}')
 
+    def close(self):
+        """Close this iterator, so it does not yield any more color words."""
+        self._state = _State.FINISHED
 
-class PaletteS:
+
+class Palette:
     """
-    Words "red", "green", and "blue". No generator is used. Simple version.
+    Words "red", "green", and "blue". No generator is used.
 
     This is like PaletteG, but calling iter on an instance returns an iterator
-    that is not a generator object, but is instead an instance of a custom
-    class, PaletteIteratorSimple, implemented immediately above.
+    that is not a generator object, but is instead a PaletteIterator instance.
+
+    >>> isinstance(Palette, Iterable), isinstance(Palette, Iterator)
+    (False, False)
+    >>> issubclass(Palette, Iterable), issubclass(Palette, Iterator)
+    (True, False)
+    >>> isinstance(Palette(), Iterable), isinstance(Palette(), Iterator)
+    (True, False)
+
+    >>> palette = Palette()
+    >>> list(palette), list(palette)
+    (['red', 'green', 'blue'], ['red', 'green', 'blue'])
+    >>> list(zip(palette, palette))
+    [('red', 'red'), ('green', 'green'), ('blue', 'blue')]
+    >>> list(itertools.chain(palette, palette))
+    ['red', 'green', 'blue', 'red', 'green', 'blue']
+
+    >>> iter(palette)  # FIXME: Fill in the second "...".  # doctest: +ELLIPSIS
+    <PaletteIterator at 0x..., state=...>
+    >>> next(_), _     # FIXME: Here, too. (It changed.)   # doctest: +ELLIPSIS
+    ('red', <PaletteIterator at 0x..., state=...>)
+
+    >>> {Palette(), Palette()}
+    {Palette()}
+    >>> Palette() is Palette()
+    True
+    >>> Palette() is PaletteG()  # That would be bad.
+    False
     """
 
+    __slots__ = ()
+
+    _instance = None
+
+    def __new__(cls):
+        """Get the Palette instance."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self):
+        """Python code representation for debugging."""
+        return f'{type(self).__name__}()'
+
+    def __iter__(self):
+        """Yield the color words."""
+        return PaletteIterator()
+
+
+Palette()  # Eagerly create the singleton to prevent data races later.
 
 
 __all__ = [thing.__name__ for thing in (
     gen_rgb,
     PaletteG,
-    PaletteIteratorSimple,
-    PaletteS,
+    PaletteIterator,
+    Palette,
 )]
 
 
