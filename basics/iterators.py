@@ -14,25 +14,39 @@ and __next__ special methods that the iter and next builtins use behind the
 scenes. This reveals the nature of generator objects as state machines. That,
 in turn, shows why attempts to construct some kinds of iterable objects can
 reasonably return an existing object, but attempts to construct iterators
-(including generator objects) must always return a newly created object.
+(including generator objects) must always† return a newly created object.
 
 On generators, see also the modules gencomp1.py and gencomp2.py, and the
 notebooks gencomp1.ipynb, gencomp2.ipynb, and gencomp3.ipynb. Some techniques
 appear in functions.py. On customizing object construction, see classes3.ipynb.
+
+† Arguably there is one exception: [FIXME: what?], because [FIXME: why?].
 """
+
+# Several imports are just for doctests. We don't usually do this, but it seems
+# to improve clarity in this module. (We suppress flake8's "unused" warning.)
+from collections.abc import Iterable, Iterator  # noqa: F401
+import enum
+from inspect import (  # noqa: F401
+    getgeneratorstate,
+    isclass,
+    isfunction,
+    isgenerator,
+    isgeneratorfunction,
+)
+import itertools  # noqa: F401
 
 
 def gen_rgb():
     """
     Yield the words "red", "green", and "blue", in that order.
 
-    >>> from inspect import isfunction, isgeneratorfunction, isgenerator
-    >>> from inspect import getgeneratorstate
-    >>> from collections.abc import Iterable, Iterator
+    No other iterator is used. So while ``yield from ('red', 'green', 'blue')``
+    is a reasonable way to do this, nothing like that is done here.
 
-    A generator function is a factory for a generator object. The generator
-    object itself is an iterator (it is also called a "generator iterator").
-    The factory is not itself an iterator, nor is it otherwise iterable.
+    A generator function is a factory for generator objects. A generator object
+    itself is an iterator (it is also called a "generator iterator"). The
+    factory is not itself an iterator, nor is it otherwise iterable.
 
     >>> isfunction(gen_rgb), isgeneratorfunction(gen_rgb), isgenerator(gen_rgb)
     (True, True, False)
@@ -60,8 +74,8 @@ def gen_rgb():
     >>> list(it)
     []
 
-    Calling iter on an iterator gives an equivalent iterator, which is almost
-    always (and for generator objects, always) the very same iterator object:
+    Calling iter on an iterator gives an equivalent iterator, which should
+    always be (and is, technically, required to be) the same iterator object:
 
     >>> it = gen_rgb()
     >>> iter(it) is it
@@ -125,6 +139,189 @@ def gen_rgb():
     yield 'red'
     yield 'green'
     yield 'blue'
+
+
+class PaletteG:
+    """
+    Words "red", "green", and "blue". A generator is used.
+
+    This class is a factory for non-iterator iterables. An instance represents
+    those three color words, in the same sense that a range represents numbers.
+
+    The PaletteG class is not itself iterable (that would be weird). Instances
+    are iterable, but they are not iterators. Their iterators are generator
+    objects. This class is self-contained but it uses the same logic as gen_rgb
+    above, by implementing a special method as a generator function.
+
+    >>> isinstance(PaletteG, Iterable), isinstance(PaletteG, Iterator)
+    (False, False)
+    >>> issubclass(PaletteG, Iterable), issubclass(PaletteG, Iterator)
+    (True, False)
+    >>> isinstance(PaletteG(), Iterable), isinstance(PaletteG(), Iterator)
+    (True, False)
+
+    Regarding the above, note that PaletteG does not inherit from anything
+    (except object) and is not registered as a virtual subclass of any ABC.
+
+    Unlike generator objects and other iterators, a PaletteG instance is not
+    exhausted by iteration. It may be reused freely, even concurrently:
+
+    >>> palette = PaletteG()
+    >>> list(palette), list(palette)
+    (['red', 'green', 'blue'], ['red', 'green', 'blue'])
+    >>> list(zip(palette, palette))
+    [('red', 'red'), ('green', 'green'), ('blue', 'blue')]
+    >>> list(itertools.chain(palette, palette))
+    ['red', 'green', 'blue', 'red', 'green', 'blue']
+
+    Iterators are all independent. Being generator objects, they have generator
+    specific features, as well as satisfying all requirements for iterators:
+
+    >>> it, it2 = iter(palette), iter(palette)
+    >>> it is it2, it == it2
+    (False, False)
+    >>> getgeneratorstate(it), next(it), getgeneratorstate(it), next(it)
+    ('GEN_CREATED', 'red', 'GEN_SUSPENDED', 'green')
+    >>> getgeneratorstate(it2), next(it2), getgeneratorstate(it2)
+    ('GEN_CREATED', 'red', 'GEN_SUSPENDED')
+
+    >>> it.close()
+    >>> list(it)
+    []
+    >>> list(it2)
+    ['green', 'blue']
+
+    Iterators hold state. Iterables that are not iterators often do too. For
+    example, range(2) is an iterable but not an iterator, and its state differs
+    from that of range(3). Those ranges are accordingly unequal. Other examples
+    include tuples and lists; their state is their elements. An interesting
+    thing about PaletteG instances is that they hold no state. More precisely,
+    they have zero information other than their type. It is appropriate for all
+    PaletteG instances to be equal to each other. It is reasonable to override
+    __eq__ and __hash__ to achieve this. Instead, we make PaletteG a singleton.
+
+    >>> {PaletteG(), PaletteG()}
+    {PaletteG()}
+    >>> PaletteG() is PaletteG()
+    True
+    """
+
+    __slots__ = ()
+
+    _instance = None
+
+    def __new__(cls):
+        """Get the PaletteG instance."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self):
+        """Python code representation for debugging."""
+        return f'{type(self).__name__}()'
+
+    def __iter__(self):
+        """Yield the color words."""
+        yield 'red'
+        yield 'green'
+        yield 'blue'
+
+
+PaletteG()  # Eagerly create the singleton to prevent data races later.
+
+
+# FIXME: Define a nonpublic enumeration, _State, to represent states that
+# PaletteIteratorSimple instances can be in. This will also be used, without
+# modification, to represent states of PaletteIterator instances.
+@enum.unique
+class _State(enum.Enum):
+    """State for PaletteIteratorSimple and PaletteIterator."""
+
+    RED = enum.auto()
+    GREEN = enum.auto()
+    BLUE = enum.auto()
+    FINISHED = enum.auto()
+
+
+class PaletteIteratorSimple:
+    """
+    Custom iterator class for PaletteS. This can also be used on its own.
+
+    This class is a factory for non-generator iterators. See PaletteS below;
+    calling iter on its instances returns an instance of this class.
+
+    Note that, although attempting to construct a new instance of PaletteS can
+    safely return an existing object--and in fact that class is a singleton--it
+    would never be safe for that happen with this class. If a preexisting
+    iterator were ever returned, then separate attempts to iterate through
+    PaletteS colors would interfere with each other.
+
+    The class is of course not iterable. Instances are, and they are iterators:
+
+    >>> cls = PaletteIteratorSimple
+    >>> isinstance(cls, Iterable), isinstance(cls, Iterator)
+    (False, False)
+    >>> issubclass(cls, Iterable), issubclass(cls, Iterator)
+    (True, True)
+    >>> isinstance(cls(), Iterable), isinstance(cls(), Iterator)
+    (True, True)
+
+    Iterators are all independent. They are not generator objects, so their
+    state cannot be inspected using inspect.getgeneratorstate.
+
+    FIXME: Write the rest of these tests.
+    """
+
+    __slots__ = ('_state', '__weakref__')
+
+    def __init__(self):
+        """Create a new iterator, associated with the PaletteS instance."""
+        self._state = _State.RED
+
+    def __repr__(self):
+        """Representation for debugging. Not runnable as code."""
+        typename = type(self).__name__
+        return f'<{typename} at 0x{id(self):X}, state={self._state!r}>'
+
+    def __iter__(self):
+        """Return the same object, since this is an iterator."""
+        return self
+
+    def __next__(self):
+        """Get the next color word, or raise StopIteration if exhausted."""
+        match self._state:
+            case _State.RED:
+                self._state = _State.GREEN
+                return 'red'
+            case _State.GREEN:
+                self._state = _State.BLUE
+                return 'green'
+            case _State.BLUE:
+                self._state = _State.FINISHED
+                return 'blue'
+            case _State.FINISHED:
+                raise StopIteration
+
+        raise AssertionError(f'invalid state {self._state!r}')
+
+
+class PaletteS:
+    """
+    Words "red", "green", and "blue". No generator is used. Simple version.
+
+    This is like PaletteG, but calling iter on an instance returns an iterator
+    that is not a generator object, but is instead an instance of a custom
+    class, PaletteIteratorSimple, implemented immediately above.
+    """
+
+
+
+__all__ = [thing.__name__ for thing in (
+    gen_rgb,
+    PaletteG,
+    PaletteIteratorSimple,
+    PaletteS,
+)]
 
 
 if __name__ == '__main__':
