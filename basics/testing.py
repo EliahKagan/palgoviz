@@ -3,7 +3,6 @@
 import gc
 import platform
 
-
 if platform.python_implementation() == 'CPython':
     def collect_if_not_ref_counting():
         """Force a collection if we might not be using reference counting."""
