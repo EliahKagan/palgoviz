@@ -23,10 +23,11 @@ appear in functions.py. On customizing object construction, see classes3.ipynb.
 † Arguably there is one exception: [FIXME: what?], because [FIXME: why?].
 """
 
-# Several imports are just for doctests. We don't usually do this, but it seems
+import enum  # isort: skip
+
+# These imports are just for doctests. We don't usually do this, but it seems
 # to improve clarity in this module. (We suppress flake8's "unused" warning.)
 from collections.abc import Iterable, Iterator, Sequence  # noqa: F401
-import enum
 from inspect import (  # noqa: F401
     getgeneratorstate,
     isclass,
@@ -34,7 +35,6 @@ from inspect import (  # noqa: F401
     isgenerator,
     isgeneratorfunction,
 )
-import itertools  # noqa: F401
 
 
 def gen_rgb():
@@ -114,8 +114,8 @@ def gen_rgb():
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> getgeneratorstate(it), list(it), list(it)
-    ('GEN_CLOSED', [], [])
+    >>> getgeneratorstate(it), list(it), list(it), list(it)
+    ('GEN_CLOSED', [], [], [])
 
     None of this affects it2, because that is a separate generator object:
 
@@ -126,8 +126,8 @@ def gen_rgb():
     them to the GEN_CLOSED state. This skips over the remaining two elements:
 
     >>> it2.close()
-    >>> getgeneratorstate(it2), list(it2), list(it2)
-    ('GEN_CLOSED', [], [])
+    >>> getgeneratorstate(it2), list(it2), list(it2), list(it2)
+    ('GEN_CLOSED', [], [], [])
 
     Closing a suspended generator object raises GeneratorExit in it, to exit
     context managers and run finally blocks. See gencomp3.ipynb.
@@ -171,7 +171,7 @@ class PaletteG:
     (['red', 'green', 'blue'], ['red', 'green', 'blue'])
     >>> list(zip(palette, palette))
     [('red', 'red'), ('green', 'green'), ('blue', 'blue')]
-    >>> list(itertools.chain(palette, palette))
+    >>> import itertools; list(itertools.chain(palette, palette))
     ['red', 'green', 'blue', 'red', 'green', 'blue']
 
     The iterators are all independent. Being generator objects, they have the
@@ -221,7 +221,7 @@ class PaletteG:
         return f'{type(self).__name__}()'
 
     def __iter__(self):
-        """Yield the color words."""
+        """"Yield" the color words."""
         yield 'red'
         yield 'green'
         yield 'blue'
@@ -357,7 +357,7 @@ class Palette:
     (['red', 'green', 'blue'], ['red', 'green', 'blue'])
     >>> list(zip(palette, palette))
     [('red', 'red'), ('green', 'green'), ('blue', 'blue')]
-    >>> list(itertools.chain(palette, palette))
+    >>> import itertools; list(itertools.chain(palette, palette))
     ['red', 'green', 'blue', 'red', 'green', 'blue']
 
     >>> iter(palette)  # FIXME: Fill in the second "...".  # doctest: +ELLIPSIS
@@ -388,7 +388,7 @@ class Palette:
         return f'{type(self).__name__}()'
 
     def __iter__(self):
-        """Yield the color words."""
+        """"Yield" the color words."""
         return PaletteIterator()
 
 
@@ -397,15 +397,15 @@ Palette()  # Eagerly create the singleton to prevent data races later.
 
 def collatz(n):
     """
-    Yield values of the Collatz sequence starting at n. Stop after yielding 1.
+    Yield values of the Collatz sequence that starts at n. Stop after 1.
 
     https://en.wikipedia.org/wiki/Collatz_conjecture
 
     >>> list(collatz(6))
     [6, 3, 10, 5, 16, 8, 4, 2, 1]
 
-    It would make sense to model the Collatz sequence as a sequence. It is not
-    obvious how we would support efficient indexing through, so we don't do so.
+    It would make sense to model Collatz sequences as Python sequences. But it
+    is not obvious how we would support efficient indexing. So we don't do so.
 
     >>> it = collatz(6)
     >>> isinstance(it, Iterable), isinstance(it, Iterator), isgenerator(it)
@@ -432,7 +432,7 @@ def collatz(n):
 
 class Collatz:
     """
-    Iterator over values of the Collatz sequence starting at n. Stops after 1.
+    Iterator for the Collatz sequence that starts at a given n. Stops after 1.
 
     Like the collatz function, this class is an iterator factory. Its instances
     are non-generator iterators that behave like the objects collatz returns.
@@ -465,11 +465,11 @@ class Collatz:
     viable: classes can have a custom repr and extra methods for inspection:
 
     >>> it = Collatz(5)
-    >>> it
+    >>> it  # doctest: +ELLIPSIS
     <Collatz at 0x..., value=5>
     >>> next(it)
     5
-    >>> it
+    >>> it  # doctest: +ELLIPSIS
     <Collatz at 0x..., value=16>
     >>> it.peek()
     16
@@ -477,11 +477,11 @@ class Collatz:
     16
     >>> next(it)
     16
-    >>> it
+    >>> it  # doctest: +ELLIPSIS
     <Collatz at 0x..., value=8>
     >>> list(it)
     [8, 4, 2, 1]
-    >>> it
+    >>> it  # doctest: +ELLIPSIS
     <Collatz at 0x..., done>
     >>> list(it)
     []
