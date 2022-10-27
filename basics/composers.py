@@ -2,6 +2,8 @@
 
 """Function composition."""
 
+from util import identity_function
+
 
 def compose2(f, g):
     """
@@ -44,7 +46,7 @@ def repeat_compose_recursive(function, count):
     RecursionError: maximum recursion depth exceeded in comparison
     """
     if count == 0:
-        return lambda x: x
+        return identity_function
     return compose2(function, repeat_compose_recursive(function, count - 1))
 
 
@@ -66,7 +68,7 @@ def repeat_compose_chained(function, count):
       ...
     RecursionError: maximum recursion depth exceeded
     """
-    rvalue = lambda x: x
+    rvalue = identity_function
     for _ in range(count):
         rvalue = compose2(function, rvalue)
     return rvalue
