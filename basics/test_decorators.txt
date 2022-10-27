@@ -580,7 +580,7 @@ Old doctests for @linear_combinable:
     >>> @linear_combinable
     ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
     >>> @linear_combinable
-    ... def three(_): 'Return 3, no matter the argument.'; return 3
+    ... def three(_): 'Return 3, for any argument.'; return 3
 
     >>> g(10)
     99
@@ -612,4 +612,4 @@ Old doctests for @linear_combinable:
     ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
     ['__main__', 'f', 'f', 'Double a number.', {}]
     ['__main__', 'g', 'g', 'Square a number and subtract 1.', {}]
-    ['__main__', 'three', 'three', 'Return 3, no matter the argument.', {}]
+    ['__main__', 'three', 'three', 'Return 3, for any argument.', {}]
