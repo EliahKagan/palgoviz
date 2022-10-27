@@ -129,6 +129,7 @@
         "scratchwork",
         "semipredicate",
         "setrecursionlimit",
+        "shellcheck",
         "similars",
         "sortedness",
         "startswith",
