@@ -367,7 +367,7 @@ _attribute_spy_histories = weakref.WeakKeyDictionary()
 
 
 def _log_access(spy, access, *args):
-    """Log an access to _attribute_spy_histories. Helper for _AttributeSpy."""
+    """Log an access in _attribute_spy_histories. Helper for _AttributeSpy."""
     _attribute_spy_histories[spy].append((access, *args))
 
 
@@ -997,8 +997,9 @@ class TestMonkeyPatch(unittest.TestCase):
 
         with self.subTest('__module__'):
             if __name__ not in ('test_context', '__main__'):
-                raise Exception(f"can't reliably test __module__: {__name__=},"
-                                " expected 'test_context' or '__main__'")
+                raise Exception(
+                    f"can't reliably test __module__: {__name__=}, expected "
+                    "'test_context' or '__main__'")
             self.assertEqual(C.halve.__module__, __name__)
         with self.subTest('__name__'):
             self.assertEqual(C.halve.__name__, 'halve')
