@@ -10,10 +10,7 @@ import functools
 import itertools
 import numbers
 
-
-def identity_function(arg):
-    """Return the argument unchanged."""
-    return arg
+from util import identity_function
 
 
 def peek_arg(func):
@@ -971,18 +968,12 @@ class linear_combinable:
     "def linear_combinable(func):" in any way that does not misinform the
     caller about proper usage (so no implementation-detail parameters).
 
-    NOTE: Reassigning the __wrapped__ attribute is unsupported. In particular,
-    (a) objects linear_combinable returns are considered immutable, and setting
-    a different value of __wrapped__ if the instance may be stored in a hash
-    based container is likely to cause severe problems, and (b) whether or not
-    behavior is affected to reassigning __wrapped__ may change at any time.
-
     >>> @linear_combinable
     ... def f(x): 'Double a number.'; return x * 2
     >>> @linear_combinable
     ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
     >>> @linear_combinable
-    ... def three(_): 'Return 3, no matter the argument.'; return 3
+    ... def three(_): 'Return 3, for any argument.'; return 3
 
     >>> g(10)
     99
@@ -1014,7 +1005,7 @@ class linear_combinable:
     ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
     ['decorators', 'f', 'f', 'Double a number.', {}]
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
-    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
+    ['decorators', 'three', 'three', 'Return 3, for any argument.', {}]
 
     >>> import sympy, numbers
     >>> @numbers.Number.register  # Pretend to be a number. Just for testing!
@@ -1031,6 +1022,15 @@ class linear_combinable:
     True
     >>> linear_combinable(h) is h
     True
+
+    >>> f.__wrapped__ = lambda x: x * 3
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute '__wrapped__'
+    >>> del f.__wrapped__
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't delete attribute '__wrapped__'
     """
 
     def __new__(cls, func):
@@ -1130,9 +1130,22 @@ class linear_combinable:
         f = self.__wrapped__
         return type(self)(lambda x: f(x) / divisor)
 
+    def __setattr__(self, name, value):
+        """Setting __wrapped__ after initial setting is suppressed."""
+        if name == '__wrapped__' and hasattr(self, name):
+            raise AttributeError(f"can't set attribute {name!r}")
+
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name):
+        """Deleting __wrapped__ is suppressed."""
+        if name == '__wrapped__':
+            raise AttributeError(f"can't delete attribute {name!r}")
+
+        super().__delattr__(name)
+
 
 __all__ = [thing.__name__ for thing in (
-    identity_function,
     peek_arg,
     peek_return,
     call,

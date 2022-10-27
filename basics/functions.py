@@ -21,6 +21,7 @@ import itertools
 
 from decorators import peek_return
 from fibonacci import fib
+from util import identity_function
 
 
 def make_counter(start=0):
@@ -622,7 +623,7 @@ def func_filter(predicate, func, end_sentinel):
     [11, 22]
     """
     if predicate is None:
-        predicate = lambda x: x
+        predicate = identity_function
 
     done = False
 

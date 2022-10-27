@@ -5,8 +5,19 @@ See compare.py for code used in tests but specific to order comparison.
 """
 
 from collections.abc import Iterator
+import gc
+import platform
 
 import pytest
+
+if platform.python_implementation() == 'CPython':
+    def collect_if_not_ref_counting():
+        """Force a collection if we might not be using reference counting."""
+        # CPython always refcounts as its primary GC strategy, so do nothing.
+else:
+    def collect_if_not_ref_counting():
+        """Force a collection if we might not be using reference counting."""
+        gc.collect()
 
 
 class CommonIteratorTests:
@@ -48,3 +59,9 @@ class CommonIteratorTests:
         result = self.instantiate(implementation)
         with pytest.raises(AttributeError):
             result.blah = 42
+
+
+__all__ = [thing.__name__ for thing in (
+    collect_if_not_ref_counting,
+    CommonIteratorTests,
+)]
