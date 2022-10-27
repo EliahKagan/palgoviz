@@ -44,7 +44,7 @@ Doctests for running the script - argument parsing, file handling, greeting:
     Hello, David!
     Hello, Dr. Evil!
 
-    >>> status, output = gso('python greetall.py ../data/nonexistent-file.txt')
+    >>> status, output = gso('python greetall.py ../data/nonexistent.txt')
     >>> status
     1
     >>> output.startswith('ERROR in greetall.py:')

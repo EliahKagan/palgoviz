@@ -6,6 +6,7 @@ channels:
 dependencies:
   - python=3.10
   - attrs
+  - conda-build
   - more-itertools
   - sympy
 
@@ -25,5 +26,7 @@ dependencies:
 
   # For static analysis
   - flake8
+  - isort
   - mypy>=0.940
   - pyright
+  - shellcheck

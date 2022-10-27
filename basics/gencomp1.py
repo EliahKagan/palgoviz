@@ -12,6 +12,8 @@ import itertools
 
 import more_itertools
 
+from util import identity_function
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -831,7 +833,7 @@ def my_filter(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        predicate = lambda x: x
+        predicate = identity_function
 
     return (element for element in iterable if predicate(element))
 
@@ -861,7 +863,7 @@ def my_filter_alt(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        predicate = lambda x: x
+        predicate = identity_function
 
     for element in iterable:
         if predicate(element):
@@ -1099,7 +1101,7 @@ def distinct(iterable, *, key=None):
     [3, [], [], 4]
     """
     if key is None:
-        key = lambda x: x
+        key = identity_function
 
     observed = set()
 

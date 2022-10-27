@@ -10,10 +10,7 @@ import functools
 import itertools
 import numbers
 
-
-def identity_function(arg):
-    """Return the argument unchanged."""
-    return arg
+from util import identity_function
 
 
 def peek_arg(func):
@@ -976,7 +973,7 @@ class linear_combinable:
     >>> @linear_combinable
     ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
     >>> @linear_combinable
-    ... def three(_): 'Return 3, no matter the argument.'; return 3
+    ... def three(_): 'Return 3, for any argument.'; return 3
 
     >>> g(10)
     99
@@ -1008,7 +1005,7 @@ class linear_combinable:
     ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
     ['decorators', 'f', 'f', 'Double a number.', {}]
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
-    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
+    ['decorators', 'three', 'three', 'Return 3, for any argument.', {}]
 
     >>> import sympy, numbers
     >>> @numbers.Number.register  # Pretend to be a number. Just for testing!
@@ -1149,7 +1146,6 @@ class linear_combinable:
 
 
 __all__ = [thing.__name__ for thing in (
-    identity_function,
     peek_arg,
     peek_return,
     call,
