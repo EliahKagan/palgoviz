@@ -41,8 +41,10 @@ def gen_rgb():
     """
     Yield the words "red", "green", and "blue", in that order.
 
-    No other iterator is used. So while ``yield from ('red', 'green', 'blue')``
-    is a reasonable way to do this, nothing like that is done here.
+    This generator function is very simple, almost the simplest that can exist.
+    It does not iterate over anything: it uses no loop and no "yield from". It
+    does not make a collection of the words. It exists for its doctests, and to
+    be compared to other code in this module.
 
     A generator function is a factory for generator objects. A generator object
     itself is an iterator (it is also called a "generator iterator"). The
