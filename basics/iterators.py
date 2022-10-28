@@ -136,7 +136,9 @@ def gen_rgb():
     referenceable. This is even though no __slots__ or __weakref__ attributes
     are present. (This is possible as the generator type is implemented in C.)
     """
-    # FIXME: Implement this.
+    yield "red"
+    yield "green"
+    yield "blue"
 
 
 class PaletteG:
@@ -203,7 +205,29 @@ class PaletteG:
     >>> PaletteG() is PaletteG()
     True
     """
-    # FIXME: Implement this.
+
+    __slots__ = ()
+
+    _instance = None
+
+    def __new__(cls):
+        """PaletteG is a singleton."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self):
+        """Representation as Python code."""
+        return f'{type(self).__name__}()'
+
+    def __iter__(self):
+        """Generate colors."""
+        yield "red"
+        yield "green"
+        yield "blue"
+
+
+PaletteG()  # For thread safety.
 
 
 # FIXME: Define a non-public enumeration, _State, to represent states that
