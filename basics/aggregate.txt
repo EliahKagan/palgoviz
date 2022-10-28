@@ -28,6 +28,8 @@ aggregate1.summarize_as_classic_frozen_attrs_slotted
 aggregate1.summarize_as_classic_frozen_attrs_like_modern
 aggregate1.summarize_as_frozen_attrs_ordered
 aggregate1.summarize_as_mutable_attrs_ordered
+aggregate1.summarize_as_mutable_dc
+aggregate1.summarize_as_frozen_dc
 aggregate2.Edge
 aggregate2.GiantOtter
 aggregate2.Coords

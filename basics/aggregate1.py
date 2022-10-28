@@ -44,6 +44,7 @@ make any alternative less self contained -- except where noted otherwise.
 
 import collections
 from collections.abc import Iterable
+import dataclasses
 import math
 import types
 import typing
@@ -1377,7 +1378,7 @@ def summarize_as_typed_frozen_attrs(
     as an instance of an immutable data class, made with attrs, using the
     modern API. Both that class and this function use type annotations.
 
-    [FIXME: Run mypy on this module. Fix any problems.]
+    [FIXME: Add type annotations. Rerun mypy on the module. Fix any problems.]
 
     >>> s = summarize_as_typed_frozen_attrs([1, 3, 2.5, 3, 4])
 
@@ -1548,7 +1549,7 @@ def summarize_as_typed_mutable_attrs(
     as an instance of a mutable data class, made with attrs, using the modern
     API. Both that class and this function use type annotations.
 
-    [FIXME: Run mypy on this module. Fix any problems.]
+    [FIXME: Add type annotations. Rerun mypy on the module. Fix any problems.]
 
     >>> s = summarize_as_typed_mutable_attrs([1, 3, 2.5, 3, 4])
 
@@ -2417,6 +2418,8 @@ def summarize_as_classic_frozen_attrs_like_modern(
     and the class, FrozenSummaryClassicLikeModern, use type annotations. The
     class body is the same as in TypedFrozenSummary, except their docstrings.
 
+    [FIXME: Add type annotations. Rerun mypy on the module. Fix any problems.]
+
     >>> s = summarize_as_classic_frozen_attrs_like_modern([1, 3, 2.5, 3, 4])
 
     >>> s  # doctest: +NORMALIZE_WHITESPACE
@@ -2704,6 +2707,206 @@ def summarize_as_mutable_attrs_ordered(values, *, precision=DEFAULT_PRECISION):
     )
 
 
+@dataclasses.dataclass  # Or: @dataclasses.dataclass(frozen=False)
+class MutableSummaryDC:
+    """Mutable summary returned by summarize_as_mutable_dc."""
+
+    minimum: float
+    maximum: float
+    arithmetic_mean: float
+    geometric_mean: float
+    harmonic_mean: float
+
+
+def summarize_as_mutable_dc(
+        values: Iterable[float], *,
+        precision: int = DEFAULT_PRECISION) -> MutableSummaryDC:
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of a mutable standard library dataclass: one made using the
+    facility in the dataclasses module. This kind of data class always has type
+    annotations for all fields. Client code is, of course, not required to have
+    its own annotations. But this function does have them.
+
+    [FIXME: Add type annotations. Rerun mypy on the module. Fix any problems.]
+
+    >>> s = summarize_as_mutable_dc([1, 3, 2.5, 3, 4])
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    MutableSummaryDC(minimum=1,
+                     maximum=4,
+                     arithmetic_mean=2.7,
+                     geometric_mean=2.45951,
+                     harmonic_mean=2.15827)
+
+    >>> hash(s)
+    Traceback (most recent call last):
+      ...
+    TypeError: unhashable type: 'MutableSummaryDC'
+
+    >>> s == summarize_as_mutable_dc([1, 3, 3, 2.5, 4])
+    True
+    >>> s == summarize_as_mutable_dc([1, 2, 16, 4, 8])
+    False
+
+    attrs classes allow new attributes to be created by assignment only if
+    neither frozen nor slotted. But even though attrs requires the class to be
+    mutable to do this, the new attributes aren't part of the instance's value.
+
+    >>> s.median = 3
+    >>> s == summarize_as_mutable_dc([1, 3, 3, 2.5, 4])
+    True
+    >>> s.median  # It's there, it just doesn't affect __eq__ or __hash__.
+    3
+
+    >>> s.minimum = 1.5  # Allowed, same as any other mutable data class.
+    >>> s == summarize_as_mutable_dc([1, 3, 2.5, 3, 4])
+    False
+
+    >>> _, _, am, _, _ = summarize_as_mutable_dc([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable MutableSummaryDC object
+
+    >>> match summarize_as_mutable_dc([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryDC(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_mutable_dc([1, 2, 16, 4, 8]):
+    ...     case MutableSummaryDC(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0.0
+    total = 0.0
+    product = 1.0
+    reciprocals_total = 0.0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return MutableSummaryDC(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class FrozenSummaryDC:
+    """Immutable summary returned by summarize_as_mutable_dc."""
+
+    minimum: float
+    maximum: float
+    arithmetic_mean: float
+    geometric_mean: float
+    harmonic_mean: float
+
+
+def summarize_as_frozen_dc(
+        values: Iterable[float], *,
+        precision: int = DEFAULT_PRECISION) -> MutableSummaryDC:
+    """
+    Compute min, max, and arithmetic, geometric, and harmonic mean.
+
+    This is like summarize_as_tuple, but the five computed results are returned
+    as an instance of an immutable standard library dataclass: one made using
+    the facility in the dataclasses module. This function has type annotations.
+
+    This is summarize_as_mutable_dc, except immutable instead of mutable.
+
+    [FIXME: Add type annotations. Rerun mypy on the module. Fix any problems.]
+
+    >>> s = summarize_as_frozen_dc([1, 3, 2.5, 3, 4])
+    >>> s.__dict__ == dataclasses.asdict(s)
+    True
+    >>> s.__dict__ is dataclasses.asdict(s)
+    False
+
+    >>> s  # doctest: +NORMALIZE_WHITESPACE
+    FrozenSummaryDC(minimum=1,
+                    maximum=4,
+                    arithmetic_mean=2.7,
+                    geometric_mean=2.45951,
+                    harmonic_mean=2.15827)
+
+    >>> len({s, summarize_as_frozen_dc([1, 3, 3, 2.5, 4]),
+    ...      summarize_as_frozen_dc([1, 2, 16, 4, 8])})
+    2
+
+    >>> s.minimum = 1.5
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot assign to field 'minimum'
+
+    >>> s.median = 3  # Overridden __setattr__ catches this even without slots.
+    Traceback (most recent call last):
+      ...
+    dataclasses.FrozenInstanceError: cannot assign to field 'median'
+
+    >>> _, _, am, _, _ = summarize_as_frozen_dc([1, 2, 16, 4, 8])
+    Traceback (most recent call last):
+      ...
+    TypeError: cannot unpack non-iterable FrozenSummaryDC object
+
+    >>> match summarize_as_frozen_dc([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryDC(geometric_mean=4, harmonic_mean=hm_kwd):
+    ...         print(f'Geometric mean four, harmonic mean {hm_kwd}.')
+    Geometric mean four, harmonic mean 2.58065.
+
+    >>> match summarize_as_frozen_dc([1, 2, 16, 4, 8]):
+    ...     case FrozenSummaryDC(_, _, _, 4, hm_pos):
+    ...         print(f'Geometric mean four, harmonic mean {hm_pos}.')
+    Geometric mean four, harmonic mean 2.58065.
+    """
+    count = 0
+    minimum = math.inf
+    maximum = 0.0
+    total = 0.0
+    product = 1.0
+    reciprocals_total = 0.0
+
+    for value in values:
+        if value <= 0:
+            raise ValueError(f'nonpositive value {value!r}')
+
+        count += 1
+        minimum = min(minimum, value)
+        maximum = max(maximum, value)
+        total += value
+        product *= value
+        reciprocals_total += 1 / value
+
+    if count == 0:
+        raise ValueError('no values')
+
+    return FrozenSummaryDC(
+        minimum=minimum,
+        maximum=maximum,
+        arithmetic_mean=round(total / count, precision),
+        geometric_mean=round(product**(1 / count), precision),
+        harmonic_mean=round(count / reciprocals_total, precision),
+    )
+
+
 __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_tuple,
     summarize_as_dict,
@@ -2753,6 +2956,10 @@ __all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
     summarize_as_frozen_attrs_ordered,
     MutableSummaryOrdered,
     summarize_as_mutable_attrs_ordered,
+    MutableSummaryDC,
+    summarize_as_mutable_dc,
+    FrozenSummaryDC,
+    summarize_as_frozen_dc,
 )]
 
 

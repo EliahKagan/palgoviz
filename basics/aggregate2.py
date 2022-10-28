@@ -435,10 +435,10 @@ class Vector:
     >>> abs(p - q), round(abs(p - Point()), 5), round(abs(q - Point()), 5)
     (8.6, 9.14385, 6.09672)
 
-    >>> i, j, k = Vector(x=1), Vector(y=1), Vector(z=1)
-    >>> p - Point() == p.x * i + p.y * j + p.z * k
+    >>> i_hat, j_hat, k_hat = Vector(x=1), Vector(y=1), Vector(z=1)
+    >>> p - Point() == p.x * i_hat + p.y * j_hat + p.z * k_hat
     True
-    >>> hasattr(k, '__dict__'), attrs.asdict(k)
+    >>> hasattr(k_hat, '__dict__'), attrs.asdict(k_hat)
     (False, {'x': 0, 'y': 0, 'z': 1})
     """
 
@@ -560,8 +560,8 @@ class DangerousGame:
     When on trial (see enumerations.py), Frank initially failed to comply with
     discovery. Later, his attorney accidentally sent the full contents of his
     cell phone to opposing counsel. This revealed a matter unrelated to the
-    trial: several parties featured games of Grizzly-Boom Tennis. See
-    https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
+    trial: several of the parties had featured games of Grizzly-Boom Tennis.
+    See https://www.smbc-comics.com/comic/2009-04-16 by Zach Weinersmith.
 
     The All England Lawn Tennis and Croquet Club currently disallows
     Grizzly-Boom Tennis, as do most other venues. So it's played at underground
