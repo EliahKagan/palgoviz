@@ -1766,6 +1766,11 @@ def summarize_as_frozen_attrs_no_slots(values, *, precision=DEFAULT_PRECISION):
       ...
     attr.exceptions.FrozenInstanceError
 
+    The above exceptions show a weakness in how attrs uses FrozenInstanceError.
+    Reassigning an existing attribute and creating a new attribute both rightly
+    fail on a frozen instance, even if it has instance dictionary, but they are
+    reported the same way, even though they're usually due to different bugs.
+
     >>> _, _, am, _, _ = summarize_as_frozen_attrs_no_slots([1, 2, 16, 4, 8])
     Traceback (most recent call last):
       ...
@@ -2751,9 +2756,10 @@ def summarize_as_mutable_dc(
     >>> s == summarize_as_mutable_dc([1, 2, 16, 4, 8])
     False
 
-    attrs classes allow new attributes to be created by assignment only if
-    neither frozen nor slotted. But even though attrs requires the class to be
-    mutable to do this, the new attributes aren't part of the instance's value.
+    Unlike @attrs.define, but like @attr.s, @dataclasses.dataclass does not use
+    slots by default. Like attrs, even though standard-library dataclasses only
+    accept new instance attributes if mutable and unslotted, the new attributes
+    aren't part of the instance's value.
 
     >>> s.median = 3
     >>> s == summarize_as_mutable_dc([1, 3, 3, 2.5, 4])
@@ -2851,6 +2857,11 @@ def summarize_as_frozen_dc(
     >>> len({s, summarize_as_frozen_dc([1, 3, 3, 2.5, 4]),
     ...      summarize_as_frozen_dc([1, 2, 16, 4, 8])})
     2
+
+    Like frozen attrs classes, frozen @dataclass classes use an AttributeError
+    subclass called FrozenInstanceError (a different subclass from the one
+    attrs defines) to indicate BOTH attempts to rebind an existing attribute
+    AND attempts to create a new attribute:
 
     >>> s.minimum = 1.5
     Traceback (most recent call last):
