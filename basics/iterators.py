@@ -3,6 +3,10 @@
 """
 Concepts for iterators, revisited.
 
+On generators, see also the modules gencomp1.py and gencomp2.py, and the
+notebooks gencomp1.ipynb, gencomp2.ipynb, and gencomp3.ipynb. Some techniques
+appear in functions.py. On customizing object construction, see classes3.ipynb.
+
 This module could theoretically be used to introduce the fundamentals of
 iterators and generators, but it is NOT meant for that. Explanations target
 readers who already know what generator functions, generator objects, and
@@ -11,16 +15,15 @@ facilities from the inspect and collections.abc modules novices may not know.
 
 Besides review, the primary purpose of this module is to present the __iter__
 and __next__ special methods that the iter and next builtins use behind the
-scenes. This reveals the nature of generator objects as state machines. That
-deepens insight into why attempts to construct some kinds of iterable objects
-can reasonably return an existing object, while attempts to construct iterators
-(including generator objects) must always† return a newly created object.
+scenes. This reveals the nature of generator objects as state machines.
 
-On generators, see also the modules gencomp1.py and gencomp2.py, and the
-notebooks gencomp1.ipynb, gencomp2.ipynb, and gencomp3.ipynb. Some techniques
-appear in functions.py. On customizing object construction, see classes3.ipynb.
+That, in turn, may offer deeper insight into why attempts to construct some
+kinds of iterable objects can reasonably return an existing object, while
+attempts to construct iterators (including generator objects) must always
+return a newly created object.
 
-† Arguably there is one exception: [FIXME: what?], because [FIXME: why?].
+(Arguably there is one exception to that rule about iterators: [FIXME: what?],
+because [FIXME: why?].)
 """
 
 import enum  # isort: skip
