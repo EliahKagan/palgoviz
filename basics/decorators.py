@@ -229,11 +229,15 @@ def give_metadata_from(wrapped, *, expose=False):
     https://docs.python.org/3/library/functools.html#functools.update_wrapper
 
     >>> def f(): 'Wrapped docstring.'
+    >>> f.__module__ == __name__  # Not to be confused with f.__name__.
+    True
+    >>> __name__ in {'__main__', 'algoviz.decorators', 'decorators'}
+    True
 
     >>> @give_metadata_from(f)
     ... def g(): pass
-    >>> g.__module__.removeprefix('algoviz.')  # Depends how the test is run.
-    'decorators'
+    >>> g.__module__ == __name__
+    True
     >>> g.__name__, g.__qualname__, g.__doc__, g.__annotations__
     ('f', 'f', 'Wrapped docstring.', {})
     >>> hasattr(g, '__wrapped__')
@@ -241,8 +245,8 @@ def give_metadata_from(wrapped, *, expose=False):
 
     >>> @give_metadata_from(f, expose=True)
     ... def h(): pass
-    >>> h.__module__.removeprefix('algoviz.')  # Depends how the test is run.
-    'decorators'
+    >>> h.__module__ == __name__
+    True
     >>> h.__name__, h.__qualname__, h.__doc__, h.__annotations__
     ('f', 'f', 'Wrapped docstring.', {})
     >>> h.__wrapped__ is f
@@ -1006,15 +1010,18 @@ class linear_combinable:
     >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
     4
 
-    Check that metadata attributes are intact, accounting for how the value of
-    __module__ depends how the test is run:
+    Metadata attributes are intact (compare to give_metadata_from's doctests):
 
+    >>> __name__ in {'__main__', 'algoviz.decorators', 'decorators'}
+    True
     >>> for h in f, g, three:
-    ...     print([h.__module__.removeprefix('algoviz.'), h.__name__,
-    ...            h.__qualname__, h.__doc__, h.__annotations__])
-    ['decorators', 'f', 'f', 'Double a number.', {}]
-    ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
-    ['decorators', 'three', 'three', 'Return 3, for any argument.', {}]
+    ...     print([h.__module__ == __name__,
+    ...            h.__name__, h.__qualname__, h.__doc__, h.__annotations__])
+    [True, 'f', 'f', 'Double a number.', {}]
+    [True, 'g', 'g', 'Square a number and subtract 1.', {}]
+    [True, 'three', 'three', 'Return 3, for any argument.', {}]
+
+    It works with noncommutative multiplication:
 
     >>> import sympy, numbers
     >>> @numbers.Number.register  # Pretend to be a number. Just for testing!
@@ -1026,6 +1033,8 @@ class linear_combinable:
     2*x*y
     >>> (y * f)(x)
     2*y*x
+
+    It is idempotent, which is safe because __wrapped__ is read-only:
 
     >>> linear_combinable(f) is f
     True
