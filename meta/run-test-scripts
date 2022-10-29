@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-# This scripts runs Python modules as scripts when they look like they are
-# meant to be run that way as a way of running unit tests they contain. This is
-# for testing that it works to run them this way.
+# This script runs Python modules as scripts when they look like they are meant
+# to be run that way as a way of running unit tests they contain. It is for
+# testing that they work to run them this way.
+#
+# This script is for Unix-like systems. On Windows, use run-test-scripts.ps1.
 
 set -o pipefail
 shopt -s lastpipe
