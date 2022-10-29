@@ -8,14 +8,14 @@
 # be inspected before being committed, and some changes must be done manually.
 #
 # Run "meta/restructure help" for a brief summary of recommended use. For
-# detailed suggestions, including branch management, see restructure.md.
+# detailed suggestions, including branch management, see meta/restructure.md.
 #
 # This script is compatible with Windows, but only if it is run from Git Bash.
 #
 # Before committing or even testing ANY changes to this script, it should be
 # checked with ShellCheck. Running "shellcheck meta/restructure" will do this.
 
-set -e
+set -e -o pipefail
 shopt -s extglob failglob globstar
 
 show_usage() {
@@ -39,6 +39,7 @@ See $(dirname -- "$0")/restructure.md for more detailed suggestions.
 EOF
 }
 
+# Define variables for bold/bright text on standard output if it is a terminal.
 if [ -t 1 ]; then
     out_bold='\e[1m'
     out_normal='\e[0m'
@@ -47,6 +48,7 @@ else
     out_normal=''
 fi
 
+# Define variables for bold/bright text on standard error if it is a terminal.
 if [ -t 2 ]; then
     err_bold='\e[1m'
     err_normal='\e[0m'
@@ -55,44 +57,54 @@ else
     err_normal=''
 fi
 
+# Print a message to standard error, identifying this script as its origin.
 msg() {
-    printf '%b%s: %s%b\n' "$err_bold" "$0" "$1" "$err_normal" >&2
+    local message_text="$1"
+    printf '%b%s: %s%b\n' "$err_bold" "$0" "$message_text" "$err_normal" >&2
 }
 
+# Print a message to standard error, indicating that it represents an error.
 err() {
-    msg "error: $1"
+    local message_text="$1"
+    msg "error: $message_text"
 }
 
+# Print an error message and exit indicating failure.
 die() {
-    err "$1"
+    local message_text="$1"
+    err "$message_text"
     exit 1
 }
 
+# Print an error message about wrong invocation and exit indicating failure.
 argdie() {
-    die "$1 (try \"$0 help\")"
+    local message_text="$1"
+    die "$message_text (try \"$0 help\")"
 }
 
+# We'll use "sed -b" to avoid changing LF/CRLF. Stop if it may be unavailable.
 check_tooling() {
-    # If sed might not support "-b", bail out as early as possible.
     sed --version | grep -qF '(GNU sed)' || die 'need sed to be GNU sed'
 }
 
+# Some requirements apply to all actions. Stop if they are not met.
 check_shared_preconditions() {
-    # For all actions, we must be in the top-level repository directory.
+    # We must be in the top-level repository directory.
     [ -d .git ] || die 'not in repository root'
 
-    # And this directory must be called algoviz.
+    # This directory must be called algoviz.
     [ "$(basename -- "$PWD")" = algoviz ] ||
         die 'current directory is not called algoviz'
 
-    # And its parent directory must NOT be called algoviz. If the user is in
+    # Its parent directory must NOT be called algoviz. If the user is in
     # algoviz/algoviz by mistake, there should be no .git directory, but this
     # is simple and easy and protects against mistakes involving re-cloning.
     [ "$(basename -- "$(dirname -- "$PWD")")" != algoviz ] ||
         die 'current directory is algoviz/algoviz but we want the parent'
 }
 
-clean_for_coarse_reorganize() {
+# Some disposable files/directories would block reorganization. Delete them.
+clean_for_reorganize() {
     # Remove cached Python bytecode to avoid confusion and spare the user from
     # having to do manual and error-prone deletions in trivial cases. Bytecode
     # files are regenerated automatically, so this should always be safe.
@@ -103,7 +115,8 @@ clean_for_coarse_reorganize() {
     rmdir algoviz notebooks notes tests 2>/dev/null || :
 }
 
-check_coarse_reorganize_preconditions() {
+# Stop if requirements for reorganization are not met.
+check_reorganize_preconditions() {
     # We will be renaming algoviz/basics to algoviz/algoviz. Check if that's
     # safe. This avoids later moving basics INTO algoviz, gives clear errors,
     # and warns about the risk of mistakenly deleting the entire repository.
@@ -129,7 +142,8 @@ check_coarse_reorganize_preconditions() {
     done
 }
 
-do_coarse_reorganize() {
+# Move files into separate directories, updating references except in imports.
+reorganize() {
     # Split basics/ into multiple dirs, with configs and __init__.py in place.
     git mv basics algoviz
     git mv \
@@ -154,13 +168,17 @@ do_coarse_reorganize() {
     git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
 }
 
+# Given a package name, make a regexp matching possibly qualified module names.
 build_module_regex() (
-    cd -- "$1"
+    local package="$1"
+
+    cd -- "$package"
     module_filenames=(+([^.])?(.py)) # Extended glob. As a regex: [^.]+(.py)?
     IFS='|'
     printf '((%s)([.][[:alnum:]_.]+)?)' "${module_filenames[*]%.py}" # 3 groups
 )
 
+# Given a package name, update imports consuming it, in modules and doctests.
 patch_non_notebook_imports() {
     local package="$1"
 
@@ -177,6 +195,7 @@ patch_non_notebook_imports() {
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
 }
 
+# Given a package name, update imports consuming it, in notebooks.
 patch_notebook_imports() {
     local package="$1"
 
@@ -192,6 +211,7 @@ patch_notebook_imports() {
     sed -bri "$sed_script" notebooks/**/*.ipynb
 }
 
+# Print a message indicating a "full" action completed.
 show_success() {
     cat <<'EOF'
 All automated steps appear to have completed successfully.
@@ -259,9 +279,9 @@ printf '%bTASKS: %s%b\n\n' "$out_bold" "$tasks" "$out_normal"
 check_shared_preconditions
 
 if ((full)); then
-    clean_for_coarse_reorganize
-    check_coarse_reorganize_preconditions
-    do_coarse_reorganize
+    clean_for_reorganize
+    check_reorganize_preconditions
+    reorganize
 fi
 
 patch_non_notebook_imports algoviz
