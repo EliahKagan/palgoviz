@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# This scripts runs Python modules as scripts when they look like they are
+# meant to be run that way as a way of running unit tests they contain. This is
+# for testing that it works to run them this way.
+
+set -f -o pipefail
+
+run_matching() {
+    local label="$1" pattern="$2"
+    shift 2
+
+    printf '\nRunning scripts for %s:\n\n' "$label"
+
+    local line_pattern="^[ ]{4}${pattern}[ ]*$"
+
+    for f in $(git grep --untracked --name-only -E "$line_pattern"); do
+        [[ $f =~ ^[^/]$ ]] || f="./$f"
+        "$f" "$@"
+    done
+}
+
+run_matching 'unittest tests' 'unittest[.]main[(][)]' -q
+run_matching 'doctests' 'doctest[.]testmod[(][)]'

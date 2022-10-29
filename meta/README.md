@@ -42,3 +42,9 @@ and comments in `restructure` for details of that particular proposal.
 
 These are instructions for using the `restructure` script. Note that the script
 itself is documentation of *what* changes are proposed.
+
+### `run-test-scripts`
+
+This is a script that runs test-containing modules as script. It is a hackish
+way of doing so. If it is improved, and turns out to be useful, then it should
+be moved somewhere else.
