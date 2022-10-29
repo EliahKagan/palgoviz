@@ -179,7 +179,7 @@ build_module_regex() (
     printf '((%s)([.][[:alnum:]_.]+)?)' "${filenames[*]%.py}" # 3 groups
 )
 
-# Given a package name, updates imports consuming it, in modules and doctests.
+# Updates imports, in modules and docstrings, of modules in a given package.
 patch_non_notebook_imports() {
     local package="$1"
 
@@ -189,14 +189,14 @@ patch_non_notebook_imports() {
     local from_re="${front_re}from[ ]+${module_re}[ ]+import\b" # 5 groups
     local from_sub="\1from ${package}.\3 import"
 
-    local import_re="${front_re}import[ ]+${module_re}[ ]*(\r?)$" # 6 groups
+    local import_re="${front_re}import[ ]+${module_re}([ ]*(#.*)?\r?)$" # 7 groups
     local import_sub="\1from ${package} import \3\6"
 
     local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
 }
 
-# Given a package name, updates imports consuming it, in notebooks.
+# Updates imports, in notebooks, of modules in a given package.
 patch_notebook_imports() {
     local package="$1"
 
@@ -205,7 +205,7 @@ patch_notebook_imports() {
     local from_re="\"from[ ]+${module_re}[ ]+import[ ]+([^\"]+)\"" # 4 groups
     local from_sub="\"from ${package}.\1 import \4\""
 
-    local import_re="\"import[ ]+${module_re}[ ]*([\\]n)?\"" # 4 groups
+    local import_re="\"import[ ]+${module_re}([ ]*#[^\"]*|[\\]n)?\"" # 4 groups
     local import_sub="\"from ${package} import \1\4\""
 
     local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
