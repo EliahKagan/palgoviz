@@ -161,23 +161,35 @@ build_module_regex() (
     printf '((%s)([.][[:alnum:]_.]+)?)' "${module_filenames[*]%.py}" # 3 groups
 )
 
-patch_most_imports() {
+patch_non_notebook_imports() {
+    local package="$1"
+
     local front_re='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # 2 groups
-    local module_re; module_re="$(build_module_regex algoviz)" # 3 groups
+    local module_re; module_re="$(build_module_regex "$package")" # 3 groups
 
     local from_re="${front_re}from[ ]+${module_re}[ ]+import\b" # 5 groups
-    local from_sub='\1from algoviz.\3 import'
+    local from_sub="\1from ${package}.\3 import"
 
     local import_re="${front_re}import[ ]+${module_re}[ ]*(\r?)$" # 6 groups
-    local import_sub='\1from algoviz import \3\6'
+    local import_sub="\1from ${package} import \3\6"
 
     local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
 }
 
-# FIXME: Needs implementation.
 patch_notebook_imports() {
-    msg 'warning: patching notebook imports is not yet implemented'
+    local package="$1"
+
+    local module_re; module_re="$(build_module_regex "$package")" # 3 groups
+
+    local from_re="\"from[ ]+${module_re}[ ]+import[ ]+([^\"]+)\"" # 4 groups
+    local from_sub="\"from ${package}.\1 import \4\""
+
+    local import_re="\"import[ ]+${module_re}[ ]*\"" # 3 groups
+    local import_sub="\"from ${package} import \1\""
+
+    local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
+    sed -bri "$sed_script" notebooks/**/*.ipynb
 }
 
 show_success() {
@@ -252,10 +264,11 @@ if ((full)); then
     do_coarse_reorganize
 fi
 
-patch_most_imports
+patch_non_notebook_imports algoviz
 
 if ((nb)); then
-    patch_notebook_imports
+    patch_notebook_imports algoviz
+    patch_notebook_imports tests
 fi
 
 if ((full)); then
