@@ -131,6 +131,7 @@ check_reorganize_preconditions() {
     fi
 
     # Check if we should be able to create the other directories.
+    local d
     for d in notebooks notes tests; do
         if [ -e "$d" ]; then
             if [ -d "$d" ]; then
@@ -173,9 +174,9 @@ build_module_regex() (
     local package="$1"
 
     cd -- "$package"
-    module_filenames=(+([^.])?(.py)) # Extended glob. As a regex: [^.]+(.py)?
+    local -a filenames=(+([^.])?(.py)) # Extended glob. As a regex: [^.]+(.py)?
     IFS='|'
-    printf '((%s)([.][[:alnum:]_.]+)?)' "${module_filenames[*]%.py}" # 3 groups
+    printf '((%s)([.][[:alnum:]_.]+)?)' "${filenames[*]%.py}" # 3 groups
 )
 
 # Given a package name, updates imports consuming it, in modules and doctests.
