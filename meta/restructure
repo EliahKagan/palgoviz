@@ -57,37 +57,37 @@ else
     err_normal=''
 fi
 
-# Print a message to standard error, identifying this script as its origin.
+# Prints a message to standard error, identifying this script as its origin.
 msg() {
     local message_text="$1"
     printf '%b%s: %s%b\n' "$err_bold" "$0" "$message_text" "$err_normal" >&2
 }
 
-# Print a message to standard error, indicating that it represents an error.
+# Prints a message to standard error, indicating that it represents an error.
 err() {
     local message_text="$1"
     msg "error: $message_text"
 }
 
-# Print an error message and exit indicating failure.
+# Prints an error message and exit indicating failure.
 die() {
     local message_text="$1"
     err "$message_text"
     exit 1
 }
 
-# Print an error message about wrong invocation and exit indicating failure.
+# Prints an error message about wrong invocation and exits indicating failure.
 argdie() {
     local message_text="$1"
     die "$message_text (try \"$0 help\")"
 }
 
-# We'll use "sed -b" to avoid changing LF/CRLF. Stop if it may be unavailable.
+# Stops if "sed -b" (which helps to avoid changing LF/CRLF) may be unavailable.
 check_tooling() {
     sed --version | grep -qF '(GNU sed)' || die 'need sed to be GNU sed'
 }
 
-# Some requirements apply to all actions. Stop if they are not met.
+# Stops if any of the prerequisites that apply to ALL actions are not met.
 check_shared_preconditions() {
     # We must be in the top-level repository directory.
     [ -d .git ] || die 'not in repository root'
@@ -103,7 +103,7 @@ check_shared_preconditions() {
         die 'current directory is algoviz/algoviz but we want the parent'
 }
 
-# Some disposable files/directories would block reorganization. Delete them.
+# Deletes safely deletable files/directories that would block reorganization.
 clean_for_reorganize() {
     # Remove cached Python bytecode to avoid confusion and spare the user from
     # having to do manual and error-prone deletions in trivial cases. Bytecode
@@ -115,7 +115,7 @@ clean_for_reorganize() {
     rmdir algoviz notebooks notes tests 2>/dev/null || :
 }
 
-# Stop if requirements for reorganization are not met.
+# Stops if requirements for reorganization are not met.
 check_reorganize_preconditions() {
     # We will be renaming algoviz/basics to algoviz/algoviz. Check if that's
     # safe. This avoids later moving basics INTO algoviz, gives clear errors,
@@ -142,7 +142,7 @@ check_reorganize_preconditions() {
     done
 }
 
-# Move files into separate directories, updating references except in imports.
+# Moves files to their new locations. Fixes references in code, except imports.
 reorganize() {
     # Split basics/ into multiple dirs, with configs and __init__.py in place.
     git mv basics algoviz
@@ -168,7 +168,7 @@ reorganize() {
     git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
 }
 
-# Given a package name, make a regexp matching possibly qualified module names.
+# Given a package name, makes a regex matching possibly qualified module names.
 build_module_regex() (
     local package="$1"
 
@@ -178,7 +178,7 @@ build_module_regex() (
     printf '((%s)([.][[:alnum:]_.]+)?)' "${module_filenames[*]%.py}" # 3 groups
 )
 
-# Given a package name, update imports consuming it, in modules and doctests.
+# Given a package name, updates imports consuming it, in modules and doctests.
 patch_non_notebook_imports() {
     local package="$1"
 
@@ -195,7 +195,7 @@ patch_non_notebook_imports() {
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
 }
 
-# Given a package name, update imports consuming it, in notebooks.
+# Given a package name, updates imports consuming it, in notebooks.
 patch_notebook_imports() {
     local package="$1"
 
@@ -211,7 +211,7 @@ patch_notebook_imports() {
     sed -bri "$sed_script" notebooks/**/*.ipynb
 }
 
-# Print a message indicating a "full" action completed.
+# Prints a message to standard output indicating a "full" action completed.
 show_success() {
     cat <<'EOF'
 All automated steps appear to have completed successfully.
