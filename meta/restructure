@@ -154,12 +154,12 @@ do_coarse_reorganize() {
     git add algoviz/decorators.py tests/{test_context.py,test_greetall.txt}
 }
 
-build_module_regex() {
+build_module_regex() (
     cd -- "$1"
     module_filenames=(+([^.])?(.py)) # Extended glob. As a regex: [^.]+(.py)?
     IFS='|'
     printf '((%s)([.][[:alnum:]_.]+)?)' "${module_filenames[*]%.py}" # 3 groups
-}
+)
 
 patch_most_imports() {
     local front_re='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # 2 groups
