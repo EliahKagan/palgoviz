@@ -6,7 +6,7 @@
 #
 # This script is for Windows systems. It should also work on Unix-like systems
 # (if PowerShell is installed), but it won't check that files that should be
-# marked executable (for easy use on *nix) actuall are. On Unix-like systems,
+# marked executable (for easy use on *nix) actually are. On Unix-like systems,
 # it is better to use the Bash script run-test-scripts (no file extension).
 #
 # NOTE: This is a rough draft. Possible areas of improvement are revealed by:
@@ -17,8 +17,8 @@
 Set-StrictMode -Version Latest
 
 function Search($Pattern) {
-    $line_pattern = "^[ ]{4}${Pattern}[ ]*$"
-    git grep --untracked --name-only -E $line_pattern
+    $line_pattern = "^[ ]{4}${Pattern}[ ]*\r?$"
+    git grep --untracked --name-only -P $line_pattern
 }
 
 function Run-Matches($Label, $Pattern, $Arguments) {
