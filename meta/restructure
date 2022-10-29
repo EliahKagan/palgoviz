@@ -39,7 +39,7 @@ See $(dirname -- "$0")/restructure.md for more detailed suggestions.
 EOF
 }
 
-# Define variables for bold/bright text on standard output if it is a terminal.
+# Define "printf %b" argument to make text bold/bright if stdout is a terminal.
 if [ -t 1 ]; then
     out_bold='\e[1m'
     out_normal='\e[0m'
@@ -48,7 +48,7 @@ else
     out_normal=''
 fi
 
-# Define variables for bold/bright text on standard error if it is a terminal.
+# Define "printf %b" argument to make text bold/bright if stdout is a terminal.
 if [ -t 2 ]; then
     err_bold='\e[1m'
     err_normal='\e[0m'
