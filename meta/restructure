@@ -39,46 +39,46 @@ See $(dirname -- "$0")/restructure.md for more detailed suggestions.
 EOF
 }
 
-# Define "printf %b" argument to make text bold/bright if stdout is a terminal.
+# Define variables for bold/bright text on standard output if it is a terminal.
 if [ -t 1 ]; then
-    declare -r out_bold='\e[1m'
-    declare -r out_normal='\e[0m'
+    out_bold='\e[1m'
+    out_normal='\e[0m'
 else
-    declare -r out_bold=''
-    declare -r out_normal=''
+    out_bold=''
+    out_normal=''
 fi
 
-# Define "printf %b" argument to make text bold/bright if stderr is a terminal.
+# Define variables for bold/bright text on standard error if it is a terminal.
 if [ -t 2 ]; then
-    declare -r err_bold='\e[1m'
-    declare -r err_normal='\e[0m'
+    err_bold='\e[1m'
+    err_normal='\e[0m'
 else
-    declare -r err_bold=''
-    declare -r err_normal=''
+    err_bold=''
+    err_normal=''
 fi
 
 # Prints a message to standard error, identifying this script as its origin.
 msg() {
-    local -r message_text="$1"
+    local message_text="$1"
     printf '%b%s: %s%b\n' "$err_bold" "$0" "$message_text" "$err_normal" >&2
 }
 
 # Prints a message to standard error, indicating that it represents an error.
 err() {
-    local -r message_text="$1"
+    local message_text="$1"
     msg "error: $message_text"
 }
 
 # Prints an error message and exit indicating failure.
 die() {
-    local -r message_text="$1"
+    local message_text="$1"
     err "$message_text"
     exit 1
 }
 
 # Prints an error message about wrong invocation and exits indicating failure.
 argdie() {
-    local -r message_text="$1"
+    local message_text="$1"
     die "$message_text (try \"$0 help\")"
 }
 
@@ -171,49 +171,44 @@ reorganize() {
 
 # Given a package name, makes a regex matching possibly qualified module names.
 build_module_regex() (
-    local -r package="$1"
+    local package="$1"
 
     cd -- "$package"
-    local -ar filenames=(+([^.])?(.py)) # Extended glob like regex: [^.]+(.py)?
+    local -a filenames=(+([^.])?(.py)) # Extended glob. As a regex: [^.]+(.py)?
     IFS='|'
     printf '((%s)([.][[:alnum:]_.]+)?)' "${filenames[*]%.py}" # 3 groups
 )
 
 # Given a package name, updates imports consuming it, in modules and doctests.
 patch_non_notebook_imports() {
-    local -r package="$1"
+    local package="$1"
 
-    local -r front_re='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # 2 groups
+    local front_re='^([ ]{4}(>>>|[.]{3}[ ]{4})[ ]+)?' # 2 groups
+    local module_re; module_re="$(build_module_regex "$package")" # 3 groups
 
-    local module_re
-    module_re="$(build_module_regex "$package")" # 3 groups
-    readonly module_re
+    local from_re="${front_re}from[ ]+${module_re}[ ]+import\b" # 5 groups
+    local from_sub="\1from ${package}.\3 import"
 
-    local -r from_re="${front_re}from[ ]+${module_re}[ ]+import\b" # 5 groups
-    local -r from_sub="\1from ${package}.\3 import"
+    local import_re="${front_re}import[ ]+${module_re}[ ]*(\r?)$" # 6 groups
+    local import_sub="\1from ${package} import \3\6"
 
-    local -r import_re="${front_re}import[ ]+${module_re}[ ]*(\r?)$" # 6 groups
-    local -r import_sub="\1from ${package} import \3\6"
-
-    local -r sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
+    local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
     sed -bri "$sed_script" algoviz/**/*.py tests/**/*.{py,txt}
 }
 
 # Given a package name, updates imports consuming it, in notebooks.
 patch_notebook_imports() {
-    local -r package="$1"
+    local package="$1"
 
-    local module_re
-    module_re="$(build_module_regex "$package")" # 3 groups
-    readonly module_re
+    local module_re; module_re="$(build_module_regex "$package")" # 3 groups
 
-    local -r from_re="\"from[ ]+${module_re}[ ]+import[ ]+([^\"]+)\"" # 4 groups
-    local -r from_sub="\"from ${package}.\1 import \4\""
+    local from_re="\"from[ ]+${module_re}[ ]+import[ ]+([^\"]+)\"" # 4 groups
+    local from_sub="\"from ${package}.\1 import \4\""
 
-    local -r import_re="\"import[ ]+${module_re}[ ]*\"" # 3 groups
-    local -r import_sub="\"from ${package} import \1\""
+    local import_re="\"import[ ]+${module_re}[ ]*\"" # 3 groups
+    local import_sub="\"from ${package} import \1\""
 
-    local -r sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
+    local sed_script="s/$from_re/$from_sub/; s/$import_re/$import_sub/"
     sed -bri "$sed_script" notebooks/**/*.ipynb
 }
 
@@ -248,18 +243,28 @@ check_tooling
 (( $# >= 1 )) || argdie "too few arguments"
 (( $# <= 1 )) || argdie "too many arguments"
 
+declare -i full nb
+
 case "$1" in
 full-with-nb)
-    declare -ri full=1 nb=1
+    full=1
+    nb=1
+    tasks='Organize project. Fix module/doctest imports. Fix notebook imports.'
     ;;
 full-no-nb)
-    declare -ri full=1 nb=0
+    full=1
+    nb=0
+    tasks='Organize project. Fix module/doctest imports.'
     ;;
 imports-with-nb)
-    declare -ri full=0 nb=1
+    full=0
+    nb=1
+    tasks='Fix module/doctest imports. Fix notebook imports.'
     ;;
 imports-no-nb)
-    declare -ri full=0 nb=0
+    full=0
+    nb=0
+    tasks='Fix module/doctest imports.'
     ;;
 help|usage|--help|-h)
     show_usage
@@ -269,14 +274,6 @@ help|usage|--help|-h)
     argdie "unknown action \"$1\""
     ;;
 esac
-
-declare tasks='Fix module/doctest imports.' # We always do this.
-if ((full)); then
-    tasks="Organize project. $tasks"
-fi
-if ((nb)); then
-    tasks="$tasks Fix notebook imports."
-fi
 
 printf '%bTASKS: %s%b\n\n' "$out_bold" "$tasks" "$out_normal"
 
