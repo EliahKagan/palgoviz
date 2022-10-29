@@ -232,15 +232,19 @@ def give_metadata_from(wrapped, *, expose=False):
 
     >>> @give_metadata_from(f)
     ... def g(): pass
-    >>> g.__name__, g.__module__, g.__qualname__, g.__doc__, g.__annotations__
-    ('f', 'decorators', 'f', 'Wrapped docstring.', {})
+    >>> g.__module__.removeprefix('algoviz.')  # Depends how the test is run.
+    'decorators'
+    >>> g.__name__, g.__qualname__, g.__doc__, g.__annotations__
+    ('f', 'f', 'Wrapped docstring.', {})
     >>> hasattr(g, '__wrapped__')
     False
 
     >>> @give_metadata_from(f, expose=True)
     ... def h(): pass
-    >>> h.__name__, h.__module__, h.__qualname__, h.__doc__, h.__annotations__
-    ('f', 'decorators', 'f', 'Wrapped docstring.', {})
+    >>> h.__module__.removeprefix('algoviz.')  # Depends how the test is run.
+    'decorators'
+    >>> h.__name__, h.__qualname__, h.__doc__, h.__annotations__
+    ('f', 'f', 'Wrapped docstring.', {})
     >>> h.__wrapped__ is f
     True
 
@@ -1001,8 +1005,13 @@ class linear_combinable:
 
     >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
     4
-    >>> for h in f, g, three:  # Check that metadata attributes are intact.
-    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
+
+    Check that metadata attributes are intact, accounting for how the value of
+    __module__ depends how the test is run:
+
+    >>> for h in f, g, three:
+    ...     print([h.__module__.removeprefix('algoviz.'), h.__name__,
+    ...            h.__qualname__, h.__doc__, h.__annotations__])
     ['decorators', 'f', 'f', 'Double a number.', {}]
     ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
     ['decorators', 'three', 'three', 'Return 3, for any argument.', {}]

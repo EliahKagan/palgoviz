@@ -142,7 +142,6 @@ do_coarse_reorganize() {
 
     # Patch config files and newly broken module code except for imports.
     sed -bri 's/^name:[ ]+algoviz-basics\b/name: algoviz/' environment.yml
-    sed -bri "s/'decorators'/'algoviz.decorators'/" algoviz/decorators.py
     sed -bri "s/'test_context'/'tests.test_context'/" tests/test_context.py
     sed -bri '
         s@\bgreetall.py\b@algoviz/greetall.py@
