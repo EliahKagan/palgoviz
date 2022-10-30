@@ -297,7 +297,23 @@ class PaletteIterator:
     >>> import weakref; weakref.ref(it)  # doctest: +ELLIPSIS
     <weakref at 0x...; to 'PaletteIterator' at 0x...>
     """
-    # FIXME: Implement this.
+
+    __slots__ = ("__weakref__", "_colors")
+
+    def __init__(self):
+        self._colors = ["blue", "green", "red"]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._colors:
+            return self._colors.pop()
+        raise StopIteration
+
+    def close(self):
+        """Skip to end. (Like close() on a generator.)"""
+        self._colors.clear()
 
 
 class Palette:
