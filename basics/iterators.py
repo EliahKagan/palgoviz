@@ -235,8 +235,14 @@ class PaletteG:
 PaletteG()  # For thread safety.
 
 
-# FIXME: Define a non-public enumeration, _State, to represent states that
-# a PaletteIterator instance can be in. PaletteIterator will use this enum.
+@enum.unique
+class _State(enum.Enum):
+    """State of a PaletteIterator."""
+
+    RED = enum.auto()
+    GREEN = enum.auto()
+    BLUE = enum.auto()
+    DONE = enum.auto()
 
 
 class PaletteIterator:
@@ -298,22 +304,33 @@ class PaletteIterator:
     <weakref at 0x...; to 'PaletteIterator' at 0x...>
     """
 
-    __slots__ = ("__weakref__", "_colors")
+    __slots__ = ("__weakref__", "_state")
 
     def __init__(self):
-        self._colors = ["blue", "green", "red"]
+        self._state = _State.RED
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self._colors:
-            return self._colors.pop()
-        raise StopIteration
+        match self._state:
+            case _State.RED:
+                self._state = _State.GREEN
+                return "red"
+            case _State.GREEN:
+                self._state = _State.BLUE
+                return "green"
+            case _State.BLUE:
+                self._state = _State.DONE
+                return "blue"
+            case _State.DONE:
+                raise StopIteration
+
+        raise AssertionError("Invalid state")
 
     def close(self):
         """Skip to end. (Like close() on a generator.)"""
-        self._colors.clear()
+        self._state = _State.DONE
 
 
 class Palette:
