@@ -309,10 +309,16 @@ class PaletteIterator:
     def __init__(self):
         self._state = _State.RED
 
+    def __repr__(self):
+        """Show id and state. Not runnable as code."""
+        return (f"<{type(self).__name__} at {id(self):#x}"
+                f", state={self._state.name}>")
+
     def __iter__(self):
         return self
 
     def __next__(self):
+        """Get the next color."""
         match self._state:
             case _State.RED:
                 self._state = _State.GREEN
@@ -355,10 +361,10 @@ class Palette:
     >>> import itertools; list(itertools.chain(palette, palette))
     ['red', 'green', 'blue', 'red', 'green', 'blue']
 
-    >>> iter(palette)  # FIXME: Fill in the second "...".  # doctest: +ELLIPSIS
-    <PaletteIterator at 0x..., state=...>
-    >>> next(_), _     # FIXME: Here, too. (It changed.)   # doctest: +ELLIPSIS
-    ('red', <PaletteIterator at 0x..., state=...>)
+    >>> iter(palette)  # doctest: +ELLIPSIS
+    <PaletteIterator at 0x..., state=RED>
+    >>> next(_), _  # doctest: +ELLIPSIS
+    ('red', <PaletteIterator at 0x..., state=GREEN>)
 
     >>> {Palette(), Palette()}
     {Palette()}
@@ -367,7 +373,27 @@ class Palette:
     >>> Palette() is PaletteG()  # That would be bad.
     False
     """
-    # FIXME: Implement this.
+
+    __slots__ = ()
+
+    _instance = None
+
+    def __new__(cls):
+        """Palette is a singleton."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self):
+        """Representation as Python code."""
+        return f'{type(self).__name__}()'
+
+    def __iter__(self):
+        """Get an iterator to the colors."""
+        return PaletteIterator()
+
+
+Palette()  # For thread safety.
 
 
 def collatz(n):
