@@ -491,7 +491,37 @@ class Collatz:
     >>> it.peek() is None
     True
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('_value')
+
+    def __init__(self, value):
+        self._value = value
+
+    def __repr__(self):
+        """Show id and state. Not runnable as code."""
+        if self._value is None:
+            return (f"<{type(self).__name__} at {id(self):#x}"
+                    f", done>")
+        return (f"<{type(self).__name__} at {id(self):#x}"
+                f", value={self._value}>")
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        match self._value:
+            case None:
+                raise StopIteration
+            case 1:
+                self._value = None
+                return 1
+            case _:
+                n = self._value
+                self._value = n//2 if n%2 == 0 else n*3 + 1
+                return n
+
+    def peek(self):
+        return self._value
 
 
 __all__ = [thing.__name__ for thing in (
