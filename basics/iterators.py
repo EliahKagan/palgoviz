@@ -424,7 +424,13 @@ def collatz(n):
      866, 433, 1300, 650, 325, 976, 488, 244, 122, 61, 184, 92, 46, 23, 70, 35,
      106, 53, 160, 80, 40, 20, 10, 5, 16, 8, 4, 2, 1]
     """
-    # FIXME: Implement this.
+    while True:
+        yield n
+
+        if n == 1:
+            return
+
+        n = n//2 if n%2 == 0 else 3*n + 1
 
 
 class Collatz:
