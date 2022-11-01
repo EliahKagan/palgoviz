@@ -57,7 +57,7 @@ particular, classroom use is not currently a focus.
 This project is meant to be used in a Conda environment, so you need `conda`
 (or `mamba`).
 
-If you don't have it already, we suggested
+If you don't have it already, we suggest
 [Miniforge](https://github.com/conda-forge/miniforge), which is what we're
 using.
 
@@ -71,9 +71,9 @@ distributions.)
 All the following `conda` commands can be run with `mamba` instead of `conda`
 if you have `mamba` installed.
 
-The exception is that, on Windows, `conda activate` and `conda deactivate`must
-still be used on Windows (as of this writing). This is due tolimitations in
-`mamba` PowerShell integration.
+The exception is that, on Windows, `conda activate` and `conda deactivate` must
+still be used, due to [limitations in `mamba` PowerShell
+integration](https://github.com/mamba-org/mamba/issues/1717).
 
 For commands that create and update the environment, `mamba` may be faster than
 `conda`.
@@ -94,7 +94,7 @@ For commands that create and update the environment, `mamba` may be faster than
     conda activate algoviz
     ```
 
-4. Create an "editable install" in the environment.
+4. Create an "editable install" in the environment:
 
     ```sh
     conda develop .
@@ -107,11 +107,12 @@ For commands that create and update the environment, `mamba` may be faster than
     functionality, and tests for that functionality, will fail without it.
 
     That command is analogous to using `pip install -e` when developing in a
-    Python virtual environment rather than a Conda environment. (At this time,
-    creating wheels from this project is not supported or considered valuable.)
+    Python virtual environment rather than a Conda environment.
 
-It is suggested to proceed to the **What's here?** and **Usage** sections
-below.
+Creating a wheel or Conda package from this project is probably not very
+useful, and is not supported at this time.
+
+See the **What's here?** and **Usage** sections below.
 
 ### Updating the environment
 
@@ -205,7 +206,8 @@ has detected this.
 
 ### Running tests
 
-Tests can be run from VS Code or another IDE, but you may want to run them from a terminal (and they may run faster that way, too).
+Tests can be run from VS Code or another IDE, but you may want to run them from
+a terminal (and they may run faster that way, too).
 
 To do that, first activate the `algoviz` Conda environment in your terminal if
 you haven't already:
@@ -223,7 +225,8 @@ pytest --doctest-modules
 
 ### Other test runners
 
-Only the `pytest` test runner will run *all* tests in the project, but if you want to use the `unittest` test runner to run the `unittest` tests, you can:
+Only the `pytest` test runner will run *all* tests in the project, but if you
+want to use the `unittest` test runner to run the `unittest` tests, you can:
 
 ```sh
 python -m unittest
@@ -235,7 +238,8 @@ If you want to use the `doctest` test runner to run the doctests, you can:
 python -m doctest algoviz/*.py tests/*.py tests/*.txt
 ```
 
-That command is for a Unix-style shell. If you're using Windows, you're probably in PowerShell and should use:
+That command is for a Unix-style shell. If you're using Windows, you're
+probably in PowerShell and should use:
 
 ```sh
 python -m doctest (gci algoviz/*.py) (gci tests/*.py) (gci tests/*.txt)
@@ -298,6 +302,25 @@ Share](https://visualstudio.microsoft.com/services/live-share/). We used this
 to develop substantial parts of this project. It was also a major part of how
 we reimplemented and discussed most of the code in the `algoviz` package to
 check that it was in good shape to be (re)worked as exercises.
+
+### Notebooks in VS Code
+
+When using VS Code to work with other parts of the project, it is convenient to
+edit notebooks in VS Code as well. Furthermore, these days that seems to work
+pretty well with Live Share.
+
+<!-- FIXME: Verify and expand above: link to info on VSLS Jupyter features. -->
+
+The biggest hurdle is cells that are *intended* to raise an unhandled
+exception. When running multiple cells in a notebook (for example, the whole
+notebook), JupyterLab heeds the `raises-exception` cell tag, printing a
+traceback but continuing execution with the next cell. In contrast, the
+`vscode-jupyter` extension does not yet do so.
+
+Eventually this will be fully fixed in `vscode-jupyter`, at which point VS Code
+may become the best way to work with the notebooks in this project. This is
+related to
+[microsoft/vscode-jupyter#11441](https://github.com/microsoft/vscode-jupyter/issues/11441).
 
 <!-- FIXME: Add an Acknowledgements section. -->
 
