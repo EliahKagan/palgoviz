@@ -501,8 +501,11 @@ class Collatz:
     def __repr__(self):
         """Show id and state. Not runnable as code."""
         name_id = f"{type(self).__name__} at {id(self):#x}"
-        state = ("done" if self._value is None else f"value={self._value!r}")
-        return f"<{name_id}, {state}>"
+        match self._value:
+            case None:
+                return f"<{name_id}, done>"
+            case value:
+                return f"<{name_id}, {value=}>"
 
     def __iter__(self):
         return self
