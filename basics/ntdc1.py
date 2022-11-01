@@ -35,7 +35,7 @@ of functions that return their instances, so that, when worked as exercises,
 the classes can be written from scratch.) However, readers with no familiarity
 with named tuples, data classes, or type annotations may be better off learning
 a little about at least one, first. In this project, the material intended as a
-first introduction to named tuples and data classes is in aggregate.ipynb.
+first introduction to named tuples and data classes is in ntdc.ipynb.
 
 A goal of this module is to show alternatives, so code is freely duplicated
 across functions, and across classes, when sharing it would obscure anything or
@@ -2536,7 +2536,7 @@ def summarize_as_frozen_attrs_ordered(values, *, precision=DEFAULT_PRECISION):
     as the modern attrs API does, is thus a better default (given that Python 2
     is no longer supported). When enabling order comparisons, it is also often
     important to customize them, by specifying key selector functions for one
-    or more fields or omitting some fields. This is explored in aggregate2.py.
+    or more fields or omitting some fields. This is explored in ntdc2.py.
 
     But even when they are not conceptually meaningful, it may occasionally be
     appropriate to enable order comparisons as the classic API does by default.

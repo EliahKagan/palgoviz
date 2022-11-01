@@ -102,6 +102,7 @@
         "nonpositive",
         "nonrecursively",
         "nonstring",
+        "ntdc",
         "nullary",
         "nums",
         "objgraph",
