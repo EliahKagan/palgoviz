@@ -492,35 +492,36 @@ class Collatz:
     True
     """
 
-    __slots__ = ('_value')
+    __slots__ = ('_value',)
 
     def __init__(self, value):
+        """Create an iterator for a Collatz sequence with starting value."""
         self._value = value
 
     def __repr__(self):
         """Show id and state. Not runnable as code."""
-        if self._value is None:
-            return (f"<{type(self).__name__} at {id(self):#x}"
-                    f", done>")
-        return (f"<{type(self).__name__} at {id(self):#x}"
-                f", value={self._value}>")
+        name_id = f"{type(self).__name__} at {id(self):#x}"
+        state = ("done" if self._value is None else f"value={self._value!r}")
+        return f"<{name_id}, {state}>"
 
     def __iter__(self):
         return self
 
     def __next__(self):
+        """Get the next number in the Collatz sequence."""
         match self._value:
             case None:
                 raise StopIteration
-            case 1:
+            case 1 as n:
                 self._value = None
-                return 1
-            case _:
-                n = self._value
-                self._value = n//2 if n%2 == 0 else n*3 + 1
-                return n
+            case n if n%2 == 0:
+                self._value = n//2
+            case n:
+                self._value = n*3 + 1
+        return n
 
     def peek(self):
+        """See the next number in the Collatz sequence."""
         return self._value
 
 
