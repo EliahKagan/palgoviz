@@ -22,8 +22,8 @@ kinds of iterable objects can reasonably return an existing object, while
 attempts to construct iterators (including generator objects) must always
 return a newly created object.
 
-(Arguably there is one exception to that rule about iterators: [FIXME: what?],
-because [FIXME: why?].)
+(Arguably there is one exception to that rule about iterators: empty iterators,
+because they only have one state.)
 """
 
 import enum  # isort: skip
