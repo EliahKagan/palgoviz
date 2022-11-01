@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# This script runs Python modules as scripts when they look like they are meant
+# to be run that way as a way of running unit tests they contain. It is for
+# testing that they work to run them this way.
+#
+# This script is for Unix-like systems. On Windows, use run-test-scripts.ps1.
+
+set -o pipefail
+shopt -s lastpipe
+
+search() {
+    local -r pattern="$1"
+    local -r line_pattern="^[ ]{4}${pattern}[ ]*$"
+    git grep --untracked --name-only -E "$line_pattern"
+}
+
+run_matching() {
+    local -r label="$1" pattern="$2"
+    shift 2
+
+    printf '\nRunning scripts for %s:\n\n' "$label"
+
+    local file
+    search "$pattern" | while IFS= read -r file; do
+        [[ $file =~ ^[^/]$ ]] || file="./$file"
+        "$file" "$@"
+    done
+}
+
+run_matching 'unittest tests' 'unittest[.]main[(][)]' -q "$@"
+run_matching 'doctests' 'doctest[.]testmod[(][)]' "$@"
