@@ -132,8 +132,8 @@ def curry_one(function):
     Convert a binary function to a unary function returning a unary function.
 
     Calling the returned function binds a first argument, thus returning a
-    unary function requiring only a second argument. That is, if curry(f)
-    returns g, both f(x, y) and g(x)(y) have the same behavior and results.
+    unary function requiring only a second argument. After g = curry(f), both
+    f(x, y) and g(x)(y) have the same behavior and results.
 
     >>> import operator
     >>> curry_one(operator.add)('ab')('cd')
@@ -158,8 +158,8 @@ __all__ = [thing.__name__ for thing in (
 )]
 
 
-# Can also run:  python -m doctest composers.py
-# (Pass -v after doctest for verbose output.)
+# Can also run:  python -m doctest algoviz/composers.py
+# (Pass "-v" after "doctest" for verbose output.)
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

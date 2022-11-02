@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-"""Demonstration of the match...case statement."""
+"""
+Very basic demonstration of the match...case statement.
+
+For more interesting uses, along the lines of what match...case was actually
+introduced to the language to facilitate, see assign2.ipynb.
+"""
 
 import sys
 

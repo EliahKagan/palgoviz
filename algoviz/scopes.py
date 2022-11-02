@@ -3,9 +3,9 @@
 x = 'outer'
 
 
-# Even though python is dynamically typed, it is statically scoped. That's why
-# "print(x)" in this function raises an UnboundLocalError exception. f()
-# attempts to print the *local variable* x, which doesn't exist.
+# Even though Python is dynamically typed, it is statically scoped. That's why
+# "print(x)" in this function raises an UnboundLocalError exception. Calling
+# f() attempts to print the *local variable* x, which doesn't exist.
 def f():
     # flake8 says: F823 local variable 'x' defined in enclosing scope on line 3
     #              referenced before assignment

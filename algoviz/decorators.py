@@ -17,8 +17,8 @@ def peek_arg(func):
     """
     Decorator wrapping a unary function and showing calls to it.
 
-    This peeks at the argument passed when the function is called.
-    It does not show the value returned.
+    This peeks at the argument passed when the function is called. It does not
+    show the value returned.
 
     >>> @peek_arg
     ... def square(n): return n**2
@@ -184,8 +184,8 @@ def peek(func):
     r"""
     Decorator to report calls with arbitrary arguments, and to report returns.
 
-    This is like @peek_one (or @peek_arg and @peek_return), but the func need
-    not be unary. Positional and keyword arguments are passed along to func.
+    This is like @peek_one (or @peek_arg and @peek_return), but func need not
+    be unary. Positional and keyword arguments are passed along to func.
 
     >>> @peek
     ... def square(x): return x**2
@@ -224,7 +224,7 @@ def give_metadata_from(wrapped, *, expose=False):
     the wrapped function.
 
     __wrapped__ is a dunder, but this should be okay because it is not a new
-    dunder and is being used as documented in functools.update_wrapper:
+    dunder, and it is being used as documented in functools.update_wrapper:
 
     https://docs.python.org/3/library/functools.html#functools.update_wrapper
 
@@ -616,7 +616,7 @@ def dict_equality(cls):
     NOTE: This always adds hashing even if there are signs of mutability, such
     as writeable attributes whose names do not start with an underscore. But
     instances that themselves have attributes (stored in their instance
-    dictionaries) whose values are non-hashable objects are non-hashable.
+    dictionaries), whose values are non-hashable objects, are non-hashable.
 
     >>> @dict_equality
     ... class Point:
@@ -903,9 +903,9 @@ def repeat_collect(count=2):
     Optionally parameterized decorator to repeat a function and return all
     results.
 
-    This is like @repeat(), except (1) this can decorate any function of any
-    signature, not just parameterless functions, (2) it returns a tuple of the
-    results from each call, and (3) it can be used as a decorator factory or a
+    This is like @repeat(), except (a) this can decorate any function of any
+    signature, not just parameterless functions, (b) it returns a tuple of the
+    results from each call, and (c) it can be used as a decorator factory or a
     plain decorator (in which case the default repetition count of 2 is used).
 
     It is not a goal to return information about combinations of successes and
@@ -962,6 +962,9 @@ def repeat_collect(count=2):
 # NOTE: To reset this exercise to be worked again, change what is currently its
 #       "class" line back to "def linear_combinable(func):" in addition to the
 #       the usual step of removing the body below the docstring.
+#
+#       One approach is to present this initially with "It is idempotent..."
+#       and subsequent doctests omitted, restoring them after other tests pass.
 class linear_combinable:
     """
     Decorator to wrap a function to support addition and scalar multiplication.
@@ -972,9 +975,9 @@ class linear_combinable:
     types, and "/" with nonzero instances of a Number type on the right. The
     results of all these operations themselves support these operations.
 
-    The initial implementation should not use any helpers. But you may modify
-    "def linear_combinable(func):" in any way that does not misinform the
-    caller about proper usage (so no implementation-detail parameters).
+    This does not use any helpers. But "def linear_combinable(func):" may be
+    modified in any way that does not misinform the caller about proper usage
+    (so no implementation-detail parameters).
 
     >>> @linear_combinable
     ... def f(x): 'Double a number.'; return x * 2
