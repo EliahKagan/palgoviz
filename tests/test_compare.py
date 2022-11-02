@@ -14,7 +14,7 @@ import unittest
 
 from parameterized import parameterized
 
-from compare import OrderIndistinct, Patient, WeakDiamond
+from algoviz.compare import OrderIndistinct, Patient, WeakDiamond
 
 
 class TestWeakDiamond(unittest.TestCase):

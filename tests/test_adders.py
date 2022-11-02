@@ -8,7 +8,7 @@ import unittest
 import attrs
 from parameterized import parameterized
 
-import adders
+from algoviz import adders
 
 
 class _TestAddersAbstract(ABC, unittest.TestCase):
@@ -108,6 +108,7 @@ class _TestAdderClassesAbstract(_TestAddersAbstract):
         a = self.impl(7)
         with self.assertRaises(AttributeError):
             a.right_addend = 5
+
 
 class TestMakeAdder(_TestAddersAbstract):
     """Tests for the make_adder function."""

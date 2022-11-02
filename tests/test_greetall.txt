@@ -1,4 +1,4 @@
-Doctests for greetall.py.
+Doctests for algoviz/greetall.py.
 
 TODO: Write better, more exhaustive tests, probably with pytest.
 
@@ -6,7 +6,7 @@ TODO: Write better, more exhaustive tests, probably with pytest.
 Doctests for running the script - argument parsing, file handling, greeting:
 
     >>> from subprocess import getstatusoutput as gso
-    >>> status, output = gso('python greetall.py ../data/names.txt')
+    >>> status, output = gso('python algoviz/greetall.py data/names.txt')
     >>> status
     0
     >>> print(output)
@@ -14,7 +14,7 @@ Doctests for running the script - argument parsing, file handling, greeting:
     Hello, David!
     Hello, Dr. Evil!
 
-    >>> status, output = gso('python greetall.py ../data/names2.txt es')
+    >>> status, output = gso('python algoviz/greetall.py data/names2.txt es')
     >>> status
     0
     >>> print(output)
@@ -23,61 +23,61 @@ Doctests for running the script - argument parsing, file handling, greeting:
     ¡Hola, Dr. Evil!
     ¡Hola, Stalin!
 
-    >>> status, output = gso('python greetall.py')
+    >>> status, output = gso('python algoviz/greetall.py')
     >>> status
     1
     >>> print(output)
-    ERROR in greetall.py: Did not pass a filename
+    ERROR in algoviz/greetall.py: Did not pass a filename
 
-    >>> status, output = gso('python greetall.py ../data/names.txt qx')
+    >>> status, output = gso('python algoviz/greetall.py data/names.txt qx')
     >>> status
     1
     >>> print(output)
-    ERROR in greetall.py: qx is an unrecognized language code.
+    ERROR in algoviz/greetall.py: qx is an unrecognized language code.
 
-    >>> status, output = gso('python greetall.py ../data/names.txt en foo')
+    >>> status, output = gso('python algoviz/greetall.py data/names.txt en foo')
     >>> status
     0
     >>> print(output)
-    WARNING in greetall.py: Too many arguments, see docstring for usage
+    WARNING in algoviz/greetall.py: Too many arguments, see docstring for usage
     Hello, Eliah!
     Hello, David!
     Hello, Dr. Evil!
 
-    >>> status, output = gso('python greetall.py ../data/nonexistent.txt')
+    >>> status, output = gso('python algoviz/greetall.py data/nonexistent.txt')
     >>> status
     1
-    >>> output.startswith('ERROR in greetall.py:')
+    >>> output.startswith('ERROR in algoviz/greetall.py:')
     True
 
-    >>> status, output = gso('python greetall.py .')
+    >>> status, output = gso('python algoviz/greetall.py .')
     >>> status
     1
-    >>> output.startswith('ERROR in greetall.py:')
+    >>> output.startswith('ERROR in algoviz/greetall.py:')
     True
 
 
 Doctests for the Config class (see also test_greetall.py):
 
-    >>> import greet
-    >>> from greetall import Config, greet_all, greet_all_try
+    >>> from algoviz import greet
+    >>> from algoviz.greetall import Config, greet_all, greet_all_try
 
     >>> Config()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     Config(names_processor=<function greet_all at 0x...>,
-           greeter_factory=<class 'greet.FrozenGreeter'>)
+           greeter_factory=<class 'algoviz.greet.FrozenGreeter'>)
     >>> _ == Config(greet_all, greet.FrozenGreeter)
     True
 
     >>> Config(greet_all_try)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     Config(names_processor=<function greet_all_try at 0x...>,
-           greeter_factory=<class 'greet.FrozenGreeter'>)
+           greeter_factory=<class 'algoviz.greet.FrozenGreeter'>)
     >>> _ == Config(greet_all_try, greet.FrozenGreeter)
     True
 
     >>> Config(greeter_factory=greet.MutableGreeter)
     ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     Config(names_processor=<function greet_all at 0x...>,
-           greeter_factory=<class 'greet.MutableGreeter'>)
+           greeter_factory=<class 'algoviz.greet.MutableGreeter'>)
     >>> _ == Config(greet_all, greet.MutableGreeter)
     True
 

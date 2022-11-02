@@ -19,7 +19,7 @@ this script uses. See also the visualizations in subproblems.ipynb.
 
 import sys
 
-from fibonacci import fib_n
+from algoviz.fibonacci import fib_n
 
 
 def _show_message(prefix, message):

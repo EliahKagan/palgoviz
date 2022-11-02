@@ -991,7 +991,7 @@ def my_chain(*iterables):
     [10, 20, 30, 11, 22, 33]
     >>> list(my_chain.from_iterable(iter(row) for row in rows))
     [10, 20, 30, 11, 22, 33]
-    >>> from gencomp1 import windowed
+    >>> from algoviz.gencomp1 import windowed
     >>> list(my_chain.from_iterable(windowed(range(10), 3)))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
 

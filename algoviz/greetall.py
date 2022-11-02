@@ -13,13 +13,13 @@ Basic examples/tests:
 
     >>> from subprocess import getstatusoutput as gso
 
-    >>> _, output = gso('python greetall.py ../data/names.txt en')
+    >>> _, output = gso('python algoviz/greetall.py data/names.txt en')
     >>> print(output)
     Hello, Eliah!
     Hello, David!
     Hello, Dr. Evil!
 
-    >>> _, output = gso('python greetall.py ../data/names.txt es')
+    >>> _, output = gso('python algoviz/greetall.py data/names.txt es')
     >>> print(output)
     ¡Hola, Eliah!
     ¡Hola, David!
@@ -34,7 +34,7 @@ import sys
 
 import attrs
 
-import greet
+from algoviz import greet
 
 
 def pmessage(prefix, message):
@@ -88,7 +88,7 @@ class Config:
 
     >>> Config()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     Config(names_processor=<function greet_all at 0x...>,
-           greeter_factory=<class 'greet.FrozenGreeter'>)
+           greeter_factory=<class 'algoviz.greet.FrozenGreeter'>)
     >>> _ == Config(greet_all, greet.FrozenGreeter)
     True
     >>> Config() == Config(names_processor=greet_all_try)

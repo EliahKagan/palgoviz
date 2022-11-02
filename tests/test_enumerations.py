@@ -7,7 +7,7 @@ import unittest
 
 from parameterized import parameterized
 
-from enumerations import BearBowl, Guests
+from algoviz.enumerations import BearBowl, Guests
 
 
 class TestBearBowl(unittest.TestCase):
