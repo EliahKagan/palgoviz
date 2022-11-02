@@ -228,14 +228,14 @@ def three_sum_indices_1(a, b, c, target):
     This is the first of four implementations, which cover all four
     combinations of two independent choices:
 
-        (A) Two implementations return generator expressions and do not contain
-            loops. The other two are written as generator functions and do not
-            use comprehensions.
+    (A) Two implementations return generator expressions and do not contain
+        loops. The other two are written as generator functions and do not use
+        comprehensions.
 
-        (B) Two implementations use something from itertools to simplify and
-            shorten their code, but are slower in some situations (though the
-            worst case efficiency is the same). The other two don't do that,
-            instead avoiding doing extra work.
+    (B) Two implementations use something from itertools to simplify and
+        shorten their code, but are slower in some situations (though the worst
+        case efficiency is the same). The other two don't do that, instead
+        avoiding doing extra work.
 
     It is acceptable for all four implementations to take time proportional to
     the product of the lengths of a, b, and c, even on average.
@@ -420,6 +420,15 @@ def flatten2(iterable):
 
     It may be useful to check if an object is iterable by LBYL. You can do this
     by checking if it is considered an instance of collections.abc.Iterable.
+
+    (Such an LBYL check can, technically, give a false negative. A class is a
+    subclass of Iterable when it defines __iter__, inherits from Iterable, or
+    is registered as a virtual subclass of Iterable. But defining __getitem__
+    without __iter__ will also support iteration! This is mostly for backward
+    compatibility. Such classes are rare in modern code. When they occur, they
+    may not have been intended to support iteration, which may or may not work
+    properly. In this function, as in many but not all other cases, it is okay
+    to assume objects that aren't instances of Iterable are non-iterable.)
 
     >>> list(flatten2([0, [1, 2], (3, 4, [5, 6, [7]], 8), [9], 10, [{(11,)}]]))
     [5, 6, [7], (11,)]

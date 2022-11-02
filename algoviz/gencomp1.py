@@ -366,7 +366,7 @@ def print_zipped():
 
 
 def _validate_take(n):
-    """Shared validation logic for take and take_good functions."""
+    """Shared validation logic for the take and take_good functions."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
 
@@ -473,7 +473,7 @@ def take(iterable, n):
 
 
 def _validate_drop(n):
-    """Shared validation logic for drop and drop_good functions."""
+    """Shared validation logic for the drop and drop_good functions."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
 
@@ -1059,7 +1059,7 @@ def distinct(iterable, *, key=None):
     Yield only first occurrences of values whose associated keys are equal.
 
     The key parameter is a unary function serving as a key selector. When
-    calling this function with a value from the iterable gives the same result
+    calling that function with a value from the iterable gives the same result
     as calling it with an earlier value from the iterable, don't yield the new
     value.
 
@@ -1071,8 +1071,8 @@ def distinct(iterable, *, key=None):
     It is permitted to assume the key selector returns only hashable objects,
     and that it is consistent, i.e., when x is y, key(x) == key(y).
 
-    Assume distinct_simple's implementation may change in the future to simply
-    forward its argument to distinct (so this shouldn't call distinct_simple).
+    Assume distinct_simple may forward its argument to distinct, or may be
+    changed to do so in the future. (So this shouldn't call distinct_simple.)
 
     >>> next(distinct([]))
     Traceback (most recent call last):

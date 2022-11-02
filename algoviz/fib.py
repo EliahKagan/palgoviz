@@ -6,11 +6,11 @@ passed as its sole command-line argument.
 
 Usage:
 
-    fib {N}
+    fib.py {N}
 
 Example:
 
-    > python fib.py 10
+    > python algoviz/fib.py 10
     0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
 
 For other Fibonacci code, see fibonacci.py, which defines the fib_n function
@@ -38,9 +38,9 @@ def _die(message):
     sys.exit(1)
 
 
-# Although I tend to prefer calling this function "run" (since it is not a true
-# entry point in the sense that it is in C and C++), it is more commonly called
-# called "main", which I do here for demonstration purposes.
+# Although I sometimes prefer to call this function "run" (since it is not a
+# true entry point in the sense that it is in C and C++), it is more commonly
+# called called "main", which I do here for demonstration purposes.  -Eliah
 def main():
     """Run the script, printing Fibonacci numbers or printing an error."""
     if len(sys.argv) < 2:

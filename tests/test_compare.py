@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Tests for the types in compare.py.
-
-TODO: It may be interesting to compare these tests' style to the style in
-test_bobcats.py (once that is merged).
-"""
+"""Tests for the types in compare.py."""
 
 import copy
 from fractions import Fraction
