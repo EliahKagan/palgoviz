@@ -173,6 +173,12 @@ doctests.
 These are Jupyter notebooks showcasing Python and algorithms concepts, and
 often tying in with code in `algoviz`.
 
+### `math`
+
+These are Jupyter notebooks, and supporting image files, for illustrating some
+math concepts that are not specifically about code and that do not involve
+using or discussing any of the code in the `algoviz` package.
+
 ### `notes`
 
 These are files with information potentially relevant to preparing exercises
