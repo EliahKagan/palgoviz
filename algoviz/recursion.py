@@ -1027,7 +1027,7 @@ def observe_edge(parent, child):
     """
     Print a representation of an edge from parent to child in a tree.
 
-    This is a simple edge observer. See the "..._observed" functions below.
+    This is a simple edge observer. See the *_observed functions below.
     """
     print(f'{parent!r}  ->  {child!r}')
 
@@ -1240,7 +1240,7 @@ def flatten_levelorder_observed(root, observer):
     This is like flatten_levelorder (above), but it also calls
     observer(parent, child) for each child found, in the order they are found.
 
-    NOTE: The code here can be simpler than in flatten_iterative_observed.
+    Note: The code here can be simpler than in flatten_iterative_observed.
 
     >>> list(flatten_levelorder_observed((), observe_edge))
     []
@@ -1363,9 +1363,9 @@ def leaf_sum_dec(root):
     accessible. This holds even in the presence of concurrency considerations,
     since tuples are immutable.
 
-    Note that it would not be safe to cache calls to the top-level function
-    leaf_sum_dec by id. This must go on the helper function, since nothing can
-    be assumed about lifetime of objects across top-level calls.
+    Note that it would not be safe to cache calls to the top-level leaf_sum_dec
+    function by id. The caching decorator must go on a local function, since
+    nothing can be assumed about lifetime of objects across top-level calls.
 
     >>> leaf_sum_dec(3)
     3

@@ -567,7 +567,7 @@ class TestAsIteratorLimited(_NamedImplementationTestCase):
         """
         Iterators on synthesized iterator-like functions "round trip."
 
-        Calling as_iterator_limited{_alt} on synthesized functions that
+        Calling as_iterator_limited{,_alt} on synthesized functions that
         themselves behave like calling next() on an iterator behaves as
         expected.
         """
