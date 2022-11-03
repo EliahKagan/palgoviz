@@ -224,13 +224,14 @@ class TestHashNodeBasic(unittest.TestCase):
         garbage collector will (at least sometimes) need to defer collecting
         them until it has traversed the object graph *again* to check for this.
 
-        The requirement in this test shouldn't be relaxed without benchmarking
-        (including of peak memory usage with and without __del__). But also, it
-        is very unlikely that __del__ would be helpful here. The real reason
-        for this test is to avert confusion about how nondeterministic cleanup
-        should be done. Weak reference callbacks, including weakref.finalize,
-        are not prohibited. However, if at all possible, any use of them in
-        connection with sll.HashNode should be through higher-level facilities.
+        This requirement shouldn't be relaxed without benchmarking (including
+        of peak memory usage with and without __del__). But also, it is very
+        unlikely __del__ would help here. The real reason for this test is to
+        avert confusion about how nondeterministic cleanup should be done.
+
+        In contrast to __del__ methods, weak reference callbacks, including
+        weakref.finalize, are not prohibited. But if at all possible, any use
+        of them in sll.HashNode should be via even higher level facilities.
         """
         with self.assertRaises(AttributeError):
             sll.HashNode.__del__
