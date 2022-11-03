@@ -3,11 +3,11 @@
 """
 Named tuples and data classes: part 2 of 2: adding custom behavior.
 
-This module picks up where ntdc.py leaves off. ntdc.py is about various ways to
-aggregate data while implementing no, or few, special (dunder) methods, and its
-examples are all close variations on a theme. In contrast, this second module
-examines how named tuples and, more so, data classes, are reasonable to use in
-some situations where greater custom behavior is called for, either in
+This module picks up where ntdc1.py leaves off. ntdc1.py is about various ways
+to aggregate data while implementing no, or few, special (dunder) methods, and
+its examples are all close variations on a theme. In contrast, this second
+module examines how named tuples and, more so, data classes, are reasonable to
+use in some situations where greater custom behavior is called for, either in
 construction, or of the constructed instance.
 
 All attrs data classes in this module are implemented using the modern API.
