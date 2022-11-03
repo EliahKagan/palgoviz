@@ -7,16 +7,22 @@ See also test_sll.txt for extended versions of the doctests in sll.py.
 
 One reasonable general approach for implementing sll.HashNode is to:
 
-1. In any order, get all TestHashNodeBasic and TestTraverse unittest tests to
-   pass, as well as all doctests in sll.py and test_sll.txt, and make sure
-   HashNode.draw works by testing it in sll.ipynb and carefully inspecting the
-   output. An implementation that only passes those tests is a useful starting
-   point for tackling the important but subtler issues the other tests raise.
+1. In any order, get all TestHashNodeBasic, TestHashNodePathologicalEquality,
+   and TestTraverse unittest tests to pass, as well as all doctests in sll.py
+   and test_sll.txt, and make sure HashNode.draw works by testing it in
+   sll.ipynb and carefully inspecting the output.
+
+   An implementation that only passes those tests is a useful starting point
+   for tackling the important but subtler issues the other tests raise.
 
 2. Get the TestHashNodeHeterogeneousCycles unittest tests to pass. Ensure that
    this does not cause any previously passing tests, mentioned above, to fail.
 
-3. Get the _CachedEq doctests, TestHashNodeReentrantCachedEq unittest tests,
+3. Observe how resurrection can circumvent the uniqueness guarantee. It is not
+   a goal to prevent this, only to understand it and to check it is clearly
+   documented. Currently the code to help demonstrate this is in sll_wip.ipynb.
+
+4. Get the _CachedEq doctests, TestHashNodeReentrantCachedEq unittest tests,
    and TestHashNodeReentrantDevious unittest tests to pass.
 """
 
@@ -40,67 +46,6 @@ Whether the tests in the TestHashNodeHeterogeneousCycles class will be run.
 Heterogeneous cycles should not leak, so this should be set to True. But it may
 sometimes be useful to suppress these tests temporarily, during development.
 """
-
-
-def _subtest_by_nanlike(func):
-    """Sub-test separate NaN or NaN-like objects."""
-    @functools.wraps(func)
-    def wrapped(self):
-        nan_parameters = [
-            ('math.nan', math.nan),
-            ('math.inf - math.inf', math.inf - math.inf),
-        ]
-
-        for expr, nan in nan_parameters:
-            with self.subTest(expr):
-                # Check that nan is non-self-equal. This is per subtest and not
-                # done eagerly, which would keep the module from loading and
-                # give an error that didn't clarify what tests were affected.
-                if nan == nan:
-                    raise Exception(
-                        "platform has non-pathological NaN, can't test")
-
-                # Run the actual test, with this NaN object.
-                func(self, nan)
-
-        with self.subTest('testing.NonSelfEqual()'):
-            pathological_non_nan = testing.NonSelfEqual()
-
-            if pathological_non_nan == pathological_non_nan:
-                raise Exception('bug in testing.NonSelfEqual test helper')
-
-            # Run the actual test, with this similarly pathological object.
-            func(self, pathological_non_nan)
-
-    return wrapped
-
-
-def _subtest_by_nonidentical_nanlike_pair(func):
-    """Sub-test separate pairs of related nonidentical NaN/NaN-like objects."""
-    @functools.wraps(func)
-    def wrapped(self):
-        parameters = [
-            ('NaN',
-                math.nan,
-                math.inf - math.inf,
-                'very weird (broken?) floating point NaN equality'),
-
-            ('non-NaN pathological',
-                testing.NonSelfEqual(),
-                testing.NonSelfEqual(),
-                'bug in testing.NonSelfEqual test helper'),
-        ]
-
-        for name, lhs_obj, rhs_obj, error_message in parameters:
-            with self.subTest(name):
-                # Check that they are not equal, erroring out if they are.
-                if lhs_obj == rhs_obj:
-                    raise Exception(error_message)
-
-                # Proceed with the core test logic.
-                func(self, lhs_obj, rhs_obj)
-
-    return wrapped
 
 
 class TestHashNodeBasic(unittest.TestCase):
@@ -360,46 +305,6 @@ class TestHashNodeBasic(unittest.TestCase):
         with self.subTest(lhs='longer', rhs='shorter'):
             self.assertIsNot(longer, shorter)
 
-    @_subtest_by_nanlike
-    def test_nodes_holding_same_nanlike_no_next_are_equal(self, obj):
-        lhs = sll.HashNode(obj)
-        rhs = sll.HashNode(obj)
-        self.assertEqual(lhs, rhs)
-
-    @_subtest_by_nanlike
-    def test_nodes_holding_same_nanlike_no_next_are_identical(self, obj):
-        lhs = sll.HashNode(obj)
-        rhs = sll.HashNode(obj)
-        self.assertIs(lhs, rhs)
-
-    @_subtest_by_nanlike
-    def test_nodes_holding_same_nanlike_different_next_are_not_equal(self,
-                                                                     obj):
-        lhs = sll.HashNode(obj, sll.HashNode('foo'))
-        rhs = sll.HashNode(obj, sll.HashNode('bar'))
-        self.assertNotEqual(lhs, rhs)
-
-    @_subtest_by_nanlike
-    def test_nodes_holding_same_nanlike_different_next_are_not_identical(self,
-                                                                         obj):
-        lhs = sll.HashNode(obj, sll.HashNode('foo'))
-        rhs = sll.HashNode(obj, sll.HashNode('bar'))
-        self.assertIsNot(lhs, rhs)
-
-    @_subtest_by_nonidentical_nanlike_pair
-    def test_nodes_holding_different_nanlike_no_next_are_not_equal(
-            self, lhs_obj, rhs_obj):
-        lhs = sll.HashNode(lhs_obj)
-        rhs = sll.HashNode(rhs_obj)
-        self.assertNotEqual(lhs, rhs)
-
-    @_subtest_by_nonidentical_nanlike_pair
-    def test_nodes_holding_different_nanlike_no_next_are_not_identical(
-            self, lhs_obj, rhs_obj):
-        lhs = sll.HashNode(lhs_obj)
-        rhs = sll.HashNode(rhs_obj)
-        self.assertIsNot(lhs, rhs)
-
     def test_matches_keyword_class_pattern(self):
         match sll.HashNode(10, sll.HashNode(20, sll.HashNode(30))):
             case sll.HashNode(next_node=sll.HashNode(
@@ -584,6 +489,111 @@ class TestHashNodeBasic(unittest.TestCase):
 
         graph = sll.HashNode.draw()
         self.assertIsInstance(graph, graphviz.Digraph)
+
+
+def _subtest_by_nanlike(func):
+    """Sub-test separate NaN or NaN-like objects."""
+    @functools.wraps(func)
+    def wrapped(self):
+        nan_parameters = [
+            ('math.nan', math.nan),
+            ('math.inf - math.inf', math.inf - math.inf),
+        ]
+
+        for expr, nan in nan_parameters:
+            with self.subTest(expr):
+                # Check that nan is non-self-equal. This is per subtest and not
+                # done eagerly, which would keep the module from loading and
+                # give an error that didn't clarify what tests were affected.
+                if nan == nan:
+                    raise Exception(
+                        "platform has non-pathological NaN, can't test")
+
+                # Run the actual test, with this NaN object.
+                func(self, nan)
+
+        with self.subTest('testing.NonSelfEqual()'):
+            pathological_non_nan = testing.NonSelfEqual()
+
+            if pathological_non_nan == pathological_non_nan:
+                raise Exception('bug in testing.NonSelfEqual test helper')
+
+            # Run the actual test, with this similarly pathological object.
+            func(self, pathological_non_nan)
+
+    return wrapped
+
+
+def _subtest_by_nonidentical_nanlike_pair(func):
+    """Sub-test separate pairs of related nonidentical NaN/NaN-like objects."""
+    @functools.wraps(func)
+    def wrapped(self):
+        parameters = [
+            ('NaN',
+                math.nan,
+                math.inf - math.inf,
+                'very weird (broken?) floating point NaN equality'),
+
+            ('non-NaN pathological',
+                testing.NonSelfEqual(),
+                testing.NonSelfEqual(),
+                'bug in testing.NonSelfEqual test helper'),
+        ]
+
+        for name, lhs_obj, rhs_obj, error_message in parameters:
+            with self.subTest(name):
+                # Check that they are not equal, erroring out if they are.
+                if lhs_obj == rhs_obj:
+                    raise Exception(error_message)
+
+                # Proceed with the core test logic.
+                func(self, lhs_obj, rhs_obj)
+
+    return wrapped
+
+
+class TestHashNodePathologicalEquality(unittest.TestCase):
+    """Tests that sll.HashNode properly handles non-self-equal elements."""
+
+    @_subtest_by_nanlike
+    def test_nodes_holding_same_nanlike_no_next_are_equal(self, obj):
+        lhs = sll.HashNode(obj)
+        rhs = sll.HashNode(obj)
+        self.assertEqual(lhs, rhs)
+
+    @_subtest_by_nanlike
+    def test_nodes_holding_same_nanlike_no_next_are_identical(self, obj):
+        lhs = sll.HashNode(obj)
+        rhs = sll.HashNode(obj)
+        self.assertIs(lhs, rhs)
+
+    @_subtest_by_nanlike
+    def test_nodes_holding_same_nanlike_different_next_are_not_equal(self,
+                                                                     obj):
+        lhs = sll.HashNode(obj, sll.HashNode('foo'))
+        rhs = sll.HashNode(obj, sll.HashNode('bar'))
+        self.assertNotEqual(lhs, rhs)
+
+    @_subtest_by_nanlike
+    def test_nodes_holding_same_nanlike_different_next_are_not_identical(self,
+                                                                         obj):
+        lhs = sll.HashNode(obj, sll.HashNode('foo'))
+        rhs = sll.HashNode(obj, sll.HashNode('bar'))
+        self.assertIsNot(lhs, rhs)
+
+    @_subtest_by_nonidentical_nanlike_pair
+    def test_nodes_holding_different_nanlike_no_next_are_not_equal(
+            self, lhs_obj, rhs_obj):
+        lhs = sll.HashNode(lhs_obj)
+        rhs = sll.HashNode(rhs_obj)
+        self.assertNotEqual(lhs, rhs)
+
+    @_subtest_by_nonidentical_nanlike_pair
+    def test_nodes_holding_different_nanlike_no_next_are_not_identical(
+            self, lhs_obj, rhs_obj):
+        lhs = sll.HashNode(lhs_obj)
+        rhs = sll.HashNode(rhs_obj)
+        self.assertIsNot(lhs, rhs)
 
 
 def _fake(value, next_node=None):
