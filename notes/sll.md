@@ -124,7 +124,7 @@ and `x2` are immutable and unequal, they will always be unequal, so `r1` and
 `r2` cannot become equal by mutation of `x1` or `x2`. Furthermore, since `x1`
 and `x2` are different objects, `r1` and `r2` cannot be the same `weakref.ref`
 instance. So `r1` and `r2` cannot become equal as a result of one or both of
-`x1` an `x2` dying, either.
+`x1` and `x2` dying, either.
 
 #### Hashing
 
@@ -208,7 +208,7 @@ preexisting key holds a weak reference to.
 
 Therefore, due to the behavior discussed above in *Weak reference equality
 comparison semantics*, the new and preexisting keys' `value` weakrefs are equal
-and have equal hash code, and their `next_node` weakrefs are equal and have
+and have equal hash codes, and their `next_node` weakrefs are equal and have
 equal hash codes. Since the keys are tuples of those (and tuples use structural
 equality comparison and hash accordingly), the keys themselves are equal and
 have equal hash codes.
@@ -227,7 +227,7 @@ involved. But *how* are they removed?
 #### Does the table look up keys with `==` and `hash` to remove them?
 
 If you manually remove a key from a `WeakValueDictionary` with `del`, then of
-course this will happen. But that is not the case at issue here.
+course this will happen. But that is not the situation at issue here.
 
 When the weak reference callback the table has registered for a node is called,
 it seems intuitive to think this callback does not need to subscript the table.
@@ -318,7 +318,7 @@ become equal.
 
 Suppose keys `(vr1, nnr1)` and `(vr2, nnr2)` are unequal. Then `vr1 != vr2` or
 `nnr1 != nnr2`. For the keys to become equal in the future would require that,
-in the future, both `vr1 == vr1` and `nnr1 == nnr2`. Therefore, either the weak
+in the future, both `vr1 == vr2` and `nnr1 == nnr2`. Therefore, either the weak
 references `vr1` and `vr2` to the elements must start out unequal and become
 equal, or the weak references `nnr1` and `nnr2` to the successors must start
 out unequal and become equal.

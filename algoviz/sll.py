@@ -9,17 +9,18 @@ basic use of singly linked lists, with no specialized techniques, appears in
 queues.py, which contains an SLL-based FIFO queue and an SLL-based LIFO queue.
 
 With hash consing--when global and guaranteed, as here--all SLLs that use the
-hash-consed node type, existing at memory at any given time, form a single
+hash-consed node type, existing in memory at any given time, form a single
 "upside-down" tree. Its root (here, None) represents the empty sublist. Viewed
 as part of this tree, next_node pointers are parent pointers. HashNode.draw()
 illustrates this by building a graphviz.Digraph of the whole tree.
 
 The HashNode type in this module uses reference-based equality comparison. But
-HashNode-based SLLs always share the longest suffix possible. So if two
-variables refer to heads of SLLs whose values are equal and in the same order,
-those variables are guaranteed to refer to the same node object. That is, for
-HashNode objects, reference equality is the same as structural equality (of the
-linked lists they head). This is one of the benefits of hash consing.
+HashNode-based SLLs always share the longest suffix possible, including when
+that suffix is the whole SLL. So if two variables refer to heads of SLLs whose
+values are equal and in the same order, those variables are guaranteed to refer
+to the same node object. That is, for HashNode objects, reference equality is
+the same as structural equality (of the linked lists they head). This is one of
+the benefits of hash consing.
 
 Hash consing can be applied to any immutable node-based data structure whose
 nodes make up a directed acyclic graph. This includes, but is not limited to,
@@ -44,12 +45,12 @@ class _Box:
     This is needed because:
 
     1. Nodes need to support elements without __weakref__, but we need element
-       references from keys in the HashNode class's private WeakValueTable to
-       be weak to avoid leaking heterogeneous cycles.
+       references from keys in the HashNode class's private WeakValueDictionary
+       to be weak to avoid leaking heterogeneous cycles.
 
-       Boxes are kept alive by strong references in nodes. The WeakValueTable's
-       keys use weak references so heterogenous cycles through the table are
-       never strong.
+       Boxes are kept alive by strong references in nodes. The
+       WeakValueDictionary's keys use weak references so heterogenous cycles
+       through the table are never strong.
 
     2. Floating-point NaNs are hashable but not equal even to themselves. To
        support them, standard library containers use both "==" and "is" in
@@ -157,9 +158,10 @@ class HashNode:
 
     To build an SLL from an iterable of values, use from_iterable. This is a
     named constructor, not a top-level function. That is so it is always clear,
-    looking at the call site, which class gets instantiated. But from_iterable
-    uses no part of the HashNode interface, other than calling the class. It
-    especially doesn't use or depend on any implementation details of HashNode.
+    looking at the call site, what class is being instantiated. But
+    from_iterable uses no part of the HashNode interface, other than calling
+    the class. It especially doesn't use or depend on any implementation
+    details of HashNode.
 
     >>> HashNode.from_iterable(iter('abcd')) is head1
     True
@@ -211,8 +213,8 @@ class HashNode:
         # The key for a node accesses the node's element and successor through
         # weak references. This is important because the WeakValueDictionary
         # holds strong references to its keys. If an element has a strong
-        # reference cycle back to the node that contains it, the cyclic garbage
-        # collector can clean it up once it is only accessible through the
+        # reference cycle back to the node that holds it, the cyclic garbage
+        # collector can clean it up after it is only accessible through the
         # table, but only if the table doesn't strongly refer into the cycle.
         box = _Box(value)
         key = (weakref.ref(box), next_node and weakref.ref(next_node))

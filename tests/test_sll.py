@@ -171,11 +171,11 @@ class TestHashNodeBasic(unittest.TestCase):
 
         This requirement shouldn't be relaxed without benchmarking (including
         of peak memory usage with and without __del__). But also, it is very
-        unlikely __del__ would help here. The real reason for this test is to
-        avert confusion about how nondeterministic cleanup should be done.
+        unlikely __del__ would help HashNode. The real reason for this test is
+        to avert confusion about how nondeterministic cleanup should be done.
 
         In contrast to __del__ methods, weak reference callbacks, including
-        weakref.finalize, are not prohibited. But if at all possible, any use
+        weakref.finalize, are not prohibited. But, if at all possible, any use
         of them in sll.HashNode should be via even higher level facilities.
         """
         with self.assertRaises(AttributeError):
@@ -410,7 +410,7 @@ class TestHashNodeBasic(unittest.TestCase):
         bug in that method would cause all tests to wrongly pass.
 
         This method does not cover the tricky issue of heterogeneous cycles.
-        Those tests are in the TestHashNodeHeterogeneousCycles class below.
+        Those tests are in the TestHashNodeHeterogeneousCycles class (below).
         """
         head1 = sll.HashNode(
             'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
@@ -476,14 +476,15 @@ class TestHashNodeBasic(unittest.TestCase):
         This doesn't check that anything about the generated graph drawing is
         correct, only that an object of the correct type is returned. The draw
         method must be manually tested in sll.ipynb. Those visualizations also
-        serve as a further check that nodes are always reused (where possible),
-        and they allow the effects of garbage collection to be observed.
+        serve as a further check that nodes are always reused as required, and
+        they allow the effects of garbage collection to be observed.
         """
         # Make a few nodes. The draw method should return a graphviz.Digraph
         # even if no nodes exist; then the graph has no nodes or edges. But
         # having nodes and edges (next_node references) may speed up detecting
         # regressions that raise exceptions even in simple cases. _head1 and
-        # _head2 keep nodes alive and are deliberately never read (hence F841).
+        # _head2 keep nodes alive and are deliberately never read, so we
+        # suppress flake8's "local variable ... is assigned to but never used".
         _head1 = sll.HashNode('a', sll.HashNode('c'))  # noqa: F841
         _head2 = sll.HashNode('b', sll.HashNode('c'))  # noqa: F841
 
@@ -684,13 +685,12 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
     Tests to check that sll.HashNode does not leak heterogeneous cycles.
 
     In a homogeneous cycle of sll.HashNode objects, following nodes' next_node
-    attributes, and/or value attributes in the case of nested SLLs (where
+    attributes, and/or their value attributes in the case of nested SLLs (where
     elements are also nodes), would lead to a node already seen. sll.HashNode
-    is immutable, and it requires its elements to be immutable. So homogeneous
-    cycles of sll.HashNode objects don't form unless client code has a severe
-    design bug, like a mutable hashable type or violating encapsulation. No
-    matter how many linked lists a node is shared between, and no matter how
-    deeply nodes are nested by appearing not just as successors but also as
+    is immutable. So homogeneous cycles of sll.HashNode objects do not form
+    (unless client code violates encapsulation). No matter how many linked
+    lists a node is shared between, and no matter how deeply those linked lists
+    are nested by having nodes appear not just as successors but also as
     elements, there is no potential to create cycles or leak nodes.
 
     Heterogeneous cycles are another story. An object can be immutable, in that
@@ -800,7 +800,7 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
 
     def test_highly_redundant_heterogeneous_cycles_do_not_leak(self):
         """
-        All overlapping SLLs elements can refer to all nodes, with no leak.
+        All overlapping SLLs' elements can refer to all nodes, with no leak.
 
         This is like test_many_heterogeneous_cycles_do_not_leak, but with no
         choke point: instead of all nodes referring to the same list object
@@ -935,7 +935,7 @@ class _CachedEq:
     count. (Remember, a true hash is a bucket index.) But looking up a key uses
     both __hash__ and __eq__. We can't usually precompute all possible results
     of __eq__. We could effectively achieve the goal of precomputing all
-    possible results of __eq__ by ensuring the each value is represented by
+    possible results of __eq__ by ensuring that each value is represented by
     only one object at a time and doing identity comparison... except that's
     hash consing, which is what we're trying to implement!
 
@@ -947,7 +947,7 @@ class _CachedEq:
     with a key whose __eq__ method calls x.__eq__, doesn't find the key, and
     creates a new node, it subscripts the table again to insert the new node.
     This is a critical time: a node exists that isn't yet in the table. The
-    operation of adding it to the table calls x.__eq__ before adding it, which
+    operation of attempting to add it to the table calls x.__eq__ again, which
     could call sll.HashNode(x, n) again.
 
     Even though this problem is unrelated to threading, a non-reentrant lock
@@ -1001,8 +1001,8 @@ class TestHashNodeReentrantCachedEq(unittest.TestCase):
     These tests are equivalent to the _CachedEq doctests above, but as unittest
     tests. This is (1) so the unittest test runner, and the pytest test runner
     even without --doctest-modules, runs them, (2) to clarify the relationship
-    between design decisions and what test to skip, (3) to facilitate
-    comparison to the TestHashNodeReentrantDevious tests below.
+    between design decisions and which test case should be skipped, and (3) to
+    facilitate comparison to the TestHashNodeReentrantDevious tests below.
 
     It is not a goal to thoroughly test the public interface of _CachedEq
     itself. These are really sll.HashNode tests, using _CachedEq.
@@ -1053,7 +1053,7 @@ class _DeviousBase:
     """
     "Correct" class to try to get sll.HashNode to make duplicates. For testing.
 
-    See _CachedEq above for background. If one wished to support types like
+    See _CachedEq above for background. If one wishes to support types like
     _CachedEq whose __hash__ calls sll.HashNode, this facilitates checking that
     reentrance through __eq__ still raises RuntimeError, or that a *simple*
     attempt to exploit it to get two equivalent nodes is successfully stymied.
@@ -1098,7 +1098,7 @@ class _DeviousBase:
             return NotImplemented
 
         # By now, with DeviousBase and DeviousDerived, self is DeviousBase.
-        # Assume the second time we get here is table insertion. See doctests.
+        # Assume the second time we get here is table insertion. See tests.
         self._calls += 1
         if self.node is None and self._calls == 2:
             self.node = sll.HashNode(self)
@@ -1125,13 +1125,14 @@ class TestHashNodeReentrantDevious(unittest.TestCase):
     exploiting the need for sll.HashNode.__new__ to call _DeviousBase.__eq__
     indirectly (through the table implementation) while inserting a new node in
     the table. At that time, the node exists but isn't yet in the table. So if
-    _DeviousBase.__eq__ can reenter sll.node.__new__, it can get another node.
+    _DeviousBase.__eq__ can reenter sll.HashNode.__new__, it can get another
+    node.
 
     The code under test should not take approaches specific to details of the
-    test, since it would still have the bug the test is trying to find. In
+    test, because it would still have the bug the test is trying to find. In
     particular, adding pointless equality comparisons, so _DeviousBase.__eq__
     guesses wrong about which one is the table insertion, shouldn't be done.
-    (_DeviousBase's goal is really clarity, not maximally robust deviousness.)
+    (_DeviousBase's real goal is clarity, not maximally robust deviousness.)
     """
 
     def setUp(self):
