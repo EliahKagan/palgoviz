@@ -39,7 +39,8 @@ from parameterized import parameterized
 
 from algoviz import sll, testing
 
-_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
+# FIXME: Change this to True, after completing step 1 in the module docstring.
+_TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = False
 """
 Whether the tests in the TestHashNodeHeterogeneousCycles class will be run.
 
