@@ -705,17 +705,17 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
     That is a heterogenous cycle: part of the cycle is through an object of an
     unrelated type. Our private table that looks up nodes by their elements and
     successors holds weak references to the nodes it returns, so it doesn't
-    prevent them from being garbage collected. But the elements and successors
-    are held by strong references. That's normally no problem: as long as a
-    node exists, it keeps its element and successor alive anyway, and when a
-    node is destroyed, the table takes care of removing the entry for it (using
-    weakref callbacks). But if there is a chain of strong references from the
-    element back to the node, then the table holds a strong reference to the
-    element, which holds a strong reference to the node. Then the node, being
-    reachable, can't be garbage collected. Unless the heterogeneous cycle is
-    somehow broken, the entry is never removed from the table, since it would
-    only be removed when the node it keeps reachable becomes unreachable and is
-    collected, which its presence ensures cannot happen.
+    prevent them from being garbage collected. But the pairs of elements and
+    successors are held by strong references. That's normally no problem: as
+    long as a node exists, it keeps its element and successor alive anyway, and
+    when a node is destroyed, the table takes care of removing the entry for it
+    (using weakref callbacks). But if there is a chain of strong references
+    from the element back to the node, then the table holds a strong reference
+    to the element, which holds a strong reference to the node. Then the node,
+    being reachable, can't be garbage collected. Unless the heterogeneous cycle
+    is somehow broken, the entry is never removed from the table, since it
+    would only be removed when the node it keeps reachable becomes unreachable
+    and is collected, which its presence ensures cannot happen.
 
     Note that this is NOT related to the limitations of reference counting. We
     assume a cyclic garbage collector is available. The problem arises when the
