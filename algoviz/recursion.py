@@ -761,11 +761,11 @@ def merge_two_slow(values1, values2):
     >>> merge_two_slow((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = list(values1)
+    results = list(values1)
     for v2 in values2:
-        bisect.insort_right(resultlist, v2)
+        bisect.insort_right(results, v2)
 
-    return resultlist
+    return results
 
 
 def merge_two(values1, values2):
@@ -797,20 +797,20 @@ def merge_two(values1, values2):
     >>> merge_two((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = []
+    results = []
     index = 0
 
     for v1 in values1:
         # Take everything from values2 that must be output before v1.
         while index < len(values2) and values2[index] < v1:
-            resultlist.append(values2[index])
+            results.append(values2[index])
             index += 1
 
-        resultlist.append(v1)
+        results.append(v1)
 
-    resultlist.extend(values2[index:])
+    results.extend(values2[index:])
 
-    return resultlist
+    return results
 
 
 def merge_two_alt(values1, values2):
@@ -842,21 +842,21 @@ def merge_two_alt(values1, values2):
     >>> merge_two_alt((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = []
+    results = []
     index1 = 0
     index2 = 0
 
     while index1 < len(values1) and index2 < len(values2):
         if values2[index2] < values1[index1]:
-            resultlist.append(values2[index2])
+            results.append(values2[index2])
             index2 += 1
         else:
-            resultlist.append(values1[index1])
+            results.append(values1[index1])
             index1 += 1
 
-    resultlist.extend(values1[index1:] or values2[index2:])
+    results.extend(values1[index1:] or values2[index2:])
 
-    return resultlist
+    return results
 
 
 def merge_sort(values, *, merge=merge_two):
