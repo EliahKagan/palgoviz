@@ -8,6 +8,7 @@ project:
 - Type annotations and static type checking
 - `Counter` and `defaultdict`
 - `pytest` tests (rather than just as a test runner for other tests)
+- `async` and `await`
 - NumPy
 - Requests
 
