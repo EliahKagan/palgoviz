@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Callables that add a fixed value to their argument."""
 
 

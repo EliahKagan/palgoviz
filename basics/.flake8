@@ -1,9 +1,3 @@
 [flake8]
-
-extend-exclude =
-    .ipynb_checkpoints
-    scopes.py
-
-per-file-ignores =
-    # multiple spaces before operator
-    enumerations.py: E221
+extend-exclude = .ipynb_checkpoints/
+extend-ignore = E228

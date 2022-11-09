@@ -28,7 +28,7 @@ established. This subdirectory readme is just, like, my opinion.
 
 ## Contents
 
-Right now, the only things here, besides this readme, are:
+Right now, the things here, besides this readme, are:
 
 ### `restructure`
 
@@ -38,7 +38,26 @@ restructuring/reorganization of the project's contents.
 See the top-level project `README.md` for broad context on this, and the code
 and comments in `restructure` for details of that particular proposal.
 
+This supports Windows as well as Unix-like systems, so long as a recent version
+of Bash, and GNU Sed, are availble. On Windows it must be run in Git Bash.
+
 ### `restructure.md`
 
 These are instructions for using the `restructure` script. Note that the script
 itself is documentation of *what* changes are proposed.
+
+### `run-test-scripts`
+
+This is a script that runs test-containing modules as script. It is a hackish
+way of doing so. If it is improved, and turns out to be useful, then it should
+be moved somewhere else.
+
+This is intended for Unix-like systems.
+
+### `run-test-scripts.ps1`
+
+Like `run-test-scripts`, but for Windows.
+
+This also works on Unix-like systems if PowerShell is installed. But
+`run-test-scripts` should be used instead on such a system, because it will
+find if scripts aren't marked executable.
