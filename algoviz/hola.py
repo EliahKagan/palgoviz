@@ -2,7 +2,7 @@
 
 """Hola saluda al user en español. (Hola greets the user in Spanish.)"""
 
-from greet import make_greeter
+from algoviz.greet import make_greeter
 
 
 def run():

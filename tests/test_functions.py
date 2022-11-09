@@ -17,10 +17,7 @@ import weakref
 
 from parameterized import parameterized, parameterized_class
 
-import fibonacci
-import functions
-import recursion
-import testing
+from algoviz import fibonacci, functions, recursion, testing
 
 _original_count_tree_nodes = functions.count_tree_nodes
 

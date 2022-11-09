@@ -20,8 +20,7 @@ import operator
 import random
 import secrets
 
-import caching
-import queues
+from algoviz import caching, queues
 
 
 def countdown(n):
@@ -2214,6 +2213,7 @@ def _do_stable_quicksort(values, choose_pivot):
     sorted_higher = _do_stable_quicksort(higher, choose_pivot)
     return sorted_lower + similar + sorted_higher
 
+
 # TODO: Rename this after the "sort by partitioning" algorithm it implements.
 def sort_by_partitioning_simple(values):
     """
@@ -3399,7 +3399,7 @@ def leaf_sum(root):
     57
     >>> leaf_sum(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
-    >>> from fibonacci import fib, fib_nest
+    >>> from algoviz.fibonacci import fib, fib_nest
     >>> leaf_sum(fib_nest(10))
     55
     >>> all(leaf_sum(fib_nest(i)) == x for i, x in zip(range(401), fib()))
@@ -3448,7 +3448,7 @@ def leaf_sum_alt(root):
     57
     >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
-    >>> from fibonacci import fib, fib_nest
+    >>> from algoviz.fibonacci import fib, fib_nest
     >>> leaf_sum_alt(fib_nest(10))
     55
     >>> all(leaf_sum_alt(fib_nest(i)) == x for i, x in zip(range(401), fib()))
@@ -3485,7 +3485,7 @@ def leaf_sum_dec(root):
     57
     >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
-    >>> from fibonacci import fib, fib_nest
+    >>> from algoviz.fibonacci import fib, fib_nest
     >>> leaf_sum_dec(fib_nest(10))
     55
     >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))

@@ -10,7 +10,7 @@ import functools
 import itertools
 import numbers
 
-from util import identity_function
+from algoviz.util import identity_function
 
 
 def peek_arg(func):

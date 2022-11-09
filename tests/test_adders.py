@@ -7,7 +7,7 @@ import unittest
 
 from parameterized import parameterized
 
-from adders import Adder, make_adder
+from algoviz.adders import Adder, make_adder
 
 
 class _TestAddersAbstract(ABC, unittest.TestCase):

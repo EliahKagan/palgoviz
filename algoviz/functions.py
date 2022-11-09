@@ -19,9 +19,9 @@ gencomp1.py, and gencomp2.py.
 
 import itertools
 
-from decorators import peek_return
-from fibonacci import fib
-from util import identity_function
+from algoviz.decorators import peek_return
+from algoviz.fibonacci import fib
+from algoviz.util import identity_function
 
 
 def make_counter(start=0):
@@ -281,7 +281,7 @@ def count_tree_nodes(root):
     22
     >>> count_tree_nodes([a])
     1
-    >>> from fibonacci import fib_nest
+    >>> from algoviz.fibonacci import fib_nest
     >>> [count_tree_nodes(fib_nest(k)) for k in range(17)]
     [1, 1, 3, 5, 9, 15, 25, 41, 67, 109, 177, 287, 465, 753, 1219, 1973, 3193]
     """
@@ -313,7 +313,7 @@ def count_tree_nodes_alt(root):
     22
     >>> count_tree_nodes_alt([a])
     1
-    >>> from fibonacci import fib_nest
+    >>> from algoviz.fibonacci import fib_nest
     >>> [count_tree_nodes_alt(fib_nest(k)) for k in range(17)]
     [1, 1, 3, 5, 9, 15, 25, 41, 67, 109, 177, 287, 465, 753, 1219, 1973, 3193]
     """
@@ -345,7 +345,7 @@ def count_tree_nodes_instrumented(root):
     an entirely different means, such as posting it to a network server--then
     tests would need to change, but this function's implementation would not.
 
-    >>> from recursion import make_deep_tuple
+    >>> from algoviz.recursion import make_deep_tuple
     >>> count_tree_nodes_instrumented(make_deep_tuple(2))
     count_tree_nodes(()) -> 1
     count_tree_nodes(((),)) -> 2
@@ -361,7 +361,7 @@ def count_tree_nodes_instrumented(root):
     ...     print(count_tree_nodes(a))
     Got RecursionError.
     22
-    >>> from fibonacci import fib_nest
+    >>> from algoviz.fibonacci import fib_nest
     >>> count_tree_nodes_instrumented(fib_nest(3))
     count_tree_nodes(1) -> 1
     count_tree_nodes(0) -> 1

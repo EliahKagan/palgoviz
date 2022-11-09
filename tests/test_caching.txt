@@ -2,11 +2,11 @@ Old caching.py doctests
 =======================
 
     >>> try:
-    ...     from caching import *
+    ...     from algoviz.caching import *
     ... except ModuleNotFoundError:
     ...     import sys
     ...     sys.path.append('')
-    ...     from caching import *
+    ...     from algoviz.caching import *
 
 
 Old doctests for @memoize:

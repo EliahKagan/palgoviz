@@ -12,7 +12,7 @@ import itertools
 
 import more_itertools
 
-from util import identity_function
+from algoviz.util import identity_function
 
 
 def my_enumerate(iterable, start=0):

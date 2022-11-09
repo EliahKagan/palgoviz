@@ -14,8 +14,7 @@ import weakref
 
 from parameterized import param, parameterized, parameterized_class
 
-import context
-import enumerations
+from algoviz import context, enumerations
 
 
 class _FakeError(Exception):
@@ -996,10 +995,10 @@ class TestMonkeyPatch(unittest.TestCase):
                 return x / serious_numbers.two
 
         with self.subTest('__module__'):
-            if __name__ not in ('test_context', '__main__'):
+            if __name__ not in ('tests.test_context', '__main__'):
                 raise Exception(
                     f"can't reliably test __module__: {__name__=}, expected "
-                    "'test_context' or '__main__'")
+                    "'tests.test_context' or '__main__'")
             self.assertEqual(C.halve.__module__, __name__)
         with self.subTest('__name__'):
             self.assertEqual(C.halve.__name__, 'halve')

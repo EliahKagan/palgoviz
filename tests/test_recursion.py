@@ -8,8 +8,8 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
-from compare import OrderIndistinct, Patient, WeakDiamond
-from recursion import (
+from algoviz.compare import OrderIndistinct, Patient, WeakDiamond
+from algoviz.recursion import (
     binary_insertion_sort,
     binary_insertion_sort_recursive,
     binary_insertion_sort_recursive_alt,
@@ -473,7 +473,9 @@ class TestSort(unittest.TestCase):
 @parameterized_class(('label', 'sort', 'kwargs'),
                      _COMBINED_PARAMS_STABLE_SORTS)
 class TestSortStability(unittest.TestCase):
-    """Stability tests for most of the stable sort functions in recursion.py."""
+    """
+    Stability tests for most of the stable sort functions in recursion.py.
+    """
 
     def test_sort_is_stable(self):
         vals = [0.0, 0, False]
