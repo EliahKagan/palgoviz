@@ -40,10 +40,13 @@ def repeat_compose_recursive(function, count):
     2
     >>> repeat_compose_recursive(inc, 90)(1)
     91
-    >>> repeat_compose_recursive(inc, 9000)(1)
+
+    Should fail with "...depth exceeded" or "...depth exceeded in comparison":
+
+    >>> repeat_compose_recursive(inc, 9000)(1)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    RecursionError: maximum recursion depth exceeded in comparison
+    RecursionError: maximum recursion depth exceeded...
     """
     if count == 0:
         return identity_function
