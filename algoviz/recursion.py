@@ -174,7 +174,8 @@ def digit_sum_iterative(n, b):
 
     >>> digit_sum_iterative(27366190058, 10)
     47
-    >>> digit_sum_iterative(789375894362756346572643752397854500432577629543, 16)
+    >>> digit_sum_iterative(789375894362756346572643752397854500432577629543,
+    ...                     16)
     313
     >>> digit_sum_iterative(17**90 - 11**28, 41421)
     564328
@@ -1273,11 +1274,11 @@ def merge_two_slow(values1, values2):
     >>> merge_two_slow((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = list(values1)
+    results = list(values1)
     for v2 in values2:
-        bisect.insort_right(resultlist, v2)
+        bisect.insort_right(results, v2)
 
-    return resultlist
+    return results
 
 
 def merge_two(values1, values2):
@@ -1309,20 +1310,20 @@ def merge_two(values1, values2):
     >>> merge_two((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = []
+    results = []
     index = 0
 
     for v1 in values1:
         # Take everything from values2 that must be output before v1.
         while index < len(values2) and values2[index] < v1:
-            resultlist.append(values2[index])
+            results.append(values2[index])
             index += 1
 
-        resultlist.append(v1)
+        results.append(v1)
 
-    resultlist.extend(values2[index:])
+    results.extend(values2[index:])
 
-    return resultlist
+    return results
 
 
 def merge_two_alt(values1, values2):
@@ -1354,21 +1355,21 @@ def merge_two_alt(values1, values2):
     >>> merge_two_alt((1, 1, 4, 7, 8), ())
     [1, 1, 4, 7, 8]
     """
-    resultlist = []
+    results = []
     index1 = 0
     index2 = 0
 
     while index1 < len(values1) and index2 < len(values2):
         if values2[index2] < values1[index1]:
-            resultlist.append(values2[index2])
+            results.append(values2[index2])
             index2 += 1
         else:
-            resultlist.append(values1[index1])
+            results.append(values1[index1])
             index1 += 1
 
-    resultlist.extend(values1[index1:] or values2[index2:])
+    results.extend(values1[index1:] or values2[index2:])
 
-    return resultlist
+    return results
 
 
 def merge_sort(values, *, merge=merge_two):
@@ -3136,7 +3137,7 @@ def observe_edge(parent, child):
     """
     Print a representation of an edge from parent to child in a tree.
 
-    This is a simple edge observer. See the "..._observed" functions below.
+    This is a simple edge observer. See the *_observed functions below.
     """
     print(f'{parent!r}  ->  {child!r}')
 
@@ -3349,7 +3350,7 @@ def flatten_levelorder_observed(root, observer):
     This is like flatten_levelorder (above), but it also calls
     observer(parent, child) for each child found, in the order they are found.
 
-    NOTE: The code here can be simpler than in flatten_iterative_observed.
+    Note: The code here can be simpler than in flatten_iterative_observed.
 
     >>> list(flatten_levelorder_observed((), observe_edge))
     []
@@ -3472,9 +3473,9 @@ def leaf_sum_dec(root):
     accessible. This holds even in the presence of concurrency considerations,
     since tuples are immutable.
 
-    Note that it would not be safe to cache calls to the top-level function
-    leaf_sum_dec by id. This must go on the helper function, since nothing can
-    be assumed about lifetime of objects across top-level calls.
+    Note that it would not be safe to cache calls to the top-level leaf_sum_dec
+    function by id. The caching decorator must go on a local function, since
+    nothing can be assumed about lifetime of objects across top-level calls.
 
     >>> leaf_sum_dec(3)
     3

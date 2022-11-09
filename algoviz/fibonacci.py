@@ -337,8 +337,8 @@ def fibonacci_tail(n):
     return 0 if n == 0 else do_fib(0, 1, n)
 
 
-# TODO: When we do unittest and pytest, translate these doctests and observe
-#       how much clearer (and easier to get right) they are.
+# TODO: Make unittest or pytest tests based on these doctests, and observe how
+#       much clearer (and easier to get right) they are.
 def fib_n_clunk(n):
     """
     Return an iterator that yields the first n Fibonacci numbers.

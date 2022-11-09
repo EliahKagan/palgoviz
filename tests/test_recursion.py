@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Tests for the functions in recursion.py."""
+"""Tests for some of the functions in recursion.py."""
 
 from abc import ABC, abstractmethod
 import bisect
