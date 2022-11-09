@@ -8,7 +8,7 @@ import unittest
 
 from parameterized import parameterized
 
-from bobcats import Bobcat, FierceBobcat
+from algoviz.bobcats import Bobcat, FierceBobcat
 
 
 class TestBobcat(unittest.TestCase):

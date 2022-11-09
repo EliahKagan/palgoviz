@@ -4,11 +4,11 @@ Old decorators.py doctests
     >>> import functools
 
     >>> try:
-    ...     from decorators import *
+    ...     from algoviz.decorators import *
     ... except ModuleNotFoundError:
     ...     import sys
     ...     sys.path.append('')
-    ...     from decorators import *
+    ...     from algoviz.decorators import *
 
 
 Old doctests for @peek_arg:
