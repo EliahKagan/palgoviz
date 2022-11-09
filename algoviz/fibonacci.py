@@ -311,8 +311,8 @@ def fibonacci_short_alr(n):
     return n if n < 2 else do_fib(n)
 
 
-# TODO: When we do unittest and pytest, translate these doctests and observe
-#       how much clearer (and easier to get right) they are.
+# TODO: Make unittest or pytest tests based on these doctests, and observe how
+#       much clearer (and easier to get right) they are.
 def fib_n_clunk(n):
     """
     Return an iterator that yields the first n Fibonacci numbers.

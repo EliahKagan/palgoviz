@@ -8,7 +8,7 @@ implementing __repr__ might include: Should (all or some of) the queue types
 support construction from an iterable? Be iterable themselves? Reversible?
 Should distinct queue objects ever be equal? To objects of a different type?
 
-TODO: In particular, investigate construction from iterables.
+TODO: In particular, explore construction from iterables.
 """
 
 from abc import ABC, abstractmethod
@@ -72,7 +72,8 @@ class PriorityQueue(Queue):
 
     __slots__ = ()
 
-    # TODO: Investigate which PriorityQueue should be default.
+    # TODO: Explore which PriorityQueue should be default. (If we implement a
+    #       binary heap in this module, then that should be the default.)
     @classmethod
     def create(cls):
         """Create a PriorityQueue instance."""
