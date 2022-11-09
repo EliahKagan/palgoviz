@@ -1,0 +1,54 @@
+Doctests for algoviz/greetall.py.
+
+TODO: Write better, more exhaustive tests, probably with pytest.
+
+>>> from subprocess import getstatusoutput as gso
+>>> status, output = gso('python algoviz/greetall.py data/names.txt')
+>>> status
+0
+>>> print(output)
+Hello, Eliah!
+Hello, David!
+Hello, Dr. Evil!
+
+>>> status, output = gso('python algoviz/greetall.py data/names2.txt es')
+>>> status
+0
+>>> print(output)
+¡Hola, Eliah!
+¡Hola, David!
+¡Hola, Dr. Evil!
+¡Hola, Stalin!
+
+>>> status, output = gso('python algoviz/greetall.py')
+>>> status
+1
+>>> print(output)
+ERROR in algoviz/greetall.py: Did not pass a filename
+
+>>> status, output = gso('python algoviz/greetall.py data/names.txt qx')
+>>> status
+1
+>>> print(output)
+ERROR in algoviz/greetall.py: qx is an unrecognized language code.
+
+>>> status, output = gso('python algoviz/greetall.py data/names.txt en foo')
+>>> status
+0
+>>> print(output)
+WARNING in algoviz/greetall.py: Too many arguments, see docstring for usage
+Hello, Eliah!
+Hello, David!
+Hello, Dr. Evil!
+
+>>> status, output = gso('python algoviz/greetall.py data/nonexistent.txt')
+>>> status
+1
+>>> output.startswith('ERROR in algoviz/greetall.py:')
+True
+
+>>> status, output = gso('python algoviz/greetall.py .')
+>>> status
+1
+>>> output.startswith('ERROR in algoviz/greetall.py:')
+True
