@@ -14,6 +14,8 @@ is likely that most topics will have them.
 
 ---
 
+**FIXME: This readme must be updated in light of the recent restructure.**
+
 This is a work in progress. In particular, project structure is not yet
 established, but the structure will be improved to be less flat. Most likely
 it will not be useful to have wheels or conda packages built from it.
