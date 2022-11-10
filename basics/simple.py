@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-"""Some simple code, for unit testing."""
+"""
+Some simple code, for unit testing.
+
+See test_simple.py (unittest tests) and test_simple_pytest.py (pytest tests).
+"""
 
 from abc import ABC, abstractmethod
 import itertools

@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for the simple code in simple.py."""
+"""
+unittest tests for the simple code in simple.py.
+
+The purpose of this module is to introduce and practice techniques for writing
+tests with the unittest module (augmented with the parameterized package).
+
+See also test_simple_pytest.py for similar tests using pytest, not unittest.
+"""
 
 from abc import ABC, abstractmethod
 from fractions import Fraction
@@ -39,7 +46,7 @@ class TestWidget(unittest.TestCase):
 
     def setUp(self):
         """Make a Widget for testing."""
-        self.widget = Widget('vast', 'mauve')  # Arrange
+        self.widget = Widget('vast', 'mauve')  # Arrange.
 
     def test_size_attribute_has_size(self):
         self.assertEqual(self.widget.size, 'vast')
@@ -61,7 +68,7 @@ class TestWidget(unittest.TestCase):
 
 
 class TestAnswer(unittest.TestCase):
-    """Test the answer() function."""
+    """Tests for the answer function."""
 
     def test_the_answer_is_42(self):
         answer_to_the_question = answer()
@@ -129,7 +136,7 @@ class TestIsSorted(unittest.TestCase):
         items = ['bar', 'baz', 'eggs', 'foo', 'foobar', 'ham', 'quux', 'spam']
         self.assertTrue(is_sorted(items))
 
-    def test_unsorted_short_but_nontrivial_is_unsorted(self):
+    def test_unsorted_short_but_nontrivial_list_is_unsorted(self):
         items = ['bar', 'eggs', 'foo', 'ham', 'foobar', 'quux', 'baz', 'spam']
         self.assertFalse(is_sorted(items))
 
@@ -196,7 +203,7 @@ class TestBailIf(unittest.TestCase):
     ('func', staticmethod(make_squarer)),
 ])
 class TestAllSquarers(unittest.TestCase):
-    """Tests for any kind of Squarer."""
+    """Tests for any kind of squarer."""
 
     @parameterized.expand([
         ('pos_0', 0, 0),
@@ -382,12 +389,12 @@ class TestToggleClass(_TestToggleAbstract):
         return Toggle
 
     def test_repr_true(self):
-        """repr shows True and looks like Python code."""
+        """repr in True state shows True and looks like Python code."""
         tf = Toggle(True)
         self.assertEqual(repr(tf), 'Toggle(True)')
 
     def test_repr_false(self):
-        """repr shows False and looks like Python code."""
+        """repr in False state shows False and looks like Python code."""
         ft = Toggle(False)
         self.assertEqual(repr(ft), 'Toggle(False)')
 
