@@ -1483,5 +1483,8 @@ class TestInvert:
     # FIXME: Add non-injective dict tests of overwriting and ordering behavior.
 
 
+# FIXME: The gencomp1.distinct* functions still need pytest tests.
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__]))
