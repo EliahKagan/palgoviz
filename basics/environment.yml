@@ -5,7 +5,9 @@ channels:
 
 dependencies:
   - python=3.10
+  - conda-build
   - more-itertools
+  - sympy
 
   # For Jupyter
   - ipython>=8.1
@@ -23,3 +25,5 @@ dependencies:
 
   # For static analysis
   - flake8
+  - isort
+  - shellcheck

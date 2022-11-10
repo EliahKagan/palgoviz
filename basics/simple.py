@@ -44,7 +44,9 @@ def alert(message):
 
 def bail_if(condition):
     """Exit indicating failure if the condition evaluates as true."""
-    if condition: sys.exit(1)
+    # This style choice is to show that a one-statement suite can go on the
+    # same line. flake8 says: E701 multiple statements on one line (colon)
+    if condition: sys.exit(1)  # noqa: E701
 
 
 class Squarer(ABC):

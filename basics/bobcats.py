@@ -30,6 +30,8 @@ class Bobcat:
 
     __slots__ = ('_name',)
 
+    __match_args__ = ('name',)
+
     def __init__(self, name):
         """Create a Bobcat with a specified name."""
         if not isinstance(name, str):
@@ -92,6 +94,8 @@ class FierceBobcat(Bobcat):
     """
 
     __slots__ = ('_fierceness', )
+
+    __match_args__ = ('name', 'fierceness')
 
     FIERCENESS_CUTOFF = 9000
     """Bobcat names are not guaranteed unique above this fierceness."""

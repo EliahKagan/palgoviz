@@ -8,12 +8,9 @@ Caching decorators like @memoize and @memoize_by are in the caching module.
 
 import functools
 import itertools
-from numbers import Number
+import numbers
 
-
-def identity_function(arg):
-    """Return the argument unchanged."""
-    return arg
+from util import identity_function
 
 
 def peek_arg(func):
@@ -202,7 +199,7 @@ def peek(func):
     proclaim('Hello', 'world', sep=': ', end='!\n')
     Good news: Hello: world!
     proclaim('Hello', 'world', sep=': ', end='!\n') -> None
-    """
+    """  # r makes this a raw string literal.
     @functools.wraps(func)
     def wrapper(*pargs, **kwargs):
         kvs = (f'{key}={value!r}' for key, value in kwargs.items())
@@ -224,22 +221,34 @@ def give_metadata_from(wrapped, *, expose=False):
     they are not customizable, and AttributeError is raised if any are absent
     on the wrapped function (or class). No other attributes are copied, but if
     expose=True then __wrapped__ is also set on the wrapper, giving access to
-    the wrapped function. (__wrapped__ is a dunder, but this should be okay
-    because [FIXME: explain, with a supporting citation]).
+    the wrapped function.
+
+    __wrapped__ is a dunder, but this should be okay because it is not a new
+    dunder and is being used as documented in functools.update_wrapper:
+
+    https://docs.python.org/3/library/functools.html#functools.update_wrapper
 
     >>> def f(): 'Wrapped docstring.'
+    >>> f.__module__ == __name__  # Not to be confused with f.__name__.
+    True
+    >>> __name__ in {'__main__', 'algoviz.decorators', 'decorators'}
+    True
 
     >>> @give_metadata_from(f)
     ... def g(): pass
-    >>> g.__name__, g.__module__, g.__qualname__, g.__doc__, g.__annotations__
-    ('f', 'decorators', 'f', 'Wrapped docstring.', {})
+    >>> g.__module__ == __name__
+    True
+    >>> g.__name__, g.__qualname__, g.__doc__, g.__annotations__
+    ('f', 'f', 'Wrapped docstring.', {})
     >>> hasattr(g, '__wrapped__')
     False
 
     >>> @give_metadata_from(f, expose=True)
     ... def h(): pass
-    >>> h.__name__, h.__module__, h.__qualname__, h.__doc__, h.__annotations__
-    ('f', 'decorators', 'f', 'Wrapped docstring.', {})
+    >>> h.__module__ == __name__
+    True
+    >>> h.__name__, h.__qualname__, h.__doc__, h.__annotations__
+    ('f', 'f', 'Wrapped docstring.', {})
     >>> h.__wrapped__ is f
     True
 
@@ -269,8 +278,10 @@ def give_metadata_from(wrapped, *, expose=False):
         wrapper.__qualname__ = wrapped.__qualname__
         wrapper.__doc__ = wrapped.__doc__
         wrapper.__annotations__ = wrapped.__annotations__
+
         if expose:
             wrapper.__wrapped__ = wrapped
+
         return wrapper
 
     return decorator
@@ -529,11 +540,11 @@ def auto_prime(func):
     [10, 20]
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        gen = func(*args, **kwargs)
-        if next(gen) is not None:
+    def wrapper(*pargs, **kwargs):
+        generator = func(*pargs, **kwargs)
+        if next(generator) is not None:
             raise TypeError('generator yielded non-None value when primed')
-        return gen
+        return generator
 
     return wrapper
 
@@ -555,10 +566,10 @@ def assign_attributes(**assignments):
     >>> UniversalAdditiveIdentity() + 3, UniversalAdditiveIdentity() + [10, 20]
     (3, [10, 20])
     """
-    def decorator(func):
-        for name, value in assignments.items():
-            setattr(func, name, value)
-        return func
+    def decorator(func_or_class):
+        for key, value in assignments.items():
+            setattr(func_or_class, key, value)
+        return func_or_class
 
     return decorator
 
@@ -587,10 +598,10 @@ def suppressing(*exception_types, fallback_result=None):
     """
     def decorator(func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*pargs, **kwargs):
             try:
-                return func(*args, **kwargs)
-            except (*exception_types,):
+                return func(*pargs, **kwargs)
+            except exception_types:
                 return fallback_result
 
         return wrapper
@@ -653,30 +664,32 @@ def dict_equality(cls):
     (True, True)
     """
     def __eq__(self, other):
-        if isinstance(other, type(self)):
-            return self.__dict__ == other.__dict__
-        return NotImplemented
-
-    def __ne__(self, other):
-        if isinstance(other, type(self)):
-            return self.__dict__ != other.__dict__
-        return NotImplemented
-
-    def __hash__(self):
-        normalized = sorted(self.__dict__.items())
-        flattened = itertools.chain.from_iterable(normalized)
-        return hash(tuple(flattened))
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.__dict__ == other.__dict__
 
     cls.__eq__ = __eq__
-    cls.__ne__ = __ne__
+
+    if cls.__ne__ is not object.__ne__:
+        def __ne__(self, other):
+            if not isinstance(other, type(self)):
+                return NotImplemented
+            return self.__dict__ != other.__dict__
+
+        cls.__ne__ = __ne__
+
+    def __hash__(self):
+        return hash(frozenset(self.__dict__.items()))
+
     cls.__hash__ = __hash__
+
     return cls
 
 
-# !!FIXME: When removing implementation bodies, replace
-#          "def count_calls_in_attribute(optional_func=None, name='count'):"
-#          with "def count_calls_in_attribute(*, name='count'):".
-def count_calls_in_attribute(optional_func=None, *, name='count'):
+# NOTE: To reset this exercise to be worked again, change its def line back to
+#       "def count_calls_in_attribute(*, name='count'):" in addition to the
+#       usual step of removing the body below the docstring.
+def count_calls_in_attribute(optional_func=None, /, *, name='count'):
     """
     Optionally parameterized decorator to count calls in a function attribute.
 
@@ -718,9 +731,9 @@ def count_calls_in_attribute(optional_func=None, *, name='count'):
 
     def decorator(func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*pargs, **kwargs):
             setattr(wrapper, name, getattr(wrapper, name) + 1)
-            return func(*args, **kwargs)
+            return func(*pargs, **kwargs)
 
         setattr(wrapper, name, 0)
         return wrapper
@@ -728,16 +741,14 @@ def count_calls_in_attribute(optional_func=None, *, name='count'):
     return decorator
 
 
-# !!FIXME: When removing implementation bodies, remove this too.
 def _wrap_if_uncallable(value):
-    """Return value if callable, otherwise a function that returns it."""
     return value if callable(value) else lambda *_args, **_kwargs: value
 
 
-# !!FIXME: When removing implementation bodies, replace
-#          "def wrap_uncallable_args(optional_func=None, *, kw=False):" with
-#          "def wrap_uncallable_args(*, kw=False):".
-def wrap_uncallable_args(optional_func=None, *, kw=False):
+# NOTE: To reset this exercise to be worked again, change its def line back to
+#       "def wrap_uncallable_args(*, kw=False):" in addition to the usual steps
+#       of removing the body below the docstring and removing any helpers.
+def wrap_uncallable_args(optional_func=None, /, *, kw=False):
     """
     Optionally parameterized decorator to convert non-callable arguments to
     constant functions.
@@ -794,10 +805,12 @@ def wrap_uncallable_args(optional_func=None, *, kw=False):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            args = [_wrap_if_uncallable(arg) for arg in args]
+            args = map(_wrap_if_uncallable, args)
+
             if kw:
                 kwargs = {name: _wrap_if_uncallable(value)
                           for name, value in kwargs.items()}
+
             return func(*args, **kwargs)
 
         return wrapper
@@ -866,18 +879,18 @@ def joining(sep=', ', *, use_repr=False, format_spec='', begin='', end=''):
     >>> g(7, 0.5)
     '7, 3.5, 1.75, 0.875'
     """
-    if callable(sep):  # sep is actually the function, rather than a separator.
+    if callable(sep):  # In this case, sep is the function, not a separator.
         return joining()(sep)
 
-    if not isinstance(sep, str):  # Not required, but may prevent confusion.
-        raise TypeError('non-string separator passed')
+    if not isinstance(sep, str):
+        raise TypeError('separator must be a string')
 
-    to_str = repr if use_repr else lambda obj: format(obj, format_spec)
+    get_token = repr if use_repr else lambda value: format(value, format_spec)
 
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            tokens = map(to_str, func(*args, **kwargs))
+            tokens = map(get_token, func(*args, **kwargs))
             return f'{begin}{sep.join(tokens)}{end}'
 
         return wrapper
@@ -930,11 +943,11 @@ def repeat_collect(count=2):
     >>> repeat_collect(math.cos)(math.pi)
     (-1.0, -1.0)
     """
-    if callable(count):  # count is actually the function, rather than a count.
+    if callable(count):  # In this case, count is the function, not a count.
         return repeat_collect()(count)
 
-    if not isinstance(count, int):  # Not required, but may prevent confusion.
-        raise TypeError('non-int count passed')
+    if not isinstance(count, int):
+        raise TypeError('count must be an int')
 
     def decorator(func):
         @functools.wraps(func)
@@ -946,8 +959,9 @@ def repeat_collect(count=2):
     return decorator
 
 
-# !!FIXME: When removing implementation bodies, replace
-#          "class linear_combinable:" with "def linear_combinable(func):".
+# NOTE: To reset this exercise to be worked again, change what is currently its
+#       "class" line back to "def linear_combinable(func):" in addition to the
+#       the usual step of removing the body below the docstring.
 class linear_combinable:
     """
     Decorator to wrap a function to support addition and scalar multiplication.
@@ -967,7 +981,7 @@ class linear_combinable:
     >>> @linear_combinable
     ... def g(x): 'Square a number and subtract 1.'; return x**2 - 1
     >>> @linear_combinable
-    ... def three(_): 'Return 3, no matter the argument.'; return 3
+    ... def three(_): 'Return 3, for any argument.'; return 3
 
     >>> g(10)
     99
@@ -995,101 +1009,161 @@ class linear_combinable:
 
     >>> len({f, g, three, linear_combinable(sq), linear_combinable(sq)})
     4
-    >>> for h in f, g, three:  # Check that metadata attributes are intact.
-    ...     print([getattr(h, name) for name in functools.WRAPPER_ASSIGNMENTS])
-    ['decorators', 'f', 'f', 'Double a number.', {}]
-    ['decorators', 'g', 'g', 'Square a number and subtract 1.', {}]
-    ['decorators', 'three', 'three', 'Return 3, no matter the argument.', {}]
 
-    FIXME: Add a test to check that this works even when "*" isn't commutative.
+    Metadata attributes are intact (compare to give_metadata_from's doctests):
+
+    >>> __name__ in {'__main__', 'algoviz.decorators', 'decorators'}
+    True
+    >>> for h in f, g, three:
+    ...     print([h.__module__ == __name__,
+    ...            h.__name__, h.__qualname__, h.__doc__, h.__annotations__])
+    [True, 'f', 'f', 'Double a number.', {}]
+    [True, 'g', 'g', 'Square a number and subtract 1.', {}]
+    [True, 'three', 'three', 'Return 3, for any argument.', {}]
+
+    It works with noncommutative multiplication:
+
+    >>> import sympy, numbers
+    >>> @numbers.Number.register  # Pretend to be a number. Just for testing!
+    ... class MySymbol(sympy.Symbol): pass
+    >>> x = MySymbol('x', commutative=False)
+    >>> y = MySymbol('y', commutative=False)
+
+    >>> (f * y)(x)
+    2*x*y
+    >>> (y * f)(x)
+    2*y*x
+
+    It is idempotent, which is safe because __wrapped__ is read-only:
+
+    >>> linear_combinable(f) is f
+    True
+    >>> linear_combinable(h) is h
+    True
+
+    >>> f.__wrapped__ = lambda x: x * 3
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't set attribute '__wrapped__'
+    >>> del f.__wrapped__
+    Traceback (most recent call last):
+      ...
+    AttributeError: can't delete attribute '__wrapped__'
     """
 
-    def __init__(self, func):
+    def __new__(cls, func):
         """Create a linearly combinable object wrapping a function."""
-        functools.update_wrapper(self, func)  # Or: functools.wraps(func)(self)
+        if isinstance(func, cls):
+            return func
+
+        instance = super().__new__(cls)
+
+        # Could alternatively use: functools.wraps(func)(instance)
+        functools.update_wrapper(instance, func)
+
+        return instance
 
     def __repr__(self):
-        """Code-like representation of this linear_combinable object."""
+        """Representation for debugging, showing the wrapped callable."""
         return f'{type(self).__name__}({self.__wrapped__!r})'
 
+    def __call__(self, x):
+        """Call the wrapped function."""
+        return self.__wrapped__(x)
+
     def __eq__(self, other):
-        """linear_combinable objects are equal if they wrap equal callables."""
+        """Check if two linearly combinable objects wrap equal callables."""
         if not isinstance(other, type(self)):
             return NotImplemented
+
         return self.__wrapped__ == other.__wrapped__
 
     def __hash__(self):
         return hash(self.__wrapped__)
 
-    def __call__(self, arg):
-        """Call the wrapped function."""
-        return self.__wrapped__(arg)
-
     def __add__(self, right_addend):
-        """Add two functions, with the other function on the right."""
+        """Add instances of linear_combinable, with the other on the right."""
         if not isinstance(right_addend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
         g = right_addend.__wrapped__
-        return linear_combinable(lambda arg: f(arg) + g(arg))
+        return type(self)(lambda x: f(x) + g(x))
 
     def __radd__(self, left_addend):
-        """Add two functions, with the other function on the left."""
+        """Add instances of linear_combinable, with the other on the left."""
         if not isinstance(left_addend, type(self)):
             return NotImplemented
 
-        f = left_addend.__wrapped__
-        g = self.__wrapped__
-        return linear_combinable(lambda arg: f(arg) + g(arg))
+        f = self.__wrapped__
+        g = left_addend.__wrapped__
+        return type(self)(lambda x: g(x) + f(x))
 
     def __sub__(self, subtrahend):
-        """Subtract two functions, with the other function on the right."""
+        """
+        Subtract instances of linear_combinable, with the other on the right.
+        """
         if not isinstance(subtrahend, type(self)):
             return NotImplemented
 
         f = self.__wrapped__
         g = subtrahend.__wrapped__
-        return linear_combinable(lambda arg: f(arg) - g(arg))
+        return type(self)(lambda x: f(x) - g(x))
 
     def __rsub__(self, minuend):
-        """Subtract two functions, with the other function on the left."""
+        """
+        Subtract instances of linear_combinable, with the other on the left.
+        """
         if not isinstance(minuend, type(self)):
             return NotImplemented
 
-        f = minuend.__wrapped__
-        g = self.__wrapped__
-        return linear_combinable(lambda arg: f(arg) - g(arg))
+        f = self.__wrapped__
+        g = minuend.__wrapped__
+        return type(self)(lambda x: g(x) - f(x))
 
     def __mul__(self, right_coefficient):
-        """Scalar multiplication, with the coefficient on the right."""
-        if not isinstance(right_coefficient, Number):
+        """Multiply a linear_combinable by a number on the right."""
+        if not isinstance(right_coefficient, numbers.Number):
             return NotImplemented
 
         f = self.__wrapped__
-        return linear_combinable(lambda arg: f(arg) * right_coefficient)
+        return type(self)(lambda x: f(x) * right_coefficient)
 
     def __rmul__(self, left_coefficient):
-        """Scalar multiplication, with the coefficient on the left."""
-        if not isinstance(left_coefficient, Number):
+        """Multiply a linear_combinable by a number on the left."""
+        if not isinstance(left_coefficient, numbers.Number):
             return NotImplemented
-
-        g = self.__wrapped__
-        return linear_combinable(lambda arg: left_coefficient * g(arg))
-
-    def __truediv__(self, divisor):
-        """Division by a nonzero scalar, with the scalar on the right."""
-        if not isinstance(divisor, Number):
-            return NotImplemented
-        if divisor == 0:
-            raise ZeroDivisionError('second-order division by zero')
 
         f = self.__wrapped__
-        return linear_combinable(lambda arg: f(arg) / divisor)
+        return type(self)(lambda x: left_coefficient * f(x))
+
+    def __truediv__(self, divisor):
+        """Divide a linear_combinable by a number (except zero)."""
+        if not isinstance(divisor, numbers.Number):
+            return NotImplemented
+
+        if divisor == 0:
+            raise ZeroDivisionError("second-order division by zero")
+
+        f = self.__wrapped__
+        return type(self)(lambda x: f(x) / divisor)
+
+    def __setattr__(self, name, value):
+        """Setting __wrapped__ after initial setting is suppressed."""
+        if name == '__wrapped__' and hasattr(self, name):
+            raise AttributeError(f"can't set attribute {name!r}")
+
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name):
+        """Deleting __wrapped__ is suppressed."""
+        if name == '__wrapped__':
+            raise AttributeError(f"can't delete attribute {name!r}")
+
+        super().__delattr__(name)
 
 
 __all__ = [thing.__name__ for thing in (
-    identity_function,
     peek_arg,
     peek_return,
     call,
