@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Demonstration of the match...case command."""
+"""Demonstration of the match...case statement."""
 
 import sys
 
@@ -23,13 +23,13 @@ def run():
     try:
         number = int(sys.argv[1])
     except ValueError:
-        print(f'You should pass an integer')
+        print('You should pass an integer.')
     except IndexError:
-        print('You should pass something, an integer in particular')
+        print('You should pass something, an integer in particular.')
     else:
         echo_num(number)
     finally:
-        print('Bored now')
+        print('Bored now.')
 
 
 if __name__ == '__main__':

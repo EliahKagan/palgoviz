@@ -574,7 +574,7 @@ class _Bases:
         standard library facilities. But there is a good argument our priority
         queues should, by default, operate as min priority queues instead:
         Python programmers are likely to expect a min default, because the
-        heapq module provides low-level binary minheap (not maxheap)
+        heapq module provides low-level binary min-heap (not max-heap)
         operations. Eventually, we should redesign our priority queues,
         possibly changing the min/max default, and definitely having all
         concrete implementations' initializers accept key= and reverse=

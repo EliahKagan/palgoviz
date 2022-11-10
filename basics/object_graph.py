@@ -7,11 +7,13 @@ objects and directed edges for references.
 See also: the objgraph PyPI package.
 """
 
+__all__ = ['draw_one_tuple', 'draw_tuples', 'draw_tuples_alt']
+
 import html
 
 from graphviz import Digraph
 
-import decorators
+import caching
 
 
 def draw_one_tuple(root):
@@ -42,7 +44,7 @@ def draw_tuples(*roots):
     """
     graph = Digraph()
 
-    @decorators.memoize_by(id)
+    @caching.memoize_by(id)
     def draw(parent):
         parent_name = str(id(parent))
 

@@ -101,26 +101,40 @@ class BitsetEnum(enum.Flag):
 class Guests(BitsetEnum):
     """Potential party and/or trial guests."""
 
-    ALICE   = A = enum.auto()
-    BOB     = B = enum.auto()
-    CASSIDY = C = enum.auto()
-    DEREK   = D = enum.auto()
-    ERIN    = E = enum.auto()
-    FRANK   = F = enum.auto()
-    GERALD  = G = enum.auto()
-    HEATHER = H = enum.auto()
+    # Aligning up enumeration constants, common in many languages, is less
+    # common in Python. flake8 says: E221 multiple spaces before operator
+    # (This message is a bit confusing since "=" is not an operator in Python.)
+    # In this specific case, we suppress the message and use this style.
 
-    PARTY   = ALICE | CASSIDY | FRANK
-    PARTY2  = ALICE | BOB | ERIN | FRANK
+    ALICE   = A = enum.auto()  # noqa: E221
+    BOB     = B = enum.auto()  # noqa: E221
+    CASSIDY = C = enum.auto()  # noqa: E221
+    DEREK   = D = enum.auto()  # noqa: E221
+    ERIN    = E = enum.auto()  # noqa: E221
+    FRANK   = F = enum.auto()  # noqa: E221
+    GERALD  = G = enum.auto()  # noqa: E221
+    HEATHER = H = enum.auto()  # noqa: E221
 
-    # Trials can have guests and are not parties
+    PARTY   = ALICE | CASSIDY | FRANK     # noqa: E221
+    PARTY2  = ALICE | BOB | ERIN | FRANK  # noqa: E221
+
+    # Trials can have guests and are not parties.
     # Trials are needed because the parties were a tad too wild.
 
-    ALICE_TRIAL   = BOB | CASSIDY
-    BOB_TRIAL     = ALICE | HEATHER
+    ALICE_TRIAL   = BOB | CASSIDY             # noqa: E221
+    BOB_TRIAL     = ALICE | HEATHER           # noqa: E221
     CASSIDY_TRIAL = 0
-    ERIN_TRIAL    = CASSIDY | DEREK | GERALD
-    FRANK_TRIAL   = BOB | CASSIDY | DEREK
+    ERIN_TRIAL    = CASSIDY | DEREK | GERALD  # noqa: E221
+    FRANK_TRIAL   = BOB | CASSIDY | DEREK     # noqa: E221
+
+
+__all__ = [thing.__name__ for thing in (
+    OrderedEnum,
+    CodeReprEnum,
+    BearBowl,
+    BitsetEnum,
+    Guests,
+)]
 
 
 if __name__ == '__main__':

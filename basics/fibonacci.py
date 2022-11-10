@@ -8,10 +8,9 @@ See also the visualizations in subproblems.ipynb.
 For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
 
-import functools
 import itertools
 
-from decorators import memoize
+from caching import memoize
 
 
 def fibonacci(n):
@@ -30,9 +29,9 @@ def fibonacci(n):
     2
     >>> fibonacci(10)
     55
-    >>> fibonacci_cached_4(100)  # Too big without memoization.  # doctest: +SKIP
+    >>> fibonacci_cached_4(100)  # Too big unmemoized.  # doctest: +SKIP
     354224848179261915075
-    >>> fibonacci(500)  # Also too big without memoization.  # doctest: +SKIP
+    >>> fibonacci(500)  # Also too big unmemoized.  # doctest: +SKIP
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
     """
     if n == 0:
@@ -144,7 +143,7 @@ def fibonacci_cached_3(n):
     return helper(n)
 
 
-@memoize
+@memoize  # Could also use @functools.cache.
 def fibonacci_cached_4(n):
     """
     Memoized recursive Fibonacci algorithm. Caches across all calls.
@@ -165,7 +164,8 @@ def fibonacci_cached_4(n):
     354224848179261915075
     >>> fibonacci_cached_4(500)  # No RecursionError: we have up to n=100.
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
-    >>> fibonacci_cached_4(1200)  # Mutual-recursion RecursionError.  # doctest: +SKIP
+    >>> fibonacci_cached_4(1200
+    ...     )  # Mutual-recursion RecursionError.  # doctest: +SKIP
     27269884455406270157991615313642198705000779992917725821180502894974726476373026809482509284562310031170172380127627214493597616743856443016039972205847405917634660750474914561879656763268658528092195715626073248224067794253809132219056382939163918400
     """
     if n == 0:
@@ -195,8 +195,11 @@ def fibonacci_cached_5(n):
     354224848179261915075
     >>> fibonacci_cached_5(500)  # No RecursionError, we split the paths.
     139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+    >>> fibonacci_cached_5(1200
+    ...     )  # Mutual-recursion RecursionError. # doctest: +SKIP
+    27269884455406270157991615313642198705000779992917725821180502894974726476373026809482509284562310031170172380127627214493597616743856443016039972205847405917634660750474914561879656763268658528092195715626073248224067794253809132219056382939163918400
     """
-    @functools.cache
+    @memoize  # Could also use @functools.cache.
     def helper(n):
         if n == 0:
             return 0
@@ -211,7 +214,8 @@ def fibonacci_short(n):
     """
     Compute Fibonacci with the simple recursive algorithm but more compactly.
 
-    This takes advantage of the coincidence that its base cases are fixed points.
+    This takes advantage of the coincidence that its base cases are fixed
+    points.
 
     >>> fibonacci_short(0)
     0
@@ -278,7 +282,8 @@ def fibonacci_alr(n):
 
 def fibonacci_short_alr(n):
     """
-    Compute the Fibonacci number F(n) with arm's length recursion more compactly.
+    Compute the Fibonacci number F(n) with arm's length recursion more
+    compactly.
 
     This is like fibonacci_short() but uses arm's length recursion. Since there
     is only one base-case condition here, this looks more like arm's length
@@ -359,7 +364,7 @@ def fib_n_clunk(n):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+        raise ValueError("can't yield negatively many Fibonacci numbers")
 
     def generate():
         if n == 0:
@@ -501,7 +506,7 @@ def fib_n(n):
         raise TypeError('n must be an int')
 
     if n < 0:
-        raise ValueError(f"can't yield negatively many Fibonacci numbers")
+        raise ValueError("can't yield negatively many Fibonacci numbers")
 
     return itertools.islice(fib(), n)
 
@@ -582,6 +587,25 @@ def fib_nest_by(container, n):
     for _ in range(n - 1):
         a, b = b, container((a, b))
     return b
+
+
+__all__ = [thing.__name__ for thing in (
+    fibonacci,
+    fibonacci_cached_1,
+    fibonacci_cached_2,
+    fibonacci_cached_3,
+    fibonacci_cached_4,
+    fibonacci_cached_5,
+    fibonacci_short,
+    fibonacci_alr,
+    fibonacci_short_alr,
+    fib_n_clunk,
+    fib,
+    Fib,
+    fib_n,
+    fib_nest,
+    fib_nest_by,
+)]
 
 
 if __name__ == '__main__':
