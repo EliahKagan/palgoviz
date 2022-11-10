@@ -138,7 +138,7 @@ class TestIsSorted:
 
 
 @pytest.fixture
-def readerr(capsys):
+def read_err(capsys):
     """Supply a function that, when called, returns captured standard error."""
     return lambda: capsys.readouterr().err
 
@@ -156,14 +156,15 @@ class TestAlert:
         ('3609 squirrels complained', 'alert: 3609 squirrels complained\n'),
         ('boycott whalebone skis', 'alert: boycott whalebone skis\n'),
     ])
-    def test_alert_and_newline_are_printed_with_string(self, readerr,
+    def test_alert_and_newline_are_printed_with_string(self, read_err,
                                                        message, expected):
         alert(message)
-        assert readerr() == expected
+        assert read_err() == expected
 
-    def test_alert_with_nonstring_message_prints_str_of_message(self, readerr):
+    def test_alert_with_nonstring_message_prints_str_of_message(self,
+                                                                read_err):
         alert(Fraction(2, 3))
-        assert readerr() == 'alert: 2/3\n'
+        assert read_err() == 'alert: 2/3\n'
 
 
 class BailIf:
