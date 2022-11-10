@@ -65,7 +65,7 @@ particular, classroom use is not currently a focus.
 This project is meant to be used in a Conda environment, so you need `conda`
 (or `mamba`).
 
-If you don't have it already, we suggest
+If you don't have `conda` already, we suggest
 [Miniforge](https://github.com/conda-forge/miniforge), which is what we're
 using.
 
