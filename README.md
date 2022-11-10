@@ -52,6 +52,14 @@ particular, classroom use is not currently a focus.
 
 ## Installation
 
+<!--
+    FIXME: Move installation details, and all information about updating, in
+    one or more files in doc/ (creating that directory if it does not exist).
+    Then condense this section down to a short summary and refer to those
+    files. This whole section can then be made very short (probably shorter
+    even than the introductory text at the very beginning of this readme).
+-->
+
 ### Getting `conda`
 
 This project is meant to be used in a Conda environment, so you need `conda`
