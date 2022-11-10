@@ -12,7 +12,6 @@
         "test_*.py"
     ],
     "python.testing.unittestEnabled": false,
-    "editor.detectIndentation": false,  // FIXME: Check if we still need this.
     "cSpell.words": [
         "abstractmethod",
         "abstractmethods",
