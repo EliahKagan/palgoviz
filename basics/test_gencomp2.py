@@ -66,9 +66,7 @@ class TestEmpty(CommonIteratorTests):
     gencomp2.product_two_flexible,
 ])
 class TestProductTwo(CommonIteratorTests):
-    """
-    Shared tests for all Cartesian product functions in gencomp2.
-    """
+    """Shared tests for all Cartesian product functions in gencomp2."""
 
     __slots__ = ()
 
