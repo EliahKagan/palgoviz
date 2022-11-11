@@ -2,9 +2,6 @@
 
 """Tests for functions in gencomp2.py."""
 
-# FIXME: Numerous functions and classes in gencomp2.py still need tests here.
-
-from collections.abc import Iterator
 import itertools
 import sys
 
@@ -111,6 +108,9 @@ class TestProductTwoFlexible:
             (1, 'a'), (1, 'b'), (1, 'c'),
             (2, 'a')
         ]
+
+
+# FIXME: The gencomp2.pairs function still needs pytest tests here.
 
 
 @pytest.mark.parametrize('implementation', [
@@ -351,6 +351,7 @@ class TestUngroup:
     def test_totally_disconnected_graph(adj):
         """A graph with vertices but no edges is found to have no edges."""
         adj = {'a': [], 'b': [], 'c': [], 'd': [], 'e': [], 'f': [], 'g': []}
+        assert gencomp2.ungroup(adj) == set()
 
     def test_sparse_graph(self):
         """Testing a sparse graph, some of whose vertices are isolated."""
@@ -605,7 +606,7 @@ class TestComposeDicts:
             'forty-one': [4, 1], 'forty-three': [4, 3], 'forty-two': [4, 2],
         }
         front = {43: 'forty-three', 42: (set(),), 41: 'forty-one'}
-        result =  gencomp2.compose_dicts(back, front)
+        result = gencomp2.compose_dicts(back, front)
         assert list(result.items()) == [(43, [4, 3]), (41, [4, 1])]
 
 
@@ -708,15 +709,6 @@ class TestComposeDictsView:
 
         assert get_rgb('danger') == 0xFF0000, \
                'Correct value after rolling back the change.'
-
-    def test_unhashable_mappings_ok_if_unused(self, color_rgbs, status_colors):
-        """Unhashable front values don't break unrelated lookups."""
-        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
-
-        # isinstance(tuple, Hashable), but this tuple object is not hashable.
-        status_colors['danger'] = (set(),)
-
-        assert get_rgb('meh') == 0x0000FF
 
 
 @pytest.fixture(name='make_matrix_indexer')
@@ -837,6 +829,17 @@ class TestTranspose:
         """Transposing a 3x2 matrix produces the correct 2x3 result."""
         matrix = ((1, 2), (3, 4), (5, 6))
         implementation(matrix) == ((1, 3, 5), (2, 4, 6))
+
+
+# FIXME: We still need pytest tests here for these functions and classes:
+#
+#   - gencomp2.affines
+#   - gencomp2.Affine
+#   - gencomp2.affines_alt
+#   - gencomp2.my_cycle
+#   - gencomp2.my_chain
+#
+# (Also don't forget the gencomp2.pairs function whose test is missing, above.)
 
 
 if __name__ == '__main__':
