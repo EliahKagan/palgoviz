@@ -69,7 +69,7 @@ class TestEmpty(CommonIteratorTests):
 ])
 class TestProductTwo(CommonIteratorTests):
     """
-    Shared tests for all Cartesian product functions and classes in gencomp2.
+    Shared tests for all Cartesian product functions in gencomp2.
     """
 
     __slots__ = ()
@@ -109,7 +109,7 @@ class TestProductTwo(CommonIteratorTests):
     gencomp2.ProductTwoFlexible,
 ])
 class TestProductTwoFlexible:
-    """Tests specific to product_two_flexible and ProductTwoFlexible."""
+    """Tests specific to product_two_flexible."""
 
     __slots__ = ()
 
@@ -210,7 +210,7 @@ class TestThreeSums:
     gencomp2.three_sum_indices_4,
 ])
 class TestThreeSumIndices(CommonIteratorTests):
-    """Tests for the four three_sum_indices functions."""
+    """Tests for the four three_sum_indices* functions."""
 
     __slots__ = ()
 
@@ -584,7 +584,7 @@ class TestComposeDictsSimpleAndComposeDicts:
 
 
 class TestComposeDictsSimple:
-    """A test specific to the compose_dicts_simple function."""
+    """Tests specific to the compose_dicts_simple function."""
 
     __slots__ = ()
 
