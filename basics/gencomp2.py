@@ -1788,8 +1788,9 @@ def my_dropwhile_alt(predicate, iterable):
     >>> list(my_dropwhile_alt(lambda _: False, ()))
     []
     """
-    yielding = False
-    return (x for x in iterable if yielding or (yielding := not predicate(x)))
+    started = False
+    return (x for x in iterable if started or (started := not predicate(x))) \
+        # noqa: F841  # flake8 doesn't grok the scope of := in a comprehension.
 
 
 class DropWhile:

@@ -2178,7 +2178,7 @@ def distinct_eager_unstable(iterable, *, key=None):
     True
     """
     if key is None:
-        key = lambda x: x
+        key = identity_function
 
     return list({key(value): value for value in iterable}.values())
 
@@ -2243,7 +2243,8 @@ def distinct_eager_unstable_lt_simple_alt(iterable):
     [['b', 'a', 'r'], ['b', 'a', 'z'], ['f', 'o', 'o'], ['q', 'u', 'u', 'x']]
     """
     pre = object()
-    return [(pre := cur) for cur in sorted(iterable) if pre != cur]
+    return [(pre := cur) for cur in sorted(iterable) if pre != cur] \
+        # noqa: F841  # flake8 doesn't grok the scope of := in a comprehension.
 
 
 def distinct_eager_unstable_lt(iterable, *, key=None):
@@ -2296,7 +2297,7 @@ def distinct_eager_unstable_lt(iterable, *, key=None):
     True
     """
     if key is None:
-        key = lambda x: x
+        key = identity_function
 
     out = []
 
@@ -2387,7 +2388,7 @@ def distinct_eager(iterable, *, key=None):
     [3, [], [], 4]
     """
     if key is None:
-        key = lambda x: x
+        key = identity_function
 
     pairs = [(key(value), value) for value in iterable]
     mapping = dict(pairs)  # Populate keys in order.
