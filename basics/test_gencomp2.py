@@ -2,6 +2,39 @@
 
 """Tests for functions in gencomp2.py."""
 
+# FIXME: Some tests in this module make multiple assertions. In most or all of
+# them, it is not justified to do so (or at least not as currently done). One
+# or more of these alternatives should be applied, as appropriate:
+#
+#  (A) Some assertions may really not be part of a claim the test is making and
+#      verifying, but instead are purely preconditions needed to test some such
+#      claim. In these cases, as detailed in testing.ipynb, we can raise an
+#      Exception with a descriptive message instead.
+#
+#  (B) Some assertions may be making separate claims that belong in separate
+#      tests, but where it makes sense for those multiple tests to come from
+#      the same method. Usually the solution is to parametrize the method,
+#      which, for pytest tests, is usually done with @pytest.mark.parametrize.
+#
+#      But I don't think the tests in this module have passed up any reasonable
+#      opportunities for that. Another solution can be to use subtests. We are
+#      already using the subtext fixture (provided by pytest-subtests) in
+#      test_gencomp1.py and it is fine to use it here, too.
+#
+#  (C) Some assertions may be separate for test-code clarity but together make
+#      a single claim, which makes sense to make in the problem domain, about
+#      how the code under test should behave (that is, a single claim about the
+#      required "business logic"). The line between this and situation B can be
+#      vague, and subtests can be used for this as well (even in some cases
+#      where it is clearly this situation and not the one described in B).
+#
+#      However, in this situation, the only major reason not to have multiple
+#      assertions in the same test case is that our assertions indicate failure
+#      by raising exceptions, which prevent flow of control from running the
+#      rest of the test after an assertion failure. So it can be solved with a
+#      different kind of assertion that doesn't keep the test from continuing.
+#      https://pypi.org/project/pytest-check/ adds such assertions to pytest.
+
 import itertools
 import sys
 
