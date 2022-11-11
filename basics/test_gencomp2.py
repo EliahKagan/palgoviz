@@ -2,7 +2,38 @@
 
 """Tests for functions in gencomp2.py."""
 
-# FIXME: Numerous functions and classes in gencomp2.py still need tests here.
+# FIXME: Some tests in this module make multiple assertions. In most or all of
+# them, it is not justified to do so (or at least not as currently done). One
+# or more of these alternatives should be applied, as appropriate:
+#
+#  (A) Some assertions may really not be part of a claim the test is making and
+#      verifying, but instead are purely preconditions needed to test some such
+#      claim. In these cases, as detailed in testing.ipynb, we can raise an
+#      Exception with a descriptive message instead.
+#
+#  (B) Some assertions may be making separate claims that belong in separate
+#      tests, but where it makes sense for those multiple tests to come from
+#      the same method. Usually the solution is to parametrize the method,
+#      which, for pytest tests, is usually done with @pytest.mark.parametrize.
+#
+#      But I don't think the tests in this module have passed up any reasonable
+#      opportunities for that. Another solution can be to use subtests. We are
+#      already using the subtext fixture (provided by pytest-subtests) in
+#      test_gencomp1.py and it is fine to use it here, too.
+#
+#  (C) Some assertions may be separate for test-code clarity but together make
+#      a single claim, which makes sense to make in the problem domain, about
+#      how the code under test should behave (that is, a single claim about the
+#      required "business logic"). The line between this and situation B can be
+#      vague, and subtests can be used for this as well (even in some cases
+#      where it is clearly this situation and not the one described in B).
+#
+#      However, in this situation, the only major reason not to have multiple
+#      assertions in the same test case is that our assertions indicate failure
+#      by raising exceptions, which prevent flow of control from running the
+#      rest of the test after an assertion failure. So it can be solved with a
+#      different kind of assertion that doesn't keep the test from continuing.
+#      https://pypi.org/project/pytest-check/ adds such assertions to pytest.
 
 from collections.abc import Iterator
 import itertools
@@ -231,13 +262,17 @@ def test_prefix_product(sequences, stop, expected):
 # FIXME: Implement TestSuffixProduct.
 
 
+# FIXME: The gencomp2.pairs function and gencomp2.Pairs class still need pytest
+#        tests here.
+
+
 @pytest.mark.parametrize('implementation', [
     gencomp2.ascending_countdowns,
     gencomp2.ascending_countdowns_alt,
     gencomp2.AscendingCountdowns,
 ])
 class TestAscendingCountdowns(CommonIteratorTests):
-    """Tests for ascending_countdowns and ascending_countdowns_alt."""
+    """Tests for ascending_countdowns and related functions and classes."""
 
     __slots__ = ()
 
@@ -292,7 +327,7 @@ class TestThreeSums:
     gencomp2.three_sum_indices_4,
 ])
 class TestThreeSumIndices(CommonIteratorTests):
-    """Tests for the four three_sum_indices functions."""
+    """Tests for the four three_sum_indices* functions."""
 
     __slots__ = ()
 
@@ -470,6 +505,7 @@ class TestUngroup:
     def test_totally_disconnected_graph(adj):
         """A graph with vertices but no edges is found to have no edges."""
         adj = {'a': [], 'b': [], 'c': [], 'd': [], 'e': [], 'f': [], 'g': []}
+        assert gencomp2.ungroup(adj) == set()
 
     def test_sparse_graph(self):
         """Testing a sparse graph, some of whose vertices are isolated."""
@@ -665,7 +701,7 @@ class TestComposeDictsSimpleAndComposeDicts:
 
 
 class TestComposeDictsSimple:
-    """A test specific to the compose_dicts_simple function."""
+    """Tests specific to the compose_dicts_simple function."""
 
     __slots__ = ()
 
@@ -724,7 +760,7 @@ class TestComposeDicts:
             'forty-one': [4, 1], 'forty-three': [4, 3], 'forty-two': [4, 2],
         }
         front = {43: 'forty-three', 42: (set(),), 41: 'forty-one'}
-        result =  gencomp2.compose_dicts(back, front)
+        result = gencomp2.compose_dicts(back, front)
         assert list(result.items()) == [(43, [4, 3]), (41, [4, 1])]
 
 
@@ -828,15 +864,6 @@ class TestComposeDictsView:
         assert get_rgb('danger') == 0xFF0000, \
                'Correct value after rolling back the change.'
 
-    def test_unhashable_mappings_ok_if_unused(self, color_rgbs, status_colors):
-        """Unhashable front values don't break unrelated lookups."""
-        get_rgb = gencomp2.compose_dicts_view(color_rgbs, status_colors)
-
-        # isinstance(tuple, Hashable), but this tuple object is not hashable.
-        status_colors['danger'] = (set(),)
-
-        assert get_rgb('meh') == 0x0000FF
-
 
 @pytest.fixture(name='make_matrix_indexer')
 def fixture_make_matrix_indexer():
@@ -918,9 +945,12 @@ class TestMatrixSquareNested:
         assert result == [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
 
 
-# FIXME: Put tests for gencomp2.identity_matrix_alt's helper functions here.
+# FIXME: The matrix_dimensions, matrix_multiply, and identity_matrix still need
+#        pytest tests here.
 
-# !!FIXME: When removing implementation bodies in gencomp2.py, remove this too.
+
+# !!FIXME: When removing implementation bodies in gencomp2.py, remove this too,
+#          Say: "FIXME: Put gencomp2.identity_matrix_alt helpers' tests here."
 class TestIdentityMatrixAltHelpers:
     """Tests for the _kronecker_delta and _identity_matrix_row functions."""
 
@@ -1280,6 +1310,37 @@ class TestSubmap(CommonIteratorTests):
 
         with subtests.test('Output rows have correct values in correct order'):
             assert [list(out_row) for out_row in out_rows] == expected
+
+
+# FIXME: We still need pytest tests here for these functions and classes:
+#
+#   - gencomp2.is_hermitian
+#   - gencomp2.is_hermitian_alt
+#   - gencomp2.affines
+#   - gencomp2.Affine
+#   - gencomp2.affines_alt
+#   - gencomp2.mean
+#   - gencomp2.floats_in_range
+#   - gencomp2.FloatsInRange
+#   - gencomp2.integrate
+#   - gencomp2.my_takewhile
+#   - gencomp2.TakeWhile
+#   - gencomp2.my_dropwhile
+#   - gencomp2.my_dropwhile_alt
+#   - gencomp2.DropWhile
+#   - gencomp2.outdegrees
+#   - gencomp2.indegrees
+#   - gencomp2.anagrams
+#   - gencomp2.Anagrams
+#   - gencomp2.AnagramsAlt
+#   - gencomp2.my_cycle
+#   - gencomp2.Cycle
+#   - gencomp2.my_chain
+#   - gencomp2.Chain
+#   - gencomp2.encrypt
+#   - gencomp2.decrypt
+#
+# (Also don't forget the other missing tests, covered by several FIXMEs above.)
 
 
 if __name__ == '__main__':
