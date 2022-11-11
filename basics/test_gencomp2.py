@@ -46,10 +46,10 @@ from testing import CommonIteratorTests
 
 @pytest.mark.parametrize('implementation', [
     gencomp2.empty,
-    # NOTE: We'll eventually have multiple empty iterators to test.
+    gencomp2.Empty,
 ])
 class TestEmpty(CommonIteratorTests):
-    """Tests for the empty function."""
+    """Tests for the empty function and the Empty class."""
 
     __slots__ = ()
 
@@ -63,7 +63,9 @@ class TestEmpty(CommonIteratorTests):
     itertools.product,  # Included to help test that the tests are correct.
     gencomp2.product_two,
     gencomp2.product_two_alt,
+    gencomp2.ProductTwo,
     gencomp2.product_two_flexible,
+    gencomp2.ProductTwoFlexible,
 ])
 class TestProductTwo(CommonIteratorTests):
     """
@@ -104,7 +106,7 @@ class TestProductTwo(CommonIteratorTests):
 
 @pytest.mark.parametrize('implementation', [
     gencomp2.product_two_flexible,
-    # NOTE: We'll eventually have multiple flexible 2-way products to test.
+    gencomp2.ProductTwoFlexible,
 ])
 class TestProductTwoFlexible:
     """Tests specific to product_two_flexible and ProductTwoFlexible."""
@@ -143,15 +145,17 @@ class TestProductTwoFlexible:
         ]
 
 
-# FIXME: The gencomp2.pairs function still needs pytest tests here.
+# FIXME: The gencomp2.pairs function and gencomp2.Pairs class still need pytest
+#        tests here.
 
 
 @pytest.mark.parametrize('implementation', [
     gencomp2.ascending_countdowns,
     gencomp2.ascending_countdowns_alt,
+    gencomp2.AscendingCountdowns,
 ])
 class TestAscendingCountdowns(CommonIteratorTests):
-    """Tests for ascending_countdowns and ascending_countdowns_alt."""
+    """Tests for ascending_countdowns and related functions and classes."""
 
     __slots__ = ()
 
@@ -870,9 +874,11 @@ class TestTranspose:
 #   - gencomp2.Affine
 #   - gencomp2.affines_alt
 #   - gencomp2.my_cycle
+#   - gencomp2.Cycle
 #   - gencomp2.my_chain
+#   - gencomp2.Chain
 #
-# (Also don't forget the gencomp2.pairs function whose test is missing, above.)
+# (Also don't forget gencomp2.pairs and gencomp2.Pairs. See the above FIXME.)
 
 
 if __name__ == '__main__':
