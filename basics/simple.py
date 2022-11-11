@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-"""Some simple code, for unit testing."""
+"""
+Some simple code, for unit testing.
+
+See test_simple.py (unittest tests) and test_simple_pytest.py (pytest tests).
+"""
 
 from abc import ABC, abstractmethod
 import itertools
 import sys
-
 
 MY_NONE = None
 
@@ -41,7 +44,9 @@ def alert(message):
 
 def bail_if(condition):
     """Exit indicating failure if the condition evaluates as true."""
-    if condition: sys.exit(1)
+    # This style choice is to show that a one-statement suite can go on the
+    # same line. flake8 says: E701 multiple statements on one line (colon)
+    if condition: sys.exit(1)  # noqa: E701
 
 
 class Squarer(ABC):
@@ -214,6 +219,22 @@ def make_toggle_alt(start):
     _check_toggle_param(start)
     it = itertools.cycle([start, not start])
     return lambda: next(it)
+
+
+__all__ = ['MY_NONE'] + [thing.__name__ for thing in (
+    Widget,
+    answer,
+    is_sorted,
+    alert,
+    bail_if,
+    Squarer,
+    MulSquarer,
+    PowSquarer,
+    make_squarer,
+    Toggle,
+    make_toggle,
+    make_toggle_alt,
+)]
 
 
 if __name__ == '__main__':

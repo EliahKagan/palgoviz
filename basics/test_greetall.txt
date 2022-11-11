@@ -3,7 +3,7 @@ Doctests for greetall.py.
 TODO: Write better, more exhaustive tests, probably with pytest.
 
 >>> from subprocess import getstatusoutput as gso
->>> status, output = gso('python greetall.py names.txt')
+>>> status, output = gso('python greetall.py ../data/names.txt')
 >>> status
 0
 >>> print(output)
@@ -11,7 +11,7 @@ Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
 
->>> status, output = gso('python greetall.py names2.txt es')
+>>> status, output = gso('python greetall.py ../data/names2.txt es')
 >>> status
 0
 >>> print(output)
@@ -26,13 +26,13 @@ Hello, Dr. Evil!
 >>> print(output)
 ERROR in greetall.py: Did not pass a filename
 
->>> status, output = gso('python greetall.py names.txt qx')
+>>> status, output = gso('python greetall.py ../data/names.txt qx')
 >>> status
 1
 >>> print(output)
 ERROR in greetall.py: qx is an unrecognized language code.
 
->>> status, output = gso('python greetall.py names.txt en foo')
+>>> status, output = gso('python greetall.py ../data/names.txt en foo')
 >>> status
 0
 >>> print(output)
@@ -41,7 +41,7 @@ Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
 
->>> status, output = gso('python greetall.py some-nonexistent-file.txt')
+>>> status, output = gso('python greetall.py ../data/nonexistent.txt')
 >>> status
 1
 >>> output.startswith('ERROR in greetall.py:')

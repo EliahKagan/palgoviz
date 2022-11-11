@@ -10,6 +10,10 @@ import collections
 import contextlib
 import itertools
 
+import more_itertools
+
+from util import identity_function
+
 
 def my_enumerate(iterable, start=0):
     """
@@ -68,9 +72,10 @@ def my_enumerate_alt(iterable, start=0):
     >>> list(my_enumerate_alt(['ham', 'spam', 'eggs'], 10))
     [(10, 'ham'), (11, 'spam'), (12, 'eggs')]
     """
-    for item in iterable:
-        yield start, item
-        start += 1
+    count = start
+    for element in iterable:
+        yield count, element
+        count += 1
 
 
 class Enumerate:
@@ -120,9 +125,12 @@ class Enumerate:
         return index, value
 
 
-def print_enumerated(*, start=0): # start is now a keyword only argument, meaning that user MUST use in the form print_enumerated(start=n)
+def print_enumerated(*, start=0):
     """
     Show the effect of my_enumerate on a sequence of 5, ..., 9 (inclusive).
+
+    (Due to "*", "start" is now a keyword-only argument, meaning the caller
+    MUST use the form print_enumerated(start=n) to pass it.)
 
     >>> print_enumerated()
     index = 0, value = 5
@@ -138,7 +146,7 @@ def print_enumerated(*, start=0): # start is now a keyword only argument, meanin
     index = 11, value = 9
     """
     for index, value in my_enumerate(range(5, 10), start):
-        print (f'{index = }, {value = }')
+        print(f'{index = }, {value = }')
 
 
 def print_enumerated_alt(*, start=0):
@@ -184,6 +192,25 @@ def my_any(iterable):
     return next((True for element in iterable if element), False)
 
 
+def my_any_alt(iterable):
+    """
+    Test if any element of an iterable is truthy, using no comprehensions.
+
+    >>> my_any_alt([])
+    False
+    >>> my_any_alt([17, 4, 9, 0, 3, 5, 0])
+    True
+    >>> my_any_alt(x % 17 == 0 for x in range(100))
+    True
+    >>> my_any_alt(x > 100 for x in range(100))
+    False
+    """
+    for element in iterable:
+        if element:
+            return True
+    return False
+
+
 def my_all(iterable):
     """
     Tell if all elements of an iterable are truthy.
@@ -204,6 +231,31 @@ def my_all(iterable):
     True
     """
     return next((False for element in iterable if not element), True)
+
+
+def my_all_alt(iterable):
+    """
+    Test if all elements of an iterable are truthy, using no comprehensions.
+
+    >>> my_all_alt([])
+    True
+    >>> my_all_alt([17, 4, 9, 0, 3, 5, 0])
+    False
+    >>> my_all_alt(x % 17 == 0 for x in range(100))
+    False
+    >>> my_all_alt(x > 100 for x in range(100))
+    False
+    >>> my_all_alt(x % 17 == 0 for x in range(0, 100, 17))
+    True
+    >>> my_all_alt([1])
+    True
+    >>> my_all_alt([1, 1, 1, 6, 7])
+    True
+    """
+    for element in iterable:
+        if not element:
+            return False
+    return True
 
 
 def zip_two(first, second):
@@ -392,14 +444,14 @@ def my_zip(*iterables):
     Doh! I ordered a gaming mouse but I got a BOBCAT instead!
     Ow! I ordered a mechanical keyboard but I got a LARGER BOBCAT instead!
     """
-    if not iterables: # check if there are no arguments
+    if not iterables:  # Check if there are no arguments.
         return
 
     iterators = [iter(arg) for arg in iterables]
 
     with contextlib.suppress(StopIteration):
         while True:
-            # StopIteration cannot propogate out from a generator object,
+            # StopIteration cannot propagate out from a generator object,
             # therefore, we use a list comprehension. If it could, the tuple
             # constructor would incorrectly interpret the StopIteration as
             # indicating we have exhausted the generator object, whereas what
@@ -522,23 +574,68 @@ def print_zipped():
         print(f'{word_index=}, {word=}, {number_index=}, {number=}')
 
 
-def _validate_take_n_arg(n):
-    """Raise an appropriate if take should not accept n."""
+def _validate_take(n):
+    """Shared validation logic for take and take_good functions."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
     if n < 0:
         raise ValueError("can't yield negatively many items")
 
 
+def take_good(iterable, n):
+    """
+    Yield the first n elements of iterable, or all if there are fewer than n.
+
+    This implementation uses something in itertools to do almost all its work.
+
+    >>> next(take_good(range(3), 0))
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> list(take_good(range(3), 1))
+    [0]
+    >>> list(take_good(range(3), 2))
+    [0, 1]
+    >>> list(take_good(range(3), 3))
+    [0, 1, 2]
+    >>> list(take_good(range(3), 4))
+    [0, 1, 2]
+    >>> list(take_good(range(3), 1_000_000))
+    [0, 1, 2]
+    >>> it = take_good((x**2 for x in itertools.count(2)), 2)
+    >>> next(it)
+    4
+    >>> next(it)
+    9
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> take_good(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> take_good(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't yield negatively many items
+    >>> list(take_good('pqr', True))  # OK, since bool is a subclass of int.
+    ['p']
+    >>> it = (x**2 for x in range(1, 6))
+    >>> list(take_good(it, 2))
+    [1, 4]
+    >>> list(it)  # Make sure we didn't consume too much.
+    [9, 16, 25]
+    """
+    _validate_take(n)
+    return itertools.islice(iterable, n)
+
+
 def take(iterable, n):
     """
     Yield the first n elements of iterable, or all if there are fewer than n.
 
-    This behaves like itertools.islice when given no stop or step arguments:
-
-        itertools.islice(iterable, n)
-
-    Please don't call islice in this implementation.
+    Unlike take_good, this implementation does not use anything from itertools.
 
     >>> next(take(range(3), 0))
     Traceback (most recent call last):
@@ -579,7 +676,7 @@ def take(iterable, n):
     >>> list(it)  # Make sure we didn't consume too much.
     [9, 16, 25]
     """
-    _validate_take_n_arg(n)
+    _validate_take(n)
     return (element for _, element in zip(range(n), iterable))
 
 
@@ -632,7 +729,7 @@ class Take:
     __slots__ = ('_remaining', '_iterator')
 
     def __init__(self, iterable, n):
-        _validate_take_n_arg(n)
+        _validate_take(n)
         self._remaining = n
         self._iterator = iter(iterable)
 
@@ -647,24 +744,66 @@ class Take:
         return next(self._iterator)
 
 
-def _validate_drop_n_arg(n):
-    """Raise an appropriate exception if drop should not accept n."""
+def _validate_drop(n):
+    """Shared validation logic for drop and drop_good functions."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
     if n < 0:
         raise ValueError("can't skip negatively many items")
 
 
+def drop_good(iterable, n):
+    """
+    Skip the first n elements of iterable (or all if fewer). Yield the rest.
+
+    This implementation uses something in itertools to do most of its work, and
+    there are no restrictions on what or how it uses things from itertools.
+
+    >>> list(drop_good(range(5), 0))
+    [0, 1, 2, 3, 4]
+    >>> list(drop_good(range(5), 1))
+    [1, 2, 3, 4]
+    >>> list(drop_good(range(5), 2))
+    [2, 3, 4]
+    >>> list(drop_good(range(5), 4))
+    [4]
+    >>> list(drop_good(range(5), 5))
+    []
+    >>> list(drop_good(range(5), 6))
+    []
+    >>> list(drop_good(range(5), 1_000_000))
+    []
+    >>> it = take(drop_good(itertools.count(1), 1000), 2)
+    >>> next(it)
+    1001
+    >>> next(it)
+    1002
+    >>> next(it)
+    Traceback (most recent call last):
+      ...
+    StopIteration
+    >>> drop_good(range(5), -1.0)
+    Traceback (most recent call last):
+      ...
+    TypeError: n must be an int
+    >>> drop_good(range(5), -1)
+    Traceback (most recent call last):
+      ...
+    ValueError: can't skip negatively many items
+    >>> list(drop_good('pqr', True))  # OK, since bool is a subclass of int.
+    ['q', 'r']
+    """
+    _validate_drop(n)
+    return itertools.islice(iterable, n, None)
+
+
 def drop(iterable, n):
     """
-    Skip the first n elements of iterable (or all if there are fewer).
-    Yield the rest.
+    Skip the first n elements of iterable (or all if fewer). Yield the rest.
 
-    This behaves like itertools.islice with a start of n and a stop of None:
-
-        itertools.islice(iterable, n, None)
-
-    Please don't call islice in this implementation with more than 2 arguments.
+    Unlike drop_good, this implementation may only use up to one function/class
+    from itertools, and if that class is islice, it may not call it with more
+    than two arguments.
 
     >>> list(drop(range(5), 0))
     [0, 1, 2, 3, 4]
@@ -700,7 +839,7 @@ def drop(iterable, n):
     >>> list(drop('pqr', True))  # OK, since bool is a subclass of int.
     ['q', 'r']
     """
-    _validate_drop_n_arg(n)
+    _validate_drop(n)
 
     def generate():
         it = iter(iterable)
@@ -756,7 +895,7 @@ class Drop:
     __slots__ = ('_started', '_drop_count', '_iterator')
 
     def __init__(self, iterable, n):
-        _validate_drop_n_arg(n)
+        _validate_drop(n)
         self._started = False
         self._drop_count = n
         self._iterator = iter(iterable)
@@ -844,7 +983,7 @@ def tail_opt(iterable, n):
     True
     >>> (tail_opt(a, 3), tail_opt(a, 2), tail_opt(a, 1), tail_opt(a, 0))
     ((20, 30, 40), (30, 40), (40,), ())
-    >>> it = itertools.chain(a)  # "Chain" a by itself, but don't call iter yet.
+    >>> it = itertools.chain(a)  # "Chain" a by itself but don't call iter yet.
     >>> tail_opt(it, 3)
     Iterating.
     (20, 30, 40)
@@ -895,7 +1034,7 @@ def pick(iterable, index):
         raise IndexError("index out of range")
 
 
-def _validate_windowed_n_arg(n):
+def _validate_windowed(n):
     """Raise an appropriate exception if windowed should not accept n."""
     if not isinstance(n, int):
         raise TypeError('n must be an int')
@@ -926,7 +1065,7 @@ def windowed(iterable, n):
     >>> list(itertools.islice(windowed(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
-    _validate_windowed_n_arg(n)
+    _validate_windowed(n)
     it = iter(iterable)
     queue = collections.deque(itertools.islice(it, n), n)
 
@@ -972,7 +1111,7 @@ class Windowed:
     __slots__ = ('_started', '_queue', '_iterator')
 
     def __init__(self, iterable, n):
-        _validate_windowed_n_arg(n)
+        _validate_windowed(n)
         self._started = False
         self._queue = collections.deque(maxlen=n)
         self._iterator = iter(iterable)
@@ -989,6 +1128,36 @@ class Windowed:
             self._queue.append(next(self._iterator))
         self._started = True
         return tuple(self._queue)
+
+
+def windowed_alt(iterable, n):
+    """
+    Yield all width-n contiguous subsequences of iterable, in order, as tuples.
+
+    This alternative implementation is much shorter than windowed (above),
+    because this uses something from the more-itertools library.
+
+    >>> scap = str.capitalize  # To keep the following lines under 80 columns.
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
+    [(), (), (), (), (), ()]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 1))
+    [('Ab',), ('Cd',), ('Efg',), ('Hi',), ('Jk',)]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 2))
+    [('Ab', 'Cd'), ('Cd', 'Efg'), ('Efg', 'Hi'), ('Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 3))
+    [('Ab', 'Cd', 'Efg'), ('Cd', 'Efg', 'Hi'), ('Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 4))
+    [('Ab', 'Cd', 'Efg', 'Hi'), ('Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 5))
+    [('Ab', 'Cd', 'Efg', 'Hi', 'Jk')]
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 6))
+    []
+    >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 7))
+    []
+    >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
+    [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+    return more_itertools.sliding_window(iterable, n)
 
 
 def my_pairwise(iterable):
@@ -1171,7 +1340,7 @@ def my_filter(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        predicate = lambda x: x
+        predicate = identity_function
 
     return (element for element in iterable if predicate(element))
 
@@ -1191,7 +1360,8 @@ def my_filter_alt(predicate, iterable):
     Traceback (most recent call last):
       ...
     StopIteration
-    >>> list(my_filter_alt(lambda x: len(x) == 3, ['ham', 'spam', 'foo', 'eggs']))
+    >>> foods = ['ham', 'spam', 'foo', 'eggs']
+    >>> list(my_filter_alt(lambda x: len(x) == 3, foods))
     ['ham', 'foo']
     >>> mixed = ('p', 'xy', [3], (1, 2, 3), 'c')
     >>> list(my_filter_alt(None, (a[1:] for a in mixed)))
@@ -1200,7 +1370,7 @@ def my_filter_alt(predicate, iterable):
     ['hello', 'glorious', 'world']
     """
     if predicate is None:
-        predicate = lambda x: x
+        predicate = identity_function
 
     for element in iterable:
         if predicate(element):
@@ -1260,7 +1430,7 @@ def length_of(iterable):
     0
     >>> length_of(x for x in ['ham', 'spam', 'foo', 'eggs', ''] if len(x) == 3)
     2
-    >>> length_of(set(object() for _ in range(100_000)))
+    >>> length_of({object() for _ in range(100_000)})
     100000
     """
     return sum(1 for _ in iterable)
@@ -1282,7 +1452,7 @@ def length_of_opt(iterable):
     0
     >>> length_of_opt(x for x in ['ham', 'sp', 'foo', 'eg', ''] if len(x) == 3)
     2
-    >>> length_of_opt(set(object() for _ in range(100_000)))
+    >>> length_of_opt({object() for _ in range(100_000)})
     100000
     >>> length_of_opt(range(2_000_000_000))
     2000000000
@@ -1349,7 +1519,7 @@ def invert(dictionary):
     >>> invert(invert(d)) == d
     True
 
-    If a noninjective dictionary is passed, the last value associated with the
+    If a non-injective dictionary is passed, the last value associated with the
     key will be assigned because the first and intermediate values will be
     overwritten.
 
@@ -1392,7 +1562,7 @@ def invert_alt(dictionary):
     >>> invert_alt(invert_alt(d)) == d
     True
 
-    If a noninjective dictionary is passed, the last value associated with the
+    If a non-injective dictionary is passed, the last value associated with the
     key will be assigned because the first and intermediate values will be
     overwritten.
 
@@ -1519,7 +1689,7 @@ def distinct(iterable, *, key=None):
     [3, [], [], 4]
     """
     if key is None:
-        key = lambda x: x
+        key = identity_function
 
     observed = set()
 
@@ -1626,7 +1796,8 @@ def distinct_dicts_by_single_key_monolithic(dicts, subject_key):
     True
     >>> list(distinct_dicts_by_single_key_monolithic(ds, 's')) == [d1, d2]
     True
-    >>> list(distinct_dicts_by_single_key_monolithic(iter(ds), 's')) == [d1, d2]
+    >>> list(distinct_dicts_by_single_key_monolithic(iter(ds), 's')
+    ... ) == [d1, d2]
     True
     >>> it = distinct_dicts_by_single_key_monolithic(ds, 't')
     >>> next(it)
@@ -1735,7 +1906,8 @@ def distinct_dicts_by_single_key(dicts, subject_key):
     Stated in those terms, yield each dictionary in dicts that does not agree
     on the subject key with any preceding dictionary in dicts.
 
-    This implementation is the shortest. It uses distinct_dicts_by_keys (below).
+    This implementation is the shortest. It uses distinct_dicts_by_keys
+    (below).
 
     >>> next(distinct_dicts_by_single_key([], 'p'))
     Traceback (most recent call last):
@@ -2256,6 +2428,67 @@ def distinct_eager_good(iterable, *, key=None):
     [3, [], [], 4]
     """
     return list(distinct(iterable, key=key))
+
+
+__all__ = [thing.__name__ for thing in (
+    my_enumerate,
+    my_enumerate_alt,
+    Enumerate,
+    print_enumerated,
+    print_enumerated_alt,
+    my_any,
+    my_any_alt,
+    my_all,
+    my_all_alt,
+    zip_two,
+    ZipTwo,
+    my_zip,
+    Zip,
+    print_zipped,
+    take_good,
+    take,
+    Take,
+    drop_good,
+    drop,
+    Drop,
+    last,
+    tail,
+    tail_opt,
+    pick,
+    windowed,
+    Windowed,
+    windowed_alt,
+    my_pairwise,
+    Pairwise,
+    map_one,
+    map_one_alt,
+    MapOne,
+    my_filter,
+    my_filter_alt,
+    Filter,
+    length_of,
+    length_of_opt,
+    how_many,
+    invert,
+    invert_alt,
+    distinct_simple,
+    DistinctSimple,
+    distinct,
+    Distinct,
+    distinct_dicts_by_single_key_monolithic,
+    distinct_dicts_by_single_key_alt,
+    distinct_dicts_by_single_key,
+    distinct_dicts_by_keys,
+    DistinctDictsByKeys,
+    distinct_eager_unstable_simple,
+    distinct_eager_unstable,
+    distinct_eager_unstable_lt_simple,
+    distinct_eager_unstable_lt_simple_alt,
+    distinct_eager_unstable_lt,
+    distinct_eager_simple,
+    distinct_eager,
+    distinct_eager_good,
+)]
 
 
 if __name__ == '__main__':

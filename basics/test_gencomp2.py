@@ -2,6 +2,8 @@
 
 """Tests for functions in gencomp2.py."""
 
+# FIXME: Numerous functions and classes in gencomp2.py still need tests here.
+
 from collections.abc import Iterator
 import itertools
 import math
@@ -10,35 +12,14 @@ import sys
 import pytest
 
 import gencomp2
-
-
-class _CommonIteratorTests:
-    """Mixin for shared tests of iterators."""
-
-    __slots__ = ()
-
-    def instantiate(self, implementation):
-        return implementation()
-
-    def test_is_iterator(self, implementation):
-        result = self.instantiate(implementation)
-        assert isinstance(result, Iterator)
-
-    def test_iter_gives_same_object(self, implementation):
-        result = self.instantiate(implementation)
-        assert iter(result) is result
-
-    def test_new_attributes_cannot_be_created(self, implementation):
-        result = self.instantiate(implementation)
-        with pytest.raises(AttributeError):
-            result.blah = 42
+from testing import CommonIteratorTests
 
 
 @pytest.mark.parametrize('implementation', [
     gencomp2.empty,
     gencomp2.Empty,
 ])
-class TestEmpty(_CommonIteratorTests):
+class TestEmpty(CommonIteratorTests):
     """Tests for the empty function and the Empty class."""
 
     __slots__ = ()
@@ -60,7 +41,7 @@ class TestEmpty(_CommonIteratorTests):
     gencomp2.my_product_slow,
     gencomp2.my_product_alt,
 ])
-class TestProductTwo(_CommonIteratorTests):
+class TestProductTwo(CommonIteratorTests):
     """
     Shared tests for all Cartesian product functions and classes in gencomp2.
 
@@ -255,7 +236,7 @@ def test_prefix_product(sequences, stop, expected):
     gencomp2.ascending_countdowns_alt,
     gencomp2.AscendingCountdowns,
 ])
-class TestAscendingCountdowns(_CommonIteratorTests):
+class TestAscendingCountdowns(CommonIteratorTests):
     """Tests for ascending_countdowns and ascending_countdowns_alt."""
 
     __slots__ = ()
@@ -310,7 +291,7 @@ class TestThreeSums:
     gencomp2.three_sum_indices_3,
     gencomp2.three_sum_indices_4,
 ])
-class TestThreeSumIndices(_CommonIteratorTests):
+class TestThreeSumIndices(CommonIteratorTests):
     """Tests for the four three_sum_indices functions."""
 
     __slots__ = ()
@@ -418,7 +399,7 @@ class TestDotProduct:
 @pytest.mark.parametrize('implementation', [
     gencomp2.flatten2,
 ])
-class TestFlatten2(_CommonIteratorTests):
+class TestFlatten2(CommonIteratorTests):
     """Tests for the flatten2 function."""
 
     __slots__ = ()
@@ -677,7 +658,7 @@ class TestComposeDictsSimpleAndComposeDicts:
         ]
 
     def test_back_value_hashability_need_not_be_obvious(self, implementation):
-        """The back dict's values can nonhashable objects of hashable type."""
+        """The back dict's values can unhashable objects of hashable type."""
         back = {42: (set(),)}
         front = {'foo': 42}
         assert implementation(back, front) == {'foo': (set(),)}
@@ -1206,7 +1187,7 @@ def fixture_all_are_iterators():
 @pytest.mark.parametrize('implementation', [
     gencomp2.submap,
 ])
-class TestSubmap(_CommonIteratorTests):
+class TestSubmap(CommonIteratorTests):
     """Tests for the submap function."""
 
     __slots__ = ()

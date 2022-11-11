@@ -7,7 +7,9 @@ This code modeled regular and extra-fierce bobcats, until most of it was lost
 in a bobcat attack. Fortunately, unit tests in test_bobcats.py were not harmed.
 """
 
-from numbers import Real
+__all__ = ['Bobcat', 'FierceBobcat']
+
+from numbers import Real as _Real
 
 
 class Bobcat:
@@ -27,6 +29,8 @@ class Bobcat:
     """
 
     __slots__ = ('_name',)
+
+    __match_args__ = ('name',)
 
     def __init__(self, name):
         """Create a Bobcat with a specified name."""
@@ -91,6 +95,8 @@ class FierceBobcat(Bobcat):
 
     __slots__ = ('_fierceness', )
 
+    __match_args__ = ('name', 'fierceness')
+
     FIERCENESS_CUTOFF = 9000
     """Bobcat names are not guaranteed unique above this fierceness."""
 
@@ -98,11 +104,12 @@ class FierceBobcat(Bobcat):
         """Create a FierceBobcat with a specified name and fierceness."""
         super().__init__(name)
 
-        if not isinstance(fierceness, Real):
+        if not isinstance(fierceness, _Real):
             raise TypeError('Fierceness must be a real number.')
 
         if fierceness <= self.FIERCENESS_CUTOFF:
-            raise ValueError(f'Fiercess must be over {self.FIERCENESS_CUTOFF}')
+            raise ValueError(
+                f'Fierceness must be over {self.FIERCENESS_CUTOFF}')
 
         self._fierceness = fierceness
 

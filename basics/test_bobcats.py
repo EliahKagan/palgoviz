@@ -124,7 +124,7 @@ class TestBobcat(unittest.TestCase):
         bobcat = NameRememberingBobcat('Ekaterina', 'Phineas')
         with self.subTest('bobcat name'):
             self.assertEqual(bobcat.name, 'Ekaterina')
-        with self.subTest('bobcat remebered name'):
+        with self.subTest('bobcat remembered name'):
             self.assertEqual(bobcat.remembered_name, 'Phineas')
         with self.subTest('name mangles'):
             self.assertEqual(bobcat._Bobcat__name, 'Ekaterina')
@@ -276,7 +276,7 @@ class TestFierceBobcat(unittest.TestCase):
     @parameterized.expand([
         ('int_float', int, float),
         ('int_frac', int, Fraction),
-        ('float_int', float, int ),
+        ('float_int', float, int),
         ('float_frac', float, Fraction),
         ('frac_int', Fraction, int),
         ('frac_float', Fraction, float),

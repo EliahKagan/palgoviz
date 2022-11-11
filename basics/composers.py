@@ -2,6 +2,8 @@
 
 """Function composition."""
 
+from util import identity_function
+
 
 def compose2(f, g):
     """
@@ -44,7 +46,7 @@ def repeat_compose_recursive(function, count):
     RecursionError: maximum recursion depth exceeded in comparison
     """
     if count == 0:
-        return lambda x: x
+        return identity_function
     return compose2(function, repeat_compose_recursive(function, count - 1))
 
 
@@ -66,7 +68,7 @@ def repeat_compose_chained(function, count):
       ...
     RecursionError: maximum recursion depth exceeded
     """
-    rvalue = lambda x: x
+    rvalue = identity_function
     for _ in range(count):
         rvalue = compose2(function, rvalue)
     return rvalue
@@ -93,6 +95,67 @@ def repeat_compose(function, count):
             x = function(x)
         return x
     return rvalue
+
+
+def compose(*functions):
+    """
+    Compose functions left to right, so the rightmost function is called first.
+
+    This supports being called with a large number of arguments.
+
+    All functions passed to compose are assumed to be unary.
+
+    >>> compose()(3)
+    3
+    >>> def fa(x): return x + 'a'
+    >>> def fb(x): return x + 'b'
+    >>> def fc(x): return x + 'c'
+    >>> def fd(x): return x + 'd'
+    >>> def fe(x): return x + 'e'
+    >>> compose(fa, fb, fc, fd, fe)('z')
+    'zedcba'
+    >>> from adders import make_adder
+    >>> add_50005000 = compose(*(make_adder(i) for i in range(1, 10_001)))
+    >>> add_50005000(7)
+    50005007
+    """
+    def rvalue(x):
+        for function in reversed(functions):
+            x = function(x)
+        return x
+
+    return rvalue
+
+
+def curry_one(function):
+    """
+    Convert a binary function to a unary function returning a unary function.
+
+    Calling the returned function binds a first argument, thus returning a
+    unary function requiring only a second argument. That is, if curry(f)
+    returns g, both f(x, y) and g(x)(y) have the same behavior and results.
+
+    >>> import operator
+    >>> curry_one(operator.add)('ab')('cd')
+    'abcd'
+    >>> curry_one(compose)(lambda x: x + 'a')(lambda x: x + 'b')('z')
+    'zba'
+    """
+    return lambda x: lambda y: function(x, y)
+
+
+# TODO: Eventually cover other forms of currying, the difference between
+#       currying and partial function application, and functools.partial.
+
+
+__all__ = [thing.__name__ for thing in (
+    compose2,
+    repeat_compose_recursive,
+    repeat_compose_chained,
+    repeat_compose,
+    compose,
+    curry_one,
+)]
 
 
 # Can also run:  python -m doctest composers.py

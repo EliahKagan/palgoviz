@@ -40,8 +40,8 @@ def mul_table_simple_2():
     same width as every other column: just enough that every number is preceded
     by at least one space.
 
-    For formatting, this implementation only uses str.format and the print
-    builtin. The output is not hard-coded.
+    For formatting, this implementation only uses the str.format method and the
+    print builtin. The output is not hard-coded.
 
     >>> mul_table_simple_2()
        1   2   3   4   5   6   7   8   9  10

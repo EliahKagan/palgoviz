@@ -424,11 +424,10 @@ def pairs(iterable):
     >>> list(pairs('AAA'))
     [('A', 'A'), ('A', 'A'), ('A', 'A')]
     """
-    elements = collections.deque(iterable)
-
-    while elements:
-        x = elements.popleft()
-        for y in elements:
+    queue = collections.deque(iterable)
+    while len(queue) > 1:
+        x = queue.popleft()
+        for y in queue:
             yield x, y
 
 
@@ -692,7 +691,10 @@ def three_sum_indices_3(a, b, c, target):
     >>> sum(1 for _ in three_sum_indices_3(r(1, 10), r(2, 20), r(3, 30), 6))
     6000
     """
-    labeled_triples = itertools.product(enumerate(a), enumerate(b), enumerate(c))
+    labeled_triples = itertools.product(enumerate(a),
+                                        enumerate(b),
+                                        enumerate(c))
+
     for (i, x), (j, y), (k, z) in labeled_triples:
         if x + y + z == target and x != y and x != z and y != z:
             yield (i, j, k)
@@ -826,8 +828,8 @@ def ungroup(rows):
     (destinations). That is, when a graph has an edge from u to v, its
     adjacency list's row for u contains v.
 
-    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'], 'c': ['a', 'd'],
-    ...         'd': []}
+    >>> adj1 = {'a': ['b', 'c', 'd'], 'b': ['a', 'd'],
+    ...         'c': ['a', 'd'], 'd': []}
     >>> ungroup(adj1) == {('a', 'b'), ('a', 'c'), ('a', 'd'),
     ...                   ('b', 'a'), ('b', 'd'), ('c', 'a'), ('c', 'd')}
     True
@@ -877,7 +879,8 @@ def compose_dicts_simple(back, front):
     This is the smallest possible dictionary d with the property that, if front
     associates the key x with the value y, and back associates the key y with
     the value z, then d associates the key x with the value z. Another way to
-    say this is that the result dictionary is a pipline through front and back.
+    say this is that the result dictionary is a pipeline through front and
+    back.
 
     Keys in both front and the result should appear in the same order in each.
 
@@ -991,12 +994,12 @@ def compose_dicts_view(back, front):
     >>> status_colors['OK'] = 'azure'
     >>> format(rgb_from_status('OK'), '06X')
     'F0FFFF'
-    >>> status_colors['danger'] = 'vermillion'
+    >>> status_colors['danger'] = 'vermilion'
     >>> rgb_from_status('danger')
     Traceback (most recent call last):
       ...
-    KeyError: 'vermillion'
-    >>> status_colors['danger'] = [227, 66, 52]  # RGB values for vermillion.
+    KeyError: 'vermilion'
+    >>> status_colors['danger'] = [227, 66, 52]  # RGB values for vermilion.
     >>> rgb_from_status('danger')
     Traceback (most recent call last):
       ...
@@ -1233,7 +1236,7 @@ def transpose(matrix):
     each row has the same width. Do not assume that width is equal to the
     the height (i.e., the number of rows need not be the number of columns).
 
-    Return the tranpose of this matrix, in the same form.
+    Return the transpose of this matrix, in the same form.
 
     >>> transpose(((1, 2, 3), (4, 5, 6), (7, 8, 9)))
     ((1, 4, 7), (2, 5, 8), (3, 6, 9))
@@ -1244,7 +1247,14 @@ def transpose(matrix):
     >>> transpose(())
     ()
     """
-    return tuple(zip(*matrix))
+    if not matrix:
+        return ()
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    return tuple(tuple(matrix[i][j] for i in range(height))
+                 for j in range(width))
 
 
 def transpose_alt(matrix):
@@ -1264,13 +1274,7 @@ def transpose_alt(matrix):
     >>> transpose_alt(())
     ()
     """
-    if not matrix:
-        return ()
-
-    height = len(matrix)
-    width = len(matrix[0])
-
-    return tuple(tuple(matrix[i][j] for i in range(height)) for j in range(width))
+    return tuple(zip(*matrix))
 
 
 def submap(func, rows):
@@ -1342,7 +1346,7 @@ def is_hermitian(matrix):
     ...               (4.4 - 1j, 0, 0.9 + 0.2j, -2.6)))
     True
     """
-    return matrix == transpose(submap(lambda z: z.conjugate(), matrix))
+    return matrix == transpose_alt(submap(lambda z: z.conjugate(), matrix))
 
 
 def is_hermitian_alt(matrix):
@@ -2109,15 +2113,14 @@ def my_cycle(iterable):
     10
     True
     """
-    history = []
+    pool = []
 
-    for item in iterable:
-        yield item
-        history.append(item)
+    for element in iterable:
+        pool.append(element)
+        yield element
 
-    if history:
-        while True:
-            yield from history
+    while pool:
+        yield from pool
 
 
 class Cycle:
@@ -2177,8 +2180,8 @@ class Cycle:
             return next(self._iterator)
 
 
-def _chain_from_iterable(iterables):
-    """Iterate an iterable of iterables and chain those iterables."""
+def _from_iterable(iterables):
+    """Lazily iterate an iterable of iterables and chain those iterables."""
     return (element for iterable in iterables for element in iterable)
 
 
@@ -2217,10 +2220,10 @@ def my_chain(*iterables):
     >>> list(itertools.islice(it3, 25))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9, 8]
     """
-    return _chain_from_iterable(iterables)
+    return _from_iterable(iterables)
 
 
-my_chain.from_iterable = _chain_from_iterable
+my_chain.from_iterable = _from_iterable
 
 
 class Chain:
@@ -2332,6 +2335,75 @@ def decrypt(key, ciphertext):
     'ataplacecalledvlamertinghejustsouthofypres'
     """
     return encrypt((_ALPHA_LEN - r for r in key), ciphertext)
+
+
+__all__ = [thing.__name__ for thing in (
+    empty,
+    Empty,
+    product_two,
+    product_two_alt,
+    ProductTwo,
+    product_two_flexible,
+    ProductTwoFlexible,
+    prefix_product,
+    suffix_product,
+    my_product,
+    my_product_slow,
+    my_product_alt,
+    pairs,
+    Pairs,
+    ascending_countdowns,
+    ascending_countdowns_alt,
+    AscendingCountdowns,
+    three_sums,
+    three_sums_alt,
+    three_sum_indices_1,
+    three_sum_indices_2,
+    three_sum_indices_3,
+    three_sum_indices_4,
+    dot_product_slow,
+    dot_product,
+    flatten2,
+    ungroup,
+    make_mul_table,
+    compose_dicts_simple,
+    compose_dicts,
+    compose_dicts_view,
+    matrix_square_flat,
+    matrix_square_nested,
+    matrix_dimensions,
+    matrix_multiply,
+    identity_matrix,
+    identity_matrix_alt,
+    transpose,
+    transpose_alt,
+    submap,
+    is_hermitian,
+    is_hermitian_alt,
+    affines,
+    Affine,
+    affines_alt,
+    mean,
+    floats_in_range,
+    FloatsInRange,
+    integrate,
+    my_takewhile,
+    TakeWhile,
+    my_dropwhile,
+    my_dropwhile_alt,
+    DropWhile,
+    outdegrees,
+    indegrees,
+    anagrams,
+    Anagrams,
+    AnagramsAlt,
+    my_cycle,
+    Cycle,
+    my_chain,
+    Chain,
+    encrypt,
+    decrypt,
+)]
 
 
 if __name__ == '__main__':
