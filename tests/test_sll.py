@@ -38,6 +38,8 @@ import graphviz
 from parameterized import parameterized
 
 from algoviz import sll, testing
+from tests import _helpers
+
 
 # FIXME: Change this to True, after completing step 1 in the module docstring.
 _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = False
@@ -515,7 +517,7 @@ def _subtest_by_nanlike(func):
                 func(self, nan)
 
         with self.subTest('testing.NonSelfEqual()'):
-            pathological_non_nan = testing.NonSelfEqual()
+            pathological_non_nan = _helpers.NonSelfEqual()
 
             if pathological_non_nan == pathological_non_nan:
                 raise Exception('bug in testing.NonSelfEqual test helper')
@@ -537,8 +539,8 @@ def _subtest_by_nonidentical_nanlike_pair(func):
                 'very weird (broken?) floating point NaN equality'),
 
             ('non-NaN pathological',
-                testing.NonSelfEqual(),
-                testing.NonSelfEqual(),
+                _helpers.NonSelfEqual(),
+                _helpers.NonSelfEqual(),
                 'bug in testing.NonSelfEqual test helper'),
         ]
 
