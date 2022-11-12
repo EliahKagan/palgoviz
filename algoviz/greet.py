@@ -441,6 +441,11 @@ class UniqueGreeter:
         if lang not in _FORMATS:
             raise ValueError(f'{lang} is an unrecognized language code.')
 
+        # FIXME: The lock does not prevent data races where an item is removed
+        # from the WeakValueDictionary automatically via the weakref callback.
+        # This CANNOT be fixed with additional locking, because it is not safe
+        # to lock in cleanup code (for example, see the big red box in the Data
+        # Model documentation for __del__).
         with cls._lock:
             if lang not in cls._instances:
                 ret = super().__new__(cls)
