@@ -1,8 +1,4 @@
-"""
-Testing support.
-
-See compare.py for code used in tests but specific to order comparison.
-"""
+"""Test helpers used by multiple modules."""
 
 from collections.abc import Iterator
 import gc

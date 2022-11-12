@@ -5,7 +5,7 @@ Greets multiple users from a file.
 
 Usage:
 
-    greetall FILENAME [LANG]
+    greetall.py FILENAME [LANG]
 """
 
 import sys
@@ -73,7 +73,6 @@ class Config:
 def run(configuration):
     """Run the script."""
     # Uses LBYL (look before you leap).
-    # block comments, (VSCODE) control + K + C, uncomment control + K + U
     match sys.argv:
         case [_]:
             perror('Did not pass a filename')
@@ -102,5 +101,5 @@ def run(configuration):
 
 
 if __name__ == '__main__':  # If we are running this module as a script.
-    # For exit codes in PowerShell, $LASTEXITCODE.
+    # For exit codes in Bash, $?. For exit codes in PowerShell, $LASTEXITCODE.
     sys.exit(run(Config()))
