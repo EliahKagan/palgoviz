@@ -405,7 +405,7 @@ class UniqueGreeter:
     >>> ug.lang = 'es'
     Traceback (most recent call last):
         ...
-    AttributeError: can't set attribute 'lang'
+    AttributeError: property 'lang' of 'UniqueGreeter' object has no setter
     >>> ug.lung = 'es'
     Traceback (most recent call last):
       ...
