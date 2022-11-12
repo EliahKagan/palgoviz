@@ -10,6 +10,7 @@ import weakref
 from parameterized import parameterized
 
 from algoviz import compare, queues, testing
+from tests import _helpers
 
 
 def _unannotated_argspec(func):
@@ -259,7 +260,7 @@ class _Bases:
             """Queues don't delay garbage collection of former elements."""
             queue = self.queue_type()
             for i in range(17):
-                queue.enqueue(testing.CWRCell(i))
+                queue.enqueue(_helpers.CWRCell(i))
 
             while queue:
                 r = weakref.ref(queue.peek())

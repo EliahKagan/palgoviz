@@ -14,6 +14,7 @@ from parameterized import parameterized
 
 from algoviz import testing
 from algoviz.sequences import Vec
+from tests import _helpers
 
 
 def _check_index(index):
@@ -54,12 +55,12 @@ class _FixedSizeBuffer(Sequence):
         values, which, if allowed, might let tests pass that should fail.
         """
         instance = super().__new__(cls)
-        instance._cells = tuple(testing.Cell(value) for value in values)
+        instance._cells = tuple(_helpers.Cell(value) for value in values)
         return instance
 
     def __init__(self, length, default):
         """Create a default value filled buffer of the given length."""
-        self._cells = tuple(testing.Cell(default) for _ in range(length))
+        self._cells = tuple(_helpers.Cell(default) for _ in range(length))
 
     def __repr__(self):
         """Python code representation of this _FixedSizeBuffer instance."""
@@ -414,7 +415,7 @@ class TestVec(unittest.TestCase):
         unequal to themselves (besides tests like this). But Vec doesn't treat
         NaN specially. Other such pathological objects are treated similarly.
         """
-        element = testing.NonSelfEqual()
+        element = _helpers.NonSelfEqual()
         if element == element:
             raise Exception('bug in test helper')
         lhs = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
@@ -802,7 +803,7 @@ class TestVec(unittest.TestCase):
         keep it from being garbage collected. But the case of removing from the
         end is the easiest to test of the situations where bugs may arise.
         """
-        elements = (testing.WRCell(i) for i in range(17))
+        elements = (_helpers.WRCell(i) for i in range(17))
         vec = Vec(elements, get_buffer=_FixedSizeBuffer)
         weak = [weakref.ref(x) for x in vec]
 
@@ -848,7 +849,7 @@ class TestVec(unittest.TestCase):
         use to objects that are intended never to be used again.
         """
         vec = Vec(range(17), get_buffer=_FixedSizeBuffer)
-        vec[-1] = testing.WeakReferenceable()
+        vec[-1] = _helpers.WeakReferenceable()
         for _ in range(n):
             del vec[0]
         r = weakref.ref(vec[-1])
@@ -1110,7 +1111,7 @@ class TestVec(unittest.TestCase):
 
         See test_self_unequal_non_nan_does_not_prevent_equality for details.
         """
-        element = testing.NonSelfEqual()
+        element = _helpers.NonSelfEqual()
         if element == element:
             raise Exception('bug in test helper')
         vec = Vec([10, 20, element, 30], get_buffer=_FixedSizeBuffer)
