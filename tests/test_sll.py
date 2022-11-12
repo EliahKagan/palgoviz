@@ -40,7 +40,6 @@ from parameterized import parameterized
 from algoviz import sll, testing
 from tests import _helpers
 
-
 # FIXME: Change this to True, after completing step 1 in the module docstring.
 _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = False
 """
