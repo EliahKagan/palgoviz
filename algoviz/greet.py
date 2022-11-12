@@ -435,7 +435,7 @@ class UniqueGreeter:
     __slots__ = ('_lang', '__weakref__')
 
     _lock = Lock()
-    _instances = {}
+    _instances = weakref.WeakValueDictionary()
 
     def __new__(cls, lang):
         if lang not in _FORMATS:
@@ -445,9 +445,9 @@ class UniqueGreeter:
             if lang not in cls._instances:
                 ret = super().__new__(cls)
                 ret._lang = lang
-                cls._instances[lang] = weakref.ref(ret)
+                cls._instances[lang] = ret
                 return ret
-            return cls._instances[lang]()
+            return cls._instances[lang]
 
     @staticmethod
     def get_known_langs():
