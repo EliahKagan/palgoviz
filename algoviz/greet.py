@@ -14,6 +14,8 @@ __all__ = [
 
 import enum
 
+from threading import Lock
+
 _FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
@@ -428,7 +430,80 @@ class UniqueGreeter:
 
     FIXME: After all doctests pass, move many into method docstrings.
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('_lang',)
+
+    _lock = Lock()
+    _instances = {}
+
+    def __new__(cls, lang):
+        if lang not in _FORMATS:
+            raise ValueError(f'{lang} is an unrecognized language code.')
+
+        with cls._lock:
+            if lang not in cls._instances:
+                cls._instances[lang] = super().__new__(cls)
+                cls._instances[lang]._lang = lang
+            return cls._instances[lang]
+
+    @staticmethod
+    def get_known_langs():
+        """
+        Get known language codes.
+
+        >>> UniqueGreeter.get_known_langs()
+        ('en', 'es')
+        >>> UniqueGreeter('es').get_known_langs()
+        ('en', 'es')
+        """
+        return tuple(_FORMATS)
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """
+        Construct a UniqueGreeter from a greeter.
+
+        >>> m = MutableGreeter('en')
+        >>> u = UniqueGreeter.from_greeter(m)
+        >>> u('World')
+        Hello, World!
+        """
+        return cls(greeter.lang)
+
+    def __call__(self, name):
+        """
+        Greet a person by name.
+
+        >>> g = UniqueGreeter('es')
+        >>> g('David')
+        ¡Hola, David!
+        """
+        print(_FORMATS[self.lang].format(name))
+
+    def __repr__(self):
+        """
+        Representation of this UniqueGreeter as python code.
+
+        >>> UniqueGreeter('en')
+        UniqueGreeter('en')
+        >>> class MyUniqueGreeter(UniqueGreeter): pass
+        >>> MyUniqueGreeter('en')
+        MyUniqueGreeter('en')
+        """
+        return f"{type(self).__name__}({self.lang!r})"
+
+    @property
+    def lang(self):
+        """
+        The language this UniqueGreeter will greet in.
+
+        >>> ug = UniqueGreeter('en')
+        >>> ug.lang = 'es'
+        Traceback (most recent call last):
+          ...
+        AttributeError: property 'lang' of 'UniqueGreeter' object has no setter
+        """
+        return self._lang
 
 
 def make_greeter(lang):
