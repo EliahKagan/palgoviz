@@ -12,7 +12,7 @@ import sys
 import pytest
 
 from algoviz import gencomp1
-from algoviz.testing import CommonIteratorTests
+from tests import _helpers
 
 
 class _IterCountingMixin:
@@ -61,7 +61,7 @@ class _IterCountingDict(_IterCountingMixin, dict):
     gencomp1.my_enumerate,
     gencomp1.my_enumerate_alt,
 ])
-class TestMyEnumerate(CommonIteratorTests):
+class TestMyEnumerate(_helpers.CommonIteratorTests):
     """Tests for the my_enumerate and my_enumerate_alt functions."""
 
     __slots__ = ()
@@ -254,7 +254,7 @@ class TestMyAll:
     gencomp1.zip_two,
     gencomp1.my_zip,
 ])
-class TestZipTwo(CommonIteratorTests):
+class TestZipTwo(_helpers.CommonIteratorTests):
     """Shared tests for the zip_two and my_zip functions."""
 
     __slots__ = ()
@@ -354,7 +354,7 @@ class TestPrintZipped:
     gencomp1.take_good,
     gencomp1.take,
 ])
-class TestTake(CommonIteratorTests):
+class TestTake(_helpers.CommonIteratorTests):
     """Tests for the take_good and take functions."""
 
     __slots__ = ()
@@ -453,7 +453,7 @@ class TestTake(CommonIteratorTests):
     gencomp1.drop_good,
     gencomp1.drop,
 ])
-class TestDrop(CommonIteratorTests):
+class TestDrop(_helpers.CommonIteratorTests):
     """Tests for the drop_good and drop functions."""
 
     __slots__ = ()
@@ -801,7 +801,7 @@ class TestPick:
     gencomp1.windowed,
     gencomp1.windowed_alt,
 ])
-class TestWindowed(CommonIteratorTests):
+class TestWindowed(_helpers.CommonIteratorTests):
     """Tests for the windowed and windowed_alt functions."""
 
     __slots__ = ()
@@ -882,7 +882,7 @@ class TestWindowed(CommonIteratorTests):
     gencomp1.map_one,
     gencomp1.map_one_alt,
 ])
-class TestMapOne(CommonIteratorTests):
+class TestMapOne(_helpers.CommonIteratorTests):
     """Tests for the map_one and map_one_alt functions."""
 
     __slots__ = ()
@@ -961,7 +961,7 @@ class TestMapOne(CommonIteratorTests):
     gencomp1.my_filter,
     gencomp1.my_filter_alt,
 ])
-class TestMyFilter(CommonIteratorTests):
+class TestMyFilter(_helpers.CommonIteratorTests):
     """Tests for the my_filter and my_filter_alt functions."""
 
     __slots__ = ()
