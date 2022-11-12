@@ -50,7 +50,7 @@ class Adder:
     >>> a.left_addend = 8
     Traceback (most recent call last):
       ...
-    AttributeError: can't set attribute 'left_addend'
+    AttributeError: property 'left_addend' of 'Adder' object has no setter
     >>> a.right_addend = 5  # This would be a conceptual mistake.
     Traceback (most recent call last):
       ...

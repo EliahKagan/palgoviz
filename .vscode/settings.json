@@ -5,7 +5,6 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "editor.detectIndentation": false,
     "cSpell.words": [
         "__getattribute__",
         "abstractmethod",
