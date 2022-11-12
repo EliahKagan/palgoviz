@@ -1,9 +1,11 @@
 """
 Types that compare in special ways.
 
-The main use for this module (at least currently) is to help in building tests
-for code that sorts or searches, or otherwise makes use of order comparisons.
+An important use for this module, though not the only use, is in building tests
+for code that sorts, searches, or otherwise makes use of order comparisons.
 """
+
+__all__ = ['WeakDiamond', 'Patient', 'OrderIndistinct']
 
 import enum
 
@@ -183,6 +185,3 @@ class OrderIndistinct:
     def __repr__(self):
         """Represent this OrderIndistinct as Python code and show its value."""
         return f"{type(self).__name__}({self.value!r})"
-
-
-__all__ = [thing.__name__ for thing in (WeakDiamond, Patient, OrderIndistinct)]
