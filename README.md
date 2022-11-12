@@ -65,8 +65,8 @@ particular, classroom use is not currently a focus.
 This project is meant to be used in a Conda environment, so you need `conda`
 (or `mamba`).
 
-If you don't have `conda` already, we suggest
-[Miniforge](https://github.com/conda-forge/miniforge), which is what we're
+If you don’t have `conda` already, we suggest
+[Miniforge](https://github.com/conda-forge/miniforge), which is what we’re
 using.
 
 If you already have `conda` through another distribution, such as Miniconda or
@@ -102,7 +102,7 @@ For commands that create and update the environment, `mamba` may be faster than
     conda activate algoviz
     ```
 
-4. Create an "editable install" in the environment:
+4. Create an “editable install” in the environment:
 
     ```sh
     conda develop .
@@ -120,11 +120,11 @@ For commands that create and update the environment, `mamba` may be faster than
 Creating a wheel or Conda package from this project is probably not very
 useful, and is not supported at this time.
 
-See the **What's here?** and **Usage** sections below.
+See the [**What’s here?**](#whats-here) and [**Usage**](#usage) sections below.
 
 ### Updating the environment
 
-If you've just created the project, then it is already up to date (for now).
+If you’ve just created the project, then it is already up to date (for now).
 The following instructions are for later.
 
 At this time, most project dependencies are not pinned, and dependencies may
@@ -154,10 +154,11 @@ recommended for updating the project:
    conda env update --prune
    ```
 
-## What's here?
+## What’s here?
 
-The most important and interesting parts of this project are the `algoviz/`,
-`tests/`, and `notebooks/` directories. Here's a full list of directories:
+The most important and interesting parts of this project are the
+[`algoviz/`](#algoviz-1), [`tests/`](#tests), and [`notebooks/`](#notebooks)
+directories. Here’s a full list of directories:
 
 ### `algoviz`
 
@@ -210,7 +211,7 @@ You can open the top-level directory (the directory that contains this
 `README.md` file) in an IDE or editor of your choice.
 
 Visual Studio Code is suggested, and `.vscode` has some useful configuration,
-including for running tests using its test runner interface (the "beaker" icon
+including for running tests using its test runner interface (the “beaker” icon
 on the activity bar on the left). This configuration uses the `pytest` test
 runner, which is capable of running all tests in the project.
 
@@ -224,7 +225,7 @@ Tests can be run from VS Code or another IDE, but you may want to run them from
 a terminal (and they may run faster that way, too).
 
 To do that, first activate the `algoviz` Conda environment in your terminal if
-you haven't already:
+you haven’t already:
 
 ```sh
 conda activate algoviz
@@ -252,7 +253,7 @@ If you want to use the `doctest` test runner to run the doctests, you can:
 python -m doctest algoviz/*.py tests/*.py tests/*.txt
 ```
 
-That command is for a Unix-style shell. If you're using Windows, you're
+That command is for a Unix-style shell. If you’re using Windows, you’re
 probably in PowerShell and should use:
 
 ```sh
@@ -265,7 +266,7 @@ The other commands are the same.
 
 JupyterLab is installed as a dependency of the project, and all notebooks are
 tested in it. First activate the `algoviz` Conda environment in your terminal
-if you haven't already:
+if you haven’t already:
 
 ```sh
 conda activate algoviz
