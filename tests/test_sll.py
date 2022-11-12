@@ -40,7 +40,6 @@ from parameterized import parameterized
 from algoviz import sll, testing
 from tests import _helpers
 
-
 _TEST_FOR_HETEROGENEOUS_CYCLE_LEAKAGE = True
 """
 Whether the tests in the TestHashNodeHeterogeneousCycles class will be run.
