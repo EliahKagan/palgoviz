@@ -2829,7 +2829,7 @@ class FrozenSummaryDC:
 
 def summarize_as_frozen_dc(
         values: Iterable[float], *,
-        precision: int = DEFAULT_PRECISION) -> MutableSummaryDC:
+        precision: int = DEFAULT_PRECISION) -> FrozenSummaryDC:
     """
     Compute min, max, and arithmetic, geometric, and harmonic mean.
 
