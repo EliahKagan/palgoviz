@@ -24,6 +24,6 @@ dependencies:
   - pytest-subtests
 
   # For static analysis
+  - flake8
   - isort
-  - pyproject-flake8
   - shellcheck
