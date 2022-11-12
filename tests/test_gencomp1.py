@@ -14,7 +14,7 @@ import sys
 import pytest
 
 from algoviz import gencomp1
-from algoviz.testing import CommonIteratorTests
+from tests import _helpers
 
 
 class _IterCountingMixin:
@@ -64,7 +64,7 @@ class _IterCountingDict(_IterCountingMixin, dict):
     gencomp1.my_enumerate_alt,
     gencomp1.Enumerate,
 ])
-class TestEnumerate(CommonIteratorTests):
+class TestEnumerate(_helpers.CommonIteratorTests):
     """Tests for my_enumerate and related functions and classes."""
 
     __slots__ = ()
@@ -259,7 +259,7 @@ class TestMyAll:
     gencomp1.my_zip,
     gencomp1.Zip,
 ])
-class TestZipTwo(CommonIteratorTests):
+class TestZipTwo(_helpers.CommonIteratorTests):
     """Shared tests for the zip_two/ZipTwo and my_zip/Zip functions/classes."""
 
     __slots__ = ()
@@ -316,7 +316,7 @@ class TestZipTwo(CommonIteratorTests):
     gencomp1.my_zip,
     gencomp1.Zip,
 ])
-class TestZip(CommonIteratorTests):
+class TestZip(_helpers.CommonIteratorTests):
     """Tests of the my_zip function and Zip class (not shared with zip_two)."""
 
     __slots__ = ()
@@ -361,7 +361,7 @@ class TestPrintZipped:
     gencomp1.take,
     gencomp1.Take,
 ])
-class TestTake(CommonIteratorTests):
+class TestTake(_helpers.CommonIteratorTests):
     """Tests for take and related functions and classes."""
 
     __slots__ = ()
@@ -461,7 +461,7 @@ class TestTake(CommonIteratorTests):
     gencomp1.drop,
     gencomp1.Drop,
 ])
-class TestDrop(CommonIteratorTests):
+class TestDrop(_helpers.CommonIteratorTests):
     """Tests for drop and related functions and classes."""
 
     __slots__ = ()
@@ -810,7 +810,7 @@ class TestPick:
     gencomp1.Windowed,
     gencomp1.windowed_alt,
 ])
-class TestWindowed(CommonIteratorTests):
+class TestWindowed(_helpers.CommonIteratorTests):
     """Tests for windowed and related functions and classes."""
 
     __slots__ = ()
@@ -895,7 +895,7 @@ class TestWindowed(CommonIteratorTests):
     gencomp1.map_one_alt,
     gencomp1.MapOne,
 ])
-class TestMapOne(CommonIteratorTests):
+class TestMapOne(_helpers.CommonIteratorTests):
     """Tests for map_one and related functions and classes."""
 
     __slots__ = ()
@@ -975,7 +975,7 @@ class TestMapOne(CommonIteratorTests):
     gencomp1.my_filter_alt,
     gencomp1.Filter,
 ])
-class TestFilter(CommonIteratorTests):
+class TestFilter(_helpers.CommonIteratorTests):
     """Tests for my_filter and related functions and classes."""
 
     __slots__ = ()

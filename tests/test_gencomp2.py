@@ -43,14 +43,14 @@ import sys
 import pytest
 
 from algoviz import gencomp2
-from algoviz.testing import CommonIteratorTests
+from tests import _helpers
 
 
 @pytest.mark.parametrize('implementation', [
     gencomp2.empty,
     gencomp2.Empty,
 ])
-class TestEmpty(CommonIteratorTests):
+class TestEmpty(_helpers.CommonIteratorTests):
     """Tests for the empty function and the Empty class."""
 
     __slots__ = ()
@@ -72,7 +72,7 @@ class TestEmpty(CommonIteratorTests):
     gencomp2.my_product_slow,
     gencomp2.my_product_alt,
 ])
-class TestProductTwo(CommonIteratorTests):
+class TestProductTwo(_helpers.CommonIteratorTests):
     """
     Shared tests for all Cartesian product functions and classes in gencomp2.
 
@@ -271,7 +271,7 @@ def test_prefix_product(sequences, stop, expected):
     gencomp2.ascending_countdowns_alt,
     gencomp2.AscendingCountdowns,
 ])
-class TestAscendingCountdowns(CommonIteratorTests):
+class TestAscendingCountdowns(_helpers.CommonIteratorTests):
     """Tests for ascending_countdowns and related functions and classes."""
 
     __slots__ = ()
@@ -326,7 +326,7 @@ class TestThreeSums:
     gencomp2.three_sum_indices_3,
     gencomp2.three_sum_indices_4,
 ])
-class TestThreeSumIndices(CommonIteratorTests):
+class TestThreeSumIndices(_helpers.CommonIteratorTests):
     """Tests for the four three_sum_indices* functions."""
 
     __slots__ = ()
@@ -434,7 +434,7 @@ class TestDotProduct:
 @pytest.mark.parametrize('implementation', [
     gencomp2.flatten2,
 ])
-class TestFlatten2(CommonIteratorTests):
+class TestFlatten2(_helpers.CommonIteratorTests):
     """Tests for the flatten2 function."""
 
     __slots__ = ()
@@ -1217,7 +1217,7 @@ def fixture_all_are_iterators():
 @pytest.mark.parametrize('implementation', [
     gencomp2.submap,
 ])
-class TestSubmap(CommonIteratorTests):
+class TestSubmap(_helpers.CommonIteratorTests):
     """Tests for the submap function."""
 
     __slots__ = ()
