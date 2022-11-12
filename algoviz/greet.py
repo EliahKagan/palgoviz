@@ -13,6 +13,7 @@ __all__ = [
 ]
 
 import enum
+import weakref
 
 from threading import Lock
 
@@ -431,7 +432,7 @@ class UniqueGreeter:
     FIXME: After all doctests pass, move many into method docstrings.
     """
 
-    __slots__ = ('_lang',)
+    __slots__ = ('_lang', '__weakref__')
 
     _lock = Lock()
     _instances = {}
@@ -442,9 +443,11 @@ class UniqueGreeter:
 
         with cls._lock:
             if lang not in cls._instances:
-                cls._instances[lang] = super().__new__(cls)
-                cls._instances[lang]._lang = lang
-            return cls._instances[lang]
+                ret = super().__new__(cls)
+                ret._lang = lang
+                cls._instances[lang] = weakref.ref(ret)
+                return ret
+            return cls._instances[lang]()
 
     @staticmethod
     def get_known_langs():
@@ -469,6 +472,10 @@ class UniqueGreeter:
         Hello, World!
         """
         return cls(greeter.lang)
+
+    @classmethod
+    def count_instances(cls):
+        return len(cls._instances)
 
     def __call__(self, name):
         """
