@@ -238,7 +238,7 @@ class FrozenGreeter:
         >>> fg.lang = 'es'
         Traceback (most recent call last):
           ...
-        AttributeError: can't set attribute 'lang'
+        AttributeError: property 'lang' of 'FrozenGreeter' object has no setter
         """
         return self._lang
 
@@ -346,7 +346,7 @@ class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
         >>> e.lang = 'es'
         Traceback (most recent call last):
           ...
-        AttributeError: can't set attribute 'lang'
+        AttributeError: property 'lang' of 'EnumGreeter' object has no setter
         """
         return self.value
 

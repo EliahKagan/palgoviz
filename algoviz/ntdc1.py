@@ -569,10 +569,11 @@ def summarize_as_frozen(values, *, precision=DEFAULT_PRECISION):
     ...      summarize_as_frozen([1, 2, 16, 4, 8])})
     2
 
-    >>> s.minimum = 1.5
+    >>> s.minimum = 1.5  # doctest: +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
       ...
-    AttributeError: can't set attribute 'minimum'
+    AttributeError:
+    property 'minimum' of 'MyFrozenSummary' object has no setter
 
     >>> _, _, am, _, _ = summarize_as_frozen([1, 2, 16, 4, 8])
     Traceback (most recent call last):
@@ -666,10 +667,11 @@ def summarize_as_frozen_unpack(values, *, precision=DEFAULT_PRECISION):
     ...      summarize_as_frozen_unpack([1, 2, 16, 4, 8])})
     2
 
-    >>> s.minimum = 1.5
+    >>> s.minimum = 1.5  # doctest: +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
       ...
-    AttributeError: can't set attribute 'minimum'
+    AttributeError:
+    property 'minimum' of 'MyFrozenSummaryUnpack' object has no setter
 
     >>> _, _, am, _, _ = summarize_as_frozen_unpack([1, 2, 16, 4, 8])
     >>> am
@@ -826,10 +828,11 @@ def summarize_as_manual_named_tuple(values, *, precision=DEFAULT_PRECISION):
     >>> s * 2
     (1, 4, 2.7, 2.45951, 2.15827, 1, 4, 2.7, 2.45951, 2.15827)
 
-    >>> s.minimum = 1.5
+    >>> s.minimum = 1.5  # doctest: +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
       ...
-    AttributeError: can't set attribute 'minimum'
+    AttributeError:
+    property 'minimum' of 'MyNamedTupleSummary' object has no setter
 
     >>> _, _, am, _, _ = summarize_as_manual_named_tuple([1, 2, 16, 4, 8])
     >>> am
