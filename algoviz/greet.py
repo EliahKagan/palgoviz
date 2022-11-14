@@ -438,21 +438,36 @@ class UniqueGreeter:
     _instances = weakref.WeakValueDictionary()
 
     def __new__(cls, lang):
+        """Create a UniqueGreeter from the language code."""
         if lang not in _FORMATS:
             raise ValueError(f'{lang} is an unrecognized language code.')
 
-        # FIXME: The lock does not prevent data races where an item is removed
-        # from the WeakValueDictionary automatically via the weakref callback.
-        # This CANNOT be fixed with additional locking, because it is not safe
-        # to lock in cleanup code (for example, see the big red box in the Data
-        # Model documentation for __del__).
+        # We *must* use EAFP for this, since the instance could exist when
+        # checked, then be collected before being accessed by subscripting.
+        # (Note that this cannot be solved with additional locking, because any
+        # attempt to do so would introduce a deadlock bug: it is not safe to
+        # lock in a __del__ method or weakref callback/finalizer.)
         with cls._lock:
-            if lang not in cls._instances:
-                ret = super().__new__(cls)
-                ret._lang = lang
-                cls._instances[lang] = ret
-                return ret
-            return cls._instances[lang]
+            try:
+                return cls._instances[lang]
+            except KeyError:
+                instance = super().__new__(cls)
+                instance._lang = lang
+                cls._instances[lang] = instance
+                return instance
+
+    def __repr__(self):
+        """
+        Representation of this UniqueGreeter as python code.
+
+        >>> from algoviz.testing import collect_if_not_ref_counting as coll
+        >>> print(UniqueGreeter('en')); coll()
+        UniqueGreeter('en')
+        >>> class MyUniqueGreeter(UniqueGreeter): pass
+        >>> print(MyUniqueGreeter('en')); coll()
+        MyUniqueGreeter('en')
+        """
+        return f"{type(self).__name__}({self.lang!r})"
 
     @staticmethod
     def get_known_langs():
@@ -480,6 +495,7 @@ class UniqueGreeter:
 
     @classmethod
     def count_instances(cls):
+        """Count existing UniqueGreeter instances."""
         return len(cls._instances)
 
     def __call__(self, name):
@@ -491,18 +507,6 @@ class UniqueGreeter:
         ¡Hola, David!
         """
         print(_FORMATS[self.lang].format(name))
-
-    def __repr__(self):
-        """
-        Representation of this UniqueGreeter as python code.
-
-        >>> UniqueGreeter('en')
-        UniqueGreeter('en')
-        >>> class MyUniqueGreeter(UniqueGreeter): pass
-        >>> MyUniqueGreeter('en')
-        MyUniqueGreeter('en')
-        """
-        return f"{type(self).__name__}({self.lang!r})"
 
     @property
     def lang(self):
