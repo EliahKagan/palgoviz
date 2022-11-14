@@ -21,10 +21,6 @@ _FORMATS = {
     'es': '¡Hola, {}!',
 }
 
-# FIXME: After all four greeter classes pass their doctests, and either before
-# or after other reorganization of the doctests is done, give each class
-# doctests for positional class patterns in match-case, then get them to pass.
-
 # TODO: After writing unittest tests, extract shared parts of MutableGreeter
 # and FrozenGreeter, and maybe EnumGreeter and UniqueGreeter, to an abstract
 # base class. This ABC could be called AbstractGreeter, or just Greeter.
@@ -39,9 +35,16 @@ class MutableGreeter:
     Traceback (most recent call last):
       ...
     AttributeError: 'MutableGreeter' object has no attribute 'lung'
+
+    >>> match g:
+    ...     case MutableGreeter(lang):
+    ...         print(lang)
+    en
     """
 
     __slots__ = ('_lang',)
+
+    __match_args__ = ('lang',)
 
     @staticmethod
     def get_known_langs():
@@ -147,9 +150,16 @@ class FrozenGreeter:
     Traceback (most recent call last):
       ...
     AttributeError: 'FrozenGreeter' object has no attribute 'lung'
+
+    >>> match g:
+    ...     case FrozenGreeter(lang):
+    ...         print(lang)
+    en
     """
 
     __slots__ = ('_lang',)
+
+    __match_args__ = ('lang',)
 
     @staticmethod
     def get_known_langs():
@@ -280,7 +290,14 @@ class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
     Traceback (most recent call last):
       ...
     AttributeError: 'EnumGreeter' object has no attribute 'lung'
+
+    >>> match g:
+    ...     case EnumGreeter(lang):
+    ...         print(lang)
+    en
     """
+
+    __match_args__ = ('lang',)
 
     ENGLISH = 'en'
     SPANISH = 'es'
@@ -428,10 +445,17 @@ class UniqueGreeter:
     >>> del ug1, ug2; coll(); UniqueGreeter.count_instances()
     0
 
+    >>> match UniqueGreeter('en'):
+    ...     case UniqueGreeter(lang):
+    ...         print(lang)
+    en
+
     FIXME: After all doctests pass, move many into method docstrings.
     """
 
     __slots__ = ('_lang', '__weakref__')
+
+    __match_args__ = ('lang',)
 
     _lock = threading.Lock()
     _instances = weakref.WeakValueDictionary()
