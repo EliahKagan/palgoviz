@@ -21,9 +21,9 @@ _FORMATS = {
     'es': '¡Hola, {}!',
 }
 
-# FIXME: After all four greeter classes pass their doctests, and any other
-# reorganization of the doctests is done, give each class doctests for
-# positional class patterns in match-case, then get them to pass.
+# FIXME: After all four greeter classes pass their doctests, and either before
+# or after other reorganization of the doctests is done, give each class
+# doctests for positional class patterns in match-case, then get them to pass.
 
 # TODO: After writing unittest tests, extract shared parts of MutableGreeter
 # and FrozenGreeter, and maybe EnumGreeter and UniqueGreeter, to an abstract
