@@ -13,9 +13,8 @@ __all__ = [
 ]
 
 import enum
+import threading
 import weakref
-
-from threading import Lock
 
 _FORMATS = {
     'en': 'Hello, {}!',
@@ -434,40 +433,8 @@ class UniqueGreeter:
 
     __slots__ = ('_lang', '__weakref__')
 
-    _lock = Lock()
+    _lock = threading.Lock()
     _instances = weakref.WeakValueDictionary()
-
-    def __new__(cls, lang):
-        """Create a UniqueGreeter from the language code."""
-        if lang not in _FORMATS:
-            raise ValueError(f'{lang} is an unrecognized language code.')
-
-        # We *must* use EAFP for this, since the instance could exist when
-        # checked, then be collected before being accessed by subscripting.
-        # (Note that this cannot be solved with additional locking, because any
-        # attempt to do so would introduce a deadlock bug: it is not safe to
-        # lock in a __del__ method or weakref callback/finalizer.)
-        with cls._lock:
-            try:
-                return cls._instances[lang]
-            except KeyError:
-                instance = super().__new__(cls)
-                instance._lang = lang
-                cls._instances[lang] = instance
-                return instance
-
-    def __repr__(self):
-        """
-        Representation of this UniqueGreeter as python code.
-
-        >>> from algoviz.testing import collect_if_not_ref_counting as coll
-        >>> print(UniqueGreeter('en')); coll()
-        UniqueGreeter('en')
-        >>> class MyUniqueGreeter(UniqueGreeter): pass
-        >>> print(MyUniqueGreeter('en')); coll()
-        MyUniqueGreeter('en')
-        """
-        return f"{type(self).__name__}({self.lang!r})"
 
     @staticmethod
     def get_known_langs():
@@ -497,6 +464,38 @@ class UniqueGreeter:
     def count_instances(cls):
         """Count existing UniqueGreeter instances."""
         return len(cls._instances)
+
+    def __new__(cls, lang):
+        """Create or retrieve the UniqueGreeter from the language code."""
+        if lang not in _FORMATS:
+            raise ValueError(f'{lang} is an unrecognized language code.')
+
+        # We *must* use EAFP for this, since the instance could exist when
+        # checked, then be collected before being accessed by subscripting.
+        # (Note that this cannot be solved with additional locking, because any
+        # attempt to do so would introduce a deadlock bug: it is not safe to
+        # lock in a __del__ method or weakref callback/finalizer.)
+        with cls._lock:
+            try:
+                return cls._instances[lang]
+            except KeyError:
+                instance = super().__new__(cls)
+                instance._lang = lang
+                cls._instances[lang] = instance
+                return instance
+
+    def __repr__(self):
+        """
+        Representation of this UniqueGreeter as Python code.
+
+        >>> from algoviz.testing import collect_if_not_ref_counting as coll
+        >>> print(UniqueGreeter('en')); coll()
+        UniqueGreeter('en')
+        >>> class MyUniqueGreeter(UniqueGreeter): pass
+        >>> print(MyUniqueGreeter('en')); coll()
+        MyUniqueGreeter('en')
+        """
+        return f"{type(self).__name__}({self.lang!r})"
 
     def __call__(self, name):
         """
