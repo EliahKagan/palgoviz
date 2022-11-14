@@ -1,0 +1,71 @@
+Some of the old greet.py doctests
+=================================
+
+    >>> try:
+    ...     from algoviz.greet import *
+    ...     from algoviz.testing import collect_if_not_ref_counting as coll
+    ... except ModuleNotFoundError:
+    ...     import sys
+    ...     sys.path.append('')
+    ...     from algoviz.decorators import *
+    ...     from algoviz.testing import collect_if_not_ref_counting as coll
+
+
+Old doctests for greet.UniqueGreeter:
+
+    >>> UniqueGreeter('es')
+    UniqueGreeter('es')
+    >>> UniqueGreeter('qx')
+    Traceback (most recent call last):
+        ...
+    ValueError: qx is an unrecognized language code.
+    >>> UniqueGreeter('en')('Eve')
+    Hello, Eve!
+    >>> UniqueGreeter('es')('Eve')
+    ¡Hola, Eve!
+    >>> UniqueGreeter.get_known_langs()
+    ('en', 'es')
+
+    >>> UniqueGreeter('en') is UniqueGreeter('en')
+    True
+    >>> UniqueGreeter('es') is UniqueGreeter('es')
+    True
+    >>> UniqueGreeter('en') is UniqueGreeter('es')
+    False
+    >>> UniqueGreeter('en') is UniqueGreeter('english'[:2])
+    True
+    >>> UniqueGreeter.from_greeter(MutableGreeter('en')) is UniqueGreeter('en')
+    True
+    >>> UniqueGreeter.from_greeter(MutableGreeter('es')) is UniqueGreeter('es')
+    True
+
+    >>> len({UniqueGreeter('en'), UniqueGreeter('es'), UniqueGreeter('en')})
+    2
+    >>> ug = UniqueGreeter('en')
+    >>> ug.lang
+    'en'
+    >>> ug.lang = 'es'
+    Traceback (most recent call last):
+        ...
+    AttributeError: property 'lang' of 'UniqueGreeter' object has no setter
+    >>> ug.lung = 'es'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'UniqueGreeter' object has no attribute 'lung'
+
+    These tests assume no other code in the process running the doctests has
+    created and *kept* references to UniqueGreeter instances:
+
+    >>> from algoviz.testing import collect_if_not_ref_counting as coll
+    >>> coll(); UniqueGreeter.count_instances()
+    1
+    >>> ug1 = UniqueGreeter('en'); coll(); UniqueGreeter.count_instances()
+    1
+    >>> ug2 = UniqueGreeter('es'); coll(); UniqueGreeter.count_instances()
+    2
+    >>> del ug; coll(); UniqueGreeter.count_instances()
+    2
+    >>> ug1 = ug2; coll(); UniqueGreeter.count_instances()
+    1
+    >>> del ug1, ug2; coll(); UniqueGreeter.count_instances()
+    0
