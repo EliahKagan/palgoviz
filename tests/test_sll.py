@@ -333,6 +333,7 @@ class TestHashNodeBasic(unittest.TestCase):
 
     def test_from_iterable_finds_chain_from_nonempty_sequence(self):
         # NOTE: This test MUST be written to assign "expected" first.
+        testing.collect_if_not_ref_counting()
         expected = sll.HashNode(
             'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
         actual = sll.HashNode.from_iterable('abcd')
@@ -340,6 +341,7 @@ class TestHashNodeBasic(unittest.TestCase):
 
     def test_from_iterable_builds_chain_from_nonempty_sequence(self):
         # NOTE: This test MUST be written to assign "actual" first.
+        testing.collect_if_not_ref_counting()
         actual = sll.HashNode.from_iterable('abcd')
         expected = sll.HashNode(
             'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
