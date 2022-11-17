@@ -111,7 +111,29 @@ class HashNode:
     unreachable from the outside, they are immediately eligible for garbage
     collection. (test_sll.py and test_sll.txt have tests for this.)
     """
-    # FIXME: Implement this.
+
+    __slots__ = ('_value', '_next_node')
+
+    _nodes = {}
+
+    def __new__(cls, value, next_node=None):
+        if next_node is not None:
+            if not isinstance(next_node, HashNode):
+                raise TypeError
+
+        try:
+            return cls._nodes[value, next_node]
+        except KeyError:
+            node = super.__new__(cls)
+            node.value = value
+            node.next_node = next_node  # guaranteed to already be in _nodes or None
+            cls._nodes[value, next_node] = node
+            return node
+
+    def __repr__(self):
+        if self.next_node:
+            return f"{type(self).__name__}({self.value!r}, {self.next_node!r})"
+        return f"{type(self).__name__}({self.value!r})"
 
 
 def traverse(head):
