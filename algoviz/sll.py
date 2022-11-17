@@ -126,7 +126,9 @@ def traverse(head):
     >>> list(traverse(long)) == list(range(9000))
     True
     """
-    # FIXME: Implement this.
+    while head:
+        yield head.value
+        head = head.next_node
 
 
 if __name__ == '__main__':
