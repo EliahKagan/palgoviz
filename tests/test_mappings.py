@@ -662,7 +662,8 @@ class TestDirectAddressTable(_TestMutableMapping, unittest.TestCase):
         self.assertEqual(table.capacity, capacity)
 
     def test_cannot_change_capacity(self):
-        expected_message = r"\Acan't set attribute 'capacity'\Z"
+        expected_message = (r"\Aproperty 'capacity' of 'DirectAddressTable'"
+                            r' object has no setter\Z')
 
         table = DirectAddressTable(256)
         with self.assertRaisesRegex(AttributeError, expected_message):
