@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "algoviz"
+version = "0.1.0"
+description = ""
+authors = [
+    "David Vassallo <vassallo.davidm@gmail.com>",
+    "Eliah Kagan <degeneracypressure@gmail.com>",
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.11"
+graphviz = "^0.20.1"
+more-itertools = "^9.0.0"
+sympy = "^1.11.1"
+typeguard = "^2.13.3"
+
+[tool.poetry.group.notebook.dependencies]
+ipython = "^8.6.0"
+jupyterlab = "^3.5.0"
+nbdime = "^3.1.1"
+
+[tool.poetry.group.test.dependencies]
+doctestfn = "^1.0.3"
+parameterized = "^0.8.1"
+pytest = "^7.2.0"
+pytest-subtests = "^0.9.0"
+
+[tool.poetry.group.analyzers.dependencies]
+flake8 = "^5.0.4"
+isort = "^5.10.1"
+mypy = "^0.991"
+pylint = "^2.15.5"
+pyright = "^1.1.280"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+atomic = true
+force_sort_within_sections = true
+include_trailing_comma = true
+multi_line_output = 3
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["invalid-name"]
+
+[tool.pytest.ini_options]
+addopts = "--ignore=sandbox"
