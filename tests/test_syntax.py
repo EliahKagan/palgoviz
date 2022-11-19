@@ -34,18 +34,22 @@ class TestList(unittest.TestCase):
     of syntax that produces collections of particular lengths/sizes.
     """
 
+    # FIXME: Change each "..." to the correct expected length. Do not modify
+    # anything else, besides removing this comment when done. Fill in all
+    # values (each "...") before running any of the tests for the first time.
+    # The first three values (2, 1, and 0) are deliberately already filled in.
     @parameterized.expand([
         ([42, 76], 2),
         ([42], 1),
         ([], 0),
-        ([_make_list()], 1),
-        ([_make_iterator()], 1),
-        ([_make_list(), "D'Artagnan"], 2),
-        ([_make_iterator(), "D'Artagnan"], 2),
-        ([*_make_list()], 3),
-        ([*_make_iterator()], 3),
-        ([*_make_list(), "D'Artagnan"], 4),
-        ([*_make_iterator(), "D'Artagnan"], 4),
+        ([_make_list()], ...),
+        ([_make_iterator()], ...),
+        ([_make_list(), "D'Artagnan"], ...),
+        ([_make_iterator(), "D'Artagnan"], ...),
+        ([*_make_list()], ...),
+        ([*_make_iterator()], ...),
+        ([*_make_list(), "D'Artagnan"], ...),
+        ([*_make_iterator(), "D'Artagnan"], ...),
     ])
     def test_len(self, instance, expected_len):
         """Lists from list displays ("list expressions") have correct len."""
