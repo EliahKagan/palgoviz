@@ -27,3 +27,9 @@ dependencies:
   - flake8
   - isort
   - shellcheck
+
+  # Some dependencies have no conda packages and so must be obtained from PyPI.
+  - pip
+  - pip:
+    - doctestfn # testing
+    - Flake8-pyproject # static analysis
