@@ -32,6 +32,8 @@ linked list node has one "child" pointer.) Only SLLs are implemented here.
 __all__ = ['HashNode', 'traverse']
 
 
+import weakref
+
 class HashNode:
     """
     Immutable singly linked list node, using hash consing. Thread-safe.
@@ -112,9 +114,11 @@ class HashNode:
     collection. (test_sll.py and test_sll.txt have tests for this.)
     """
 
-    __slots__ = ('_value', '_next_node')
+    __slots__ = ('_value', '_next_node', '__weakref__')
 
-    _nodes = {}
+    __match_args__ = ('value', 'next_node')
+
+    _nodes = weakref.WeakValueDictionary()
 
     def __new__(cls, value, next_node=None):
         if next_node is not None:
@@ -124,9 +128,9 @@ class HashNode:
         try:
             return cls._nodes[value, next_node]
         except KeyError:
-            node = super.__new__(cls)
-            node.value = value
-            node.next_node = next_node  # guaranteed to already be in _nodes or None
+            node = super().__new__(cls)
+            node._value = value
+            node._next_node = next_node  # guaranteed to already be in _nodes or None
             cls._nodes[value, next_node] = node
             return node
 
@@ -134,6 +138,27 @@ class HashNode:
         if self.next_node:
             return f"{type(self).__name__}({self.value!r}, {self.next_node!r})"
         return f"{type(self).__name__}({self.value!r})"
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def next_node(self):
+        return self._next_node
+
+    @staticmethod
+    def from_iterable(iterable):
+        items = list(iterable)
+        items.reverse()
+        previous = None
+        for element in items:
+            previous = HashNode(element, previous)
+        return previous
+
+    @classmethod
+    def count_instances(cls):
+        return len(cls._nodes)
 
 
 def traverse(head):
