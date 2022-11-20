@@ -128,14 +128,18 @@ class HashNode:
     @classmethod
     def draw(cls):
         tree = Digraph()
-        #Draw the none object
+
+        # Draw the None object.
         tree.node(str(id(None)), shape='point')
-        #Draw the nodes
-        for key, node in cls._nodes.items():
+
+        # Draw the nodes.
+        for node in cls._nodes.values():
             tree.node(str(id(node)), label=html.escape(repr(node.value)))
-        #Draw the edges
-        for key, node in cls._nodes.items():
+
+        # Draw the edges.
+        for node in cls._nodes.values():
             tree.edge(str(id(node)), str(id(node.next_node)))
+
         return tree
 
     @classmethod
