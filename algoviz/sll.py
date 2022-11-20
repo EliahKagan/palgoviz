@@ -125,6 +125,8 @@ class HashNode:
     _lock = threading.Lock()
     _nodes = weakref.WeakValueDictionary()  # (value, next_node) -> node
 
+    # FIXME: Make this tolerate changes to _nodes due to weakref callbacks
+    # removing nodes. Also make it thread-safe.
     @classmethod
     def draw(cls):
         tree = Digraph()
