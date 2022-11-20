@@ -32,7 +32,9 @@ linked list node has one "child" pointer.) Only SLLs are implemented here.
 __all__ = ['HashNode', 'traverse']
 
 
+import threading
 import weakref
+
 
 class HashNode:
     """
@@ -118,26 +120,50 @@ class HashNode:
 
     __match_args__ = ('value', 'next_node')
 
+    _lock = threading.Lock()
     _nodes = weakref.WeakValueDictionary()
+
+    @classmethod
+    def count_instances(cls):
+        return len(cls._nodes)
+
+    @classmethod
+    def from_iterable(cls, iterable):
+        try:
+            backwards = reversed(iterable)
+        except TypeError:
+            backwards = reversed(list(iterable))
+
+        head = None
+        for element in backwards:
+            head = cls(element, head)
+        return head
 
     def __new__(cls, value, next_node=None):
         if next_node is not None:
             if not isinstance(next_node, HashNode):
                 raise TypeError
 
-        try:
-            return cls._nodes[value, next_node]
-        except KeyError:
-            node = super().__new__(cls)
-            node._value = value
-            node._next_node = next_node  # guaranteed to already be in _nodes or None
-            cls._nodes[value, next_node] = node
-            return node
+        # We *must* use EAFP for this, since the instance could exist when
+        # checked, then be collected before being accessed by subscripting.
+        # (Note that this cannot be solved with additional locking, because any
+        # attempt to do so would introduce a deadlock bug: it is not safe to
+        # lock in a __del__ method or weakref callback/finalizer.)
+        with cls._lock:
+            try:
+                return cls._nodes[value, next_node]
+            except KeyError:
+                node = super().__new__(cls)
+                node._value = value
+                # next_node guaranteed to already be in _nodes or None
+                node._next_node = next_node
+                cls._nodes[value, next_node] = node
+                return node
 
     def __repr__(self):
         if self.next_node:
-            return f"{type(self).__name__}({self.value!r}, {self.next_node!r})"
-        return f"{type(self).__name__}({self.value!r})"
+            return f'{type(self).__name__}({self.value!r}, {self.next_node!r})'
+        return f'{type(self).__name__}({self.value!r})'
 
     @property
     def value(self):
@@ -146,19 +172,6 @@ class HashNode:
     @property
     def next_node(self):
         return self._next_node
-
-    @staticmethod
-    def from_iterable(iterable):
-        items = list(iterable)
-        items.reverse()
-        previous = None
-        for element in items:
-            previous = HashNode(element, previous)
-        return previous
-
-    @classmethod
-    def count_instances(cls):
-        return len(cls._nodes)
 
 
 def traverse(head):
