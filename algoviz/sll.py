@@ -34,6 +34,7 @@ __all__ = ['HashNode', 'traverse']
 
 import threading
 import weakref
+from graphviz import Digraph
 
 
 class HashNode:
@@ -121,7 +122,18 @@ class HashNode:
     __match_args__ = ('value', 'next_node')
 
     _lock = threading.Lock()
-    _nodes = weakref.WeakValueDictionary()
+    _nodes = weakref.WeakValueDictionary()  # (value, next_node) -> node
+
+    @classmethod
+    def draw(cls):
+        tree = Digraph()
+        #Draw the nodes
+        for key, node in cls._nodes.items():
+            tree.node(str(id(node)), label=repr(node.value))
+        #Draw the edges
+        for key, node in cls._nodes.items():
+            tree.edge(str(id(node)), str(id(node.next_node)))
+        return tree
 
     @classmethod
     def count_instances(cls):
