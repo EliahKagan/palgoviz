@@ -31,9 +31,10 @@ linked list node has one "child" pointer.) Only SLLs are implemented here.
 
 __all__ = ['HashNode', 'traverse']
 
-
+import html
 import threading
 import weakref
+
 from graphviz import Digraph
 
 
@@ -127,9 +128,11 @@ class HashNode:
     @classmethod
     def draw(cls):
         tree = Digraph()
+        #Draw the none object
+        tree.node(str(id(None)), shape='point')
         #Draw the nodes
         for key, node in cls._nodes.items():
-            tree.node(str(id(node)), label=repr(node.value))
+            tree.node(str(id(node)), label=html.escape(repr(node.value)))
         #Draw the edges
         for key, node in cls._nodes.items():
             tree.edge(str(id(node)), str(id(node.next_node)))
