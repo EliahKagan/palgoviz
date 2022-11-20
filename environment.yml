@@ -18,12 +18,12 @@ dependencies:
   - graphviz
   - python-graphviz
 
-  # For testing
+  # For testing (see also doctestfn)
   - parameterized
   - pytest
   - pytest-subtests
 
-  # For static analysis
+  # For static analysis (see also Flake8-pyproject)
   - flake8
   - isort
   - shellcheck
@@ -31,5 +31,5 @@ dependencies:
   # Some dependencies have no conda packages and so must be obtained from PyPI.
   - pip
   - pip:
-    - doctestfn # testing
-    - Flake8-pyproject # static analysis
+    - doctestfn
+    - Flake8-pyproject
