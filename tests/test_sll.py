@@ -348,6 +348,22 @@ class TestHashNodeBasic(unittest.TestCase):
             'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
         self.assertIs(actual, expected)
 
+    def test_from_iterable_finds_chain_from_nonempty_iterator(self):
+        # NOTE: This test MUST be written to assign "expected" first.
+        testing.collect_if_not_ref_counting()
+        expected = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        actual = sll.HashNode.from_iterable(iter('abcd'))
+        self.assertIs(actual, expected)
+
+    def test_from_iterable_builds_chain_from_nonempty_iterator(self):
+        # NOTE: This test MUST be written to assign "actual" first.
+        testing.collect_if_not_ref_counting()
+        actual = sll.HashNode.from_iterable(iter('abcd'))
+        expected = sll.HashNode(
+            'a', sll.HashNode('b', sll.HashNode('c', sll.HashNode('d'))))
+        self.assertIs(actual, expected)
+
     def test_from_iterable_builds_long_chain(self):
         head = sll.HashNode.from_iterable(range(9000))
         self.assertIsInstance(head, sll.HashNode)
@@ -810,8 +826,8 @@ class TestHashNodeHeterogeneousCycles(unittest.TestCase):
         choke point: instead of all nodes referring to the same list object
         that can reach all nodes, they refer to separate lists of all nodes.
         This should not make an important difference--it would be strange if
-        either if one of these two tests passed and the other failed--but it
-        might confer greater confidence that leaks are prevented in general.
+        either of these two tests passed and the other failed--but it might
+        confer greater confidence that leaks are prevented in general.
         """
         class Element:
             def __init__(self, value):
