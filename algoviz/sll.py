@@ -185,7 +185,10 @@ class HashNode:
     @classmethod
     def count_instances(cls):
         """Return the number of currently existing instances."""
-        return len(cls._table)
+        # We shouldn't need to lock here, but I don't think that is technically
+        # guaranteed to be safe. See greet.UniqueGreeter.count_instances.
+        with cls._lock:
+            return len(cls._table)
 
     @classmethod
     def from_iterable(cls, values):
@@ -226,7 +229,7 @@ class HashNode:
                 raise RuntimeError(message)
 
             cls._already_locked = True
-            try:
+            try:  # This *must* use EAFP. See greet.UniqueGreeter.__new__.
                 return cls._table[key]
             except KeyError:
                 node = super().__new__(cls)

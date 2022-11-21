@@ -444,14 +444,19 @@ class UniqueGreeter:
     @classmethod
     def count_instances(cls):
         """Return the number of currently existing instances."""
-        # In CPython, this is OK because the GIL ensures individual basic dict
-        # operations are atomic and thread-safe, and WeakValueDictionary is
-        # documented to use an underlying dict. More broadly, I assume this is
-        # safe in any current or future Python implementation, on the grounds
-        # that a WeakValueDictionary may lose items due to a refcount decrement
-        # or GC cycle running at any time on any thread, so it cannot be
-        # implemented correctly unless its basic operations are thread-safe.
-        return len(cls._table)
+        # In CPython, it would be okay to forgo this lock, because CPython's
+        # WeakValueDictionary delegates to an underlying dict, and basic dict
+        # operations, if they need not call into Python code, are atomic, due
+        # to the GIL. It would probably also be okay in any other current or
+        # future Python implementation: a WeakValueDictionary may lose items
+        # due to a refcount decrement or GC cycle running at any time on any
+        # thread, and it seems implausible that any strategy that allows len to
+        # be called while that is happening (as it must) would fail to allow it
+        # otherwise. Still, this isn't a documented guarantee, count_instances
+        # is rarely called (so it can be slow), and locking on len is safe from
+        # deadlock. So omitting the lock is, at best, a premature optimization.
+        with cls._lock:
+            return len(cls._table)
 
     @classmethod
     def from_greeter(cls, greeter):
