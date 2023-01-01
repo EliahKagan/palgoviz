@@ -3,12 +3,12 @@ Shared test helpers.
 
 These are test helpers that multiple test modules use, or that otherwise should
 not appear in any particular test module, but that are implementation details
-of the test suite itself. That is to say that they are not used in the algoviz
+of the test suite itself. That is to say that they are not used in the palgoviz
 package, not even in doctests there (though they may be used in doctests in any
 files in tests/, of course), and they are not intended for use in notebooks.
 
 Shared test helpers that are not considered private implementation details of
-the test suite appear in algoviz.testing instead of this nonpublic module.
+the test suite appear in palgoviz.testing instead of this nonpublic module.
 """
 
 

@@ -5,11 +5,11 @@ Extended doctests for sll.py
 See also test_sll.py for the unittest tests (and a few related doctests).
 
     >>> try:
-    ...     from algoviz.sll import HashNode, traverse
+    ...     from palgoviz.sll import HashNode, traverse
     ... except ModuleNotFoundError:
     ...     import sys
     ...     sys.path.append('')
-    ...     from algoviz.sll import HashNode, traverse
+    ...     from palgoviz.sll import HashNode, traverse
 
 
 Extended doctests for sll.HashNode:
@@ -67,7 +67,7 @@ Extended doctests for sll.HashNode:
     These tests assume no other code in the process running the doctests has
     created and *kept* references to HashNode instances:
 
-    >>> from algoviz.testing import collect_if_not_ref_counting as coll
+    >>> from palgoviz.testing import collect_if_not_ref_counting as coll
     >>> coll(); HashNode.count_instances()
     9006
     >>> head5 = HashNode.from_iterable(range(-100, 9000))
