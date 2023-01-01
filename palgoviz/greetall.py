@@ -10,7 +10,7 @@ Usage:
 
 import sys
 
-from algoviz import greet
+from palgoviz import greet
 
 
 def pmessage(prefix, message):

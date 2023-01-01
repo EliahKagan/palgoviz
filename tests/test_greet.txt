@@ -2,13 +2,13 @@ Some of the old greet.py doctests
 =================================
 
     >>> try:
-    ...     from algoviz.greet import *
-    ...     from algoviz.testing import collect_if_not_ref_counting as coll
+    ...     from palgoviz.greet import *
+    ...     from palgoviz.testing import collect_if_not_ref_counting as coll
     ... except ModuleNotFoundError:
     ...     import sys
     ...     sys.path.append('')
-    ...     from algoviz.decorators import *
-    ...     from algoviz.testing import collect_if_not_ref_counting as coll
+    ...     from palgoviz.decorators import *
+    ...     from palgoviz.testing import collect_if_not_ref_counting as coll
 
 
 Old doctests for greet.UniqueGreeter:
@@ -56,7 +56,7 @@ Old doctests for greet.UniqueGreeter:
     These tests assume no other code in the process running the doctests has
     created and *kept* references to UniqueGreeter instances:
 
-    >>> from algoviz.testing import collect_if_not_ref_counting as coll
+    >>> from palgoviz.testing import collect_if_not_ref_counting as coll
     >>> coll(); UniqueGreeter.count_instances()
     1
     >>> ug1 = UniqueGreeter('en'); coll(); UniqueGreeter.count_instances()

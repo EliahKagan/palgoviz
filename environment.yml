@@ -1,4 +1,4 @@
-name: algoviz
+name: palgoviz
 
 channels:
   - conda-forge

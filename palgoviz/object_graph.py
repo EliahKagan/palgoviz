@@ -13,7 +13,7 @@ import html
 
 from graphviz import Digraph
 
-from algoviz import caching
+from palgoviz import caching
 
 
 def draw_one_tuple(root):
