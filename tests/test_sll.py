@@ -37,7 +37,7 @@ import weakref
 import graphviz
 from parameterized import parameterized
 
-from algoviz import sll, testing
+from palgoviz import sll, testing
 from tests import _helpers
 
 # FIXME: Change this to True, after completing step 1 in the module docstring.

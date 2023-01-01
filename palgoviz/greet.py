@@ -431,7 +431,7 @@ class UniqueGreeter:
     These tests assume no other code in the process running the doctests has
     created and *kept* references to UniqueGreeter instances:
 
-    >>> from algoviz.testing import collect_if_not_ref_counting as coll
+    >>> from palgoviz.testing import collect_if_not_ref_counting as coll
     >>> coll(); UniqueGreeter.count_instances()
     1
     >>> ug1 = UniqueGreeter('en'); coll(); UniqueGreeter.count_instances()
@@ -512,7 +512,7 @@ class UniqueGreeter:
         """
         Representation of this UniqueGreeter as Python code.
 
-        >>> from algoviz.testing import collect_if_not_ref_counting as coll
+        >>> from palgoviz.testing import collect_if_not_ref_counting as coll
         >>> print(UniqueGreeter('en')); coll()
         UniqueGreeter('en')
         >>> class MyUniqueGreeter(UniqueGreeter): pass

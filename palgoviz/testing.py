@@ -1,5 +1,5 @@
 """
-Test helpers used by code in the algoviz package and/or notebooks.
+Test helpers used by code in the palgoviz package and/or notebooks.
 
 If a test helper is not (meant to be) used outside the modules in tests/, but
 it is used by multiple test modules or otherwise shouldn't be inside a "test_*"

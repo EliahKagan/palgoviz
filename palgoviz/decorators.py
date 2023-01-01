@@ -10,7 +10,7 @@ import functools
 import itertools
 import numbers
 
-from algoviz.util import identity_function
+from palgoviz.util import identity_function
 
 
 def peek_arg(func):
@@ -231,7 +231,7 @@ def give_metadata_from(wrapped, *, expose=False):
     >>> def f(): 'Wrapped docstring.'
     >>> f.__module__ == __name__  # Not to be confused with f.__name__.
     True
-    >>> __name__ in {'__main__', 'algoviz.decorators', 'decorators'}
+    >>> __name__ in {'__main__', 'palgoviz.decorators', 'decorators'}
     True
 
     >>> @give_metadata_from(f)
@@ -1015,7 +1015,7 @@ class linear_combinable:
 
     Metadata attributes are intact (compare to give_metadata_from's doctests):
 
-    >>> __name__ in {'__main__', 'algoviz.decorators', 'decorators'}
+    >>> __name__ in {'__main__', 'palgoviz.decorators', 'decorators'}
     True
     >>> for h in f, g, three:
     ...     print([h.__module__ == __name__,
