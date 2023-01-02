@@ -26,7 +26,6 @@ dependencies:
   # For static analysis (see also Flake8-pyproject)
   - flake8
   - isort
-  - shellcheck
 
   # Some dependencies have no conda packages and so must be obtained from PyPI.
   - pip

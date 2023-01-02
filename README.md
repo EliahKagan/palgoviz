@@ -1,10 +1,11 @@
+<!-- SPDX-License-Identifier: 0BSD -->
 
-<img src="example.svg"
+<img src="doc/example.svg"
      alt="Drawing of a nested tuple structure, from notebooks/object_graph.ipynb"
      title="Drawing of a nested tuple structure, from notebooks/object_graph.ipynb"
      width="350px">
 
-# palgoviz
+# palgoviz - Materials for Python and algorithms, with visualization
 
 This is a project to develop approaches and materials for teaching and learning
 Python together with algorithms and data structures, with a substantial
@@ -193,6 +194,11 @@ using or discussing any of the code in the `palgoviz` package.
 These are files with information potentially relevant to preparing exercises
 from the code in this project. It currently also contains some documentation in
 rough draft form.
+
+### `doc`
+
+This is project-wide documentation that is not important enough to go in this
+top-level readme, and documentation support files (e.g., images).
 
 ### `sandbox`
 
