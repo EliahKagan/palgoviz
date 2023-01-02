@@ -16,7 +16,7 @@ import sys
 
 import pytest  # NOTE: Often we do NOT need this import to write pytest tests.
 
-from algoviz.simple import (
+from palgoviz.simple import (
     MY_NONE,
     MulSquarer,
     PowSquarer,
