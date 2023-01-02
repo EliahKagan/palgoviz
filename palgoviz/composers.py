@@ -2,7 +2,7 @@
 
 """Function composition."""
 
-from algoviz.util import identity_function
+from palgoviz.util import identity_function
 
 
 def compose2(f, g):
@@ -117,7 +117,7 @@ def compose(*functions):
     >>> def fe(x): return x + 'e'
     >>> compose(fa, fb, fc, fd, fe)('z')
     'zedcba'
-    >>> from algoviz.adders import make_adder
+    >>> from palgoviz.adders import make_adder
     >>> add_50005000 = compose(*(make_adder(i) for i in range(1, 10_001)))
     >>> add_50005000(7)
     50005007
@@ -161,7 +161,7 @@ __all__ = [thing.__name__ for thing in (
 )]
 
 
-# Can also run:  python -m doctest algoviz/composers.py
+# Can also run:  python -m doctest palgoviz/composers.py
 # (Pass "-v" after "doctest" for verbose output.)
 if __name__ == '__main__':
     import doctest

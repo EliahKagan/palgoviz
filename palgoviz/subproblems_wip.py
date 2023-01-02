@@ -14,7 +14,7 @@ the functions it said to add to recursion.py from this module instead.
 
 import collections
 
-from algoviz.recursion import merge_two
+from palgoviz.recursion import merge_two
 
 
 def observe_node(node):

@@ -10,7 +10,7 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
-from algoviz.simple import (
+from palgoviz.simple import (
     MY_NONE,
     MulSquarer,
     PowSquarer,
