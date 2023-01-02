@@ -1,4 +1,4 @@
-# <!-- SPDX-License-Identifier: 0BSD -->
+<!-- SPDX-License-Identifier: 0BSD -->
 
 # Extra documentation
 
@@ -7,7 +7,6 @@ This `doc/` directory contains:
 - Documentation that applies to the project as a whole but is not sufficiently
 important to appear in the top-level readme.
 - Supporting files for the top-level readme.
-
 
 ## Where to look instead
 
@@ -28,5 +27,22 @@ and classes and thus appear in `palgoviz/` rather than `tests/`.
 Besides this `README.md` file, the files in this `doc/` directory are:
 
 - `dist-readme.md` - The readme file intended for PyPI.
+
 - `example.svg` - The visualization example shown (mainly) in the top-level
   readme.
+
+- `install-with-conda.md` - Using `conda` or `mamba` to install palgoviz and
+  keep its dependencies up to date.
+
+- `install-with-poetry.md` - Using `poetry` to install palgoviz and keep its
+  dependencies up to date.
+
+- `project-dirs.md` - Brief descriptions of all interesting subdirectories of
+  the top-level repository directory.
+
+- `running-tests.md` - Details on running automated tests, going somewhat
+  beyond the information in the top-level readme.
+
+- `using-notebooks.md` - Detailed documentation on using the notebooks. Covers
+real-time collaboration and the advantages/disadvantages of using the notebooks
+in VS Code rather than JupyterLab.
