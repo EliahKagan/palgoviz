@@ -12,7 +12,7 @@ import functools
 import math
 import operator
 
-from algoviz import caching
+from palgoviz import caching
 
 
 def countdown(n):
@@ -1460,7 +1460,7 @@ def leaf_sum(root):
     57
     >>> leaf_sum(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
-    >>> from algoviz.fibonacci import fib, fib_nest
+    >>> from palgoviz.fibonacci import fib, fib_nest
     >>> leaf_sum(fib_nest(10))
     55
     >>> all(leaf_sum(fib_nest(i)) == x for i, x in zip(range(401), fib()))
@@ -1509,7 +1509,7 @@ def leaf_sum_alt(root):
     57
     >>> leaf_sum_alt(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
-    >>> from algoviz.fibonacci import fib, fib_nest
+    >>> from palgoviz.fibonacci import fib, fib_nest
     >>> leaf_sum_alt(fib_nest(10))
     55
     >>> all(leaf_sum_alt(fib_nest(i)) == x for i, x in zip(range(401), fib()))
@@ -1546,7 +1546,7 @@ def leaf_sum_dec(root):
     57
     >>> leaf_sum_dec(nest(seed=1, degree=2, height=200))
     1606938044258990275541962092341162602522202993782792835301376
-    >>> from algoviz.fibonacci import fib, fib_nest
+    >>> from palgoviz.fibonacci import fib, fib_nest
     >>> leaf_sum_dec(fib_nest(10))
     55
     >>> all(leaf_sum_dec(fib_nest(i)) == x for i, x in zip(range(401), fib()))
