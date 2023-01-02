@@ -1,26 +1,33 @@
 #!/usr/bin/env python
 
-"""Hello world example."""
+"""Hello world examples."""
 
 __all__ = [
     'MutableGreeter',
     'FrozenGreeter',
     'EnumGreeter',
+    'UniqueGreeter',
     'make_greeter',
     'hello',
     'run',
 ]
 
 import enum
+import threading
+import weakref
 
 _FORMATS = {
     'en': 'Hello, {}!',
     'es': '¡Hola, {}!',
 }
 
+# FIXME: After all four greeter classes pass their doctests, and any other
+# reorganization of the doctests is done, give each class doctests for
+# positional class patterns in match-case, then get them to pass.
 
-# TODO: Extract shared parts of MutableGreeter and FrozenGreeter to an abstract
-#       base class, which might be called AbstractGreeter, or just Greeter.
+# TODO: After writing unittest tests, extract shared parts of MutableGreeter
+# and FrozenGreeter, and maybe EnumGreeter and UniqueGreeter, to an abstract
+# base class. This ABC could be called AbstractGreeter, or just Greeter.
 
 
 class MutableGreeter:
@@ -351,6 +358,142 @@ class EnumGreeter(enum.Enum, metaclass=_EnumGreeterMeta):
         return self.value
 
 
+class UniqueGreeter:
+    """
+    Callable object to greet people by name. Unique per language. Thread-safe.
+
+    More than one instance of UniqueGreeter for the same language may be
+    created, but never with overlapping lifetimes. When an instance already
+    exists for a language, calling UniqueGreeter with the same language code is
+    guaranteed to return the existing instance. But instances' lifetimes are
+    not prolonged: the UniqueGreeter class does nothing to prevent any instance
+    from being collected when all outside references to it have gone away.
+
+    (Like MutableGreeter/FrozenGreeter, this can use any language in _FORMATS.)
+
+    >>> UniqueGreeter('es')
+    UniqueGreeter('es')
+    >>> UniqueGreeter('qx')
+    Traceback (most recent call last):
+        ...
+    ValueError: qx is an unrecognized language code.
+    >>> UniqueGreeter('en')('Eve')
+    Hello, Eve!
+    >>> UniqueGreeter('es')('Eve')
+    ¡Hola, Eve!
+    >>> UniqueGreeter.get_known_langs()
+    ('en', 'es')
+
+    >>> UniqueGreeter('en') is UniqueGreeter('en')
+    True
+    >>> UniqueGreeter('es') is UniqueGreeter('es')
+    True
+    >>> UniqueGreeter('en') is UniqueGreeter('es')
+    False
+    >>> UniqueGreeter('en') is UniqueGreeter('english'[:2])
+    True
+    >>> UniqueGreeter.from_greeter(MutableGreeter('en')) is UniqueGreeter('en')
+    True
+    >>> UniqueGreeter.from_greeter(MutableGreeter('es')) is UniqueGreeter('es')
+    True
+
+    >>> len({UniqueGreeter('en'), UniqueGreeter('es'), UniqueGreeter('en')})
+    2
+    >>> ug = UniqueGreeter('en')
+    >>> ug.lang
+    'en'
+    >>> ug.lang = 'es'
+    Traceback (most recent call last):
+        ...
+    AttributeError: property 'lang' of 'UniqueGreeter' object has no setter
+    >>> ug.lung = 'es'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'UniqueGreeter' object has no attribute 'lung'
+
+    These tests assume no other code in the process running the doctests has
+    created and *kept* references to UniqueGreeter instances:
+
+    >>> from palgoviz.testing import collect_if_not_ref_counting as coll
+    >>> coll(); UniqueGreeter.count_instances()
+    1
+    >>> ug1 = UniqueGreeter('en'); coll(); UniqueGreeter.count_instances()
+    1
+    >>> ug2 = UniqueGreeter('es'); coll(); UniqueGreeter.count_instances()
+    2
+    >>> del ug; coll(); UniqueGreeter.count_instances()
+    2
+    >>> ug1 = ug2; coll(); UniqueGreeter.count_instances()
+    1
+    >>> del ug1, ug2; coll(); UniqueGreeter.count_instances()
+    0
+
+    FIXME: After all doctests pass, move many into method docstrings.
+    """
+
+    __slots__ = ('__weakref__', '_lang',)
+
+    _lock = threading.Lock()
+    _table = weakref.WeakValueDictionary()
+
+    @staticmethod
+    def get_known_langs():
+        """Get known language codes."""
+        return tuple(_FORMATS)
+
+    @classmethod
+    def count_instances(cls):
+        """Return the number of currently existing instances."""
+        # In CPython, it would be okay to forgo this lock, because CPython's
+        # WeakValueDictionary delegates to an underlying dict, and basic dict
+        # operations, if they need not call into Python code, are atomic, due
+        # to the GIL. It would probably also be okay in any other current or
+        # future Python implementation: a WeakValueDictionary may lose items
+        # due to a refcount decrement or GC cycle running at any time on any
+        # thread, and it seems implausible that any strategy that allows len to
+        # be called while that is happening (as it must) would fail to allow it
+        # otherwise. Still, this isn't a documented guarantee, count_instances
+        # is rarely called (so it can be slow), and locking on len is safe from
+        # deadlock. So omitting the lock is, at best, a premature optimization.
+        with cls._lock:
+            return len(cls._table)
+
+    @classmethod
+    def from_greeter(cls, greeter):
+        """Create or retrieve the UniqueGreeter from a greeter."""
+        return cls(greeter.lang)
+
+    def __new__(cls, lang):
+        """Create or retrieve the UniqueGreeter from the language code."""
+        if lang not in _FORMATS:
+            raise ValueError(f'{lang} is an unrecognized language code.')
+
+        with cls._lock:
+            # We *must* use EAFP for this, since the instance could exist when
+            # checked, then be collected before being accessed by subscripting.
+            try:
+                instance = cls._table[lang]
+            except KeyError:
+                instance = super().__new__(cls)
+                instance._lang = lang
+                cls._table[lang] = instance
+
+        return instance
+
+    def __repr__(self):
+        """Representation of this UniqueGreeter as python code."""
+        return f"{type(self).__name__}({self.lang!r})"
+
+    def __call__(self, name):
+        """Greet a person by name."""
+        print(_FORMATS[self._lang].format(name))
+
+    @property
+    def lang(self):
+        """The language this UniqueGreeter will greet in."""
+        return self._lang
+
+
 def make_greeter(lang):
     """
     Make a function that greets by name in the language specified by lang.
@@ -399,7 +542,15 @@ def hello(name, lang='en'):
 
 
 def run():
-    """Run the doctests."""
+    """
+    Run the doctests.
+
+    This is usually called "main". But unlike in C, that is only a convention.
+    Also, when the logic to be done when the module is run as a script is as
+    simple as the body of this function, we more often put it directly under
+    the "if" check below (rather than in a function). Here, a function is used
+    to demonstrate the technique.
+    """
     import doctest
     doctest.testmod()
 

@@ -40,7 +40,7 @@ import sys
 
 import pytest
 
-from algoviz import gencomp2
+from palgoviz import gencomp2
 from tests import _helpers
 
 

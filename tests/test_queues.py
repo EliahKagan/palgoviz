@@ -8,7 +8,7 @@ import unittest
 
 from parameterized import parameterized
 
-from algoviz import compare, queues
+from palgoviz import compare, queues
 
 
 def _unannotated_argspec(func):

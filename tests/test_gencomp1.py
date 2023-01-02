@@ -11,7 +11,7 @@ import sys
 
 import pytest
 
-from algoviz import gencomp1
+from palgoviz import gencomp1
 from tests import _helpers
 
 
