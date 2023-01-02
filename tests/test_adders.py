@@ -8,7 +8,7 @@ import unittest
 import attrs
 from parameterized import parameterized
 
-from algoviz import adders
+from palgoviz import adders
 
 
 class _TestAddersAbstract(ABC, unittest.TestCase):

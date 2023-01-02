@@ -24,7 +24,7 @@ from typing import Any, NamedTuple
 
 import attrs
 
-from algoviz import bobcats
+from palgoviz import bobcats
 
 
 @attrs.frozen(order=True)  # Or: @attrs.define(frozen=True, order=True)
@@ -106,7 +106,7 @@ class GiantOtter:
 
     >>> from unittest.mock import patch
     >>> w = GiantOtter('William', 9000)
-    >>> with patch('algoviz.bobcats.FierceBobcat.FIERCENESS_CUTOFF', 8999):
+    >>> with patch('palgoviz.bobcats.FierceBobcat.FIERCENESS_CUTOFF', 8999):
     ...     w.pen_pal
     FierceBobcat(name='William', fierceness=9000)
     >>> w.pen_pal

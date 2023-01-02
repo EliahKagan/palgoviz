@@ -4,7 +4,7 @@
      title="Drawing of a nested tuple structure, from notebooks/object_graph.ipynb"
      width="350px">
 
-# algoviz
+# palgoviz
 
 This is a project to develop approaches and materials for teaching and learning
 Python together with algorithms and data structures, with a substantial
@@ -99,7 +99,7 @@ For commands that create and update the environment, `mamba` may be faster than
 3. Activate the environment:
 
     ```sh
-    conda activate algoviz
+    conda activate palgoviz
     ```
 
 4. Create an “editable install” in the environment:
@@ -135,7 +135,7 @@ recommended for updating the project:
 1. Activate the environment if it is not already active:
 
     ```sh
-    conda activate algoviz
+    conda activate palgoviz
     ```
 
 2. Update packages currently installed in the environment:
@@ -157,10 +157,10 @@ recommended for updating the project:
 ## What’s here?
 
 The most important and interesting parts of this project are the
-[`algoviz/`](#algoviz-1), [`tests/`](#tests), and [`notebooks/`](#notebooks)
+[`palgoviz/`](#palgoviz-1), [`tests/`](#tests), and [`notebooks/`](#notebooks)
 directories. Here’s a full list of directories:
 
-### `algoviz`
+### `palgoviz`
 
 This directory, not to be confused with the top-level repository directory,
 contains Python modules (`.py` files), other than test modules.
@@ -180,13 +180,13 @@ doctests.
 ### `notebooks`
 
 These are Jupyter notebooks showcasing Python and algorithms concepts, and
-often tying in with code in `algoviz`.
+often tying in with code in `palgoviz`.
 
 ### `math`
 
 These are Jupyter notebooks, and supporting image files, for illustrating some
 math concepts that are not specifically about code and that do not involve
-using or discussing any of the code in the `algoviz` package.
+using or discussing any of the code in the `palgoviz` package.
 
 ### `notes`
 
@@ -216,7 +216,7 @@ on the activity bar on the left). This configuration uses the `pytest` test
 runner, which is capable of running all tests in the project.
 
 If you use an IDE (which for this purpose includes VS Code), make sure to tell
-it that this project uses the `algoviz` conda environment, or verify that it
+it that this project uses the `palgoviz` conda environment, or verify that it
 has detected this.
 
 ### Running tests
@@ -224,11 +224,11 @@ has detected this.
 Tests can be run from VS Code or another IDE, but you may want to run them from
 a terminal (and they may run faster that way, too).
 
-To do that, first activate the `algoviz` Conda environment in your terminal if
+To do that, first activate the `palgoviz` Conda environment in your terminal if
 you haven’t already:
 
 ```sh
-conda activate algoviz
+conda activate palgoviz
 ```
 
 Make sure you are in the top-level directory (the directory that contains this
@@ -250,14 +250,14 @@ python -m unittest
 If you want to use the `doctest` test runner to run the doctests, you can:
 
 ```sh
-python -m doctest algoviz/*.py tests/*.py tests/*.txt
+python -m doctest palgoviz/*.py tests/*.py tests/*.txt
 ```
 
 That command is for a Unix-style shell. If you’re using Windows, you’re
 probably in PowerShell and should use:
 
 ```sh
-python -m doctest (gci algoviz/*.py) (gci tests/*.py) (gci tests/*.txt)
+python -m doctest (gci palgoviz/*.py) (gci tests/*.py) (gci tests/*.txt)
 ```
 
 The other commands are the same.
@@ -265,11 +265,11 @@ The other commands are the same.
 ### Using the notebooks
 
 JupyterLab is installed as a dependency of the project, and all notebooks are
-tested in it. First activate the `algoviz` Conda environment in your terminal
+tested in it. First activate the `palgoviz` Conda environment in your terminal
 if you haven’t already:
 
 ```sh
-conda activate algoviz
+conda activate palgoviz
 ```
 
 It is best to run JupyterLab from the top-level directory (the directory that
@@ -315,7 +315,7 @@ feature of its own.
 In particular, Visual Studio Code has [Visual Studio Live
 Share](https://visualstudio.microsoft.com/services/live-share/). We used this
 to develop substantial parts of this project. It was also a major part of how
-we reimplemented and discussed most of the code in the `algoviz` package to
+we reimplemented and discussed most of the code in the `palgoviz` package to
 check that it was in good shape to be (re)worked as exercises.
 
 ### Notebooks in VS Code
