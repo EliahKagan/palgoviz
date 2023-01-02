@@ -1,6 +1,6 @@
 """Simple examples of class hierarchies."""
 
-from algoviz import testing as _testing
+from palgoviz import testing as _testing
 
 
 class A(metaclass=_testing.ShortReprMeta):

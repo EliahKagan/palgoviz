@@ -14,7 +14,7 @@ generator functions that delegate traversal to general_dfs. That is done here.
 
 from greenlet import greenlet as _greenlet
 
-from algoviz import tree as _tree
+from palgoviz import tree as _tree
 
 
 def _adapt(produce):

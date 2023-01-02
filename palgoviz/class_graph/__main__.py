@@ -2,6 +2,6 @@
 
 import doctest
 
-from algoviz import class_graph
+from palgoviz import class_graph
 
 doctest.testmod(class_graph)

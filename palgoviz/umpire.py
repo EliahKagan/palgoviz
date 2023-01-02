@@ -20,7 +20,7 @@ import itertools
 
 import graphviz
 
-from algoviz import gencomp1
+from palgoviz import gencomp1
 
 
 def _do_draw_network(events):

@@ -12,8 +12,8 @@ import weakref
 
 from parameterized import parameterized
 
-from algoviz import testing
-from algoviz.sequences import Vec
+from palgoviz import testing
+from palgoviz.sequences import Vec
 from tests import _helpers
 
 

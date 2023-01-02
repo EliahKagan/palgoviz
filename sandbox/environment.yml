@@ -1,4 +1,4 @@
-name: algoviz-sandbox
+name: palgoviz-sandbox
 
 channels:
   - conda-forge

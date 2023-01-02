@@ -13,8 +13,8 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
-from algoviz import enumerations, tree
-from algoviz.tree.examples import (
+from palgoviz import enumerations, tree
+from palgoviz.tree.examples import (
     almost_bst,
     basic,
     bilateral,
@@ -457,7 +457,7 @@ class _Spy:
     ...     basic.small(tree.Node)
     Node(1, Node(2, Node(4), Node(5)), Node(3, Node(6), Node(7)))
     >>> tree.Node
-    <class 'algoviz.tree.Node'>
+    <class 'palgoviz.tree.Node'>
     >>> spy.call_count
     7
     """

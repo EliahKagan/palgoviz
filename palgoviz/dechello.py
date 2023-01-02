@@ -2,7 +2,7 @@
 
 __all__ = ['greet', 'hello']
 
-from algoviz.decorators import call, peek_arg
+from palgoviz.decorators import call, peek_arg
 
 
 @peek_arg

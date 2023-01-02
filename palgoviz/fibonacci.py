@@ -12,7 +12,7 @@ import itertools
 
 import graphviz
 
-from algoviz.caching import memoize
+from palgoviz.caching import memoize
 
 
 def fibonacci(n):

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "algoviz"
+name = "palgoviz"
 version = "0.1.0"
 description = ""
 authors = [
@@ -16,8 +16,8 @@ more-itertools = "^9.0.0"
 sympy = "^1.11.1"
 
 [tool.poetry.group.notebook.dependencies]
-ipython = "^8.6.0"
-jupyterlab = "^3.5.0"
+ipython = "^8.7.0"
+jupyterlab = "^3.5.2"
 nbdime = "^3.1.1"
 
 [tool.poetry.group.test.dependencies]
@@ -27,12 +27,16 @@ pytest = "^7.2.0"
 pytest-subtests = "^0.9.0"
 
 [tool.poetry.group.analyzers.dependencies]
-flake8 = "^5.0.4"
-isort = "^5.10.1"
+flake8-pyproject = "^1.2.2"
+isort = "^5.11.4"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+extend-exclude = [".ipynb_checkpoints/"]
+extend-ignore = ["E228"]
 
 [tool.isort]
 atomic = true

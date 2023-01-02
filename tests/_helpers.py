@@ -3,12 +3,12 @@ Shared test helpers.
 
 These are test helpers that multiple test modules use, or that otherwise should
 not appear in any particular test module, but that are implementation details
-of the test suite itself. That is to say that they are not used in the algoviz
+of the test suite itself. That is to say that they are not used in the palgoviz
 package, not even in doctests there (though they may be used in doctests in any
 files in tests/, of course), and they are not intended for use in notebooks.
 
 Shared test helpers that are not considered private implementation details of
-the test suite appear in algoviz.testing instead of this nonpublic module.
+the test suite appear in palgoviz.testing instead of this nonpublic module.
 """
 
 
@@ -130,6 +130,17 @@ class NonSelfEqual:
     def __eq__(self, _):
         """A NonSelfEqual instance is never equal to anything, even itself."""
         return False
+
+    def __hash__(self):
+        """
+        Provide consistent but deliberately poor quality hashing.
+
+        For performance, we should just use __hash__ = object.__hash__, or
+        otherwise hash based on the id. But it is more important to test that
+        separate instances will not wrongly match, so force a hash collision
+        every time by every instance having the same arbitrary hash code.
+        """
+        return -9977361389391351282
 
 
 __all__ = [thing.__name__ for thing in (

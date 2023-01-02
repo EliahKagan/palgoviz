@@ -9,7 +9,7 @@ import weakref
 
 from parameterized import parameterized
 
-from algoviz import compare, queues, testing
+from palgoviz import compare, queues, testing
 from tests import _helpers
 
 

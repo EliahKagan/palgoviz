@@ -22,7 +22,7 @@ import unittest
 
 from parameterized import parameterized
 
-from algoviz.mappings import (
+from palgoviz.mappings import (
     BinarySearchTree,
     DirectAddressTable,
     HashTable,
