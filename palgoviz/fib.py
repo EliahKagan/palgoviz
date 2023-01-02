@@ -10,7 +10,7 @@ Usage:
 
 Example:
 
-    > python algoviz/fib.py 10
+    > python palgoviz/fib.py 10
     0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
 
 For other Fibonacci code, see fibonacci.py, which defines the fib_n function
@@ -19,7 +19,7 @@ this script uses. See also the visualizations in subproblems.ipynb.
 
 import sys
 
-from algoviz.fibonacci import fib_n
+from palgoviz.fibonacci import fib_n
 
 
 def _show_message(prefix, message):

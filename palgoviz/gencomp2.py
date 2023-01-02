@@ -2219,7 +2219,7 @@ def my_chain(*iterables):
     [10, 20, 30, 11, 22, 33]
     >>> list(my_chain.from_iterable(() for _ in range(1000)))
     []
-    >>> from algoviz.gencomp1 import windowed
+    >>> from palgoviz.gencomp1 import windowed
     >>> list(my_chain.from_iterable(windowed(range(10), 3)))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
 
@@ -2260,7 +2260,7 @@ class Chain:
     [10, 20, 30, 11, 22, 33]
     >>> list(Chain.from_iterable(() for _ in range(1000)))
     []
-    >>> from algoviz.gencomp1 import windowed
+    >>> from palgoviz.gencomp1 import windowed
     >>> list(Chain.from_iterable(windowed(range(10), 3)))
     [0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 8, 7, 8, 9]
 
