@@ -8,8 +8,8 @@ import unittest
 
 from parameterized import parameterized, parameterized_class
 
-from algoviz.compare import OrderIndistinct, Patient, WeakDiamond
-from algoviz.recursion import (
+from palgoviz.compare import OrderIndistinct, Patient, WeakDiamond
+from palgoviz.recursion import (
     insort_left_linear,
     insort_right_linear,
     merge_sort,

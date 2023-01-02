@@ -14,7 +14,7 @@ import weakref
 
 from parameterized import param, parameterized, parameterized_class
 
-from algoviz import context, enumerations
+from palgoviz import context, enumerations
 
 
 class _FakeError(Exception):
