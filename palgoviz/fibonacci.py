@@ -10,7 +10,7 @@ For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 
 import itertools
 
-from algoviz.caching import memoize
+from palgoviz.caching import memoize
 
 
 def fibonacci(n):
