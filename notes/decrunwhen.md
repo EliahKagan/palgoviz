@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # Decorators run once per decorated definition.
 
 Decorators are only called when decorated functions are *defined*.

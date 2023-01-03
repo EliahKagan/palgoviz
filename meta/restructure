@@ -1,19 +1,38 @@
 #!/usr/bin/env bash
 
-# This script proposes, and also can be used to perform much of, a particular
-# restructuring of the project. Besides documenting and making "trunk" changes,
-# it should help in patching multiple feature branches. This is important
-# because we have many branches, and some changes may be hard to apply just by
-# merging and solving merge conflicts. The effects of this script must always
-# be inspected before being committed, and some changes must be done manually.
+# Copyright (c) 2022 Eliah Kagan
 #
-# Run "meta/restructure help" for a brief summary of recommended use. For
-# detailed suggestions, including branch management, see meta/restructure.md.
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
 #
-# This script is compatible with Windows, but only if it is run from Git Bash.
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
+# This script proposed, and also was used to perform much of, a restructuring
+# of the project, changing our old flat structure to a better organized (and
+# more traditional) one. Besides documenting and making "trunk" changes, this
+# script helped in patching multiple feature branches. This was important
+# because we have many branches; some changes would've been hard to apply just
+# by merging and solving merge conflicts.
 #
-# Before committing or even testing ANY changes to this script, it should be
-# checked with ShellCheck. Running "shellcheck meta/restructure" will do this.
+# This script's effects must always be inspected before being committed, and
+# some changes must be done manually. This script is compatible wih Windows,
+# but only if it is run from Git Bash. Note also that the project was called
+# "algoviz" instead of "palgoviz" at the time this script was written and used.
+# So if it is to be adapted and used again, changes will have to be made to
+# reflect the correct project name, even if the reuse is in this project. When
+# modifying this script, it is recommended to test all changes with ShellCheck.
+# Running "shellcheck meta/restructure" does this, if ShellCheck is installed.
+#
+# Run "meta/restructure help" for usage information. All our useful feature
+# branches have already been restructured, so it is undetermined if, or for how
+# long, this script will be retained. However, if it is removed, it should
+# still be accessible in the commit history of the repository.
 
 set -e -o pipefail
 shopt -s extglob failglob globstar

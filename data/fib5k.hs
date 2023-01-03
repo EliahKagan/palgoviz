@@ -1,4 +1,5 @@
 -- Generate the first 5000 Fibonacci numbers, F(0) to F(4999).
+-- SPDX-License-Identifier: 0BSD
 
 fibonacci :: Integer -> Integer
 
