@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 More generators and comprehensions.
 
@@ -8,6 +21,41 @@ See also gencomp1.py and fibonacci.py.
 Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
+
+__all__ = [
+    'empty',
+    'product_two',
+    'product_two_alt',
+    'product_two_flexible',
+    'pairs',
+    'ascending_countdowns',
+    'ascending_countdowns_alt',
+    'three_sums',
+    'three_sums_alt',
+    'three_sum_indices_1',
+    'three_sum_indices_2',
+    'three_sum_indices_3',
+    'three_sum_indices_4',
+    'dot_product_slow',
+    'dot_product',
+    'flatten2',
+    'ungroup',
+    'make_mul_table',
+    'compose_dicts_simple',
+    'compose_dicts',
+    'compose_dicts_view',
+    'matrix_square_flat',
+    'matrix_square_nested',
+    'transpose',
+    'transpose_alt',
+    'affines',
+    'Affine',
+    'affines_alt',
+    'AffineA',
+    'affines_alt_a',
+    'my_cycle',
+    'my_chain',
+]
 
 from collections import deque
 from collections.abc import Iterable
@@ -1017,42 +1065,6 @@ def my_chain(*iterables):
 
 
 my_chain.from_iterable = _from_iterable
-
-
-__all__ = [thing.__name__ for thing in (
-    empty,
-    product_two,
-    product_two_alt,
-    product_two_flexible,
-    pairs,
-    ascending_countdowns,
-    ascending_countdowns_alt,
-    three_sums,
-    three_sums_alt,
-    three_sum_indices_1,
-    three_sum_indices_2,
-    three_sum_indices_3,
-    three_sum_indices_4,
-    dot_product_slow,
-    dot_product,
-    flatten2,
-    ungroup,
-    make_mul_table,
-    compose_dicts_simple,
-    compose_dicts,
-    compose_dicts_view,
-    matrix_square_flat,
-    matrix_square_nested,
-    transpose,
-    transpose_alt,
-    affines,
-    Affine,
-    affines_alt,
-    AffineA,
-    affines_alt_a,
-    my_cycle,
-    my_chain,
-)]
 
 
 if __name__ == '__main__':

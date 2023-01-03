@@ -29,7 +29,6 @@ dependencies:
   - isort
   - mypy>=0.940
   - pyright
-  - shellcheck
 
   # Some dependencies have no conda packages and so must be obtained from PyPI.
   - pip

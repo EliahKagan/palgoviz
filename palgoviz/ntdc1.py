@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2022 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Named tuples and data classes, part 1 of 2: a tour of some important ways.
 
@@ -41,6 +54,61 @@ A goal of this module is to show alternatives, so code is freely duplicated
 across functions, and across classes, when sharing it would obscure anything or
 make any alternative less self contained -- except where noted otherwise.
 """
+
+__all__ = [
+    'summarize_as_tuple',
+    'summarize_as_dict',
+    'summarize_as_simple_namespace',
+    'MyMutableSummary',
+    'summarize_as_mutable',
+    'MyMutableSummaryUnpack',
+    'summarize_as_mutable_unpack',
+    'MyFrozenSummary',
+    'summarize_as_frozen',
+    'MyFrozenSummaryUnpack',
+    'summarize_as_frozen_unpack',
+    'MyNamedTupleSummary',
+    'summarize_as_manual_named_tuple',
+    'NamedTupleSummary',
+    'summarize_as_named_tuple',
+    'TypedNamedTupleSummary',
+    'summarize_as_typed_named_tuple',
+    'summarize_as_typed_named_tuple_typed',
+    'FrozenSummary',
+    'summarize_as_frozen_attrs',
+    'TypedFrozenSummary',
+    'summarize_as_typed_frozen_attrs',
+    'MutableSummary',
+    'summarize_as_mutable_attrs',
+    'TypedMutableSummary',
+    'summarize_as_typed_mutable_attrs',
+    'summarize_as_tuple_alt',
+    'summarize_as_dict_alt',
+    'FrozenSummaryNoSlots',
+    'summarize_as_frozen_attrs_no_slots',
+    'MutableSummaryNoSlots',
+    'summarize_as_mutable_attrs_no_slots',
+    'FrozenSummaryUnpack',
+    'summarize_as_frozen_attrs_unpack',
+    'MutableSummaryUnpack',
+    'summarize_as_mutable_attrs_unpack',
+    'MutableSummaryClassic',
+    'summarize_as_classic_attrs',
+    'FrozenSummaryClassic',
+    'summarize_as_classic_frozen_attrs',
+    'FrozenSummaryClassicSlotted',
+    'summarize_as_classic_frozen_attrs_slotted',
+    'FrozenSummaryClassicLikeModern',
+    'summarize_as_classic_frozen_attrs_like_modern',
+    'FrozenSummaryOrdered',
+    'summarize_as_frozen_attrs_ordered',
+    'MutableSummaryOrdered',
+    'summarize_as_mutable_attrs_ordered',
+    'MutableSummaryDC',
+    'summarize_as_mutable_dc',
+    'FrozenSummaryDC',
+    'summarize_as_frozen_dc',
+]
 
 import collections
 from collections.abc import Iterable
@@ -2919,62 +2987,6 @@ def summarize_as_frozen_dc(
         geometric_mean=round(product**(1 / count), precision),
         harmonic_mean=round(count / reciprocals_total, precision),
     )
-
-
-__all__ = [thing.__name__ for thing in (  # type: ignore[attr-defined]
-    summarize_as_tuple,
-    summarize_as_dict,
-    summarize_as_simple_namespace,
-    MyMutableSummary,
-    summarize_as_mutable,
-    MyMutableSummaryUnpack,
-    summarize_as_mutable_unpack,
-    MyFrozenSummary,
-    summarize_as_frozen,
-    MyFrozenSummaryUnpack,
-    summarize_as_frozen_unpack,
-    MyNamedTupleSummary,
-    summarize_as_manual_named_tuple,
-    NamedTupleSummary,
-    summarize_as_named_tuple,
-    TypedNamedTupleSummary,
-    summarize_as_typed_named_tuple,
-    summarize_as_typed_named_tuple_typed,
-    FrozenSummary,
-    summarize_as_frozen_attrs,
-    TypedFrozenSummary,
-    summarize_as_typed_frozen_attrs,
-    MutableSummary,
-    summarize_as_mutable_attrs,
-    TypedMutableSummary,
-    summarize_as_typed_mutable_attrs,
-    summarize_as_tuple_alt,
-    summarize_as_dict_alt,
-    FrozenSummaryNoSlots,
-    summarize_as_frozen_attrs_no_slots,
-    MutableSummaryNoSlots,
-    summarize_as_mutable_attrs_no_slots,
-    FrozenSummaryUnpack,
-    summarize_as_frozen_attrs_unpack,
-    MutableSummaryUnpack,
-    summarize_as_mutable_attrs_unpack,
-    MutableSummaryClassic,
-    summarize_as_classic_attrs,
-    FrozenSummaryClassic,
-    summarize_as_classic_frozen_attrs,
-    FrozenSummaryClassicSlotted,
-    summarize_as_classic_frozen_attrs_slotted,
-    FrozenSummaryClassicLikeModern,
-    summarize_as_classic_frozen_attrs_like_modern,
-    FrozenSummaryOrdered,
-    summarize_as_frozen_attrs_ordered,
-    MutableSummaryOrdered,
-    summarize_as_mutable_attrs_ordered,
-    MutableSummaryDC,
-    summarize_as_mutable_dc,
-    FrozenSummaryDC,
-    summarize_as_frozen_dc,
-)]
 
 
 if __name__ == '__main__':
