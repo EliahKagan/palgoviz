@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Functions used in subproblems_wip.ipynb. Extracted from recursion.py.
 
@@ -11,6 +24,14 @@ But some of the drawings those exercises produced are interesting and
 illuminating, so for now, subproblems_wip.ipynb is retained, modified to use
 the functions it said to add to recursion.py from this module instead.
 """
+
+__all__ = [
+    'observe_node',
+    'observe_edge_verbose',
+    'merge_sort_observed',
+    'merge_sort_bottom_up_unstable_observed',
+    'merge_sort_bottom_up_observed',
+]
 
 import collections
 
@@ -196,15 +217,6 @@ def merge_sort_bottom_up_observed(values, *, merge=merge_two,
             sham_primary.append(sham_secondary.popleft())
 
     return primary[0]
-
-
-__all__ = [thing.__name__ for thing in (
-    observe_node,
-    observe_edge_verbose,
-    merge_sort_observed,
-    merge_sort_bottom_up_unstable_observed,
-    merge_sort_bottom_up_observed,
-)]
 
 
 if __name__ == '__main__':
