@@ -1,5 +1,8 @@
+=============================
 Old decorators.py doctests
-==========================
+
+SPDX-License-Identifier: 0BSD
+=============================
 
     >>> import functools
 

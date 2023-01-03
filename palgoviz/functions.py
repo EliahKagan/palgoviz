@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Examples demonstrating language features and techniques for functions.
 
@@ -16,6 +29,29 @@ higher-order functions is in composers.py or decorators.py. Most material on
 generator functions is in gencomp1.ipynb, gencomp2.ipynb, gencomp3.ipynb,
 gencomp1.py, and gencomp2.py, with related material in iterators.py.
 """
+
+__all__ = [
+    'make_counter',
+    'make_counter_alt',
+    'make_next_fibonacci',
+    'make_next_fibonacci_alt',
+    'as_func',
+    'as_func_limited',
+    'as_func_limited_alt',
+    'as_iterator_limited',
+    'as_iterator_limited_alt',
+    'as_iterator',
+    'as_iterator_alt',
+    'count_tree_nodes',
+    'count_tree_nodes_alt',
+    'count_tree_nodes_instrumented',
+    'report_attributes',
+    'as_closeable_func',
+    'as_closeable_func_limited',
+    'as_closeable_iterator_limited',
+    'as_closeable_iterator',
+    'func_filter',
+]
 
 import itertools
 
@@ -645,30 +681,6 @@ def func_filter(predicate, func, end_sentinel):
         return end_sentinel
 
     return filtered
-
-
-__all__ = [thing.__name__ for thing in (
-    make_counter,
-    make_counter_alt,
-    make_next_fibonacci,
-    make_next_fibonacci_alt,
-    as_func,
-    as_func_limited,
-    as_func_limited_alt,
-    as_iterator_limited,
-    as_iterator_limited_alt,
-    as_iterator,
-    as_iterator_alt,
-    count_tree_nodes,
-    count_tree_nodes_alt,
-    count_tree_nodes_instrumented,
-    report_attributes,
-    as_closeable_func,
-    as_closeable_func_limited,
-    as_closeable_iterator_limited,
-    as_closeable_iterator,
-    func_filter,
-)]
 
 
 if __name__ == '__main__':

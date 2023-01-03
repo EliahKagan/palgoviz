@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Searching.
 
@@ -53,6 +66,52 @@ Documentation within this module uses these conventions and simplifications:
    ints take time linear in their operands' representation lengths, which is
    logarithmic (rather than constant) in their operands' magnitudes.
 """
+
+__all__ = [
+    'bsearch',
+    'bsearch_alt',
+    'first_satisfying_recursive',
+    'first_satisfying',
+    'first_satisfying_restricted',
+    'my_bisect_left',
+    'my_bisect_right',
+    'my_bisect_left_recursive_simple',
+    'my_bisect_left_iterative_simple',
+    'my_bisect_right_recursive_simple',
+    'my_bisect_right_iterative_simple',
+    'my_bisect_left_recursive',
+    'my_bisect_left_iterative',
+    'my_bisect_right_recursive',
+    'my_bisect_right_iterative',
+    'make_insort',
+    'my_insort_left',
+    'my_insort_right',
+    'two_sum_slow',
+    'two_sum_slow_alt',  # NOTE: May be temporarily or permanently removed.
+    'two_sum_fast',
+    'two_sum_sorted',
+    'two_sum_sorted_alt',  # NOTE: May be temporarily or permanently removed.
+    'two_sum_nohash',
+    'two_sum_nohash_alt',  # NOTE: May be temporarily or permanently removed.
+    'two_sum_nohash_alt2',  # NOTE: May be temporarily or permanently removed.
+    'two_sum_int_narrow',
+    'two_sum_int',
+    'has_subset_sum_slow',
+    'has_subset_sum',
+    'has_subset_sum_alt',
+    'count_coin_change_slow',
+    'count_coin_change',
+    'count_coin_change_alt',
+    'can_escape_forest',
+    'min_forest_escape_stamina',
+    'find_av_winner',
+    'count_av_a_wins',
+    'find_imd_winner',
+    'count_n_queens_solutions',
+    'solve_boggle',
+    'solve_boggle_alt',  # NOTE: May be temporarily or permanently removed.
+    'solve_boggle_alt2',  # NOTE: May be temporarily or permanently removed.
+]
 
 import bisect
 import collections
@@ -2573,53 +2632,6 @@ def solve_boggle_alt2(board, words):
     FIXME: Needs a bigger test (as above in solve_boggle and solve_boggle_alt).
     """
     return _do_solve_boggle_alt2([list(row) for row in board], sorted(words))
-
-
-__all__ = [thing.__name__ for thing in (
-    bsearch,
-    bsearch_alt,
-    first_satisfying_recursive,
-    first_satisfying,
-    first_satisfying_restricted,
-    my_bisect_left,
-    my_bisect_right,
-    my_bisect_left_recursive_simple,
-    my_bisect_left_iterative_simple,
-    my_bisect_right_recursive_simple,
-    my_bisect_right_iterative_simple,
-    my_bisect_left_recursive,
-    my_bisect_left_iterative,
-    my_bisect_right_recursive,
-    my_bisect_right_iterative,
-    make_insort,
-    my_insort_left,
-    my_insort_right,
-    two_sum_slow,
-    two_sum_slow_alt,  # NOTE: May be temporarily or permanently removed.
-    two_sum_fast,
-    two_sum_sorted,
-    two_sum_sorted_alt,  # NOTE: May be temporarily or permanently removed.
-    two_sum_nohash,
-    two_sum_nohash_alt,  # NOTE: May be temporarily or permanently removed.
-    two_sum_nohash_alt2,  # NOTE: May be temporarily or permanently removed.
-    two_sum_int_narrow,
-    two_sum_int,
-    has_subset_sum_slow,
-    has_subset_sum,
-    has_subset_sum_alt,
-    count_coin_change_slow,
-    count_coin_change,
-    count_coin_change_alt,
-    can_escape_forest,
-    min_forest_escape_stamina,
-    find_av_winner,
-    count_av_a_wins,
-    find_imd_winner,
-    count_n_queens_solutions,
-    solve_boggle,
-    solve_boggle_alt,  # NOTE: May be temporarily or permanently removed.
-    solve_boggle_alt2,  # NOTE: May be temporarily or permanently removed.
-)]
 
 
 if __name__ == '__main__':

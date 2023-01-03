@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # Meta - administrative work in progress
 
 This directory contains material that is about work on the project rather than
