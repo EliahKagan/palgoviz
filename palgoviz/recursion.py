@@ -1,10 +1,75 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Some recursion examples (and a few related iterative implementations).
 
 See also object_graph.py.
 """
+
+__all__ = [
+    'countdown',
+    'semifactorial',
+    'semifactorial_tail',
+    'semifactorial_iterative',
+    'semifactorial_good',
+    'semifactorial_reduce',
+    'digit_sum',
+    'digit_sum_tail',
+    'digit_sum_iterative',
+    'add_all_iterative',
+    'add_all_slow',
+    'add_all',
+    'linear_search_good',
+    'linear_search_iterative',
+    'linear_search_iterative_alt',
+    'linear_search',
+    'binary_search',
+    'binary_search_iterative',
+    'binary_search_alt',
+    'binary_search_iterative_alt',
+    'binary_search_slow',
+    'binary_search_good',
+    'binary_insertion_sort',
+    'binary_insertion_sort_recursive',
+    'binary_insertion_sort_recursive_alt',
+    'insort_left_linear',
+    'insort_right_linear',
+    'insertion_sort',
+    'insertion_sort_recursive',
+    'insertion_sort_recursive_alt',
+    'merge_two_slow',
+    'merge_two',
+    'merge_two_alt',
+    'merge_sort',
+    'merge_sort_bottom_up_unstable',
+    'merge_sort_bottom_up',
+    'make_deep_tuple',
+    'nest',
+    'nest_iterative',
+    'observe_edge',
+    'flatten',
+    'flatten_observed',
+    'flatten_iterative',
+    'flatten_iterative_observed',
+    'flatten_levelorder',
+    'flatten_levelorder_observed',
+    'leaf_sum',
+    'leaf_sum_alt',
+    'leaf_sum_dec',
+]
 
 import bisect
 import collections
@@ -1560,59 +1625,6 @@ def leaf_sum_dec(root):
         return sum(traverse(child) for child in parent)
 
     return traverse(root)
-
-
-__all__ = [thing.__name__ for thing in (
-    countdown,
-    semifactorial,
-    semifactorial_tail,
-    semifactorial_iterative,
-    semifactorial_good,
-    semifactorial_reduce,
-    digit_sum,
-    digit_sum_tail,
-    digit_sum_iterative,
-    add_all_iterative,
-    add_all_slow,
-    add_all,
-    linear_search_good,
-    linear_search_iterative,
-    linear_search_iterative_alt,
-    linear_search,
-    binary_search,
-    binary_search_iterative,
-    binary_search_alt,
-    binary_search_iterative_alt,
-    binary_search_slow,
-    binary_search_good,
-    binary_insertion_sort,
-    binary_insertion_sort_recursive,
-    binary_insertion_sort_recursive_alt,
-    insort_left_linear,
-    insort_right_linear,
-    insertion_sort,
-    insertion_sort_recursive,
-    insertion_sort_recursive_alt,
-    merge_two_slow,
-    merge_two,
-    merge_two_alt,
-    merge_sort,
-    merge_sort_bottom_up_unstable,
-    merge_sort_bottom_up,
-    make_deep_tuple,
-    nest,
-    nest_iterative,
-    observe_edge,
-    flatten,
-    flatten_observed,
-    flatten_iterative,
-    flatten_iterative_observed,
-    flatten_levelorder,
-    flatten_levelorder_observed,
-    leaf_sum,
-    leaf_sum_alt,
-    leaf_sum_dec,
-)]
 
 
 if __name__ == '__main__':

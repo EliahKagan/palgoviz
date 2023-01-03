@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # Usage suggestions for `restructure`
 
 To restructure a “stable” branch—one that is not a feature branch off a “trunk”
