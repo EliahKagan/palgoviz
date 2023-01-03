@@ -26,8 +26,8 @@ particular, classroom use is not currently a focus.
 
 ## License
 
-This project is licensed under [0BSD](https://spdx.org/licenses/0BSD.html) (the
-BSD Zero Clause License). See [**`LICENSE`**](LICENSE).
+palgoviz is licensed under [0BSD](https://spdx.org/licenses/0BSD.html) (the BSD
+Zero Clause License). See [**`LICENSE`**](LICENSE).
 
 0BSD is a [“public-domain
 equivalent”](https://en.wikipedia.org/wiki/Public-domain-equivalent_license)
@@ -45,6 +45,11 @@ branch. But the process of developing the exercises, and various approaches to
 working them—including exploration of bugs, both intentional and accidental—may
 be of interest. Although that older content may be less useful, we want to make
 clear that its use is in no way restricted.
+
+## Authors
+
+palgoviz is written by [David Vassallo](https://github.com/dmvassallo) and
+[Eliah Kagan](https://github.com/EliahKagan).
 
 ## Installation
 

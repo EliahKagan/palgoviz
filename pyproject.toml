@@ -6,6 +6,10 @@ authors = [
     "David Vassallo <vassallo.davidm@gmail.com>",
     "Eliah Kagan <degeneracypressure@gmail.com>",
 ]
+maintainers = [
+    "Eliah Kagan <degeneracypressure@gmail.com>",
+    "David Vassallo <vassallo.davidm@gmail.com>",
+]
 license = "0BSD"
 readme = "doc/dist-readme.md"  # NB: That's for PyPI. Main readme is README.md.
 homepage = "https://github.com/EliahKagan/palgoviz"
