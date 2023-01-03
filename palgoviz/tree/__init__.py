@@ -1,3 +1,16 @@
+# Copyright (c) 2022 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Binary trees.
 
@@ -43,6 +56,54 @@ Finally, two general design notes:
    for recursive functions in this module to be limited in this way (even when
    their descriptions do not insist they be implemented recursively).
 """
+
+__all__ = [
+    'examples',
+    'green',
+    'lazy',
+    'Node',
+    'FrozenNode',
+    'preorder',
+    'inorder',
+    'postorder',
+    'general_dfs',
+    'levelorder',
+    'preorder_iterative',
+    'size',
+    'size_recursive',
+    'size_iterative',
+    'height',
+    'height_iterative',
+    'height_iterative_alt',
+    'copy',
+    'copy_iterative',
+    'structural_equal',
+    'structural_equal_iterative',
+    'reflect_in_place',
+    'reflect_in_place_iterative',
+    'is_own_reflection',
+    'is_own_reflection_iterative',
+    'draw',
+    'draw_iterative',
+    'linear_search',
+    'linear_search_iterative',
+    'linear_search_mindepth',
+    'linear_search_mindepth_alt',
+    'nearest_ancestor',
+    'is_bst',
+    'is_bst_alt',
+    'is_bst_iterative',
+    'binary_search',
+    'binary_search_iterative',
+    'binary_insert',
+    'binary_insert_iterative',
+    'build_bst',
+    'tree_sort',
+    'find_subtree',
+    'find_subtree_fast',
+    'copy_compact',
+    'draw_extended',
+]
 
 import collections
 import contextlib
@@ -1259,52 +1320,3 @@ def draw_extended(root, dag=False):
     point nodes, and a graphviz.Digraph is returned.
     """
     return _draw_extended_dag(root) if dag else _draw_extended_faded(root)
-
-
-__all__ = [thing.__name__.split('.')[-1] for thing in (
-    examples,
-    green,
-    lazy,
-    Node,
-    FrozenNode,
-    preorder,
-    inorder,
-    postorder,
-    general_dfs,
-    levelorder,
-    preorder_iterative,
-    size,
-    size_recursive,
-    size_iterative,
-    height,
-    height_iterative,
-    height_iterative_alt,
-    copy,
-    copy_iterative,
-    structural_equal,
-    structural_equal_iterative,
-    reflect_in_place,
-    reflect_in_place_iterative,
-    is_own_reflection,
-    is_own_reflection_iterative,
-    draw,
-    draw_iterative,
-    linear_search,
-    linear_search_iterative,
-    linear_search_mindepth,
-    linear_search_mindepth_alt,
-    nearest_ancestor,
-    is_bst,
-    is_bst_alt,
-    is_bst_iterative,
-    binary_search,
-    binary_search_iterative,
-    binary_insert,
-    binary_insert_iterative,
-    build_bst,
-    tree_sort,
-    find_subtree,
-    find_subtree_fast,
-    copy_compact,
-    draw_extended,
-)]

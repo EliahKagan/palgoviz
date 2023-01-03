@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # Theory behind `tree.green`
 
 `tree.general_dfs` is a recursive

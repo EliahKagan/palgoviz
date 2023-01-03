@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Some recursion examples (and a few related iterative implementations).
 
@@ -33,6 +46,53 @@ structure. Surprisingly, the result is not quite depth-first, except in trees.
 See https://11011110.github.io/blog/2013/12/17/stack-based-graph-traversal.html
 by David Eppstein for further reading on that issue.
 """
+
+__all__ = [
+    'countdown',
+    'add_all_iterative',
+    'add_all_slow',
+    'add_all',
+    'linear_search_good',
+    'linear_search_iterative',
+    'linear_search_iterative_alt',
+    'linear_search',
+    'binary_search',
+    'binary_search_iterative',
+    'binary_search_alt',
+    'binary_search_iterative_alt',
+    'binary_search_slow',
+    'binary_search_good',
+    'binary_insertion_sort',
+    'binary_insertion_sort_recursive',
+    'binary_insertion_sort_recursive_alt',
+    'insort_left_linear',
+    'insort_right_linear',
+    'insertion_sort',
+    'insertion_sort_recursive',
+    'insertion_sort_recursive_alt',
+    'merge_two_slow',
+    'merge_two',
+    'merge_two_alt',
+    'merge_sort',
+    'merge_sort_bottom_up_unstable',
+    'merge_sort_bottom_up',
+    'make_deep_tuple',
+    'nest',
+    'observe_edge',
+    'flatten',
+    'flatten_observed',
+    'flatten_iterative',
+    'flatten_iterative_observed',
+    'flatten_levelorder',
+    'flatten_levelorder_observed',
+    'leaf_sum',
+    'leaf_sum_alt',
+    'leaf_sum_dec',
+    'bst_count_simple',
+    'bst_count',
+    'bst_count_iterative',
+    'bst_count_fast',
+]
 
 import bisect
 import collections
@@ -1546,54 +1606,6 @@ def bst_count_fast(n):
     16796
     """
     return math.comb(n * 2, n) // (n + 1)  # Compute the Catalan number C_n.
-
-
-__all__ = [thing.__name__ for thing in (
-    countdown,
-    add_all_iterative,
-    add_all_slow,
-    add_all,
-    linear_search_good,
-    linear_search_iterative,
-    linear_search_iterative_alt,
-    linear_search,
-    binary_search,
-    binary_search_iterative,
-    binary_search_alt,
-    binary_search_iterative_alt,
-    binary_search_slow,
-    binary_search_good,
-    binary_insertion_sort,
-    binary_insertion_sort_recursive,
-    binary_insertion_sort_recursive_alt,
-    insort_left_linear,
-    insort_right_linear,
-    insertion_sort,
-    insertion_sort_recursive,
-    insertion_sort_recursive_alt,
-    merge_two_slow,
-    merge_two,
-    merge_two_alt,
-    merge_sort,
-    merge_sort_bottom_up_unstable,
-    merge_sort_bottom_up,
-    make_deep_tuple,
-    nest,
-    observe_edge,
-    flatten,
-    flatten_observed,
-    flatten_iterative,
-    flatten_iterative_observed,
-    flatten_levelorder,
-    flatten_levelorder_observed,
-    leaf_sum,
-    leaf_sum_alt,
-    leaf_sum_dec,
-    bst_count_simple,
-    bst_count,
-    bst_count_iterative,
-    bst_count_fast,
-)]
 
 
 if __name__ == '__main__':

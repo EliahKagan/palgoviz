@@ -1,3 +1,16 @@
+# Copyright (c) 2022 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Simple, BST-based, and hash-based mutable mappings.
 
@@ -62,6 +75,14 @@ design and implement other functionality, you can devise an elegant approach to
 these issues, avoiding duplicate logic. If you choose to proceed this way, make
 this note a fixme. Once all requirements are met, remove this note entirely.
 """
+
+__all__ = [
+    'UnsortedFlatTable',
+    'SortedFlatTable',
+    'BinarySearchTree',
+    'DirectAddressTable',
+    'HashTable',
+]
 
 from abc import abstractmethod
 import bisect
@@ -1154,12 +1175,3 @@ class HashTable(_FastIteratingMapping, MutableMapping):
                                    math.floor(self._target_bucket_count))
             if new_bucket_count < len(self._buckets):
                 self._rehash(new_bucket_count)
-
-
-__all__ = [thing.__name__ for thing in (
-    UnsortedFlatTable,
-    SortedFlatTable,
-    BinarySearchTree,
-    DirectAddressTable,
-    HashTable,
-)]

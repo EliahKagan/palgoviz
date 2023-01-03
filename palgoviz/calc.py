@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Calculator and expression trees.
 
@@ -68,6 +81,15 @@ equality comparison. But at least for now, Atom and Compound objects use
 reference-based equality comparison, comparing equal only to themselves. This
 is to avoid hiding how much (and what) work tree-processing code is doing.
 """
+
+__all__ = [
+    'postfix_calculate',
+    'Atom',
+    'Compound',
+    'postfix_parse',
+    'postfix_serialize_fast',
+    'draw',
+]
 
 import itertools
 import operator
@@ -359,16 +381,6 @@ def draw(root):
 
     draw_branch(root)
     return graph
-
-
-__all__ = [thing.__name__ for thing in (
-    postfix_calculate,
-    Atom,
-    Compound,
-    postfix_parse,
-    postfix_serialize_fast,
-    draw,
-)]
 
 
 if __name__ == '__main__':

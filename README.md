@@ -1,10 +1,11 @@
+<!-- SPDX-License-Identifier: 0BSD -->
 
-<img src="example.svg"
+<img src="doc/example.svg"
      alt="Drawing of a nested tuple structure, from notebooks/object_graph.ipynb"
      title="Drawing of a nested tuple structure, from notebooks/object_graph.ipynb"
      width="350px">
 
-# palgoviz
+# palgoviz - Materials for Python and algorithms, with visualization
 
 This is a project to develop approaches and materials for teaching and learning
 Python together with algorithms and data structures, with a substantial
@@ -23,209 +24,108 @@ or whether it will become a goal to produce materials that are ready-made for
 widespread use (rather than requiring careful selection and customization). In
 particular, classroom use is not currently a focus.
 
-<!--
-    FIXME: Add "License" section; make other changes so the license is clear.
+## License
 
-    1. A license file, which is best called LICENSE, must be added to the
-       repository root (that is, the same directory this readme file is in).
+palgoviz is licensed under [0BSD](https://spdx.org/licenses/0BSD.html) (the BSD
+Zero Clause License). See [**`LICENSE`**](LICENSE).
 
-    2. The section appearing here in this readme file should be called License,
-       state the name of the license, and link to the license file in the
-       repository using a relative path.
+0BSD is a [“public-domain
+equivalent”](https://en.wikipedia.org/wiki/Public-domain-equivalent_license)
+license. This is same license that [code examples in the Python
+documentation](https://docs.python.org/3/license.html#terms-and-conditions-for-accessing-or-otherwise-using-python)
+are offered under to ensure they can [always be reused without
+impediment](https://github.com/python/cpython/pull/17635).
 
-    3. We should consider stating, in this section, that the license extends to
-       the contents of commits that were made before the license was added.
-       This is usually unnecessary, but in this project, there is somewhat
-       greater value in going back and using previously committed material.
+In addition, it is our intention that the 0BSD license applies retroactively to
+all commits in the past history of this repository, from before licensing
+information was added. The same permission, and warranty disclaimer, applies.
 
-    4. License headers should be added to all files where it is useful to have
-       them. This includes, at minimum, every otherwise nonempty .py file in
-       the repository.
+The most useful code and documentation is usually at the tip of the *main*
+branch. But the process of developing the exercises, and various approaches to
+working them—including exploration of bugs, both intentional and accidental—may
+be of interest. Although that older content may be less useful, we want to make
+clear that its use is in no way restricted.
 
-    5. We should run https://github.com/licensee/licensee to find if there is
-       anything that is likely to prevent GitHub from correctly recognizing and
-       displaying license information when we later push the repository there.
-       The first thing people (should) look for when looking at code is how the
-       code is permitted to be used, and having that information immediately
-       apparent is a benefit.
--->
+## Authors
+
+palgoviz is written by [David Vassallo](https://github.com/dmvassallo) and
+[Eliah Kagan](https://github.com/EliahKagan).
 
 ## Installation
 
-<!--
-    FIXME: Move installation details, and all information about updating, in
-    one or more files in doc/ (creating that directory if it does not exist).
-    Then condense this section down to a short summary and refer to those
-    files. This whole section can then be made very short (probably shorter
-    even than the introductory text at the very beginning of this readme).
--->
+palgoviz can be installed [**using
+`conda`/`mamba`**](doc/install-with-conda.md) or [**using
+`poetry`**](doc/install-with-poetry.md).
+
+<small>(Although there’s [a PyPI package](https://pypi.org/project/palgoviz/), it
+should [rarely be used](doc/dist-readme.md).)</small>
+
+If you have no preference, `conda`/`mamba` is suggested. Condensed `conda`
+instructions follow.
 
 ### Getting `conda`
-
-This project is meant to be used in a Conda environment, so you need `conda`
-(or `mamba`).
 
 If you don’t have `conda` already, we suggest
 [Miniforge](https://github.com/conda-forge/miniforge), which is what we’re
 using.
 
-If you already have `conda` through another distribution, such as Miniconda or
-Anaconda, that should be fine. (The `environment.yml` file states the channel
-explicitly, rather than relying on channel defaults that vary across
-distributions.)
+### Creating and using the environment
 
-### Optional: Using `mamba`
+Clone the repository, go into its top-level directory, and create the conda
+environment:
 
-All the following `conda` commands can be run with `mamba` instead of `conda`
-if you have `mamba` installed.
+```sh
+git clone https://github.com/EliahKagan/palgoviz.git
+cd palgoviz
+conda env create
+```
 
-The exception is that, on Windows, `conda activate` and `conda deactivate` must
-still be used, due to [limitations in `mamba` PowerShell
-integration](https://github.com/mamba-org/mamba/issues/1717).
+Activate the environment:
 
-For commands that create and update the environment, `mamba` may be faster than
-`conda`.
+```sh
+conda activate palgoviz
+```
 
-### Creating and and using the environment
+You must activate the environment each time you use the project in a new shell
+(or after deactivating it).
 
-1. Clone the repository and `cd` to its top-level directory.
+Create an “editable install” in the environment:
 
-2. Create the `conda` environment:
+```sh
+conda develop .
+```
 
-    ```sh
-    conda env create
-    ```
-
-3. Activate the environment:
-
-    ```sh
-    conda activate palgoviz
-    ```
-
-4. Create an “editable install” in the environment:
-
-    ```sh
-    conda develop .
-    ```
-
-    That command only has to be run once (unless you delete and recreate the
-    environment or undo it with `conda develop --uninstall`). It is required to
-    allow some modules to be run as scripts, and to be run from any location.
-    Most of the project will work without it, but a small amount of
-    functionality, and tests for that functionality, will fail without it.
-
-    That command is analogous to using `pip install -e` when developing in a
-    Python virtual environment rather than a Conda environment.
-
-Creating a wheel or Conda package from this project is probably not very
-useful, and is not supported at this time.
-
-See the [**What’s here?**](#whats-here) and [**Usage**](#usage) sections below.
-
-### Updating the environment
-
-If you’ve just created the project, then it is already up to date (for now).
-The following instructions are for later.
-
-At this time, most project dependencies are not pinned, and dependencies may
-continue to change as work proceeds further on the project. The following is
-recommended for updating the project:
-
-
-1. Activate the environment if it is not already active:
-
-    ```sh
-    conda activate palgoviz
-    ```
-
-2. Update packages currently installed in the environment:
-
-    ```sh
-    conda update --all
-    ```
-
-3. Make sure you are in the top-level directory. That is the directory that
-   contains `environment.yml` as well as this `README.md` file.
-
-4. Install any new project dependencies, and remove any old dependencies that
-   are known to no longer be needed:
-
-   ```sh
-   conda env update --prune
-   ```
+That command only has to be run once, *not* each time you use the project.
 
 ## What’s here?
 
-The most important and interesting parts of this project are the
-[`palgoviz/`](#palgoviz-1), [`tests/`](#tests), and [`notebooks/`](#notebooks)
-directories. Here’s a full list of directories:
+The most important and interesting parts of this project are the `palgoviz/`,
+`tests/`, and `notebooks/` directories.
 
-### `palgoviz`
-
-This directory, not to be confused with the top-level repository directory,
-contains Python modules (`.py` files), other than test modules.
-
-Note that many tests are actually in these modules, because many of the tests
-in this project are doctests, which appear in module, function, and class
-docstrings.
-
-### `tests`
-
-Separate tests. Most of these are `.py` files that contain tests using the
-`unittest` framework. There are also a few `.txt` files containing extended
-doctests.
-
-<!-- TODO: When pytest test modules are added, expand the above paragraph. -->
-
-### `notebooks`
-
-These are Jupyter notebooks showcasing Python and algorithms concepts, and
-often tying in with code in `palgoviz`.
-
-### `math`
-
-These are Jupyter notebooks, and supporting image files, for illustrating some
-math concepts that are not specifically about code and that do not involve
-using or discussing any of the code in the `palgoviz` package.
-
-### `notes`
-
-These are files with information potentially relevant to preparing exercises
-from the code in this project. It currently also contains some documentation in
-rough draft form.
-
-### `sandbox`
-
-This presents traditional and namespace packages and shows how they behave
-differently.
-
-### `meta`
-
-This contains files that are more about project internals than about Python,
-algorithms and data structures, or even *use* of the project. This directory
-may go away in the future.
+[Here’s the full list of directories and what each one is
+for.](doc/project-dirs.md)
 
 ## Usage
 
 You can open the top-level directory (the directory that contains this
 `README.md` file) in an IDE or editor of your choice.
 
-Visual Studio Code is suggested, and `.vscode` has some useful configuration,
+Visual Studio Code is suggested, and `.vscode/` has some useful configuration,
 including for running tests using its test runner interface (the “beaker” icon
 on the activity bar on the left). This configuration uses the `pytest` test
 runner, which is capable of running all tests in the project.
 
 If you use an IDE (which for this purpose includes VS Code), make sure to tell
-it that this project uses the `palgoviz` conda environment, or verify that it
-has detected this.
+it that this project uses the `palgoviz` environment, or verify that it has
+detected this.
 
 ### Running tests
 
 Tests can be run from VS Code or another IDE, but you may want to run them from
 a terminal (and they may run faster that way, too).
 
-To do that, first activate the `palgoviz` Conda environment in your terminal if
-you haven’t already:
+To do that, first activate the `palgoviz` environment in your terminal if you
+haven’t already. Assuming you’re using `conda`:
 
 ```sh
 conda activate palgoviz
@@ -238,44 +138,22 @@ Make sure you are in the top-level directory (the directory that contains this
 pytest --doctest-modules
 ```
 
-### Other test runners
-
-Only the `pytest` test runner will run *all* tests in the project, but if you
-want to use the `unittest` test runner to run the `unittest` tests, you can:
-
-```sh
-python -m unittest
-```
-
-If you want to use the `doctest` test runner to run the doctests, you can:
-
-```sh
-python -m doctest palgoviz/*.py tests/*.py tests/*.txt
-```
-
-That command is for a Unix-style shell. If you’re using Windows, you’re
-probably in PowerShell and should use:
-
-```sh
-python -m doctest (gci palgoviz/*.py) (gci tests/*.py) (gci tests/*.txt)
-```
-
-The other commands are the same.
+If you want to use other test runners, including the `unittest` test runner,
+the [more detailed documentation on running tests](doc/running-tests.md) has
+information about that.
 
 ### Using the notebooks
 
 JupyterLab is installed as a dependency of the project, and all notebooks are
-tested in it. First activate the `palgoviz` Conda environment in your terminal
-if you haven’t already:
+tested in it. First activate the `palgoviz` environment in your terminal if you
+haven’t already. Assuming you’re using `conda`:
 
 ```sh
 conda activate palgoviz
 ```
 
 It is best to run JupyterLab from the top-level directory (the directory that
-contains this `README.md` file). If you decided to skip the `conda develop`
-installation step, then you must run it from there; otherwise, it is merely
-recommended.
+contains this `README.md` file).
 
 To run JupyterLab:
 
@@ -283,67 +161,15 @@ To run JupyterLab:
 jupyter lab
 ```
 
-### Real-time collaboration, on notebooks
+[Click here for more info about using notebooks, and real-time collaboration
+for notebooks and modules.](doc/using-notebooks.md)
 
-The nature of this project is such that it may be useful to collaborate in real
-time to explore it, rework parts of is as exercises, or expand it. For example,
-this may facilitate cooperative learning or tutoring.
-
-We tested the notebooks extensively, and developed many of them, using the
-[Real Time
-Collaboration](https://jupyterlab.readthedocs.io/en/stable/user/rtc.html)
-feature of JupyterLab.
-
-In simple use, this is done by running
-
-```sh
-jupyter lab --collaborative --ip ADDRESS
-```
-
-where `ADDRESS` is replaced by *your* IP address on the network interface
-through which your machine is accessible from the outside, and then sharing the
-link with collaborators.
-
-<!-- FIXME: There should probably be more, or less, detail above. -->
-
-### Real-time collaboration, on modules
-
-You can use JupyterLab Real Time Collaboration for other kinds of files than
-notebooks, but if you use some other IDE, you should check if it offers such a
-feature of its own.
-
-In particular, Visual Studio Code has [Visual Studio Live
-Share](https://visualstudio.microsoft.com/services/live-share/). We used this
-to develop substantial parts of this project. It was also a major part of how
-we reimplemented and discussed most of the code in the `palgoviz` package to
-check that it was in good shape to be (re)worked as exercises.
-
-### Notebooks in VS Code
-
-When using VS Code to work with other parts of the project, it is convenient to
-edit notebooks in VS Code as well. Furthermore, these days that seems to work
-pretty well with Live Share.
-
-<!-- FIXME: Verify and expand above: link to info on VSLS Jupyter features. -->
-
-The biggest hurdle is cells that are *intended* to raise an unhandled
-exception. When running multiple cells in a notebook (for example, the whole
-notebook), JupyterLab heeds the `raises-exception` cell tag, printing a
-traceback but continuing execution with the next cell. In contrast, the
-`vscode-jupyter` extension does not yet do so.
-
-Eventually this will be fully fixed in `vscode-jupyter`, at which point VS Code
-may become the best way to work with the notebooks in this project. This is
-related to
-[microsoft/vscode-jupyter#11441](https://github.com/microsoft/vscode-jupyter/issues/11441).
-
-<!-- FIXME: Add an Acknowledgements section. -->
+<!-- TODO: If we add an Acknowledgements sections, it could go here. -->
 
 ## Related work
 
 This project is slightly related to a previous, less ambitious project,
 [algorithms-suggestions](https://github.com/EliahKagan/algorithms-suggestions).
-
 
 ## Of interest
 
@@ -354,6 +180,5 @@ project may be interested in them as well:
 - [Problem Solving with Algorithms and Data Structures using
   Python](https://runestone.academy/ns/books/published/pythonds/index.html) by
   Brad Miller and David Ranum
-
 - [Fluent Python, Second Edition](https://www.fluentpython.com/) by Luciano
   Ramalho

@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Fibonacci sequence - computation and analysis/visualization
 
@@ -7,6 +20,27 @@ See also the visualizations in subproblems.ipynb.
 
 For the command-line Fibonacci numbers program that calls fib_n, see fib.py.
 """
+
+__all__ = [
+    'fibonacci',
+    'fibonacci_cached_1',
+    'fibonacci_cached_2',
+    'fibonacci_cached_3',
+    'fibonacci_cached_4',
+    'fibonacci_cached_5',
+    'fibonacci_short',
+    'fibonacci_alr',
+    'fibonacci_short_alr',
+    'fib_n_clunk',
+    'fib',
+    'fib_n',
+    'fib_nest',
+    'fib_nest_by',
+    'draw_naive_call_tree_1',
+    'draw_naive_call_tree_2',
+    'draw_memoized_call_tree_1',
+    'draw_memoized_call_tree_2',
+]
 
 import itertools
 
@@ -667,28 +701,6 @@ def draw_memoized_call_tree_2(n):
 # the helper itself contains little to no logic duplication. (Once this is
 # working and committed, feel free to keep it, or to refactor again if you
 # regard some other arrangement, perhaps with two helpers, to be clearer.)
-
-
-__all__ = [thing.__name__ for thing in (
-    fibonacci,
-    fibonacci_cached_1,
-    fibonacci_cached_2,
-    fibonacci_cached_3,
-    fibonacci_cached_4,
-    fibonacci_cached_5,
-    fibonacci_short,
-    fibonacci_alr,
-    fibonacci_short_alr,
-    fib_n_clunk,
-    fib,
-    fib_n,
-    fib_nest,
-    fib_nest_by,
-    draw_naive_call_tree_1,
-    draw_naive_call_tree_2,
-    draw_memoized_call_tree_1,
-    draw_memoized_call_tree_2,
-)]
 
 
 if __name__ == '__main__':

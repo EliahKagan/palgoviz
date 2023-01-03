@@ -1,3 +1,16 @@
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Queues, in the general sense.
 
@@ -10,6 +23,26 @@ Should distinct queue objects ever be equal? To objects of a different type?
 
 TODO: In particular, explore construction from iterables.
 """
+
+__all__ = [
+    'Queue',
+    'FifoQueue',
+    'LifoQueue',
+    'PriorityQueue',
+    'DequeFifoQueue',
+    'AltDequeFifoQueue',
+    'SlowFifoQueue',
+    'BiStackFifoQueue',
+    'RingFifoQueue',
+    'CompactRingFifoQueue',
+    'SinglyLinkedListFifoQueue',
+    'ListLifoQueue',
+    'DequeLifoQueue',
+    'AltDequeLifoQueue',
+    'SinglyLinkedListLifoQueue',
+    'FastEnqueueMaxPriorityQueue',
+    'FastDequeueMaxPriorityQueue',
+]
 
 from abc import ABC, abstractmethod
 import bisect
@@ -724,24 +757,3 @@ class _Node:
     def value(self):
         """The value of this node."""
         return self._value
-
-
-__all__ = [thing.__name__ for thing in (
-    Queue,
-    FifoQueue,
-    LifoQueue,
-    PriorityQueue,
-    DequeFifoQueue,
-    AltDequeFifoQueue,
-    SlowFifoQueue,
-    BiStackFifoQueue,
-    RingFifoQueue,
-    CompactRingFifoQueue,
-    SinglyLinkedListFifoQueue,
-    ListLifoQueue,
-    DequeLifoQueue,
-    AltDequeLifoQueue,
-    SinglyLinkedListLifoQueue,
-    FastEnqueueMaxPriorityQueue,
-    FastDequeueMaxPriorityQueue,
-)]

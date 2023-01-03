@@ -1,12 +1,29 @@
 [tool.poetry]
 name = "palgoviz"
 version = "0.1.0"
-description = ""
+description = "Materials for Python and algorithms, with visualization"
 authors = [
     "David Vassallo <vassallo.davidm@gmail.com>",
     "Eliah Kagan <degeneracypressure@gmail.com>",
 ]
-readme = "README.md"
+maintainers = [
+    "Eliah Kagan <degeneracypressure@gmail.com>",
+    "David Vassallo <vassallo.davidm@gmail.com>",
+]
+license = "0BSD"
+readme = "doc/dist-readme.md"  # NB: That's for PyPI. Main readme is README.md.
+homepage = "https://github.com/EliahKagan/palgoviz"
+repository = "https://github.com/EliahKagan/palgoviz"
+keywords = ["algorithms", "teaching", "visualization"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 3",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
 
 [tool.poetry.dependencies]
 python = "~3.11"

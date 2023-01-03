@@ -1,8 +1,21 @@
 #!/usr/bin/env pwsh
 
-# This scripts runs Python modules as scripts when they look like they are
-# meant to be run that way as a way of running unit tests they contain. This is
-# for testing that it works to run them this way.
+# Copyright (c) 2022 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
+# This script runs Python modules as scripts when they look like they are meant
+# to be run that way as a way of running unit tests they contain. This is for
+# testing that it works to run them this way.
 #
 # This script is for Windows systems. It should also work on Unix-like systems
 # (if PowerShell is installed), but it won't check that files that should be
