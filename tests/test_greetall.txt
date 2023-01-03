@@ -1,9 +1,17 @@
+================================================================
 Doctests for palgoviz/greetall.py.
 
+SPDX-License-Identifier: 0BSD
+
 TODO: Write better, more exhaustive tests, probably with pytest.
+================================================================
 
 >>> from subprocess import getstatusoutput as gso
->>> status, output = gso('python palgoviz/greetall.py data/names.txt')
+>>> from sys import executable as py
+>>> if '"' in py:
+...     raise Exception("""tests can't handle "'" in interpreter path""")
+
+>>> status, output = gso(f'{py} palgoviz/greetall.py data/names.txt')
 >>> status
 0
 >>> print(output)
@@ -11,7 +19,7 @@ Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
 
->>> status, output = gso('python palgoviz/greetall.py data/names2.txt es')
+>>> status, output = gso(f'{py} palgoviz/greetall.py data/names2.txt es')
 >>> status
 0
 >>> print(output)
@@ -20,19 +28,19 @@ Hello, Dr. Evil!
 ¡Hola, Dr. Evil!
 ¡Hola, Stalin!
 
->>> status, output = gso('python palgoviz/greetall.py')
+>>> status, output = gso(f'{py} palgoviz/greetall.py')
 >>> status
 1
 >>> print(output)
 ERROR in palgoviz/greetall.py: Did not pass a filename
 
->>> status, output = gso('python palgoviz/greetall.py data/names.txt qx')
+>>> status, output = gso(f'{py} palgoviz/greetall.py data/names.txt qx')
 >>> status
 1
 >>> print(output)
 ERROR in palgoviz/greetall.py: qx is an unrecognized language code.
 
->>> status, output = gso('python palgoviz/greetall.py data/names.txt en foo')
+>>> status, output = gso(f'{py} palgoviz/greetall.py data/names.txt en foo')
 >>> status
 0
 >>> print(output)
@@ -41,13 +49,13 @@ Hello, Eliah!
 Hello, David!
 Hello, Dr. Evil!
 
->>> status, output = gso('python palgoviz/greetall.py data/nonexistent.txt')
+>>> status, output = gso(f'{py} palgoviz/greetall.py data/nonexistent.txt')
 >>> status
 1
 >>> output.startswith('ERROR in palgoviz/greetall.py:')
 True
 
->>> status, output = gso('python palgoviz/greetall.py .')
+>>> status, output = gso(f'{py} palgoviz/greetall.py .')
 >>> status
 1
 >>> output.startswith('ERROR in palgoviz/greetall.py:')

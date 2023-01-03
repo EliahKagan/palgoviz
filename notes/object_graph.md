@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # `object_graph` - identified bugs
 
 ## Bug #1: Redrawing the edges unnecessarily.

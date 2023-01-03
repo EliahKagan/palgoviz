@@ -1,6 +1,28 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """Function composition."""
+
+__all__ = [
+    'compose2',
+    'repeat_compose_recursive',
+    'repeat_compose_chained',
+    'repeat_compose',
+    'compose',
+    'curry_one',
+]
 
 from palgoviz.util import identity_function
 
@@ -149,16 +171,6 @@ def curry_one(function):
 
 # TODO: Eventually cover other forms of currying, the difference between
 #       currying and partial function application, and functools.partial.
-
-
-__all__ = [thing.__name__ for thing in (
-    compose2,
-    repeat_compose_recursive,
-    repeat_compose_chained,
-    repeat_compose,
-    compose,
-    curry_one,
-)]
 
 
 # Can also run:  python -m doctest palgoviz/composers.py

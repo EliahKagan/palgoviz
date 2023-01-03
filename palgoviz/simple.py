@@ -1,6 +1,35 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """Some simple code, for unit testing."""
+
+__all__ = [
+    'MY_NONE',
+    'Widget',
+    'answer',
+    'is_sorted',
+    'alert',
+    'bail_if',
+    'Squarer',
+    'MulSquarer',
+    'PowSquarer',
+    'make_squarer',
+    'Toggle',
+    'make_toggle',
+    'make_toggle_alt',
+]
 
 from abc import ABC, abstractmethod
 import itertools
@@ -215,22 +244,6 @@ def make_toggle_alt(start):
     _check_toggle_param(start)
     it = itertools.cycle([start, not start])
     return lambda: next(it)
-
-
-__all__ = ['MY_NONE'] + [thing.__name__ for thing in (
-    Widget,
-    answer,
-    is_sorted,
-    alert,
-    bail_if,
-    Squarer,
-    MulSquarer,
-    PowSquarer,
-    make_squarer,
-    Toggle,
-    make_toggle,
-    make_toggle_alt,
-)]
 
 
 if __name__ == '__main__':
