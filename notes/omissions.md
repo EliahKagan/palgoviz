@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # Major Python topics not currently covered
 
 This is a list of some major Python topics not, or not yet, covered in this

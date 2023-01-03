@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 More generators and comprehensions.
 
@@ -8,6 +21,74 @@ See also gencomp1.py and fibonacci.py.
 Some, but not all, of the exercises in this file benefit from writing
 comprehensions with multiple "for" (and sometimes multiple "if") clauses.
 """
+
+__all__ = [
+    'empty',
+    'Empty',
+    'product_two',
+    'product_two_alt',
+    'ProductTwo',
+    'product_two_flexible',
+    'ProductTwoFlexible',
+    'prefix_product',
+    'suffix_product',
+    'my_product',
+    'my_product_slow',
+    'my_product_alt',
+    'pairs',
+    'Pairs',
+    'ascending_countdowns',
+    'ascending_countdowns_alt',
+    'AscendingCountdowns',
+    'three_sums',
+    'three_sums_alt',
+    'three_sum_indices_1',
+    'three_sum_indices_2',
+    'three_sum_indices_3',
+    'three_sum_indices_4',
+    'dot_product_slow',
+    'dot_product',
+    'flatten2',
+    'ungroup',
+    'make_mul_table',
+    'compose_dicts_simple',
+    'compose_dicts',
+    'compose_dicts_view',
+    'matrix_square_flat',
+    'matrix_square_nested',
+    'matrix_dimensions',
+    'matrix_multiply',
+    'identity_matrix',
+    'identity_matrix_alt',
+    'transpose',
+    'transpose_alt',
+    'submap',
+    'is_hermitian',
+    'is_hermitian_alt',
+    'affines',
+    'Affine',
+    'affines_alt',
+    'mean',
+    'floats_in_range',
+    'FloatsInRange',
+    'integrate',
+    'my_takewhile',
+    'TakeWhile',
+    'my_dropwhile',
+    'my_dropwhile_alt',
+    'DropWhile',
+    'outdegrees',
+    'indegrees',
+    'anagrams',
+    'Anagrams',
+    'AnagramsAlt',
+    'my_cycle',
+    'Cycle',
+    'my_chain',
+    'Chain',
+    'encrypt',
+    'decrypt',
+]
 
 import collections
 from collections.abc import Iterable, Sequence
@@ -2345,75 +2426,6 @@ def decrypt(key, ciphertext):
     'ataplacecalledvlamertinghejustsouthofypres'
     """
     return encrypt((_ALPHA_LEN - r for r in key), ciphertext)
-
-
-__all__ = [thing.__name__ for thing in (
-    empty,
-    Empty,
-    product_two,
-    product_two_alt,
-    ProductTwo,
-    product_two_flexible,
-    ProductTwoFlexible,
-    prefix_product,
-    suffix_product,
-    my_product,
-    my_product_slow,
-    my_product_alt,
-    pairs,
-    Pairs,
-    ascending_countdowns,
-    ascending_countdowns_alt,
-    AscendingCountdowns,
-    three_sums,
-    three_sums_alt,
-    three_sum_indices_1,
-    three_sum_indices_2,
-    three_sum_indices_3,
-    three_sum_indices_4,
-    dot_product_slow,
-    dot_product,
-    flatten2,
-    ungroup,
-    make_mul_table,
-    compose_dicts_simple,
-    compose_dicts,
-    compose_dicts_view,
-    matrix_square_flat,
-    matrix_square_nested,
-    matrix_dimensions,
-    matrix_multiply,
-    identity_matrix,
-    identity_matrix_alt,
-    transpose,
-    transpose_alt,
-    submap,
-    is_hermitian,
-    is_hermitian_alt,
-    affines,
-    Affine,
-    affines_alt,
-    mean,
-    floats_in_range,
-    FloatsInRange,
-    integrate,
-    my_takewhile,
-    TakeWhile,
-    my_dropwhile,
-    my_dropwhile_alt,
-    DropWhile,
-    outdegrees,
-    indegrees,
-    anagrams,
-    Anagrams,
-    AnagramsAlt,
-    my_cycle,
-    Cycle,
-    my_chain,
-    Chain,
-    encrypt,
-    decrypt,
-)]
 
 
 if __name__ == '__main__':

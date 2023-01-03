@@ -1,5 +1,8 @@
+=============================
 Old caching.py doctests
-=======================
+
+SPDX-License-Identifier: 0BSD
+=============================
 
     >>> try:
     ...     from palgoviz.caching import *

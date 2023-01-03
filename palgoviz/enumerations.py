@@ -1,6 +1,27 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """Some enumerations."""
+
+__all__ = [
+    'OrderedEnum',
+    'CodeReprEnum',
+    'BearBowl',
+    'BitsetEnum',
+    'Guests',
+]
 
 import enum
 import functools
@@ -126,15 +147,6 @@ class Guests(BitsetEnum):
     CASSIDY_TRIAL = 0
     ERIN_TRIAL    = CASSIDY | DEREK | GERALD  # noqa: E221
     FRANK_TRIAL   = BOB | CASSIDY | DEREK     # noqa: E221
-
-
-__all__ = [thing.__name__ for thing in (
-    OrderedEnum,
-    CodeReprEnum,
-    BearBowl,
-    BitsetEnum,
-    Guests,
-)]
 
 
 if __name__ == '__main__':
