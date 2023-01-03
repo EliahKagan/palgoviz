@@ -1,4 +1,7 @@
+=================================
 Some of the old greet.py doctests
+
+SPDX-License-Identifier: 0BSD
 =================================
 
     >>> try:

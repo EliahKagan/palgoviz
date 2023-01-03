@@ -1,10 +1,49 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Some basic, and not so basic, decorators.
 
 Caching decorators like @memoize and @memoize_by are in the caching module.
 """
+
+__all__ = [
+    'peek_arg',
+    'peek_return',
+    'call',
+    'call_with',
+    'thrice',
+    'repeat',
+    'peek_one',
+    'peek',
+    'give_metadata_from',
+    'int_fn',
+    'count_calls',
+    'convert_arg',
+    'convert_return',
+    'auto_prime',
+    'assign_attributes',
+    'suppressing',
+    'dict_equality',
+    'count_calls_in_attribute',
+    'wrap_uncallable_args',
+    'make_fmap',
+    'joining',
+    'repeat_collect',
+    'linear_combinable',
+]
 
 import functools
 import itertools
@@ -1164,33 +1203,6 @@ class linear_combinable:
             raise AttributeError(f"can't delete attribute {name!r}")
 
         super().__delattr__(name)
-
-
-__all__ = [thing.__name__ for thing in (
-    peek_arg,
-    peek_return,
-    call,
-    call_with,
-    thrice,
-    repeat,
-    peek_one,
-    peek,
-    give_metadata_from,
-    int_fn,
-    count_calls,
-    convert_arg,
-    convert_return,
-    auto_prime,
-    assign_attributes,
-    suppressing,
-    dict_equality,
-    count_calls_in_attribute,
-    wrap_uncallable_args,
-    make_fmap,
-    joining,
-    repeat_collect,
-    linear_combinable,
-)]
 
 
 if __name__ == '__main__':

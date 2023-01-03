@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # `sll.HashNode` subtleties
 
 ***WARNING*: This file contains SPOILERS, if you are implementing anything in

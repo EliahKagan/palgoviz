@@ -1,6 +1,8 @@
-============================
+=============================
 Extended doctests for sll.py
-============================
+
+SPDX-License-Identifier: 0BSD
+=============================
 
 See also test_sll.py for the unittest tests (and a few related doctests).
 
