@@ -44,7 +44,7 @@ pytest = "^7.2.0"
 pytest-subtests = "^0.9.0"
 
 [tool.poetry.group.analyzers.dependencies]
-flake8 = "^6.0.0"
+flake8-pyproject = "^1.2.2"
 isort = "^5.11.4"
 mypy = "^0.991"
 pyright = "^1.1.286"
@@ -52,6 +52,10 @@ pyright = "^1.1.286"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+extend-exclude = [".ipynb_checkpoints/"]
+extend-ignore = ["E228"]
 
 [tool.isort]
 atomic = true
