@@ -5,31 +5,47 @@
 ## In Visual Studio Code
 
 `.vscode/settings.json` has some useful configuration, including for running
-tests using its test runner interface (the “beaker” icon on the activity bar on
-the left). This configuration uses the `pytest` test runner, which is capable
-of running all tests in the project.
+tests using VS Code’s test runner interface (the “beaker” icon on the activity
+bar on the left). This configuration uses the `pytest` test runner, which is
+capable of running all tests in the project. This should just work
+automatically.
 
 Make sure to tell it that this project uses the `palgoviz` conda environment,
 or verify that it has detected this. That also applies to other IDEs.
+
+If VS Code asks to install `pytest` or otherwise claims that it needs to be
+installed, you should decline, and double check that VS Code is really using
+the `palgoviz` environment.
 
 ## From the command line: `pytest`
 
 Tests can be run from VS Code or another IDE, but you may want to run them from
 a terminal (and they may run faster that way, too).
 
-To do that, first activate the `palgoviz` Conda environment in your terminal if
-you haven’t already:
+1. Make sure you are in the top-level repository directory.
 
-```sh
-conda activate palgoviz
-```
+2. Activate the `palgoviz` environment in your terminal (if not already done).
+   To do this, if you’re using `conda`, run:
 
-Make sure you are in the top-level directory (the directory that contains this
-`README.md` file). Then run:
+    ```sh
+    conda activate palgoviz
+    ```
 
-```sh
-pytest --doctest-modules
-```
+    Or if you're using `poetry`, run:
+
+    ```sh
+    poetry shell
+    ```
+
+3. Run the tests:
+
+    ```sh
+    pytest --doctest-modules
+    ```
+
+    The `--doctest-modules` option causes it to include doctests present in
+    modules. It does not cause any tests to be omitted. That command runs all
+    tests in the project, including but not limited to doctests.
 
 ## From the command line: other test runners
 

@@ -4,13 +4,24 @@
 
 ## JupyterLab
 
+### Activating the environment
+
 JupyterLab is installed as a dependency of the project, and all notebooks are
-tested in it. First activate the `palgoviz` Conda environment in your terminal
-if you haven’t already:
+tested in it. First activate the `palgoviz` environment in your terminal
+if you haven’t already. If you’re using `conda`, do that by running:
 
 ```sh
 conda activate palgoviz
 ```
+
+If you’re using `poetry`, then run this instead, making sure you are in the
+top-level repository directory:
+
+```sh
+poetry shell
+```
+
+### Running JupyterLab
 
 It is best to run JupyterLab from the top-level directory. If you installed
 with `conda` but decided to skip the `conda develop` installation step, then
@@ -25,7 +36,7 @@ jupyter lab
 ## Real-time collaboration, on notebooks
 
 The nature of this project is such that it may be useful to collaborate in real
-time to explore it, rework parts of is as exercises, or expand it. For example,
+time to explore it, rework parts of it as exercises, or expand it. For example,
 this may facilitate cooperative learning or tutoring.
 
 We tested the notebooks extensively, and developed many of them, using the

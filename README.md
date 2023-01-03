@@ -64,7 +64,7 @@ If you don’t have `conda` already, we suggest
 [Miniforge](https://github.com/conda-forge/miniforge), which is what we’re
 using.
 
-### Creating and and using the environment
+### Creating and using the environment
 
 Clone the repository, go into its top-level directory, and create the conda
 environment:
@@ -105,22 +105,22 @@ for.](doc/project-dirs.md)
 You can open the top-level directory (the directory that contains this
 `README.md` file) in an IDE or editor of your choice.
 
-Visual Studio Code is suggested, and `.vscode` has some useful configuration,
+Visual Studio Code is suggested, and `.vscode/` has some useful configuration,
 including for running tests using its test runner interface (the “beaker” icon
 on the activity bar on the left). This configuration uses the `pytest` test
 runner, which is capable of running all tests in the project.
 
 If you use an IDE (which for this purpose includes VS Code), make sure to tell
-it that this project uses the `palgoviz` conda environment, or verify that it
-has detected this.
+it that this project uses the `palgoviz` environment, or verify that it has
+detected this.
 
 ### Running tests
 
 Tests can be run from VS Code or another IDE, but you may want to run them from
 a terminal (and they may run faster that way, too).
 
-To do that, first activate the `palgoviz` Conda environment in your terminal if
-you haven’t already:
+To do that, first activate the `palgoviz` environment in your terminal if you
+haven’t already. Assuming you’re using `conda`:
 
 ```sh
 conda activate palgoviz
@@ -140,8 +140,8 @@ information about that.
 ### Using the notebooks
 
 JupyterLab is installed as a dependency of the project, and all notebooks are
-tested in it. First activate the `palgoviz` Conda environment in your terminal
-if you haven’t already:
+tested in it. First activate the `palgoviz` environment in your terminal if you
+haven’t already. Assuming you’re using `conda`:
 
 ```sh
 conda activate palgoviz
@@ -156,8 +156,8 @@ To run JupyterLab:
 jupyter lab
 ```
 
-[Click here for more detailed documentation on using the notebooks, including
-real-time collaboration.](doc/using-notebooks.md)
+[Click here for more info about using notebooks, and real-time collaboration
+for notebooks and modules.](doc/using-notebooks.md)
 
 <!-- TODO: If we add an Acknowledgements sections, it could go here. -->
 

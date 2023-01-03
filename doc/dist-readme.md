@@ -22,12 +22,16 @@ it is for those rather special situations that this PyPI package exists.
 Because of palgoviz’s educational nature, its unit tests and Jupyter notebooks
 are important in most uses. This package omits them, as well as most
 documentation. Furthermore, the main use for palgoviz, as detailed further in
-the repository readme, is as source of exercises (which may require
-modification for your use) or of ideas for them. In that use, installing this
+the repository readme, is as a source of exercises (which may require
+modification for your needs) or of ideas for them. In that use, installing this
 very limited palgoviz package does not help at all.
 
 Depending on the direction of the project, it is possible that, in the future,
-more uses cases for installing palgoviz as a library will arise. For now, that
-is a niche use, and [the palgoviz GitHub
+more reasons to install palgoviz as a library will arise. For now, that is a
+niche use, and [the palgoviz GitHub
 repository](https://github.com/EliahKagan/palgoviz) is the recommended way to
 read about, and obtain, palgoviz.
+
+*[palgoviz is licensed under
+**0BSD**](https://github.com/EliahKagan/palgoviz/blob/main/LICENSE), a
+“public-domain equivalent” license.*

@@ -13,10 +13,12 @@ Note that palgoviz currently only supports Python 3.11. Unlike
 installing Python itself. Depending on what version of Python you already have
 installed, if any, you may need [to install Python](https://wiki.python.org/moin/BeginnersGuide/Download) first.
 
-Those instructions for installing Python are not specifically for 3.11. The
-[“Linux”](https://wiki.python.org/moin/BeginnersGuide/Download#Linux) may not
-give you that version. On some systems, Python 3.11 is available, but provided
-by a `python3.11` package rather than a `python` or `python3` package.
+Those instructions for installing Python are not specifically for 3.11. [The
+“Linux”
+instructions](https://wiki.python.org/moin/BeginnersGuide/Download#Linux) may
+or may not give you that version. On some systems, Python 3.11 is available,
+but provided by a `python3.11` package rather than a `python` or `python3`
+package.
 
 If you are using an Ubuntu release without a `python3.11` package, you can use
 the [deadsnakes PPA](https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa) to
@@ -37,9 +39,10 @@ palgoviz depends on an external
 [Graphviz](https://en.wikipedia.org/wiki/Graphviz) installation, since the
 `graphviz` library it uses calls Graphviz executables, such as `dot` (called
 `dot.exe` on Windows). The Python libraries this project depends on, including
-the `graphviz` *library*, are automatically computed and obtained by `poetry`.
-But unlike [`conda`](install-with-conda.md), `poetry` does not directly
-facilitate installing *Graphviz itself*.
+the [`graphviz` *library*](https://pypi.org/project/graphviz/), are
+automatically computed and obtained by `poetry`. But unlike
+[`conda`](install-with-conda.md), `poetry` does not directly facilitate
+installing *Graphviz itself*.
 
 You can get Graphviz from [the official website](https://graphviz.org/) or
 install it through a package manager.

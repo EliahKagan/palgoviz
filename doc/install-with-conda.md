@@ -28,7 +28,7 @@ integration](https://github.com/mamba-org/mamba/issues/1717).
 For commands that create and update the environment, `mamba` may be faster than
 `conda`.
 
-## Creating and and using the environment
+## Creating and using the environment
 
 To obtain and set up palgoviz:
 
@@ -112,8 +112,8 @@ The following is recommended for updating the project:
 
 ## Pinning note
 
-We are not currently pinning specific package versions, nor even listing
-indirect dependencies. in `environment.yml`
+We are not currently pinning specific package versions, nor listing indirect
+dependencies, in `environment.yml`
 
 If you want dependencies pinned to specific known-working versions, you can
 [install with `poetry`](install-with-poetry.md) instead of with `conda`.
