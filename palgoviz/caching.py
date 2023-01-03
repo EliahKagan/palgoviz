@@ -19,6 +19,8 @@ Caching decorators.
 Most other decorators, not related to caching, are in decorators.py.
 """
 
+__all__ = ['memoize', 'memoize_by']
+
 import functools
 
 
@@ -99,9 +101,6 @@ def memoize_by(key):
         return wrapper
 
     return decorator
-
-
-__all__ = [thing.__name__ for thing in (memoize, memoize_by)]
 
 
 if __name__ == '__main__':
