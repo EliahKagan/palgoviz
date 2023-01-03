@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: 0BSD -->
+
 # Readme on `fib5k` files
 
 The `fib5k` files are:

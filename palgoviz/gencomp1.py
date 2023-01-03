@@ -1,10 +1,75 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2022 David Vassallo and Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 """
 Generators and comprehensions.
 
 See also gencomp2.py and fibonacci.py.
 """
+
+__all__ = [
+    'my_enumerate',
+    'my_enumerate_alt',
+    'Enumerate',
+    'print_enumerated',
+    'print_enumerated_alt',
+    'my_any',
+    'my_any_alt',
+    'my_all',
+    'my_all_alt',
+    'zip_two',
+    'ZipTwo',
+    'my_zip',
+    'Zip',
+    'print_zipped',
+    'take_good',
+    'take',
+    'Take',
+    'drop_good',
+    'drop',
+    'Drop',
+    'last',
+    'tail',
+    'tail_opt',
+    'pick',
+    'windowed',
+    'Windowed',
+    'windowed_alt',
+    'my_pairwise',
+    'Pairwise',
+    'map_one',
+    'map_one_alt',
+    'MapOne',
+    'my_filter',
+    'my_filter_alt',
+    'Filter',
+    'length_of',
+    'length_of_opt',
+    'how_many',
+    'invert',
+    'invert_alt',
+    'distinct_simple',
+    'DistinctSimple',
+    'distinct',
+    'Distinct',
+    'distinct_dicts_by_single_key_monolithic',
+    'distinct_dicts_by_single_key_alt',
+    'distinct_dicts_by_single_key',
+    'distinct_dicts_by_keys',
+    'DistinctDictsByKeys',
+]
 
 import collections
 import contextlib
@@ -2113,59 +2178,6 @@ class DistinctDictsByKeys(Distinct):
             return tuple(dictionary.get(k, not_there) for k in my_keys)
 
         super().__init__(dicts, key=key)
-
-
-__all__ = [thing.__name__ for thing in (
-    my_enumerate,
-    my_enumerate_alt,
-    Enumerate,
-    print_enumerated,
-    print_enumerated_alt,
-    my_any,
-    my_any_alt,
-    my_all,
-    my_all_alt,
-    zip_two,
-    ZipTwo,
-    my_zip,
-    Zip,
-    print_zipped,
-    take_good,
-    take,
-    Take,
-    drop_good,
-    drop,
-    Drop,
-    last,
-    tail,
-    tail_opt,
-    pick,
-    windowed,
-    Windowed,
-    windowed_alt,
-    my_pairwise,
-    Pairwise,
-    map_one,
-    map_one_alt,
-    MapOne,
-    my_filter,
-    my_filter_alt,
-    Filter,
-    length_of,
-    length_of_opt,
-    how_many,
-    invert,
-    invert_alt,
-    distinct_simple,
-    DistinctSimple,
-    distinct,
-    Distinct,
-    distinct_dicts_by_single_key_monolithic,
-    distinct_dicts_by_single_key_alt,
-    distinct_dicts_by_single_key,
-    distinct_dicts_by_keys,
-    DistinctDictsByKeys,
-)]
 
 
 if __name__ == '__main__':
