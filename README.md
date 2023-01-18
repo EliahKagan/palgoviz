@@ -164,6 +164,25 @@ jupyter lab
 [Click here for more info about using notebooks, and real-time collaboration
 for notebooks and modules.](doc/using-notebooks.md)
 
+## Quality
+
+***palgoviz is a work in progress.***
+
+Most functions and classes in modules (`.py` files) inside the `palgoviz/`
+package are intended to be suitable for use as exercises, if you remove their
+implementations other than the header and docstring. For a few, the suggested
+way to “reset” them as exercises is different, and documented.
+
+On the *main* branch, nearly all functions and classes in modules in
+`palgoviz/` have been reviewed, and fully tested as exercises, by each of us.
+We usually do not merge module code to *main* until this has been done.
+
+The major exception, as of this writing, is `sll.py`, which has not yet been
+doubly vetted in this way. The “`alr`” exercises in `recursion.py` have also
+not been through this process (but the others there have).
+
+*See [Code Quality Considerations](doc/quality.md) for more details.*
+
 <!-- TODO: If we add an Acknowledgements sections, it could go here. -->
 
 ## Related work
