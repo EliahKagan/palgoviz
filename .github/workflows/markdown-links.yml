@@ -3,7 +3,7 @@ name: Check Markdown links
 on:
   push:
     branches:
-      - main
+      - '**'
   pull_request:
   schedule:
     - cron: '15 0,12 * * *'
