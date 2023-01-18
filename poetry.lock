@@ -1045,14 +1045,14 @@ files = [
 
 [[package]]
 name = "jupyterlab-server"
-version = "2.18.0"
+version = "2.19.0"
 description = "A set of server components for JupyterLab and JupyterLab like applications."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "jupyterlab_server-2.18.0-py3-none-any.whl", hash = "sha256:2ce377afe6c5f762e933de1d942cad1ec07a1fbace4b586cd7a905fd57892695"},
-    {file = "jupyterlab_server-2.18.0.tar.gz", hash = "sha256:7830f085debc9417a72ebf482dc5cb477d6bf76884826c73182fa457c7829df4"},
+    {file = "jupyterlab_server-2.19.0-py3-none-any.whl", hash = "sha256:51f6922e34f9f3db875051f4f7b57539a04ddd030f42d9ce6062dedf67bf7f2f"},
+    {file = "jupyterlab_server-2.19.0.tar.gz", hash = "sha256:9aec21a2183bbedd9f91a86628355449575f1862d88b28ad5f905019d31e6c21"},
 ]
 
 [package.dependencies]
