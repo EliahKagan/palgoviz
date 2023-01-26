@@ -48,7 +48,7 @@ jobs:
         python-version: 3.11
     
     - name: Install poetry
-      run: curl -sSL https://install.python-poetry.org | python3 -
+      run: curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py | python3 -
 
     - name: Generate requirements.txt
       run: poetry export >requirements.txt
