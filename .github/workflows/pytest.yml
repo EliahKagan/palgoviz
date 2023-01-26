@@ -9,6 +9,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            poetry: ~/.local/bin/poetry
+          - os: macos-latest
+            poetry: ~/.local/bin/poetry
+          - os: windows-latest
+            poetry: $APPDATA/Roaming/Python/Scripts/poetry
 
     runs-on: ${{ matrix.os }}
 
@@ -30,7 +37,7 @@ jobs:
         run: curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py | python3 -
 
       - name: Install project and test runner
-        run: ~/.local/bin/poetry install --only=main,test
+        run: ${{ matrix.poetry }} install --only=main,test
 
       - name: Run all tests
-        run: ~/.local/bin/poetry run pytest --doctest-modules
+        run: ${{ matrix.poetry }} run pytest --doctest-modules
