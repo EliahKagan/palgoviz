@@ -53,7 +53,7 @@ def answer():
     """
     Return the int said to answer the question of life/the universe/everything.
     """
-    return 43  # FIXME: Temporarily broken to test CI. Revert before merging!
+    return 42
 
 
 def is_sorted(items):
