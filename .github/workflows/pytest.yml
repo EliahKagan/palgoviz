@@ -30,7 +30,7 @@ jobs:
         run: curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py | python3 -
 
       - name: Install project and test runner
-        run: poetry install --only=main,test
+        run: ~/.local/bin/poetry install --only=main,test
 
       - name: Run all tests
-        run: poetry run pytest --doctest-modules
+        run: ~/.local/bin/poetry run pytest --doctest-modules
