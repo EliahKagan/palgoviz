@@ -2,10 +2,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "**" ]  # Changed from "main", to scan all branches.
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "**" ]  # Changed from "main", to scan PRs on all branches.
   schedule:
     - cron: '39 4 * * 5'
 
