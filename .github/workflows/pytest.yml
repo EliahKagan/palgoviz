@@ -11,10 +11,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-12, windows-latest]
         include:
-          - os: ubuntu-latest
-            poetry: ~/.local/bin/poetry
-          - os: macos-12
-            poetry: ~/.local/bin/poetry
+          - poetry: ~/.local/bin/poetry
+
           - os: windows-latest
             poetry: $APPDATA/Python/Scripts/poetry
 
