@@ -41,3 +41,4 @@ jobs:
 
       - name: Run all tests
         run: ${{ matrix.poetry }} run pytest --doctest-modules
+        timeout-minutes: 2
