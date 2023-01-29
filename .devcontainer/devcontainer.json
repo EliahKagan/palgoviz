@@ -1,5 +1,18 @@
 {
     "image": "mcr.microsoft.com/devcontainers/python:0-3.11",
     "features": {
-    }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bierner.markdown-preview-github-styles",
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "ms-vsliveshare.vsliveshare",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+    "postCreateCommand": "pipx install poetry && poetry install",
+    "waitFor": "postCreateCommand"
 }
