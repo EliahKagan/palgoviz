@@ -10,7 +10,10 @@
                 "mhutchie.git-graph",
                 "ms-vsliveshare.vsliveshare",
                 "streetsidesoftware.code-spell-checker"
-            ]
+            ],
+            "settings": {
+                "python.venvPath": "~/.cache/pypoetry/virtualenvs"
+            }
         }
     },
     "postCreateCommand": "pipx install poetry && poetry install",
