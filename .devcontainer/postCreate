@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+# The project directory name.
+readonly project='palgoviz'
+
+# Install poetry, project dependencies, and the project.
+pipx install poetry
+poetry install
+
+# Set up symlink to project virtualenv.
+cd ~/.cache/pypoetry/virtualenvs
+venv_paths=(palgoviz-*)
+if ((${#venv_paths} != 1)); then
+    printf '%s: error: initial venv count %d, expected 1\n' \
+        "$0" "${#venv_paths}"
+fi
+ln -s "${venv_paths[0]}" palgoviz
