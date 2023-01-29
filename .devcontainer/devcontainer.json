@@ -10,18 +10,7 @@
                 "mhutchie.git-graph",
                 "ms-vsliveshare.vsliveshare",
                 "streetsidesoftware.code-spell-checker"
-            ],
-            "settings": {
-                "python.defaultInterpreterPath": "~/.cache/pypoetry/virtualenvs/palgoviz/python",
-                "python.venvPath": "~/.cache/pypoetry/virtualenvs",
-                "terminal.integrated.profiles.linux": {
-                    "Poetry": {
-                        "path": "poetry",
-                        "args": ["shell"]
-                    }
-                },
-                "terminal.integrated.defaultProfile.linux": "Poetry"
-            }
+            ]
         }
     },
     "postCreateCommand": ".devcontainer/postCreate",

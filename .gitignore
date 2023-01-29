@@ -7,6 +7,9 @@ __pycache__/
 # Python build files
 /dist/
 
+# Python virtual environment, if virtualenvs.in-project (poetry config)
+/.venv/
+
 # Native (and Haskell) build files
 *.exe
 *.hi
