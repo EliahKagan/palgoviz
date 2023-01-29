@@ -30,28 +30,28 @@ msg '...poetry is set up.'
 
 nl
 
-msg 'Setting up mamba...'
+msg 'Setting up conda and mamba...'
 pushd ~
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
 chmod +x Mambaforge-Linux-x86_64.sh
 ./Mambaforge-Linux-x86_64.sh -b
 rm Mambaforge-Linux-x86_64.sh
-mamba init
-mamba config --set auto_activate_base false
+mambaforge/bin/mamba init
+mambaforge/bin/conda config --set auto_activate_base false
 . ~/.bashrc # TODO: Suppress the ShellCheck warning for this if we keep it.
 mamba update --all
 popd
-msg '...mamba is set up.'
+msg '...conda and mamba are set up.'
 
 nl
 
 msg 'Setting up project environment for poetry...'
 poetry install
-msg '...project environment for poetry set up.'
+msg '...project environment for poetry is set up.'
 
 nl
 
-msg 'Setting up project environment for mamba...'
+msg 'Setting up project environment for conda and mamba...'
 mamba env create
 mamba run -n palgoviz mamba develop .
-msg '...project environment for mamba set up.'
+msg '...project environment for conda and mamba are set up.'
