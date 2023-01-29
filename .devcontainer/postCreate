@@ -1,6 +1,57 @@
 #!/usr/bin/env bash
+
+# Copyright (c) 2023 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
 set -e
 
+msg() {
+    printf '%s: %s\n' "$0" "$1" >&2
+}
+
+nl() {
+    printf '\n' >&2
+}
+
+msg 'Setting up poetry...'
+pipx upgrade-all
 pipx install poetry
-poetry config virtualenvs.in-project true
+msg '...poetry is set up.'
+
+nl
+
+msg 'Setting up mamba...'
+pushd ~
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
+chmod +x Mambaforge-Linux-x86_64.sh
+./Mambaforge-Linux-x86_64.sh -b
+rm Mambaforge-Linux-x86_64.sh
+mamba init
+mamba config --set auto_activate_base false
+. ~/.bashrc # TODO: Suppress the ShellCheck warning for this if we keep it.
+mamba update --all
+popd
+msg '...mamba is set up.'
+
+nl
+
+msg 'Setting up project environment for poetry...'
 poetry install
+msg '...project environment for poetry set up.'
+
+nl
+
+msg 'Setting up project environment for mamba...'
+mamba env create
+mamba run -n palgoviz mamba develop .
+msg '...project environment for mamba set up.'
