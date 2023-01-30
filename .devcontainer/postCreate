@@ -54,21 +54,6 @@ msg '...Mambaforge is updated and configured.'
 
 nl
 
-msg 'Building and installing Graphviz for when poetry is used...'
-pushd /tmp
-wget "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/$graphviz_version/graphviz-$graphviz_version.tar.xz"
-tar xf "graphviz-$graphviz_version.tar.xz"
-pushd "graphviz-$graphviz_version"
-./configure
-make
-sudo make install # Assumes sudo runs in the container without a password.
-popd
-rm -r "graphviz-$graphviz_version" "graphviz-$graphviz_version.tar.xz"
-popd
-msg '...built and installed Graphviz for when poetry is used.'
-
-nl
-
 msg 'Setting up project environment for poetry...'
 poetry install
 msg '...project environment for poetry is set up.'
