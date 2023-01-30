@@ -25,12 +25,6 @@ nl() {
     printf '\n' >&2
 }
 
-msg 'Upgrading pipx packages...'
-pipx upgrade-all
-msg '...pipx packages upgraded.'
-
-nl
-
 msg 'Updating and configuring Mambaforge...'
 mamba update --all --yes
 mamba init bash fish powershell zsh
