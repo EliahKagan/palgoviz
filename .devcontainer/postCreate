@@ -62,5 +62,5 @@ nl
 
 msg 'Setting up project environment for conda and mamba...'
 mamba env create
-mamba run -n palgoviz mamba develop .
+mamba run -n palgoviz pip install -e .
 msg '...project environment for conda and mamba is set up.'
