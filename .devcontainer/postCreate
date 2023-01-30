@@ -52,7 +52,7 @@ msg 'Customizing fish shell integration for git...'
 fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
 fish -c 'set -U __fish_git_prompt_show_informative_status true'
 fish -c 'set -U __fish_git_prompt_showcolorhints true'
-fish -c 'set -U __fish_git_prompt_showuntrackedfiles'
+fish -c 'set -U __fish_git_prompt_showuntrackedfiles true'
 fish -c 'set -U __fish_git_prompt_showupstream verbose'
 msg '...fish shell integration for git is customized.'
 
