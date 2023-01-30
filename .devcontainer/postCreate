@@ -52,5 +52,5 @@ nl
 
 msg 'Setting up project environment for conda and mamba...'
 mambaforge/bin/mamba env create
-mambaforge/bin/mamba run -n palgoviz mamba develop .
+mambaforge/bin/mamba run -n palgoviz mambaforge/bin/mamba develop .
 msg '...project environment for conda and mamba is set up.'
