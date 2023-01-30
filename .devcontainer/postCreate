@@ -39,7 +39,7 @@ chmod +x Mambaforge-Linux-x86_64.sh
 ./Mambaforge-Linux-x86_64.sh -b
 rm Mambaforge-Linux-x86_64.sh
 popd
-~/mambaforge/bin/mamba init
+~/mambaforge/bin/mamba init bash fish powershell zsh
 ~/mambaforge/bin/conda config --set auto_activate_base false
 ~/mambaforge/bin/mamba update --all --yes
 msg '...conda and mamba are set up.'
