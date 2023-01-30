@@ -25,32 +25,17 @@ nl() {
     printf '\n' >&2
 }
 
-msg 'Customizing shell integration for git...'
-fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
-fish -c 'set -U __fish_git_prompt_show_informative_status true'
-fish -c 'set -U __fish_git_prompt_showcolorhints true'
-fish -c 'set -U __fish_git_prompt_showuntrackedfiles'
-fish -c 'set -U __fish_git_prompt_showupstream verbose'
-msg '...shell integration for git is customized.'
-
-msg 'Setting up poetry...'
+msg 'Upgrading pipx packages...'
 pipx upgrade-all
-pipx install poetry
-msg '...poetry is set up.'
+msg '...pipx packages upgraded.'
 
 nl
 
-msg 'Setting up conda and mamba...'
-pushd /tmp
-wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
-chmod +x Mambaforge-Linux-x86_64.sh
-./Mambaforge-Linux-x86_64.sh -b
-rm Mambaforge-Linux-x86_64.sh
-popd
-~/mambaforge/bin/mamba init bash fish powershell zsh
-~/mambaforge/bin/conda config --set auto_activate_base false
-~/mambaforge/bin/mamba update --all --yes
-msg '...conda and mamba are set up.'
+msg 'Updating and configuring Mambaforge...'
+mamba update --all --yes
+mamba init bash fish powershell zsh
+conda config --set auto_activate_base false
+msg '...Mambaforge is updated and configured.'
 
 nl
 
@@ -69,6 +54,16 @@ msg '...built and installed Graphviz (for when using poetry).'
 
 nl
 
+msg 'Customizing fish shell integration for git...'
+fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
+fish -c 'set -U __fish_git_prompt_show_informative_status true'
+fish -c 'set -U __fish_git_prompt_showcolorhints true'
+fish -c 'set -U __fish_git_prompt_showuntrackedfiles'
+fish -c 'set -U __fish_git_prompt_showupstream verbose'
+msg '...fish shell integration for git is customized.'
+
+nl
+
 msg 'Setting up project environment for poetry...'
 poetry install
 msg '...project environment for poetry is set up.'
@@ -76,6 +71,6 @@ msg '...project environment for poetry is set up.'
 nl
 
 msg 'Setting up project environment for conda and mamba...'
-~/mambaforge/bin/mamba env create
-~/mambaforge/bin/mamba run -n palgoviz mamba develop .
+mamba env create
+mamba run -n palgoviz mamba develop .
 msg '...project environment for conda and mamba is set up.'
