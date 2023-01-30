@@ -51,6 +51,6 @@ msg '...project environment for poetry is set up.'
 nl
 
 msg 'Setting up project environment for conda and mamba...'
-mamba env create
-mamba run -n palgoviz mamba develop .
+mambaforge/bin/mamba env create
+mambaforge/bin/mamba run -n palgoviz mamba develop .
 msg '...project environment for conda and mamba are set up.'
