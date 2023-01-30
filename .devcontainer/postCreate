@@ -25,6 +25,24 @@ nl() {
     printf '\n' >&2
 }
 
+msg 'Customizing fish shell integration for git...'
+fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
+fish -c 'set -U __fish_git_prompt_show_informative_status true'
+fish -c 'set -U __fish_git_prompt_showcolorhints true'
+fish -c 'set -U __fish_git_prompt_showuntrackedfiles true'
+fish -c 'set -U __fish_git_prompt_showupstream verbose'
+msg '...fish shell integration for git is customized.'
+
+nl
+
+msg 'Setting up PowerShell integration for git...'
+pwsh -c 'Set-PSRepository PSGallery -InstallationPolicy Trusted'
+pwsh -c 'Install-Module -Name posh-git'
+pwsh -c 'Add-PoshGitToProfile -AllHosts' # Do before "conda init powershell".
+msg '...PowerShell integration for git set up.'
+
+nl
+
 msg 'Updating and configuring Mambaforge...'
 mamba update --all --yes
 mamba init bash fish powershell zsh
@@ -33,7 +51,7 @@ msg '...Mambaforge is updated and configured.'
 
 nl
 
-msg 'Building and installing Graphviz (for when using poetry)...'
+msg 'Building and installing Graphviz for when poetry is used...'
 pushd /tmp
 wget "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/$graphviz_version/graphviz-$graphviz_version.tar.xz"
 tar xf "graphviz-$graphviz_version.tar.xz"
@@ -44,17 +62,7 @@ sudo make install # Assumes sudo runs in the container without a password.
 popd
 rm -r "graphviz-$graphviz_version" "graphviz-$graphviz_version.tar.xz"
 popd
-msg '...built and installed Graphviz (for when using poetry).'
-
-nl
-
-msg 'Customizing fish shell integration for git...'
-fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
-fish -c 'set -U __fish_git_prompt_show_informative_status true'
-fish -c 'set -U __fish_git_prompt_showcolorhints true'
-fish -c 'set -U __fish_git_prompt_showuntrackedfiles true'
-fish -c 'set -U __fish_git_prompt_showupstream verbose'
-msg '...fish shell integration for git is customized.'
+msg '...built and installed Graphviz for when poetry is used.'
 
 nl
 
