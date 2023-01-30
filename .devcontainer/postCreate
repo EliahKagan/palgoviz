@@ -31,15 +31,15 @@ msg '...poetry is set up.'
 nl
 
 msg 'Setting up conda and mamba...'
-pushd ~
+pushd ~ # TODO: Use a tmp dir instead.
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
 chmod +x Mambaforge-Linux-x86_64.sh
 ./Mambaforge-Linux-x86_64.sh -b
 rm Mambaforge-Linux-x86_64.sh
-mambaforge/bin/mamba init
-mambaforge/bin/conda config --set auto_activate_base false
-mambaforge/bin/mamba update --all --yes
 popd
+~/mambaforge/bin/mamba init
+~/mambaforge/bin/conda config --set auto_activate_base false
+~/mambaforge/bin/mamba update --all --yes
 msg '...conda and mamba are set up.'
 
 nl
@@ -51,6 +51,6 @@ msg '...project environment for poetry is set up.'
 nl
 
 msg 'Setting up project environment for conda and mamba...'
-mambaforge/bin/mamba env create
-mambaforge/bin/mamba run -n palgoviz mambaforge/bin/mamba develop .
+~/mambaforge/bin/mamba env create
+~/mambaforge/bin/mamba run -n palgoviz mamba develop .
 msg '...project environment for conda and mamba is set up.'
