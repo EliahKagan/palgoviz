@@ -3,7 +3,7 @@
     "features": {
         "ghcr.io/devcontainers/features/powershell:1": {},
         "ghcr.io/devcontainers/features/nix:1": {
-            "packages": "graphviz-nox"
+            "packages": "graphviz"
         },
         "ghcr.io/devcontainers-contrib/features/poetry:2": {},
         "ghcr.io/guiyomh/features/vim": {},
