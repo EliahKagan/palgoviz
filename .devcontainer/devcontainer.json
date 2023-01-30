@@ -13,6 +13,9 @@
             "variant": "Mambaforge"
         }
     },
+    "overrideFeatureInstallOrder": [
+        "ghcr.io/devcontainers/features/powershell"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
