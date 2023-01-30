@@ -38,8 +38,7 @@ chmod +x Mambaforge-Linux-x86_64.sh
 rm Mambaforge-Linux-x86_64.sh
 mambaforge/bin/mamba init
 mambaforge/bin/conda config --set auto_activate_base false
-. ~/.bashrc # TODO: Suppress the ShellCheck warning for this if we keep it.
-mamba update --all
+mambaforge/bin/mamba update --all --yes
 popd
 msg '...conda and mamba are set up.'
 
