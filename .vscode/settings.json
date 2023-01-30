@@ -5,6 +5,7 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "rewrap.wrappingColumn": 79,
     "cSpell.words": [
         "__getattribute__",
         "abstractmethod",
@@ -170,6 +171,7 @@
         "sortedness",
         "startswith",
         "staticmethod",
+        "stkb",
         "subexpression",
         "subexpressions",
         "sublist",
