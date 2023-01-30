@@ -15,6 +15,8 @@
 
 set -e
 
+readonly graphviz_version='7.1.0'
+
 msg() {
     printf '%s: %s\n' "$0" "$1" >&2
 }
@@ -31,7 +33,7 @@ msg '...poetry is set up.'
 nl
 
 msg 'Setting up conda and mamba...'
-pushd ~ # TODO: Use a tmp dir instead.
+pushd /tmp
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
 chmod +x Mambaforge-Linux-x86_64.sh
 ./Mambaforge-Linux-x86_64.sh -b
@@ -41,6 +43,21 @@ popd
 ~/mambaforge/bin/conda config --set auto_activate_base false
 ~/mambaforge/bin/mamba update --all --yes
 msg '...conda and mamba are set up.'
+
+nl
+
+msg 'Building and installing Graphviz (for when using poetry)...'
+pushd /tmp
+wget "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/$graphviz_version/graphviz-$graphviz_version.tar.xz"
+tar xf "graphviz-$graphviz_version.tar.xz"
+pushd "graphviz-$graphviz_version"
+./configure --prefix="$HOME"
+make
+make install
+popd
+rm -r "graphviz-$graphviz_version" "graphviz-$graphviz_version.tar.xz"
+popd
+msg '...built and installed Graphviz (for when using poetry).'
 
 nl
 
