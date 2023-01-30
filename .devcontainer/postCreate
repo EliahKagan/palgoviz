@@ -51,9 +51,9 @@ pushd /tmp
 wget "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/$graphviz_version/graphviz-$graphviz_version.tar.xz"
 tar xf "graphviz-$graphviz_version.tar.xz"
 pushd "graphviz-$graphviz_version"
-./configure --prefix="$HOME"
+./configure
 make
-make install
+sudo make install # Assumes the user can run sudo without a password.
 popd
 rm -r "graphviz-$graphviz_version" "graphviz-$graphviz_version.tar.xz"
 popd
