@@ -29,5 +29,6 @@
         }
     },
     "postCreateCommand": ".devcontainer/experimental/postCreate",
+    "postStartCommand": ".devcontainer/experimental/postStart",
     "waitFor": "postCreateCommand"
 }

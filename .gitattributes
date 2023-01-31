@@ -1,3 +1,3 @@
-/.devcontainer/experimental/postCreate eol=lf
+/.devcontainer/experimental/post* eol=lf
 /meta/restructure text eol=lf
 /meta/run-test-scripts text eol=lf
