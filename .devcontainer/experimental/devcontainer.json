@@ -13,6 +13,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "alefragnani.numbered-bookmarks",
                 "bierner.markdown-preview-github-styles",
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
@@ -21,6 +22,8 @@
                 "streetsidesoftware.code-spell-checker"
             ],
             "settings": {
+                "gitlens.showWelcomeOnInstall": false,
+                "gitlens.showWhatsNewAfterUpgrades": false,
                 "python.terminal.activateEnvironment": false
             }
         }

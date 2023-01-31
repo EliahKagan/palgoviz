@@ -15,17 +15,23 @@
 
 set -e
 
-msg() {
-    printf '%s: %s\n' "$0" "$1" >&2
-}
-
 nl() {
     printf '\n' >&2
+}
+
+msg() {
+    printf '%s: %s\n' "$0" "$1" >&2
 }
 
 # TODO: Customize bash and zsh prompts to indicate staged and unstaged changes.
 #       Note that devcontainers-theme.show-dirty isn't enough to achieve this.
 
+nl
+msg 'Customizing global git options...'
+git config --global color.diff.new blue
+msg '...global git options customized.'
+
+nl
 msg 'Customizing fish shell integration for git...'
 fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
 fish -c 'set -U __fish_git_prompt_show_informative_status true'
@@ -35,7 +41,6 @@ fish -c 'set -U __fish_git_prompt_showupstream verbose'
 msg '...fish shell integration for git is customized.'
 
 nl
-
 msg 'Setting up PowerShell integration for git...'
 pwsh -c 'Set-PSRepository PSGallery -InstallationPolicy Trusted'
 pwsh -c 'Install-Module -Name posh-git'
@@ -43,7 +48,6 @@ pwsh -c 'Add-PoshGitToProfile -AllHosts' # Do before "conda init powershell".
 msg '...PowerShell integration for git set up.'
 
 nl
-
 msg 'Setting up Mambaforge...'
 pushd /tmp
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
@@ -57,13 +61,11 @@ popd
 msg '...Mambaforge is set up.'
 
 nl
-
 msg 'Setting up project environment for poetry...'
 poetry install
 msg '...project environment for poetry is set up.'
 
 nl
-
 msg 'Setting up project environment for conda and mamba...'
 ~/mambaforge/condabin/mamba env create
 ~/mambaforge/condabin/mamba run -n palgoviz mamba develop .
