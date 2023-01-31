@@ -27,28 +27,29 @@ msg() {
 #       Note that devcontainers-theme.show-dirty isn't enough to achieve this.
 
 nl
-msg 'Customizing global git options...'
+msg 'Customizing global git configuration...'
 git config --global color.diff.new blue
-msg '...global git options customized.'
+msg '...global git configuration customized.'
 
 nl
-msg 'Customizing fish shell integration for git...'
+msg 'Customizing fish (the friendly interactive shell)...'
+sudo chsh -s /usr/bin/fish vscode
 fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
 fish -c 'set -U __fish_git_prompt_show_informative_status true'
 fish -c 'set -U __fish_git_prompt_showcolorhints true'
 fish -c 'set -U __fish_git_prompt_showuntrackedfiles true'
 fish -c 'set -U __fish_git_prompt_showupstream verbose'
-msg '...fish shell integration for git is customized.'
+msg '...fish customized.'
 
 nl
-msg 'Setting up PowerShell integration for git...'
+msg 'Customizing pwsh (PowerShell)...'
 pwsh -c 'Set-PSRepository PSGallery -InstallationPolicy Trusted'
 pwsh -c 'Install-Module -Name posh-git'
 pwsh -c 'Add-PoshGitToProfile -AllHosts' # Do before "conda init powershell".
-msg '...PowerShell integration for git set up.'
+msg '...pwsh customized.'
 
 nl
-msg 'Setting up Mambaforge...'
+msg 'Setting up Mambaforge (which provides conda and mamba)...'
 pushd /tmp
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
 chmod +x Mambaforge-Linux-x86_64.sh
