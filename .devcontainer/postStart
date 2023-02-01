@@ -15,8 +15,11 @@
 
 set -e
 
+# The pathname to the GitHub Codespaces metadata directory.
+readonly cs_meta_path='/workspaces/.codespaces'
+
 # The pathname to the JSON file listing GitHub Codespace environment variables.
-readonly vars_path='/workspaces/.codespaces/shared/environment-variables.json'
+readonly cs_vars_path="$cs_meta_path/shared/environment-variables.json"
 
 # The pathname to the JupyterLab configuration file.
 readonly config_path=~/.jupyter/jupyter_lab_config.py
@@ -27,10 +30,15 @@ readonly auto_comment='# postStart generated'
 # Python regex for the end of a permitted URL, when the beginning is also okay.
 readonly url_end_pattern='-[89][0-9]{3}\.preview\.app\.github\.dev'
 
+in_codespace() {
+    # TODO: Find a more reliable way to check if we are running in a codespace.
+    test -e "$cs_meta_path"
+}
+
 have_manual_conf() {
     local auto_pattern # POSIX ERE that will match a line that is safe to lose.
     printf -v auto_pattern '(^|%s)[[:blank:]]*$' "$auto_comment"
-    [ -e "$config_path" ] && grep -Eqv "$auto_pattern" -- "$config_path"
+    test -e "$config_path" && grep -Eqv "$auto_pattern" -- "$config_path"
 }
 
 new_empty_conf() {
@@ -45,7 +53,7 @@ append_to_conf() {
 generate_conf() {
     local codespace_name url_pattern
 
-    codespace_name="$(jq -r .CODESPACE_NAME -- "$vars_path")"
+    codespace_name="$(jq -r .CODESPACE_NAME -- "$cs_vars_path")"
     url_pattern="https://${codespace_name}${url_end_pattern}"
 
     new_empty_conf
@@ -53,4 +61,6 @@ generate_conf() {
     append_to_conf "c.ServerApp.allow_origin_pat = r'$url_pattern'"
 }
 
-have_manual_conf || generate_conf
+if in_codespace && ! have_manual_conf; then
+    generate_conf
+fi
