@@ -172,14 +172,14 @@ files = [
 
 [[package]]
 name = "beautifulsoup4"
-version = "4.11.1"
+version = "4.11.2"
 description = "Screen-scraping library"
 category = "dev"
 optional = false
 python-versions = ">=3.6.0"
 files = [
-    {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
-    {file = "beautifulsoup4-4.11.1.tar.gz", hash = "sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"},
+    {file = "beautifulsoup4-4.11.2-py3-none-any.whl", hash = "sha256:0e79446b10b3ecb499c1556f7e228a53e64a2bfcebd455f370d8927cb5b59e39"},
+    {file = "beautifulsoup4-4.11.2.tar.gz", hash = "sha256:bc4bdda6717de5a2987436fb8d72f45dc90dd856bdfd512a1314ce90349a0106"},
 ]
 
 [package.dependencies]
@@ -848,14 +848,14 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 
 [[package]]
 name = "jupyter-client"
-version = "8.0.1"
+version = "8.0.2"
 description = "Jupyter protocol implementation and client libraries"
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_client-8.0.1-py3-none-any.whl", hash = "sha256:6016b874fd1111d721bc5bee30624399e876e79e6f395d1a559e6dce9fb2e1ba"},
-    {file = "jupyter_client-8.0.1.tar.gz", hash = "sha256:3f67b1c8b7687e6db09bef10ff97669932b5e6ef6f5a8ee56d444b89022c5007"},
+    {file = "jupyter_client-8.0.2-py3-none-any.whl", hash = "sha256:c53731eb590b68839b0ce04bf46ff8c4f03278f5d9fe5c3b0f268a57cc2bd97e"},
+    {file = "jupyter_client-8.0.2.tar.gz", hash = "sha256:47ac9f586dbcff4d79387ec264faf0fdeb5f14845fa7345fd7d1e378f8096011"},
 ]
 
 [package.dependencies]
@@ -871,14 +871,14 @@ test = ["codecov", "coverage", "ipykernel (>=6.14)", "mypy", "paramiko", "pre-co
 
 [[package]]
 name = "jupyter-core"
-version = "5.1.5"
+version = "5.2.0"
 description = "Jupyter core package. A base package on which Jupyter projects rely."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_core-5.1.5-py3-none-any.whl", hash = "sha256:83064d61bb2a9bc874e8184331c117b3778c2a7e1851f60cb00d273ceb3285ae"},
-    {file = "jupyter_core-5.1.5.tar.gz", hash = "sha256:8e54c48cde1e0c8345f64bcf9658b78044ddf02b273726cea9d9f59be4b02130"},
+    {file = "jupyter_core-5.2.0-py3-none-any.whl", hash = "sha256:4bdc2928c37f6917130c667d8b8708f20aee539d8283c6be72aabd2a4b4c83b0"},
+    {file = "jupyter_core-5.2.0.tar.gz", hash = "sha256:1407cdb4c79ee467696c04b76633fc1884015fa109323365a6372c8e890cc83f"},
 ]
 
 [package.dependencies]
@@ -917,14 +917,14 @@ test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=
 
 [[package]]
 name = "jupyter-server"
-version = "2.1.0"
+version = "2.2.0"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.1.0-py3-none-any.whl", hash = "sha256:90cd6f2bd0581ddd9b2dbe82026a0f4c228a1d95c86e22460efbfdfc931fcf56"},
-    {file = "jupyter_server-2.1.0.tar.gz", hash = "sha256:efaae5e4f0d5f22c7f2f2dc848635036ee74a2df02abed52d30d9d95121ad382"},
+    {file = "jupyter_server-2.2.0-py3-none-any.whl", hash = "sha256:9c79b7227a7e3974856265908da40715ab49b7014ac39478d80b07e164b5a70e"},
+    {file = "jupyter_server-2.2.0.tar.gz", hash = "sha256:f901efcb4adce2370c64dc5942be587bd181119644660a1eb123435c3cd01f95"},
 ]
 
 [package.dependencies]
@@ -2156,14 +2156,14 @@ files = [
 
 [[package]]
 name = "traitlets"
-version = "5.8.1"
+version = "5.9.0"
 description = "Traitlets Python configuration system"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "traitlets-5.8.1-py3-none-any.whl", hash = "sha256:a1ca5df6414f8b5760f7c5f256e326ee21b581742114545b462b35ffe3f04861"},
-    {file = "traitlets-5.8.1.tar.gz", hash = "sha256:32500888f5ff7bbf3b9267ea31748fa657aaf34d56d85e60f91dda7dc7f5785b"},
+    {file = "traitlets-5.9.0-py3-none-any.whl", hash = "sha256:9e6ec080259b9a5940c797d58b613b5e31441c2257b87c2e795c5228ae80d2d8"},
+    {file = "traitlets-5.9.0.tar.gz", hash = "sha256:f6cde21a9c68cf756af02035f72d5a723bf607e862e7be33ece505abf4a3bad9"},
 ]
 
 [package.extras]
