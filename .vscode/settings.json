@@ -145,6 +145,7 @@
         "preimage",
         "pyproject",
         "pytest",
+        "PYTHONIOENCODING",
         "qualname",
         "quux",
         "radd",
