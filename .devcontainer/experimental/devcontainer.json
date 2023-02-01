@@ -1,4 +1,5 @@
 {
+    "name": "palgoviz (EXPERIMENTAL dev container)",
     "image": "mcr.microsoft.com/devcontainers/python:0-3.11",
     "features": {
         "ghcr.io/devcontainers/features/powershell:1": {},
