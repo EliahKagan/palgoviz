@@ -31,5 +31,8 @@
     },
     "postCreateCommand": ".devcontainer/postCreate",
     "postStartCommand": ".devcontainer/postStart",
-    "waitFor": "postCreateCommand"
+    "waitFor": "postCreateCommand",
+    "containerEnv": {
+        "SHELL": "/usr/bin/fish"
+    }
 }
