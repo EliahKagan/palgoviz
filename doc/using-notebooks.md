@@ -24,7 +24,7 @@ poetry shell
 ### Running JupyterLab
 
 It is best to run JupyterLab from the top-level directory. If you installed
-with `conda` but decided to skip the `conda develop` installation step, then
+with `conda` but decided to skip the `pip install -e .` installation step, then
 you must run it from there; otherwise, it is merely recommended.
 
 To run JupyterLab:
