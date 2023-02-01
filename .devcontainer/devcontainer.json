@@ -17,10 +17,12 @@
                 "alefragnani.numbered-bookmarks",
                 "bierner.markdown-preview-github-styles",
                 "eamodio.gitlens",
+                "mads-hartmann.bash-ide-vscode",
                 "mhutchie.git-graph",
                 "ms-vsliveshare.vsliveshare",
                 "stkb.rewrap",
-                "streetsidesoftware.code-spell-checker"
+                "streetsidesoftware.code-spell-checker",
+                "tamasfe.even-better-toml"
             ],
             "settings": {
                 "gitlens.showWelcomeOnInstall": false,
