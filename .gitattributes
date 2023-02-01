@@ -1,3 +1,11 @@
+# It's especially important for shell scripts to have LF, *not* CRLF, endings.
 /.devcontainer/post* eol=lf
 /meta/restructure text eol=lf
 /meta/run-test-scripts text eol=lf
+
+# Although of lesser importance, it is convenient, especially when cloning on
+# Windows into a dev container, to have all text files have LF line endings.
+* text=auto eol=lf
+
+# Minimilze the chance of Git wrongly detecting a binary file as text.
+*.png binary
