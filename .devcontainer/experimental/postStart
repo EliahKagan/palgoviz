@@ -15,15 +15,42 @@
 
 set -e
 
-readonly varpath='/workspaces/.codespaces/shared/environment-variables.json'
-readonly confpath=~/.jupyter/jupyter_lab_config.py
-readonly port='8888' # TODO: In the future, support a range of ports.
-readonly domain_suffix='preview.app.github.dev'
+# The pathname to the JSON file listing GitHub Codespace environment variables.
+readonly vars_path='/workspaces/.codespaces/shared/environment-variables.json'
 
-if [ ! -e "$confpath" ]; then
-    codespace="$(jq -r .CODESPACE_NAME -- "$varpath")"
-    url="https://$codespace-$port.$domain_suffix"
-    mkdir -p -- "$(dirname -- "$confpath")"
-    printf 'c = get_config()  # noqa\n' >"$confpath"
-    printf "c.ServerApp.allow_origin = '%s'\n" "$url" >>"$confpath"
-fi
+# The pathname to the JupyterLab configuration file.
+readonly config_path=~/.jupyter/jupyter_lab_config.py
+
+# Python code comment we append to indicate we automatically generated a line.
+readonly auto_comment='# postStart generated'
+
+# Python regex for the end of a permitted URL, when the beginning is also okay.
+readonly url_end_pattern='-[89][0-9]{3}\.preview\.app\.github\.dev'
+
+have_manual_conf() {
+    local auto_pattern # POSIX ERE that will match a line that is safe to lose.
+    printf -v auto_pattern '(^|%s)[[:blank:]]*$' "$auto_comment"
+    [ -e "$config_path" ] && grep -Eqv "$auto_pattern" -- "$config_path"
+}
+
+new_empty_conf() {
+    mkdir -p -- "$(dirname -- "$config_path")"
+    : >"$config_path"
+}
+
+append_to_conf() {
+    printf '%s  %s\n' "$1" "$auto_comment" >>"$config_path"
+}
+
+generate_conf() {
+    local codespace_name url_pattern
+
+    codespace_name="$(jq -r .CODESPACE_NAME -- "$vars_path")"
+    url_pattern="https://${codespace_name}${url_end_pattern}"
+
+    new_empty_conf
+    append_to_conf 'c = get_config()  # noqa'
+    append_to_conf "c.ServerApp.allow_origin_pat = r'$url_pattern'"
+}
+
+have_manual_conf || generate_conf
