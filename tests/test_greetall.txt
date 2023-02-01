@@ -6,8 +6,15 @@ SPDX-License-Identifier: 0BSD
 TODO: Write better, more exhaustive tests, probably with pytest.
 ================================================================
 
->>> from subprocess import getstatusoutput as gso
->>> from sys import executable as py
+>>> import functools
+>>> import os
+>>> import subprocess
+>>> import sys
+
+>>> os.environ['PYTHONIOENCODING'] = 'utf-8'
+>>> gso = functools.partial(subprocess.getstatusoutput, encoding='utf-8')
+
+>>> py = sys.executable
 >>> if '"' in py:
 ...     raise Exception("""tests can't handle "'" in interpreter path""")
 
