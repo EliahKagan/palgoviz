@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: 0BSD
+
+# Shows info on what commit introduced each file, including the date. Example:
+#
+#   meta/birthday **.py | grep '\b2021-'
+#
+# That non-robustly lists Python modules introduced in 2021. (It is not robust
+# because the regular expression could mach in a filename or commit message.)
+
+set -eo pipefail
+
+git ls-files -z -- "$@" | while IFS= read -rd '' file; do
+    printf '%-30s ' "$file:"
+    git log --follow --format="%cs %h %s" -- "$file" | tail -n 1
+done

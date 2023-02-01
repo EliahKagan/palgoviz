@@ -1,5 +1,6 @@
 # It's especially important for shell scripts to have LF, *not* CRLF, endings.
 /.devcontainer/post* eol=lf
+/meta/birthday text eol=lf
 /meta/restructure text eol=lf
 /meta/run-test-scripts text eol=lf
 
