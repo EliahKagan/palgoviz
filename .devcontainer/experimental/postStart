@@ -22,8 +22,8 @@ readonly domain_suffix='preview.app.github.dev'
 
 if [ ! -e "$confpath" ]; then
     codespace="$(jq -r .CODESPACE_NAME -- "$varpath")"
-    domain="$codespace-$port.$domain_suffix"
+    url="https://$codespace-$port.$domain_suffix"
     mkdir -p -- "$(dirname -- "$confpath")"
     printf 'c = get_config()  # noqa\n' >"$confpath"
-    printf "c.ServerApp.allow_origin = '%s'\n" "$domain" >>"$confpath"
+    printf "c.ServerApp.allow_origin = '%s'\n" "$url" >>"$confpath"
 fi
