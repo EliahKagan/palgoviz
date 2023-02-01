@@ -62,20 +62,19 @@ To obtain and set up palgoviz:
 5. Create an “editable install” in the environment:
 
     ```sh
-    conda develop .
+    pip install -e .
     ```
 
     That command only has to be run once (unless you delete and recreate the
-    environment or undo it with `conda develop --uninstall`). It does *not*
-    need to be run each time you use the project.
+    environment). It does *not* need to be run each time you use the project.
 
     This step is required to allow some modules to be run as scripts, and to be
     run from any location. Most of the project will work without it, but a
     small amount of functionality, and tests for that functionality, will fail
     without it.
 
-    `conda develop .` is roughly analogous to using `pip install -e` when
-    developing in a Python virtual environment rather than a Conda environment.
+    If you have `conda-build` installed, you can use `conda develop .` instead
+    of `pip install -e .`, if you like.
 
 ## Updating the environment
 
@@ -86,7 +85,7 @@ At this time, most project dependencies are not pinned in `environment.yml`,
 and dependencies may continue to change as work proceeds further on the
 project. (See “Pinning note” below.)
 
-The following is recommended for updating the project:
+The following is recommended for updating the project.
 
 1. Activate the environment if it is not already active:
 
@@ -113,7 +112,7 @@ The following is recommended for updating the project:
 ## Pinning note
 
 We are not currently pinning specific package versions, nor listing indirect
-dependencies, in `environment.yml`
+dependencies, in `environment.yml`.
 
 If you want dependencies pinned to specific known-working versions, you can
 [install with `poetry`](install-with-poetry.md) instead of with `conda`.

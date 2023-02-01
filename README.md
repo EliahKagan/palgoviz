@@ -92,7 +92,7 @@ You must activate the environment each time you use the project in a new shell
 Create an “editable install” in the environment:
 
 ```sh
-conda develop .
+pip install -e .
 ```
 
 That command only has to be run once, *not* each time you use the project.
