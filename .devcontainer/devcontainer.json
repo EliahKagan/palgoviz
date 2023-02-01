@@ -29,7 +29,7 @@
             }
         }
     },
-    "postCreateCommand": ".devcontainer/experimental/postCreate",
-    "postStartCommand": ".devcontainer/experimental/postStart",
+    "postCreateCommand": ".devcontainer/postCreate",
+    "postStartCommand": ".devcontainer/postStart",
     "waitFor": "postCreateCommand"
 }
