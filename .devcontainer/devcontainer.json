@@ -1,21 +1,20 @@
 {
+    "name": "palgoviz (EXPERIMENTAL dev container)",
     "image": "mcr.microsoft.com/devcontainers/python:0-3.11",
     "features": {
         "ghcr.io/devcontainers/features/powershell:1": {},
-        "ghcr.io/devcontainers-contrib/features/homebrew-package:1": {
-            "package": "graphviz"
-        },
         "ghcr.io/devcontainers-contrib/features/poetry:2": {},
         "ghcr.io/guiyomh/features/vim": {},
         "ghcr.io/lukewiwa/features/shellcheck:0": {},
         "ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {},
-        "ghcr.io/rocker-org/devcontainer-features/miniforge:1": {
-            "variant": "Mambaforge"
+        "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+            "packages": "graphviz"
         }
     },
     "customizations": {
         "vscode": {
             "extensions": [
+                "alefragnani.numbered-bookmarks",
                 "bierner.markdown-preview-github-styles",
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
@@ -24,10 +23,16 @@
                 "streetsidesoftware.code-spell-checker"
             ],
             "settings": {
+                "gitlens.showWelcomeOnInstall": false,
+                "gitlens.showWhatsNewAfterUpgrades": false,
                 "python.terminal.activateEnvironment": false
             }
         }
     },
     "postCreateCommand": ".devcontainer/postCreate",
-    "waitFor": "postCreateCommand"
+    "postStartCommand": ".devcontainer/postStart",
+    "waitFor": "postCreateCommand",
+    "containerEnv": {
+        "SHELL": "/usr/bin/fish"
+    }
 }

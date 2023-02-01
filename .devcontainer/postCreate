@@ -15,52 +15,59 @@
 
 set -e
 
-readonly graphviz_version='7.1.0'
+nl() {
+    printf '\n' >&2
+}
 
 msg() {
     printf '%s: %s\n' "$0" "$1" >&2
 }
 
-nl() {
-    printf '\n' >&2
-}
-
 # TODO: Customize bash and zsh prompts to indicate staged and unstaged changes.
 #       Note that devcontainers-theme.show-dirty isn't enough to achieve this.
 
-msg 'Customizing fish shell integration for git...'
+nl
+msg 'Customizing global git configuration...'
+git config --global color.diff.new blue
+msg '...global git configuration customized.'
+
+nl
+msg 'Customizing fish (the friendly interactive shell)...'
+sudo chsh -s /usr/bin/fish vscode
 fish -c 'set -U __fish_git_prompt_color_cleanstate brgreen'
 fish -c 'set -U __fish_git_prompt_show_informative_status true'
 fish -c 'set -U __fish_git_prompt_showcolorhints true'
 fish -c 'set -U __fish_git_prompt_showuntrackedfiles true'
 fish -c 'set -U __fish_git_prompt_showupstream verbose'
-msg '...fish shell integration for git is customized.'
+msg '...fish customized.'
 
 nl
-
-msg 'Setting up PowerShell integration for git...'
+msg 'Customizing pwsh (PowerShell)...'
 pwsh -c 'Set-PSRepository PSGallery -InstallationPolicy Trusted'
 pwsh -c 'Install-Module -Name posh-git'
 pwsh -c 'Add-PoshGitToProfile -AllHosts' # Do before "conda init powershell".
-msg '...PowerShell integration for git set up.'
+msg '...pwsh customized.'
 
 nl
-
-msg 'Updating and configuring Mambaforge...'
-mamba update --all --yes
-mamba init bash fish powershell zsh
-conda config --set auto_activate_base false
-msg '...Mambaforge is updated and configured.'
+msg 'Setting up Mambaforge (which provides conda and mamba)...'
+pushd /tmp
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
+chmod +x Mambaforge-Linux-x86_64.sh
+./Mambaforge-Linux-x86_64.sh -b
+rm Mambaforge-Linux-x86_64.sh
+popd
+~/mambaforge/condabin/mamba init bash fish powershell zsh
+~/mambaforge/condabin/conda config --set auto_activate_base false
+~/mambaforge/condabin/mamba update --all --yes
+msg '...Mambaforge is set up.'
 
 nl
-
 msg 'Setting up project environment for poetry...'
 poetry install
 msg '...project environment for poetry is set up.'
 
 nl
-
 msg 'Setting up project environment for conda and mamba...'
-mamba env create
-mamba run -n palgoviz pip install -e .
+~/mambaforge/condabin/mamba env create
+~/mambaforge/condabin/mamba run --name palgoviz pip install -e .
 msg '...project environment for conda and mamba is set up.'
