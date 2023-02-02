@@ -118,7 +118,7 @@ above](#without-forking), but in your fork instead of in the upstream project.
 
 You can create the codespace for any branch. That branch will be checked out
 into the codespace initially, but the dev container in the codespace will have
-access to other branches. In particular, if you create the codespace for your
+access to other branches. For example, if you create the codespace for your
 main branch, you’ll still be able to switch (or even create) a feature branch
 and use it to work on the feature branch.
 
@@ -130,11 +130,14 @@ The above instructions describe using the web-based interface. That uses a
 version of VS Code in your web browser. It is separate from, and does not
 require, the VS Code application on your computer.
 
-As of this writing, this works better with Chromium-based browsers (such as
-Google Chrome) than with Firefox. In particular, previewing Markdown documents,
-including the automatic preview of [the top-level readme](../README.md), does
-not always work on Firefox. But besides that, the interface is pretty usable
-either way, and you can switch between browsers without having to restart the
+As of this writing, this works better with Chromium-based browsers, such as
+Google Chrome, than with Firefox. (If you do use Firefox, the experience can
+[sometimes be
+improved](https://github.com/github/codespaces-getting-started-ml#warning) by
+[turning off enhanced tracking
+protection](https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop#w_what-to-do-if-a-site-seems-broken)
+after after entering the codespace. Every codespace has its own separate
+domain.) You can switch between browsers without having to restart the
 codespace.
 
 #### Visual Studio Code
