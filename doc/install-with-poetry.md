@@ -65,6 +65,11 @@ To obtain and set up palgoviz:
     git clone https://github.com/EliahKagan/palgoviz.git
     ```
 
+    If you [forked the
+    repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo),
+    which you [may want to do](forking.md), then use your fork’s URL instead.
+
+
 2. Go into the top-level project directory:
 
     ```sh
@@ -130,7 +135,7 @@ How you should do this [depends on how you installed
 
 palgoviz can also be [installed with `conda` or
 `mamba`](install-with-conda.md), which is what we usually do. We do not
-currently pin specific package version in `environment.yml`, but if you don’t
+currently pin specific package versions in `environment.yml`, but if you don’t
 need that, then you may prefer to use `conda`/`mamba`, especially if you don’t
 want to have to bother making sure Python 3.11 and Graphviz are externally
 available (since `conda`/`mamba` will install those in the Conda environment,

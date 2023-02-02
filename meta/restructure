@@ -249,7 +249,7 @@ checkers, and jupyter (including for JupyterLab) should be run from there.
 Remember to:
 
 1. Inspect the changes.
-2. Make/use the new conda environment. Run "conda develop ." in the repo root.
+2. Make/use the new conda environment. Run "pip install -e ." in the repo root.
 3. Run all tests. Ensure the pytest, unittest, and doctest test runners work.
 4. Stage. Run isort (it will consoldate new "from" imports) and flake8.
 5. Check, fix up, and re-run all notebooks. Save any important changes.

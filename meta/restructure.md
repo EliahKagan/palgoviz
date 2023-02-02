@@ -14,7 +14,7 @@ that has been, or ought to be, restructured—do this:
  4. If the `algoviz` conda environment for the restructured project is not set
     up yet on your machine, do that. As the script output mentions, after
     activating it the first time, make sure you are in the root of the
-    repository, and run: `conda develop .`
+    repository, and run: `pip install -e .`
 
     Do not run that command in the wrong directory, or modules will be found in
     places they shouldn’t be, which will both cause and mask bugs. That command

@@ -5,7 +5,8 @@
 This is a list of some major Python topics not, or not yet, covered in this
 project:
 
-- `venv` (this project uses `conda` instead of Python virtual environments)
+- Manual `venv` (this project uses `conda`, or poetry which handles virtual
+  environments automatically)
 - Data classes (including `attrs`) and named tuples
 - Type annotations and static type checking
 - `Counter` and `defaultdict`
