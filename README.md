@@ -53,9 +53,10 @@ palgoviz is written by [David Vassallo](https://github.com/dmvassallo) and
 
 ## Installation
 
-palgoviz can be installed [**using
+palgoviz should be installed [**using
 `conda`/`mamba`**](doc/install-with-conda.md) or [**using
-`poetry`**](doc/install-with-poetry.md).
+`poetry`**](doc/install-with-poetry.md). There is also an *experimental* [dev
+container](doc/install-dev-container.md).
 
 <small>(Although there’s [a PyPI package](https://pypi.org/project/palgoviz/), it
 should [rarely be used](doc/dist-readme.md).)</small>
@@ -71,8 +72,8 @@ using.
 
 ### Creating and using the environment
 
-Clone the repository, go into its top-level directory, and create the conda
-environment:
+Clone the repository [or your fork](doc/forking.md), go into its top-level
+directory, and create the conda environment:
 
 ```sh
 git clone https://github.com/EliahKagan/palgoviz.git

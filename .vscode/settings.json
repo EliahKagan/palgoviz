@@ -34,6 +34,8 @@
         "circo",
         "co_freevars",
         "codelike",
+        "codespace",
+        "codespaces",
         "Collatz",
         "conda",
         "Dasgupta",
@@ -210,6 +212,7 @@
         "Willdebrandt",
         "Willdebruvft",
         "Windu",
-        "writability"
+        "writability",
+        "wslconfig"
     ]
 }
