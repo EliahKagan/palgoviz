@@ -51,8 +51,8 @@ Having forked palgoviz, you can clone your fork like this:
 1. Go to your fork. (These instructions work for cloning *any* GitHub
    repository, once you are at the repository page.)
 2. Click the green “Code” button.
-3. The menu that comes up a “Local” tab and a “Codespaces” tab. The “Local” tab
-   is probably already shown, but if not, click it.
+3. The menu that comes up has a “Local” tab and a “Codespaces” tab. The “Local”
+   tab is probably already shown, but if not, click it.
 4. Copy a URL (SSH or HTTP) and run paste it after `git clone` in a terminal.
 
 For more on those URLs, and other ways to clone, see [About remote
