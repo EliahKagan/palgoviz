@@ -23,7 +23,8 @@
                 "ms-vsliveshare.vsliveshare",
                 "stkb.rewrap",
                 "streetsidesoftware.code-spell-checker",
-                "tamasfe.even-better-toml"
+                "tamasfe.even-better-toml",
+                "timonwong.shellcheck"
             ],
             "settings": {
                 "gitlens.showWelcomeOnInstall": false,
