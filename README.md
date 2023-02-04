@@ -72,8 +72,8 @@ using.
 
 ### Creating and using the environment
 
-Clone the repository [or your fork](doc/forking.md), go into its top-level
-directory, and create the conda environment:
+Clone the repository, go into its top-level directory, and create the conda
+environment:
 
 ```sh
 git clone https://github.com/EliahKagan/palgoviz.git

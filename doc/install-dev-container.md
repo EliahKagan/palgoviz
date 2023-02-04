@@ -94,8 +94,7 @@ limits](https://github.blog/changelog/2022-11-09-codespaces-for-free-and-pro-acc
 
 Although you need not
 [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) the
-palgoviz repository on GitHub to create a codespace, [you might want
-to](forking.md#why-to-fork).
+palgoviz repository on GitHub to create a codespace, you might want to.
 
 Whether or not you fork, the codespace you create is private. One benefit of
 forking the project is that it makes it easier to keep track of what commit you
@@ -113,8 +112,10 @@ Another is that you can easily commit your changes to your fork.
 
 #### With forking
 
-[Fork the project.](forking.md#how-to-fork) Then do [the
-above](#without-forking), but in your fork instead of in the upstream project.
+[Fork the
+project.](https://docs.github.com/en/get-started/quickstart/fork-a-repo) Then
+do [the above](#without-forking), but in your fork instead of in the upstream
+project.
 
 You can create the codespace for any branch. That branch will be checked out
 into the codespace initially, but the dev container in the codespace will have
@@ -208,9 +209,10 @@ Volume...](https://code.visualstudio.com/docs/devcontainers/containers#_quick-st
 action. To do this, you don’t need to have cloned anything beforehand, and if
 you have, you don’t need to (and shouldn’t) open the local folder first.
 
-If you [forked](forking.md) palgoviz, then it should appear as an option. If
-not, and you want to clone the upstream palgoviz repository rather than making
-a fork, then you can type or paste in `EliahKagan/palgoviz` (or paste in [the
+If you [forked](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+palgoviz, then it should appear as an option. If not, and you want to clone the
+upstream palgoviz repository rather than making a fork, then you can type or
+paste in `EliahKagan/palgoviz` (or paste in [the
 URL](https://github.com/EliahKagan/palgoviz)).
 
 You may want to use “Clone Repository in *Named* Container Volume” to help

@@ -65,9 +65,9 @@ To obtain and set up palgoviz:
     git clone https://github.com/EliahKagan/palgoviz.git
     ```
 
-    If you [forked the
-    repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo),
-    which you [may want to do](forking.md), then use your fork’s URL instead.
+    If you forked the repository, which you [may want to
+    do](https://docs.github.com/en/get-started/quickstart/fork-a-repo), then
+    use your fork’s URL instead.
 
 
 2. Go into the top-level project directory:

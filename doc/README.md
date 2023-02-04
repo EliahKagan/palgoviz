@@ -32,9 +32,6 @@ alphabetical order:
 - `example.svg` - The visualization example shown (mainly) in the top-level
   readme.
 
-- `forking.md` - Quick information on using forks on GitHub, with links to more
-  details.
-
 - `install-dev-container.md` - Using a remote or local dev container.
 
 - `install-with-conda.md` - Using `conda` or `mamba` to install palgoviz and
