@@ -122,7 +122,7 @@ access to other branches. For example, if you create the codespace for your
 main branch, you’ll still be able to switch (or even create) a feature branch
 and use it to work on the feature branch.
 
-### Web interface *vs.* VS Code *vs.* the PWA
+### Client Applications
 
 #### Web interface
 
@@ -153,7 +153,7 @@ with is still running in a codespace, on the cloud—*not* on your computer.
 
 #### The progressive web app
 
-On Windows, you have another option: [the Codespaces
+There is also [the Codespaces
 application](https://code.visualstudio.com/docs/remote/codespaces#_known-limitations-and-adaptations).
 This is a [progressive web
 app](https://learn.microsoft.com/en-us/microsoft-edge/progressive-web-apps-chromium/).
