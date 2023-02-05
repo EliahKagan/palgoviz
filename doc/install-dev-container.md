@@ -194,8 +194,7 @@ For example, this limits to 2 gigabytes:
 memory=2GB
 ```
 
-2 gigs is sufficient for a palgoviz dev container, often even if you are
-running another WSL system at the same time.
+2 gigs is sufficient for a palgoviz dev container.
 
 ### Ways to create the container
 
