@@ -33,6 +33,7 @@
             }
         }
     },
+    "initializeCommand": ".devcontainer/initialize",
     "postCreateCommand": ".devcontainer/postCreate",
     "postStartCommand": ".devcontainer/postStart",
     "waitFor": "postCreateCommand",
