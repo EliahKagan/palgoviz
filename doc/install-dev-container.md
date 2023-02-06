@@ -214,9 +214,6 @@ upstream palgoviz repository rather than making a fork, then you can type or
 paste in `EliahKagan/palgoviz` (or paste in [the
 URL](https://github.com/EliahKagan/palgoviz)).
 
-You may want to use “Clone Repository in *Named* Container Volume” to help
-keep track of the dev container.
-
 #### Alternative approaches
 
 If you have cloned the repository and you open it in VS Code, you should see a
