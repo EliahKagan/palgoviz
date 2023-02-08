@@ -7,5 +7,5 @@
 # Windows into a dev container, to have all text files have LF line endings.
 * text=auto eol=lf
 
-# Minimilze the chance of Git wrongly detecting a binary file as text.
+# Minimize the chance of Git wrongly detecting a binary file as text.
 *.png binary
