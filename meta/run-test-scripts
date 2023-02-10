@@ -35,7 +35,7 @@ run_matching() {
     printf '\nRunning scripts for %s:\n\n' "$label"
 
     local file
-    search "$pattern" | while IFS= read -r file; do
+    search "$pattern" | while IFS= read file; do
         [[ $file =~ ^[^/]$ ]] || file="./$file"
         "$file" "$@"
     done
