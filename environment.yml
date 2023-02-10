@@ -9,7 +9,7 @@ dependencies:
   - sympy
 
   # For notebooks
-  - ipython>=8.1
+  - ipython>=8.10
   - jupyterlab>=3.1
   - nbdime
 
