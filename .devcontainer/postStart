@@ -51,10 +51,8 @@ append_to_conf() {
 }
 
 generate_conf() {
-    local codespace_name url_pattern
-
-    codespace_name="$(jq -r .CODESPACE_NAME -- "$cs_vars_path")"
-    url_pattern="https://${codespace_name}${url_end_pattern}"
+    local codespace_name="$(jq -r .CODESPACE_NAME -- "$cs_vars_path")"
+    local url_pattern="https://${codespace_name}${url_end_pattern}"
 
     new_empty_conf
     append_to_conf 'c = get_config()  # noqa'
