@@ -1,7 +1,7 @@
 # It's especially important for shell scripts to have LF, *not* CRLF, endings.
-/.devcontainer/initialize eol=lf
-/.devcontainer/postCreate eol=lf
-/.devcontainer/postStart eol=lf
+/.devcontainer/initialize text eol=lf
+/.devcontainer/postCreate text eol=lf
+/.devcontainer/postStart text eol=lf
 /meta/restructure text eol=lf
 /meta/run-test-scripts text eol=lf
 
