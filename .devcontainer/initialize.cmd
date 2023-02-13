@@ -48,10 +48,6 @@ goto begin
 :begin
     del "%conf_path%" 2>NUL
 
-    :: If the host clones the repo Windows-style, have the container play
-    :: along.
-    call :push_in core.autocrlf
-
     :: Usually these are automatically set in the container, but not always.
     call :push_in user.name
     call :push_in user.email
