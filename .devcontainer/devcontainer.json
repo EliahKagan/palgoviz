@@ -17,6 +17,7 @@
                 "alefragnani.numbered-bookmarks",
                 "bierner.markdown-preview-github-styles",
                 "eamodio.gitlens",
+                "GitHub.vscode-pull-request-github",
                 "mads-hartmann.bash-ide-vscode",
                 "mhutchie.git-graph",
                 "ms-python.python",
