@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2023 Eliah Kagan
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
+set -e
+
+msg() {
+    printf '%s: %s\n' "$0" "$1" >&2
+}
+
+carry_in() {
+    local name="$1" value
+
+    if value="$(git config "$name")"; then
+        msg "carrying in: $name=$value"
+        git config --local "$name" "$value"
+    else
+        msg "skipping: $name"
+    fi
+}
+
+# Usually these are automatically set in the container, but not always.
+carry_in user.name
+carry_in user.email

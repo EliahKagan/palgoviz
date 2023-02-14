@@ -1,11 +1,19 @@
-# It's especially important for shell scripts to have LF, *not* CRLF, endings.
-/.devcontainer/post* eol=lf
+# SPDX-License-Identifier: 0BSD
+
+# It is convenient, where feasible, for text files to have LF (Unix-style) line
+# endings. This especially helps when cloning on Windows into a dev container.
+* text=auto eol=lf
+
+# Shell scripts *need* LF line endings, even if we change the main rule above.
+# (Listing them also covers the case where git fails to detect them as text.)
+/.devcontainer/initialize text eol=lf
+/.devcontainer/postCreate text eol=lf
+/.devcontainer/postStart text eol=lf
 /meta/restructure text eol=lf
 /meta/run-test-scripts text eol=lf
 
-# Although of lesser importance, it is convenient, especially when cloning on
-# Windows into a dev container, to have all text files have LF line endings.
-* text=auto eol=lf
+# Batch files *need* CRLF line endings. This is an EXCEPTION to the main rule.
+/.devcontainer/initialize.cmd text eol=crlf
 
 # Minimize the chance of Git wrongly detecting a binary file as text.
 *.png binary

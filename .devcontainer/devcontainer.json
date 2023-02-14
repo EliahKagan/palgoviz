@@ -17,6 +17,7 @@
                 "alefragnani.numbered-bookmarks",
                 "bierner.markdown-preview-github-styles",
                 "eamodio.gitlens",
+                "GitHub.vscode-pull-request-github",
                 "mads-hartmann.bash-ide-vscode",
                 "mhutchie.git-graph",
                 "ms-python.python",
@@ -33,8 +34,9 @@
             }
         }
     },
-    "postCreateCommand": ".devcontainer/postCreate",
-    "postStartCommand": ".devcontainer/postStart",
+    "initializeCommand": [".devcontainer/initialize"],
+    "postCreateCommand": [".devcontainer/postCreate"],
+    "postStartCommand": [".devcontainer/postStart"],
     "waitFor": "postCreateCommand",
     "containerEnv": {
         "SHELL": "/usr/bin/fish"
