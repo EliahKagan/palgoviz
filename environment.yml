@@ -7,6 +7,7 @@ dependencies:
   - python=3.11
   - ipykernel
   - more-itertools
+  - numpy
   - sympy
 
   # For notebooks
