@@ -28,6 +28,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "~3.11"
 graphviz = "^0.20.1"
+ipykernel = "^6.21.2"
 more-itertools = "^9.0.0"
 sympy = "^1.11.1"
 

@@ -49,7 +49,7 @@ trio = ["trio (>=0.16,<0.22)"]
 name = "appnope"
 version = "0.1.3"
 description = "Disable App Nap on macOS >= 10.9"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -134,7 +134,7 @@ python-dateutil = ">=2.7.0"
 name = "asttokens"
 version = "2.2.1"
 description = "Annotate AST trees with source code positions"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -186,7 +186,7 @@ pytz = ">=2015.7"
 name = "backcall"
 version = "0.2.0"
 description = "Specifications for callback functions passed in to an API"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -248,7 +248,7 @@ files = [
 name = "cffi"
 version = "1.15.1"
 description = "Foreign Function Interface for Python calling C code."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -423,7 +423,7 @@ files = [
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 files = [
@@ -435,7 +435,7 @@ files = [
 name = "comm"
 version = "0.1.2"
 description = "Jupyter Python Comm implementation, for usage in ipykernel, xeus-python etc."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -453,7 +453,7 @@ test = ["pytest"]
 name = "debugpy"
 version = "1.6.6"
 description = "An implementation of the Debug Adapter Protocol for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -469,6 +469,7 @@ files = [
     {file = "debugpy-1.6.6-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9b5d1b13d7c7bf5d7cf700e33c0b8ddb7baf030fcf502f76fc061ddd9405d16c"},
     {file = "debugpy-1.6.6-cp38-cp38-win32.whl", hash = "sha256:70ab53918fd907a3ade01909b3ed783287ede362c80c75f41e79596d5ccacd32"},
     {file = "debugpy-1.6.6-cp38-cp38-win_amd64.whl", hash = "sha256:c05349890804d846eca32ce0623ab66c06f8800db881af7a876dc073ac1c2225"},
+    {file = "debugpy-1.6.6-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:11a0f3a106f69901e4a9a5683ce943a7a5605696024134b522aa1bfda25b5fec"},
     {file = "debugpy-1.6.6-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a771739902b1ae22a120dbbb6bd91b2cae6696c0e318b5007c5348519a4211c6"},
     {file = "debugpy-1.6.6-cp39-cp39-win32.whl", hash = "sha256:549ae0cb2d34fc09d1675f9b01942499751d174381b6082279cf19cdb3c47cbe"},
     {file = "debugpy-1.6.6-cp39-cp39-win_amd64.whl", hash = "sha256:de4a045fbf388e120bb6ec66501458d3134f4729faed26ff95de52a754abddb1"},
@@ -480,7 +481,7 @@ files = [
 name = "decorator"
 version = "5.1.1"
 description = "Decorators for Humans"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 files = [
@@ -516,7 +517,7 @@ files = [
 name = "executing"
 version = "1.2.0"
 description = "Get the currently executing AST node of a frame, and other information"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -661,14 +662,14 @@ files = [
 
 [[package]]
 name = "ipykernel"
-version = "6.21.1"
+version = "6.21.2"
 description = "IPython Kernel for Jupyter"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ipykernel-6.21.1-py3-none-any.whl", hash = "sha256:1a04bb359212e23e46adc0116ec82ea128c1e5bd532fde4fbe679787ff36f0cf"},
-    {file = "ipykernel-6.21.1.tar.gz", hash = "sha256:a0f8eece39cab1ee352c9b59ec67bbe44d8299f8238e4c16ff7f4cf0052d3378"},
+    {file = "ipykernel-6.21.2-py3-none-any.whl", hash = "sha256:430d00549b6aaf49bd0f5393150691edb1815afa62d457ee6b1a66b25cb17874"},
+    {file = "ipykernel-6.21.2.tar.gz", hash = "sha256:6e9213484e4ce1fb14267ee435e18f23cc3a0634e635b9fb4ed4677b84e0fdf8"},
 ]
 
 [package.dependencies]
@@ -682,7 +683,7 @@ matplotlib-inline = ">=0.1"
 nest-asyncio = "*"
 packaging = "*"
 psutil = "*"
-pyzmq = ">=17"
+pyzmq = ">=20"
 tornado = ">=6.1"
 traitlets = ">=5.4.0"
 
@@ -697,7 +698,7 @@ test = ["flaky", "ipyparallel", "pre-commit", "pytest (>=7.0)", "pytest-asyncio"
 name = "ipython"
 version = "8.10.0"
 description = "IPython: Productive Interactive Computing"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -781,7 +782,7 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 name = "jedi"
 version = "0.18.2"
 description = "An autocompletion tool for Python that can be used for text editors."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -874,7 +875,7 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 name = "jupyter-client"
 version = "8.0.2"
 description = "Jupyter protocol implementation and client libraries"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -897,7 +898,7 @@ test = ["codecov", "coverage", "ipykernel (>=6.14)", "mypy", "paramiko", "pre-co
 name = "jupyter-core"
 version = "5.2.0"
 description = "Jupyter core package. A base package on which Jupyter projects rely."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -1198,7 +1199,7 @@ files = [
 name = "matplotlib-inline"
 version = "0.1.6"
 description = "Inline Matplotlib backend for Jupyter"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 files = [
@@ -1411,7 +1412,7 @@ test = ["pep440", "pre-commit", "pytest", "testpath"]
 name = "nest-asyncio"
 version = "1.5.6"
 description = "Patch asyncio to allow nested event loops"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 files = [
@@ -1476,7 +1477,7 @@ test = ["pytest", "pytest-console-scripts", "pytest-tornasync"]
 name = "packaging"
 version = "23.0"
 description = "Core utilities for Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1515,7 +1516,7 @@ dev = ["jinja2"]
 name = "parso"
 version = "0.8.3"
 description = "A Python Parser"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -1531,7 +1532,7 @@ testing = ["docopt", "pytest (<6.0.0)"]
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1546,7 +1547,7 @@ ptyprocess = ">=0.5"
 name = "pickleshare"
 version = "0.7.5"
 description = "Tiny 'shelve'-like database with concurrency support"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1558,7 +1559,7 @@ files = [
 name = "platformdirs"
 version = "3.0.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1605,7 +1606,7 @@ twisted = ["twisted"]
 name = "prompt-toolkit"
 version = "3.0.36"
 description = "Library for building powerful interactive command lines in Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.2"
 files = [
@@ -1620,7 +1621,7 @@ wcwidth = "*"
 name = "psutil"
 version = "5.9.4"
 description = "Cross-platform lib for process and system monitoring in Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
@@ -1634,8 +1635,6 @@ files = [
     {file = "psutil-5.9.4-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:54d5b184728298f2ca8567bf83c422b706200bcbbfafdc06718264f9393cfeb7"},
     {file = "psutil-5.9.4-cp36-abi3-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:16653106f3b59386ffe10e0bad3bb6299e169d5327d3f187614b1cb8f24cf2e1"},
     {file = "psutil-5.9.4-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:54c0d3d8e0078b7666984e11b12b88af2db11d11249a8ac8920dd5ef68a66e08"},
-    {file = "psutil-5.9.4-cp36-abi3-win32.whl", hash = "sha256:149555f59a69b33f056ba1c4eb22bb7bf24332ce631c44a319cec09f876aaeff"},
-    {file = "psutil-5.9.4-cp36-abi3-win_amd64.whl", hash = "sha256:fd8522436a6ada7b4aad6638662966de0d61d241cb821239b2ae7013d41a43d4"},
     {file = "psutil-5.9.4-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:6001c809253a29599bc0dfd5179d9f8a5779f9dffea1da0f13c53ee568115e1e"},
     {file = "psutil-5.9.4.tar.gz", hash = "sha256:3d7f9739eb435d4b1338944abe23f49584bde5395f27487d2ee25ad9a8774a62"},
 ]
@@ -1647,7 +1646,7 @@ test = ["enum34", "ipaddress", "mock", "pywin32", "wmi"]
 name = "ptyprocess"
 version = "0.7.0"
 description = "Run a subprocess in a pseudo terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1659,7 +1658,7 @@ files = [
 name = "pure-eval"
 version = "0.2.2"
 description = "Safely evaluate AST nodes without side effects"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1686,7 +1685,7 @@ files = [
 name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
@@ -1710,7 +1709,7 @@ files = [
 name = "pygments"
 version = "2.14.0"
 description = "Pygments is a syntax highlighting package written in Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -1799,7 +1798,7 @@ pytest = ">=7.0"
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 files = [
@@ -1812,14 +1811,14 @@ six = ">=1.5"
 
 [[package]]
 name = "python-json-logger"
-version = "2.0.5"
+version = "2.0.6"
 description = "A python library adding a json log formatter"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "python-json-logger-2.0.5.tar.gz", hash = "sha256:3853e0b73e6c1ba4b1f2543066b24950bf1c21ed104f297a7bff8c74532a6ab2"},
-    {file = "python_json_logger-2.0.5-py3-none-any.whl", hash = "sha256:f389ccb0a8fd26f84c294dc627a999daf58f759b457ee022f698098f6547288d"},
+    {file = "python-json-logger-2.0.6.tar.gz", hash = "sha256:ed33182c2b438a366775c25c1219ebbd5bd7f71694c644d6b3b3861e19565ae3"},
+    {file = "python_json_logger-2.0.6-py3-none-any.whl", hash = "sha256:3af8e5b907b4a5b53cae249205ee3a3d3472bd7ad9ddfaec136eec2f2faf4995"},
 ]
 
 [[package]]
@@ -1838,7 +1837,7 @@ files = [
 name = "pywin32"
 version = "305"
 description = "Python for Window Extensions"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1928,7 +1927,7 @@ files = [
 name = "pyzmq"
 version = "25.0.0"
 description = "Python bindings for 0MQ"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2084,7 +2083,7 @@ win32 = ["pywin32"]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
@@ -2118,21 +2117,21 @@ files = [
 
 [[package]]
 name = "soupsieve"
-version = "2.3.2.post1"
+version = "2.4"
 description = "A modern CSS selector implementation for Beautiful Soup."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "soupsieve-2.3.2.post1-py3-none-any.whl", hash = "sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759"},
-    {file = "soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
+    {file = "soupsieve-2.4-py3-none-any.whl", hash = "sha256:49e5368c2cda80ee7e84da9dbe3e110b70a4575f196efb74e51b94549d921955"},
+    {file = "soupsieve-2.4.tar.gz", hash = "sha256:e28dba9ca6c7c00173e34e4ba57448f0688bb681b7c5e8bf4971daafc093d69a"},
 ]
 
 [[package]]
 name = "stack-data"
 version = "0.6.2"
 description = "Extract data from python stack frames and tracebacks for informative displays"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -2207,7 +2206,7 @@ test = ["flake8", "isort", "pytest"]
 name = "tornado"
 version = "6.2"
 description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
@@ -2228,7 +2227,7 @@ files = [
 name = "traitlets"
 version = "5.9.0"
 description = "Traitlets Python configuration system"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2276,7 +2275,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 name = "wcwidth"
 version = "0.2.6"
 description = "Measures the displayed width of unicode strings in a terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -2393,4 +2392,4 @@ test = ["mypy", "pre-commit", "pytest", "pytest-asyncio", "websockets (>=10.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "f8657c320549493d2071338992afb707aca3b1001f16c14e6192dd772ce84c20"
+content-hash = "76f2585e3bd0e5748e0beab5fd2b6bc6d23b0107cd6fd6bf77a54c67aefe0a98"
