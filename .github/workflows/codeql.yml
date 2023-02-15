@@ -33,14 +33,6 @@ jobs:
       with:
         python-version: 3.11
 
-    # TODO: Print the hash of the commit, so it appears in the logs. Avoid race
-    #       conditions. If possible, use a technique compatible with Windows
-    #       runners, since some of our other CI workflows will run on multiple
-    #       operating systems including Windows (and could then share code).
-    # FIXME: Uncomment this (or remove it if it really is not necessary).
-    # - name: Install poetry
-    #   run: curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py | python3 -
-
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
