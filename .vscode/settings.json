@@ -139,6 +139,7 @@
         "nonrecursively",
         "nonstring",
         "nullary",
+        "numpy",
         "nums",
         "objgraph",
         "old-timey",
