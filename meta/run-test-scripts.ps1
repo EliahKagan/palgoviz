@@ -21,26 +21,29 @@
 # (if PowerShell is installed), but it won't check that files that should be
 # marked executable (for easy use on *nix) actually are. On Unix-like systems,
 # it is better to use the Bash script run-test-scripts (no file extension).
-#
-# NOTE: This is a rough draft. Possible areas of improvement are revealed by:
-#
-#   Invoke-ScriptAnalyzer meta/run-test-scripts.ps1
-
 
 Set-StrictMode -Version Latest
 
-function Search($Pattern) {
+function Search-Runnable([string]$Pattern) {
     $line_pattern = "^[ ]{4}${Pattern}[ ]*\r?$"
     git grep --untracked --name-only -P $line_pattern
 }
 
-function Run-Matches($Label, $Pattern, $Arguments) {
+function Invoke-AllRunnable([string]$Label,
+                            [string]$Pattern,
+                            [string[]]$Arguments) {
     Write-Output "`nRunning scripts for ${Label}:`n`n"
 
-    foreach ($file in search($Pattern)) {
+    foreach ($file in Search-Runnable($Pattern)) {
         python $file $Arguments
+
     }
 }
 
-Run-Matches -Label 'unittest tests' -Pattern 'unittest[.]main[(][)]' -q $args
-Run-Matches -Label 'doctests' -Pattern 'doctest[.]testmod[(][)]' $args
+Invoke-AllRunnable -Label 'unittest tests' `
+                   -Pattern 'unittest[.]main[(][)]' `
+                   -q $args
+
+Invoke-AllRunnable -Label 'doctests' `
+                   -Pattern 'doctest[.]testmod[(][)]' `
+                   $args
