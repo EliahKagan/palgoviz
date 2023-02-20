@@ -16,4 +16,4 @@ __pycache__/
 *.o
 
 # Carried-in configuration when building a dev container
-.inherited-configuration
+/.inherited-configuration
