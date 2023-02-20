@@ -7,7 +7,7 @@
 # Shell scripts *need* LF line endings, even if we change the main rule above.
 # (Listing them also covers the case where git fails to detect them as text.)
 /.devcontainer/initialize text eol=lf
-/.devcontainer/postCreate text eol=lf
+/.devcontainer/onCreate text eol=lf
 /.devcontainer/postStart text eol=lf
 /meta/restructure text eol=lf
 /meta/run-test-scripts text eol=lf
