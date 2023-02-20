@@ -941,14 +941,14 @@ test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=
 
 [[package]]
 name = "jupyter-server"
-version = "2.2.1"
+version = "2.3.0"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.2.1-py3-none-any.whl", hash = "sha256:854fb7d49f6b7f545d4f8354172b004dcda887ba0699def7112daf785ba3c9ce"},
-    {file = "jupyter_server-2.2.1.tar.gz", hash = "sha256:5afb8a0cdfee37d02d69bdf470ae9cbb1dee5d4788f9bc6cc8e54bd8c83fb096"},
+    {file = "jupyter_server-2.3.0-py3-none-any.whl", hash = "sha256:b15078954120886d580e19d1746e2b62a3dc7bd082cb4716115c25fcd7061b00"},
+    {file = "jupyter_server-2.3.0.tar.gz", hash = "sha256:29d6657bfb160b0e39b9030d67f33f918a188f2eba28065314a933b327fef872"},
 ]
 
 [package.dependencies]
