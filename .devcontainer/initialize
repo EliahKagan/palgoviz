@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env bash
 
-# Copyright (c) 2021, 2022 David Vassallo and Eliah Kagan
+# Copyright (c) 2023 Eliah Kagan
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted.
@@ -13,17 +13,23 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-"""Hola saluda al user en español. (Hola greets the user in Spanish.)"""
+set -e
 
-from palgoviz.greet import make_greeter
+msg() {
+    printf '%s: %s\n' "$0" "$1" >&2
+}
 
+carry_in() {
+    local name="$1" value
 
-def run():
-    """Run as a script."""
-    name = input("¿Como se llama usted? ")
-    greeter = make_greeter('es')
-    greeter(name.strip())  # strip() drops leading and trailing whitespace.
+    if value="$(git config "$name")"; then
+        msg "carrying in: $name=$value"
+        git config --local "$name" "$value"
+    else
+        msg "skipping: $name"
+    fi
+}
 
-
-if __name__ == '__main__':  # If we are running this module as a script.
-    run()
+# Usually these are automatically set in the container, but not always.
+carry_in user.name
+carry_in user.email

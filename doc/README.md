@@ -24,12 +24,15 @@ and classes and thus appear in `palgoviz/` rather than `tests/`.
 
 ## What’s actually here
 
-Besides this `README.md` file, the files in this `doc/` directory are:
+Besides this `README.md` file, the files in this `doc/` directory are, in
+alphabetical order:
 
 - `dist-readme.md` - The readme file intended for PyPI.
 
 - `example.svg` - The visualization example shown (mainly) in the top-level
   readme.
+
+- `install-dev-container.md` - Using a remote or local dev container.
 
 - `install-with-conda.md` - Using `conda` or `mamba` to install palgoviz and
   keep its dependencies up to date.
