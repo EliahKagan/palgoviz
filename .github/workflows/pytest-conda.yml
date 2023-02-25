@@ -24,6 +24,9 @@ jobs:
       - name: Provision with micromamba
         uses: mamba-org/provision-with-micromamba@v15
 
+      - name: Make editable install
+        run: pip install -e .
+
       - name: Run all tests
         run: pytest --doctest-modules
         timeout-minutes: 2
