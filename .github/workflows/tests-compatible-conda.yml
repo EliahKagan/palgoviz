@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         runner: [pytest, unittest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu, macos, windows]
         python-version: ['3.10', '3.11']
         include:
           - runner: pytest
@@ -21,7 +21,7 @@ jobs:
             description: Run unittest tests
             command: python -m unittest
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
 
     defaults:
       run:

@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         runner: [pytest, doctest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu, macos, windows]
         include:
           - runner: pytest
             description: Run all tests (pytest)
@@ -27,7 +27,7 @@ jobs:
             description: Run doctests
             command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
 
     defaults:
       run:

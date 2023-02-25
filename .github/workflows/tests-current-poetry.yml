@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         runner: [pytest, unittest, doctest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu, macos, windows]
         include:
           - runner: pytest
             description: Run all tests (pytest)
@@ -32,11 +32,11 @@ jobs:
 
           - poetry: ~/.local/bin/poetry
 
-          - os: windows-latest
+          - os: windows
             poetry: |-
               "$APPDATA/Python/Scripts/poetry"
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
 
     defaults:
       run:
