@@ -1,4 +1,4 @@
-name: 'pytest (all tests, conda)'
+name: 'Tests (current, conda)'
 
 on: [push, pull_request]
 
@@ -27,6 +27,6 @@ jobs:
       - name: Make editable install
         run: pip install -e .
 
-      - name: Run all tests
+      - name: Run all tests (pytest)
         run: pytest --doctest-modules
         timeout-minutes: 2

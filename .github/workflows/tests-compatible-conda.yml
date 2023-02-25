@@ -1,4 +1,4 @@
-name: 'pytest (some tests, conda)'
+name: 'Tests (compatible, conda)'
 
 on: [push, pull_request]
 
@@ -41,6 +41,6 @@ jobs:
       - name: Make editable install
         run: pip install -e .
 
-      - name: Run some tests
+      - name: Run some tests (pytest)
         run: pytest --ignore=tests/test_{greet,greetall}.txt
         timeout-minutes: 2

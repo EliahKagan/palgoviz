@@ -1,4 +1,4 @@
-name: 'pytest (all tests, poetry)'
+name: 'Tests (compatible, poetry)'
 
 on: [push, pull_request]
 
@@ -10,6 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.10', '3.11']
         include:
           - poetry: ~/.local/bin/poetry
 
@@ -27,10 +28,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Remove poetry.lock
+        run: rm poetry.lock
+
+      - name: Substitute python version
+        run: |
+          perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} pyproject.toml
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
 
       # TODO: Print the install script commit hash and Poetry version.
       - name: Install poetry
@@ -41,6 +50,8 @@ jobs:
       - name: Install project and test runner
         run: ${{ matrix.poetry }} install --only=main,test
 
-      - name: Run all tests
-        run: ${{ matrix.poetry }} run pytest --doctest-modules
+      - name: Run some tests (pytest)
+        run: |
+          ${{ matrix.poetry }} run \
+              pytest --ignore=tests/test_{greet,greetall}.txt
         timeout-minutes: 2
