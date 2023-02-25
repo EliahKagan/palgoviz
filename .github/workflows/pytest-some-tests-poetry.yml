@@ -48,7 +48,7 @@ jobs:
       - name: Install project and test runner
         run: ${{ matrix.poetry }} install --only=main,test
 
-      - name: Run all tests
+      - name: Run some tests
         run: |
           ${{ matrix.poetry }} run \
               pytest --ignore=tests/test_{greet,greetall}.txt
