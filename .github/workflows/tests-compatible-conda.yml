@@ -1,4 +1,4 @@
-name: 'Tests (compatible, conda)'
+name: Tests (compatible, conda)
 
 on: [push, pull_request]
 

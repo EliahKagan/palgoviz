@@ -1,4 +1,4 @@
-name: 'Tests (compatible, poetry)'
+name: Tests (compatible, poetry)
 
 on: [push, pull_request]
 

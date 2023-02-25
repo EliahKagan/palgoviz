@@ -1,4 +1,4 @@
-name: 'Tests (current, poetry)'
+name: Tests (current, poetry)
 
 on: [push, pull_request]
 
@@ -7,10 +7,23 @@ jobs:
     name: Test
 
     strategy:
-      fail-fast: false
       matrix:
+        test-step-id: [pytest, unittest, doctest]
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
+          - test-step-id: pytest
+            test-step-name: Run all tests (pytest)
+            test-step-command: pytest --doctest-modules
+
+          - test-step-id: unittest
+            test-step-name: Run unittest tests
+            test-step-command: python -m unittest
+
+          - test-step-id: doctest
+            test-step-name: Run doctests
+            test-step-command: |
+              python -m doctest palgoviz/*.py tests/*.py tests/*.txt
+
           - poetry: ~/.local/bin/poetry
 
           - os: windows-latest
@@ -41,6 +54,7 @@ jobs:
       - name: Install project and test runner
         run: ${{ matrix.poetry }} install --only=main,test
 
-      - name: Run all tests (pytest)
-        run: ${{ matrix.poetry }} run pytest --doctest-modules
+      - name: ${{ matrix.test-step-name }}
+        id: ${{ matrix.test-step-id }}
+        run: ${{ matrix.poetry }} run ${{ matrix.test-step-command }}
         timeout-minutes: 2
