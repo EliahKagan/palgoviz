@@ -1,4 +1,4 @@
-name: Tests (current, poetry)
+name: Tests (current)
 
 on: [push, pull_request]
 
@@ -10,11 +10,31 @@ jobs:
       matrix:
         runner: [pytest, unittest, doctest]
         os: [ubuntu, macos, windows]
+        dependency-manager: [poetry, conda]
         include:
+          # Behavior varying by dependency manager and operating system:
+
+          - dependency-manager: poetry
+            shell: bash
+            run-prefix: '~/.local/bin/poetry run '
+
+          - dependency-manager: poetry
+            os: windows
+            run-prefix: '"$APPDATA/Python/Scripts/poetry" run '
+
+          - dependency-manager: conda
+            shell: bash -l {0}
+            run-prefix: ''
+
+          # Behavior varying by test runner utility program:
+
           - runner: pytest
             description: Run all tests (pytest)
             command: pytest --doctest-modules
 
+          # FIXME: Remove this when conda is used, as detailed below, and
+          # update the comment below. (If we are even going to do it this way.)
+          #
           # Including this here as well as in tests-compatible-poetry.yml runs
           # the unittest runner both with frozen poetry.lock package versions
           # (this workflow) and non-frozen package versions (that workflow).
@@ -30,36 +50,49 @@ jobs:
             description: Run doctests
             command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
 
-          - poetry: ~/.local/bin/poetry
-
-          - os: windows
-            poetry: |-
-              "$APPDATA/Python/Scripts/poetry"
-
     runs-on: ${{ matrix.os }}-latest
 
     defaults:
       run:
-        shell: bash
+        shell: ${{ matrix.shell }}
 
     steps:
+      # Initial setup, not varying by dependency manager:
+
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      # Setup when using poetry:
+
+      - if: matrix.dependency-manager == poetry
+        name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
       # TODO: Print the install script commit hash and Poetry version.
-      - name: Install poetry
+      - if: matrix.dependency-manager == poetry
+        name: Install poetry
         run: |
           curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py |
               python3 -
 
-      - name: Install project and test runner
-        run: ${{ matrix.poetry }} install --only=main,test
+      - if: matrix.dependency-manager == poetry
+        name: Install project and test runner
+        run: poetry install --only=main,test
+
+      # Setup when using conda (or, really, we use micromamba in CI):
+
+      - if: matrix.dependency-manager == conda
+        name: Provision with micromamba
+        uses: mamba-org/provision-with-micromamba@v15
+
+      - if: matrix.dependency-manager == conda
+        name: Make editable install
+        run: pip install -e .
+
+      # The thing we came here to do (call a test-runner program to run tests):
 
       - name: ${{ matrix.description }}
-        run: ${{ matrix.poetry }} run ${{ matrix.command }}
+        run: ${{ matrix.run-prefix }}${{ matrix.command }}
         timeout-minutes: 2
