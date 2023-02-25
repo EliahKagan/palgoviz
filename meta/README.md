@@ -13,7 +13,7 @@ should go here. We may not need this directory in the future.
 ## Where to put things instead
 
 Instead of putting things here, most material that feels like it is "about the
-project" should instead go elsehwere. In particular:
+project" should instead go elsewhere. In particular:
 
 - Documentation of interest to people using this project should go in a `doc/`
   directory if it does not belong in the top-level project `README.md` or any
@@ -41,7 +41,7 @@ See the top-level project `README.md` for broad context on this, and the code
 and comments in `restructure` for details of that particular proposal.
 
 This supports Windows as well as Unix-like systems, so long as a recent version
-of Bash, and GNU Sed, are availble. On Windows it must be run in Git Bash.
+of Bash, and GNU Sed, are available. On Windows it must be run in Git Bash.
 
 ### `restructure.md`
 

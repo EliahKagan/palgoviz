@@ -53,9 +53,10 @@ palgoviz is written by [David Vassallo](https://github.com/dmvassallo) and
 
 ## Installation
 
-palgoviz can be installed [**using
+palgoviz should be installed [**using
 `conda`/`mamba`**](doc/install-with-conda.md) or [**using
-`poetry`**](doc/install-with-poetry.md).
+`poetry`**](doc/install-with-poetry.md). There is also an *experimental* [dev
+container](doc/install-dev-container.md).
 
 <small>(Although there’s [a PyPI package](https://pypi.org/project/palgoviz/), it
 should [rarely be used](doc/dist-readme.md).)</small>
@@ -92,7 +93,7 @@ You must activate the environment each time you use the project in a new shell
 Create an “editable install” in the environment:
 
 ```sh
-conda develop .
+pip install -e .
 ```
 
 That command only has to be run once, *not* each time you use the project.
