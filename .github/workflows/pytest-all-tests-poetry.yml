@@ -1,4 +1,4 @@
-name: "pytest (all tests, poetry)"
+name: 'pytest (all tests, poetry)'
 
 on: [push, pull_request]
 
@@ -30,11 +30,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
       # TODO: Print the install script commit hash and Poetry version.
       - name: Install poetry
-        run: curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py | python3 -
+        run: |
+          curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py |
+              python3 -
 
       - name: Install project and test runner
         run: ${{ matrix.poetry }} install --only=main,test
