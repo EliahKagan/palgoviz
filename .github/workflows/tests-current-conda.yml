@@ -8,21 +8,20 @@ jobs:
 
     strategy:
       matrix:
-        test-step-id: [pytest, unittest, doctest]
+        runner: [pytest, unittest, doctest]
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
-          - test-step-id: pytest
-            test-step-name: Run all tests (pytest)
-            test-step-command: pytest --doctest-modules
+          - runner: pytest
+            description: Run all tests (pytest)
+            command: pytest --doctest-modules
 
-          - test-step-id: unittest
-            test-step-name: Run unittest tests
-            test-step-command: python -m unittest
+          - runner: unittest
+            description: Run unittest tests
+            command: python -m unittest
 
-          - test-step-id: doctest
-            test-step-name: Run doctests
-            test-step-command: |
-              python -m doctest palgoviz/*.py tests/*.py tests/*.txt
+          - runner: doctest
+            description: Run doctests
+            command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
 
     runs-on: ${{ matrix.os }}
 
@@ -40,7 +39,6 @@ jobs:
       - name: Make editable install
         run: pip install -e .
 
-      - name: ${{ matrix.test-step-name }}
-        id: ${{ matrix.test-step-id }}
-        run: ${{ matrix.test-step-command }}
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.command }}
         timeout-minutes: 2
