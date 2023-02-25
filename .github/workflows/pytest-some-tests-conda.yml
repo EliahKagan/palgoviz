@@ -1,4 +1,4 @@
-name: "pytest (some tests, conda)"
+name: 'pytest (some tests, conda)'
 
 on: [push, pull_request]
 
