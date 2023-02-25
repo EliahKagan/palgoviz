@@ -22,10 +22,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Substitute Python version
+      - name: Substitute python version in environment.yml
         run: |
           perl -i -spwe 's/^ *- python=\K.+$/$pyver/' -- \
               -pyver=${{ matrix.python-version }} environment.yml
+
+      # If we switch back from "pip install -e ." to "conda develop ." then
+      # this step can and should be removed from this workflow (though it may
+      # of course still be needed in workflows using poetry instead of conda).
+      - name: Substitute python version in pyproject.toml
+          run: |
+          perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} pyproject.toml
 
       - name: Provision with micromamba
         uses: mamba-org/provision-with-micromamba@v15
