@@ -9,8 +9,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        runner: [pytest, unittest, doctest]
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.10', '3.11']
+        include:
+          - runner: pytest
+            description: Run some tests (pytest)
+            command: pytest --ignore=tests/test_{greet,greetall}.txt
+
+          - runner: unittest
+            description: Run unittest tests
+            command: python -m unittest
 
     runs-on: ${{ matrix.os }}
 
@@ -22,7 +31,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Substitute python version in environment.yml
+      - name: Substitute Python version in environment.yml
         run: |
           perl -i -spwe 's/^ *- python=\K.+$/$pyver/' -- \
               -pyver=${{ matrix.python-version }} environment.yml
@@ -41,6 +50,6 @@ jobs:
       - name: Make editable install
         run: pip install -e .
 
-      - name: Run some tests (pytest)
-        run: pytest --ignore=tests/test_{greet,greetall}.txt
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.command }}
         timeout-minutes: 2

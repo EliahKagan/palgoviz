@@ -15,9 +15,13 @@ jobs:
             description: Run all tests (pytest)
             command: pytest --doctest-modules
 
-          - runner: unittest
-            description: Run unittest tests
-            command: python -m unittest
+          # NOTE: The unittest runner is not listed here, because it is listed
+          # in tests-compatible-conda.yml. Unlike tests-current-poetry.yml and
+          # tests-compatible-poetry.yml, where the former uses uses frozen
+          # poetry.lock package versions and latter doesn't, neither this nor
+          # the other conda workflow (tests-compatible-conda.yml) use frozen
+          # package versions. So having it in both of these would always test
+          # exactly the same configuration and behavior.
 
           - runner: doctest
             description: Run doctests
