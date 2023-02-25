@@ -1,0 +1,46 @@
+name: "pytest (some tests, conda)"
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Test
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.10', '3.11']
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Substitute python version in environment.yml
+        run: |
+          perl -i -spwe 's/^ *- python=\K.+$/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} environment.yml
+
+      # If we switch back from "pip install -e ." to "conda develop ." then
+      # this step can and should be removed from this workflow (though it may
+      # of course still be needed in workflows using poetry instead of conda).
+      - name: Substitute python version in pyproject.toml
+        run: |
+          perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} pyproject.toml
+
+      - name: Provision with micromamba
+        uses: mamba-org/provision-with-micromamba@v15
+
+      - name: Make editable install
+        run: pip install -e .
+
+      - name: Run some tests
+        run: pytest --ignore=tests/test_{greet,greetall}.txt
+        timeout-minutes: 2

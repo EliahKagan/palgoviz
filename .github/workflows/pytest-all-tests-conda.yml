@@ -1,4 +1,4 @@
-name: "pytest --doctest-modules (conda)"
+name: "pytest (all tests, conda)"
 
 on: [push, pull_request]
 

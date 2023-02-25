@@ -1,4 +1,4 @@
-name: "pytest --doctest-modules (poetry)"
+name: "pytest (all tests, poetry)"
 
 on: [push, pull_request]
 
