@@ -32,8 +32,8 @@ jobs:
       # of course still be needed in workflows using poetry instead of conda).
       - name: Substitute python version in pyproject.toml
         run: |
-        perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
-            -pyver=${{ matrix.python-version }} pyproject.toml
+          perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} pyproject.toml
 
       - name: Provision with micromamba
         uses: mamba-org/provision-with-micromamba@v15
