@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        runner: [pytest, unittest, doctest]
+        runner: [pytest, doctest]
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - runner: pytest
