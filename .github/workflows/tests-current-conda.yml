@@ -1,0 +1,48 @@
+name: Tests (current, conda)
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Test
+
+    strategy:
+      matrix:
+        runner: [pytest, doctest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - runner: pytest
+            description: Run all tests (pytest)
+            command: pytest --doctest-modules
+
+          # NOTE: The unittest runner is not listed here, because it is listed
+          # in tests-compatible-conda.yml. Unlike tests-current-poetry.yml and
+          # tests-compatible-poetry.yml, where the former uses uses frozen
+          # poetry.lock package versions and latter doesn't, neither this nor
+          # the other conda workflow (tests-compatible-conda.yml) use frozen
+          # package versions. So having it in both of these would always test
+          # exactly the same configuration and behavior.
+
+          - runner: doctest
+            description: Run doctests
+            command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Provision with micromamba
+        uses: mamba-org/provision-with-micromamba@v15
+
+      - name: Make editable install
+        run: pip install -e .
+
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.command }}
+        timeout-minutes: 2
