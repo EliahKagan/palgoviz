@@ -42,5 +42,5 @@ jobs:
         run: pip install -e .
 
       - name: Run some tests
-        run: pytest
+        run: pytest --ignore=tests/test_{greet,greetall}.txt
         timeout-minutes: 2
