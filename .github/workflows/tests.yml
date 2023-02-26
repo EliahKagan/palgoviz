@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         runner: [pytest, unittest, doctest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os-abbreviation: [lin, mac, win]
         include:
           - runner: pytest
             description: Run all tests (pytest)
@@ -34,7 +34,14 @@ jobs:
 
           - poetry: ~/.local/bin/poetry
 
-          - os: windows-latest
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
             poetry: |-
               "$APPDATA/Python/Scripts/poetry"
 
@@ -72,7 +79,7 @@ jobs:
     strategy:
       matrix:
         runner: [pytest, doctest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os-abbreviation: [lin, mac, win]
         include:
           - runner: pytest
             description: Run all tests (pytest)
@@ -89,6 +96,15 @@ jobs:
           - runner: doctest
             description: Run doctests
             command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
+
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
 
@@ -116,7 +132,7 @@ jobs:
     strategy:
       matrix:
         runner: [pytest, unittest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os-abbreviation: [lin, mac, win]
         python-version: ['3.10', '3.11']
         include:
           - runner: pytest
@@ -129,7 +145,14 @@ jobs:
 
           - poetry: ~/.local/bin/poetry
 
-          - os: windows-latest
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
             poetry: |-
               "$APPDATA/Python/Scripts/poetry"
 
@@ -176,7 +199,7 @@ jobs:
       fail-fast: false
       matrix:
         runner: [pytest, unittest]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os-abbreviation: [lin, mac, win]
         python-version: ['3.10', '3.11']
         include:
           - runner: pytest
@@ -186,6 +209,15 @@ jobs:
           - runner: unittest
             description: Run unittest tests
             command: python -m unittest
+
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
 
