@@ -1,0 +1,253 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test-current-poetry:
+    name: 3.11 poetry
+
+    strategy:
+      matrix:
+        runner: [pytest, unittest, doctest]
+        os-abbreviation: [lin, mac, win]
+        include:
+          - runner: pytest
+            description: Run all tests (pytest)
+            command: pytest --doctest-modules
+
+          # Including this both here and below in test-compatible-poetry runs
+          # the unittest runner both with frozen poetry.lock package versions
+          # (here) and non-frozen package versions (tests-compatible-poetry).
+          #
+          # This differs from conda, where we're not freezing package versions.
+          # So the unittest runner is listed in test-compatible-conda but not
+          # also test-current-conda. If it were in both conda job definitions,
+          # it would test exactly the same configuration and behavior twice.
+          #
+          - runner: unittest
+            description: Run unittest tests
+            command: python -m unittest
+
+          - runner: doctest
+            description: Run doctests
+            command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
+
+          - poetry: ~/.local/bin/poetry
+
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
+            poetry: |-
+              "$APPDATA/Python/Scripts/poetry"
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # TODO: Print the install script commit hash and Poetry version.
+      - name: Install poetry
+        run: |
+          curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py |
+              python3 -
+
+      - name: Install project and test runner
+        run: ${{ matrix.poetry }} install --only=main,test
+
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.poetry }} run ${{ matrix.command }}
+        timeout-minutes: 2
+
+  test-current-conda:
+    name: 3.11 conda
+
+    strategy:
+      matrix:
+        runner: [pytest, doctest]
+        os-abbreviation: [lin, mac, win]
+        include:
+          - runner: pytest
+            description: Run all tests (pytest)
+            command: pytest --doctest-modules
+
+          # NOTE: The unittest runner is not listed here, because it is listed
+          # in test-compatible-conda below. Unlike test-current-poetry and
+          # test-compatible-poetry, where the former uses uses frozen
+          # poetry.lock package versions and latter doesn't, neither this nor
+          # the other conda job definition (test-compatible-conda) use frozen
+          # package versions. So having it in both of these would always test
+          # exactly the same configuration and behavior.
+
+          - runner: doctest
+            description: Run doctests
+            command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
+
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Provision with micromamba
+        uses: mamba-org/provision-with-micromamba@v15
+
+      - name: Make editable install
+        run: pip install -e .
+
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.command }}
+        timeout-minutes: 2
+
+  test-compatible-poetry:
+    name: 3.10+ poetry
+
+    strategy:
+      matrix:
+        runner: [pytest, unittest]
+        os-abbreviation: [lin, mac, win]
+        python-version: ['3.10', '3.11']
+        include:
+          - runner: pytest
+            description: Run some tests (pytest)
+            command: pytest --ignore=tests/test_{greet,greetall}.txt
+
+          - runner: unittest
+            description: Run unittest tests
+            command: python -m unittest
+
+          - poetry: ~/.local/bin/poetry
+
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
+            poetry: |-
+              "$APPDATA/Python/Scripts/poetry"
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Remove poetry.lock
+        run: rm poetry.lock
+
+      - name: Substitute Python version
+        run: |
+          perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} pyproject.toml
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # TODO: Print the install script commit hash and Poetry version.
+      - name: Install poetry
+        run: |
+          curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py |
+              python3 -
+
+      - name: Install project and test runner
+        run: ${{ matrix.poetry }} install --only=main,test
+
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.poetry }} run ${{ matrix.command }}
+        timeout-minutes: 2
+
+  test-compatible-conda:
+    name: 3.10+ conda
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [pytest, unittest]
+        os-abbreviation: [lin, mac, win]
+        python-version: ['3.10', '3.11']
+        include:
+          - runner: pytest
+            description: Run some tests (pytest)
+            command: pytest --ignore=tests/test_{greet,greetall}.txt
+
+          - runner: unittest
+            description: Run unittest tests
+            command: python -m unittest
+
+          - os-abbreviation: lin  # GNU/Linux (Ubuntu)
+            os: ubuntu-latest
+
+          - os-abbreviation: mac  # macOS
+            os: macos-latest
+
+          - os-abbreviation: win  # Windows
+            os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Substitute Python version in environment.yml
+        run: |
+          perl -i -spwe 's/^ *- python=\K.+$/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} environment.yml
+
+      # If we switch back from "pip install -e ." to "conda develop ." then
+      # this step can and should be removed from this job definition (though it
+      # may of course still be needed in jobs that use poetry instead of conda).
+      - name: Substitute python version in pyproject.toml
+        run: |
+          perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
+              -pyver=${{ matrix.python-version }} pyproject.toml
+
+      - name: Provision with micromamba
+        uses: mamba-org/provision-with-micromamba@v15
+
+      - name: Make editable install
+        run: pip install -e .
+
+      - name: ${{ matrix.description }}
+        run: ${{ matrix.command }}
+        timeout-minutes: 2
