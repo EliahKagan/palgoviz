@@ -11,7 +11,8 @@ instructions](https://python-poetry.org/docs/#installation).
 Note that palgoviz currently only supports Python 3.11. Unlike
 [`conda`](install-with-conda.md), `poetry` does not directly facilitate
 installing Python itself. Depending on what version of Python you already have
-installed, if any, you may need [to install Python](https://wiki.python.org/moin/BeginnersGuide/Download) first.
+installed, if any, you may need [to install
+Python](https://wiki.python.org/moin/BeginnersGuide/Download) first.
 
 Those instructions for installing Python are not specifically for 3.11. [The
 “Linux”
@@ -69,7 +70,6 @@ To obtain and set up palgoviz:
     do](https://docs.github.com/en/get-started/quickstart/fork-a-repo), then
     use your fork’s URL instead.
 
-
 2. Go into the top-level project directory:
 
     ```sh
@@ -110,10 +110,10 @@ after doing so.
 
 ### Troubleshooting
 
-The above approach will probably work fine, but if you have trouble, you can delete
-`poetry.lock` and regenerate it. (One way to do that is just to attempt `poetry
-install` again after deleting it. Running `poetry` and passing no arguments
-lists available commands, including other ways to do this.)
+The above approach will probably work fine, but if you have trouble, you can
+delete `poetry.lock` and regenerate it. (One way to do that is just to attempt
+`poetry install` again after deleting it. Running `poetry` and passing no
+arguments lists available commands, including other ways to do this.)
 
 ### If you want to update them yourself
 

@@ -1,11 +1,15 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 
+<!-- Logo. Tell markdownlint it's OK this precedes <h1>. -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable MD041 -->
 <a href="https://github.com/EliahKagan/palgoviz">
   <img src="https://raw.githubusercontent.com/EliahKagan/palgoviz/main/doc/example.svg"
        alt="Drawing of a nested tuple structure, made using palgoviz.object_graph"
        title="Drawing of a nested tuple structure, made using palgoviz.object_graph"
        width="350px">
 </a>
+<!-- markdownlint-restore -->
 
 # palgoviz - Materials for Python and algorithms, with visualization
 

@@ -1,6 +1,10 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 
+<!-- Rare case where trailing punctuation makes a heading clearer. -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable MD026 -->
 # Decorators run once per decorated definition.
+<!-- markdownlint-restore -->
 
 Decorators are only called when decorated functions are *defined*.
 

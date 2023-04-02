@@ -220,7 +220,8 @@ If you have cloned the repository and you open it in VS Code, you should see a
 notification from the Dev Containers extension. (If you don’t, [see
 below](#alternative-approaches-if-you-dont-see-the-notification).)
 
-On a GNU/Linux system such as Debian or Ubuntu (including a system in WSL 2 or a virtual machine that you are connected to in VS Code), the notification says:
+On a GNU/Linux system such as Debian or Ubuntu (including a system in WSL 2 or
+a virtual machine that you are connected to in VS Code), the notification says:
 
 > Folder contains a Dev Container configuration file. Reopen folder to develop
 > in a container ([learn
