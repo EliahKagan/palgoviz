@@ -32,8 +32,6 @@ jobs:
             description: Run doctests
             command: python -m doctest palgoviz/*.py tests/*.py tests/*.txt
 
-          - poetry: ~/.local/bin/poetry
-
           - os-abbreviation: lin  # GNU/Linux (Ubuntu)
             os: ubuntu-latest
 
@@ -42,8 +40,6 @@ jobs:
 
           - os-abbreviation: win  # Windows
             os: windows-latest
-            poetry: |-
-              "$APPDATA/Python/Scripts/poetry"
 
     runs-on: ${{ matrix.os }}
 
@@ -60,17 +56,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      # TODO: Print the install script commit hash and Poetry version.
       - name: Install poetry
-        run: |
-          curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py |
-              python3 -
+        run: pipx install poetry
 
       - name: Install project and test runner
-        run: ${{ matrix.poetry }} install --only=main,test
+        run: poetry install --only=main,test
 
       - name: ${{ matrix.description }}
-        run: ${{ matrix.poetry }} run ${{ matrix.command }}
+        run: poetry run ${{ matrix.command }}
         timeout-minutes: 2
 
   test-current-conda:
@@ -143,8 +136,6 @@ jobs:
             description: Run unittest tests
             command: python -m unittest
 
-          - poetry: ~/.local/bin/poetry
-
           - os-abbreviation: lin  # GNU/Linux (Ubuntu)
             os: ubuntu-latest
 
@@ -153,8 +144,6 @@ jobs:
 
           - os-abbreviation: win  # Windows
             os: windows-latest
-            poetry: |-
-              "$APPDATA/Python/Scripts/poetry"
 
     runs-on: ${{ matrix.os }}
 
@@ -179,17 +168,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # TODO: Print the install script commit hash and Poetry version.
       - name: Install poetry
-        run: |
-          curl -sSL https://raw.githubusercontent.com/EliahKagan/install.python-poetry.org/ci-repro/palgoviz/install-poetry.py |
-              python3 -
+        run: pipx install poetry
 
       - name: Install project and test runner
-        run: ${{ matrix.poetry }} install --only=main,test
+        run: poetry install --only=main,test
 
       - name: ${{ matrix.description }}
-        run: ${{ matrix.poetry }} run ${{ matrix.command }}
+        run: poetry run ${{ matrix.command }}
         timeout-minutes: 2
 
   test-compatible-conda:
