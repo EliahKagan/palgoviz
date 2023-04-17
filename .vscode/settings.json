@@ -129,6 +129,7 @@
         "metaclass",
         "metaclasses",
         "mhutchie",
+        "micromamba",
         "Miniconda",
         "Miniforge",
         "munge",
@@ -159,6 +160,7 @@
         "pyproject",
         "pytest",
         "PYTHONIOENCODING",
+        "pyver",
         "qualname",
         "quux",
         "radd",
@@ -176,6 +178,7 @@
         "Rhaenyra",
         "roundtrips",
         "saluda",
+        "sarif",
         "scratchwork",
         "semipredicate",
         "setattr",
@@ -225,5 +228,8 @@
         "Windu",
         "writability",
         "wslconfig"
+    ],
+    "cSpell.ignoreWords": [
+        "-spwe"
     ]
 }
