@@ -75,6 +75,12 @@ pwsh -c 'Add-PoshGitToProfile -AllHosts' # Do before "conda init powershell".
 msg '...pwsh customized.'
 
 nl
+msg 'Setting up Poetry (and its plugins)...'
+pipx install poetry
+pipx inject poetry poetry-plugin-sort poetry-plugin-up
+msg '...Poetry set up.'
+
+nl
 msg 'Setting up Mambaforge (which provides conda and mamba)...'
 pushd /tmp
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
