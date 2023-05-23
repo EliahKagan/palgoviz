@@ -116,8 +116,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Provision with micromamba
-        uses: mamba-org/provision-with-micromamba@v16
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
 
       - name: Make editable install
         run: pip install -e .
@@ -242,8 +244,10 @@ jobs:
           perl -i -spwe 's/^python = "~\K[^"]+(?="$)/$pyver/' -- \
               -pyver=${{ matrix.python-version }} pyproject.toml
 
-      - name: Provision with micromamba
-        uses: mamba-org/provision-with-micromamba@v16
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
 
       - name: Make editable install
         run: pip install -e .
