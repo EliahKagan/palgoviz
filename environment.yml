@@ -12,7 +12,7 @@ dependencies:
 
   # For notebooks
   - ipython>=8.10
-  - jupyterlab>=3.1
+  - jupyterlab>=3.1,<4
   - nbdime
 
   # For Graphviz
