@@ -1,8 +1,9 @@
 # Cached Python bytecode
 __pycache__/
 
-# Checkpoints from JupyterLab
+# JupyterLab local files
 .ipynb_checkpoints/
+.jupyter_ystore.db
 
 # Python build files
 /dist/
