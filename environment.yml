@@ -25,12 +25,12 @@ dependencies:
   - pytest
   - pytest-subtests
 
-  # For static analysis (see also Flake8-pyproject)
+  # For static analysis
   - flake8
+  - flake8-pyproject
   - isort
 
   # Some dependencies have no conda packages and so must be obtained from PyPI.
   - pip
   - pip:
     - doctestfn
-    - Flake8-pyproject
