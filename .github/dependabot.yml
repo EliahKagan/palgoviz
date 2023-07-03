@@ -7,6 +7,9 @@ updates:
     allow:
       - dependency-type: all
     open-pull-requests-limit: 20
+    groups:
+      python-dependencies:
+        patterns: ['*']
 
   - package-ecosystem: github-actions
     directory: '/'
