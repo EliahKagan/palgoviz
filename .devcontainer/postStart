@@ -28,7 +28,7 @@ readonly config_path=~/.jupyter/jupyter_lab_config.py
 readonly auto_comment='# postStart generated'
 
 # Python regex for the end of a permitted URL, when the beginning is also okay.
-readonly url_end_pattern='-[89][0-9]{3}\.preview\.app\.github\.dev'
+readonly url_end_pattern='-[89][0-9]{3}\.(?:preview\.)?app\.github\.dev'
 
 in_codespace() {
     # TODO: Find a more reliable way to check if we are running in a codespace.
