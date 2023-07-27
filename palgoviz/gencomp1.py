@@ -792,8 +792,8 @@ def windowed_alt(iterable, n):
     """
     Yield all width-n contiguous subsequences of iterable, in order, as tuples.
 
-    This alternative implementation is much shorter than windowed (above),
-    because this uses something from the more-itertools library.
+    This alternative implementation is significantly shorter than windowed
+    (above), because this uses something from the more-itertools library.
 
     >>> scap = str.capitalize  # To keep the following lines under 80 columns.
     >>> list(windowed_alt(map(scap, ['ab', 'cd', 'efg', 'hi', 'jk']), 0))
@@ -815,6 +815,10 @@ def windowed_alt(iterable, n):
     >>> list(itertools.islice(windowed_alt(range(1_000_000_000_000), 3), 4))
     [(0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, 5)]
     """
+    if n == 0:
+        # Starting in more-itertools 10.0.0, sliding_window requires n > 0.
+        return (() for _ in itertools.chain((None,), iterable))
+
     return more_itertools.sliding_window(iterable, n)
 
 
