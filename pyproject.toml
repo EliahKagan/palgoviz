@@ -28,15 +28,15 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "~3.11"
 graphviz = "^0.20.1"
-ipykernel = "^6.25.0"
-more-itertools = "^10.0.0"
+ipykernel = "^6.25.1"
+more-itertools = "^10.1.0"
 numpy = "^1.25.2"
 sympy = "^1.12"
 
 [tool.poetry.group.notebook.dependencies]
 ipython = "^8.14.0"
-jupyter-collaboration = "^1.0.1"
-jupyterlab = "^4.0.3"
+jupyter-collaboration = "^1.1.0"
+jupyterlab = "^4.0.5"
 nbdime = "^3.2.1"
 
 [tool.poetry.group.test.dependencies]
