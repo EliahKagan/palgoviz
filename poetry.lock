@@ -2292,18 +2292,18 @@ files = [
 
 [[package]]
 name = "ypy-websocket"
-version = "0.12.1"
+version = "0.12.2"
 description = "WebSocket connector for Ypy"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "ypy_websocket-0.12.1-py3-none-any.whl", hash = "sha256:cf6f73ac4d6361f305c1ab6eead63292a5993228c94dda18d6c4997d5ef88b1c"},
-    {file = "ypy_websocket-0.12.1.tar.gz", hash = "sha256:4169dc714ff592968ff7c2f4623045191d0cb1d3f40d0803e715c8a8b3acdde3"},
+    {file = "ypy_websocket-0.12.2-py3-none-any.whl", hash = "sha256:f5a5a523ed27ffa8676dd3337b100c2a337f13f6c42392e95dd24f66f3a6dd5a"},
+    {file = "ypy_websocket-0.12.2.tar.gz", hash = "sha256:1d0f876e6a586248c54b52735798cc473e5800f8cd4acd050b5d5f20f2ef9bf6"},
 ]
 
 [package.dependencies]
 aiosqlite = ">=0.18.0,<1"
-anyio = ">=3.6.2,<4"
+anyio = ">=3.6.2,<5"
 y-py = ">=0.6.0,<0.7.0"
 
 [package.extras]
