@@ -17,13 +17,13 @@ docs = ["sphinx (==6.1.3)", "sphinx-mdinclude (==0.5.3)"]
 
 [[package]]
 name = "anyio"
-version = "3.7.1"
+version = "4.0.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "anyio-3.7.1-py3-none-any.whl", hash = "sha256:91dee416e570e92c64041bd18b900d1d6fa78dff7048769ce5ac5ddad004fbb5"},
-    {file = "anyio-3.7.1.tar.gz", hash = "sha256:44a3c9aba0f5defa43261a8b3efb97891f2bd7d804e0e1f56419befa1adfc780"},
+    {file = "anyio-4.0.0-py3-none-any.whl", hash = "sha256:cfdb2b588b9fc25ede96d8db56ed50848b0b649dca3dd1df0b11f683bb9e0b5f"},
+    {file = "anyio-4.0.0.tar.gz", hash = "sha256:f7ed51751b2c2add651e5747c891b47e26d2a21be5d32d9311dfe9692f3e5d7a"},
 ]
 
 [package.dependencies]
@@ -31,9 +31,9 @@ idna = ">=2.8"
 sniffio = ">=1.1"
 
 [package.extras]
-doc = ["Sphinx", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme (>=1.2.2)", "sphinxcontrib-jquery"]
-test = ["anyio[trio]", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=4)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
-trio = ["trio (<0.22)"]
+doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["anyio[trio]", "coverage[toml] (>=7)", "hypothesis (>=4.0)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
+trio = ["trio (>=0.22)"]
 
 [[package]]
 name = "appnope"
@@ -2292,18 +2292,18 @@ files = [
 
 [[package]]
 name = "ypy-websocket"
-version = "0.12.1"
+version = "0.12.2"
 description = "WebSocket connector for Ypy"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "ypy_websocket-0.12.1-py3-none-any.whl", hash = "sha256:cf6f73ac4d6361f305c1ab6eead63292a5993228c94dda18d6c4997d5ef88b1c"},
-    {file = "ypy_websocket-0.12.1.tar.gz", hash = "sha256:4169dc714ff592968ff7c2f4623045191d0cb1d3f40d0803e715c8a8b3acdde3"},
+    {file = "ypy_websocket-0.12.2-py3-none-any.whl", hash = "sha256:f5a5a523ed27ffa8676dd3337b100c2a337f13f6c42392e95dd24f66f3a6dd5a"},
+    {file = "ypy_websocket-0.12.2.tar.gz", hash = "sha256:1d0f876e6a586248c54b52735798cc473e5800f8cd4acd050b5d5f20f2ef9bf6"},
 ]
 
 [package.dependencies]
 aiosqlite = ">=0.18.0,<1"
-anyio = ">=3.6.2,<4"
+anyio = ">=3.6.2,<5"
 y-py = ">=0.6.0,<0.7.0"
 
 [package.extras]
