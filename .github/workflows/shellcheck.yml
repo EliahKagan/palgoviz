@@ -7,6 +7,6 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Analyze shell scripts
         uses: 'bewuethr/shellcheck-action@v2'
