@@ -12,7 +12,7 @@ project:
 - `Counter` and `defaultdict`
 - `pytest` tests (rather than just as a test runner for other tests)
 - `async` and `await`
-- NumPy (though `notebooks/la_numpy.ipynb` as an extremely minimal skeleton)
+- NumPy (though `notebooks/la_numpy.ipynb` has an extremely minimal skeleton)
 - Requests
 
 Note: The value in this list is its brevity. To prevent it from growing without
