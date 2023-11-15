@@ -19,7 +19,7 @@ channel defaults that vary across distributions.)
 
 All the following `conda` commands can be run with `mamba` instead of `conda`
 [if you have `mamba`
-installed](https://mamba.readthedocs.io/en/latest/installation.html).
+installed](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
 
 The exception is that, on Windows, `conda activate` and `conda deactivate` must
 still be used, due to [limitations in `mamba` PowerShell
