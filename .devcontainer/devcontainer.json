@@ -12,6 +12,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "2gua.rainbow-brackets",
                 "alefragnani.numbered-bookmarks",
                 "bierner.markdown-preview-github-styles",
                 "eamodio.gitlens",
