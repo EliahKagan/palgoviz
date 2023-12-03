@@ -82,7 +82,7 @@ notebook), JupyterLab heeds the `raises-exception` cell tag, printing a
 traceback but continuing execution with the next cell. In contrast, the
 `vscode-jupyter` extension does not yet do so.
 
-Eventually this will be fully fixed in `vscode-jupyter`, at which point VS Code
+Eventually this may be fully fixed in `vscode-jupyter`, at which point VS Code
 may become the best way to work with the notebooks in this project. This is
 related to
 [microsoft/vscode-jupyter#11441](https://github.com/microsoft/vscode-jupyter/issues/11441).
