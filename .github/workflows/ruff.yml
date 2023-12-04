@@ -1,0 +1,13 @@
+name: Ruff Lint
+
+on: [push, pull_request]
+
+jobs:
+  ruff-lint:
+    runs-on: ubuntu-latest
+    name: Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Ruff Lint
+        uses: chartboost/ruff-action@v1

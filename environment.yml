@@ -26,9 +26,8 @@ dependencies:
   - pytest-subtests
 
   # For static analysis
-  - flake8
-  - flake8-pyproject
   - isort
+  - ruff
 
   # Some dependencies have no conda packages and so must be obtained from PyPI.
   - pip
