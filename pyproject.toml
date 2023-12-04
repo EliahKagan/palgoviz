@@ -28,21 +28,21 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "~3.11"
 graphviz = "^0.20.1"
-ipykernel = "^6.25.2"
+ipykernel = "^6.27.1"
 more-itertools = "^10.1.0"
-numpy = "^1.26.0"
+numpy = "^1.26.2"
 sympy = "^1.12"
 
 [tool.poetry.group.notebook.dependencies]
-ipython = "^8.16.0"
+ipython = "^8.18.1"
 jupyter-collaboration = "^1.2.0"
-jupyterlab = "^4.0.6"
-nbdime = "^3.2.1"
+jupyterlab = "^4.0.9"
+nbdime = "^4.0.1"
 
 [tool.poetry.group.test.dependencies]
 doctestfn = "^1.0.3"
 parameterized = "^0.9.0"
-pytest = "^7.4.2"
+pytest = "^7.4.3"
 pytest-subtests = "^0.11.0"
 
 [tool.poetry.group.analyzers.dependencies]
