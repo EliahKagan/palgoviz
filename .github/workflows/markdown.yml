@@ -23,7 +23,7 @@ jobs:
       - name: Check out source repository
         uses: actions/checkout@v5
       - name: Markdown Lint
-        uses: DavidAnson/markdownlint-cli2-action@v20
+        uses: DavidAnson/markdownlint-cli2-action@v21
         with:
           config: '.github/workflows/.markdownlint.json'
           globs: '**/*.md'
