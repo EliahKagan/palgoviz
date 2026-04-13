@@ -42,7 +42,7 @@ nbdime = "^4.0.1"
 [tool.poetry.group.test.dependencies]
 doctestfn = "^1.0.3"
 parameterized = "^0.9.0"
-pytest = "^7.4.4"
+pytest = ">=7.4.4,<10.0.0"
 pytest-subtests = "^0.11.0"
 
 [tool.poetry.group.analyzers.dependencies]
