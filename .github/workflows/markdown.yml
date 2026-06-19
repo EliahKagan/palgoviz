@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Check Markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
 
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Markdown Lint
         uses: DavidAnson/markdownlint-cli2-action@v23
         with:
